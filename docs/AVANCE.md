@@ -30,6 +30,14 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - MiPuesto requiere servidor para Auth, validación y recálculo de pedidos; no se fuerza una exportación estática.
 - El adaptador se decidirá tras una prueba de compatibilidad. Por ahora se conserva Next.js estándar y portable.
 
+### ADR-004 — Supabase remoto como entorno de desarrollo
+
+- Docker se difiere porque la unidad C: tiene solo 2,9 GB libres.
+- Se usará un proyecto remoto independiente llamado `mipuesto-dev`; nunca se reutilizará `yapabot-dev`.
+- Región recomendada: São Paulo (`sa-east-1`), la opción disponible más cercana a Bolivia.
+- El seed se permite solo en este proyecto de desarrollo. Producción no recibirá datos de prueba.
+- Lint y pruebas pgTAP se ejecutarán con `--linked` al final de cada fase.
+
 ## Auditoría de Fase 0
 
 | Control | Estado | Evidencia o pendiente |
@@ -41,6 +49,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Seed con tres modalidades | Pendiente de ejecución | `seed.sql` contiene tres negocios; falta Docker para cargarlo. |
 | Build y pruebas locales | Cumplido | Lint, TypeScript, Vitest y build pasaron el 2026-09-01. |
 | Deploy de prueba | Pendiente manual | Requiere cuenta y repositorio remoto conectados a Cloudflare. |
+| Proyecto Supabase remoto independiente | Pendiente manual | La sesión CLI existe; falta crear `mipuesto-dev` en la organización `JC-Dev`. |
 
 ## Pendientes manuales previstos
 
@@ -63,3 +72,5 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Verificación HTTP local: `/` respondió 200; salud de Supabase respondió 503 `sin_configurar`, como corresponde sin `.env.local`.
 - Next.js 16 añadió a `AGENTS.md` su bloque administrado sin alterar las reglas originales; se conserva para usar documentación versionada.
 - Commits: `21391e9` (base Next.js), `faeb0f7` (esquema y RLS), `cc2c558` (registro y pasos manuales).
+- Se detectó `yapabot-dev` en la cuenta Supabase y se dejó explícitamente fuera del alcance.
+- La migración se adaptó al cambio de Data API de 2026 con permisos explícitos para `anon`, `authenticated` y `service_role`.

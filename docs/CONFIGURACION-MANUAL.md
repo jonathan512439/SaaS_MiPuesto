@@ -36,12 +36,19 @@ Luego ejecutá `npm run dev` y abrí <http://localhost:3000/api/salud/supabase>.
 
 ## 3. Crear y vincular Supabase remoto
 
-1. Creá un proyecto desde <https://supabase.com/dashboard> y guardá la contraseña de base en un gestor seguro.
+1. Creá un proyecto desde <https://supabase.com/dashboard> con estos datos:
+   - Organización: `JC-Dev`.
+   - Nombre: `mipuesto-dev`.
+   - Región: **South America (São Paulo)** / `sa-east-1`.
+   - Plan: Free.
+   - Contraseña de base: generá una nueva y guardala en un gestor seguro. No la compartás por chat ni la guardés en el repositorio.
+   - Si aparece “Automatically expose new tables”, dejalo desactivado; la migración declara cada permiso explícitamente.
+   - Si aparece “Enable RLS by default”, dejalo activado.
 2. Ejecutá `npx supabase login` y completá el flujo del navegador.
 3. Copiá el identificador del proyecto y ejecutá `npx supabase link --project-ref ID_DEL_PROYECTO`.
-4. Previsualizá las migraciones con `npx supabase db push --dry-run`.
-5. Si el resultado es correcto, ejecutá `npx supabase db push`.
-6. Cargá el seed solo en un proyecto de desarrollo o staging con `npx supabase db push --include-seed`. Nunca lo cargués en producción.
+4. Previsualizá las migraciones con `npm run supabase:push:dry`.
+5. Si el resultado es correcto, aplicá migración y seed con `npm run supabase:push:dev`.
+6. Ejecutá `npm run db:lint:linked` y `npm run test:rls:linked`.
 7. Obtené la URL y clave publishable desde **Connect** en Supabase y completá `.env.local`.
 
 La verificación de email, contraseña mínima y recuperación se configurarán y auditarán en la Fase 2.
