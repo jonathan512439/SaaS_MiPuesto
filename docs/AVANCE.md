@@ -4,10 +4,11 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fase en curso: **Fase 0 — Setup e infraestructura**
+- Fase completada: **Fase 0 — Setup e infraestructura**
 - Inicio: 2026-09-01
-- Estado: en ejecución; integración Git verificada, build automático pendiente de corregir
-- Puerta de salida: compilar, conectar Supabase con datos seed y desplegar una URL de prueba.
+- Cierre: 2026-09-01
+- Estado: cerrada; compilación, Supabase remoto, seed, auditorías y despliegue automático verificados
+- Siguiente fase habilitada: **Fase 1 — Sistema de diseño**.
 
 ## Decisiones registradas
 
@@ -52,7 +53,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | RLS habilitado en todas las tablas | Cumplido | Auditoría remota: 7/7 tablas con RLS y políticas; permisos sensibles y función administrativa verificados. |
 | Seed con tres modalidades | Cumplido | Auditoría remota: 3 negocios y las 3 modalidades presentes. |
 | Build y pruebas locales | Cumplido | Next.js y vinext compilan; lint, TypeScript, Vitest, dry-run y chequeo de arranque pasaron el 2026-09-01. |
-| Deploy de prueba | Cumplido | `https://mipuesto-dev.mipuesto-app.workers.dev` respondió HTTP 200; el endpoint de salud confirmó Supabase desde la cuenta exclusiva de MiPuesto. |
+| Deploy de prueba | Cumplido | Workers Builds publicó automáticamente la versión `9a3b3322-d6cc-4c79-8b87-d9a963f22e65` con 100 % del tráfico; `https://mipuesto-dev.mipuesto-app.workers.dev` y el endpoint de salud respondieron HTTP 200. |
 | Proyecto Supabase remoto independiente | Cumplido | `mipuesto-dev` (`afhnxjdqaruwccgsdxzb`) enlazado en `sa-east-1`; `yapabot-dev` permanece fuera de alcance. |
 | Conexión de la aplicación | Cumplido | `.env.local` configurado; `/api/salud/supabase` respondió HTTP 200 con estado `ok`. |
 | Asesores de Supabase | Cumplido con limitación | Sin errores. La única advertencia de seguridad restante es la protección de contraseñas filtradas, disponible desde el plan Pro. |
@@ -60,9 +61,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Pendientes manuales previstos
 
 - Docker queda opcional y diferido hasta disponer de más espacio en C:.
-- Conectar `jonathan512439/SaaS_MiPuesto` al Worker existente en Workers Builds y verificar un despliegue automático desde `main`.
-- Registrar `NEXT_PUBLIC_SITE_URL` en las variables de build y runtime con `https://mipuesto-dev.mipuesto-app.workers.dev`.
-- Después de validar el despliegue automático y con autorización explícita, eliminar el Worker homónimo de la cuenta Tienda Blanco.
+- Con autorización explícita, eliminar el Worker homónimo de la cuenta Tienda Blanco; se conserva por ahora como respaldo y no bloquea el cierre de la fase.
 
 ## Registro de verificaciones
 
@@ -101,4 +100,10 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - El dry-run y el chequeo de arranque volvieron a aprobarse con el artefacto fijado a la cuenta nueva; la medición local registró 81,5 ms de CPU activa.
 - Despliegue independiente completado en `https://mipuesto-dev.mipuesto-app.workers.dev` (versión `6eec2426-2fe9-41a4-86a6-fa9b32c14cb8`); `/` y `/api/salud/supabase` respondieron HTTP 200.
 - En la cuenta nueva se cargaron solamente `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. El Worker de Tienda Blanco no se modificó y queda como respaldo hasta autorizar su eliminación.
-- Auditoría de Workers Builds: tras completar la configuración, el commit vacío `07349fb` activó correctamente el check `Workers Builds: mipuesto-dev` y el build `67c5002d-cc86-4843-9b72-6a655efa9fce`. El build terminó con error antes de crear una versión; la activa sigue siendo el despliegue manual `6eec2426-2fe9-41a4-86a6-fa9b32c14cb8`. La Fase 0 permanece abierta hasta corregir el error del log y repetir la prueba.
+- El primer intento de Workers Builds detectó dos errores de configuración: el comando de deploy tenía un separador incorrecto y las variables públicas de Supabase no estaban disponibles durante el build. Ambos se corrigieron sin exponer claves en Git.
+- Workers Builds publicó correctamente el commit `06c7627` mediante el build `2f82476f-5794-4a79-bd59-b22807cb40b4`; la versión `9a3b3322-d6cc-4c79-8b87-d9a963f22e65` recibió el 100 % del tráfico.
+- La versión automática conserva únicamente los bindings `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, además de Assets; no contiene una clave de servicio.
+- Verificación pública final: `/` respondió HTTP 200 y `/api/salud/supabase` respondió HTTP 200 con `{"estado":"ok","servicio":"supabase"}`.
+- Auditoría de cierre: secretos de cliente, ESLint, TypeScript, Vitest, build de Next.js, build y dry-run de vinext, arranque del Worker, DB lint, RLS remoto y `npm audit` aprobados. La suite Vitest todavía no contiene casos de lógica de negocio, que se incorporarán en las fases correspondientes.
+- Resultado RLS de cierre: 7/7 tablas con RLS, 7/7 con políticas, 6 índices de claves foráneas, 3 negocios seed y las 3 modalidades esperadas.
+- **Fase 0 cerrada** el 2026-09-01. Docker continúa diferido y el Worker de Tienda Blanco queda fuera del alcance hasta recibir autorización explícita para eliminarlo.

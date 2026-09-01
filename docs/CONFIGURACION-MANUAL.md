@@ -82,7 +82,9 @@ No agregués `.env.local`, claves de Supabase ni tokens de Cloudflare al reposit
 
 Cloudflare Pages solo admite Next.js mediante exportación estática. MiPuesto necesita servidor para Auth, validaciones y pedidos, por lo que la ruta vigente es **Cloudflare Workers**.
 
-Estado automatizable: **completado el 2026-09-01**. El Worker está publicado en la cuenta exclusiva de MiPuesto (`a558c055e89f45ad66d4de1ec1e31a2a`) en `https://mipuesto-dev.mipuesto-app.workers.dev`; la portada y la conexión con Supabase respondieron HTTP 200. `wrangler.jsonc` fija ese `account_id` para impedir despliegues accidentales en otra cuenta. Falta conectar el repositorio para que cada push despliegue automáticamente:
+Estado: **completado el 2026-09-01**. El Worker está publicado en la cuenta exclusiva de MiPuesto (`a558c055e89f45ad66d4de1ec1e31a2a`) en `https://mipuesto-dev.mipuesto-app.workers.dev`; la portada y la conexión con Supabase respondieron HTTP 200. `wrangler.jsonc` fija ese `account_id` para impedir despliegues accidentales en otra cuenta. El repositorio quedó conectado y Workers Builds verificó un despliegue automático exitoso desde `main`.
+
+La configuración aplicada queda documentada como referencia:
 
 1. Entrá a <https://dash.cloudflare.com/> y abrí **Workers & Pages**.
 2. Abrí el Worker existente **mipuesto-dev**, entrá a **Settings → Build** y elegí la opción para conectar un repositorio. Autorizá GitHub si lo solicita.
@@ -96,12 +98,12 @@ Estado automatizable: **completado el 2026-09-01**. El Worker está publicado en
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: la clave Publishable de `mipuesto-dev`.
    - `NEXT_PUBLIC_SITE_URL`: `https://mipuesto-dev.mipuesto-app.workers.dev`.
 5. Las dos variables de Supabase ya están cargadas en **Settings → Variables & Secrets** del Worker. Agregá allí únicamente `NEXT_PUBLIC_SITE_URL` con la URL anterior. No agregués `SUPABASE_SERVICE_ROLE_KEY`: no se usa en esta fase.
-6. Guardá y ejecutá **Retry deployment** para probar el flujo automático desde GitHub.
+6. Guardá y ejecutá **Retry deployment** para probar el flujo automático desde GitHub. Esta prueba quedó aprobada con el build `2f82476f-5794-4a79-bd59-b22807cb40b4`.
 7. Abrí la URL asignada y comprobá:
    - `/` carga MiPuesto sin errores visibles.
    - `/api/salud/supabase` devuelve `{"estado":"ok","servicio":"supabase"}`.
    - En **Observability → Logs** no aparecen errores durante ambas visitas.
-8. Copiá la URL exacta del despliegue y comunicala para registrar la evidencia y cerrar formalmente la Fase 0.
+8. La URL y la evidencia se registran en `docs/AVANCE.md`; la Fase 0 quedó cerrada.
 
 El Worker anterior `https://mipuesto-dev.tienda-blanco.workers.dev` permanece temporalmente disponible como respaldo. Se eliminará de la cuenta Tienda Blanco únicamente después de verificar el despliegue automático en la cuenta MiPuesto y recibir autorización explícita.
 
