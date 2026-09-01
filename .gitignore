@@ -1,0 +1,24 @@
+# Dependencias y artefactos de Next.js
+node_modules/
+.next/
+out/
+coverage/
+
+# Variables y secretos locales
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Cloudflare local
+.wrangler/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+*.log
+*.tsbuildinfo
