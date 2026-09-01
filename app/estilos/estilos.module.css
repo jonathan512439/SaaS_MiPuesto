@@ -1,0 +1,350 @@
+@reference "../globals.css";
+
+.pagina {
+  min-height: 100vh;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+
+.contenedor {
+  width: min(calc(100% - var(--spacing-8)), 70rem);
+  margin-inline: auto;
+}
+
+.portada {
+  border-bottom: var(--spacing-2) solid var(--color-accion);
+  padding: var(--spacing-6) 0 var(--spacing-8);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.marca {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  color: inherit;
+  font-size: var(--text-lg);
+  font-weight: 800;
+  text-decoration-thickness: var(--borde-marcado);
+  text-underline-offset: var(--spacing-1);
+}
+
+.presentacion {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
+}
+
+.tituloPrincipal,
+.bajada,
+.version,
+.encabezadoSeccion h2,
+.encabezadoSeccion p,
+.muestraTipo p {
+  margin: 0;
+}
+
+.tituloPrincipal {
+  max-width: 18ch;
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: 2.75rem;
+}
+
+.bajada {
+  max-width: 55ch;
+  margin-top: var(--spacing-4);
+  font-size: var(--text-lg);
+}
+
+.version {
+  flex: 0 0 auto;
+  border-left: var(--borde-marcado) solid currentColor;
+  padding-left: var(--spacing-3);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.seccion {
+  display: grid;
+  grid-template-columns: minmax(13rem, 0.72fr) minmax(0, 1.65fr);
+  gap: var(--spacing-12);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
+  padding: var(--spacing-12) 0;
+}
+
+.seccion > :not(.encabezadoSeccion) {
+  grid-column: 2;
+}
+
+.encabezadoSeccion {
+  grid-column: 1;
+  grid-row: 1 / span 8;
+}
+
+.encabezadoSeccion h2 {
+  color: var(--color-marca);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  line-height: 1.875rem;
+}
+
+.encabezadoSeccion p {
+  max-width: 42ch;
+  margin-top: var(--spacing-3);
+  font-size: var(--text-sm);
+}
+
+.listaColores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: var(--borde-fino) solid var(--color-borde);
+  padding: 0;
+  list-style: none;
+}
+
+.filaColor {
+  display: grid;
+  grid-template-columns: var(--spacing-12) 1fr auto;
+  align-items: center;
+  gap: var(--spacing-3);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
+  padding: var(--spacing-3) 0;
+}
+
+.filaColor:nth-child(odd) {
+  padding-right: var(--spacing-4);
+}
+
+.filaColor:nth-child(even) {
+  border-left: var(--borde-fino) solid var(--color-borde);
+  padding-left: var(--spacing-4);
+}
+
+.muestraColor {
+  display: block;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+}
+
+.colorMarca {
+  background: var(--color-marca);
+}
+
+.colorSuperficie {
+  background: var(--color-superficie);
+}
+
+.colorTexto {
+  background: var(--color-texto);
+}
+
+.colorAccion {
+  background: var(--color-accion);
+}
+
+.colorExito {
+  background: var(--color-exito);
+}
+
+.colorAlerta {
+  background: var(--color-alerta);
+}
+
+.nombreColor {
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.valorColor {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+}
+
+.muestraTipo {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.tipoHero {
+  max-width: 22ch;
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: 2.75rem;
+}
+
+.tipoTitulo {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 2.25rem;
+}
+
+.tipoSubtitulo {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  line-height: 1.875rem;
+}
+
+.tipoCuerpo {
+  max-width: 65ch;
+  font-size: var(--text-base);
+}
+
+.tipoPrecio,
+.precioResumen {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.tipoPrecio {
+  color: var(--color-marca);
+  font-size: var(--text-2xl);
+}
+
+.tipoAyuda {
+  font-size: var(--text-xs);
+}
+
+.grupoBotones,
+.grupoEstados {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.grupoBotones + .grupoBotones {
+  margin-top: var(--spacing-4);
+}
+
+.focoDemostracion {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  outline-offset: 0;
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.cuadriculaCampos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-6);
+}
+
+.cuadriculaCampos > :last-child {
+  grid-column: 1 / -1;
+}
+
+.resumenProducto {
+  display: grid;
+  gap: var(--spacing-4);
+  margin: 0;
+}
+
+.resumenProducto > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
+  padding-bottom: var(--spacing-3);
+}
+
+.resumenProducto dt {
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.resumenProducto dd {
+  margin: 0;
+  text-align: right;
+}
+
+.listaAvisos {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.muestraCarga {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--spacing-6);
+  align-items: center;
+}
+
+.lineasCarga {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.filaCarga {
+  display: grid;
+  grid-template-columns: var(--spacing-12) 1fr;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+@media (max-width: 48rem) {
+  .presentacion {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .seccion {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-6);
+  }
+
+  .seccion > :not(.encabezadoSeccion),
+  .encabezadoSeccion {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 30rem) {
+  .contenedor {
+    width: min(calc(100% - var(--spacing-8)), 70rem);
+  }
+
+  .portada {
+    padding-bottom: var(--spacing-6);
+  }
+
+  .presentacion {
+    margin-top: var(--spacing-6);
+  }
+
+  .tituloPrincipal,
+  .tipoHero {
+    font-size: var(--text-2xl);
+    line-height: 2.25rem;
+  }
+
+  .seccion {
+    padding: var(--spacing-8) 0;
+  }
+
+  .listaColores,
+  .cuadriculaCampos,
+  .muestraCarga {
+    grid-template-columns: 1fr;
+  }
+
+  .filaColor:nth-child(odd),
+  .filaColor:nth-child(even) {
+    border-left: 0;
+    padding-inline: 0;
+  }
+
+  .cuadriculaCampos > :last-child {
+    grid-column: auto;
+  }
+
+  .grupoBotones > * {
+    width: 100%;
+  }
+}

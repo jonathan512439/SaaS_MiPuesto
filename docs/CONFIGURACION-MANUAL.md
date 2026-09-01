@@ -113,3 +113,19 @@ Referencias vigentes:
 
 - <https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/>
 - <https://developers.cloudflare.com/workers/ci-cd/builds/>
+
+## 6. Revisar visualmente la Fase 1
+
+Estado: **completado automáticamente el 2026-09-01 con Chromium Headless real**. La siguiente lista queda como procedimiento reproducible, no como pendiente:
+
+1. Ejecutá `npm run dev` y abrí <http://localhost:3000/estilos>.
+2. En las herramientas del navegador, fijá el ancho en **360 px**.
+3. Confirmá que no exista desplazamiento horizontal y que todos los textos, colores y controles sean legibles.
+4. Recorré la página usando solo `Tab` y `Shift + Tab`; cada control debe mostrar un doble anillo de foco distinguible tanto en fondos claros como oscuros.
+5. Probá los botones normal, deshabilitado y cargando; los cuatro estados de producto deben distinguirse también por símbolo y texto.
+6. Abrí **Revisar producto**. El foco debe quedar dentro del diálogo; `Escape` y el botón de cierre deben cerrarlo.
+7. Cerrá el aviso **Producto publicado** y volvé a mostrarlo con el botón correspondiente.
+8. Activá **Reducir movimiento** en Windows y recargá la página; los esqueletos y la hoja no deben animarse de forma perceptible.
+9. Repetí una revisión breve a un ancho de escritorio de al menos 1280 px.
+
+La auditoría aprobó todos estos controles a 360 px y 1440 px, sin desplazamiento horizontal. La Fase 1 quedó cerrada y no resta ninguna acción manual para su criterio de aceptación.
