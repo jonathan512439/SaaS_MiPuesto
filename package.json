@@ -16,11 +16,15 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "test:rls": "supabase test db --local supabase/tests/database",
+    "test:rls:linked": "supabase test db --linked supabase/tests/database",
     "db:lint": "supabase db lint --local --schema public --fail-on error",
+    "db:lint:linked": "supabase db lint --linked --schema public --fail-on error",
     "security:client-secrets": "node scripts/check-client-secrets.mjs",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
-    "supabase:reset": "supabase db reset"
+    "supabase:reset": "supabase db reset",
+    "supabase:push:dry": "supabase db push --linked --dry-run",
+    "supabase:push:dev": "supabase db push --linked --include-seed"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",

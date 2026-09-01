@@ -312,3 +312,11 @@ grant select, insert, update, delete on table public.productos to authenticated;
 grant select, insert, update, delete on table public.promociones to authenticated;
 grant select, insert, update, delete on table public.pedidos to authenticated;
 grant select, insert, update, delete on table public.eventos_analitica to authenticated;
+
+grant select, insert, update, delete on table public.negocios to service_role;
+grant select, insert, update, delete on table public.categorias to service_role;
+grant select, insert, update, delete on table public.subcategorias to service_role;
+grant select, insert, update, delete on table public.productos to service_role;
+grant select, insert, update, delete on table public.promociones to service_role;
+grant select, insert, update, delete on table public.pedidos to service_role;
+grant select, insert, update, delete on table public.eventos_analitica to service_role;
