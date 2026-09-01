@@ -6,7 +6,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 - Fase en curso: **Fase 0 — Setup e infraestructura**
 - Inicio: 2026-09-01
-- Estado: en ejecución; integración Git conectada, despliegue automático aún no verificado
+- Estado: en ejecución; integración Git verificada, build automático pendiente de corregir
 - Puerta de salida: compilar, conectar Supabase con datos seed y desplegar una URL de prueba.
 
 ## Decisiones registradas
@@ -101,4 +101,4 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - El dry-run y el chequeo de arranque volvieron a aprobarse con el artefacto fijado a la cuenta nueva; la medición local registró 81,5 ms de CPU activa.
 - Despliegue independiente completado en `https://mipuesto-dev.mipuesto-app.workers.dev` (versión `6eec2426-2fe9-41a4-86a6-fa9b32c14cb8`); `/` y `/api/salud/supabase` respondieron HTTP 200.
 - En la cuenta nueva se cargaron solamente `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. El Worker de Tienda Blanco no se modificó y queda como respaldo hasta autorizar su eliminación.
-- Auditoría de Workers Builds: se publicó el commit vacío `a25b732` en `main` para provocar un despliegue automático. Cloudflare no creó una versión nueva y GitHub no recibió checks ni estados para el commit; la versión activa sigue siendo el despliegue manual `6eec2426-2fe9-41a4-86a6-fa9b32c14cb8`. La Fase 0 permanece abierta hasta corregir y repetir esta prueba.
+- Auditoría de Workers Builds: tras completar la configuración, el commit vacío `07349fb` activó correctamente el check `Workers Builds: mipuesto-dev` y el build `67c5002d-cc86-4843-9b72-6a655efa9fce`. El build terminó con error antes de crear una versión; la activa sigue siendo el despliegue manual `6eec2426-2fe9-41a4-86a6-fa9b32c14cb8`. La Fase 0 permanece abierta hasta corregir el error del log y repetir la prueba.
