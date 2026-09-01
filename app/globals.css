@@ -1,2 +1,116 @@
 @import "tailwindcss";
 
+@theme {
+  --color-*: initial;
+  --color-marca: #1f5b63;
+  --color-superficie: #fbfaf8;
+  --color-texto: #15292c;
+  --color-accion: #b3440e;
+  --color-exito: #1e6a45;
+  --color-alerta: #8a5500;
+  --color-borde: color-mix(in srgb, var(--color-texto) 22%, transparent);
+  --color-fondo-suave: color-mix(in srgb, var(--color-marca) 7%, var(--color-superficie));
+  --color-marca-fuerte: color-mix(in srgb, var(--color-marca) 84%, var(--color-texto));
+  --color-accion-fuerte: color-mix(in srgb, var(--color-accion) 82%, var(--color-texto));
+  --color-deshabilitado: color-mix(in srgb, var(--color-texto) 12%, var(--color-superficie));
+
+  --font-*: initial;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.25rem;
+  --text-lg--line-height: 1.625rem;
+  --text-xl: 1.5rem;
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 2rem;
+  --text-2xl--line-height: 2.25rem;
+  --text-3xl: 2.5rem;
+  --text-3xl--line-height: 2.75rem;
+
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+
+  --radius-*: initial;
+  --radius-control: 0.625rem;
+  --radius-panel: 1rem;
+  --radius-sheet: 1.5rem;
+  --radius-status: 999px;
+}
+
+:root {
+  color-scheme: light;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 20rem;
+  background: var(--color-superficie);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a,
+input,
+textarea,
+select,
+[tabindex]:not([tabindex="-1"]) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 0.1875rem solid var(--color-accion);
+  outline-offset: 0.1875rem;
+}
+
+::selection {
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

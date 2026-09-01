@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
+    "test:contraste": "node scripts/check-design-contrast.mjs",
     "test:rls": "supabase test db --local supabase/tests/database",
     "test:rls:linked": "supabase db query --linked --file supabase/tests/remote/fase0-audit.sql",
     "db:lint": "supabase db lint --local --schema public --fail-on error",
