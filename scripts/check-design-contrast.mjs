@@ -52,6 +52,13 @@ const combinaciones = [
   ["superficie", "alerta", 4.5],
 ];
 
+const combinacionesFoco = [
+  ["texto", "superficie", 3],
+  ["superficie", "marca", 3],
+  ["superficie", "accion", 3],
+  ["superficie", "texto", 3],
+];
+
 for (const [frente, fondo, minimo] of combinaciones) {
   const relacion = contraste(colores[frente], colores[fondo]);
 
@@ -62,6 +69,18 @@ for (const [frente, fondo, minimo] of combinaciones) {
   }
 
   console.log(`${frente} sobre ${fondo}: ${relacion.toFixed(2)}:1`);
+}
+
+for (const [frente, fondo, minimo] of combinacionesFoco) {
+  const relacion = contraste(colores[frente], colores[fondo]);
+
+  if (relacion < minimo) {
+    throw new Error(
+      `Foco insuficiente: ${frente} sobre ${fondo} = ${relacion.toFixed(2)}:1; mínimo ${minimo}:1.`,
+    );
+  }
+
+  console.log(`foco ${frente} sobre ${fondo}: ${relacion.toFixed(2)}:1`);
 }
 
 console.log("Control de contraste: correcto.");

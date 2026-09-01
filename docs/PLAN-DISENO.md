@@ -66,7 +66,7 @@ Los fondos suaves, divisores y estados deshabilitados se derivan de esta paleta 
 ## Controles de aceptación
 
 - Contraste automático mínimo: 4.5:1 para texto normal y 3:1 para texto grande.
-- Foco de teclado visible con doble señal: contorno y separación.
+- Foco de teclado visible con doble anillo: superficie clara y borde exterior de texto; al menos uno contrasta 3:1 sobre fondos claros, de marca y de acción.
 - Estado comprensible sin color mediante texto y símbolo.
 - Movimiento desactivable con `prefers-reduced-motion`.
 - Página `/estilos` revisada a 360 px y en escritorio.

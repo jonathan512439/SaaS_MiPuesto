@@ -18,12 +18,12 @@
 
 .marca {
   display: inline-flex;
-  min-height: 2.75rem;
+  min-height: var(--control-alto);
   align-items: center;
   color: inherit;
   font-size: var(--text-lg);
   font-weight: 800;
-  text-decoration-thickness: 0.125rem;
+  text-decoration-thickness: var(--borde-marcado);
   text-underline-offset: var(--spacing-1);
 }
 
@@ -59,7 +59,7 @@
 
 .version {
   flex: 0 0 auto;
-  border-left: 0.125rem solid currentColor;
+  border-left: var(--borde-marcado) solid currentColor;
   padding-left: var(--spacing-3);
   font-size: var(--text-sm);
   font-weight: 700;
@@ -69,7 +69,7 @@
   display: grid;
   grid-template-columns: minmax(13rem, 0.72fr) minmax(0, 1.65fr);
   gap: var(--spacing-12);
-  border-bottom: 0.0625rem solid var(--color-borde);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
   padding: var(--spacing-12) 0;
 }
 
@@ -99,7 +99,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 0;
-  border-top: 0.0625rem solid var(--color-borde);
+  border-top: var(--borde-fino) solid var(--color-borde);
   padding: 0;
   list-style: none;
 }
@@ -109,7 +109,7 @@
   grid-template-columns: var(--spacing-12) 1fr auto;
   align-items: center;
   gap: var(--spacing-3);
-  border-bottom: 0.0625rem solid var(--color-borde);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
   padding: var(--spacing-3) 0;
 }
 
@@ -118,7 +118,7 @@
 }
 
 .filaColor:nth-child(even) {
-  border-left: 0.0625rem solid var(--color-borde);
+  border-left: var(--borde-fino) solid var(--color-borde);
   padding-left: var(--spacing-4);
 }
 
@@ -126,7 +126,7 @@
   display: block;
   width: var(--spacing-12);
   height: var(--spacing-12);
-  border: 0.0625rem solid var(--color-borde);
+  border: var(--borde-fino) solid var(--color-borde);
   border-radius: var(--radius-control);
 }
 
@@ -221,8 +221,9 @@
 }
 
 .focoDemostracion {
-  outline: 0.1875rem solid var(--color-accion);
-  outline-offset: 0.1875rem;
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  outline-offset: 0;
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
 .cuadriculaCampos {
@@ -246,7 +247,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-4);
-  border-bottom: 0.0625rem solid var(--color-borde);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
   padding-bottom: var(--spacing-3);
 }
 

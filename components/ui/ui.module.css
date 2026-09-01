@@ -1,10 +1,10 @@
 .boton {
   display: inline-flex;
-  min-height: 2.75rem;
+  min-height: var(--control-alto);
   align-items: center;
   justify-content: center;
   gap: var(--spacing-2);
-  border: 0.125rem solid transparent;
+  border: var(--borde-marcado) solid transparent;
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-4);
   font-size: var(--text-sm);
@@ -12,9 +12,9 @@
   line-height: 1.25rem;
   cursor: pointer;
   transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease;
+    background-color var(--movimiento-rapido) ease,
+    border-color var(--movimiento-rapido) ease,
+    color var(--movimiento-rapido) ease;
 }
 
 .boton:disabled {
@@ -76,7 +76,7 @@
 .cargador {
   width: var(--spacing-4);
   height: var(--spacing-4);
-  border: 0.125rem solid currentColor;
+  border: var(--borde-marcado) solid currentColor;
   border-right-color: transparent;
   border-radius: 50%;
   animation: girar 700ms linear infinite;
@@ -113,14 +113,14 @@
 
 .campo {
   width: 100%;
-  min-height: 2.75rem;
-  border: 0.125rem solid var(--color-borde);
+  min-height: var(--control-alto);
+  border: var(--borde-marcado) solid var(--color-borde);
   border-radius: var(--radius-control);
   background: var(--color-superficie);
   color: var(--color-texto);
   padding: var(--spacing-2) var(--spacing-3);
   font-size: var(--text-base);
-  transition: border-color 150ms ease;
+  transition: border-color var(--movimiento-rapido) ease;
 }
 
 .campo::placeholder {
@@ -157,7 +157,7 @@
   min-height: 2rem;
   align-items: center;
   gap: var(--spacing-2);
-  border: 0.125rem solid currentColor;
+  border: var(--borde-marcado) solid currentColor;
   border-radius: var(--radius-status);
   padding: var(--spacing-1) var(--spacing-3);
   font-size: var(--text-sm);
@@ -170,7 +170,7 @@
   width: var(--spacing-4);
   height: var(--spacing-4);
   place-items: center;
-  border: 0.0625rem solid currentColor;
+  border: var(--borde-fino) solid currentColor;
   border-radius: 50%;
   font-size: var(--text-xs);
   line-height: 1;
@@ -202,7 +202,7 @@
   max-width: 40rem;
   max-height: 85dvh;
   margin: auto auto 0;
-  border: 0.125rem solid var(--color-marca);
+  border: var(--borde-marcado) solid var(--color-marca);
   border-bottom: 0;
   border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
   padding: 0;
@@ -224,7 +224,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-4);
-  border-bottom: 0.0625rem solid var(--color-borde);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
   padding: var(--spacing-6);
 }
 
@@ -253,10 +253,10 @@
 .cerrarToast {
   display: inline-grid;
   flex: 0 0 auto;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: var(--control-alto);
+  height: var(--control-alto);
   place-items: center;
-  border: 0.125rem solid transparent;
+  border: var(--borde-marcado) solid transparent;
   border-radius: var(--radius-control);
   background: transparent;
   color: inherit;
@@ -279,7 +279,7 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--spacing-3);
-  border-top: 0.0625rem solid var(--color-borde);
+  border-top: var(--borde-fino) solid var(--color-borde);
   padding: var(--spacing-4) var(--spacing-6);
 }
 
@@ -288,7 +288,7 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--spacing-3);
-  border: 0.125rem solid currentColor;
+  border: var(--borde-marcado) solid currentColor;
   border-radius: var(--radius-control);
   padding: var(--spacing-3);
   background: var(--color-superficie);
@@ -323,7 +323,7 @@
   width: var(--spacing-6);
   height: var(--spacing-6);
   place-items: center;
-  border: 0.125rem solid currentColor;
+  border: var(--borde-marcado) solid currentColor;
   border-radius: 50%;
   font-size: var(--text-sm);
   font-weight: 800;
@@ -361,7 +361,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-6);
-  border-block: 0.125rem dashed var(--color-marca);
+  border-block: var(--borde-marcado) dashed var(--color-marca);
   padding: var(--spacing-6) 0;
   background: var(--color-fondo-suave);
 }
