@@ -31,6 +31,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - `vinext check` confirmó compatibilidad funcional: 2/2 imports, App Router, página, layout y Route Handler soportados; el único ajuste requerido era ESM.
 - Se adopta vinext `1.0.0-beta.8` con Workers Cache, sin KV, Cloudflare Images ni funciones experimentales. Next.js estándar se conserva en paralelo mientras vinext permanezca beta.
 - El Worker de desarrollo se llama `mipuesto-dev`, usa fecha de compatibilidad `2026-09-01`, `nodejs_compat` y observabilidad.
+- Cloudflare usa una cuenta exclusiva de MiPuesto (`a558c055e89f45ad66d4de1ec1e31a2a`) y `wrangler.jsonc` fija su `account_id`; no se crearán D1 ni R2 porque esta fase usa Supabase Database y Storage.
 
 ### ADR-004 — Supabase remoto como entorno de desarrollo
 
@@ -51,7 +52,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | RLS habilitado en todas las tablas | Cumplido | Auditoría remota: 7/7 tablas con RLS y políticas; permisos sensibles y función administrativa verificados. |
 | Seed con tres modalidades | Cumplido | Auditoría remota: 3 negocios y las 3 modalidades presentes. |
 | Build y pruebas locales | Cumplido | Next.js y vinext compilan; lint, TypeScript, Vitest, dry-run y chequeo de arranque pasaron el 2026-09-01. |
-| Deploy de prueba | Cumplido | `https://mipuesto-dev.tienda-blanco.workers.dev` respondió HTTP 200; el endpoint de salud confirmó Supabase. |
+| Deploy de prueba | Cumplido | `https://mipuesto-dev.mipuesto-app.workers.dev` respondió HTTP 200; el endpoint de salud confirmó Supabase desde la cuenta exclusiva de MiPuesto. |
 | Proyecto Supabase remoto independiente | Cumplido | `mipuesto-dev` (`afhnxjdqaruwccgsdxzb`) enlazado en `sa-east-1`; `yapabot-dev` permanece fuera de alcance. |
 | Conexión de la aplicación | Cumplido | `.env.local` configurado; `/api/salud/supabase` respondió HTTP 200 con estado `ok`. |
 | Asesores de Supabase | Cumplido con limitación | Sin errores. La única advertencia de seguridad restante es la protección de contraseñas filtradas, disponible desde el plan Pro. |
@@ -60,7 +61,8 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 - Docker queda opcional y diferido hasta disponer de más espacio en C:.
 - Conectar `jonathan512439/SaaS_MiPuesto` al Worker existente en Workers Builds y verificar un despliegue automático desde `main`.
-- Registrar `NEXT_PUBLIC_SITE_URL` en las variables de build y runtime con la URL `workers.dev` ya asignada.
+- Registrar `NEXT_PUBLIC_SITE_URL` en las variables de build y runtime con `https://mipuesto-dev.mipuesto-app.workers.dev`.
+- Después de validar el despliegue automático y con autorización explícita, eliminar el Worker homónimo de la cuenta Tienda Blanco.
 
 ## Registro de verificaciones
 
@@ -95,3 +97,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Auditoría final repetida: lint, TypeScript, Vitest, build Next.js, build vinext, DB lint y RLS remoto aprobados.
 - Primer despliegue real completado en `https://mipuesto-dev.tienda-blanco.workers.dev`; portada y salud de Supabase respondieron HTTP 200.
 - Se cargaron en runtime únicamente `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; ninguna clave de servicio fue enviada a Cloudflare.
+- El perfil Wrangler `mipuesto` se verificó contra la cuenta exclusiva `a558c055e89f45ad66d4de1ec1e31a2a` y el proyecto quedó fijado a esa cuenta mediante `account_id`.
+- El dry-run y el chequeo de arranque volvieron a aprobarse con el artefacto fijado a la cuenta nueva; la medición local registró 81,5 ms de CPU activa.
+- Despliegue independiente completado en `https://mipuesto-dev.mipuesto-app.workers.dev` (versión `6eec2426-2fe9-41a4-86a6-fa9b32c14cb8`); `/` y `/api/salud/supabase` respondieron HTTP 200.
+- En la cuenta nueva se cargaron solamente `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. El Worker de Tienda Blanco no se modificó y queda como respaldo hasta autorizar su eliminación.
