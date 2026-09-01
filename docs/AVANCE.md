@@ -28,7 +28,9 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - El planning indica Cloudflare Pages.
 - La documentación vigente reserva Pages para exportaciones estáticas y dirige Next.js dinámico a Workers.
 - MiPuesto requiere servidor para Auth, validación y recálculo de pedidos; no se fuerza una exportación estática.
-- El adaptador se decidirá tras una prueba de compatibilidad. Por ahora se conserva Next.js estándar y portable.
+- `vinext check` confirmó compatibilidad funcional: 2/2 imports, App Router, página, layout y Route Handler soportados; el único ajuste requerido era ESM.
+- Se adopta vinext `1.0.0-beta.8` con Workers Cache, sin KV, Cloudflare Images ni funciones experimentales. Next.js estándar se conserva en paralelo mientras vinext permanezca beta.
+- El Worker de desarrollo se llama `mipuesto-dev`, usa fecha de compatibilidad `2026-09-01`, `nodejs_compat` y observabilidad.
 
 ### ADR-004 — Supabase remoto como entorno de desarrollo
 
@@ -45,11 +47,11 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 |---|---|---|
 | `.env.local` ignorado desde el primer commit | Cumplido | `git check-ignore -v .env.local` apunta a `.gitignore`. |
 | No hay claves en el historial Git | Cumplido | No se encontraron asignaciones con valor ni JWT en archivos o historial. |
-| Clave privilegiada ausente del cliente | Cumplido | `npm run lint` y `npm run build` ejecutaron el control correctamente. |
+| Clave privilegiada ausente del cliente | Cumplido | El control revisa código y bundles cliente de Next/vinext; se ejecuta en lint, prebuild y postbuild de Workers. |
 | RLS habilitado en todas las tablas | Cumplido | Auditoría remota: 7/7 tablas con RLS y políticas; permisos sensibles y función administrativa verificados. |
 | Seed con tres modalidades | Cumplido | Auditoría remota: 3 negocios y las 3 modalidades presentes. |
-| Build y pruebas locales | Cumplido | Lint, TypeScript, Vitest y build pasaron el 2026-09-01. |
-| Deploy de prueba | Pendiente manual | Requiere cuenta y repositorio remoto conectados a Cloudflare. |
+| Build y pruebas locales | Cumplido | Next.js y vinext compilan; lint, TypeScript, Vitest, dry-run y chequeo de arranque pasaron el 2026-09-01. |
+| Deploy de prueba | Pendiente manual | El artefacto está validado; falta importar GitHub en Cloudflare y confirmar la URL `workers.dev`. |
 | Proyecto Supabase remoto independiente | Cumplido | `mipuesto-dev` (`afhnxjdqaruwccgsdxzb`) enlazado en `sa-east-1`; `yapabot-dev` permanece fuera de alcance. |
 | Conexión de la aplicación | Cumplido | `.env.local` configurado; `/api/salud/supabase` respondió HTTP 200 con estado `ok`. |
 | Asesores de Supabase | Cumplido con limitación | Sin errores. La única advertencia de seguridad restante es la protección de contraseñas filtradas, disponible desde el plan Pro. |
@@ -57,7 +59,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Pendientes manuales previstos
 
 - Docker queda opcional y diferido hasta disponer de más espacio en C:.
-- Crear un repositorio remoto y conectar el despliegue de Cloudflare.
+- Importar `jonathan512439/SaaS_MiPuesto` en Cloudflare Workers, configurar variables y confirmar el primer despliegue.
 
 ## Registro de verificaciones
 
@@ -83,3 +85,10 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Tipos TypeScript generados desde el esquema remoto e integrados en los clientes de navegador y servidor.
 - Validación posterior al enlace: secretos de cliente, ESLint, TypeScript, Vitest y build aprobados.
 - Conexión real desde Next.js validada: `GET /api/salud/supabase` respondió HTTP 200 con `{"estado":"ok","servicio":"supabase"}`; la clave de servicio permanece vacía.
+- Repositorio GitHub vinculado y ramas `main` y `fase-1-sistema-diseno` publicadas sin `.env.local` ni secretos.
+- `vinext check`: el informe inicial fue 89 % por faltar ESM; después de `vinext init`, la comprobación final alcanzó 100 % (8 soportados, 0 parciales, 0 problemas).
+- `npm run build:vinext`: aprobado; el control posterior confirmó que el bundle cliente no contiene la clave privilegiada.
+- Worker local: `/` respondió HTTP 200 y `/api/salud/supabase` respondió HTTP 200 con estado `ok`.
+- `wrangler deploy --dry-run`: aprobado; 928 KiB totales y 266,65 KiB comprimidos.
+- `wrangler check startup`: aprobado; 74,2 ms de CPU activa en la medición local.
+- Auditoría final repetida: lint, TypeScript, Vitest, build Next.js, build vinext, DB lint y RLS remoto aprobados.

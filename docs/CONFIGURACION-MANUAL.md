@@ -69,6 +69,8 @@ El asesor de seguridad muestra `Leaked Password Protection Disabled`. No es un e
 
 ## 4. Publicar el repositorio Git
 
+Estado: **completado el 2026-09-01**. El remoto es `https://github.com/jonathan512439/SaaS_MiPuesto.git`; `main` y `fase-1-sistema-diseno` están publicadas.
+
 1. Creá un repositorio privado vacío en GitHub o GitLab.
 2. Agregá el remoto: `git remote add origin URL_DEL_REPOSITORIO`.
 3. Verificá: `git remote -v`.
@@ -80,15 +82,28 @@ No agregués `.env.local`, claves de Supabase ni tokens de Cloudflare al reposit
 
 Cloudflare Pages solo admite Next.js mediante exportación estática. MiPuesto necesita servidor para Auth, validaciones y pedidos, por lo que la ruta vigente es **Cloudflare Workers**.
 
-Antes de agregar el adaptador se debe aprobar esta desviación del planning. La opción recomendada por Cloudflare para proyectos nuevos es vinext, actualmente beta. Cuando se apruebe:
+Estado automatizable: **completado el 2026-09-01**. vinext está configurado, el build y el dry-run pasan, y el Worker local se conecta a Supabase. Falta completar estos pasos en tu cuenta:
 
-1. Ejecutar la comprobación de compatibilidad de vinext.
-2. Revisar el informe antes de instalar o migrar.
-3. Generar la configuración de Workers y verificar el build local.
-4. En Cloudflare, ir a **Workers & Pages → Create application → Import a repository**.
-5. Conectar el repositorio y la rama `main`.
-6. Agregar las variables públicas como variables de build y runtime. La clave de servicio, si llegara a usarse, debe ser un secreto de runtime, nunca una variable pública.
-7. Confirmar el deploy en el subdominio `workers.dev` antes de conectar `mipuesto.com`.
+1. Entrá a <https://dash.cloudflare.com/> y abrí **Workers & Pages**.
+2. Elegí **Create application → Import a repository** y autorizá GitHub si lo solicita.
+3. Seleccioná `jonathan512439/SaaS_MiPuesto` y configurá:
+   - Nombre del Worker: `mipuesto-dev`.
+   - Rama de producción: `main`.
+   - Directorio raíz: `/` o vacío.
+   - Comando de build: `npm run build:vinext`.
+   - Comando de deploy: `npm run deploy:vinext`.
+4. En **Settings → Build → Build variables and secrets**, agregá:
+   - `NEXT_PUBLIC_SUPABASE_URL`: la URL de `mipuesto-dev`.
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: la clave Publishable de `mipuesto-dev`.
+5. En **Settings → Variables & Secrets** del Worker, agregá esas mismas dos variables para runtime. No agregués `SUPABASE_SERVICE_ROLE_KEY`: no se usa en esta fase.
+6. Guardá y ejecutá el primer deploy. Cuando Cloudflare muestre la URL exacta `workers.dev`, agregala como `NEXT_PUBLIC_SITE_URL` tanto en Build como en runtime y lanzá **Retry deployment** para reconstruir el cliente.
+7. Abrí la URL asignada y comprobá:
+   - `/` carga MiPuesto sin errores visibles.
+   - `/api/salud/supabase` devuelve `{"estado":"ok","servicio":"supabase"}`.
+   - En **Observability → Logs** no aparecen errores durante ambas visitas.
+8. Copiá la URL exacta del despliegue y comunicala para registrar la evidencia y cerrar formalmente la Fase 0.
+
+`.node-version` fija Node.js `22.23.1`. El deploy usa `--keep-vars` para conservar las variables de runtime administradas desde el panel.
 
 Referencias vigentes:
 
