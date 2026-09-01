@@ -4,10 +4,19 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fase en curso: **Fase 0 — Setup e infraestructura**
+- Fases en curso: **Fase 0 — Setup e infraestructura** y **Fase 1 — Sistema de diseño (inicio provisional autorizado)**
 - Inicio: 2026-09-01
 - Estado: en ejecución
 - Puerta de salida: compilar, conectar Supabase con datos seed y desplegar una URL de prueba.
+- Excepción: el 2026-09-01 se autorizó iniciar Fase 1 antes del deploy de Cloudflare. Fase 0 permanece abierta y su criterio no se considera cumplido.
+
+## Estado de Fase 1
+
+- Inicio: 2026-09-01
+- Estado: en ejecución provisional por autorización explícita.
+- Alcance: tokens visuales, componentes base y página interna `/estilos`.
+- Puerta de salida: todos los componentes y estados visibles en `/estilos`, controles de accesibilidad cumplidos y validación manual a 360 px.
+- Plan visual: `docs/PLAN-DISENO.md`.
 
 ## Decisiones registradas
 
