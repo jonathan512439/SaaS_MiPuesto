@@ -35,7 +35,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Control | Estado | Evidencia o pendiente |
 |---|---|---|
 | `.env.local` ignorado desde el primer commit | Cumplido | `git check-ignore -v .env.local` apunta a `.gitignore`. |
-| No hay claves en el historial Git | Cumplido provisional | La auditoría no encontró coincidencias; repetir al cerrar la fase. |
+| No hay claves en el historial Git | Cumplido | No se encontraron asignaciones con valor ni JWT en archivos o historial. |
 | Clave privilegiada ausente del cliente | Cumplido | `npm run lint` y `npm run build` ejecutaron el control correctamente. |
 | RLS habilitado en todas las tablas | Pendiente de ejecución | Migración y prueba pgTAP creadas; falta Docker para aplicarlas. |
 | Seed con tres modalidades | Pendiente de ejecución | `seed.sql` contiene tres negocios; falta Docker para cargarlo. |
@@ -60,3 +60,6 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - `npm run test`: aprobado, todavía sin pruebas unitarias de lógica de negocio.
 - `npm run build`: aprobado; `/` estática y `/api/salud/supabase` dinámica.
 - `npx supabase start`: bloqueado porque Docker/Podman no está instalado.
+- Verificación HTTP local: `/` respondió 200; salud de Supabase respondió 503 `sin_configurar`, como corresponde sin `.env.local`.
+- Next.js 16 añadió a `AGENTS.md` su bloque administrado sin alterar las reglas originales; se conserva para usar documentación versionada.
+- Commits: `21391e9` (base Next.js), `faeb0f7` (esquema y RLS), `cc2c558` (registro y pasos manuales).
