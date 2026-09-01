@@ -13,10 +13,26 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Estado de Fase 1
 
 - Inicio: 2026-09-01
-- Estado: en ejecución provisional por autorización explícita.
+- Estado: implementación completa; cierre pendiente de revisión visual manual.
 - Alcance: tokens visuales, componentes base y página interna `/estilos`.
 - Puerta de salida: todos los componentes y estados visibles en `/estilos`, controles de accesibilidad cumplidos y validación manual a 360 px.
 - Plan visual: `docs/PLAN-DISENO.md`.
+
+### Auditoría de Fase 1
+
+| Control | Estado | Evidencia o pendiente |
+|---|---|---|
+| Plan visual revisado contra prohibiciones | Cumplido | `docs/PLAN-DISENO.md` documenta paleta, tipografía, escalas, layout y correcciones. |
+| Tokens sin valores visuales aislados | Cumplido | Tailwind 4 usa `@theme` en `app/globals.css`; componentes consumen variables del sistema. |
+| Contraste de color | Cumplido | `npm run test:contraste`: todos los pares entre 5,37:1 y 14,53:1. |
+| Estados comprensibles sin color | Cumplido | Disponible, reservado, vendido y oculto combinan símbolo, forma y texto. |
+| Foco visible y movimiento reducido | Cumplido en código | Foco global de 3 px con separación; `prefers-reduced-motion` desactiva animaciones y transiciones. |
+| Siete componentes y sus estados en `/estilos` | Cumplido | HTTP 200; contenido de botones, campos, estados, modal, avisos, vacío y carga presente. |
+| Revisión visual a 360 px y escritorio | Pendiente manual | El navegador integrado no inició por un error de ruta de su runtime. Seguir `docs/CONFIGURACION-MANUAL.md`, sección 6. |
+| Auditoría RLS al final de la fase | Cumplido | 7/7 tablas con RLS y políticas; seed e índices verificados de nuevo. |
+| Build y verificaciones | Cumplido | ESLint, TypeScript, Vitest, contraste, lint SQL, RLS y build aprobados. |
+
+Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1` y `06605f1`.
 
 ## Decisiones registradas
 
