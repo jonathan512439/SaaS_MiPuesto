@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "mipuesto-dev",
+  "account_id": "a558c055e89f45ad66d4de1ec1e31a2a",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": [
     "nodejs_compat"
