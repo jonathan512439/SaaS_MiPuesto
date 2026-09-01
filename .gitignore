@@ -22,3 +22,5 @@ supabase/.temp/
 Thumbs.db
 *.log
 *.tsbuildinfo
+/dist/
+.vinext/
