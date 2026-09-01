@@ -25,6 +25,8 @@ Esta ruta no es necesaria por ahora: el desarrollo usa el proyecto remoto indepe
 
 ## 2. Completar el entorno local con `mipuesto-dev`
 
+Estado: **completado el 2026-09-01**. La ruta `/api/salud/supabase` respondió HTTP 200 y confirmó la conexión.
+
 `.env.local` ya fue creado, está ignorado por Git y tiene la URL de `mipuesto-dev`. Desde **Connect** en el panel de Supabase, copiá únicamente la clave Publishable y pegala en:
 
 ```dotenv

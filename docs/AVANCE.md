@@ -51,12 +51,11 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Build y pruebas locales | Cumplido | Lint, TypeScript, Vitest y build pasaron el 2026-09-01. |
 | Deploy de prueba | Pendiente manual | Requiere cuenta y repositorio remoto conectados a Cloudflare. |
 | Proyecto Supabase remoto independiente | Cumplido | `mipuesto-dev` (`afhnxjdqaruwccgsdxzb`) enlazado en `sa-east-1`; `yapabot-dev` permanece fuera de alcance. |
-| Conexión de la aplicación | Pendiente manual | `.env.local` tiene la URL; falta pegar la clave Publishable y comprobar `/api/salud/supabase`. |
+| Conexión de la aplicación | Cumplido | `.env.local` configurado; `/api/salud/supabase` respondió HTTP 200 con estado `ok`. |
 | Asesores de Supabase | Cumplido con limitación | Sin errores. La única advertencia de seguridad restante es la protección de contraseñas filtradas, disponible desde el plan Pro. |
 
 ## Pendientes manuales previstos
 
-- Pegar la clave Publishable de `mipuesto-dev` en `.env.local` y verificar la ruta de salud.
 - Docker queda opcional y diferido hasta disponer de más espacio en C:.
 - Crear un repositorio remoto y conectar el despliegue de Cloudflare.
 
@@ -83,3 +82,4 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Los asesores dejaron de reportar claves foráneas sin índice y funciones `SECURITY DEFINER` expuestas.
 - Tipos TypeScript generados desde el esquema remoto e integrados en los clientes de navegador y servidor.
 - Validación posterior al enlace: secretos de cliente, ESLint, TypeScript, Vitest y build aprobados.
+- Conexión real desde Next.js validada: `GET /api/salud/supabase` respondió HTTP 200 con `{"estado":"ok","servicio":"supabase"}`; la clave de servicio permanece vacía.
