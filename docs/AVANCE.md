@@ -36,7 +36,8 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Se usará un proyecto remoto independiente llamado `mipuesto-dev`; nunca se reutilizará `yapabot-dev`.
 - Región recomendada: São Paulo (`sa-east-1`), la opción disponible más cercana a Bolivia.
 - El seed se permite solo en este proyecto de desarrollo. Producción no recibirá datos de prueba.
-- Lint y pruebas pgTAP se ejecutarán con `--linked` al final de cada fase.
+- Lint y la auditoría SQL remota se ejecutarán con `--linked` al final de cada fase.
+- `supabase test db --linked` todavía requiere Docker para levantar el runner de pgTAP; mientras Docker siga diferido, `npm run test:rls:linked` valida las mismas invariantes directamente en la base remota y falla ante cualquier incumplimiento.
 
 ## Auditoría de Fase 0
 
@@ -45,16 +46,18 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | `.env.local` ignorado desde el primer commit | Cumplido | `git check-ignore -v .env.local` apunta a `.gitignore`. |
 | No hay claves en el historial Git | Cumplido | No se encontraron asignaciones con valor ni JWT en archivos o historial. |
 | Clave privilegiada ausente del cliente | Cumplido | `npm run lint` y `npm run build` ejecutaron el control correctamente. |
-| RLS habilitado en todas las tablas | Pendiente de ejecución | Migración y prueba pgTAP creadas; falta Docker para aplicarlas. |
-| Seed con tres modalidades | Pendiente de ejecución | `seed.sql` contiene tres negocios; falta Docker para cargarlo. |
+| RLS habilitado en todas las tablas | Cumplido | Auditoría remota: 7/7 tablas con RLS y políticas; permisos sensibles y función administrativa verificados. |
+| Seed con tres modalidades | Cumplido | Auditoría remota: 3 negocios y las 3 modalidades presentes. |
 | Build y pruebas locales | Cumplido | Lint, TypeScript, Vitest y build pasaron el 2026-09-01. |
 | Deploy de prueba | Pendiente manual | Requiere cuenta y repositorio remoto conectados a Cloudflare. |
-| Proyecto Supabase remoto independiente | Pendiente manual | La sesión CLI existe; falta crear `mipuesto-dev` en la organización `JC-Dev`. |
+| Proyecto Supabase remoto independiente | Cumplido | `mipuesto-dev` (`afhnxjdqaruwccgsdxzb`) enlazado en `sa-east-1`; `yapabot-dev` permanece fuera de alcance. |
+| Conexión de la aplicación | Pendiente manual | `.env.local` tiene la URL; falta pegar la clave Publishable y comprobar `/api/salud/supabase`. |
+| Asesores de Supabase | Cumplido con limitación | Sin errores. La única advertencia de seguridad restante es la protección de contraseñas filtradas, disponible desde el plan Pro. |
 
 ## Pendientes manuales previstos
 
-- Instalar e iniciar Docker Desktop para ejecutar Supabase localmente.
-- Crear o seleccionar un proyecto remoto de Supabase y completar `.env.local`.
+- Pegar la clave Publishable de `mipuesto-dev` en `.env.local` y verificar la ruta de salud.
+- Docker queda opcional y diferido hasta disponer de más espacio en C:.
 - Crear un repositorio remoto y conectar el despliegue de Cloudflare.
 
 ## Registro de verificaciones
@@ -74,3 +77,9 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Commits: `21391e9` (base Next.js), `faeb0f7` (esquema y RLS), `cc2c558` (registro y pasos manuales).
 - Se detectó `yapabot-dev` en la cuenta Supabase y se dejó explícitamente fuera del alcance.
 - La migración se adaptó al cambio de Data API de 2026 con permisos explícitos para `anon`, `authenticated` y `service_role`.
+- `mipuesto-dev` quedó enlazado y recibió las migraciones `20260901085203` y `20260901143000`, además del seed idempotente.
+- `npm run db:lint:linked`: aprobado, sin errores de esquema.
+- `npm run test:rls:linked`: aprobado; 7 tablas con RLS, 7 con políticas, 6 índices de FK agregados, 3 negocios y 3 modalidades.
+- Los asesores dejaron de reportar claves foráneas sin índice y funciones `SECURITY DEFINER` expuestas.
+- Tipos TypeScript generados desde el esquema remoto e integrados en los clientes de navegador y servidor.
+- Validación posterior al enlace: secretos de cliente, ESLint, TypeScript, Vitest y build aprobados.

@@ -2,7 +2,7 @@
 
 Estos pasos requieren acceso a cuentas, credenciales o software del equipo y no deben automatizarse sin supervisión.
 
-## 1. Instalar Docker Desktop
+## 1. Instalar Docker Desktop (opcional y diferido)
 
 Supabase local necesita Docker Desktop o Podman. En Windows:
 
@@ -21,20 +21,30 @@ npm run test:rls
 
 `supabase:reset` elimina y reconstruye únicamente la base local. No uses `--linked` para esta comprobación.
 
-## 2. Completar el entorno local
+Esta ruta no es necesaria por ahora: el desarrollo usa el proyecto remoto independiente `mipuesto-dev` para ahorrar espacio en C:.
 
-Después de iniciar Supabase local, ejecutá `npx supabase status -o env`. Copiá `.env.example` como `.env.local` y completá:
+## 2. Completar el entorno local con `mipuesto-dev`
+
+`.env.local` ya fue creado, está ignorado por Git y tiene la URL de `mipuesto-dev`. Desde **Connect** en el panel de Supabase, copiá únicamente la clave Publishable y pegala en:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=PEGAR_AQUI
+```
+
+Dejá `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` vacías en esta fase. No compartás ni commiteés `.env.local`.
+
+Luego ejecutá `npm run dev` y abrí <http://localhost:3000/api/salud/supabase>. Debe responder `{"estado":"ok","servicio":"supabase"}`.
+
+Si más adelante se activa Supabase local, ejecutá `npx supabase status -o env` y reemplazá temporalmente:
 
 - `NEXT_PUBLIC_SUPABASE_URL`: URL local mostrada por la CLI.
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: clave pública/publishable. Si la salida local solo muestra una clave `anon`, podés usar temporalmente `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - `SUPABASE_SERVICE_ROLE_KEY`: clave local de servicio, solo para código servidor futuro.
 - `NEXT_PUBLIC_SITE_URL=http://localhost:3000`.
 
-No compartás ni commiteés `.env.local`.
-
-Luego ejecutá `npm run dev` y abrí <http://localhost:3000/api/salud/supabase>. Debe responder `{"estado":"ok","servicio":"supabase"}`.
-
 ## 3. Crear y vincular Supabase remoto
+
+Estado: **completado el 2026-09-01**. El proyecto vinculado es `mipuesto-dev` (`afhnxjdqaruwccgsdxzb`) en `sa-east-1`.
 
 1. Creá un proyecto desde <https://supabase.com/dashboard> con estos datos:
    - Organización: `JC-Dev`.
@@ -49,9 +59,11 @@ Luego ejecutá `npm run dev` y abrí <http://localhost:3000/api/salud/supabase>.
 4. Previsualizá las migraciones con `npm run supabase:push:dry`.
 5. Si el resultado es correcto, aplicá migración y seed con `npm run supabase:push:dev`.
 6. Ejecutá `npm run db:lint:linked` y `npm run test:rls:linked`.
-7. Obtené la URL y clave publishable desde **Connect** en Supabase y completá `.env.local`.
+7. Obtené la clave Publishable desde **Connect** en Supabase y completá `.env.local` según la sección 2.
 
 La verificación de email, contraseña mínima y recuperación se configurarán y auditarán en la Fase 2.
+
+El asesor de seguridad muestra `Leaked Password Protection Disabled`. No es un error del esquema: esa función requiere el plan Pro. En Free se mantiene registrada como limitación aceptada y en Fase 2 se configurará una contraseña mínima robusta.
 
 ## 4. Publicar el repositorio Git
 
