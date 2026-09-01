@@ -12,6 +12,7 @@
   --color-fondo-suave: color-mix(in srgb, var(--color-marca) 7%, var(--color-superficie));
   --color-marca-fuerte: color-mix(in srgb, var(--color-marca) 84%, var(--color-texto));
   --color-accion-fuerte: color-mix(in srgb, var(--color-accion) 82%, var(--color-texto));
+  --color-peligro: color-mix(in srgb, var(--color-accion) 72%, var(--color-texto));
   --color-deshabilitado: color-mix(in srgb, var(--color-texto) 12%, var(--color-superficie));
 
   --font-*: initial;
