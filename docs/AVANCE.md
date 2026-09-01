@@ -51,7 +51,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | RLS habilitado en todas las tablas | Cumplido | Auditoría remota: 7/7 tablas con RLS y políticas; permisos sensibles y función administrativa verificados. |
 | Seed con tres modalidades | Cumplido | Auditoría remota: 3 negocios y las 3 modalidades presentes. |
 | Build y pruebas locales | Cumplido | Next.js y vinext compilan; lint, TypeScript, Vitest, dry-run y chequeo de arranque pasaron el 2026-09-01. |
-| Deploy de prueba | Pendiente manual | El artefacto está validado; falta importar GitHub en Cloudflare y confirmar la URL `workers.dev`. |
+| Deploy de prueba | Cumplido | `https://mipuesto-dev.tienda-blanco.workers.dev` respondió HTTP 200; el endpoint de salud confirmó Supabase. |
 | Proyecto Supabase remoto independiente | Cumplido | `mipuesto-dev` (`afhnxjdqaruwccgsdxzb`) enlazado en `sa-east-1`; `yapabot-dev` permanece fuera de alcance. |
 | Conexión de la aplicación | Cumplido | `.env.local` configurado; `/api/salud/supabase` respondió HTTP 200 con estado `ok`. |
 | Asesores de Supabase | Cumplido con limitación | Sin errores. La única advertencia de seguridad restante es la protección de contraseñas filtradas, disponible desde el plan Pro. |
@@ -59,7 +59,8 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Pendientes manuales previstos
 
 - Docker queda opcional y diferido hasta disponer de más espacio en C:.
-- Importar `jonathan512439/SaaS_MiPuesto` en Cloudflare Workers, configurar variables y confirmar el primer despliegue.
+- Conectar `jonathan512439/SaaS_MiPuesto` al Worker existente en Workers Builds y verificar un despliegue automático desde `main`.
+- Registrar `NEXT_PUBLIC_SITE_URL` en las variables de build y runtime con la URL `workers.dev` ya asignada.
 
 ## Registro de verificaciones
 
@@ -92,3 +93,5 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - `wrangler deploy --dry-run`: aprobado; 928 KiB totales y 266,65 KiB comprimidos.
 - `wrangler check startup`: aprobado; 74,2 ms de CPU activa en la medición local.
 - Auditoría final repetida: lint, TypeScript, Vitest, build Next.js, build vinext, DB lint y RLS remoto aprobados.
+- Primer despliegue real completado en `https://mipuesto-dev.tienda-blanco.workers.dev`; portada y salud de Supabase respondieron HTTP 200.
+- Se cargaron en runtime únicamente `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; ninguna clave de servicio fue enviada a Cloudflare.

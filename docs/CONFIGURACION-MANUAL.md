@@ -82,12 +82,11 @@ No agregués `.env.local`, claves de Supabase ni tokens de Cloudflare al reposit
 
 Cloudflare Pages solo admite Next.js mediante exportación estática. MiPuesto necesita servidor para Auth, validaciones y pedidos, por lo que la ruta vigente es **Cloudflare Workers**.
 
-Estado automatizable: **completado el 2026-09-01**. vinext está configurado, el build y el dry-run pasan, y el Worker local se conecta a Supabase. Falta completar estos pasos en tu cuenta:
+Estado automatizable: **completado el 2026-09-01**. El Worker está publicado en `https://mipuesto-dev.tienda-blanco.workers.dev`; la portada y la conexión con Supabase respondieron HTTP 200. Falta conectar el repositorio para que cada push despliegue automáticamente:
 
 1. Entrá a <https://dash.cloudflare.com/> y abrí **Workers & Pages**.
-2. Elegí **Create application → Import a repository** y autorizá GitHub si lo solicita.
+2. Abrí el Worker existente **mipuesto-dev**, entrá a **Settings → Build** y elegí la opción para conectar un repositorio. Autorizá GitHub si lo solicita.
 3. Seleccioná `jonathan512439/SaaS_MiPuesto` y configurá:
-   - Nombre del Worker: `mipuesto-dev`.
    - Rama de producción: `main`.
    - Directorio raíz: `/` o vacío.
    - Comando de build: `npm run build:vinext`.
@@ -95,8 +94,9 @@ Estado automatizable: **completado el 2026-09-01**. vinext está configurado, el
 4. En **Settings → Build → Build variables and secrets**, agregá:
    - `NEXT_PUBLIC_SUPABASE_URL`: la URL de `mipuesto-dev`.
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: la clave Publishable de `mipuesto-dev`.
-5. En **Settings → Variables & Secrets** del Worker, agregá esas mismas dos variables para runtime. No agregués `SUPABASE_SERVICE_ROLE_KEY`: no se usa en esta fase.
-6. Guardá y ejecutá el primer deploy. Cuando Cloudflare muestre la URL exacta `workers.dev`, agregala como `NEXT_PUBLIC_SITE_URL` tanto en Build como en runtime y lanzá **Retry deployment** para reconstruir el cliente.
+   - `NEXT_PUBLIC_SITE_URL`: `https://mipuesto-dev.tienda-blanco.workers.dev`.
+5. Las dos variables de Supabase ya están cargadas en **Settings → Variables & Secrets** del Worker. Agregá allí únicamente `NEXT_PUBLIC_SITE_URL` con la URL anterior. No agregués `SUPABASE_SERVICE_ROLE_KEY`: no se usa en esta fase.
+6. Guardá y ejecutá **Retry deployment** para probar el flujo automático desde GitHub.
 7. Abrí la URL asignada y comprobá:
    - `/` carga MiPuesto sin errores visibles.
    - `/api/salud/supabase` devuelve `{"estado":"ok","servicio":"supabase"}`.
