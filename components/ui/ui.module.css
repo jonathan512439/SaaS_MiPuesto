@@ -1,3 +1,5 @@
+@reference "../../app/globals.css";
+
 .boton {
   display: inline-flex;
   min-height: var(--control-alto);
