@@ -7,7 +7,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Fases completadas: **Fase 0 — Setup e infraestructura** y **Fase 1 — Sistema de diseño**.
 - Fase en curso: **Fase 2 — Autenticación y perfil de negocio**.
 - Inicio de Fase 2: 2026-09-01.
-- Estado: implementación en auditoría; faltan la configuración remota de Auth, revisión visual en navegador y despliegue.
+- Estado: implementación desplegada y en auditoría; faltan validar una invitación por correo y completar la revisión visual en navegador.
 - Puerta de salida: un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
 
 ## Estado de Fase 2
@@ -27,6 +27,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Confirmación de correo | Cumplido remoto | La configuración pública informa `mailer_autoconfirm: false`; falta verificar el enlace real luego de SMTP. |
 | Contraseña y rate limits | Cumplido | Confirmado manualmente: contraseña mínima de 10 caracteres, confirmación de correo y límites de Auth activos. |
 | SMTP | Cumplido temporalmente; validación pendiente | Gmail con contraseña de aplicación fue configurado manualmente para pruebas. Ninguna credencial llegó al repositorio; antes de producción se migrará a Resend Free con dominio propio. |
+| Despliegue de Fase 2 | Cumplido | `main` fue publicado automáticamente por Cloudflare; `/login` respondió HTTP 200 en la versión del Worker creada el 2026-09-02. |
 | Revisión visual a 360 px y escritorio | Pendiente | El navegador integrado no tenía una instancia conectada en esta sesión. |
 
 ## Estado de Fase 1
