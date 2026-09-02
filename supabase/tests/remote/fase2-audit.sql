@@ -76,6 +76,18 @@ begin
     raise exception 'Auditoría de restricciones: falta la protección de slugs reservados';
   end if;
 
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.negocios'::regclass
+      and contype = 'c'
+      and pg_get_constraintdef(oid) like '%plantilla_id%'
+      and pg_get_constraintdef(oid) like '%clasica%'
+      and pg_get_constraintdef(oid) like '%moderna%'
+      and pg_get_constraintdef(oid) like '%minimal%'
+  ) then
+    raise exception 'Auditoría de restricciones: falta el conjunto permitido de plantillas';
+  end if;
+
   select count(*)
   into cantidad
   from public.negocios

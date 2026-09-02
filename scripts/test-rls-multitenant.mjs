@@ -166,7 +166,7 @@ try {
     eventos_analitica: eventoB.id,
   };
   const cambios = {
-    negocios: { descripcion: "Intento ajeno" },
+    negocios: { plantilla_id: "moderna" },
     categorias: { nombre: "Intento ajeno" },
     subcategorias: { nombre: "Intento ajeno" },
     productos: { nombre: "Intento ajeno" },
@@ -178,6 +178,27 @@ try {
   for (const tabla of Object.keys(filasB)) {
     await comprobarAislamiento(tabla, filasB[tabla], cambios[tabla]);
   }
+
+  const actualizacionPlantillaPropia = await clienteA
+    .from("negocios")
+    .update({ plantilla_id: "minimal" })
+    .eq("id", negocios[0].id)
+    .select("plantilla_id")
+    .single();
+  comprobar(
+    actualizacionPlantillaPropia.data?.plantilla_id === "minimal",
+    "A no pudo guardar la plantilla de su propio negocio",
+  );
+
+  const verificacionPlantillaAjena = await clienteB
+    .from("negocios")
+    .select("plantilla_id")
+    .eq("id", negocios[1].id)
+    .single();
+  comprobar(
+    verificacionPlantillaAjena.data?.plantilla_id === "clasica",
+    "A alteró la plantilla del negocio de B",
+  );
 
   const lecturaReciproca = await clienteB
     .from("negocios")
@@ -200,7 +221,9 @@ try {
   });
   comprobar(Boolean(insercionAjena.error), "A pudo insertar una categoría en el negocio de B");
 
-  console.log("RLS multi-tenant: 2 usuarios, 7 tablas y función de slug aislados correctamente.");
+  console.log(
+    "RLS multi-tenant: 2 usuarios, 7 tablas, plantillas y función de slug aislados correctamente.",
+  );
 } finally {
   await Promise.allSettled([
     clienteA?.auth.signOut({ scope: "global" }),
