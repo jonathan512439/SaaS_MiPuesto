@@ -30,7 +30,7 @@ Estado: **completado el 2026-09-01**. La ruta `/api/salud/supabase` respondió H
 `.env.local` ya fue creado, está ignorado por Git y tiene la URL de `mipuesto-dev`. Desde **Connect** en el panel de Supabase, copiá únicamente la clave Publishable y pegala en:
 
 ```dotenv
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=PEGAR_AQUI
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_BWDMcD9WG335E-Rq7Qsftg_2bVIPjn-
 ```
 
 Dejá `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` vacías en esta fase. No compartás ni commiteés `.env.local`.
@@ -132,19 +132,19 @@ La auditoría aprobó todos estos controles a 360 px y 1440 px, sin desplazamien
 
 ## 7. Configurar Supabase Auth para la Fase 2
 
-Estado: **pendiente de configuración en el panel**. La aplicación ya implementa login, invitación y recuperación; estos controles requieren modificar opciones de la cuenta y no se automatizan con secretos del navegador.
+Estado: **parcialmente completado el 2026-09-01**. La aplicación ya implementa login, invitación y recuperación; estos controles requieren modificar opciones de la cuenta y no se automatizan con secretos del navegador.
 
 1. Entrá a <https://supabase.com/dashboard/project/afhnxjdqaruwccgsdxzb/auth/providers> y abrí el proveedor **Email**.
 2. Confirmá estas opciones:
-   - **Allow new users to sign up**: desactivado. La comprobación pública actual informó que todavía está activado.
-   - **Confirm email**: activado. La comprobación pública actual informó que está activado.
-   - **Minimum password length**: `10`.
+   - **Allow new users to sign up**: desactivado. Confirmado manualmente.
+   - **Confirm email**: activado. Confirmado manualmente.
+   - **Minimum password length**: `10`. Confirmado manualmente.
    - Si el panel ofrece requisitos adicionales, mantenelos simples por ahora; la longitud de 10 caracteres es obligatoria.
 3. En **Authentication → URL Configuration**, configurá:
    - **Site URL**: `https://mipuesto-dev.mipuesto-app.workers.dev`.
    - **Redirect URLs**: `https://mipuesto-dev.mipuesto-app.workers.dev/actualizar-clave` y `http://localhost:3000/actualizar-clave`.
 4. En **Authentication → Rate Limits**, dejá habilitados los límites de inicio de sesión y envío de correos. El valor por persona para recuperación debe ser como mínimo 60 segundos.
-5. Configurá un SMTP propio en **Authentication → SMTP Settings** antes de invitar un negocio real. El SMTP gratuito predeterminado solo entrega a miembros del equipo de Supabase y limita los correos; no es suficiente para administradores externos.
+5. Configurá un SMTP propio en **Authentication → SMTP Settings** antes de invitar un negocio real. Se recomienda **Resend Free**: permite 3.000 correos por mes y 100 por día sin costo. Para recibir correos en direcciones ajenas a la tuya, verificá primero un dominio propio en Resend; Gmail se reserva solo para pruebas temporales. El SMTP gratuito predeterminado de Supabase solo entrega a miembros del equipo y limita los correos, por lo que no es suficiente para administradores externos.
 6. Después de guardar, desde la raíz del proyecto ejecutá:
 
 ```powershell

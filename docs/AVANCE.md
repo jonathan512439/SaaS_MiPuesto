@@ -20,12 +20,13 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 |---|---|---|
 | Sesión SSR y protección del panel | Cumplido en código | `proxy.ts` renueva cookies y usa `getClaims()`; `/dashboard/configuracion` exige sesión válida. |
 | Login, recuperación y nueva contraseña | Cumplido en código | Rutas `/login`, `/recuperar-clave` y `/actualizar-clave`, con mensajes no enumerables para recuperación. |
-| Alta solo por invitación | Cumplido en código; pendiente remoto | `npm run auth:invitar -- correo@negocio.com` usa la CLI autenticada; falta desactivar `Allow new users to sign up` en Supabase. |
+| Alta solo por invitación | Cumplido | `npm run auth:invitar -- correo@negocio.com` usa la CLI autenticada; `Allow new users to sign up` fue desactivado manualmente. |
 | Perfil básico y validación servidor | Cumplido | Endpoint protegido validado con sesión real: HTTP 201; no acepta `admin_user_id` del navegador. |
 | Slug | Cumplido | Formato, longitud y lista reservada se validan en interfaz, servidor y base; disponibilidad en vivo devuelve solo un booleano. |
 | Aislamiento multi-tenant | Cumplido | `npm run test:rls:linked` creó 2 usuarios temporales y comprobó 7 tablas: sin lectura, actualización ni borrado ajenos. |
 | Confirmación de correo | Cumplido remoto | La configuración pública informa `mailer_autoconfirm: false`; falta verificar el enlace real luego de SMTP. |
-| Contraseña, rate limits y SMTP | Pendiente manual | Configuración de Auth requiere revisión en el panel; el SMTP predeterminado no entrega a administradores fuera del equipo. |
+| Contraseña y rate limits | Cumplido | Confirmado manualmente: contraseña mínima de 10 caracteres, confirmación de correo y límites de Auth activos. |
+| SMTP | Pendiente manual | Se eligió evaluar Resend Free; falta crear la cuenta, verificar un dominio propio y cargar sus credenciales SMTP en Supabase. |
 | Revisión visual a 360 px y escritorio | Pendiente | El navegador integrado no tenía una instancia conectada en esta sesión. |
 
 ## Estado de Fase 1
