@@ -76,14 +76,30 @@ begin
     raise exception 'Auditoría de restricciones: falta la protección de slugs reservados';
   end if;
 
-  select count(*) into cantidad from public.negocios;
+  select count(*)
+  into cantidad
+  from public.negocios
+  where id in (
+    '20000000-0000-4000-8000-000000000001'::uuid,
+    '20000000-0000-4000-8000-000000000002'::uuid,
+    '20000000-0000-4000-8000-000000000003'::uuid
+  );
+
   if cantidad <> 3 then
-    raise exception 'Auditoría seed: se esperaban 3 negocios y se encontraron %', cantidad;
+    raise exception 'Auditoría seed: faltan negocios base; se encontraron % de 3', cantidad;
   end if;
 
-  select count(distinct tipo_negocio) into cantidad from public.negocios;
+  select count(distinct tipo_negocio)
+  into cantidad
+  from public.negocios
+  where id in (
+    '20000000-0000-4000-8000-000000000001'::uuid,
+    '20000000-0000-4000-8000-000000000002'::uuid,
+    '20000000-0000-4000-8000-000000000003'::uuid
+  );
+
   if cantidad <> 3 then
-    raise exception 'Auditoría seed: no están representadas las 3 modalidades';
+    raise exception 'Auditoría seed: los negocios base no representan las 3 modalidades';
   end if;
 end;
 $$;

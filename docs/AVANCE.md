@@ -7,7 +7,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Fases completadas: **Fase 0 — Setup e infraestructura** y **Fase 1 — Sistema de diseño**.
 - Fase en curso: **Fase 2 — Autenticación y perfil de negocio**.
 - Inicio de Fase 2: 2026-09-01.
-- Estado: implementación desplegada y en auditoría; la recuperación de contraseña, definición de contraseña, inicio de sesión y creación de negocio se validaron manualmente con correos reales. Falta completar la revisión visual en navegador y la auditoría RLS de cierre.
+- Estado: implementación desplegada y en auditoría; la recuperación de contraseña, definición de contraseña, inicio de sesión y creación de negocio se validaron manualmente con correos reales. La auditoría RLS de cierre aprobó; falta completar la revisión visual en navegador.
 - Puerta de salida: un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
 
 ## Estado de Fase 2
@@ -23,7 +23,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Alta solo por invitación | Cumplido | `npm run auth:invitar -- correo@negocio.com` usa la CLI autenticada; `Allow new users to sign up` fue desactivado manualmente. |
 | Perfil básico y validación servidor | Cumplido | Endpoint protegido validado con sesión real: HTTP 201; no acepta `admin_user_id` del navegador. |
 | Slug | Cumplido | Formato, longitud y lista reservada se validan en interfaz, servidor y base; disponibilidad en vivo devuelve solo un booleano. |
-| Aislamiento multi-tenant | Cumplido | `npm run test:rls:linked` creó 2 usuarios temporales y comprobó 7 tablas: sin lectura, actualización ni borrado ajenos. |
+| Aislamiento multi-tenant | Cumplido | La auditoría de cierre `npm run test:rls:linked` aprobó con 2 usuarios temporales, 7 tablas y función de slug aislados. El control del seed ahora identifica sus tres IDs base, por lo que sigue siendo válido al crear negocios reales. |
 | Confirmación de correo | Cumplido remoto | La configuración pública informa `mailer_autoconfirm: false`; falta verificar el enlace real luego de SMTP. |
 | Contraseña y rate limits | Cumplido | Confirmado manualmente: contraseña mínima de 10 caracteres, confirmación de correo y límites de Auth activos. |
 | SMTP | Cumplido temporalmente; validación de flujo en curso | Gmail `app.mipuesto@gmail.com` con contraseña de aplicación envió una invitación de prueba. El timeout inicial se debió a un dígito incorrecto en esa contraseña. Ninguna credencial llegó al repositorio; antes de producción se migrará a Resend Free con dominio propio. |
