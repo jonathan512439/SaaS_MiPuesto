@@ -101,6 +101,61 @@ begin
     raise exception 'Auditoría de restricciones: falta el conjunto permitido de paletas';
   end if;
 
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.productos'::regclass
+      and conname = 'productos_contenido_valido_check'
+      and contype = 'c'
+  ) then
+    raise exception 'Auditoría de catálogo: falta validar el contenido de productos';
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.productos'::regclass
+      and conname = 'productos_stock_coherente_check'
+      and contype = 'c'
+  ) then
+    raise exception 'Auditoría de catálogo: falta validar la coherencia de stock';
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'productos'
+      and policyname = 'administra_productos_propios'
+      and with_check like '%categoria_id%'
+      and with_check like '%subcategoria_id%'
+  ) then
+    raise exception 'Auditoría de catálogo: la política de productos no valida sus relaciones';
+  end if;
+
+  if not exists (
+    select 1 from storage.buckets
+    where id = 'productos'
+      and public = true
+      and file_size_limit = 2097152
+      and allowed_mime_types @> array['image/webp', 'image/jpeg', 'image/png']
+  ) then
+    raise exception 'Auditoría de Storage: el bucket productos no tiene la configuración esperada';
+  end if;
+
+  select count(*)
+  into cantidad
+  from pg_policies
+  where schemaname = 'storage'
+    and tablename = 'objects'
+    and policyname = any(array[
+      'admin_lee_imagenes_productos',
+      'admin_sube_imagenes_productos',
+      'admin_actualiza_imagenes_productos',
+      'admin_borra_imagenes_productos'
+    ]);
+
+  if cantidad <> 4 then
+    raise exception 'Auditoría de Storage: se esperaban 4 políticas y se encontraron %', cantidad;
+  end if;
+
   select count(*)
   into cantidad
   from public.negocios
@@ -135,4 +190,5 @@ select
   2 as usuarios_prueba_requeridos,
   3 as negocios_seed,
   3 as modalidades_seed,
+  4 as politicas_storage,
   'ok' as resultado;

@@ -25,6 +25,7 @@ const claveTemporal = `Mp-${randomUUID()}-9aA`;
 const correos = [`rls-a-${marca}@mipuesto.com`, `rls-b-${marca}@mipuesto.com`];
 const usuarios = [];
 const negocios = [];
+const rutasStorage = [];
 let clienteA;
 let clienteB;
 
@@ -111,7 +112,7 @@ try {
     categoria_id: categoriaB.id,
     nombre: "Subcategoría B",
   });
-  await insertarUno(clienteA, "productos", {
+  const productoA = await insertarUno(clienteA, "productos", {
     negocio_id: negocios[0].id,
     categoria_id: categoriaA.id,
     nombre: "Producto A",
@@ -223,14 +224,61 @@ try {
   });
   comprobar(Boolean(insercionAjena.error), "A pudo insertar una categoría en el negocio de B");
 
+  const relacionCruzada = await clienteA.from("productos").insert({
+    negocio_id: negocios[0].id,
+    categoria_id: categoriaB.id,
+    subcategoria_id: subcategoriaB.id,
+    nombre: "Producto con relación ajena",
+    precio: 30,
+  });
+  comprobar(
+    Boolean(relacionCruzada.error),
+    "A pudo vincular su producto con categoría y subcategoría de B",
+  );
+
+  const imagenPrueba = new Uint8Array([
+    0x52, 0x49, 0x46, 0x46, 0x04, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
+  ]);
+  const rutaA = `${negocios[0].id}/${productoA.id}/${randomUUID()}.webp`;
+  const rutaB = `${negocios[1].id}/${productoB.id}/${randomUUID()}.webp`;
+  const rutaIntrusa = `${negocios[1].id}/${productoB.id}/${randomUUID()}.webp`;
+  rutasStorage.push(rutaA, rutaB, rutaIntrusa);
+
+  const subidaA = await clienteA.storage
+    .from("productos")
+    .upload(rutaA, imagenPrueba, { contentType: "image/webp", upsert: false });
+  comprobar(!subidaA.error, `A no pudo subir su imagen: ${subidaA.error?.message}`);
+
+  const subidaB = await clienteB.storage
+    .from("productos")
+    .upload(rutaB, imagenPrueba, { contentType: "image/webp", upsert: false });
+  comprobar(!subidaB.error, `B no pudo subir su imagen: ${subidaB.error?.message}`);
+
+  const subidaEnCarpetaAjena = await clienteA.storage
+    .from("productos")
+    .upload(
+      rutaIntrusa,
+      imagenPrueba,
+      { contentType: "image/webp", upsert: false },
+    );
+  comprobar(Boolean(subidaEnCarpetaAjena.error), "A pudo subir una imagen en la carpeta de B");
+
+  await clienteA.storage.from("productos").remove([rutaB]);
+  const imagenBConservada = await administrador.storage.from("productos").download(rutaB);
+  comprobar(!imagenBConservada.error, "A pudo borrar una imagen de B");
+
   console.log(
-    "RLS multi-tenant: 2 usuarios, 7 tablas, plantillas y función de slug aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 7 tablas, catálogo, Storage y apariencia aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([
     clienteA?.auth.signOut({ scope: "global" }),
     clienteB?.auth.signOut({ scope: "global" }),
   ]);
+
+  if (rutasStorage.length > 0) {
+    await administrador.storage.from("productos").remove(rutasStorage);
+  }
 
   if (negocios.length > 0) {
     await administrador.from("negocios").delete().in(
