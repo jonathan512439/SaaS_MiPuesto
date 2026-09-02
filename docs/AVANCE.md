@@ -8,16 +8,29 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Fase en curso: **Fase 3 — Sistema de plantillas**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
-- Estado: **cerrada** tras validación manual de autenticación, creación de negocio y revisión navegable en móvil y escritorio; la auditoría RLS de cierre aprobó.
-- Puerta de salida: aprobada; un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
+- Estado: **Fase 3 implementada; pendiente de validación visual manual** en móvil y escritorio.
+- Puerta de salida actual: pendiente de confirmar visualmente que las tres plantillas se distinguen con los mismos datos y que la selección persiste al recargar.
 
 ## Estado de Fase 3
 
 - Inicio: 2026-09-02.
-- Estado: **en implementación**.
+- Estado: **implementación y auditorías automáticas cumplidas; revisión manual pendiente**.
 - Plan visual: `docs/PLAN-DISENO-FASE3.md`.
 - Alcance: tres plantillas estructuralmente distintas, comparación con los mismos datos y selección persistida desde el panel.
 - Puerta de salida: las tres plantillas, colocadas lado a lado con los mismos datos, deben verse claramente distintas en estructura.
+
+| Control | Estado | Evidencia o pendiente |
+|---|---|---|
+| Plantilla clásica | Cumplido en código | Carta vertical por categorías, productos en filas y precios alineados. |
+| Plantilla moderna | Cumplido en código | Portada y cuadrícula visual de productos. |
+| Plantilla mínima | Cumplido en código | Contacto prioritario y servicios en lista tipográfica. |
+| Datos por propiedades | Cumplido | Los componentes de `components/templates/` no consultan la red ni la base. |
+| Selección persistida | Cumplido en código | `/dashboard/plantilla` compara las tres opciones; `PATCH /api/negocios/plantilla` valida el identificador y actualiza mediante la sesión autenticada. |
+| Precios centralizados | Cumplido | `lib/precios.ts` concentra el formato en bolivianos y tiene cobertura unitaria. |
+| HTML seguro | Cumplido | Todo texto se renderiza con React; no se usa HTML crudo. |
+| Aislamiento multi-tenant | Cumplido | Dos usuarios temporales confirmaron que cada administrador puede cambiar su plantilla y no la de otro negocio. |
+| Build y Worker local | Cumplido | Next.js y vinext compilaron; el Worker devolvió 307 hacia login para el panel anónimo y 401 para el API anónimo. |
+| Revisión visual a 360 px y escritorio | Pendiente manual | Comparar las tres vistas, guardar una opción y recargar para confirmar persistencia. |
 
 ## Estado de Fase 2
 
@@ -111,6 +124,13 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 - El enlace de invitación lleva a `/actualizar-clave`; ahí el administrador define su contraseña y luego crea o edita un único negocio.
 - La contraseña nunca pasa por código servidor propio durante el login o la recuperación; las operaciones de Auth se realizan con Supabase y la configuración del negocio se valida de nuevo en un Route Handler protegido.
 
+### ADR-007 — Plantillas reutilizables antes del catálogo público
+
+- Las variantes clásica, moderna y mínima reciben el mismo contrato de datos por propiedades y no realizan consultas propias.
+- La vista de Fase 3 es privada y usa datos de demostración junto con el nombre, descripción y WhatsApp reales del negocio.
+- La elección se guarda de forma explícita en `negocios.plantilla_id`; la base limita el valor a las tres variantes y RLS mantiene el aislamiento.
+- El catálogo público por slug no se adelanta: se integrará con productos reales en la Fase 4.
+
 ## Auditoría de Fase 0
 
 | Control | Estado | Evidencia o pendiente |
@@ -132,6 +152,17 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 - Con autorización explícita, eliminar el Worker homónimo de la cuenta Tienda Blanco; se conserva por ahora como respaldo y no bloquea el cierre de la fase.
 
 ## Registro de verificaciones
+
+### 2026-09-02
+
+- Se construyeron tres plantillas estructuralmente distintas con un contrato de datos común y sin consultas internas.
+- El panel incorporó navegación compartida y `/dashboard/plantilla` con comparación, selección local y guardado explícito.
+- La API valida el valor recibido, deriva el administrador de `getClaims()` y actualiza únicamente mediante RLS.
+- `npm run lint`, `npm run typecheck` y `npm run test` aprobaron; 25 pruebas cubren contraste, tokens, perfil, precios y variantes permitidas.
+- `npm run build` y `npm run build:vinext` aprobaron e incluyeron el panel y la API de plantillas.
+- El Worker local confirmó protección anónima: 307 hacia `/login?motivo=sesion` y 401 en el API.
+- `npm run db:lint:linked` aprobó sin errores; `npm run test:rls:linked` aprobó con 7 tablas, 2 usuarios temporales y aislamiento de plantillas.
+- Queda pendiente la confirmación manual a 360 px y escritorio, además de guardar y recargar una selección.
 
 ### 2026-09-01
 
