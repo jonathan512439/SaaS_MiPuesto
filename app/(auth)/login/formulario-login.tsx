@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
 import styles from "../../../components/auth/marco-auth.module.css";
+import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, Campo } from "../../../components/ui";
 import { mensajeErrorInicioSesion } from "../../../lib/auth/mensajes";
-import { crearClienteSupabaseNavegador } from "../../../lib/supabase/client";
 
 type PropiedadesFormularioLogin = {
   sesionRequerida?: boolean;
 };
 
 export function FormularioLogin({ sesionRequerida = false }: PropiedadesFormularioLogin) {
-  const [supabase] = useState(crearClienteSupabaseNavegador);
+  const supabase = useClienteSupabaseNavegador();
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
   const router = useRouter();

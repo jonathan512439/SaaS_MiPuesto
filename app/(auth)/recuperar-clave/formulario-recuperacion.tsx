@@ -4,14 +4,14 @@ import Link from "next/link";
 import { type FormEvent, useState } from "react";
 
 import styles from "../../../components/auth/marco-auth.module.css";
+import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, Campo } from "../../../components/ui";
-import { crearClienteSupabaseNavegador } from "../../../lib/supabase/client";
 
 const MENSAJE_GENERICO =
   "Si el correo corresponde a una cuenta habilitada, recibirás un enlace para cambiar tu contraseña.";
 
 export function FormularioRecuperacion() {
-  const [supabase] = useState(crearClienteSupabaseNavegador);
+  const supabase = useClienteSupabaseNavegador();
   const [enviando, setEnviando] = useState(false);
   const [solicitudTerminada, setSolicitudTerminada] = useState(false);
 

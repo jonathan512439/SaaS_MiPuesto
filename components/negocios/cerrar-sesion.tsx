@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { crearClienteSupabaseNavegador } from "../../lib/supabase/client";
+import { useClienteSupabaseNavegador } from "../supabase/proveedor-supabase-navegador";
 import { Boton } from "../ui";
 
 type PropiedadesCerrarSesion = {
@@ -11,7 +11,7 @@ type PropiedadesCerrarSesion = {
 };
 
 export function CerrarSesion({ className }: PropiedadesCerrarSesion) {
-  const [supabase] = useState(crearClienteSupabaseNavegador);
+  const supabase = useClienteSupabaseNavegador();
   const [cerrando, setCerrando] = useState(false);
   const router = useRouter();
 

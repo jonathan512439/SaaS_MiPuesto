@@ -153,7 +153,11 @@ npm run auth:invitar -- correo-del-negocio@ejemplo.com
 
 La CLI ya enlazada solicita la clave administrativa solo en memoria. No copies `SUPABASE_SERVICE_ROLE_KEY` a `.env.local`, Cloudflare ni Git.
 
-7. Abrí el correo recibido, definí una contraseña en el enlace y comprobá que podés ingresar y crear el negocio. Luego ejecutá:
+7. Abrí el correo recibido, definí una contraseña en el enlace y comprobá que podés ingresar y crear el negocio. La verificación del enlace ocurre en Supabase antes de la redirección: si alguna vez el enlace apunta a una URL incorrecta (por ejemplo, `localhost` desde otro dispositivo), la cuenta puede quedar creada aunque la página no cargue. En ese caso, después de corregir la URL, pedí recuperación de contraseña para ese correo y usá el enlace nuevo; no es necesario reenviar otra invitación.
+
+   Para reducir spam antes de producción, se personalizará la plantilla de invitación y se sustituirá Gmail por un proveedor con dominio propio y registros SPF, DKIM y DMARC. No modifiques aún la plantilla mientras se completa esta validación funcional.
+
+   Luego ejecutá:
 
 ```powershell
 npm run test:rls:linked
