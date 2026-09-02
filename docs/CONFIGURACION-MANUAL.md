@@ -144,7 +144,7 @@ Estado: **parcialmente completado el 2026-09-01**. La aplicación ya implementa 
    - **Site URL**: `https://mipuesto-dev.mipuesto-app.workers.dev`.
    - **Redirect URLs**: `https://mipuesto-dev.mipuesto-app.workers.dev/actualizar-clave` y `http://localhost:3000/actualizar-clave`.
 4. En **Authentication → Rate Limits**, dejá habilitados los límites de inicio de sesión y envío de correos. El valor por persona para recuperación debe ser como mínimo 60 segundos.
-5. Configurá un SMTP propio en **Authentication → SMTP Settings** antes de invitar un negocio real. Se recomienda **Resend Free**: permite 3.000 correos por mes y 100 por día sin costo. Para recibir correos en direcciones ajenas a la tuya, verificá primero un dominio propio en Resend; Gmail se reserva solo para pruebas temporales. El SMTP gratuito predeterminado de Supabase solo entrega a miembros del equipo y limita los correos, por lo que no es suficiente para administradores externos.
+5. Configurá un SMTP propio en **Authentication → SMTP Settings** antes de invitar un negocio real. **Completado temporalmente el 2026-09-01 con Gmail y contraseña de aplicación**, sin incorporar credenciales al proyecto. Se recomienda migrar a **Resend Free** para producción: permite 3.000 correos por mes y 100 por día sin costo. Para recibir correos en direcciones ajenas a la tuya, verificá primero un dominio propio en Resend. El SMTP gratuito predeterminado de Supabase solo entrega a miembros del equipo y limita los correos, por lo que no es suficiente para administradores externos.
 6. Después de guardar, desde la raíz del proyecto ejecutá:
 
 ```powershell

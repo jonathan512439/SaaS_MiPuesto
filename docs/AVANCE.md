@@ -26,7 +26,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Aislamiento multi-tenant | Cumplido | `npm run test:rls:linked` creó 2 usuarios temporales y comprobó 7 tablas: sin lectura, actualización ni borrado ajenos. |
 | Confirmación de correo | Cumplido remoto | La configuración pública informa `mailer_autoconfirm: false`; falta verificar el enlace real luego de SMTP. |
 | Contraseña y rate limits | Cumplido | Confirmado manualmente: contraseña mínima de 10 caracteres, confirmación de correo y límites de Auth activos. |
-| SMTP | Pendiente manual | Se eligió evaluar Resend Free; falta crear la cuenta, verificar un dominio propio y cargar sus credenciales SMTP en Supabase. |
+| SMTP | Cumplido temporalmente; validación pendiente | Gmail con contraseña de aplicación fue configurado manualmente para pruebas. Ninguna credencial llegó al repositorio; antes de producción se migrará a Resend Free con dominio propio. |
 | Revisión visual a 360 px y escritorio | Pendiente | El navegador integrado no tenía una instancia conectada en esta sesión. |
 
 ## Estado de Fase 1
