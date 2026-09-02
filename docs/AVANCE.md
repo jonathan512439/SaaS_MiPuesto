@@ -5,11 +5,19 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Estado actual
 
 - Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño** y **Fase 2 — Autenticación y perfil de negocio**.
-- Próxima fase: **Fase 3 — Sistema de plantillas**.
+- Fase en curso: **Fase 3 — Sistema de plantillas**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Estado: **cerrada** tras validación manual de autenticación, creación de negocio y revisión navegable en móvil y escritorio; la auditoría RLS de cierre aprobó.
 - Puerta de salida: aprobada; un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
+
+## Estado de Fase 3
+
+- Inicio: 2026-09-02.
+- Estado: **en implementación**.
+- Plan visual: `docs/PLAN-DISENO-FASE3.md`.
+- Alcance: tres plantillas estructuralmente distintas, comparación con los mismos datos y selección persistida desde el panel.
+- Puerta de salida: las tres plantillas, colocadas lado a lado con los mismos datos, deben verse claramente distintas en estructura.
 
 ## Estado de Fase 2
 
