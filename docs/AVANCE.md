@@ -5,9 +5,28 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Estado actual
 
 - Fases completadas: **Fase 0 — Setup e infraestructura** y **Fase 1 — Sistema de diseño**.
-- Cierre de Fase 1: 2026-09-01.
-- Estado: Fase 1 cerrada; queda habilitado iniciar la **Fase 2 — Autenticación y perfil de negocio**.
-- Puerta de salida aprobada: todos los componentes y estados están visibles en `/estilos`, los controles de accesibilidad se cumplen y la interfaz fue validada a 360 px y 1440 px.
+- Fase en curso: **Fase 2 — Autenticación y perfil de negocio**.
+- Inicio de Fase 2: 2026-09-01.
+- Estado: implementación en auditoría; faltan la configuración remota de Auth, revisión visual en navegador y despliegue.
+- Puerta de salida: un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
+
+## Estado de Fase 2
+
+- Modelo de alta: solo por invitación; no existe registro público en la aplicación.
+- Plan visual: `docs/PLAN-DISENO-FASE2.md`.
+- Políticas y pruebas RLS: `docs/RLS-POLITICAS.md`.
+
+| Control | Estado | Evidencia o pendiente |
+|---|---|---|
+| Sesión SSR y protección del panel | Cumplido en código | `proxy.ts` renueva cookies y usa `getClaims()`; `/dashboard/configuracion` exige sesión válida. |
+| Login, recuperación y nueva contraseña | Cumplido en código | Rutas `/login`, `/recuperar-clave` y `/actualizar-clave`, con mensajes no enumerables para recuperación. |
+| Alta solo por invitación | Cumplido en código; pendiente remoto | `npm run auth:invitar -- correo@negocio.com` usa la CLI autenticada; falta desactivar `Allow new users to sign up` en Supabase. |
+| Perfil básico y validación servidor | Cumplido | Endpoint protegido validado con sesión real: HTTP 201; no acepta `admin_user_id` del navegador. |
+| Slug | Cumplido | Formato, longitud y lista reservada se validan en interfaz, servidor y base; disponibilidad en vivo devuelve solo un booleano. |
+| Aislamiento multi-tenant | Cumplido | `npm run test:rls:linked` creó 2 usuarios temporales y comprobó 7 tablas: sin lectura, actualización ni borrado ajenos. |
+| Confirmación de correo | Cumplido remoto | La configuración pública informa `mailer_autoconfirm: false`; falta verificar el enlace real luego de SMTP. |
+| Contraseña, rate limits y SMTP | Pendiente manual | Configuración de Auth requiere revisión en el panel; el SMTP predeterminado no entrega a administradores fuera del equipo. |
+| Revisión visual a 360 px y escritorio | Pendiente | El navegador integrado no tenía una instancia conectada en esta sesión. |
 
 ## Estado de Fase 1
 
@@ -73,6 +92,13 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 - Tailwind 4 define los tokens en `app/globals.css`; los módulos CSS los comparten mediante `@reference` para evitar duplicación y la inyección incorrecta de estilos globales.
 - Los componentes base cubren sus estados interactivos y muestran foco de alto contraste en superficies claras y oscuras.
 - `npm run test:tokens` y `npm run test:contraste` forman parte de la suite para impedir colores, tamaños, espaciados o combinaciones de contraste fuera del sistema.
+
+### ADR-006 — Alta controlada de administradores
+
+- MiPuesto vende suscripciones personalmente; por eso no se publicará un formulario de registro.
+- Las cuentas se habilitan con `npm run auth:invitar -- correo@negocio.com`, que usa la sesión existente de Supabase CLI para obtener la clave administrativa solo durante el proceso local.
+- El enlace de invitación lleva a `/actualizar-clave`; ahí el administrador define su contraseña y luego crea o edita un único negocio.
+- La contraseña nunca pasa por código servidor propio durante el login o la recuperación; las operaciones de Auth se realizan con Supabase y la configuración del negocio se valida de nuevo en un Route Handler protegido.
 
 ## Auditoría de Fase 0
 

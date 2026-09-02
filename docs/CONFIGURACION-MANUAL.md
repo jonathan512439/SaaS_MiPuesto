@@ -129,3 +129,46 @@ Estado: **completado automáticamente el 2026-09-01 con Chromium Headless real**
 9. Repetí una revisión breve a un ancho de escritorio de al menos 1280 px.
 
 La auditoría aprobó todos estos controles a 360 px y 1440 px, sin desplazamiento horizontal. La Fase 1 quedó cerrada y no resta ninguna acción manual para su criterio de aceptación.
+
+## 7. Configurar Supabase Auth para la Fase 2
+
+Estado: **pendiente de configuración en el panel**. La aplicación ya implementa login, invitación y recuperación; estos controles requieren modificar opciones de la cuenta y no se automatizan con secretos del navegador.
+
+1. Entrá a <https://supabase.com/dashboard/project/afhnxjdqaruwccgsdxzb/auth/providers> y abrí el proveedor **Email**.
+2. Confirmá estas opciones:
+   - **Allow new users to sign up**: desactivado. La comprobación pública actual informó que todavía está activado.
+   - **Confirm email**: activado. La comprobación pública actual informó que está activado.
+   - **Minimum password length**: `10`.
+   - Si el panel ofrece requisitos adicionales, mantenelos simples por ahora; la longitud de 10 caracteres es obligatoria.
+3. En **Authentication → URL Configuration**, configurá:
+   - **Site URL**: `https://mipuesto-dev.mipuesto-app.workers.dev`.
+   - **Redirect URLs**: `https://mipuesto-dev.mipuesto-app.workers.dev/actualizar-clave` y `http://localhost:3000/actualizar-clave`.
+4. En **Authentication → Rate Limits**, dejá habilitados los límites de inicio de sesión y envío de correos. El valor por persona para recuperación debe ser como mínimo 60 segundos.
+5. Configurá un SMTP propio en **Authentication → SMTP Settings** antes de invitar un negocio real. El SMTP gratuito predeterminado solo entrega a miembros del equipo de Supabase y limita los correos; no es suficiente para administradores externos.
+6. Después de guardar, desde la raíz del proyecto ejecutá:
+
+```powershell
+npm run auth:invitar -- correo-del-negocio@ejemplo.com
+```
+
+La CLI ya enlazada solicita la clave administrativa solo en memoria. No copies `SUPABASE_SERVICE_ROLE_KEY` a `.env.local`, Cloudflare ni Git.
+
+7. Abrí el correo recibido, definí una contraseña en el enlace y comprobá que podés ingresar y crear el negocio. Luego ejecutá:
+
+```powershell
+npm run test:rls:linked
+```
+
+Si el correo no llega, revisá el log de Auth y la carpeta de spam. No desactives confirmación de correo para resolverlo.
+
+## 8. Revisión visual manual de la Fase 2
+
+Estado: **pendiente**. La sesión no tenía un navegador integrado disponible para automatizar esta inspección.
+
+1. Iniciá `npm run dev` y abrí `http://localhost:3000/login`.
+2. Con las herramientas de desarrollo, revisá `/login`, `/recuperar-clave`, `/actualizar-clave` y `/dashboard/configuracion` a **360 px** y a al menos **1280 px**.
+3. Confirmá que no existe desplazamiento horizontal, que cada control se puede alcanzar con `Tab` y que el foco se distingue con claridad.
+4. Ingresá con una cuenta invitada: el panel debe abrir y permitir guardar los datos del negocio.
+5. Probá un slug válido, uno reservado (`admin`) y uno ya tomado. Los mensajes deben ser claros y el guardado debe bloquearse cuando corresponda.
+6. Abrí una ventana privada e intentá entrar a `/dashboard/configuracion`; debe redirigir a `/login`.
+7. Pedí recuperación con un correo existente y con uno inexistente: el mensaje visible debe ser idéntico en ambos casos. Comprobá que el enlace de un correo real termina en `/actualizar-clave`.
