@@ -194,9 +194,9 @@ Estado: **completado manualmente el 2026-09-02**. La implementación, pruebas, c
 Estado: **despliegue automático completado; recorrido autenticado pendiente**. Las pruebas, compilaciones, RLS, Storage y verificación HTTP local y pública ya aprobaron; este recorrido confirma el uso real con sesión, fotografías y el negocio creado.
 
 1. Esperá a que Cloudflare termine el despliegue de `main` y abrí `https://mipuesto-dev.mipuesto-app.workers.dev/login`.
-2. Ingresá con tu cuenta y abrí **Catálogo**. En las herramientas del navegador fijá un ancho de **360 px** y comprobá que no exista desplazamiento horizontal.
-3. Creá una categoría y una subcategoría. Renombrá ambas, probá **Subir** y **Bajar** cuando existan dos elementos, y confirmá que el orden se conserva al recargar.
-4. Creá un producto con nombre, descripción, precio, categoría, subcategoría y **Controlar existencias**. Probá primero una cantidad mayor a cero y luego cero; el estado debe cambiar a **Agotado**.
+2. Ingresá con tu cuenta y abrí **Catálogo**. En las herramientas del navegador fijá un ancho de **360 px** y comprobá que la marca MiPuesto, las tres opciones de navegación y **Salir** sean legibles, y que no exista desplazamiento horizontal.
+3. Creá al menos seis categorías y una subcategoría. Comprobá que la lista muestre cinco categorías por página, que **Anterior** y **Siguiente** funcionen, y probá **Cambiar nombre** y **Eliminar categoría**.
+4. Usá **Crear producto** y después **Crear el primer producto** si la lista está vacía. Ambos accesos deben llevarte al formulario y enfocar el nombre. Creá un producto con nombre, descripción, precio, categoría, subcategoría y **Controlar existencias**. Probá primero una cantidad mayor a cero y luego cero; el estado debe cambiar a **Agotado**.
 5. Agregá cuatro fotografías JPEG, PNG o WebP menores de 5 MB. Deben verse las cuatro miniaturas y el indicador **4 de 4 fotografías**; no debe permitir una quinta.
 6. Abrí el enlace público `https://mipuesto-dev.mipuesto-app.workers.dev/TU-SLUG` en una ventana privada. Confirmá el nombre, plantilla, paleta, categoría, subcategoría, producto, precio, foto y estado agotado.
 7. Desde el panel usá **Ocultar** y recargá la ventana privada: el producto debe desaparecer de inmediato. Volvé a usar **Mostrar** y comprobá que reaparece.

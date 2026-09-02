@@ -23,7 +23,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 | Control | Estado | Evidencia o pendiente |
 |---|---|---|
-| Categorías y subcategorías | Cumplido en código | Crear, renombrar, reordenar y borrar desde `/dashboard/catalogo`; los productos se conservan al borrar su agrupación. |
+| Categorías y subcategorías | Cumplido en código | Crear, cambiar el nombre y eliminar desde `/dashboard/catalogo`; se muestran cinco por página para evitar recorridos extensos y los productos se conservan al borrar su agrupación. |
 | Productos y existencias | Cumplido en código | Alta, edición, borrado, precio en bolivianos, organización, `controla_stock`, cantidad y estado agotado validados también en servidor. |
 | Visibilidad rápida | Cumplido en código y pruebas | El cambio se realiza desde la lista; la consulta pública exige `visible = true` aunque exista una sesión administrativa. |
 | Fotografías | Cumplido en código y pruebas | Hasta cuatro; JPEG, PNG o WebP; máximo original de 5 MB; redimensionado a 1600 px, WebP en cliente, firma y límite de 2 MB comprobados en servidor. |
@@ -34,8 +34,10 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Revisión visual a 360 px y escritorio | Pendiente manual | No había navegador integrado disponible. Revisar el panel, cuatro fotos, ocultar/mostrar, borrado completo y `/{slug}` después del despliegue automático. |
 
 - Despliegue automático de `fd82a73` comprobado el 2026-09-02: `/sabor-camba` y `/api/salud/supabase` respondieron HTTP 200; el catálogo contenía el producto y la subcategoría seed, y `/dashboard/catalogo` sin sesión respondió 307 hacia `/login?motivo=sesion`.
+- Ajuste de usabilidad posterior: cabecera distribuida en dos filas en móvil, marca MiPuesto visible, navegación legible, cierre de sesión compacto, categorías paginadas de cinco en cinco y acciones con nombres descriptivos. Los accesos para crear productos ahora desplazan la vista al formulario y enfocan el primer campo.
+- La fotografía de perfil o logo y la portada propias de cada negocio permanecen planificadas para la Fase 7, junto con la configuración ampliada de la tienda.
 
-Commits de implementación: `a8dd48c`, `2694f5b`, `22f1752`, `c0cc6cc`, `aa85487`, `0e778de`, `69dc0de` y `27c5244`.
+Commits de implementación: `a8dd48c`, `2694f5b`, `22f1752`, `c0cc6cc`, `aa85487`, `0e778de`, `69dc0de`, `27c5244`, `f10839e` y `323e811`.
 
 ## Estado de Fase 3
 
