@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
 
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+const cssPaletas = readFileSync(
+  new URL("../components/templates/tema-catalogo.module.css", import.meta.url),
+  "utf8",
+);
 
 function leerColor(token) {
   const coincidencia = css.match(
@@ -34,6 +38,27 @@ function contraste(colorA, colorB) {
   const clara = Math.max(luminanciaA, luminanciaB);
   const oscura = Math.min(luminanciaA, luminanciaB);
   return (clara + 0.05) / (oscura + 0.05);
+}
+
+function leerColoresPaleta(paleta) {
+  const bloque = cssPaletas.match(
+    new RegExp(`\\.tema\\[data-paleta="${paleta}"\\]\\s*\\{([\\s\\S]*?)\\}`),
+  )?.[1];
+
+  if (!bloque) throw new Error(`No se encontró la paleta ${paleta}.`);
+
+  return Object.fromEntries(
+    ["superficie", "texto", "marca", "sobre-marca", "accion", "sobre-accion", "exito", "alerta"].map(
+      (token) => {
+        const valor = bloque.match(
+          new RegExp(`--catalogo-${token}:\\s*(#[0-9a-fA-F]{6})\\s*;`),
+        )?.[1];
+
+        if (!valor) throw new Error(`No se encontró --catalogo-${token} en ${paleta}.`);
+        return [token, valor];
+      },
+    ),
+  );
 }
 
 const colores = Object.fromEntries(
@@ -84,3 +109,27 @@ for (const [frente, fondo, minimo] of combinacionesFoco) {
 }
 
 console.log("Control de contraste: correcto.");
+
+for (const paleta of ["mercado", "tierra", "oceano", "noche"]) {
+  const coloresPaleta = leerColoresPaleta(paleta);
+  const pares = [
+    ["texto", "superficie"],
+    ["marca", "superficie"],
+    ["accion", "superficie"],
+    ["sobre-marca", "marca"],
+    ["sobre-accion", "accion"],
+    ["exito", "superficie"],
+    ["alerta", "superficie"],
+  ];
+
+  for (const [frente, fondo] of pares) {
+    const relacion = contraste(coloresPaleta[frente], coloresPaleta[fondo]);
+    if (relacion < 4.5) {
+      throw new Error(
+        `Contraste insuficiente en ${paleta}: ${frente} sobre ${fondo} = ${relacion.toFixed(2)}:1.`,
+      );
+    }
+  }
+
+  console.log(`Paleta ${paleta}: contraste AA correcto.`);
+}

@@ -2,25 +2,38 @@ import Image from "next/image";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
+import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-minimal.module.css";
 
-export function PlantillaMinimal({ datos }: PropiedadesPlantilla) {
+export function PlantillaMinimal({ datos, paleta = "mercado" }: PropiedadesPlantilla) {
   return (
-    <article className={styles.plantilla} aria-label="Vista previa de plantilla mínima">
+    <article
+      className={`${temaStyles.tema} ${styles.plantilla}`}
+      data-paleta={paleta}
+      aria-label="Vista previa de plantilla mínima"
+    >
       <header className={styles.cabecera}>
         <div>
+          <p className={styles.etiqueta}>Atención personalizada</p>
           <h3>{datos.negocio.nombre}</h3>
           <p>{datos.negocio.descripcion}</p>
         </div>
-        <address>
-          Agenda o consulta
-          <strong>{datos.negocio.telefonoWhatsapp}</strong>
-        </address>
+        <div className={styles.contacto}>
+          <span>{datos.negocio.horarioTexto}</span>
+          <button type="button">Consultar disponibilidad</button>
+          <small>WhatsApp {datos.negocio.telefonoWhatsapp}</small>
+        </div>
       </header>
+
+      <nav className={styles.navegacion} aria-label="Secciones de la demostración">
+        {datos.categorias.map((categoria) => (
+          <a href={`#${categoria.id}`} key={categoria.id}>{categoria.nombre}</a>
+        ))}
+      </nav>
 
       <div className={styles.servicios}>
         {datos.categorias.map((categoria) => (
-          <section className={styles.categoria} key={categoria.id}>
+          <section className={styles.categoria} id={categoria.id} key={categoria.id}>
             <h4>{categoria.nombre}</h4>
             <dl>
               {categoria.productos.map((producto) => (
@@ -35,12 +48,18 @@ export function PlantillaMinimal({ datos }: PropiedadesPlantilla) {
                   <dt>{producto.nombre}</dt>
                   <dd>{producto.descripcion}</dd>
                   <dd>{formatearPrecioBolivianos(producto.precio)}</dd>
+                  <dd><button type="button">Elegir</button></dd>
                 </div>
               ))}
             </dl>
           </section>
         ))}
       </div>
+
+      <footer className={styles.pie}>
+        <p>Cuéntanos qué necesitas y te orientamos personalmente.</p>
+        <button type="button">Iniciar una consulta</button>
+      </footer>
     </article>
   );
 }

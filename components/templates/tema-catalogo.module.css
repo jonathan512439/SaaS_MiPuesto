@@ -1,0 +1,51 @@
+.tema {
+  --catalogo-fondo-suave: color-mix(in srgb, var(--catalogo-marca) 7%, var(--catalogo-superficie));
+  --catalogo-borde: color-mix(in srgb, var(--catalogo-texto) 22%, var(--catalogo-superficie));
+
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+}
+
+.tema[data-paleta="mercado"] {
+  --catalogo-superficie: #fbfaf8;
+  --catalogo-texto: #15292c;
+  --catalogo-marca: #1f5b63;
+  --catalogo-sobre-marca: #fbfaf8;
+  --catalogo-accion: #b3440e;
+  --catalogo-sobre-accion: #fbfaf8;
+  --catalogo-exito: #1e6a45;
+  --catalogo-alerta: #8a5500;
+}
+
+.tema[data-paleta="tierra"] {
+  --catalogo-superficie: #fff9f0;
+  --catalogo-texto: #2d241e;
+  --catalogo-marca: #704029;
+  --catalogo-sobre-marca: #fff9f0;
+  --catalogo-accion: #963b18;
+  --catalogo-sobre-accion: #fff9f0;
+  --catalogo-exito: #2d6846;
+  --catalogo-alerta: #825a00;
+}
+
+.tema[data-paleta="oceano"] {
+  --catalogo-superficie: #f5fbfc;
+  --catalogo-texto: #14303b;
+  --catalogo-marca: #0f6178;
+  --catalogo-sobre-marca: #f5fbfc;
+  --catalogo-accion: #9b3d1b;
+  --catalogo-sobre-accion: #f5fbfc;
+  --catalogo-exito: #1f6a50;
+  --catalogo-alerta: #7a5600;
+}
+
+.tema[data-paleta="noche"] {
+  --catalogo-superficie: #151a1c;
+  --catalogo-texto: #f7f3ea;
+  --catalogo-marca: #8fd0c9;
+  --catalogo-sobre-marca: #132225;
+  --catalogo-accion: #f29a70;
+  --catalogo-sobre-accion: #2b1710;
+  --catalogo-exito: #7fc89d;
+  --catalogo-alerta: #f0c36a;
+}

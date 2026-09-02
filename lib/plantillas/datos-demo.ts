@@ -18,6 +18,7 @@ export function crearDatosDemoPlantilla({
         descripcion?.trim() ||
         "Productos y servicios preparados para atenderte con la cercanía de siempre.",
       telefonoWhatsapp,
+      horarioTexto: "Abierto hoy hasta las 21:30",
     },
     categorias: [
       {

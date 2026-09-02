@@ -15,5 +15,6 @@ describe("datos de demostración de plantillas", () => {
     expect(productos.every((producto) => producto.imagen.src.endsWith(".webp"))).toBe(true);
     expect(productos.every((producto) => producto.imagen.alt.length > 0)).toBe(true);
     expect(new Set(productos.map((producto) => producto.imagen.src)).size).toBe(3);
+    expect(datos.negocio.horarioTexto).toBe("Abierto hoy hasta las 21:30");
   });
 });

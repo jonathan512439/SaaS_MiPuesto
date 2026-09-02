@@ -23,7 +23,9 @@ for (const carpeta of carpetas) {
     const contenido = readFileSync(archivo, "utf8");
     const ruta = relative(raiz, archivo).replaceAll("\\", "/");
 
-    if (extension === ".css" && ruta !== "app/globals.css") {
+    const esFuenteDePaletas = ruta === "components/templates/tema-catalogo.module.css";
+
+    if (extension === ".css" && ruta !== "app/globals.css" && !esFuenteDePaletas) {
       for (const coincidencia of contenido.matchAll(/#[0-9a-fA-F]{3,8}|\b(?:rgb|hsl|oklch|lab|lch)\(/g)) {
         registrar(archivo, "color fuera de los tokens", coincidencia[0]);
       }

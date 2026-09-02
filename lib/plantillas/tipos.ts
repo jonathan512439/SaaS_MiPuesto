@@ -1,6 +1,7 @@
-export const PLANTILLAS = ["clasica", "moderna", "minimal"] as const;
+import type { PaletaId } from "../apariencia";
 
-export type PlantillaId = (typeof PLANTILLAS)[number];
+export { PLANTILLAS } from "../apariencia";
+export type { PaletaId, PlantillaId } from "../apariencia";
 
 export type ProductoPlantilla = {
   id: string;
@@ -24,10 +25,12 @@ export type DatosPlantilla = {
     nombre: string;
     descripcion: string;
     telefonoWhatsapp: string;
+    horarioTexto: string;
   };
   categorias: CategoriaPlantilla[];
 };
 
 export type PropiedadesPlantilla = {
   datos: DatosPlantilla;
+  paleta?: PaletaId;
 };
