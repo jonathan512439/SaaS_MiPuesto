@@ -19,12 +19,12 @@ export function AccionProducto({
 }: PropiedadesAccionProducto) {
   if (modalidad === "solo_lectura") return null;
 
-  const agotado = producto.estado === "agotado";
+  const noDisponible = producto.estado !== undefined && producto.estado !== "disponible";
   if (modalidad === "accion_individual") {
     const etiqueta = "Pedir o agendar por WhatsApp";
     if (demostracion || !producto.accionWhatsapp || !permiteAcciones || agotado) {
       return (
-        <button disabled={!demostracion || agotado} type="button">
+        <button disabled={!demostracion || noDisponible} type="button">
           {etiqueta}
         </button>
       );
@@ -45,7 +45,7 @@ export function AccionProducto({
   return (
     <button
       aria-label={`Agregar ${producto.nombre} al pedido`}
-      disabled={agotado || (!demostracion && !alAgregarProducto)}
+      disabled={noDisponible || (!demostracion && !alAgregarProducto)}
       onClick={() => alAgregarProducto?.(producto.id)}
       type="button"
     >
