@@ -7,7 +7,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Fases completadas: **Fase 0 — Setup e infraestructura** y **Fase 1 — Sistema de diseño**.
 - Fase en curso: **Fase 2 — Autenticación y perfil de negocio**.
 - Inicio de Fase 2: 2026-09-01.
-- Estado: implementación desplegada y en auditoría; se corrigió la entrega de la configuración pública de Supabase al navegador. Falta validar una invitación o recuperación por correo después del despliegue y completar la revisión visual en navegador.
+- Estado: implementación desplegada y en auditoría; la corrección de configuración pública de Supabase está publicada y verificada por HTTP. Falta validar un enlace real de invitación o recuperación y completar la revisión visual en navegador.
 - Puerta de salida: un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
 
 ## Estado de Fase 2
@@ -19,7 +19,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Control | Estado | Evidencia o pendiente |
 |---|---|---|
 | Sesión SSR y protección del panel | Cumplido en código | `proxy.ts` renueva cookies y usa `getClaims()`; `/dashboard/configuracion` exige sesión válida. |
-| Login, recuperación y nueva contraseña | Corregido y pendiente de validación remota | Las rutas reciben URL y clave Publishable mediante un proveedor de cliente renderizado en servidor. Se verificó localmente que `/actualizar-clave` responde 200 y que el bundle no conserva referencias de entorno sin resolver; falta abrir un enlace nuevo tras el despliegue. |
+| Login, recuperación y nueva contraseña | Corregido y pendiente de validación funcional | Las rutas reciben URL y clave Publishable mediante un proveedor de cliente renderizado en servidor. La versión 17 del Worker responde HTTP 200 en `/actualizar-clave`, renderiza la configuración pública y sus bundles no conservan referencias de entorno sin resolver; falta abrir un enlace nuevo tras el despliegue. |
 | Alta solo por invitación | Cumplido | `npm run auth:invitar -- correo@negocio.com` usa la CLI autenticada; `Allow new users to sign up` fue desactivado manualmente. |
 | Perfil básico y validación servidor | Cumplido | Endpoint protegido validado con sesión real: HTTP 201; no acepta `admin_user_id` del navegador. |
 | Slug | Cumplido | Formato, longitud y lista reservada se validan en interfaz, servidor y base; disponibilidad en vivo devuelve solo un booleano. |
