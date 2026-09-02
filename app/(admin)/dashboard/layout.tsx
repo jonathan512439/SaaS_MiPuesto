@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { NavegacionDashboard } from "../../../components/dashboard/navegacion-dashboard";
@@ -30,12 +31,15 @@ export default async function LayoutPanel({ children }: PropiedadesLayoutPanel) 
       <div className={styles.pagina}>
         <header className={styles.barra}>
           <div className={styles.barraContenido}>
-            <div className={styles.identidad}>
-              <p className={styles.marca}>MiPuesto</p>
+            <Link className={styles.marca} href="/dashboard/catalogo" aria-label="MiPuesto, ir al catálogo">
+              <span aria-hidden="true" className={styles.isotipo}>M</span>
+              <span>MiPuesto</span>
+            </Link>
+            <div className={styles.cuenta}>
               <p className={styles.sesion}>{correo}</p>
+              <CerrarSesion className={styles.botonSalir} texto="Salir" />
             </div>
             <NavegacionDashboard />
-            <CerrarSesion className={styles.botonSalir} />
           </div>
         </header>
         {children}
