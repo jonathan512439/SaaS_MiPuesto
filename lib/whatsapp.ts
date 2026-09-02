@@ -1,4 +1,4 @@
-import { formatearPrecioBolivianos } from "./precios";
+import { calcularSubtotal, formatearPrecioBolivianos } from "./precios";
 
 type ProductoParaWhatsapp = {
   nombre: string;
@@ -45,13 +45,13 @@ export function construirMensajePedido(negocio: string, items: ItemPedidoWhatsap
   );
   if (validos.length === 0) return "";
 
-  const total = validos.reduce((suma, item) => suma + item.precio * item.cantidad, 0);
+  const total = calcularSubtotal(validos);
   return [
     `Hola, preparé este pedido en el catálogo de ${negocio}:`,
     ...validos.map(
       (item) =>
         `- ${item.cantidad} × ${item.nombre}: ${formatearPrecioBolivianos(
-          item.precio * item.cantidad,
+          calcularSubtotal([item]),
         )}`,
     ),
     `Subtotal publicado: ${formatearPrecioBolivianos(total)}.`,

@@ -6,6 +6,7 @@ import {
   PlantillaMinimal,
   PlantillaModerna,
 } from "../../../components/templates";
+import { CatalogoInteractivo } from "../../../components/catalogo/catalogo-interactivo";
 import { construirCatalogoPublico } from "../../../lib/catalogo/publico";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
@@ -94,7 +95,15 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
   return (
     <main className={styles.pagina}>
       <div className={styles.catalogo}>
-        <Plantilla datos={catalogo.datos} demostracion={false} paleta={catalogo.paleta} />
+        {catalogo.datos.negocio.modalidad === "carrito" ? (
+          <CatalogoInteractivo
+            datos={catalogo.datos}
+            paleta={catalogo.paleta}
+            plantilla={catalogo.plantilla}
+          />
+        ) : (
+          <Plantilla datos={catalogo.datos} demostracion={false} paleta={catalogo.paleta} />
+        )}
         {catalogo.datos.categorias.length === 0 ? (
           <section className={styles.vacio} aria-labelledby="catalogo-vacio">
             <h2 id="catalogo-vacio">El catálogo se está preparando</h2>
