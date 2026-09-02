@@ -30,6 +30,19 @@ El nombre y el logo ya fijan el territorio: un puesto de feria dentro de un celu
 
 Los estados de producto (disponible / reservado / vendido / oculto) tienen que ser **distinguibles sin depender solo del color** — usa también texto o forma, porque el admin va a mirar esto de reojo en una pantalla con reflejo del sol.
 
+### 2.1 Paletas del catálogo público
+
+El panel administrativo conserva siempre la paleta base de MiPuesto. El dueño puede elegir para su catálogo una de cuatro paletas cerradas; no puede escribir colores arbitrarios. Cada paleta reasigna los mismos roles semánticos para que cualquier plantilla pueda usarla sin duplicar lógica.
+
+| Paleta | Superficie | Texto | Marca | Sobre marca | Acción | Sobre acción |
+|---|---|---|---|---|---|---|
+| Mercado | `#FBFAF8` | `#15292C` | `#1F5B63` | `#FBFAF8` | `#B3440E` | `#FBFAF8` |
+| Tierra | `#FFF9F0` | `#2D241E` | `#704029` | `#FFF9F0` | `#963B18` | `#FFF9F0` |
+| Océano | `#F5FBFC` | `#14303B` | `#0F6178` | `#F5FBFC` | `#9B3D1B` | `#F5FBFC` |
+| Noche | `#151A1C` | `#F7F3EA` | `#8FD0C9` | `#132225` | `#F29A70` | `#2B1710` |
+
+Los fondos suaves y bordes se derivan de esos roles. Las combinaciones de texto, marca y acción deben conservar al menos 4,5:1 de contraste; el foco nunca depende del color de la paleta.
+
 ## 3. Prohibiciones explícitas (esto es lo que hace que un diseño se vea "generado")
 
 Codex debe evitar deliberadamente estos patrones. Son defaults, no decisiones, y aparecen sin importar el proyecto:
@@ -44,9 +57,10 @@ Codex debe evitar deliberadamente estos patrones. Son defaults, no decisiones, y
 
 ## 4. Tipografía
 
-- Una o dos familias como máximo. Si son dos, que sean claramente distintas entre sí — no dos sans parecidas.
+- Una o dos familias como máximo dentro de cada experiencia. Si son dos, que sean claramente distintas entre sí — no dos sans parecidas.
 - No hace falta una tipografía distinta para títulos y cuerpo; una sola familia bien usada con una escala de pesos clara suele ser más sólida.
 - El logo ya usa una sans redondeada y gruesa: la familia del producto debe convivir con ella, no pelearse.
+- Las plantillas pueden usar pilas tipográficas predefinidas diferentes: Clásica usa una serif editorial en títulos; Moderna usa una sans geométrica y pesada; Mínima usa una sans humanista. No se descargan fuentes externas durante la navegación.
 - Longitud de línea por debajo de 80 caracteres en textos largos (descripciones de producto, páginas informativas).
 - Sentence case en toda la interfaz. Nada de MAYÚSCULAS como recurso de estilo.
 - **Los precios son contenido de primera clase**, no un detalle: tratamiento tipográfico deliberado, siempre legibles de un vistazo, siempre con el mismo formato (`Bs 45` o `Bs 45,00` — elige uno y respétalo en todo el producto).
@@ -57,9 +71,11 @@ Este es el punto donde es más fácil fallar. Si `clasica`, `moderna` y `minimal
 
 Cada plantilla debe diferir en **estructura**, no solo en paleta:
 
-- **Clásica** — pensada para restaurantes: el catálogo se lee como una carta. Lista vertical, foto pequeña o ausente, énfasis en el nombre del plato y el precio, categorías como secciones de menú.
-- **Moderna** — pensada para retail: la foto manda. Cuadrícula de productos, imágenes grandes, ideal para ropa, accesorios, productos donde la compra es visual.
-- **Mínima** — pensada para servicios (dentistas, barberías): sin cuadrícula de productos. Lista de servicios con precio y descripción, con la información de contacto y el horario en primer plano, porque ahí la conversión es que te llamen, no que agreguen al carrito.
+- **Clásica** — pensada para restaurantes: carta editorial con serif en títulos, categorías como capítulos, fotografía pequeña, producto en fila y acción sobria al final de cada sección.
+- **Moderna** — pensada para retail: escaparate de alto contraste con sans pesada, portada compacta, navegación horizontal, imágenes grandes, cuadrícula de productos y acciones directas por producto.
+- **Mínima** — pensada para servicios: directorio sereno con sans humanista, contacto y horario en primer plano, fotografías compactas, servicios en una línea de tiempo y una llamada principal a reservar.
+
+Las tres muestran las mismas fotografías, precios y datos de demostración. Deben cambiar también encabezado, navegación, botones, densidad, jerarquía y forma de recorrer el contenido. Cambiar la paleta no cambia la estructura.
 
 Que cada plantilla nazca de un rubro real es lo que evita que sean tres variantes de lo mismo.
 
