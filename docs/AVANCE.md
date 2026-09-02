@@ -4,11 +4,12 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fases completadas: **Fase 0 — Setup e infraestructura** y **Fase 1 — Sistema de diseño**.
-- Fase en curso: **Fase 2 — Autenticación y perfil de negocio**.
+- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño** y **Fase 2 — Autenticación y perfil de negocio**.
+- Próxima fase: **Fase 3 — Sistema de plantillas**.
 - Inicio de Fase 2: 2026-09-01.
-- Estado: implementación desplegada y en auditoría; la recuperación de contraseña, definición de contraseña, inicio de sesión y creación de negocio se validaron manualmente con correos reales. La auditoría RLS de cierre aprobó; falta completar la revisión visual en navegador.
-- Puerta de salida: un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
+- Cierre de Fase 2: 2026-09-02.
+- Estado: **cerrada** tras validación manual de autenticación, creación de negocio y revisión navegable en móvil y escritorio; la auditoría RLS de cierre aprobó.
+- Puerta de salida: aprobada; un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
 
 ## Estado de Fase 2
 
@@ -28,7 +29,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Contraseña y rate limits | Cumplido | Confirmado manualmente: contraseña mínima de 10 caracteres, confirmación de correo y límites de Auth activos. |
 | SMTP | Cumplido temporalmente; validación de flujo en curso | Gmail `app.mipuesto@gmail.com` con contraseña de aplicación envió una invitación de prueba. El timeout inicial se debió a un dígito incorrecto en esa contraseña. Ninguna credencial llegó al repositorio; antes de producción se migrará a Resend Free con dominio propio. |
 | Despliegue de Fase 2 | Cumplido | `main` fue publicado automáticamente por Cloudflare; `/login` respondió HTTP 200 en la versión del Worker creada el 2026-09-02. |
-| Revisión visual a 360 px y escritorio | Pendiente | El navegador integrado no tenía una instancia conectada en esta sesión. |
+| Revisión visual a 360 px y escritorio | Cumplido manualmente | El administrador confirmó navegación funcional y sin problemas visuales en móvil y escritorio el 2026-09-02. |
 
 ## Estado de Fase 1
 
