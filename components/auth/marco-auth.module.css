@@ -1,0 +1,145 @@
+@reference "../../app/globals.css";
+
+.pagina {
+  min-height: 100dvh;
+  background: var(--color-superficie);
+}
+
+.identidad {
+  display: flex;
+  min-height: 15rem;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  padding: var(--spacing-6);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.marca {
+  width: fit-content;
+  color: inherit;
+  font-size: var(--text-xl);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.mensajeMarca {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.paso,
+.frase,
+.ayudaMarca,
+.cabecera h1,
+.cabecera p {
+  margin: 0;
+}
+
+.paso {
+  width: fit-content;
+  border-bottom: var(--borde-marcado) solid currentColor;
+  padding-bottom: var(--spacing-2);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.frase {
+  max-width: 22ch;
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 2.25rem;
+}
+
+.ayudaMarca {
+  max-width: 48ch;
+  font-size: var(--text-sm);
+}
+
+.trabajo {
+  display: grid;
+  min-height: calc(100dvh - 15rem);
+  align-items: center;
+  padding: var(--spacing-8) var(--spacing-6);
+}
+
+.contenido {
+  display: grid;
+  width: 100%;
+  max-width: 30rem;
+  gap: var(--spacing-8);
+  margin-inline: auto;
+}
+
+.cabecera {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.cabecera h1 {
+  font-size: var(--text-2xl);
+  line-height: 2.25rem;
+}
+
+.cabecera p {
+  max-width: 55ch;
+}
+
+.formulario {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.acciones {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.enlace {
+  width: fit-content;
+  color: var(--color-marca);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-underline-offset: var(--spacing-1);
+}
+
+.mensajeError,
+.mensajeExito,
+.nota {
+  margin: 0;
+  border-left: var(--spacing-2) solid currentColor;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-sm);
+}
+
+.mensajeError {
+  color: var(--color-peligro);
+}
+
+.mensajeExito {
+  color: var(--color-exito);
+}
+
+.nota {
+  border-left-color: var(--color-marca);
+  background: var(--color-fondo-suave);
+  color: var(--color-texto);
+}
+
+@media (min-width: 48rem) {
+  .pagina {
+    display: grid;
+    grid-template-columns: minmax(18rem, 0.8fr) minmax(30rem, 1.2fr);
+  }
+
+  .identidad {
+    min-height: 100dvh;
+    padding: var(--spacing-8);
+  }
+
+  .trabajo {
+    min-height: 100dvh;
+    padding: var(--spacing-12);
+  }
+}
