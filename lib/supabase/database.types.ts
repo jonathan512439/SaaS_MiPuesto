@@ -354,7 +354,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      slug_disponible: { Args: { p_slug: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
