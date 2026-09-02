@@ -2,7 +2,7 @@
 
 Planning ejecutable para construir MiPuesto de punta a punta con Codex, dividido en fases pequeñas y verificables. Cada fase está pensada para dársela a Codex como una tarea independiente — no le pegues el documento entero de una vez.
 
-**Cambios respecto a la v1:** se agregó una fase de diseño previa al código (Fase 1), el documento `DESIGN.md` como fuente de verdad visual, y se cubrieron vacíos detectados en la revisión: recuperación de contraseña, borrado de imágenes huérfanas, límites de subida, manejo de slug duplicado, seed de datos de prueba, y qué pasa cuando un negocio se da de baja.
+**Cambios respecto a la v1:** se agregó una fase de diseño previa al código (Fase 1), el documento `DESIGN.md` como fuente de verdad visual, y se cubrieron vacíos detectados en la revisión: recuperación de contraseña, borrado de imágenes huérfanas, límites de subida, manejo de slug duplicado, seed de datos de prueba, personalización independiente de plantilla y paleta, control de pedidos por horario, y qué pasa cuando un negocio se da de baja.
 
 ## 0. Cómo trabajar esto con Codex
 
@@ -43,9 +43,10 @@ create table negocios (
   portada_url text,
   telefono_whatsapp text not null,
   redes_sociales jsonb default '{}',
-  horario jsonb default '{}',
+  horario jsonb not null default '{"modo":"sin_horario","dias":{}}',
   qr_pago_url text,
-  plantilla_id text not null default 'clasica',
+  plantilla_id text not null default 'clasica' check (plantilla_id in ('clasica','moderna','minimal')),
+  paleta_id text not null default 'mercado' check (paleta_id in ('mercado','tierra','oceano','noche')),
   reserva_minutos int default 45,
   verificado boolean default false,
   activo boolean default true,
@@ -124,6 +125,8 @@ create index idx_analitica_negocio_fecha on eventos_analitica(negocio_id, creado
 **Notas del modelo (corregidas respecto a la v1):**
 - `on delete set null` en las referencias de producto a categoría: borrar una categoría no debe borrar los productos que contenía. El producto queda sin categoría y el admin lo reasigna.
 - `reserva_minutos` ahora vive en la tabla `negocios`, no solo como variable de entorno — cada negocio puede tener su propio tiempo de reserva.
+- `plantilla_id` y `paleta_id` se guardan por separado: la plantilla controla estructura y componentes; la paleta cambia solo los tokens cromáticos. Esta separación permite sumar opciones después sin modificar productos ni pedidos.
+- `horario` usa un contrato explícito: `sin_horario` no muestra estado ni restringe pedidos; `siempre_abierto` informa disponibilidad permanente; `programado` guarda intervalos por día y se evalúa en `America/La_Paz`. Todo cambio del contrato requiere una migración versionada y validación de servidor.
 - Los `items` de un pedido guardan **el precio al momento de la compra**, no una referencia al producto. Si el admin cambia el precio después, el pedido histórico no se altera.
 - Índices incluidos desde el inicio: el de pedidos pendientes es el que usa el job de expiración cada pocos minutos.
 
@@ -158,6 +161,7 @@ mipuesto/
 │   ├── carrito/
 │   └── ui/                            # componentes base según DESIGN.md
 ├── lib/
+│   ├── apariencia.ts                  # registro de plantillas, paletas y tokens permitidos
 │   ├── supabase/
 │   │   ├── client.ts
 │   │   └── server.ts
@@ -205,8 +209,15 @@ Esta fase es nueva y **no se salta**. Construir pantallas sin un sistema de toke
 
 ### Fase 3 — Sistema de plantillas
 - Construir las tres plantillas (`clasica`, `moderna`, `minimal`) **diferenciadas en estructura, no solo en color** — ver `DESIGN.md` sección 5, donde cada una nace de un rubro real
-- Selector de plantilla en el panel, con vista previa antes de aplicar
-- **Criterio de aceptación:** las tres plantillas puestas lado a lado con los mismos datos se ven claramente distintas en estructura, no como la misma cuadrícula con otra paleta.
+- Cada plantilla debe ser un sistema visual completo: composición, encabezado, navegación, jerarquía tipográfica, tratamiento de fotografías, categorías, productos, precios, botones, estados y acciones. Puede usar una familia tipográfica predefinida distinta, respetando un máximo de dos familias dentro de cada plantilla
+- Mantener exactamente los mismos datos y fotografías al comparar variantes; solo cambia el sistema visual
+- Crear cuatro paletas predefinidas e independientes de la plantilla (`mercado`, `tierra`, `oceano`, `noche`). Cada paleta define tokens semánticos de superficie, texto, marca, acción, éxito, alerta y borde, con contraste accesible. No se aceptan colores arbitrarios escritos por el cliente
+- Actualizar `DESIGN.md` antes de implementar las paletas para documentar los tokens permitidos del catálogo sin alterar la identidad visual del panel administrativo
+- Selector combinado de plantilla y paleta en el panel, con guardado independiente y posibilidad de cambiarlas posteriormente sin perder contenido
+- Ampliar la demostración para simular la experiencia pública completa: portada, navegación por categorías, fotografías, lista o cuadrícula de productos, precios, botones, estado de horario, acceso a WhatsApp y resumen de carrito cuando corresponda
+- Cargar en el catálogo público solo la plantilla y paleta seleccionadas; las vistas comparativas del panel se cargan de forma diferida para que sumar opciones no aumente innecesariamente el peso inicial
+- Implementar un registro extensible de plantillas y paletas por identificador, para poder agregar nuevas opciones en versiones futuras sin modificar las existentes
+- **Criterio de aceptación:** las tres plantillas con los mismos datos se distinguen claramente en estructura, tipografía, componentes e interacción; las cuatro paletas funcionan con cada plantilla (12 combinaciones), mantienen contraste accesible, persisten al recargar y pueden cambiarse sin alterar productos ni configuración del negocio.
 
 ### Fase 4 — Catálogo: categorías, subcategorías y productos
 - CRUD de categorías y subcategorías (crear, editar, reordenar, borrar)
@@ -219,25 +230,31 @@ Esta fase es nueva y **no se salta**. Construir pantallas sin un sistema de toke
 ### Fase 5 — Las tres modalidades de tienda
 - Renderizado condicional según `tipo_negocio`: sin botones de acción (estático), botón "Pedir" o "Agendar por WhatsApp" por producto (CTA), o carrito completo (tienda virtual)
 - El botón CTA individual genera un link `wa.me` con el producto o servicio elegido
-- **Criterio de aceptación:** cambiar el `tipo_negocio` en la base cambia el comportamiento del catálogo público sin tocar una línea de código.
+- Calcular el estado de atención con una única función en `lib/horario.ts`, usando `America/La_Paz`, intervalos por día y soporte para horarios que cruzan medianoche
+- Cuando un negocio con horario `programado` esté cerrado, mostrar un aviso discreto y persistente cerca de las acciones: el cliente puede navegar normalmente, pero los botones de pedir o agendar quedan deshabilitados. `sin_horario` no muestra aviso ni restringe; `siempre_abierto` mantiene las acciones disponibles
+- Pruebas automáticas obligatorias para los tres modos, límites exactos de apertura y cierre, cambio de día, intervalos que cruzan medianoche y horarios inválidos
+- **Criterio de aceptación:** cambiar el `tipo_negocio` modifica el comportamiento del catálogo sin tocar código; al simular una hora cerrada, el catálogo continúa navegable, muestra el aviso y no permite iniciar un pedido o agendamiento.
 
 ### Fase 6 — Carrito, reserva temporal y pedido por WhatsApp
 - Carrito en memoria (estado del cliente, sin cuenta ni login del comprador)
 - Al enviar el pedido: crear fila en `pedidos` con estado `pendiente`, marcar los productos con `controla_stock = true` como `reservado` con su `reservado_hasta`, y generar el link `wa.me` con el detalle consolidado
+- Fuera del horario `programado`, permitir revisar productos y preparar el carrito, pero deshabilitar la confirmación. El servidor vuelve a evaluar el horario antes de crear el pedido: si está cerrado responde un error controlado, no crea la fila, no reserva inventario y no genera el enlace de WhatsApp
 - **Productos con `controla_stock = false` nunca se reservan** — siempre quedan disponibles (un café no se agota como un producto único)
 - Mostrar el QR de cobro del negocio antes de enviar el pedido, si está configurado
 - Edge Function programada `expirar-reservas` (cada 5-10 min): pedidos `pendiente` con `expira_en` vencido pasan a `expirado` y sus productos vuelven a `disponible`
 - Panel de pedidos con "Confirmar venta" y "Cancelar"
-- **Criterio de aceptación:** un pedido no confirmado libera automáticamente sus productos al vencer el plazo, verificable poniendo un `expira_en` en el pasado y corriendo la función a mano.
+- **Criterio de aceptación:** un pedido no confirmado libera automáticamente sus productos al vencer el plazo; además, un intento fuera del horario programado se rechaza tanto en la interfaz como en el servidor y no modifica pedidos ni inventario.
 
 ### Fase 7 — Panel de administración completo
 - Promociones: descuento por % o monto fijo, sobre un producto o una categoría entera, con vencimiento opcional; el precio con descuento se refleja en el catálogo
 - **Toda la lógica de precios y promociones vive en `lib/precios.ts`**, en un solo lugar — no repartida entre componentes, o vas a tener el mismo producto con dos precios distintos en dos pantallas
-- Configuración de tienda: logo, portada, descripción, redes sociales, horario por día, QR de cobro, tiempo de reserva
-- **Criterio de aceptación:** una promoción con fecha vencida deja de aplicarse automáticamente en el catálogo, sin que el admin la desactive a mano.
+- Configuración de tienda: logo, portada, descripción, redes sociales, horario, QR de cobro y tiempo de reserva
+- El horario ofrece tres modos comprensibles: `Sin horario publicado`, `Siempre abierto` y `Horario programado`. En el modo programado, el administrador elige días, uno o más intervalos de apertura/cierre y puede marcar días cerrados; la interfaz explica el efecto sobre los pedidos antes de guardar
+- Validar el horario también en el servidor: formato de hora, intervalos sin solapamiento, días permitidos y contrato JSON completo
+- **Criterio de aceptación:** una promoción vencida deja de aplicarse automáticamente; el administrador puede guardar cualquiera de los tres modos de horario y el catálogo refleja correctamente el estado y la posibilidad de pedir.
 
 ### Fase 8 — Funciones de plataforma
-- Badge "Abierto ahora / Cierra a las…" calculado desde el `horario`, en zona horaria `America/La_Paz`
+- Badge "Abierto ahora / Cierra a las… / Abre el…" calculado desde el `horario`, en zona horaria `America/La_Paz`; no se muestra en `sin_horario` y usa "Siempre abierto" en ese modo
 - Código QR del negocio, generado en el navegador (sin servicio externo)
 - Metadatos Open Graph dinámicos por negocio
 - Directorio público (`/directorio`) con los negocios `activo = true`
@@ -250,7 +267,7 @@ Esta fase es nueva y **no se salta**. Construir pantallas sin un sistema de toke
 - Recorrido completo con un negocio real de tus contactos: crear, cargar catálogo, pedido de prueba, confirmación
 - Conectar `mipuesto.com` a Cloudflare Pages, verificar SSL
 - Edge Function `ping-keepalive` + cron externo gratuito, para que el proyecto de Supabase no se pause por inactividad
-- Checklist final: RLS probado con dos negocios; imágenes cargando y borrándose correctamente; reservas expirando; mensaje de WhatsApp bien formado **en un celular real**, no solo en el navegador; catálogo revisado a 360 px de ancho
+- Checklist final: RLS probado con dos negocios; imágenes cargando y borrándose correctamente; las 12 combinaciones de plantilla y paleta revisadas a 360 px; reservas expirando; horarios probados en apertura, cierre, cambio de día y cruce de medianoche; pedido fuera de horario rechazado sin reservar inventario; mensaje de WhatsApp bien formado **en un celular real**, no solo en el navegador
 - **Criterio de aceptación:** un negocio piloto opera una semana completa sin que tengas que tocar la base de datos a mano.
 
 ## 6. Qué pasa cuando un negocio deja de pagar
@@ -276,6 +293,8 @@ Vacío detectado en la v1. Como el cobro es manual, necesitás poder cortar el a
 - **Imágenes huérfanas en Storage.** Sin borrado al eliminar/reemplazar, el gigabyte gratis se llena de archivos invisibles.
 - **Compresión en el cliente, no en el servidor.** Cloudflare Pages tiene límites de tamaño de request; comprimir antes de subir evita el problema y ahorra cuota.
 - **Zonas horarias.** Guardá todo en UTC y convertí a `America/La_Paz` solo al mostrar, o el badge de abierto/cerrado y las expiraciones fallan en las horas límite.
+- **El horario debe validarse en servidor.** Deshabilitar el botón en el navegador no evita una solicitud manual; antes de crear un pedido se recalcula el estado con `lib/horario.ts` y la hora del servidor.
+- **Plantillas y paletas no deben multiplicar la lógica.** Productos, precios, horario y acciones usan contratos compartidos; cada plantilla decide cómo presentarlos y cada paleta solo reasigna tokens semánticos.
 - **Supabase free se pausa tras 7 días sin actividad** — de ahí el `ping-keepalive` de la Fase 9.
 - **Doble reserva del mismo producto**: posible pero de bajo riesgo, sin pago en línea de por medio se resuelve por WhatsApp como ya se hace hoy.
 - **Precio duplicado en dos pantallas** si la lógica de promociones se copia en vez de centralizarse en `lib/precios.ts`.
