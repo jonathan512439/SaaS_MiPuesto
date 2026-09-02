@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { ChangeEvent, FormEvent } from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { obtenerUrlPublicaImagenProducto } from "../../lib/catalogo/imagenes-publicas";
 import type {
@@ -45,6 +45,8 @@ const FORMULARIO_VACIO: FormularioProducto = {
   cantidad_stock: "",
 };
 
+const CATEGORIAS_POR_PAGINA = 5;
+
 async function solicitarJson<T>(ruta: string, opciones: RequestInit) {
   const respuesta = await fetch(ruta, opciones);
   const datos = (await respuesta.json().catch(() => ({}))) as RespuestaError & T;
@@ -57,6 +59,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [subcategorias, setSubcategorias] = useState(datosIniciales.subcategorias);
   const [productos, setProductos] = useState(datosIniciales.productos);
   const [categoriaActiva, setCategoriaActiva] = useState("");
+  const [paginaCategorias, setPaginaCategorias] = useState(1);
   const [nombreCategoria, setNombreCategoria] = useState("");
   const [nuevasSubcategorias, setNuevasSubcategorias] = useState<Record<string, string>>({});
   const [formularioAbierto, setFormularioAbierto] = useState(false);
@@ -66,6 +69,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [ocupado, setOcupado] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [errorGeneral, setErrorGeneral] = useState("");
+  const formularioProductoRef = useRef<HTMLFormElement>(null);
 
   const productosVisibles = useMemo(
     () =>
@@ -76,6 +80,15 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   );
   const subcategoriasFormulario = subcategorias.filter(
     (subcategoria) => subcategoria.categoria_id === formulario.categoria_id,
+  );
+  const totalPaginasCategorias = Math.max(
+    1,
+    Math.ceil(categorias.length / CATEGORIAS_POR_PAGINA),
+  );
+  const paginaCategoriasActual = Math.min(paginaCategorias, totalPaginasCategorias);
+  const categoriasPaginadas = categorias.slice(
+    (paginaCategoriasActual - 1) * CATEGORIAS_POR_PAGINA,
+    paginaCategoriasActual * CATEGORIAS_POR_PAGINA,
   );
 
   function informarExito(texto: string) {
@@ -101,6 +114,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         },
       );
       setCategorias((actuales) => [...actuales, categoria]);
+      setPaginaCategorias(Math.ceil((categorias.length + 1) / CATEGORIAS_POR_PAGINA));
+      setCategoriaActiva(categoria.id);
       setNombreCategoria("");
       informarExito(`Categoría “${categoria.nombre}” creada.`);
     } catch (error) {
@@ -162,6 +177,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         ),
       );
       if (categoriaActiva === categoria.id) setCategoriaActiva("");
+      setPaginaCategorias(
+        Math.max(1, Math.ceil((categorias.length - 1) / CATEGORIAS_POR_PAGINA)),
+      );
       informarExito("Categoría borrada. Los productos se conservaron.");
     } catch (error) {
       informarError(error);
@@ -250,11 +268,19 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     }
   }
 
+  function enfocarFormularioProducto() {
+    window.requestAnimationFrame(() => {
+      formularioProductoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.requestAnimationFrame(() => document.getElementById("producto-nombre")?.focus());
+    });
+  }
+
   function abrirProductoNuevo() {
     setProductoEditando(null);
     setFormulario({ ...FORMULARIO_VACIO, categoria_id: categoriaActiva });
     setErroresFormulario({});
     setFormularioAbierto(true);
+    enfocarFormularioProducto();
   }
 
   function editarProducto(producto: ProductoCatalogo) {
@@ -270,7 +296,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     });
     setErroresFormulario({});
     setFormularioAbierto(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    enfocarFormularioProducto();
   }
 
   function cerrarFormulario() {
@@ -420,7 +446,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       </div>
 
       {formularioAbierto ? (
-        <form className={styles.formularioProducto} onSubmit={guardarProducto}>
+        <form
+          className={styles.formularioProducto}
+          onSubmit={guardarProducto}
+          ref={formularioProductoRef}
+          tabIndex={-1}
+        >
           <header className={styles.cabeceraFormulario}>
             <div>
               <h2>{productoEditando ? "Editar producto" : "Nuevo producto"}</h2>
@@ -535,7 +566,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                 required
                 value={nombreCategoria}
               />
-              <Boton cargando={ocupado} type="submit">Agregar</Boton>
+              <Boton cargando={ocupado} type="submit">Crear categoría</Boton>
             </div>
           </form>
           <button
@@ -546,7 +577,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             Todos los productos <span>{productos.length}</span>
           </button>
           <div className={styles.listaCategorias}>
-            {categorias.map((categoria, indice) => {
+            {categoriasPaginadas.map((categoria) => {
               const subcategoriasDeCategoria = subcategorias
                 .filter((item) => item.categoria_id === categoria.id)
                 .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
@@ -563,20 +594,18 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                     {categoria.nombre} <span>{cantidadProductos}</span>
                   </button>
                   <div className={styles.accionesPequenas} aria-label={`Acciones para ${categoria.nombre}`}>
-                    <button disabled={indice === 0} onClick={() => void cambiarCategoria(categoria.id, { direccion: "subir" })} type="button">Subir</button>
-                    <button disabled={indice === categorias.length - 1} onClick={() => void cambiarCategoria(categoria.id, { direccion: "bajar" })} type="button">Bajar</button>
-                    <button onClick={() => pedirNuevoNombreCategoria(categoria)} type="button">Renombrar</button>
-                    <button onClick={() => void borrarCategoria(categoria)} type="button">Borrar</button>
+                    <button onClick={() => pedirNuevoNombreCategoria(categoria)} type="button">Cambiar nombre</button>
+                    <button onClick={() => void borrarCategoria(categoria)} type="button">Eliminar categoría</button>
                   </div>
-                  <div className={styles.subcategorias}>
+                  {categoriaActiva === categoria.id ? <div className={styles.subcategorias}>
                     {subcategoriasDeCategoria.map((subcategoria, subindice) => (
                       <div className={styles.subcategoria} key={subcategoria.id}>
                         <span>{subcategoria.nombre}</span>
                         <div>
                           <button aria-label={`Subir ${subcategoria.nombre}`} disabled={subindice === 0} onClick={() => void cambiarSubcategoria(subcategoria, { direccion: "subir" })} type="button">↑</button>
                           <button aria-label={`Bajar ${subcategoria.nombre}`} disabled={subindice === subcategoriasDeCategoria.length - 1} onClick={() => void cambiarSubcategoria(subcategoria, { direccion: "bajar" })} type="button">↓</button>
-                          <button aria-label={`Renombrar ${subcategoria.nombre}`} onClick={() => pedirNuevoNombreSubcategoria(subcategoria)} type="button">Editar</button>
-                          <button aria-label={`Borrar ${subcategoria.nombre}`} onClick={() => void borrarSubcategoria(subcategoria)} type="button">Borrar</button>
+                          <button aria-label={`Cambiar nombre de ${subcategoria.nombre}`} onClick={() => pedirNuevoNombreSubcategoria(subcategoria)} type="button">Cambiar nombre</button>
+                          <button aria-label={`Eliminar ${subcategoria.nombre}`} onClick={() => void borrarSubcategoria(subcategoria)} type="button">Eliminar</button>
                         </div>
                       </div>
                     ))}
@@ -588,13 +617,38 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                         placeholder="Nueva subcategoría"
                         value={nuevasSubcategorias[categoria.id] ?? ""}
                       />
-                      <button onClick={() => void crearSubcategoria(categoria.id)} type="button">Agregar</button>
+                      <button onClick={() => void crearSubcategoria(categoria.id)} type="button">Crear subcategoría</button>
                     </div>
-                  </div>
+                  </div> : null}
                 </section>
               );
             })}
           </div>
+          {totalPaginasCategorias > 1 ? (
+            <nav className={styles.paginacion} aria-label="Páginas de categorías">
+              <button
+                disabled={paginaCategoriasActual === 1}
+                onClick={() => {
+                  setPaginaCategorias((pagina) => Math.max(1, pagina - 1));
+                  setCategoriaActiva("");
+                }}
+                type="button"
+              >
+                Anterior
+              </button>
+              <span>Página {paginaCategoriasActual} de {totalPaginasCategorias}</span>
+              <button
+                disabled={paginaCategoriasActual === totalPaginasCategorias}
+                onClick={() => {
+                  setPaginaCategorias((pagina) => Math.min(totalPaginasCategorias, pagina + 1));
+                  setCategoriaActiva("");
+                }}
+                type="button"
+              >
+                Siguiente
+              </button>
+            </nav>
+          ) : null}
         </aside>
 
         <section className={styles.productos} aria-labelledby="titulo-productos">

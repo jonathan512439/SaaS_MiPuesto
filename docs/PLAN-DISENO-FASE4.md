@@ -49,3 +49,13 @@ Permitir que una persona no técnica organice categorías, subcategorías, produ
 - Editar, reordenar, ocultar y volver a mostrar el producto sin perder contexto.
 - Subir cuatro fotografías, eliminar una y borrar el producto comprobando que no quedan archivos.
 - Abrir `/{slug}` en móvil y escritorio y confirmar que solo aparecen productos visibles con la apariencia guardada.
+
+## Ajuste de usabilidad posterior a la primera validación
+
+- La cabecera administrativa usa dos niveles en móvil: identidad y salida en la primera fila, navegación amplia en la segunda. En escritorio se convierte en una sola fila sin comprimir las etiquetas.
+- La marca MiPuesto conserva un símbolo y nombre visibles; **Salir** reemplaza el texto largo del cierre de sesión sin cambiar su nombre accesible.
+- La navegación emplea etiquetas breves y completas: **Negocio**, **Diseño** y **Catálogo**. La sección activa se distingue por fondo, borde y texto, no solo por color.
+- Las categorías muestran cinco elementos por página. Cambiar de página evita una lista móvil interminable y cada categoría despliega sus subcategorías únicamente al seleccionarla.
+- Se retiran **Subir** y **Bajar** de las categorías por no aportar suficiente valor en el flujo cotidiano. El orden interno se conserva para compatibilidad, pero la interfaz prioriza búsqueda visual y edición.
+- Las acciones genéricas se reemplazan por nombres explícitos: **Crear categoría**, **Cambiar nombre**, **Eliminar categoría** y **Crear subcategoría**.
+- Al abrir el formulario de producto, la vista se desplaza hacia él y enfoca el nombre. El cambio visible confirma que el botón respondió incluso cuando el formulario estaba fuera de pantalla.
