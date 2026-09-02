@@ -88,6 +88,19 @@ begin
     raise exception 'Auditoría de restricciones: falta el conjunto permitido de plantillas';
   end if;
 
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.negocios'::regclass
+      and conname = 'negocios_paleta_id_check'
+      and contype = 'c'
+      and pg_get_constraintdef(oid) like '%mercado%'
+      and pg_get_constraintdef(oid) like '%tierra%'
+      and pg_get_constraintdef(oid) like '%oceano%'
+      and pg_get_constraintdef(oid) like '%noche%'
+  ) then
+    raise exception 'Auditoría de restricciones: falta el conjunto permitido de paletas';
+  end if;
+
   select count(*)
   into cantidad
   from public.negocios

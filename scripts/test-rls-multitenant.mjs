@@ -166,7 +166,7 @@ try {
     eventos_analitica: eventoB.id,
   };
   const cambios = {
-    negocios: { plantilla_id: "moderna" },
+    negocios: { plantilla_id: "moderna", paleta_id: "noche" },
     categorias: { nombre: "Intento ajeno" },
     subcategorias: { nombre: "Intento ajeno" },
     productos: { nombre: "Intento ajeno" },
@@ -181,23 +181,25 @@ try {
 
   const actualizacionPlantillaPropia = await clienteA
     .from("negocios")
-    .update({ plantilla_id: "minimal" })
+    .update({ plantilla_id: "minimal", paleta_id: "oceano" })
     .eq("id", negocios[0].id)
-    .select("plantilla_id")
+    .select("plantilla_id,paleta_id")
     .single();
   comprobar(
-    actualizacionPlantillaPropia.data?.plantilla_id === "minimal",
-    "A no pudo guardar la plantilla de su propio negocio",
+    actualizacionPlantillaPropia.data?.plantilla_id === "minimal" &&
+      actualizacionPlantillaPropia.data?.paleta_id === "oceano",
+    "A no pudo guardar la apariencia de su propio negocio",
   );
 
   const verificacionPlantillaAjena = await clienteB
     .from("negocios")
-    .select("plantilla_id")
+    .select("plantilla_id,paleta_id")
     .eq("id", negocios[1].id)
     .single();
   comprobar(
-    verificacionPlantillaAjena.data?.plantilla_id === "clasica",
-    "A alteró la plantilla del negocio de B",
+    verificacionPlantillaAjena.data?.plantilla_id === "clasica" &&
+      verificacionPlantillaAjena.data?.paleta_id === "mercado",
+    "A alteró la apariencia del negocio de B",
   );
 
   const lecturaReciproca = await clienteB
