@@ -1,16 +1,22 @@
 import type { DatosPlantilla } from "./tipos";
+import { evaluarHorario } from "../horario";
+import { obtenerComportamientoModalidad } from "../modalidades";
+import type { TipoNegocio } from "../negocios/validacion";
 
 type DatosNegocioDemo = {
   nombre: string;
   descripcion: string | null;
   telefonoWhatsapp: string;
+  tipoNegocio?: TipoNegocio;
 };
 
 export function crearDatosDemoPlantilla({
   nombre,
   descripcion,
   telefonoWhatsapp,
+  tipoNegocio = "tienda_virtual",
 }: DatosNegocioDemo): DatosPlantilla {
+  const modalidad = obtenerComportamientoModalidad(tipoNegocio);
   return {
     negocio: {
       nombre,
@@ -18,7 +24,9 @@ export function crearDatosDemoPlantilla({
         descripcion?.trim() ||
         "Productos y servicios preparados para atenderte con la cercanía de siempre.",
       telefonoWhatsapp,
-      horarioTexto: "Abierto hoy hasta las 21:30",
+      modalidad: modalidad.accion,
+      descripcionModalidad: modalidad.descripcion,
+      atencion: evaluarHorario({ modo: "siempre_abierto", dias: {} }),
     },
     categorias: [
       {
@@ -30,6 +38,7 @@ export function crearDatosDemoPlantilla({
             nombre: "Hamburguesa de la casa",
             descripcion: "Doble carne, queso, vegetales frescos y nuestra salsa especial.",
             precio: 45,
+            accionWhatsapp: null,
             imagen: {
               src: "/demo/productos/hamburguesa.webp",
               alt: "Hamburguesa doble con queso y vegetales frescos",
@@ -40,6 +49,7 @@ export function crearDatosDemoPlantilla({
             nombre: "Papas con salsa",
             descripcion: "Papas rústicas doradas acompañadas con salsa de la casa.",
             precio: 32,
+            accionWhatsapp: null,
             imagen: {
               src: "/demo/productos/papas.webp",
               alt: "Porción de papas rústicas doradas con salsa",
@@ -56,6 +66,7 @@ export function crearDatosDemoPlantilla({
             nombre: "Limonada artesanal",
             descripcion: "Preparada al momento con limón, hielo y hojas de menta.",
             precio: 18,
+            accionWhatsapp: null,
             imagen: {
               src: "/demo/productos/limonada.webp",
               alt: "Vaso de limonada fría con limón y menta",

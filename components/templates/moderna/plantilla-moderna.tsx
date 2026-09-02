@@ -2,6 +2,8 @@ import Image from "next/image";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
+import { AccionProducto } from "../accion-producto";
+import { AvisoHorario } from "../aviso-horario";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-moderna.module.css";
 
@@ -9,6 +11,8 @@ export function PlantillaModerna({
   datos,
   paleta = "mercado",
   demostracion = true,
+  cantidadesCarrito = {},
+  alAgregarProducto,
 }: PropiedadesPlantilla) {
   const productos = datos.categorias.flatMap((categoria) => {
     const productosCategoria = [
@@ -36,7 +40,7 @@ export function PlantillaModerna({
       <header className={styles.portada}>
         <div className={styles.barraSuperior}>
           <strong>{datos.negocio.nombre}</strong>
-          <span>{datos.negocio.horarioTexto}</span>
+          {datos.negocio.atencion.texto ? <span>{datos.negocio.atencion.texto}</span> : null}
         </div>
         <div className={styles.presentacion}>
           <p>Compra local, elige fácil</p>
@@ -45,6 +49,8 @@ export function PlantillaModerna({
           {demostracion ? <button type="button">Explorar productos</button> : null}
         </div>
       </header>
+
+      <AvisoHorario estado={datos.negocio.atencion} />
 
       <nav className={styles.navegacion} aria-label="Categorías del catálogo">
         {datos.categorias.map((categoria, indice) => (
@@ -79,15 +85,28 @@ export function PlantillaModerna({
               <span>{producto.descripcion}</span>
               <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
               {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
-              {demostracion ? <button type="button" aria-label={`Añadir ${producto.nombre} al pedido`}>Agregar +</button> : null}
+              <AccionProducto
+                alAgregarProducto={alAgregarProducto}
+                cantidad={cantidadesCarrito[producto.id]}
+                demostracion={demostracion}
+                modalidad={datos.negocio.modalidad}
+                permiteAcciones={datos.negocio.atencion.permiteAcciones}
+                producto={producto}
+              />
             </div>
           </li>
         ))}
       </ul>
 
       <footer className={styles.pie}>
-        <span>{demostracion ? "2 productos · Bs 77,00" : `WhatsApp ${datos.negocio.telefonoWhatsapp}`}</span>
-        {demostracion ? <button type="button">Continuar por WhatsApp</button> : null}
+        <span>
+          {demostracion && datos.negocio.modalidad === "carrito"
+            ? "2 productos · Bs 77,00"
+            : `WhatsApp ${datos.negocio.telefonoWhatsapp}`}
+        </span>
+        {demostracion && datos.negocio.modalidad === "carrito" ? (
+          <button type="button">Continuar por WhatsApp</button>
+        ) : null}
       </footer>
     </article>
   );

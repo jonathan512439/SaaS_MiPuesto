@@ -40,7 +40,7 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
   const { data: negocio } = await supabase
     .from("negocios")
     .select(
-      "id,nombre,descripcion,telefono_whatsapp,horario,plantilla_id,paleta_id,activo",
+      "id,nombre,descripcion,tipo_negocio,telefono_whatsapp,horario,plantilla_id,paleta_id,activo",
     )
     .eq("slug", slug)
     .eq("activo", true)

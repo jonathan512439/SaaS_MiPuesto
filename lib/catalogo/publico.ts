@@ -1,11 +1,15 @@
 import type { PaletaId, PlantillaId } from "../apariencia";
+import { evaluarHorario } from "../horario";
+import { obtenerComportamientoModalidad } from "../modalidades";
 import type { DatosPlantilla } from "../plantillas/tipos";
+import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 
 type NegocioPublico = {
   nombre: string;
   descripcion: string | null;
   telefono_whatsapp: string;
+  tipo_negocio: string;
   horario: unknown;
   plantilla_id: string;
   paleta_id: string;
@@ -28,11 +32,7 @@ type ProductoPublico = {
 };
 
 export function obtenerTextoHorario(horario: unknown) {
-  if (typeof horario !== "object" || horario === null) return "Consulta el horario por WhatsApp";
-  const datos = horario as Record<string, unknown>;
-  if (datos.siempre_abierto === true || datos.siempreAbierto === true) return "Siempre abierto";
-  if (typeof datos.texto === "string" && datos.texto.trim()) return datos.texto.trim();
-  return "Consulta el horario por WhatsApp";
+  return evaluarHorario(horario).texto;
 }
 
 export function construirCatalogoPublico(
@@ -41,7 +41,10 @@ export function construirCatalogoPublico(
   subcategorias: SubcategoriaPublica[],
   productos: ProductoPublico[],
   urlSupabase: string,
+  fecha: Date = new Date(),
 ): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
+  const modalidad = obtenerComportamientoModalidad(negocio.tipo_negocio);
+  const atencion = evaluarHorario(negocio.horario, fecha);
   const visibles = productos
     .filter((producto) => producto.visible)
     .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
@@ -51,19 +54,29 @@ export function construirCatalogoPublico(
   const subcategoriasOrdenadas = [...subcategorias].sort(
     (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
   );
-  const convertirProducto = (producto: ProductoPublico) => ({
-    id: producto.id,
-    nombre: producto.nombre,
-    descripcion: producto.descripcion ?? "",
-    precio: Number(producto.precio),
-    estado: producto.estado,
-    imagen: producto.fotos[0]
-      ? {
-          src: obtenerUrlPublicaImagenProducto(urlSupabase, producto.fotos[0]),
-          alt: producto.nombre,
-        }
-      : null,
-  });
+  const convertirProducto = (producto: ProductoPublico) => {
+    const precio = Number(producto.precio);
+    return {
+      id: producto.id,
+      nombre: producto.nombre,
+      descripcion: producto.descripcion ?? "",
+      precio,
+      estado: producto.estado,
+      accionWhatsapp:
+        modalidad.accion === "accion_individual"
+          ? construirEnlaceWhatsapp(
+              negocio.telefono_whatsapp,
+              construirMensajeProducto(negocio.nombre, { nombre: producto.nombre, precio }),
+            )
+          : null,
+      imagen: producto.fotos[0]
+        ? {
+            src: obtenerUrlPublicaImagenProducto(urlSupabase, producto.fotos[0]),
+            alt: producto.nombre,
+          }
+        : null,
+    };
+  };
   const agrupadas = categoriasOrdenadas
     .map((categoria) => ({
       id: categoria.id,
@@ -118,7 +131,9 @@ export function construirCatalogoPublico(
         descripcion:
           negocio.descripcion?.trim() || "Conoce nuestros productos y servicios disponibles.",
         telefonoWhatsapp: negocio.telefono_whatsapp,
-        horarioTexto: obtenerTextoHorario(negocio.horario),
+        modalidad: modalidad.accion,
+        descripcionModalidad: modalidad.descripcion,
+        atencion,
       },
       categorias: agrupadas,
     },

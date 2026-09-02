@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { SelectorApariencia } from "../../../../components/plantillas/selector-apariencia";
 import { crearDatosDemoPlantilla } from "../../../../lib/plantillas/datos-demo";
+import { esTipoNegocio } from "../../../../lib/modalidades";
 import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./plantilla.module.css";
@@ -21,7 +22,7 @@ export default async function PaginaPlantilla() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,descripcion,telefono_whatsapp,plantilla_id,paleta_id")
+    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,paleta_id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -35,6 +36,9 @@ export default async function PaginaPlantilla() {
     nombre: negocio.nombre,
     descripcion: negocio.descripcion,
     telefonoWhatsapp: negocio.telefono_whatsapp,
+    tipoNegocio: esTipoNegocio(negocio.tipo_negocio)
+      ? negocio.tipo_negocio
+      : "catalogo_estatico",
   });
 
   return (

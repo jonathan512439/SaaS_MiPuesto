@@ -66,6 +66,7 @@
 
 .contacto button,
 .servicio button,
+.servicio a,
 .pie button {
   border: 0;
   font-family: inherit;
@@ -203,7 +204,8 @@
   grid-column: 2;
 }
 
-.servicio button {
+.servicio button,
+.servicio a {
   padding: var(--spacing-1) 0;
   background: transparent;
   color: var(--catalogo-marca);
@@ -211,6 +213,11 @@
   font-weight: 800;
   text-decoration: underline;
   text-underline-offset: var(--spacing-1);
+}
+
+.servicio button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .pie {

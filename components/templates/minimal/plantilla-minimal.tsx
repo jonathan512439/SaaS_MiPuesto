@@ -2,6 +2,8 @@ import Image from "next/image";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
+import { AccionProducto } from "../accion-producto";
+import { AvisoHorario } from "../aviso-horario";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-minimal.module.css";
 
@@ -9,6 +11,8 @@ export function PlantillaMinimal({
   datos,
   paleta = "mercado",
   demostracion = true,
+  cantidadesCarrito = {},
+  alAgregarProducto,
 }: PropiedadesPlantilla) {
   return (
     <article
@@ -23,11 +27,12 @@ export function PlantillaMinimal({
           <p>{datos.negocio.descripcion}</p>
         </div>
         <div className={styles.contacto}>
-          <span>{datos.negocio.horarioTexto}</span>
-          {demostracion ? <button type="button">Consultar disponibilidad</button> : null}
+          {datos.negocio.atencion.texto ? <span>{datos.negocio.atencion.texto}</span> : null}
           <small>WhatsApp {datos.negocio.telefonoWhatsapp}</small>
         </div>
       </header>
+
+      <AvisoHorario estado={datos.negocio.atencion} />
 
       <nav className={styles.navegacion} aria-label="Secciones de la demostración">
         {datos.categorias.map((categoria) => (
@@ -67,7 +72,18 @@ export function PlantillaMinimal({
                   <dd>{producto.descripcion}</dd>
                   <dd>{formatearPrecioBolivianos(producto.precio)}</dd>
                   {producto.estado === "agotado" ? <dd><span className={styles.agotado}>Agotado</span></dd> : null}
-                  {demostracion ? <dd><button type="button">Elegir</button></dd> : null}
+                  {datos.negocio.modalidad !== "solo_lectura" ? (
+                    <dd>
+                      <AccionProducto
+                        alAgregarProducto={alAgregarProducto}
+                        cantidad={cantidadesCarrito[producto.id]}
+                        demostracion={demostracion}
+                        modalidad={datos.negocio.modalidad}
+                        permiteAcciones={datos.negocio.atencion.permiteAcciones}
+                        producto={producto}
+                      />
+                    </dd>
+                  ) : null}
                 </div>
               ))}
             </dl>
@@ -77,7 +93,9 @@ export function PlantillaMinimal({
 
       <footer className={styles.pie}>
         <p>Cuéntanos qué necesitas y te orientamos personalmente.</p>
-        {demostracion ? <button type="button">Iniciar una consulta</button> : null}
+        {demostracion && datos.negocio.modalidad === "carrito" ? (
+          <button type="button">Revisar mi pedido</button>
+        ) : null}
       </footer>
     </article>
   );

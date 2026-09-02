@@ -2,6 +2,8 @@ import Image from "next/image";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
+import { AccionProducto } from "../accion-producto";
+import { AvisoHorario } from "../aviso-horario";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-clasica.module.css";
 
@@ -9,6 +11,8 @@ export function PlantillaClasica({
   datos,
   paleta = "mercado",
   demostracion = true,
+  cantidadesCarrito = {},
+  alAgregarProducto,
 }: PropiedadesPlantilla) {
   return (
     <article
@@ -20,8 +24,12 @@ export function PlantillaClasica({
         <p className={styles.sello}>Carta del negocio</p>
         <h3>{datos.negocio.nombre}</h3>
         <p>{datos.negocio.descripcion}</p>
-        <span className={styles.horario}>{datos.negocio.horarioTexto}</span>
+        {datos.negocio.atencion.texto ? (
+          <span className={styles.horario}>{datos.negocio.atencion.texto}</span>
+        ) : null}
       </header>
+
+      <AvisoHorario estado={datos.negocio.atencion} />
 
       <nav className={styles.navegacion} aria-label="Categorías del catálogo">
         {datos.categorias.map((categoria) => (
@@ -67,7 +75,14 @@ export function PlantillaClasica({
                     <h5>{producto.nombre}</h5>
                     <p>{producto.descripcion}</p>
                     {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
-                    {demostracion ? <button type="button">Añadir al pedido</button> : null}
+                    <AccionProducto
+                      alAgregarProducto={alAgregarProducto}
+                      cantidad={cantidadesCarrito[producto.id]}
+                      demostracion={demostracion}
+                      modalidad={datos.negocio.modalidad}
+                      permiteAcciones={datos.negocio.atencion.permiteAcciones}
+                      producto={producto}
+                    />
                   </div>
                   <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
                 </li>
@@ -80,7 +95,9 @@ export function PlantillaClasica({
       <footer className={styles.pie}>
         <p>¿Necesitas ayuda para elegir?</p>
         <strong>WhatsApp {datos.negocio.telefonoWhatsapp}</strong>
-        {demostracion ? <button type="button">Ver mi pedido · 2 productos</button> : null}
+        {demostracion && datos.negocio.modalidad === "carrito" ? (
+          <button type="button">Ver mi pedido · 2 productos</button>
+        ) : null}
       </footer>
     </article>
   );

@@ -1,0 +1,28 @@
+@reference "../../app/globals.css";
+
+.aviso {
+  display: grid;
+  gap: var(--spacing-1);
+  border: var(--borde-fino) solid var(--catalogo-alerta);
+  border-left-width: var(--spacing-1);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: color-mix(in srgb, var(--catalogo-alerta) 9%, var(--catalogo-superficie));
+  color: var(--catalogo-texto);
+  font-family: Arial, "Segoe UI", sans-serif;
+}
+
+.aviso strong,
+.aviso p {
+  margin: 0;
+}
+
+.aviso strong {
+  color: var(--catalogo-alerta);
+  font-size: var(--text-sm);
+}
+
+.aviso p {
+  max-width: 70ch;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}

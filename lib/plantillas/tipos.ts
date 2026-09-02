@@ -1,4 +1,6 @@
 import type { PaletaId } from "../apariencia";
+import type { EstadoAtencion } from "../horario";
+import type { ModoAccionCatalogo } from "../modalidades";
 
 export { PLANTILLAS } from "../apariencia";
 export type { PaletaId, PlantillaId } from "../apariencia";
@@ -13,6 +15,7 @@ export type ProductoPlantilla = {
     alt: string;
   } | null;
   estado?: string;
+  accionWhatsapp: string | null;
 };
 
 export type CategoriaPlantilla = {
@@ -31,7 +34,9 @@ export type DatosPlantilla = {
     nombre: string;
     descripcion: string;
     telefonoWhatsapp: string;
-    horarioTexto: string;
+    modalidad: ModoAccionCatalogo;
+    descripcionModalidad: string;
+    atencion: EstadoAtencion;
   };
   categorias: CategoriaPlantilla[];
 };
@@ -40,4 +45,6 @@ export type PropiedadesPlantilla = {
   datos: DatosPlantilla;
   paleta?: PaletaId;
   demostracion?: boolean;
+  cantidadesCarrito?: Record<string, number>;
+  alAgregarProducto?: (productoId: string) => void;
 };

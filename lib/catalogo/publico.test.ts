@@ -6,6 +6,7 @@ const NEGOCIO = {
   nombre: "Mercado Uno",
   descripcion: null,
   telefono_whatsapp: "59170000000",
+  tipo_negocio: "catalogo_estatico",
   horario: {},
   plantilla_id: "desconocida",
   paleta_id: "desconocida",
@@ -63,5 +64,63 @@ describe("construirCatalogoPublico", () => {
 describe("obtenerTextoHorario", () => {
   it("reconoce la opción siempre abierto", () => {
     expect(obtenerTextoHorario({ siempre_abierto: true })).toBe("Siempre abierto");
+  });
+});
+
+describe("modalidad y horario del catálogo público", () => {
+  const PRODUCTO = {
+    id: "p-1",
+    categoria_id: "cat-1",
+    subcategoria_id: null,
+    nombre: "Producto",
+    descripcion: null,
+    precio: 20,
+    fotos: [],
+    estado: "disponible",
+    visible: true,
+    orden: 1,
+  };
+
+  it.each([
+    ["catalogo_estatico", "solo_lectura"],
+    ["catalogo_cta", "accion_individual"],
+    ["tienda_virtual", "carrito"],
+  ] as const)("expone %s como %s", (tipo, accion) => {
+    const resultado = construirCatalogoPublico(
+      { ...NEGOCIO, tipo_negocio: tipo },
+      [{ id: "cat-1", nombre: "Categoría", orden: 1 }],
+      [],
+      [PRODUCTO],
+      "https://proyecto.supabase.co",
+    );
+
+    expect(resultado.datos.negocio.modalidad).toBe(accion);
+    expect(Boolean(resultado.datos.categorias[0].productos[0].accionWhatsapp)).toBe(
+      tipo === "catalogo_cta",
+    );
+  });
+
+  it("bloquea acciones cuando el horario programado está cerrado", () => {
+    const resultado = construirCatalogoPublico(
+      {
+        ...NEGOCIO,
+        tipo_negocio: "catalogo_cta",
+        horario: {
+          modo: "programado",
+          dias: { lunes: [{ abre: "09:00", cierra: "10:00" }] },
+        },
+      },
+      [{ id: "cat-1", nombre: "Categoría", orden: 1 }],
+      [],
+      [PRODUCTO],
+      "https://proyecto.supabase.co",
+      new Date("2026-09-07T15:00:00Z"),
+    );
+
+    expect(resultado.datos.negocio.atencion).toMatchObject({
+      abierto: false,
+      permiteAcciones: false,
+    });
+    expect(resultado.datos.negocio.atencion.aviso).toContain("fuera del horario");
   });
 });
