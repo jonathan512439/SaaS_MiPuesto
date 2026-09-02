@@ -2,15 +2,17 @@ import { randomUUID } from "node:crypto";
 
 import { createClient } from "@supabase/supabase-js";
 
+import { obtenerClaveServicioLocal } from "./servicio-supabase-local.mjs";
+
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const clavePublica =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const claveServicio = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const claveServicio = await obtenerClaveServicioLocal();
 
-if (!url || !clavePublica || !claveServicio) {
+if (!url || !clavePublica) {
   throw new Error(
-    "La prueba multi-tenant necesita NEXT_PUBLIC_SUPABASE_URL, la clave Publishable y SUPABASE_SERVICE_ROLE_KEY.",
+    "La prueba multi-tenant necesita NEXT_PUBLIC_SUPABASE_URL y la clave Publishable.",
   );
 }
 
