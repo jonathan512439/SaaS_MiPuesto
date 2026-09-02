@@ -10,7 +10,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
 - Cierre de Fase 4: 2026-09-02.
-- Estado: **Fase 4 validada manualmente; planificación de Fase 5 iniciada**.
+- Estado: **implementación y auditorías automáticas de Fase 5 completadas; validación manual pendiente**.
 - Inicio de Fase 4: 2026-09-02.
 - Inicio de Fase 5: 2026-09-02.
 - Puerta de salida actual: las tres modalidades cambian el comportamiento del catálogo y un horario cerrado mantiene la navegación pero bloquea el inicio o confirmación de pedidos.
@@ -18,10 +18,24 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Estado de Fase 5
 
 - Inicio: 2026-09-02.
-- Estado: **en implementación**.
+- Estado: **implementada y auditada automáticamente; pendiente de validación manual en producción de desarrollo**.
 - Plan visual: `docs/PLAN-DISENO-FASE5.md`.
 - Decisión de alcance: el carrito local y el mensaje consolidado pertenecen a esta fase; la creación del pedido, recálculo de servidor y reserva de inventario permanecen en la Fase 6.
 - Riesgos principales: horario inválido o evaluado en otra zona, enlaces de WhatsApp mal formados, acciones visibles en una modalidad incorrecta y lógica duplicada entre plantillas.
+
+| Control | Estado | Evidencia o pendiente |
+|---|---|---|
+| Catálogo para mostrar | Cumplido en código y pruebas | Conserva información, fotografías y precios sin presentar acciones de pedido. Una modalidad desconocida también cae en solo lectura de forma segura. |
+| Acción individual | Cumplido en código y pruebas | Cada producto disponible genera un enlace `wa.me` con celular boliviano normalizado, negocio, producto y precio. Productos agotados, reservados o vendidos no conservan acciones activas. |
+| Tienda con carrito | Cumplido en código y pruebas | Carrito en memoria con aumento, disminución, retiro, límite de 99 unidades, subtotal centralizado en `lib/precios.ts` y mensaje consolidado para WhatsApp. No crea pedidos ni reserva inventario antes de la Fase 6. |
+| Horario | Cumplido en código y 13 pruebas dedicadas | Contrato `sin_horario`, `siempre_abierto` y `programado`; zona `America/La_Paz`, apertura inclusiva, cierre exclusivo, varios intervalos, cambio de día, cruce de medianoche, solapamientos y formato inválido. Mantiene compatibilidad con el seed anterior. |
+| Aviso fuera de horario | Cumplido en código | Aviso textual persistente junto a las acciones; el catálogo permanece navegable. CTA individual y confirmación del carrito quedan deshabilitados. |
+| Validación de modalidad al procesar pedidos | Preparada para Fase 6 | Todavía no existe un endpoint que cree pedidos: una solicitud forzada es rechazada con 404 y no modifica datos. El endpoint de Fase 6 deberá reutilizar la modalidad y reevaluar el horario en servidor antes de crear o reservar. |
+| Aislamiento multi-tenant | Cumplido | Auditoría remota aprobada nuevamente: dos usuarios, siete tablas, catálogo, cuatro políticas de Storage y apariencia aislados. No hubo cambios de esquema. |
+| Calidad automática | Cumplido | Secretos, ESLint, TypeScript, 78 pruebas, tokens, contraste, `npm audit`, build Next.js/vinext, dry-run de Worker, lint SQL y estado de migraciones aprobaron. |
+| Revisión visual e interacción real | Pendiente manual | El navegador integrado no estaba disponible. Revisar las tres modalidades a 360 px y escritorio, cantidades del carrito y apertura real de WhatsApp en un celular. |
+
+Commits de implementación: `c99332b`, `658142a`, `d289ee9`, `403852e` y `d8e25bf`.
 
 ## Estado de Fase 4
 

@@ -205,3 +205,17 @@ Estado: **completado manualmente el 2026-09-02**. Las pruebas, compilaciones, RL
 10. Repetí una revisión breve del panel y del enlace público a un ancho de al menos **1280 px**. Navegá con `Tab` y verificá que todos los controles muestren foco visible.
 
 Cuando todo esté correcto, respondé `Fase 4 validada`. Esa confirmación permite registrar el cierre; no se avanza a la Fase 5 antes de aprobar esta puerta manual.
+
+## 11. Validación manual de la Fase 5
+
+Estado: **auditorías automáticas completadas; recorrido visual y WhatsApp pendientes**.
+
+1. Esperá a que Cloudflare termine el despliegue de `main`, ingresá al panel y abrí **Negocio**.
+2. Elegí **Catálogo para mostrar**, guardá y abrí tu enlace público en una ventana privada. Debe mostrar productos, precios y fotografías sin botones para pedir.
+3. Cambiá a **Pedidos o reservas por WhatsApp** y recargá el mismo enlace. Cada producto disponible debe mostrar **Pedir o agendar por WhatsApp**. Abrí uno en un celular y comprobá que el mensaje incluya negocio, producto y precio.
+4. Cambiá a **Tienda con carrito**. Agregá dos productos, aumentá y disminuí cantidades, quitá uno y verificá el subtotal. **Continuar por WhatsApp** debe preparar un solo mensaje con las cantidades y el subtotal publicados.
+5. En `https://mipuesto-dev.mipuesto-app.workers.dev/barberia-central` comprobá el estado cerrado de los datos seed: el aviso debe permitir navegar y el botón individual debe estar deshabilitado. En `tienda-kantuta`, el carrito puede prepararse, pero la confirmación queda deshabilitada mientras esté fuera del horario configurado.
+6. Repetí los pasos a **360 px** y a un ancho mínimo de **1280 px**. No debe existir desplazamiento horizontal; recorré enlaces, botones y controles de cantidad con `Tab` y comprobá el foco visible.
+7. Volvé a dejar tu negocio en la modalidad que realmente quieras usar. Cambiarla no debe alterar categorías, productos, fotografías, plantilla ni paleta.
+
+La configuración visual de días e intervalos llegará en la Fase 7. En esta fase, los negocios seed permiten comprobar el aviso y las pruebas automáticas cubren los límites temporales. Cuando todo esté correcto, respondé `Fase 5 validada`.
