@@ -7,7 +7,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Fases completadas: **Fase 0 — Setup e infraestructura** y **Fase 1 — Sistema de diseño**.
 - Fase en curso: **Fase 2 — Autenticación y perfil de negocio**.
 - Inicio de Fase 2: 2026-09-01.
-- Estado: implementación desplegada y en auditoría; la recuperación de contraseña, definición de contraseña e inicio de sesión se validaron manualmente con correos reales. Falta validar la creación o edición de negocio y completar la revisión visual en navegador.
+- Estado: implementación desplegada y en auditoría; la recuperación de contraseña, definición de contraseña, inicio de sesión y creación de negocio se validaron manualmente con correos reales. Falta completar la revisión visual en navegador y la auditoría RLS de cierre.
 - Puerta de salida: un administrador invitado puede definir contraseña, ingresar, crear su negocio y permanecer aislado de cualquier otro administrador.
 
 ## Estado de Fase 2

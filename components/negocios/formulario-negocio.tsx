@@ -33,8 +33,26 @@ type RespuestaGuardado = {
 
 const ETIQUETAS_MODALIDAD: Record<TipoNegocio, string> = {
   catalogo_estatico: "Catálogo para mostrar",
-  catalogo_cta: "Pedidos o reservas por producto",
+  catalogo_cta: "Pedidos o reservas por WhatsApp",
   tienda_virtual: "Tienda con carrito",
+};
+
+const EXPLICACIONES_MODALIDAD: Record<TipoNegocio, { titulo: string; descripcion: string }> = {
+  catalogo_estatico: {
+    titulo: "Para mostrar lo que ofreces",
+    descripcion:
+      "Es una buena opción para menús, vitrinas y listas de servicios. Tus clientes verán la información y se comunicarán contigo por WhatsApp.",
+  },
+  catalogo_cta: {
+    titulo: "Para recibir pedidos o reservas por WhatsApp",
+    descripcion:
+      "Cada producto o servicio tendrá una acción para pedir o reservar. Es útil cuando confirmas los detalles directamente por WhatsApp.",
+  },
+  tienda_virtual: {
+    titulo: "Para reunir varios productos antes de pedir",
+    descripcion:
+      "Tus clientes podrán preparar un carrito y enviarte el pedido por WhatsApp. Es ideal para tiendas con varias opciones o inventario.",
+  },
 };
 
 export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegocio) {
@@ -115,7 +133,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
     }
 
     if (estadoSlugVisible === "ocupado" || estadoSlugVisible === "invalido") {
-      setErrores({ slug: "Elegí una dirección disponible antes de guardar." });
+      setErrores({ slug: "Elige una dirección disponible antes de guardar." });
       return;
     }
 
@@ -144,12 +162,16 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       setTelefono(datos.negocio.telefono_whatsapp);
     }
 
-    setMensaje(negocioInicial ? "Cambios guardados." : "Negocio creado correctamente.");
+    setMensaje(
+      negocioInicial
+        ? "Cambios guardados."
+        : "Negocio creado correctamente. Tu dirección quedó reservada para el catálogo público.",
+    );
     setGuardando(false);
   }
 
   const mensajeSlug = {
-    inicial: "La dirección se comprobará mientras escribís.",
+    inicial: "La dirección se comprobará mientras escribes.",
     revisando: "Comprobando disponibilidad…",
     disponible: "Disponible para tu catálogo.",
     ocupado: "Ese nombre ya está en uso.",
@@ -183,7 +205,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           id="descripcion"
           maxLength={500}
           onChange={(evento) => setDescripcion(evento.target.value)}
-          placeholder="Contá brevemente qué ofrecés y qué hace especial a tu negocio."
+          placeholder="Describe brevemente lo que ofreces y qué hace especial a tu negocio."
           rows={4}
           value={descripcion}
         />
@@ -194,7 +216,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           <span aria-hidden="true">2</span>
           <div>
             <h2 id="direccion-catalogo">Dirección del catálogo</h2>
-            <p>Será el nombre corto que compartirás con tus clientes.</p>
+            <p>Será el nombre corto que usarás para compartir tu catálogo.</p>
           </div>
         </div>
         <Campo
@@ -230,7 +252,10 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           {mensajeSlug}
         </p>
         <p className={styles.vistaDireccion}>
-          mipuesto.com/<strong>{slug || "tu-negocio"}</strong>
+          Dirección reservada: mipuesto.com/<strong>{slug || "tu-negocio"}</strong>
+        </p>
+        <p className={styles.ayudaSlug}>
+          Aún no es un enlace público. Podrás compartirlo cuando el catálogo esté publicado.
         </p>
       </section>
 
@@ -239,7 +264,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           <span aria-hidden="true">3</span>
           <div>
             <h2 id="atencion-negocio">Atención y modalidad</h2>
-            <p>Elegí cómo usarás el catálogo y dónde recibirás consultas.</p>
+            <p>Elige cómo usarás el catálogo y dónde recibirás consultas.</p>
           </div>
         </div>
         <Selector
@@ -256,9 +281,14 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
             </option>
           ))}
         </Selector>
+        <div className={styles.modalidadExplicacion} aria-live="polite">
+          <h3>{EXPLICACIONES_MODALIDAD[tipo].titulo}</h3>
+          <p>{EXPLICACIONES_MODALIDAD[tipo].descripcion}</p>
+          <p>Puedes cambiar esta modalidad más adelante si tu negocio lo necesita.</p>
+        </div>
         <Campo
           autoComplete="tel"
-          ayuda="Podés escribir 71234567 o +591 71234567."
+          ayuda="Puedes escribir 71234567 o +591 71234567."
           error={errores.telefono_whatsapp}
           etiqueta="WhatsApp del negocio"
           id="telefono-whatsapp"
@@ -284,7 +314,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         <Boton cargando={guardando} type="submit">
           {negocioInicial ? "Guardar cambios" : "Crear mi negocio"}
         </Boton>
-        <p>Los cambios quedan protegidos por tu sesión y las políticas RLS.</p>
+        <p>Solo tú puedes ver y modificar los datos de este negocio.</p>
       </div>
     </form>
   );

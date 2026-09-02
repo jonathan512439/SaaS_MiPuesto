@@ -158,6 +158,28 @@
   font-size: var(--text-sm);
 }
 
+.modalidadExplicacion {
+  display: grid;
+  gap: var(--spacing-2);
+  border-left: var(--spacing-2) solid var(--color-marca);
+  padding: var(--spacing-4);
+  background: var(--color-fondo-suave);
+}
+
+.modalidadExplicacion h3,
+.modalidadExplicacion p {
+  margin: 0;
+}
+
+.modalidadExplicacion h3 {
+  font-size: var(--text-base);
+}
+
+.modalidadExplicacion p {
+  max-width: 65ch;
+  font-size: var(--text-sm);
+}
+
 .mensajeError,
 .mensajeExito {
   border-left: var(--spacing-2) solid currentColor;

@@ -23,6 +23,7 @@
 - No se introducen colores, radios, tamaños ni espaciados fuera de los tokens existentes.
 - El movimiento solo comunica estado de carga y respeta `prefers-reduced-motion`.
 - Se concentra la identidad visual en una sola franja de marca; el resto permanece silencioso y funcional.
+- El selector de modalidad se acompaña de una explicación contextual en texto; la dirección reservada no se presenta como enlace hasta que exista el catálogo público.
 
 ## Criterios de revisión
 
