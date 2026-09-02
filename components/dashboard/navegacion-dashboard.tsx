@@ -8,6 +8,7 @@ import styles from "../../app/(admin)/dashboard/dashboard.module.css";
 const ENLACES = [
   { href: "/dashboard/configuracion", etiqueta: "Datos del negocio" },
   { href: "/dashboard/plantilla", etiqueta: "Plantilla" },
+  { href: "/dashboard/catalogo", etiqueta: "Catálogo" },
 ] as const;
 
 export function NavegacionDashboard() {
