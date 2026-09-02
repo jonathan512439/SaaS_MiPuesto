@@ -1,0 +1,111 @@
+import type { DatosProductoEntrada } from "./tipos";
+
+export const LIMITE_CATEGORIAS = 40;
+export const LIMITE_SUBCATEGORIAS_POR_CATEGORIA = 20;
+export const LIMITE_PRODUCTOS = 200;
+
+const PATRON_UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function esUuid(valor: unknown): valor is string {
+  return typeof valor === "string" && PATRON_UUID.test(valor);
+}
+
+export function validarNombreOrganizacion(valor: unknown) {
+  if (typeof valor !== "string") return "Escribe un nombre válido.";
+  const nombre = valor.trim();
+  if (!nombre) return "El nombre es obligatorio.";
+  if (nombre.length > 80) return "Usa como máximo 80 caracteres.";
+  return "";
+}
+
+export function normalizarNombreOrganizacion(valor: string) {
+  return valor.trim().replace(/\s+/g, " ");
+}
+
+export function validarProducto(entrada: unknown):
+  | { correcto: true; datos: DatosProductoEntrada }
+  | { correcto: false; errores: Record<string, string> } {
+  if (typeof entrada !== "object" || entrada === null) {
+    return { correcto: false, errores: { general: "Los datos enviados no son válidos." } };
+  }
+
+  const valor = entrada as Record<string, unknown>;
+  const errores: Record<string, string> = {};
+  const nombre =
+    typeof valor.nombre === "string" ? valor.nombre.trim().replace(/\s+/g, " ") : "";
+  const descripcion =
+    typeof valor.descripcion === "string" && valor.descripcion.trim()
+      ? valor.descripcion.trim()
+      : null;
+  const precio =
+    typeof valor.precio === "number"
+      ? valor.precio
+      : typeof valor.precio === "string" && valor.precio.trim()
+        ? Number(valor.precio.replace(",", "."))
+        : Number.NaN;
+  const controlaStock = valor.controla_stock === true;
+  const cantidadStock = controlaStock
+    ? typeof valor.cantidad_stock === "number"
+      ? valor.cantidad_stock
+      : typeof valor.cantidad_stock === "string" && valor.cantidad_stock.trim()
+        ? Number(valor.cantidad_stock)
+        : Number.NaN
+    : null;
+  const categoriaId =
+    valor.categoria_id === null || valor.categoria_id === "" ? null : valor.categoria_id;
+  const subcategoriaId =
+    valor.subcategoria_id === null || valor.subcategoria_id === "" ? null : valor.subcategoria_id;
+
+  if (!nombre) errores.nombre = "El nombre es obligatorio.";
+  else if (nombre.length > 120) errores.nombre = "Usa como máximo 120 caracteres.";
+
+  if (descripcion && descripcion.length > 1000) {
+    errores.descripcion = "Usa como máximo 1000 caracteres.";
+  }
+
+  if (!Number.isFinite(precio) || precio < 0 || precio > 9_999_999.99) {
+    errores.precio = "Escribe un precio válido mayor o igual a cero.";
+  } else if (Math.round(precio * 100) !== precio * 100) {
+    errores.precio = "El precio admite como máximo dos decimales.";
+  }
+
+  if (categoriaId !== null && !esUuid(categoriaId)) {
+    errores.categoria_id = "La categoría seleccionada no es válida.";
+  }
+  if (subcategoriaId !== null && !esUuid(subcategoriaId)) {
+    errores.subcategoria_id = "La subcategoría seleccionada no es válida.";
+  }
+  if (subcategoriaId !== null && categoriaId === null) {
+    errores.subcategoria_id = "Elige primero una categoría.";
+  }
+
+  if (
+    controlaStock &&
+    (cantidadStock === null ||
+      !Number.isInteger(cantidadStock) ||
+      cantidadStock < 0 ||
+      cantidadStock > 999_999)
+  ) {
+    errores.cantidad_stock = "Escribe una cantidad entera entre 0 y 999999.";
+  }
+
+  if (Object.keys(errores).length > 0) return { correcto: false, errores };
+
+  return {
+    correcto: true,
+    datos: {
+      nombre,
+      descripcion,
+      precio: Number(precio.toFixed(2)),
+      categoria_id: categoriaId as string | null,
+      subcategoria_id: subcategoriaId as string | null,
+      controla_stock: controlaStock,
+      cantidad_stock: cantidadStock,
+    },
+  };
+}
+
+export function estadoPorStock(controlaStock: boolean, cantidadStock: number | null) {
+  return controlaStock && cantidadStock === 0 ? "agotado" : "disponible";
+}
