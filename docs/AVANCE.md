@@ -26,7 +26,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Aislamiento multi-tenant | Cumplido | `npm run test:rls:linked` creó 2 usuarios temporales y comprobó 7 tablas: sin lectura, actualización ni borrado ajenos. |
 | Confirmación de correo | Cumplido remoto | La configuración pública informa `mailer_autoconfirm: false`; falta verificar el enlace real luego de SMTP. |
 | Contraseña y rate limits | Cumplido | Confirmado manualmente: contraseña mínima de 10 caracteres, confirmación de correo y límites de Auth activos. |
-| SMTP | Cumplido temporalmente; validación pendiente | Gmail con contraseña de aplicación fue configurado manualmente para pruebas. Ninguna credencial llegó al repositorio; antes de producción se migrará a Resend Free con dominio propio. |
+| SMTP | Pendiente manual | El intento con Gmail y contraseña de aplicación devolvió `Gateway Timeout`; se comprobó que no creó la cuenta de prueba. Se configurará Brevo Free para pruebas y, antes de producción, Resend Free con dominio propio. Ninguna credencial llegó al repositorio. |
 | Despliegue de Fase 2 | Cumplido | `main` fue publicado automáticamente por Cloudflare; `/login` respondió HTTP 200 en la versión del Worker creada el 2026-09-02. |
 | Revisión visual a 360 px y escritorio | Pendiente | El navegador integrado no tenía una instancia conectada en esta sesión. |
 
