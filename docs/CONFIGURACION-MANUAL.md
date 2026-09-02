@@ -191,7 +191,7 @@ Estado: **completado manualmente el 2026-09-02**. La implementación, pruebas, c
 
 ## 10. Validación manual de la Fase 4
 
-Estado: **pendiente después del despliegue automático**. Las pruebas, compilaciones, RLS, Storage y verificación HTTP local ya aprobaron; este recorrido confirma el uso real con sesión, fotografías y el negocio creado.
+Estado: **despliegue automático completado; recorrido autenticado pendiente**. Las pruebas, compilaciones, RLS, Storage y verificación HTTP local y pública ya aprobaron; este recorrido confirma el uso real con sesión, fotografías y el negocio creado.
 
 1. Esperá a que Cloudflare termine el despliegue de `main` y abrí `https://mipuesto-dev.mipuesto-app.workers.dev/login`.
 2. Ingresá con tu cuenta y abrí **Catálogo**. En las herramientas del navegador fijá un ancho de **360 px** y comprobá que no exista desplazamiento horizontal.

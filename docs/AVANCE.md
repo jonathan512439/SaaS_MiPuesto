@@ -28,10 +28,12 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Visibilidad rápida | Cumplido en código y pruebas | El cambio se realiza desde la lista; la consulta pública exige `visible = true` aunque exista una sesión administrativa. |
 | Fotografías | Cumplido en código y pruebas | Hasta cuatro; JPEG, PNG o WebP; máximo original de 5 MB; redimensionado a 1600 px, WebP en cliente, firma y límite de 2 MB comprobados en servidor. |
 | Limpieza de Storage | Cumplido en código | Quitar una foto llama a Storage antes de actualizar el producto; borrar un producto elimina todas sus rutas antes de borrar la fila y conserva el producto si Storage falla. Pendiente comprobar el flujo completo con cuatro fotos desde el panel desplegado. |
-| Catálogo público | Cumplido en código y prueba local | `/{slug}` usa cliente anónimo, negocio activo, productos visibles, plantilla y paleta guardadas; agrupa por categoría y subcategoría y reserva espacio cuando falta foto. `sabor-camba` respondió 200 con producto y subcategoría seed. |
+| Catálogo público | Cumplido en código y desplegado | `/{slug}` usa cliente anónimo, negocio activo, productos visibles, plantilla y paleta guardadas; agrupa por categoría y subcategoría y reserva espacio cuando falta foto. `sabor-camba` respondió 200 en Cloudflare con producto y subcategoría seed. |
 | Aislamiento multi-tenant | Cumplido | Auditoría remota con dos usuarios aprobó 7 tablas, jerarquía de catálogo, cuatro políticas de Storage y apariencia aislada. |
 | Calidad automática | Cumplido | Secretos, ESLint, TypeScript, 52 pruebas, tokens, contraste, `npm audit`, build Next.js/vinext, dry-run, arranque Worker y lint SQL aprobados. |
 | Revisión visual a 360 px y escritorio | Pendiente manual | No había navegador integrado disponible. Revisar el panel, cuatro fotos, ocultar/mostrar, borrado completo y `/{slug}` después del despliegue automático. |
+
+- Despliegue automático de `fd82a73` comprobado el 2026-09-02: `/sabor-camba` y `/api/salud/supabase` respondieron HTTP 200; el catálogo contenía el producto y la subcategoría seed, y `/dashboard/catalogo` sin sesión respondió 307 hacia `/login?motivo=sesion`.
 
 Commits de implementación: `a8dd48c`, `2694f5b`, `22f1752`, `c0cc6cc`, `aa85487`, `0e778de`, `69dc0de` y `27c5244`.
 
