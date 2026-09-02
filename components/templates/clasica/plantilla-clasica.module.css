@@ -65,6 +65,7 @@
 }
 
 .navegacion button,
+.navegacion a,
 .producto button,
 .pie button {
   border: 0;
@@ -80,6 +81,15 @@
   font-family: Arial, sans-serif;
   font-size: var(--text-xs);
   font-weight: 700;
+}
+
+.navegacion a {
+  padding: var(--spacing-2) var(--spacing-3);
+  color: var(--catalogo-marca);
+  font-family: Arial, sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-decoration: none;
 }
 
 .categorias,
@@ -145,11 +155,30 @@
   padding-bottom: var(--spacing-4);
 }
 
-.producto img {
+.producto img,
+.sinImagen {
   width: var(--spacing-16);
   height: var(--spacing-16);
   border-radius: var(--radius-control);
   object-fit: cover;
+}
+
+.sinImagen {
+  display: grid;
+  place-items: center;
+  border: var(--borde-fino) solid var(--catalogo-borde);
+  background: var(--catalogo-fondo-suave);
+  font-family: Arial, sans-serif;
+  font-size: var(--text-xs);
+}
+
+.agotado {
+  display: block;
+  margin-top: var(--spacing-2);
+  color: var(--catalogo-alerta);
+  font-family: Arial, sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 800;
 }
 
 .producto h5 {
@@ -216,7 +245,8 @@
     gap: var(--spacing-3);
   }
 
-  .producto img {
+  .producto img,
+  .sinImagen {
     width: var(--spacing-12);
     height: var(--spacing-12);
   }

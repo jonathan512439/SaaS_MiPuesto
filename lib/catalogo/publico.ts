@@ -1,0 +1,99 @@
+import type { PaletaId, PlantillaId } from "../apariencia";
+import type { DatosPlantilla } from "../plantillas/tipos";
+import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
+
+type NegocioPublico = {
+  nombre: string;
+  descripcion: string | null;
+  telefono_whatsapp: string;
+  horario: unknown;
+  plantilla_id: string;
+  paleta_id: string;
+};
+
+type CategoriaPublica = { id: string; nombre: string; orden: number };
+
+type ProductoPublico = {
+  id: string;
+  categoria_id: string | null;
+  nombre: string;
+  descripcion: string | null;
+  precio: number;
+  fotos: string[];
+  estado: string;
+  visible: boolean;
+  orden: number;
+};
+
+export function obtenerTextoHorario(horario: unknown) {
+  if (typeof horario !== "object" || horario === null) return "Consulta el horario por WhatsApp";
+  const datos = horario as Record<string, unknown>;
+  if (datos.siempre_abierto === true || datos.siempreAbierto === true) return "Siempre abierto";
+  if (typeof datos.texto === "string" && datos.texto.trim()) return datos.texto.trim();
+  return "Consulta el horario por WhatsApp";
+}
+
+export function construirCatalogoPublico(
+  negocio: NegocioPublico,
+  categorias: CategoriaPublica[],
+  productos: ProductoPublico[],
+  urlSupabase: string,
+): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
+  const visibles = productos
+    .filter((producto) => producto.visible)
+    .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
+  const categoriasOrdenadas = [...categorias].sort(
+    (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
+  );
+  const convertirProducto = (producto: ProductoPublico) => ({
+    id: producto.id,
+    nombre: producto.nombre,
+    descripcion: producto.descripcion ?? "",
+    precio: Number(producto.precio),
+    estado: producto.estado,
+    imagen: producto.fotos[0]
+      ? {
+          src: obtenerUrlPublicaImagenProducto(urlSupabase, producto.fotos[0]),
+          alt: producto.nombre,
+        }
+      : null,
+  });
+  const agrupadas = categoriasOrdenadas
+    .map((categoria) => ({
+      id: categoria.id,
+      nombre: categoria.nombre,
+      productos: visibles
+        .filter((producto) => producto.categoria_id === categoria.id)
+        .map(convertirProducto),
+    }))
+    .filter((categoria) => categoria.productos.length > 0);
+  const sinCategoria = visibles
+    .filter((producto) => producto.categoria_id === null)
+    .map(convertirProducto);
+  if (sinCategoria.length > 0) {
+    agrupadas.push({ id: "otros", nombre: "Otros", productos: sinCategoria });
+  }
+
+  return {
+    plantilla:
+      negocio.plantilla_id === "moderna" || negocio.plantilla_id === "minimal"
+        ? negocio.plantilla_id
+        : "clasica",
+    paleta:
+      negocio.paleta_id === "tierra" ||
+      negocio.paleta_id === "oceano" ||
+      negocio.paleta_id === "noche"
+        ? negocio.paleta_id
+        : "mercado",
+    datos: {
+      negocio: {
+        nombre: negocio.nombre,
+        descripcion:
+          negocio.descripcion?.trim() || "Conoce nuestros productos y servicios disponibles.",
+        telefonoWhatsapp: negocio.telefono_whatsapp,
+        horarioTexto: obtenerTextoHorario(negocio.horario),
+      },
+      categorias: agrupadas,
+    },
+  };
+}

@@ -5,12 +5,16 @@ import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-minimal.module.css";
 
-export function PlantillaMinimal({ datos, paleta = "mercado" }: PropiedadesPlantilla) {
+export function PlantillaMinimal({
+  datos,
+  paleta = "mercado",
+  demostracion = true,
+}: PropiedadesPlantilla) {
   return (
     <article
       className={`${temaStyles.tema} ${styles.plantilla}`}
       data-paleta={paleta}
-      aria-label="Vista previa de plantilla mínima"
+      aria-label={demostracion ? "Vista previa de plantilla mínima" : `Catálogo de ${datos.negocio.nombre}`}
     >
       <header className={styles.cabecera}>
         <div>
@@ -20,7 +24,7 @@ export function PlantillaMinimal({ datos, paleta = "mercado" }: PropiedadesPlant
         </div>
         <div className={styles.contacto}>
           <span>{datos.negocio.horarioTexto}</span>
-          <button type="button">Consultar disponibilidad</button>
+          {demostracion ? <button type="button">Consultar disponibilidad</button> : null}
           <small>WhatsApp {datos.negocio.telefonoWhatsapp}</small>
         </div>
       </header>
@@ -38,17 +42,20 @@ export function PlantillaMinimal({ datos, paleta = "mercado" }: PropiedadesPlant
             <dl>
               {categoria.productos.map((producto) => (
                 <div className={styles.servicio} key={producto.id}>
-                  <Image
-                    alt={producto.imagen.alt}
-                    height={800}
-                    sizes="64px"
-                    src={producto.imagen.src}
-                    width={800}
-                  />
+                  {producto.imagen ? (
+                    <Image
+                      alt={producto.imagen.alt}
+                      height={800}
+                      sizes="64px"
+                      src={producto.imagen.src}
+                      width={800}
+                    />
+                  ) : <span className={styles.sinImagen}>Sin foto</span>}
                   <dt>{producto.nombre}</dt>
                   <dd>{producto.descripcion}</dd>
                   <dd>{formatearPrecioBolivianos(producto.precio)}</dd>
-                  <dd><button type="button">Elegir</button></dd>
+                  {producto.estado === "agotado" ? <dd><span className={styles.agotado}>Agotado</span></dd> : null}
+                  {demostracion ? <dd><button type="button">Elegir</button></dd> : null}
                 </div>
               ))}
             </dl>
@@ -58,7 +65,7 @@ export function PlantillaMinimal({ datos, paleta = "mercado" }: PropiedadesPlant
 
       <footer className={styles.pie}>
         <p>Cuéntanos qué necesitas y te orientamos personalmente.</p>
-        <button type="button">Iniciar una consulta</button>
+        {demostracion ? <button type="button">Iniciar una consulta</button> : null}
       </footer>
     </article>
   );

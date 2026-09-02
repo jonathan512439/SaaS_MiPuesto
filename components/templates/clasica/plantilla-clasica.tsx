@@ -5,12 +5,16 @@ import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-clasica.module.css";
 
-export function PlantillaClasica({ datos, paleta = "mercado" }: PropiedadesPlantilla) {
+export function PlantillaClasica({
+  datos,
+  paleta = "mercado",
+  demostracion = true,
+}: PropiedadesPlantilla) {
   return (
     <article
       className={`${temaStyles.tema} ${styles.plantilla}`}
       data-paleta={paleta}
-      aria-label="Vista previa de plantilla clásica"
+      aria-label={demostracion ? "Vista previa de plantilla clásica" : `Catálogo de ${datos.negocio.nombre}`}
     >
       <header className={styles.cabecera}>
         <p className={styles.sello}>Carta del negocio</p>
@@ -19,15 +23,19 @@ export function PlantillaClasica({ datos, paleta = "mercado" }: PropiedadesPlant
         <span className={styles.horario}>{datos.negocio.horarioTexto}</span>
       </header>
 
-      <nav className={styles.navegacion} aria-label="Categorías de la demostración">
+      <nav className={styles.navegacion} aria-label="Categorías del catálogo">
         {datos.categorias.map((categoria) => (
-          <button type="button" key={categoria.id}>{categoria.nombre}</button>
+          demostracion ? (
+            <button type="button" key={categoria.id}>{categoria.nombre}</button>
+          ) : (
+            <a href={`#categoria-${categoria.id}`} key={categoria.id}>{categoria.nombre}</a>
+          )
         ))}
       </nav>
 
       <div className={styles.categorias}>
         {datos.categorias.map((categoria) => (
-          <section className={styles.categoria} key={categoria.id}>
+          <section className={styles.categoria} id={`categoria-${categoria.id}`} key={categoria.id}>
             <div className={styles.tituloCategoria}>
               <span aria-hidden="true">◆</span>
               <h4>{categoria.nombre}</h4>
@@ -36,17 +44,20 @@ export function PlantillaClasica({ datos, paleta = "mercado" }: PropiedadesPlant
             <ul>
               {categoria.productos.map((producto) => (
                 <li className={styles.producto} key={producto.id}>
-                  <Image
-                    alt={producto.imagen.alt}
-                    height={800}
-                    sizes="64px"
-                    src={producto.imagen.src}
-                    width={800}
-                  />
+                  {producto.imagen ? (
+                    <Image
+                      alt={producto.imagen.alt}
+                      height={800}
+                      sizes="64px"
+                      src={producto.imagen.src}
+                      width={800}
+                    />
+                  ) : <span className={styles.sinImagen}>Sin foto</span>}
                   <div>
                     <h5>{producto.nombre}</h5>
                     <p>{producto.descripcion}</p>
-                    <button type="button">Añadir al pedido</button>
+                    {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
+                    {demostracion ? <button type="button">Añadir al pedido</button> : null}
                   </div>
                   <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
                 </li>
@@ -59,7 +70,7 @@ export function PlantillaClasica({ datos, paleta = "mercado" }: PropiedadesPlant
       <footer className={styles.pie}>
         <p>¿Necesitas ayuda para elegir?</p>
         <strong>WhatsApp {datos.negocio.telefonoWhatsapp}</strong>
-        <button type="button">Ver mi pedido · 2 productos</button>
+        {demostracion ? <button type="button">Ver mi pedido · 2 productos</button> : null}
       </footer>
     </article>
   );

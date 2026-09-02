@@ -1,0 +1,42 @@
+@reference "../../globals.css";
+
+.pagina {
+  min-height: 100dvh;
+  padding: var(--spacing-3) 0;
+  background: var(--color-fondo-suave);
+}
+
+.catalogo {
+  width: min(100%, 72rem);
+  margin: 0 auto;
+}
+
+.vacio {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-left: var(--spacing-1) solid var(--color-marca);
+  padding: var(--spacing-5);
+  background: var(--color-superficie);
+}
+
+.vacio h2,
+.vacio p {
+  margin: 0;
+}
+
+.vacio h2 {
+  font-size: var(--text-lg);
+}
+
+.vacio p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 48rem) {
+  .pagina {
+    padding: var(--spacing-8);
+  }
+}

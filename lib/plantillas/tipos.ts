@@ -11,7 +11,8 @@ export type ProductoPlantilla = {
   imagen: {
     src: string;
     alt: string;
-  };
+  } | null;
+  estado?: string;
 };
 
 export type CategoriaPlantilla = {
@@ -33,4 +34,5 @@ export type DatosPlantilla = {
 export type PropiedadesPlantilla = {
   datos: DatosPlantilla;
   paleta?: PaletaId;
+  demostracion?: boolean;
 };
