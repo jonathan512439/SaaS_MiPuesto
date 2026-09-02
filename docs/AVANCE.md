@@ -4,19 +4,30 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio** y **Fase 3 — Sistema de plantillas**.
-- Fase en curso: **Fase 4 — Catálogo: categorías, subcategorías y productos**.
+- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas** y **Fase 4 — Catálogo**.
+- Fase en curso: **Fase 5 — Las tres modalidades de tienda**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
-- Estado: **implementación y auditorías automáticas de Fase 4 completadas; validación manual pendiente**.
+- Cierre de Fase 4: 2026-09-02.
+- Estado: **Fase 4 validada manualmente; planificación de Fase 5 iniciada**.
 - Inicio de Fase 4: 2026-09-02.
-- Puerta de salida actual: producto oculto ausente del catálogo público y borrado de producto sin fotografías huérfanas en Storage.
+- Inicio de Fase 5: 2026-09-02.
+- Puerta de salida actual: las tres modalidades cambian el comportamiento del catálogo y un horario cerrado mantiene la navegación pero bloquea el inicio o confirmación de pedidos.
+
+## Estado de Fase 5
+
+- Inicio: 2026-09-02.
+- Estado: **en implementación**.
+- Plan visual: `docs/PLAN-DISENO-FASE5.md`.
+- Decisión de alcance: el carrito local y el mensaje consolidado pertenecen a esta fase; la creación del pedido, recálculo de servidor y reserva de inventario permanecen en la Fase 6.
+- Riesgos principales: horario inválido o evaluado en otra zona, enlaces de WhatsApp mal formados, acciones visibles en una modalidad incorrecta y lógica duplicada entre plantillas.
 
 ## Estado de Fase 4
 
 - Inicio: 2026-09-02.
-- Estado: **implementada y auditada automáticamente; pendiente de validación manual en producción de desarrollo**.
+- Cierre: 2026-09-02.
+- Estado: **cerrada; implementación, auditorías automáticas y validación manual en producción de desarrollo cumplidas**.
 - Plan visual: `docs/PLAN-DISENO-FASE4.md`.
 - Riesgos principales: aislamiento multi-tenant, tipo real y tamaño de imágenes, archivos huérfanos y referencias cruzadas entre negocios.
 - Decisiones: sin dependencias nuevas; compresión con Canvas; subida validada por servidor; bucket público solo para lectura; escritura y borrado protegidos por RLS.
@@ -31,7 +42,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Catálogo público | Cumplido en código y desplegado | `/{slug}` usa cliente anónimo, negocio activo, productos visibles, plantilla y paleta guardadas; agrupa por categoría y subcategoría y reserva espacio cuando falta foto. `sabor-camba` respondió 200 en Cloudflare con producto y subcategoría seed. |
 | Aislamiento multi-tenant | Cumplido | Auditoría remota con dos usuarios aprobó 7 tablas, jerarquía de catálogo, cuatro políticas de Storage y apariencia aislada. |
 | Calidad automática | Cumplido | Secretos, ESLint, TypeScript, 52 pruebas, tokens, contraste, `npm audit`, build Next.js/vinext, dry-run, arranque Worker y lint SQL aprobados. |
-| Revisión visual a 360 px y escritorio | Pendiente manual | No había navegador integrado disponible. Revisar el panel, cuatro fotos, ocultar/mostrar, borrado completo y `/{slug}` después del despliegue automático. |
+| Revisión visual a 360 px y escritorio | Cumplido manualmente | El usuario confirmó que la cabecera, la gestión paginada, el alta de productos y el catálogo público son funcionales y navegables. |
 
 - Despliegue automático de `fd82a73` comprobado el 2026-09-02: `/sabor-camba` y `/api/salud/supabase` respondieron HTTP 200; el catálogo contenía el producto y la subcategoría seed, y `/dashboard/catalogo` sin sesión respondió 307 hacia `/login?motivo=sesion`.
 - Ajuste de usabilidad posterior: cabecera distribuida en dos filas en móvil, marca MiPuesto visible, navegación legible, cierre de sesión compacto, categorías paginadas de cinco en cinco y acciones con nombres descriptivos. Los accesos para crear productos ahora desplazan la vista al formulario y enfocan el primer campo.
