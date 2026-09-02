@@ -179,7 +179,7 @@ Estado: **completado manualmente el 2026-09-02**. El administrador confirmó nav
 
 ## 9. Revisión visual manual de la Fase 3
 
-Estado: **pendiente**. La implementación, pruebas, compilaciones y auditoría RLS están aprobadas; falta la confirmación visual del administrador.
+Estado: **completado manualmente el 2026-09-02**. La implementación, pruebas, compilaciones, auditoría RLS y revisión de las 12 combinaciones están aprobadas.
 
 1. Con `npm run dev` abierto, ingresá a `http://localhost:3000/dashboard/plantilla`.
 2. Revisá la pantalla a **360 px** y a al menos **1280 px**. No debe aparecer desplazamiento horizontal.

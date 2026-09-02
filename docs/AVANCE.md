@@ -4,20 +4,22 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño** y **Fase 2 — Autenticación y perfil de negocio**.
-- Fase en curso: **Fase 3 — Sistema de plantillas**.
+- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio** y **Fase 3 — Sistema de plantillas**.
+- Fase en preparación: **Fase 4 — Catálogo: categorías, subcategorías y productos**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
-- Estado: **Fase 3 ampliada e implementada; pendiente de validación visual manual** en móvil y escritorio.
-- Puerta de salida actual: pendiente de revisar las 12 combinaciones y confirmar que estructura y paleta persisten al recargar.
+- Cierre de Fase 3: 2026-09-02.
+- Estado: **Fase 3 cerrada** después de la validación visual manual de las 12 combinaciones y la persistencia.
+- Puerta de entrada de Fase 4: pendiente de confirmar el plan de archivos, decisiones técnicas y controles de Storage/RLS.
 
 ## Estado de Fase 3
 
 - Inicio: 2026-09-02.
-- Estado: **implementación y auditorías automáticas cumplidas; revisión manual pendiente**.
+- Cierre: 2026-09-02.
+- Estado: **cerrada; implementación, auditorías automáticas y revisión manual cumplidas**.
 - Plan visual: `docs/PLAN-DISENO-FASE3.md`.
 - Alcance: tres sistemas visuales completos, cuatro paletas combinables, demostración extensa y apariencia persistida desde el panel.
-- Puerta de salida: las tres plantillas deben diferenciarse en composición, tipografía, navegación, botones e interacción; las cuatro paletas deben funcionar con cada una.
+- Puerta de salida: **aprobada**; las tres plantillas se diferencian en composición, tipografía, navegación, botones e interacción, y las cuatro paletas funcionan con cada una.
 
 | Control | Estado | Evidencia o pendiente |
 |---|---|---|
@@ -34,7 +36,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | HTML seguro | Cumplido | Todo texto se renderiza con React; no se usa HTML crudo. |
 | Aislamiento multi-tenant | Cumplido | Dos usuarios temporales confirmaron que cada administrador puede cambiar su plantilla y paleta, pero no la apariencia de otro negocio. |
 | Build | Cumplido | Next.js 16.3.4 y vinext compilaron; el control de secretos del bundle cliente aprobó. |
-| Revisión visual a 360 px y escritorio | Pendiente manual | Recorrer las 12 combinaciones, guardar una opción, recargar y confirmar persistencia sin desbordamiento horizontal. |
+| Revisión visual a 360 px y escritorio | Cumplido manualmente | El administrador recorrió las 12 combinaciones y confirmó el funcionamiento y la persistencia el 2026-09-02. |
 
 ## Estado de Fase 2
 
@@ -160,6 +162,7 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 
 ### 2026-09-02
 
+- El administrador completó la revisión visual de las 12 combinaciones y confirmó que la apariencia funciona y persiste. **Fase 3 cerrada**.
 - Se amplió la Fase 3 a tres sistemas visuales completos y cuatro paletas combinables, para un total de 12 apariencias sin duplicar datos ni lógica.
 - La migración `20260902142736_agregar_paleta_catalogo.sql` agregó `paleta_id`, su restricción de valores y lectura pública; fue aplicada al proyecto remoto de desarrollo.
 - El selector guarda plantilla y paleta conjuntamente, permite modificarlas después y muestra una sola demostración extensa cargada de forma diferida.
