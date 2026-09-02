@@ -142,6 +142,11 @@
   border-color: var(--color-peligro);
 }
 
+.areaTexto {
+  min-height: calc(var(--control-alto) * 3);
+  resize: vertical;
+}
+
 .ayuda,
 .mensajeError {
   margin: 0;

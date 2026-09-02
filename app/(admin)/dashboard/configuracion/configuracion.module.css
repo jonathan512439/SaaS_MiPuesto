@@ -1,0 +1,238 @@
+@reference "../../../globals.css";
+
+.pagina {
+  min-height: 100dvh;
+  background: var(--color-superficie);
+}
+
+.barra {
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.barraContenido {
+  display: flex;
+  width: min(calc(100% - var(--spacing-8)), 72rem);
+  min-height: var(--spacing-16);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  margin: 0 auto;
+}
+
+.marca,
+.sesion,
+.encabezado p,
+.encabezado h1,
+.tituloBloque h2,
+.tituloBloque p,
+.ayudaSlug,
+.slugDisponible,
+.slugNoDisponible,
+.vistaDireccion,
+.mensajeError,
+.mensajeExito,
+.accionesFormulario p,
+.resumen h2,
+.resumen p {
+  margin: 0;
+}
+
+.marca {
+  font-size: var(--text-lg);
+  font-weight: 900;
+}
+
+.sesion {
+  font-size: var(--text-xs);
+}
+
+.botonSalir {
+  border-color: var(--color-superficie);
+  color: var(--color-superficie);
+}
+
+.botonSalir:hover:not(:disabled) {
+  border-color: var(--color-superficie);
+  background: var(--color-superficie);
+  color: var(--color-marca);
+}
+
+.contenido {
+  width: min(calc(100% - var(--spacing-8)), 72rem);
+  margin: 0 auto;
+  padding: var(--spacing-8) 0 var(--spacing-16);
+}
+
+.encabezado {
+  display: grid;
+  max-width: 48rem;
+  gap: var(--spacing-3);
+  border-bottom: var(--borde-marcado) solid var(--color-marca);
+  padding-bottom: var(--spacing-6);
+}
+
+.encabezado > p:first-child {
+  color: var(--color-marca);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.encabezado h1 {
+  font-size: var(--text-2xl);
+  line-height: 2.25rem;
+}
+
+.encabezado > p:last-child {
+  max-width: 65ch;
+}
+
+.rejilla {
+  display: grid;
+  gap: var(--spacing-8);
+  margin-top: var(--spacing-8);
+}
+
+.formulario {
+  display: grid;
+  min-width: 0;
+  gap: var(--spacing-8);
+}
+
+.bloqueFormulario {
+  display: grid;
+  gap: var(--spacing-6);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
+  padding-bottom: var(--spacing-8);
+}
+
+.tituloBloque {
+  display: grid;
+  grid-template-columns: var(--spacing-8) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--spacing-3);
+}
+
+.tituloBloque > span {
+  display: grid;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  place-items: center;
+  border: var(--borde-marcado) solid var(--color-marca);
+  border-radius: 50%;
+  color: var(--color-marca);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.tituloBloque h2,
+.resumen h2 {
+  font-size: var(--text-lg);
+}
+
+.tituloBloque p {
+  margin-top: var(--spacing-1);
+  font-size: var(--text-sm);
+}
+
+.ayudaSlug,
+.slugDisponible,
+.slugNoDisponible {
+  font-size: var(--text-sm);
+}
+
+.slugDisponible {
+  color: var(--color-exito);
+  font-weight: 700;
+}
+
+.slugNoDisponible {
+  color: var(--color-peligro);
+  font-weight: 700;
+}
+
+.vistaDireccion {
+  padding: var(--spacing-3) var(--spacing-4);
+  overflow-wrap: anywhere;
+  background: var(--color-fondo-suave);
+  font-size: var(--text-sm);
+}
+
+.mensajeError,
+.mensajeExito {
+  border-left: var(--spacing-2) solid currentColor;
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.mensajeError {
+  color: var(--color-peligro);
+}
+
+.mensajeExito {
+  color: var(--color-exito);
+}
+
+.accionesFormulario {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.accionesFormulario p {
+  max-width: 40ch;
+  font-size: var(--text-xs);
+}
+
+.resumen {
+  align-self: start;
+  border-left: var(--spacing-2) solid var(--color-marca);
+  padding: var(--spacing-6);
+  background: var(--color-fondo-suave);
+}
+
+.resumen ul {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: var(--spacing-4) 0;
+  padding-left: var(--spacing-6);
+}
+
+.resumen p {
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 60rem) {
+  .contenido {
+    padding-top: var(--spacing-12);
+  }
+
+  .rejilla {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: var(--spacing-12);
+  }
+}
+
+@media (max-width: 24rem) {
+  .barraContenido,
+  .contenido {
+    width: min(calc(100% - var(--spacing-6)), 72rem);
+  }
+
+  .barraContenido {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: var(--spacing-3) 0;
+  }
+
+  .botonSalir {
+    width: 100%;
+  }
+
+  .accionesFormulario,
+  .accionesFormulario > button {
+    width: 100%;
+  }
+}
