@@ -69,9 +69,15 @@
 
 .producto {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: var(--spacing-16) minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--spacing-4);
+}
+
+.producto img {
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  object-fit: cover;
 }
 
 .producto h5 {
@@ -99,5 +105,19 @@
 @media (max-width: 24rem) {
   .plantilla {
     padding: var(--spacing-4);
+  }
+
+  .producto {
+    grid-template-columns: var(--spacing-12) minmax(0, 1fr);
+    gap: var(--spacing-3);
+  }
+
+  .producto img {
+    width: var(--spacing-12);
+    height: var(--spacing-12);
+  }
+
+  .producto strong {
+    grid-column: 2;
   }
 }

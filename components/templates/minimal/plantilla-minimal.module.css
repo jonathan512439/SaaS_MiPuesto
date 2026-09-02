@@ -74,29 +74,54 @@
 
 .servicio {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: var(--spacing-16) minmax(0, 1fr) auto;
   gap: var(--spacing-1) var(--spacing-4);
   border-bottom: var(--borde-fino) solid var(--color-borde);
   padding-bottom: var(--spacing-4);
 }
 
+.servicio img {
+  grid-row: 1 / span 2;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  object-fit: cover;
+}
+
 .servicio dt {
+  grid-column: 2;
   font-size: var(--text-base);
   font-weight: 800;
 }
 
 .servicio dd {
-  grid-column: 1;
+  grid-column: 2;
   max-width: 45ch;
   font-size: var(--text-xs);
 }
 
 .servicio dd:last-child {
   grid-row: 1;
-  grid-column: 2;
+  grid-column: 3;
   color: var(--color-accion);
   font-size: var(--text-base);
   font-weight: 800;
+}
+
+@media (max-width: 24rem) {
+  .servicio {
+    grid-template-columns: var(--spacing-12) minmax(0, 1fr);
+    gap: var(--spacing-1) var(--spacing-3);
+  }
+
+  .servicio img {
+    width: var(--spacing-12);
+    height: var(--spacing-12);
+  }
+
+  .servicio dd:last-child {
+    grid-row: auto;
+    grid-column: 2;
+  }
 }
 
 @media (min-width: 36rem) {

@@ -26,27 +26,39 @@ export function crearDatosDemoPlantilla({
         productos: [
           {
             id: "demo-1",
-            nombre: "Especial de la casa",
-            descripcion: "Una opción recomendada para conocer lo mejor del negocio.",
+            nombre: "Hamburguesa de la casa",
+            descripcion: "Doble carne, queso, vegetales frescos y nuestra salsa especial.",
             precio: 45,
+            imagen: {
+              src: "/demo/productos/hamburguesa.webp",
+              alt: "Hamburguesa doble con queso y vegetales frescos",
+            },
           },
           {
             id: "demo-2",
-            nombre: "Favorito de siempre",
-            descripcion: "Una alternativa práctica para cualquier momento del día.",
+            nombre: "Papas con salsa",
+            descripcion: "Papas rústicas doradas acompañadas con salsa de la casa.",
             precio: 32,
+            imagen: {
+              src: "/demo/productos/papas.webp",
+              alt: "Porción de papas rústicas doradas con salsa",
+            },
           },
         ],
       },
       {
-        id: "demo-novedades",
-        nombre: "Novedades",
+        id: "demo-bebidas",
+        nombre: "Bebidas",
         productos: [
           {
             id: "demo-3",
-            nombre: "Nueva propuesta",
-            descripcion: "Disponible por tiempo limitado mientras preparamos más opciones.",
-            precio: 58,
+            nombre: "Limonada artesanal",
+            descripcion: "Preparada al momento con limón, hielo y hojas de menta.",
+            precio: 18,
+            imagen: {
+              src: "/demo/productos/limonada.webp",
+              alt: "Vaso de limonada fría con limón y menta",
+            },
           },
         ],
       },

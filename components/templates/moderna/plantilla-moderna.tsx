@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import styles from "./plantilla-moderna.module.css";
@@ -18,11 +20,16 @@ export function PlantillaModerna({ datos }: PropiedadesPlantilla) {
       </header>
 
       <ul className={styles.productos}>
-        {productos.map((producto, indice) => (
+        {productos.map((producto) => (
           <li className={styles.producto} key={producto.id}>
-            <div className={styles.imagen} aria-hidden="true">
-              <span>{indice + 1}</span>
-            </div>
+            <Image
+              alt={producto.imagen.alt}
+              className={styles.imagen}
+              height={800}
+              sizes="(min-width: 60rem) 176px, 50vw"
+              src={producto.imagen.src}
+              width={800}
+            />
             <div className={styles.detalle}>
               <p>{producto.categoria}</p>
               <h4>{producto.nombre}</h4>

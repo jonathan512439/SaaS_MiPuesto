@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import styles from "./plantilla-clasica.module.css";
@@ -18,6 +20,13 @@ export function PlantillaClasica({ datos }: PropiedadesPlantilla) {
             <ul>
               {categoria.productos.map((producto) => (
                 <li className={styles.producto} key={producto.id}>
+                  <Image
+                    alt={producto.imagen.alt}
+                    height={800}
+                    sizes="64px"
+                    src={producto.imagen.src}
+                    width={800}
+                  />
                   <div>
                     <h5>{producto.nombre}</h5>
                     <p>{producto.descripcion}</p>

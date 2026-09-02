@@ -55,21 +55,10 @@
 }
 
 .imagen {
-  display: grid;
+  display: block;
+  width: 100%;
   aspect-ratio: 4 / 3;
-  place-items: center;
-  background: var(--color-fondo-suave);
-  color: var(--color-marca);
-}
-
-.imagen span {
-  display: grid;
-  width: var(--spacing-8);
-  height: var(--spacing-8);
-  place-items: center;
-  border: var(--borde-marcado) solid currentColor;
-  border-radius: 50%;
-  font-weight: 800;
+  object-fit: cover;
 }
 
 .detalle {

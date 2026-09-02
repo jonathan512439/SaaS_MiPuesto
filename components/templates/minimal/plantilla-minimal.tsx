@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import styles from "./plantilla-minimal.module.css";
@@ -23,6 +25,13 @@ export function PlantillaMinimal({ datos }: PropiedadesPlantilla) {
             <dl>
               {categoria.productos.map((producto) => (
                 <div className={styles.servicio} key={producto.id}>
+                  <Image
+                    alt={producto.imagen.alt}
+                    height={800}
+                    sizes="64px"
+                    src={producto.imagen.src}
+                    width={800}
+                  />
                   <dt>{producto.nombre}</dt>
                   <dd>{producto.descripcion}</dd>
                   <dd>{formatearPrecioBolivianos(producto.precio)}</dd>

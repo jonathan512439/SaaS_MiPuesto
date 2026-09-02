@@ -7,6 +7,10 @@ export type ProductoPlantilla = {
   nombre: string;
   descripcion: string;
   precio: number;
+  imagen: {
+    src: string;
+    alt: string;
+  };
 };
 
 export type CategoriaPlantilla = {
