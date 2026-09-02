@@ -14,15 +14,15 @@
 
 ## Diferencias estructurales
 
-- **Clásica:** lectura vertical similar a una carta; categorías como secciones, productos en filas y precio alineado para escaneo rápido.
-- **Moderna:** portada breve y cuadrícula visual; el espacio de imagen domina y cada producto funciona como unidad de exploración.
-- **Mínima:** información del negocio y contacto en primer plano; servicios en una lista tipográfica sin cuadrícula de imágenes.
+- **Clásica:** lectura vertical similar a una carta; categorías como secciones, fotografías compactas, productos en filas y precio alineado para escaneo rápido.
+- **Moderna:** portada breve y cuadrícula visual; la fotografía domina y cada producto funciona como unidad de exploración.
+- **Mínima:** información del negocio y contacto en primer plano; fotografías discretas acompañan una lista tipográfica de productos.
 
-Las tres reciben el mismo objeto de datos por propiedades. Ninguna plantilla consulta la base ni contiene lógica de selección.
+Las tres reciben el mismo objeto de datos por propiedades, incluidas exactamente las mismas fotografías. Ninguna plantilla consulta la base ni contiene lógica de selección.
 
 ## Selector y vista previa
 
-- Las tres vistas se muestran juntas en escritorio y apiladas en móvil.
+- Las tres vistas muestran los mismos productos y fotografías; se presentan juntas en escritorio y apiladas en móvil.
 - Cada opción tiene un control de selección con nombre persistente y explicación breve.
 - Cambiar de opción actualiza el estado local, pero no modifica el negocio hasta pulsar **Guardar plantilla**.
 - El resultado de guardado se expresa con texto y no depende solo del color.

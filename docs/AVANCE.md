@@ -21,10 +21,10 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 | Control | Estado | Evidencia o pendiente |
 |---|---|---|
-| Plantilla clásica | Cumplido en código | Carta vertical por categorías, productos en filas y precios alineados. |
-| Plantilla moderna | Cumplido en código | Portada y cuadrícula visual de productos. |
-| Plantilla mínima | Cumplido en código | Contacto prioritario y servicios en lista tipográfica. |
-| Datos por propiedades | Cumplido | Los componentes de `components/templates/` no consultan la red ni la base. |
+| Plantilla clásica | Cumplido en código | Carta vertical por categorías, fotografías compactas, productos en filas y precios alineados. |
+| Plantilla moderna | Cumplido en código | Portada y cuadrícula donde las fotografías tienen mayor protagonismo. |
+| Plantilla mínima | Cumplido en código | Contacto prioritario y lista tipográfica con fotografías discretas. |
+| Datos por propiedades | Cumplido | Las tres variantes reciben exactamente los mismos productos y fotografías; los componentes de `components/templates/` no consultan la red ni la base. |
 | Selección persistida | Cumplido en código | `/dashboard/plantilla` compara las tres opciones; `PATCH /api/negocios/plantilla` valida el identificador y actualiza mediante la sesión autenticada. |
 | Precios centralizados | Cumplido | `lib/precios.ts` concentra el formato en bolivianos y tiene cobertura unitaria. |
 | HTML seguro | Cumplido | Todo texto se renderiza con React; no se usa HTML crudo. |
@@ -162,6 +162,8 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 - `npm run build` y `npm run build:vinext` aprobaron e incluyeron el panel y la API de plantillas.
 - El Worker local confirmó protección anónima: 307 hacia `/login?motivo=sesion` y 401 en el API.
 - `npm run db:lint:linked` aprobó sin errores; `npm run test:rls:linked` aprobó con 7 tablas, 2 usuarios temporales y aislamiento de plantillas.
+- Se corrigió el alcance visual para que las tres variantes incluyan las mismas fotografías de producto. Las imágenes demostrativas se generaron sin marcas ni texto y se optimizaron a WebP antes de incorporarlas.
+- La plantilla clásica usa miniaturas laterales, la moderna imágenes dominantes y la mínima imágenes compactas; solo cambia la presentación, no el contenido.
 - Queda pendiente la confirmación manual a 360 px y escritorio, además de guardar y recargar una selección.
 
 ### 2026-09-01
