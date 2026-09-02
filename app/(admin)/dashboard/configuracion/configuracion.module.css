@@ -1,27 +1,5 @@
 @reference "../../../globals.css";
 
-.pagina {
-  min-height: 100dvh;
-  background: var(--color-superficie);
-}
-
-.barra {
-  background: var(--color-marca);
-  color: var(--color-superficie);
-}
-
-.barraContenido {
-  display: flex;
-  width: min(calc(100% - var(--spacing-8)), 72rem);
-  min-height: var(--spacing-16);
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-4);
-  margin: 0 auto;
-}
-
-.marca,
-.sesion,
 .encabezado p,
 .encabezado h1,
 .tituloBloque h2,
@@ -36,26 +14,6 @@
 .resumen h2,
 .resumen p {
   margin: 0;
-}
-
-.marca {
-  font-size: var(--text-lg);
-  font-weight: 900;
-}
-
-.sesion {
-  font-size: var(--text-xs);
-}
-
-.botonSalir {
-  border-color: var(--color-superficie);
-  color: var(--color-superficie);
-}
-
-.botonSalir:hover:not(:disabled) {
-  border-color: var(--color-superficie);
-  background: var(--color-superficie);
-  color: var(--color-marca);
 }
 
 .contenido {
@@ -238,19 +196,8 @@
 }
 
 @media (max-width: 24rem) {
-  .barraContenido,
   .contenido {
     width: min(calc(100% - var(--spacing-6)), 72rem);
-  }
-
-  .barraContenido {
-    align-items: flex-start;
-    flex-direction: column;
-    padding: var(--spacing-3) 0;
-  }
-
-  .botonSalir {
-    width: 100%;
   }
 
   .accionesFormulario,
