@@ -5,12 +5,21 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Estado actual
 
 - Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio** y **Fase 3 — Sistema de plantillas**.
-- Fase en preparación: **Fase 4 — Catálogo: categorías, subcategorías y productos**.
+- Fase en curso: **Fase 4 — Catálogo: categorías, subcategorías y productos**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
 - Estado: **Fase 3 cerrada** después de la validación visual manual de las 12 combinaciones y la persistencia.
-- Puerta de entrada de Fase 4: pendiente de confirmar el plan de archivos, decisiones técnicas y controles de Storage/RLS.
+- Inicio de Fase 4: 2026-09-02.
+- Puerta de salida actual: producto oculto ausente del catálogo público y borrado de producto sin fotografías huérfanas en Storage.
+
+## Estado de Fase 4
+
+- Inicio: 2026-09-02.
+- Estado: **en implementación**.
+- Plan visual: `docs/PLAN-DISENO-FASE4.md`.
+- Riesgos principales: aislamiento multi-tenant, tipo real y tamaño de imágenes, archivos huérfanos y referencias cruzadas entre negocios.
+- Decisiones: sin dependencias nuevas; compresión con Canvas; subida validada por servidor; bucket público solo para lectura; escritura y borrado protegidos por RLS.
 
 ## Estado de Fase 3
 
