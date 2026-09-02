@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { esPlantillaId } from "../../../../lib/plantillas/validacion";
+import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 
 export async function PATCH(solicitud: NextRequest) {
@@ -23,21 +23,28 @@ export async function PATCH(solicitud: NextRequest) {
     typeof entrada === "object" && entrada !== null && "plantilla_id" in entrada
       ? entrada.plantilla_id
       : undefined;
+  const paletaId =
+    typeof entrada === "object" && entrada !== null && "paleta_id" in entrada
+      ? entrada.paleta_id
+      : undefined;
 
-  if (!esPlantillaId(plantillaId)) {
-    return NextResponse.json({ error: "La plantilla seleccionada no es válida." }, { status: 400 });
+  if (!esPlantillaId(plantillaId) || !esPaletaId(paletaId)) {
+    return NextResponse.json(
+      { error: "La plantilla o la paleta seleccionada no es válida." },
+      { status: 400 },
+    );
   }
 
   const { data: negocio, error } = await supabase
     .from("negocios")
-    .update({ plantilla_id: plantillaId })
+    .update({ plantilla_id: plantillaId, paleta_id: paletaId })
     .eq("admin_user_id", idUsuario)
-    .select("plantilla_id")
+    .select("plantilla_id,paleta_id")
     .maybeSingle();
 
   if (error) {
     return NextResponse.json(
-      { error: "No se pudo guardar la plantilla. Intenta nuevamente." },
+      { error: "No se pudo guardar la apariencia. Intenta nuevamente." },
       { status: 500 },
     );
   }
@@ -46,5 +53,8 @@ export async function PATCH(solicitud: NextRequest) {
     return NextResponse.json({ error: "Primero debes registrar tu negocio." }, { status: 404 });
   }
 
-  return NextResponse.json({ plantilla_id: negocio.plantilla_id });
+  return NextResponse.json({
+    plantilla_id: negocio.plantilla_id,
+    paleta_id: negocio.paleta_id,
+  });
 }

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { SelectorPlantilla } from "../../../../components/plantillas/selector-plantilla";
+import { SelectorApariencia } from "../../../../components/plantillas/selector-apariencia";
 import { crearDatosDemoPlantilla } from "../../../../lib/plantillas/datos-demo";
-import { esPlantillaId } from "../../../../lib/plantillas/validacion";
+import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./plantilla.module.css";
 
@@ -21,7 +21,7 @@ export default async function PaginaPlantilla() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,descripcion,telefono_whatsapp,plantilla_id")
+    .select("nombre,descripcion,telefono_whatsapp,plantilla_id,paleta_id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -30,6 +30,7 @@ export default async function PaginaPlantilla() {
   const plantillaInicial = esPlantillaId(negocio.plantilla_id)
     ? negocio.plantilla_id
     : "clasica";
+  const paletaInicial = esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado";
   const datos = crearDatosDemoPlantilla({
     nombre: negocio.nombre,
     descripcion: negocio.descripcion,
@@ -39,15 +40,19 @@ export default async function PaginaPlantilla() {
   return (
     <main className={styles.contenido}>
       <header className={styles.encabezado}>
-        <p>Presentación del catálogo</p>
-        <h1>Elige la plantilla que mejor explica tu negocio</h1>
+        <p>Apariencia del catálogo</p>
+        <h1>Construye una experiencia coherente con tu negocio</h1>
         <p>
-          Todas muestran la misma información de demostración. Cambia la forma de
-          organizarla, no tus datos. Puedes elegir otra más adelante.
+          Combina una estructura y una paleta para ver el resultado completo. Tus productos y
+          datos no cambian, y podrás modificar la apariencia más adelante.
         </p>
       </header>
 
-      <SelectorPlantilla datos={datos} plantillaInicial={plantillaInicial} />
+      <SelectorApariencia
+        datos={datos}
+        paletaInicial={paletaInicial}
+        plantillaInicial={plantillaInicial}
+      />
     </main>
   );
 }
