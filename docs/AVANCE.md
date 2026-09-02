@@ -9,17 +9,31 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
-- Estado: **Fase 3 cerrada** después de la validación visual manual de las 12 combinaciones y la persistencia.
+- Estado: **implementación y auditorías automáticas de Fase 4 completadas; validación manual pendiente**.
 - Inicio de Fase 4: 2026-09-02.
 - Puerta de salida actual: producto oculto ausente del catálogo público y borrado de producto sin fotografías huérfanas en Storage.
 
 ## Estado de Fase 4
 
 - Inicio: 2026-09-02.
-- Estado: **en implementación**.
+- Estado: **implementada y auditada automáticamente; pendiente de validación manual en producción de desarrollo**.
 - Plan visual: `docs/PLAN-DISENO-FASE4.md`.
 - Riesgos principales: aislamiento multi-tenant, tipo real y tamaño de imágenes, archivos huérfanos y referencias cruzadas entre negocios.
 - Decisiones: sin dependencias nuevas; compresión con Canvas; subida validada por servidor; bucket público solo para lectura; escritura y borrado protegidos por RLS.
+
+| Control | Estado | Evidencia o pendiente |
+|---|---|---|
+| Categorías y subcategorías | Cumplido en código | Crear, renombrar, reordenar y borrar desde `/dashboard/catalogo`; los productos se conservan al borrar su agrupación. |
+| Productos y existencias | Cumplido en código | Alta, edición, borrado, precio en bolivianos, organización, `controla_stock`, cantidad y estado agotado validados también en servidor. |
+| Visibilidad rápida | Cumplido en código y pruebas | El cambio se realiza desde la lista; la consulta pública exige `visible = true` aunque exista una sesión administrativa. |
+| Fotografías | Cumplido en código y pruebas | Hasta cuatro; JPEG, PNG o WebP; máximo original de 5 MB; redimensionado a 1600 px, WebP en cliente, firma y límite de 2 MB comprobados en servidor. |
+| Limpieza de Storage | Cumplido en código | Quitar una foto llama a Storage antes de actualizar el producto; borrar un producto elimina todas sus rutas antes de borrar la fila y conserva el producto si Storage falla. Pendiente comprobar el flujo completo con cuatro fotos desde el panel desplegado. |
+| Catálogo público | Cumplido en código y prueba local | `/{slug}` usa cliente anónimo, negocio activo, productos visibles, plantilla y paleta guardadas; agrupa por categoría y subcategoría y reserva espacio cuando falta foto. `sabor-camba` respondió 200 con producto y subcategoría seed. |
+| Aislamiento multi-tenant | Cumplido | Auditoría remota con dos usuarios aprobó 7 tablas, jerarquía de catálogo, cuatro políticas de Storage y apariencia aislada. |
+| Calidad automática | Cumplido | Secretos, ESLint, TypeScript, 52 pruebas, tokens, contraste, `npm audit`, build Next.js/vinext, dry-run, arranque Worker y lint SQL aprobados. |
+| Revisión visual a 360 px y escritorio | Pendiente manual | No había navegador integrado disponible. Revisar el panel, cuatro fotos, ocultar/mostrar, borrado completo y `/{slug}` después del despliegue automático. |
+
+Commits de implementación: `a8dd48c`, `2694f5b`, `22f1752`, `c0cc6cc`, `aa85487`, `0e778de`, `69dc0de` y `27c5244`.
 
 ## Estado de Fase 3
 

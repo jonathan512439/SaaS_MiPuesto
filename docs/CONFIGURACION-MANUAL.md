@@ -188,3 +188,20 @@ Estado: **completado manualmente el 2026-09-02**. La implementación, pruebas, c
 5. Guardá una combinación distinta de la inicial, recargá la página y confirmá que ambas selecciones permanecen.
 6. Volvé a cambiarla y guardala otra vez. Los productos, el nombre, la descripción y WhatsApp no deben alterarse.
 7. Navegá con `Tab`: los radios, botones de demostración y botón de guardado deben mostrar foco visible.
+
+## 10. Validación manual de la Fase 4
+
+Estado: **pendiente después del despliegue automático**. Las pruebas, compilaciones, RLS, Storage y verificación HTTP local ya aprobaron; este recorrido confirma el uso real con sesión, fotografías y el negocio creado.
+
+1. Esperá a que Cloudflare termine el despliegue de `main` y abrí `https://mipuesto-dev.mipuesto-app.workers.dev/login`.
+2. Ingresá con tu cuenta y abrí **Catálogo**. En las herramientas del navegador fijá un ancho de **360 px** y comprobá que no exista desplazamiento horizontal.
+3. Creá una categoría y una subcategoría. Renombrá ambas, probá **Subir** y **Bajar** cuando existan dos elementos, y confirmá que el orden se conserva al recargar.
+4. Creá un producto con nombre, descripción, precio, categoría, subcategoría y **Controlar existencias**. Probá primero una cantidad mayor a cero y luego cero; el estado debe cambiar a **Agotado**.
+5. Agregá cuatro fotografías JPEG, PNG o WebP menores de 5 MB. Deben verse las cuatro miniaturas y el indicador **4 de 4 fotografías**; no debe permitir una quinta.
+6. Abrí el enlace público `https://mipuesto-dev.mipuesto-app.workers.dev/TU-SLUG` en una ventana privada. Confirmá el nombre, plantilla, paleta, categoría, subcategoría, producto, precio, foto y estado agotado.
+7. Desde el panel usá **Ocultar** y recargá la ventana privada: el producto debe desaparecer de inmediato. Volvé a usar **Mostrar** y comprobá que reaparece.
+8. Borrá una fotografía y confirmá que deja de verse. Si querés comprobarlo directamente, en Supabase abrí **Storage → productos** y verificá que esa ruta ya no exista.
+9. Volvé a completar cuatro fotografías, anotá el identificador visible en la ruta de Storage y borrá el producto. En **Storage → productos**, la carpeta virtual de ese producto no debe contener ningún archivo.
+10. Repetí una revisión breve del panel y del enlace público a un ancho de al menos **1280 px**. Navegá con `Tab` y verificá que todos los controles muestren foco visible.
+
+Cuando todo esté correcto, respondé `Fase 4 validada`. Esa confirmación permite registrar el cierre; no se avanza a la Fase 5 antes de aprobar esta puerta manual.
