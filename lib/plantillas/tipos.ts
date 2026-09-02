@@ -19,6 +19,11 @@ export type CategoriaPlantilla = {
   id: string;
   nombre: string;
   productos: ProductoPlantilla[];
+  subcategorias?: Array<{
+    id: string;
+    nombre: string;
+    productos: ProductoPlantilla[];
+  }>;
 };
 
 export type DatosPlantilla = {

@@ -36,11 +36,20 @@ export function PlantillaMinimal({
       </nav>
 
       <div className={styles.servicios}>
-        {datos.categorias.map((categoria) => (
-          <section className={styles.categoria} id={categoria.id} key={categoria.id}>
+        {datos.categorias.map((categoria) => {
+          const productos = [
+            ...categoria.productos.map((producto) => ({ ...producto, subcategoria: null })),
+            ...(categoria.subcategorias ?? []).flatMap((subcategoria) =>
+              subcategoria.productos.map((producto) => ({
+                ...producto,
+                subcategoria: subcategoria.nombre,
+              })),
+            ),
+          ];
+          return <section className={styles.categoria} id={categoria.id} key={categoria.id}>
             <h4>{categoria.nombre}</h4>
             <dl>
-              {categoria.productos.map((producto) => (
+              {productos.map((producto) => (
                 <div className={styles.servicio} key={producto.id}>
                   {producto.imagen ? (
                     <Image
@@ -51,7 +60,10 @@ export function PlantillaMinimal({
                       width={800}
                     />
                   ) : <span className={styles.sinImagen}>Sin foto</span>}
-                  <dt>{producto.nombre}</dt>
+                  <dt>
+                    {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
+                    {producto.nombre}
+                  </dt>
                   <dd>{producto.descripcion}</dd>
                   <dd>{formatearPrecioBolivianos(producto.precio)}</dd>
                   {producto.estado === "agotado" ? <dd><span className={styles.agotado}>Agotado</span></dd> : null}
@@ -59,8 +71,8 @@ export function PlantillaMinimal({
                 </div>
               ))}
             </dl>
-          </section>
-        ))}
+          </section>;
+        })}
       </div>
 
       <footer className={styles.pie}>

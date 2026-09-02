@@ -34,15 +34,24 @@ export function PlantillaClasica({
       </nav>
 
       <div className={styles.categorias}>
-        {datos.categorias.map((categoria) => (
-          <section className={styles.categoria} id={`categoria-${categoria.id}`} key={categoria.id}>
+        {datos.categorias.map((categoria) => {
+          const productos = [
+            ...categoria.productos.map((producto) => ({ ...producto, subcategoria: null })),
+            ...(categoria.subcategorias ?? []).flatMap((subcategoria) =>
+              subcategoria.productos.map((producto) => ({
+                ...producto,
+                subcategoria: subcategoria.nombre,
+              })),
+            ),
+          ];
+          return <section className={styles.categoria} id={`categoria-${categoria.id}`} key={categoria.id}>
             <div className={styles.tituloCategoria}>
               <span aria-hidden="true">◆</span>
               <h4>{categoria.nombre}</h4>
               <span aria-hidden="true">◆</span>
             </div>
             <ul>
-              {categoria.productos.map((producto) => (
+              {productos.map((producto) => (
                 <li className={styles.producto} key={producto.id}>
                   {producto.imagen ? (
                     <Image
@@ -54,6 +63,7 @@ export function PlantillaClasica({
                     />
                   ) : <span className={styles.sinImagen}>Sin foto</span>}
                   <div>
+                    {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
                     <h5>{producto.nombre}</h5>
                     <p>{producto.descripcion}</p>
                     {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
@@ -63,8 +73,8 @@ export function PlantillaClasica({
                 </li>
               ))}
             </ul>
-          </section>
-        ))}
+          </section>;
+        })}
       </div>
 
       <footer className={styles.pie}>

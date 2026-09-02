@@ -47,7 +47,7 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
     .maybeSingle();
   if (!negocio) notFound();
 
-  const [resultadoCategorias, resultadoProductos] = await Promise.all([
+  const [resultadoCategorias, resultadoSubcategorias, resultadoProductos] = await Promise.all([
     supabase
       .from("categorias")
       .select("id,nombre,orden")
@@ -55,20 +55,32 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
       .order("orden")
       .order("nombre"),
     supabase
+      .from("subcategorias")
+      .select("id,categoria_id,nombre,orden,categorias!inner(negocio_id)")
+      .eq("categorias.negocio_id", negocio.id)
+      .order("orden")
+      .order("nombre"),
+    supabase
       .from("productos")
-      .select("id,categoria_id,nombre,descripcion,precio,fotos,estado,visible,orden")
+      .select(
+        "id,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,estado,visible,orden",
+      )
       .eq("negocio_id", negocio.id)
       .eq("visible", true)
       .order("orden")
       .order("creado_en"),
   ]);
-  if (resultadoCategorias.error || resultadoProductos.error) {
+  if (resultadoCategorias.error || resultadoSubcategorias.error || resultadoProductos.error) {
     throw new Error("No se pudo cargar el catálogo público.");
   }
+  const subcategorias = (resultadoSubcategorias.data ?? []).map(
+    ({ id, categoria_id, nombre, orden }) => ({ id, categoria_id, nombre, orden }),
+  );
   const { url } = obtenerVariablesPublicasSupabase();
   const catalogo = construirCatalogoPublico(
     negocio,
     resultadoCategorias.data ?? [],
+    subcategorias,
     resultadoProductos.data ?? [],
     url,
   );

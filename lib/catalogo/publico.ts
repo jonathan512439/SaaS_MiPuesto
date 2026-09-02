@@ -12,10 +12,12 @@ type NegocioPublico = {
 };
 
 type CategoriaPublica = { id: string; nombre: string; orden: number };
+type SubcategoriaPublica = { id: string; categoria_id: string; nombre: string; orden: number };
 
 type ProductoPublico = {
   id: string;
   categoria_id: string | null;
+  subcategoria_id: string | null;
   nombre: string;
   descripcion: string | null;
   precio: number;
@@ -36,6 +38,7 @@ export function obtenerTextoHorario(horario: unknown) {
 export function construirCatalogoPublico(
   negocio: NegocioPublico,
   categorias: CategoriaPublica[],
+  subcategorias: SubcategoriaPublica[],
   productos: ProductoPublico[],
   urlSupabase: string,
 ): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
@@ -43,6 +46,9 @@ export function construirCatalogoPublico(
     .filter((producto) => producto.visible)
     .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
   const categoriasOrdenadas = [...categorias].sort(
+    (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
+  );
+  const subcategoriasOrdenadas = [...subcategorias].sort(
     (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
   );
   const convertirProducto = (producto: ProductoPublico) => ({
@@ -63,15 +69,36 @@ export function construirCatalogoPublico(
       id: categoria.id,
       nombre: categoria.nombre,
       productos: visibles
-        .filter((producto) => producto.categoria_id === categoria.id)
+        .filter(
+          (producto) =>
+            producto.categoria_id === categoria.id && producto.subcategoria_id === null,
+        )
         .map(convertirProducto),
+      subcategorias: subcategoriasOrdenadas
+        .filter((subcategoria) => subcategoria.categoria_id === categoria.id)
+        .map((subcategoria) => ({
+          id: subcategoria.id,
+          nombre: subcategoria.nombre,
+          productos: visibles
+            .filter((producto) => producto.subcategoria_id === subcategoria.id)
+            .map(convertirProducto),
+        }))
+        .filter((subcategoria) => subcategoria.productos.length > 0),
     }))
-    .filter((categoria) => categoria.productos.length > 0);
+    .filter(
+      (categoria) =>
+        categoria.productos.length > 0 || categoria.subcategorias.length > 0,
+    );
   const sinCategoria = visibles
     .filter((producto) => producto.categoria_id === null)
     .map(convertirProducto);
   if (sinCategoria.length > 0) {
-    agrupadas.push({ id: "otros", nombre: "Otros", productos: sinCategoria });
+    agrupadas.push({
+      id: "otros",
+      nombre: "Otros",
+      productos: sinCategoria,
+      subcategorias: [],
+    });
   }
 
   return {

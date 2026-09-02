@@ -185,6 +185,15 @@
   font-size: var(--text-base);
 }
 
+.subcategoria {
+  display: block;
+  margin-bottom: var(--spacing-1);
+  color: var(--catalogo-marca);
+  font-family: Arial, sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
 .producto p {
   margin-top: var(--spacing-1);
   font-family: Arial, sans-serif;

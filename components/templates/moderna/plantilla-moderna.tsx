@@ -10,13 +10,22 @@ export function PlantillaModerna({
   paleta = "mercado",
   demostracion = true,
 }: PropiedadesPlantilla) {
-  const productos = datos.categorias.flatMap((categoria) =>
-    categoria.productos.map((producto, indice) => ({
+  const productos = datos.categorias.flatMap((categoria) => {
+    const productosCategoria = [
+      ...categoria.productos.map((producto) => ({ ...producto, subcategoria: null })),
+      ...(categoria.subcategorias ?? []).flatMap((subcategoria) =>
+        subcategoria.productos.map((producto) => ({
+          ...producto,
+          subcategoria: subcategoria.nombre,
+        })),
+      ),
+    ];
+    return productosCategoria.map((producto, indice) => ({
       ...producto,
       categoria: categoria.nombre,
       anclaCategoria: indice === 0 ? `categoria-${categoria.id}` : undefined,
-    })),
-  );
+    }));
+  });
 
   return (
     <article
@@ -65,7 +74,7 @@ export function PlantillaModerna({
               />
             ) : <span className={styles.sinImagen}>Sin foto</span>}
             <div className={styles.detalle}>
-              <p>{producto.categoria}</p>
+              <p>{producto.subcategoria ? `${producto.categoria} / ${producto.subcategoria}` : producto.categoria}</p>
               <h4>{producto.nombre}</h4>
               <span>{producto.descripcion}</span>
               <strong>{formatearPrecioBolivianos(producto.precio)}</strong>

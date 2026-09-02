@@ -176,6 +176,14 @@
   font-weight: 800;
 }
 
+.subcategoria {
+  display: block;
+  margin-bottom: var(--spacing-1);
+  color: var(--catalogo-marca);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
 .servicio dd {
   grid-column: 2;
   max-width: 45ch;
