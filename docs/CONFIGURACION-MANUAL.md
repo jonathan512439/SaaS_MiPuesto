@@ -167,7 +167,7 @@ Si el correo no llega, revisá el log de Auth y la carpeta de spam. No desactive
 
 ## 8. Revisión visual manual de la Fase 2
 
-Estado: **pendiente**. La sesión no tenía un navegador integrado disponible para automatizar esta inspección.
+Estado: **completado manualmente el 2026-09-02**. El administrador confirmó navegación y funcionamiento correctos en móvil y escritorio.
 
 1. Iniciá `npm run dev` y abrí `http://localhost:3000/login`.
 2. Con las herramientas de desarrollo, revisá `/login`, `/recuperar-clave`, `/actualizar-clave` y `/dashboard/configuracion` a **360 px** y a al menos **1280 px**.
@@ -176,3 +176,15 @@ Estado: **pendiente**. La sesión no tenía un navegador integrado disponible pa
 5. Probá un slug válido, uno reservado (`admin`) y uno ya tomado. Los mensajes deben ser claros y el guardado debe bloquearse cuando corresponda.
 6. Abrí una ventana privada e intentá entrar a `/dashboard/configuracion`; debe redirigir a `/login`.
 7. Pedí recuperación con un correo existente y con uno inexistente: el mensaje visible debe ser idéntico en ambos casos. Comprobá que el enlace de un correo real termina en `/actualizar-clave`.
+
+## 9. Revisión visual manual de la Fase 3
+
+Estado: **pendiente**. La implementación, pruebas, compilaciones y auditoría RLS están aprobadas; falta la confirmación visual del administrador.
+
+1. Con `npm run dev` abierto, ingresá a `http://localhost:3000/dashboard/plantilla`.
+2. Revisá la pantalla a **360 px** y a al menos **1280 px**. No debe aparecer desplazamiento horizontal.
+3. Elegí sucesivamente Clásica, Moderna y Mínima. Deben cambiar composición, tipografía, navegación, botones y recorrido, manteniendo los mismos productos y fotografías.
+4. En cada plantilla probá Mercado, Tierra, Océano y Noche. Las 12 combinaciones deben conservar texto y controles legibles.
+5. Guardá una combinación distinta de la inicial, recargá la página y confirmá que ambas selecciones permanecen.
+6. Volvé a cambiarla y guardala otra vez. Los productos, el nombre, la descripción y WhatsApp no deben alterarse.
+7. Navegá con `Tab`: los radios, botones de demostración y botón de guardado deben mostrar foco visible.

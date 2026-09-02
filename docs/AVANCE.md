@@ -8,29 +8,33 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Fase en curso: **Fase 3 — Sistema de plantillas**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
-- Estado: **Fase 3 implementada; pendiente de validación visual manual** en móvil y escritorio.
-- Puerta de salida actual: pendiente de confirmar visualmente que las tres plantillas se distinguen con los mismos datos y que la selección persiste al recargar.
+- Estado: **Fase 3 ampliada e implementada; pendiente de validación visual manual** en móvil y escritorio.
+- Puerta de salida actual: pendiente de revisar las 12 combinaciones y confirmar que estructura y paleta persisten al recargar.
 
 ## Estado de Fase 3
 
 - Inicio: 2026-09-02.
 - Estado: **implementación y auditorías automáticas cumplidas; revisión manual pendiente**.
 - Plan visual: `docs/PLAN-DISENO-FASE3.md`.
-- Alcance: tres plantillas estructuralmente distintas, comparación con los mismos datos y selección persistida desde el panel.
-- Puerta de salida: las tres plantillas, colocadas lado a lado con los mismos datos, deben verse claramente distintas en estructura.
+- Alcance: tres sistemas visuales completos, cuatro paletas combinables, demostración extensa y apariencia persistida desde el panel.
+- Puerta de salida: las tres plantillas deben diferenciarse en composición, tipografía, navegación, botones e interacción; las cuatro paletas deben funcionar con cada una.
 
 | Control | Estado | Evidencia o pendiente |
 |---|---|---|
-| Plantilla clásica | Cumplido en código | Carta vertical por categorías, fotografías compactas, productos en filas y precios alineados. |
-| Plantilla moderna | Cumplido en código | Portada y cuadrícula donde las fotografías tienen mayor protagonismo. |
-| Plantilla mínima | Cumplido en código | Contacto prioritario y lista tipográfica con fotografías discretas. |
+| Plantilla clásica | Cumplido en código | Carta editorial con Georgia, encabezado centrado, navegación sobria, filas y acciones discretas. |
+| Plantilla moderna | Cumplido en código | Vitrina de alto contraste con Arial, portada comercial, navegación horizontal, cuadrícula y acciones por producto. |
+| Plantilla mínima | Cumplido en código | Directorio sereno con Trebuchet, horario y contacto prioritarios, navegación por secciones y recorrido vertical. |
+| Cuatro paletas combinables | Cumplido en código | `mercado`, `tierra`, `oceano` y `noche` reasignan tokens semánticos sin cambiar componentes. Las 12 combinaciones son únicas y están cubiertas por prueba. |
+| Contraste de paletas | Cumplido | `npm run test:contraste` valida texto, marca, acción, éxito y alerta, además de sus colores de contenido; todos superan 4,5:1. |
+| Registro extensible y carga diferida | Cumplido | `lib/apariencia.ts` centraliza identificadores y metadatos; el panel carga dinámicamente solo la vista activa. |
 | Datos por propiedades | Cumplido | Las tres variantes reciben exactamente los mismos productos y fotografías; los componentes de `components/templates/` no consultan la red ni la base. |
-| Selección persistida | Cumplido en código | `/dashboard/plantilla` compara las tres opciones; `PATCH /api/negocios/plantilla` valida el identificador y actualiza mediante la sesión autenticada. |
+| Demostración completa | Cumplido en código | Cada variante incluye portada, categorías, fotografías, precios, acciones, horario, WhatsApp y cierre de pedido o consulta según su enfoque. |
+| Selección persistida | Cumplido en código | `/dashboard/plantilla` combina estructura y paleta; `PATCH /api/negocios/plantilla` valida ambos identificadores y actualiza mediante la sesión autenticada. |
 | Precios centralizados | Cumplido | `lib/precios.ts` concentra el formato en bolivianos y tiene cobertura unitaria. |
 | HTML seguro | Cumplido | Todo texto se renderiza con React; no se usa HTML crudo. |
-| Aislamiento multi-tenant | Cumplido | Dos usuarios temporales confirmaron que cada administrador puede cambiar su plantilla y no la de otro negocio. |
-| Build y Worker local | Cumplido | Next.js y vinext compilaron; el Worker devolvió 307 hacia login para el panel anónimo y 401 para el API anónimo. |
-| Revisión visual a 360 px y escritorio | Pendiente manual | Comparar las tres vistas, guardar una opción y recargar para confirmar persistencia. |
+| Aislamiento multi-tenant | Cumplido | Dos usuarios temporales confirmaron que cada administrador puede cambiar su plantilla y paleta, pero no la apariencia de otro negocio. |
+| Build | Cumplido | Next.js 16.3.4 y vinext compilaron; el control de secretos del bundle cliente aprobó. |
+| Revisión visual a 360 px y escritorio | Pendiente manual | Recorrer las 12 combinaciones, guardar una opción, recargar y confirmar persistencia sin desbordamiento horizontal. |
 
 ## Estado de Fase 2
 
@@ -128,7 +132,8 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 
 - Las variantes clásica, moderna y mínima reciben el mismo contrato de datos por propiedades y no realizan consultas propias.
 - La vista de Fase 3 es privada y usa datos de demostración junto con el nombre, descripción y WhatsApp reales del negocio.
-- La elección se guarda de forma explícita en `negocios.plantilla_id`; la base limita el valor a las tres variantes y RLS mantiene el aislamiento.
+- Estructura y color se guardan por separado en `negocios.plantilla_id` y `negocios.paleta_id`; la base limita ambos conjuntos y RLS mantiene el aislamiento.
+- Las cuatro paletas solo reasignan tokens semánticos y pueden combinarse con las tres plantillas sin duplicar la lógica del catálogo.
 - El catálogo público por slug no se adelanta: se integrará con productos reales en la Fase 4.
 
 ## Auditoría de Fase 0
@@ -155,6 +160,12 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 
 ### 2026-09-02
 
+- Se amplió la Fase 3 a tres sistemas visuales completos y cuatro paletas combinables, para un total de 12 apariencias sin duplicar datos ni lógica.
+- La migración `20260902142736_agregar_paleta_catalogo.sql` agregó `paleta_id`, su restricción de valores y lectura pública; fue aplicada al proyecto remoto de desarrollo.
+- El selector guarda plantilla y paleta conjuntamente, permite modificarlas después y muestra una sola demostración extensa cargada de forma diferida.
+- `npm run test` aprobó 37 pruebas; tokens y las cuatro paletas aprobaron contraste AA. ESLint, TypeScript, build de Next.js y build de vinext también aprobaron.
+- `npm run db:lint:linked` no reportó errores y `npm run test:rls:linked` volvió a aprobar con 7 tablas y 2 usuarios, incluyendo aislamiento de plantilla y paleta.
+- No había un navegador conectado en la sesión para automatizar la inspección. Queda pendiente revisar las 12 combinaciones a 360 px y escritorio, guardar una, recargar y confirmar persistencia.
 - Se construyeron tres plantillas estructuralmente distintas con un contrato de datos común y sin consultas internas.
 - El panel incorporó navegación compartida y `/dashboard/plantilla` con comparación, selección local y guardado explícito.
 - La API valida el valor recibido, deriva el administrador de `getClaims()` y actualiza únicamente mediante RLS.
