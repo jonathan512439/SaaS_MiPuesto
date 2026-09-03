@@ -182,13 +182,15 @@ try {
     subtotal: 20,
     controla_stock: false,
   });
-  await insertarUno(clienteA, "eventos_analitica", {
+  await insertarUno(administrador, "eventos_analitica", {
     negocio_id: negocios[0].id,
+    sesion_id: randomUUID(),
     tipo: "vista_catalogo",
   });
-  const eventoB = await insertarUno(clienteB, "eventos_analitica", {
+  const eventoB = await insertarUno(administrador, "eventos_analitica", {
     negocio_id: negocios[1].id,
     producto_id: productoB.id,
+    sesion_id: randomUUID(),
     tipo: "clic_producto",
   });
 
@@ -218,7 +220,9 @@ try {
       tabla,
       filasB[tabla],
       cambios[tabla],
-      tabla === "pedidos" || tabla === "pedido_items",
+      tabla === "pedidos" ||
+        tabla === "pedido_items" ||
+        tabla === "eventos_analitica",
     );
   }
 
