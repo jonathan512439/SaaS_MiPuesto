@@ -95,6 +95,18 @@ describe("estado de atención", () => {
     );
   });
 
+  it("resume el horario de hoy cuando el negocio está cerrado", () => {
+    expect(
+      evaluarHorario(horarioLunes, fechaBolivia("2026-09-07T08:00:00")).horarioBreve,
+    ).toBe("Hoy: 09:00–18:00.");
+  });
+
+  it("informa la próxima atención cuando hoy está cerrado", () => {
+    expect(
+      evaluarHorario(horarioLunes, fechaBolivia("2026-09-06T12:00:00")).horarioBreve,
+    ).toBe("Próxima atención: lunes 09:00–18:00.");
+  });
+
   it("mantiene abierto un intervalo que cruza medianoche", () => {
     const horarioNocturno = {
       modo: "programado",

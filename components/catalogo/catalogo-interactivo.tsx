@@ -70,6 +70,35 @@ export function CatalogoInteractivo({
     0,
   );
   const Vista = VISTAS[plantilla];
+  const navegacionCatalogo = datos.categorias.length > 0 ? (
+    <section aria-labelledby="explorar-catalogo" className={styles.explorador}>
+      <div>
+        <label htmlFor="categoria-catalogo" id="explorar-catalogo">
+          Categoría
+        </label>
+        <select
+          id="categoria-catalogo"
+          onChange={(evento) => {
+            setCategoriaActiva(evento.target.value);
+            setPagina(1);
+          }}
+          value={categoriaActiva}
+        >
+          <option value="">Todas las categorías</option>
+          {datos.categorias.map((categoria) => (
+            <option key={categoria.id} value={categoria.id}>
+              {categoria.nombre}
+            </option>
+          ))}
+        </select>
+      </div>
+      <p>
+        {paginaCatalogo.totalProductos === 1
+          ? "1 producto"
+          : `${paginaCatalogo.totalProductos} productos`}
+      </p>
+    </section>
+  ) : null;
 
   function cambiarCantidad(productoId: string, cantidad: number) {
     const producto = productos.find(({ id }) => id === productoId);
@@ -87,53 +116,23 @@ export function CatalogoInteractivo({
   }
 
   return (
-    <div className={styles.contenedor}>
-      {datos.categorias.length > 0 ? (
-        <section
-          aria-labelledby="explorar-catalogo"
-          className={`${temaStyles.tema} ${styles.explorador}`}
-          data-paleta={paleta}
-        >
-          <div>
-            <label htmlFor="categoria-catalogo" id="explorar-catalogo">
-              Explorar por categoría
-            </label>
-            <select
-              id="categoria-catalogo"
-              onChange={(evento) => {
-                setCategoriaActiva(evento.target.value);
-                setPagina(1);
-              }}
-              value={categoriaActiva}
-            >
-              <option value="">Todas las categorías</option>
-              {datos.categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.id}>
-                  {categoria.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-          <p>
-            {paginaCatalogo.totalProductos === 1
-              ? "1 producto"
-              : `${paginaCatalogo.totalProductos} productos`}
-          </p>
-        </section>
-      ) : null}
+    <div
+      className={`${temaStyles.tema} ${styles.contenedor}`}
+      data-paleta={paleta}
+    >
       <Vista
         alAgregarProducto={agregarProducto}
         cantidadesCarrito={cantidades}
         datos={datosPaginados}
         demostracion={false}
+        navegacionCatalogo={navegacionCatalogo}
         ocultarNavegacionCategorias
         paleta={paleta}
       />
       {paginaCatalogo.totalPaginas > 1 ? (
         <nav
           aria-label="Páginas de productos"
-          className={`${temaStyles.tema} ${styles.paginacion}`}
-          data-paleta={paleta}
+          className={styles.paginacion}
         >
           <button
             disabled={paginaCatalogo.pagina === 1}
@@ -167,11 +166,14 @@ export function CatalogoInteractivo({
           />
           {cantidadEnCarrito > 0 ? (
             <a
-              className={`${temaStyles.tema} ${styles.accesoCarrito}`}
-              data-paleta={paleta}
+              aria-label={`Ver pedido con ${cantidadEnCarrito} artículo${cantidadEnCarrito === 1 ? "" : "s"}`}
+              className={styles.accesoCarrito}
               href="#resumen-pedido"
             >
-              Ver pedido ({cantidadEnCarrito})
+              <span>Ver pedido</span>
+              <small>
+                {cantidadEnCarrito} {cantidadEnCarrito === 1 ? "artículo" : "artículos"}
+              </small>
             </a>
           ) : null}
         </>

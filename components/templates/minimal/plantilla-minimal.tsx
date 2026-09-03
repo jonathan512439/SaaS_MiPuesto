@@ -15,6 +15,7 @@ export function PlantillaMinimal({
   cantidadesCarrito = {},
   alAgregarProducto,
   ocultarNavegacionCategorias = false,
+  navegacionCatalogo,
 }: PropiedadesPlantilla) {
   return (
     <article
@@ -29,12 +30,16 @@ export function PlantillaMinimal({
           <p>{datos.negocio.descripcion}</p>
         </div>
         <div className={styles.contacto}>
-          {datos.negocio.atencion.texto ? <span>{datos.negocio.atencion.texto}</span> : null}
+          {datos.negocio.atencion.texto && !datos.negocio.atencion.aviso ? (
+            <span>{datos.negocio.atencion.texto}</span>
+          ) : null}
           <small>WhatsApp {datos.negocio.telefonoWhatsapp}</small>
         </div>
       </header>
 
       <AvisoHorario estado={datos.negocio.atencion} />
+
+      {navegacionCatalogo}
 
       {!ocultarNavegacionCategorias ? (
         <nav className={styles.navegacion} aria-label="Secciones del catálogo">

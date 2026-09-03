@@ -29,6 +29,7 @@ export type EstadoAtencion = {
   permiteAcciones: boolean;
   texto: string | null;
   aviso: string | null;
+  horarioBreve: string | null;
 };
 
 export type ResultadoValidacionHorario =
@@ -193,6 +194,36 @@ function minutoSemanalEnLaPaz(fecha: Date) {
   return indiceDia * 24 * 60 + hora * 60 + minuto;
 }
 
+function resumirIntervalos(intervalos: IntervaloHorario[]) {
+  return intervalos
+    .map(({ abre, cierra }) => `${abre}–${cierra}`)
+    .join(" y ");
+}
+
+function resumirProximaAtencion(
+  horario: HorarioNormalizado,
+  minutoActual: number | null,
+) {
+  if (minutoActual === null) return null;
+  const indiceActual = Math.floor(minutoActual / (24 * 60));
+  const diaActual = DIAS_SEMANA[indiceActual];
+  const intervalosHoy = horario.dias[diaActual];
+
+  if (intervalosHoy.length > 0) {
+    return `Hoy: ${resumirIntervalos(intervalosHoy)}.`;
+  }
+
+  for (let distancia = 1; distancia < DIAS_SEMANA.length; distancia += 1) {
+    const dia = DIAS_SEMANA[(indiceActual + distancia) % DIAS_SEMANA.length];
+    const intervalos = horario.dias[dia];
+    if (intervalos.length > 0) {
+      return `Próxima atención: ${dia} ${resumirIntervalos(intervalos)}.`;
+    }
+  }
+
+  return "No hay horarios de atención publicados.";
+}
+
 export function evaluarHorario(valor: unknown, fecha: Date = new Date()): EstadoAtencion {
   const validacion = validarHorario(valor);
   if (!validacion.correcto) {
@@ -201,8 +232,8 @@ export function evaluarHorario(valor: unknown, fecha: Date = new Date()): Estado
       abierto: false,
       permiteAcciones: false,
       texto: "Horario no disponible",
-      aviso:
-        "El horario de atención no está disponible. Puedes revisar el catálogo, pero consulta al negocio antes de pedir.",
+      aviso: "Puedes seguir navegando; los pedidos están pausados.",
+      horarioBreve: null,
     };
   }
 
@@ -213,6 +244,7 @@ export function evaluarHorario(valor: unknown, fecha: Date = new Date()): Estado
       permiteAcciones: true,
       texto: null,
       aviso: null,
+      horarioBreve: null,
     };
   }
 
@@ -223,6 +255,7 @@ export function evaluarHorario(valor: unknown, fecha: Date = new Date()): Estado
       permiteAcciones: true,
       texto: "Siempre abierto",
       aviso: null,
+      horarioBreve: null,
     };
   }
 
@@ -240,13 +273,14 @@ export function evaluarHorario(valor: unknown, fecha: Date = new Date()): Estado
         permiteAcciones: true,
         texto: "Atención disponible",
         aviso: null,
+        horarioBreve: null,
       }
     : {
         modo: "programado",
         abierto: false,
         permiteAcciones: false,
         texto: "Fuera del horario de atención",
-        aviso:
-          "Estamos fuera del horario de atención. Puedes revisar el catálogo, pero los pedidos y reservas están pausados.",
+        aviso: "Puedes seguir navegando; los pedidos están pausados.",
+        horarioBreve: resumirProximaAtencion(validacion.horario, minutoActual),
       };
 }

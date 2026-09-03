@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import type { PaletaId } from "../apariencia";
 import type { EstadoAtencion } from "../horario";
 import type { ModoAccionCatalogo } from "../modalidades";
@@ -54,4 +56,5 @@ export type PropiedadesPlantilla = {
   cantidadesCarrito?: Record<string, number>;
   alAgregarProducto?: (productoId: string) => void;
   ocultarNavegacionCategorias?: boolean;
+  navegacionCatalogo?: ReactNode;
 };

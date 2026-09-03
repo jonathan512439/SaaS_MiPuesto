@@ -15,6 +15,7 @@ export function PlantillaModerna({
   cantidadesCarrito = {},
   alAgregarProducto,
   ocultarNavegacionCategorias = false,
+  navegacionCatalogo,
 }: PropiedadesPlantilla) {
   const productos = datos.categorias.flatMap((categoria) => {
     const productosCategoria = [
@@ -42,7 +43,9 @@ export function PlantillaModerna({
       <header className={styles.portada}>
         <div className={styles.barraSuperior}>
           <strong>{datos.negocio.nombre}</strong>
-          {datos.negocio.atencion.texto ? <span>{datos.negocio.atencion.texto}</span> : null}
+          {datos.negocio.atencion.texto && !datos.negocio.atencion.aviso ? (
+            <span>{datos.negocio.atencion.texto}</span>
+          ) : null}
         </div>
         <div className={styles.presentacion}>
           <p>Compra local, elige fácil</p>
@@ -53,6 +56,8 @@ export function PlantillaModerna({
       </header>
 
       <AvisoHorario estado={datos.negocio.atencion} />
+
+      {navegacionCatalogo}
 
       {!ocultarNavegacionCategorias ? (
         <nav className={styles.navegacion} aria-label="Categorías del catálogo">

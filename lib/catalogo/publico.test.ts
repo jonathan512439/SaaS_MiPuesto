@@ -153,7 +153,9 @@ describe("modalidad y horario del catálogo público", () => {
     expect(resultado.datos.negocio.atencion).toMatchObject({
       abierto: false,
       permiteAcciones: false,
+      horarioBreve: "Hoy: 09:00–10:00.",
     });
-    expect(resultado.datos.negocio.atencion.aviso).toContain("fuera del horario");
+    expect(resultado.datos.negocio.atencion.texto).toContain("Fuera del horario");
+    expect(resultado.datos.negocio.atencion.aviso).toContain("seguir navegando");
   });
 });

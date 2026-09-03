@@ -15,6 +15,7 @@ export function PlantillaClasica({
   cantidadesCarrito = {},
   alAgregarProducto,
   ocultarNavegacionCategorias = false,
+  navegacionCatalogo,
 }: PropiedadesPlantilla) {
   return (
     <article
@@ -26,12 +27,14 @@ export function PlantillaClasica({
         <p className={styles.sello}>Carta del negocio</p>
         <h3>{datos.negocio.nombre}</h3>
         <p>{datos.negocio.descripcion}</p>
-        {datos.negocio.atencion.texto ? (
+        {datos.negocio.atencion.texto && !datos.negocio.atencion.aviso ? (
           <span className={styles.horario}>{datos.negocio.atencion.texto}</span>
         ) : null}
       </header>
 
       <AvisoHorario estado={datos.negocio.atencion} />
+
+      {navegacionCatalogo}
 
       {!ocultarNavegacionCategorias ? (
         <nav className={styles.navegacion} aria-label="Categorías del catálogo">

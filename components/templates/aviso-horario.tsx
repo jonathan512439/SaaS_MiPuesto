@@ -7,8 +7,11 @@ export function AvisoHorario({ estado }: { estado: EstadoAtencion }) {
 
   return (
     <aside className={styles.aviso} role="status">
-      <strong>{estado.texto ?? "Pedidos pausados"}</strong>
-      <p>{estado.aviso}</p>
+      <p>
+        <strong>{estado.texto ?? "Pedidos pausados"}.</strong>{" "}
+        {estado.horarioBreve ? <span>{estado.horarioBreve} </span> : null}
+        <span>{estado.aviso}</span>
+      </p>
     </aside>
   );
 }
