@@ -524,6 +524,12 @@
   color: var(--color-texto-suave);
 }
 
+.auditoriaPrecio {
+  border-left: var(--borde-marcado) solid var(--color-borde-suave);
+  padding-left: var(--spacing-2);
+  font-size: var(--text-xs);
+}
+
 .estadoVisible,
 .estadoOculto,
 .estadoAgotado {

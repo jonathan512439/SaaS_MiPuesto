@@ -13,6 +13,8 @@ export type ProductoPlantilla = {
   nombre: string;
   descripcion: string;
   precio: number;
+  precioOriginal: number;
+  tienePromocion: boolean;
   imagen: {
     src: string;
     alt: string;
@@ -44,7 +46,10 @@ export type DatosPlantilla = {
     modalidad: ModoAccionCatalogo;
     descripcionModalidad: string;
     atencion: EstadoAtencion;
+    logoUrl: string | null;
+    portadaUrl: string | null;
     qrPagoUrl: string | null;
+    redesSociales: Array<{ nombre: string; url: string }>;
   };
   categorias: CategoriaPlantilla[];
 };

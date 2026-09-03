@@ -36,14 +36,14 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
   const { data: negocio } = await supabase
     .from("negocios")
     .select(
-      "id,slug,nombre,descripcion,tipo_negocio,telefono_whatsapp,horario,plantilla_id,paleta_id,qr_pago_url,activo",
+      "id,slug,nombre,descripcion,tipo_negocio,telefono_whatsapp,horario,plantilla_id,paleta_id,logo_url,portada_url,qr_pago_url,redes_sociales,activo",
     )
     .eq("slug", slug)
     .eq("activo", true)
     .maybeSingle();
   if (!negocio) notFound();
 
-  const [resultadoCategorias, resultadoSubcategorias, resultadoProductos] = await Promise.all([
+  const [resultadoCategorias, resultadoSubcategorias, resultadoProductos, resultadoPromociones] = await Promise.all([
     supabase
       .from("categorias")
       .select("id,nombre,orden")
@@ -65,8 +65,17 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
       .eq("visible", true)
       .order("orden")
       .order("creado_en"),
+    supabase
+      .from("promociones")
+      .select("id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo")
+      .eq("negocio_id", negocio.id),
   ]);
-  if (resultadoCategorias.error || resultadoSubcategorias.error || resultadoProductos.error) {
+  if (
+    resultadoCategorias.error ||
+    resultadoSubcategorias.error ||
+    resultadoProductos.error ||
+    resultadoPromociones.error
+  ) {
     throw new Error("No se pudo cargar el catálogo público.");
   }
   const subcategorias = (resultadoSubcategorias.data ?? []).map(
@@ -79,6 +88,11 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
     subcategorias,
     resultadoProductos.data ?? [],
     url,
+    new Date(),
+    (resultadoPromociones.data ?? []).map((promocion) => ({
+      ...promocion,
+      valor: Number(promocion.valor),
+    })),
   );
   return (
     <main className={styles.pagina}>

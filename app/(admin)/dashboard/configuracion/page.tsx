@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import {
+  FormularioIdentidad,
+  type IdentidadNegocioInicial,
+} from "../../../../components/negocios/formulario-identidad";
+import {
   FormularioNegocio,
   type PerfilNegocioInicial,
 } from "../../../../components/negocios/formulario-negocio";
@@ -10,6 +14,7 @@ import {
   type OperacionNegocioInicial,
 } from "../../../../components/negocios/formulario-operacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import styles from "./configuracion.module.css";
 
 export const metadata: Metadata = {
@@ -26,9 +31,11 @@ export default async function PaginaConfiguracion() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,slug,descripcion,tipo_negocio,telefono_whatsapp,horario,reserva_minutos")
+    .select("nombre,slug,descripcion,tipo_negocio,telefono_whatsapp,horario,reserva_minutos,logo_url,portada_url,qr_pago_url,redes_sociales")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
+
+  const { url } = obtenerVariablesPublicasSupabase();
 
   return (
     <main className={styles.contenido}>
@@ -58,9 +65,16 @@ export default async function PaginaConfiguracion() {
         </aside>
       </div>
       {negocio ? (
-        <FormularioOperacion
-          operacionInicial={negocio as OperacionNegocioInicial}
-        />
+        <>
+          <FormularioOperacion
+            operacionInicial={negocio as OperacionNegocioInicial}
+          />
+          <FormularioIdentidad
+            identidadInicial={negocio as IdentidadNegocioInicial}
+            negocioNombre={negocio.nombre}
+            urlSupabase={url}
+          />
+        </>
       ) : null}
     </main>
   );

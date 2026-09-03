@@ -1,3 +1,5 @@
+begin;
+
 do $$
 declare
   cantidad integer;
@@ -85,6 +87,62 @@ begin
   end if;
 end;
 $$;
+
+insert into public.promociones (
+  id, negocio_id, tipo, valor, producto_id, categoria_id, fecha_inicio, fecha_fin, activo
+)
+values
+  (
+    '70000000-0000-4000-8000-000000000001',
+    '20000000-0000-4000-8000-000000000002',
+    'porcentaje', 10, null,
+    '30000000-0000-4000-8000-000000000002',
+    null, null, true
+  ),
+  (
+    '70000000-0000-4000-8000-000000000002',
+    '20000000-0000-4000-8000-000000000002',
+    'monto_fijo', 20,
+    '50000000-0000-4000-8000-000000000002', null,
+    null, null, true
+  ),
+  (
+    '70000000-0000-4000-8000-000000000003',
+    '20000000-0000-4000-8000-000000000002',
+    'monto_fijo', 200,
+    '50000000-0000-4000-8000-000000000002', null,
+    '2026-09-03T13:00:00Z', null, true
+  );
+
+do $$
+declare
+  precio numeric;
+begin
+  select private.calcular_precio_producto(
+    95,
+    '20000000-0000-4000-8000-000000000002',
+    '50000000-0000-4000-8000-000000000002',
+    '30000000-0000-4000-8000-000000000002',
+    '2026-09-03T12:00:00Z'
+  ) into precio;
+  if precio <> 75 then
+    raise exception 'Fase 7: se esperaba el mejor precio 75 y se obtuvo %', precio;
+  end if;
+
+  select private.calcular_precio_producto(
+    95,
+    '20000000-0000-4000-8000-000000000002',
+    '50000000-0000-4000-8000-000000000002',
+    '30000000-0000-4000-8000-000000000002',
+    '2026-09-03T13:00:00Z'
+  ) into precio;
+  if precio <> 0 then
+    raise exception 'Fase 7: el precio debía limitarse a cero y se obtuvo %', precio;
+  end if;
+end;
+$$;
+
+rollback;
 
 select
   4 as politicas_storage_identidad,

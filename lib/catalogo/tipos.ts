@@ -19,6 +19,9 @@ export type ProductoCatalogo = {
   nombre: string;
   descripcion: string | null;
   precio: number;
+  precio_anterior: number | null;
+  precio_actualizado_en: string | null;
+  precio_actualizado_por: string | null;
   fotos: string[];
   controla_stock: boolean;
   cantidad_stock: number | null;

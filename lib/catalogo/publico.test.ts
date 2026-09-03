@@ -46,6 +46,42 @@ describe("construirCatalogoPublico", () => {
     expect(resultado.datos.categorias[0].productos[0].imagen?.src).toContain("foto.webp");
   });
 
+  it("aplica una promoción vigente y conserva el precio original", () => {
+    const resultado = construirCatalogoPublico(
+      NEGOCIO,
+      [{ id: "cat-1", nombre: "Comida", orden: 1 }],
+      [],
+      [{ id: "p-1", categoria_id: "cat-1", subcategoria_id: null, nombre: "Producto", descripcion: null, precio: 80, fotos: [], estado: "disponible", visible: true, orden: 1 }],
+      "https://proyecto.supabase.co",
+      new Date("2026-09-03T12:00:00.000Z"),
+      [{ id: "promo-1", activo: true, categoria_id: "cat-1", producto_id: null, tipo: "porcentaje", valor: 25, fecha_inicio: null, fecha_fin: "2026-09-03T13:00:00.000Z" }],
+    );
+
+    expect(resultado.datos.categorias[0].productos[0]).toMatchObject({
+      precio: 60,
+      precioOriginal: 80,
+      tienePromocion: true,
+    });
+  });
+
+  it("deja de aplicar una promoción al llegar su vencimiento", () => {
+    const resultado = construirCatalogoPublico(
+      NEGOCIO,
+      [{ id: "cat-1", nombre: "Comida", orden: 1 }],
+      [],
+      [{ id: "p-1", categoria_id: "cat-1", subcategoria_id: null, nombre: "Producto", descripcion: null, precio: 80, fotos: [], estado: "disponible", visible: true, orden: 1 }],
+      "https://proyecto.supabase.co",
+      new Date("2026-09-03T13:00:00.000Z"),
+      [{ id: "promo-1", activo: true, categoria_id: "cat-1", producto_id: null, tipo: "porcentaje", valor: 25, fecha_inicio: null, fecha_fin: "2026-09-03T13:00:00.000Z" }],
+    );
+
+    expect(resultado.datos.categorias[0].productos[0]).toMatchObject({
+      precio: 80,
+      precioOriginal: 80,
+      tienePromocion: false,
+    });
+  });
+
   it("expone solamente las unidades no reservadas", () => {
     const resultado = construirCatalogoPublico(
       { ...NEGOCIO, slug: "mercado-uno", tipo_negocio: "tienda_virtual" },

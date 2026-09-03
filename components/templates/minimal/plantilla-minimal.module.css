@@ -293,3 +293,62 @@
     grid-template-columns: minmax(0, 1fr) minmax(14rem, auto);
   }
 }
+.precio {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-2);
+}
+
+.precio s,
+.precio small {
+  color: var(--catalogo-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.precio strong {
+  color: var(--catalogo-accion);
+}
+
+.precio small {
+  flex-basis: 100%;
+  font-weight: 800;
+}
+.portadaImagen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 5;
+  overflow: hidden;
+  border-bottom: var(--borde-fino) solid var(--catalogo-marca);
+}
+
+.portadaImagen img {
+  object-fit: cover;
+}
+
+.identidad {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+}
+
+.identidad > img {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  flex: 0 0 var(--spacing-12);
+  border: var(--borde-fino) solid var(--catalogo-marca);
+  border-radius: var(--radius-status);
+  object-fit: cover;
+}
+
+.redes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2) var(--spacing-4);
+}
+
+.redes a {
+  color: var(--catalogo-marca);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}

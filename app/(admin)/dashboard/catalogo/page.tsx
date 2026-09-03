@@ -45,7 +45,7 @@ export default async function PaginaCatalogo() {
     supabase
       .from("productos")
       .select(
-        "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden",
+        "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden",
       )
       .eq("negocio_id", negocio.id)
       .order("orden")

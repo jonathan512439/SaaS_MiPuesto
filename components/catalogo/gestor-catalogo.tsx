@@ -18,6 +18,12 @@ import { Campo } from "../ui/campo";
 import { Selector } from "../ui/selector";
 import styles from "./gestor-catalogo.module.css";
 
+const FORMATEADOR_CAMBIO_PRECIO = new Intl.DateTimeFormat("es-BO", {
+  timeZone: "America/La_Paz",
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
 type PropiedadesGestorCatalogo = {
   datosIniciales: DatosCatalogoAdmin;
   urlSupabase: string;
@@ -824,6 +830,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                     </div>
                     <small>Código: {producto.codigo}</small>
                     <strong>Bs {Number(producto.precio).toFixed(2).replace(".", ",")}</strong>
+                    {producto.precio_anterior !== null && producto.precio_actualizado_en ? (
+                      <small className={styles.auditoriaPrecio}>
+                        Precio anterior: Bs {Number(producto.precio_anterior).toFixed(2).replace(".", ",")}. Actualizado {producto.precio_actualizado_por ? "por tu cuenta" : "por administración de MiPuesto"} el {FORMATEADOR_CAMBIO_PRECIO.format(new Date(producto.precio_actualizado_en))}.
+                      </small>
+                    ) : null}
                     {producto.descripcion ? <p>{producto.descripcion}</p> : null}
                     <small>
                       {producto.controla_stock

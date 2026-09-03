@@ -4,7 +4,10 @@ import { obtenerComportamientoModalidad } from "../modalidades";
 import type { DatosPlantilla } from "../plantillas/tipos";
 import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
 import { calcularCantidadDisponible } from "../reservas";
+import { calcularPrecioProducto, type PromocionPrecio } from "../precios";
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
+import { obtenerRedesSociales } from "../negocios/identidad";
+import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
 
 type NegocioPublico = {
   slug?: string;
@@ -15,7 +18,10 @@ type NegocioPublico = {
   horario: unknown;
   plantilla_id: string;
   paleta_id: string;
+  logo_url?: string | null;
+  portada_url?: string | null;
   qr_pago_url?: string | null;
+  redes_sociales?: unknown;
 };
 
 type CategoriaPublica = { id: string; nombre: string; orden: number };
@@ -49,9 +55,11 @@ export function construirCatalogoPublico(
   productos: ProductoPublico[],
   urlSupabase: string,
   fecha: Date = new Date(),
+  promociones: PromocionPrecio[] = [],
 ): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
   const modalidad = obtenerComportamientoModalidad(negocio.tipo_negocio);
   const atencion = evaluarHorario(negocio.horario, fecha);
+  const redes = obtenerRedesSociales(negocio.redes_sociales);
   const visibles = productos
     .filter((producto) => producto.visible)
     .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
@@ -62,7 +70,13 @@ export function construirCatalogoPublico(
     (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
   );
   const convertirProducto = (producto: ProductoPublico) => {
-    const precio = Number(producto.precio);
+    const precioCalculado = calcularPrecioProducto(
+      Number(producto.precio),
+      { productoId: producto.id, categoriaId: producto.categoria_id },
+      promociones,
+      fecha,
+    );
+    const precio = precioCalculado.precioFinal;
     const cantidadDisponible = calcularCantidadDisponible({
       controlaStock: producto.controla_stock === true,
       cantidadStock: producto.cantidad_stock ?? null,
@@ -78,6 +92,8 @@ export function construirCatalogoPublico(
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? "",
       precio,
+      precioOriginal: precioCalculado.precioOriginal,
+      tienePromocion: precioCalculado.promocion !== null,
       estado,
       controlaStock: producto.controla_stock === true,
       cantidadDisponible,
@@ -155,10 +171,15 @@ export function construirCatalogoPublico(
         modalidad: modalidad.accion,
         descripcionModalidad: modalidad.descripcion,
         atencion,
-        qrPagoUrl:
-          typeof negocio.qr_pago_url === "string" && negocio.qr_pago_url.startsWith("https://")
-            ? negocio.qr_pago_url
-            : null,
+        logoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.logo_url ?? null),
+        portadaUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.portada_url ?? null),
+        qrPagoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.qr_pago_url ?? null),
+        redesSociales: [
+          { nombre: "Facebook", url: redes.facebook },
+          { nombre: "Instagram", url: redes.instagram },
+          { nombre: "TikTok", url: redes.tiktok },
+          { nombre: "Sitio web", url: redes.sitio_web },
+        ].flatMap(({ nombre, url }) => (url ? [{ nombre, url }] : [])),
       },
       categorias: agrupadas,
     },

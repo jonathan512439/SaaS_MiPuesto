@@ -23,11 +23,21 @@ export function PlantillaMinimal({
       data-paleta={paleta}
       aria-label={demostracion ? "Vista previa de plantilla mínima" : `Catálogo de ${datos.negocio.nombre}`}
     >
+      {datos.negocio.portadaUrl ? (
+        <div className={styles.portadaImagen}>
+          <Image alt={`Portada de ${datos.negocio.nombre}`} fill sizes="(min-width: 60rem) 800px, 100vw" src={datos.negocio.portadaUrl} />
+        </div>
+      ) : null}
       <header className={styles.cabecera}>
-        <div>
-          <p className={styles.etiqueta}>Atención personalizada</p>
-          <h3>{datos.negocio.nombre}</h3>
-          <p>{datos.negocio.descripcion}</p>
+        <div className={styles.identidad}>
+          {datos.negocio.logoUrl ? (
+            <Image alt={`Logo de ${datos.negocio.nombre}`} height={80} src={datos.negocio.logoUrl} width={80} />
+          ) : null}
+          <div>
+            <p className={styles.etiqueta}>Atención personalizada</p>
+            <h3>{datos.negocio.nombre}</h3>
+            <p>{datos.negocio.descripcion}</p>
+          </div>
         </div>
         <div className={styles.contacto}>
           {datos.negocio.atencion.texto && !datos.negocio.atencion.aviso ? (
@@ -79,7 +89,13 @@ export function PlantillaMinimal({
                     {producto.nombre}
                   </dt>
                   <dd>{producto.descripcion}</dd>
-                  <dd>{formatearPrecioBolivianos(producto.precio)}</dd>
+                  <dd className={styles.precio}>
+                    {producto.tienePromocion ? (
+                      <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
+                    ) : null}
+                    <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
+                    {producto.tienePromocion ? <small>Oferta vigente</small> : null}
+                  </dd>
                   {producto.estado === "agotado" ? <dd><span className={styles.agotado}>Agotado</span></dd> : null}
                   {producto.controlaStock ? (
                     <dd><EstadoStockProducto className={styles.stock} producto={producto} /></dd>
@@ -105,6 +121,13 @@ export function PlantillaMinimal({
 
       <footer className={styles.pie}>
         <p>Cuéntanos qué necesitas y te orientamos personalmente.</p>
+        {datos.negocio.redesSociales.length ? (
+          <nav aria-label="Enlaces del negocio" className={styles.redes}>
+            {datos.negocio.redesSociales.map((red) => (
+              <a href={red.url} key={red.nombre} rel="noreferrer" target="_blank">{red.nombre}</a>
+            ))}
+          </nav>
+        ) : null}
         {demostracion && datos.negocio.modalidad === "carrito" ? (
           <button type="button">Revisar mi pedido</button>
         ) : null}

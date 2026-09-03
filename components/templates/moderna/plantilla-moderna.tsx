@@ -41,8 +41,18 @@ export function PlantillaModerna({
       aria-label={demostracion ? "Vista previa de plantilla moderna" : `Catálogo de ${datos.negocio.nombre}`}
     >
       <header className={styles.portada}>
+        {datos.negocio.portadaUrl ? (
+          <div className={styles.portadaImagen}>
+            <Image alt={`Portada de ${datos.negocio.nombre}`} fill sizes="(min-width: 60rem) 800px, 100vw" src={datos.negocio.portadaUrl} />
+          </div>
+        ) : null}
         <div className={styles.barraSuperior}>
-          <strong>{datos.negocio.nombre}</strong>
+          <div className={styles.marcaNegocio}>
+            {datos.negocio.logoUrl ? (
+              <Image alt={`Logo de ${datos.negocio.nombre}`} height={64} src={datos.negocio.logoUrl} width={64} />
+            ) : null}
+            <strong>{datos.negocio.nombre}</strong>
+          </div>
           {datos.negocio.atencion.texto && !datos.negocio.atencion.aviso ? (
             <span>{datos.negocio.atencion.texto}</span>
           ) : null}
@@ -92,7 +102,13 @@ export function PlantillaModerna({
               <p>{producto.subcategoria ? `${producto.categoria} / ${producto.subcategoria}` : producto.categoria}</p>
               <h4>{producto.nombre}</h4>
               <span>{producto.descripcion}</span>
-              <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
+              <div className={styles.precio}>
+                {producto.tienePromocion ? (
+                  <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
+                ) : null}
+                <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
+                {producto.tienePromocion ? <small>Precio promocional</small> : null}
+              </div>
               {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
               <EstadoStockProducto className={styles.stock} producto={producto} />
               <AccionProducto
@@ -116,6 +132,13 @@ export function PlantillaModerna({
         </span>
         {demostracion && datos.negocio.modalidad === "carrito" ? (
           <button type="button">Continuar por WhatsApp</button>
+        ) : null}
+        {datos.negocio.redesSociales.length ? (
+          <nav aria-label="Enlaces del negocio" className={styles.redes}>
+            {datos.negocio.redesSociales.map((red) => (
+              <a href={red.url} key={red.nombre} rel="noreferrer" target="_blank">{red.nombre}</a>
+            ))}
+          </nav>
         ) : null}
       </footer>
     </article>

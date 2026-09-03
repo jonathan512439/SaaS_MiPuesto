@@ -10,6 +10,8 @@ function producto(id: string): ProductoPlantilla {
     nombre: id,
     descripcion: "",
     precio: 10,
+    precioOriginal: 10,
+    tienePromocion: false,
     imagen: null,
     estado: "disponible",
     controlaStock: true,
