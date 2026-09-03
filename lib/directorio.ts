@@ -51,4 +51,3 @@ export async function obtenerDirectorio(pagina: number, fecha = new Date()) {
     totalPaginas: Math.max(1, Math.ceil(total / NEGOCIOS_POR_PAGINA)),
   };
 }
-

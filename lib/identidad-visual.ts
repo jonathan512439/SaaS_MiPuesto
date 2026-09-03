@@ -5,4 +5,3 @@ export const COLORES_MIPUESTO = {
   superficie: "#fbfaf8",
   texto: "#15292c",
 } as const;
-

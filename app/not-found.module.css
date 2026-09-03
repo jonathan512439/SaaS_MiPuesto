@@ -7,7 +7,6 @@
   padding: var(--spacing-6);
   background: var(--color-fondo-suave);
 }
-
 .mensaje {
   display: grid;
   width: min(100%, 42rem);
@@ -90,4 +89,3 @@
     justify-content: center;
   }
 }
-

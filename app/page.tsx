@@ -1,6 +1,8 @@
 import Link from "next/link";
 import styles from "./inicio.module.css";
 
+export const dynamic = "force-dynamic";
+
 export default function Inicio() {
   return (
     <main className={styles.pagina}>

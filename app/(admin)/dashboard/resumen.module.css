@@ -8,7 +8,6 @@
   margin: 0 auto;
   padding: var(--spacing-6) 0 var(--spacing-16);
 }
-
 .encabezado,
 .actividad,
 .acciones {
@@ -188,4 +187,3 @@
     justify-content: center;
   }
 }
-

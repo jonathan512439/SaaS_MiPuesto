@@ -94,4 +94,3 @@ export default async function PaginaDirectorio({ searchParams }: PropiedadesDire
     </main>
   );
 }
-

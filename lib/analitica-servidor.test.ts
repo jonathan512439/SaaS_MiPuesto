@@ -9,4 +9,3 @@ describe("resumen semanal", () => {
     );
   });
 });
-

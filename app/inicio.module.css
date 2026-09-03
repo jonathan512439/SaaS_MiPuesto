@@ -9,7 +9,6 @@
   margin: 0 auto;
   padding: var(--spacing-12) 0;
 }
-
 .pagina h1,
 .pagina p {
   margin: 0;
@@ -64,4 +63,3 @@
     justify-content: center;
   }
 }
-

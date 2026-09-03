@@ -14,4 +14,3 @@ describe("URL pública del sitio", () => {
     expect(obtenerUrlBaseSitio("javascript:alert(1)")).toBe("http://localhost:3000");
   });
 });
-
