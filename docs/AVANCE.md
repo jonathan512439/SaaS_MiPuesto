@@ -18,13 +18,13 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 7: 2026-09-03.
 - Cierre de Fase 7: 2026-09-03.
 - Inicio de Fase 8: 2026-09-03.
-- Estado: **Fase 8 implementada y auditada; despliegue y validación manual pendientes**.
+- Estado: **Fase 8 implementada, auditada y desplegada; validación manual pendiente**.
 - Próxima puerta de salida: compartir el enlace de un negocio debe mostrar su vista previa con imagen y descripción, y un slug inexistente debe mostrar una página útil.
 
 ## Estado de Fase 8
 
 - Inicio: 2026-09-03.
-- Estado: **implementación y auditorías automáticas cumplidas; pendiente validación manual en el despliegue**.
+- Estado: **implementación, auditorías automáticas y despliegue cumplidos; pendiente validación manual**.
 - Plan visual y técnico: `docs/PLAN-DISENO-FASE8.md`.
 - Alcance: estado de atención con próxima transición, QR local para compartir, Open Graph por negocio, directorio público paginado, analítica semanal privada, manifest PWA, 404 útil y cabeceras de seguridad.
 - Riesgos principales: lectura pública de métricas, llenado abusivo de la base gratuita, directorio con datos no públicos, vista previa social sin imagen y diferencias entre Next.js y vinext al aplicar rutas o cabeceras.
@@ -39,7 +39,8 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Límite e inmutabilidad | Cumplido en base y auditoría remota | Una sesión no puede superar 60 eventos por negocio y hora ni duplicar una interacción. `anon` inserta pero nunca lee; administradores no actualizan ni borran eventos. |
 | Cabeceras de seguridad | Cumplido en smoke local | Portada, directorio, manifest, catálogo y 404 entregan CSP, `nosniff` y política de referencia; también se añadió protección contra marcos y permisos innecesarios. |
 | Calidad automática | Cumplido | Secretos, ESLint, TypeScript, contraste, tokens, 115 pruebas, ambos builds, lint SQL, RLS multinegocio, auditoría específica, dry-run y arranque Worker aprobaron. |
-| Despliegue y revisión real | Pendiente | Falta publicar los commits, comprobar la vista previa desde WhatsApp y completar el checklist móvil/escritorio. |
+| Despliegue | Cumplido | Workers Builds publicó el commit `83e38af` mediante el build `429357e6-bce7-4813-bac3-a97c9b3e2c57`; la versión `9d04ca33-f46e-4fd1-9005-29d441e0c308` recibe el 100 % del tráfico. Portada, directorio, PNG social, manifest y 404 aprobaron el smoke público. |
+| Revisión real | Pendiente | Falta comprobar la vista previa desde WhatsApp, escanear el QR en otro celular y completar el checklist móvil/escritorio. |
 
 ## Estado de Fase 7
 

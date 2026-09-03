@@ -290,7 +290,7 @@ Las auditorías automáticas aprobaron RLS, pertenencia de destinos promocionale
 
 ## 14. Validación manual de la Fase 8
 
-Estado: **implementación y auditorías automáticas completadas; despliegue y recorrido manual pendientes**.
+Estado: **implementación, auditorías automáticas y despliegue completados; recorrido manual pendiente**.
 
 1. Esperá a que Cloudflare termine el despliegue de `main`. Abrí `https://mipuesto-dev.mipuesto-app.workers.dev/directorio` en una ventana privada y comprobá que aparezca tu negocio con portada, logo, modalidad y estado de atención. Un negocio inactivo no debe aparecer.
 2. Desde **Dashboard → Negocio**, probá `Sin horario publicado`, `Siempre abierto` y un horario programado que cambie dentro de pocos minutos. El catálogo no debe mostrar badge en el primer modo; debe decir **Siempre abierto** en el segundo y **Abierto ahora · Cierra a las…** o **Cerrado · Abre…** en el tercero.
