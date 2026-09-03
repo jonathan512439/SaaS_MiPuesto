@@ -220,7 +220,8 @@
 }
 
 .confirmacion > button,
-.exito a {
+.exito a,
+.descargarQr {
   display: inline-flex;
   width: 100%;
   min-height: var(--control-alto);
@@ -234,6 +235,23 @@
   font-weight: 900;
   text-align: center;
   text-decoration: none;
+}
+
+.accionesExito {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.descargarQr {
+  border: var(--borde-fino) solid var(--catalogo-accion);
+  background: transparent;
+  color: var(--catalogo-accion);
+  cursor: pointer;
+}
+
+.errorDescarga {
+  color: var(--catalogo-alerta);
+  font-weight: 700;
 }
 
 .confirmacion {

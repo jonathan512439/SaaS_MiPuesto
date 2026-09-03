@@ -53,7 +53,9 @@ export function CarritoCatalogo({
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [descargandoQr, setDescargandoQr] = useState(false);
   const [error, setError] = useState("");
+  const [errorDescarga, setErrorDescarga] = useState("");
   const [pedido, setPedido] = useState<PedidoMostrado | null>(null);
   const intento = useRef<{ firma: string; id: string } | null>(null);
   const items = productos
@@ -116,6 +118,47 @@ export function CarritoCatalogo({
       );
     } finally {
       setEnviando(false);
+    }
+  }
+
+  async function descargarQrPago() {
+    const qrPagoUrl = datos.negocio.qrPagoUrl;
+    if (!qrPagoUrl || descargandoQr) return;
+
+    setDescargandoQr(true);
+    setErrorDescarga("");
+
+    try {
+      const respuesta = await fetch(qrPagoUrl);
+      if (!respuesta.ok) {
+        throw new Error("No se pudo obtener el QR de pago.");
+      }
+
+      const imagen = await respuesta.blob();
+      if (!imagen.type.startsWith("image/")) {
+        throw new Error("El archivo configurado no es una imagen válida.");
+      }
+
+      const extensiones: Record<string, string> = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+      };
+      const extension = extensiones[imagen.type] ?? "png";
+      const urlTemporal = URL.createObjectURL(imagen);
+      const enlace = document.createElement("a");
+      enlace.href = urlTemporal;
+      enlace.download = `qr-pago-${datos.negocio.slug || "negocio"}.${extension}`;
+      document.body.appendChild(enlace);
+      enlace.click();
+      enlace.remove();
+      window.setTimeout(() => URL.revokeObjectURL(urlTemporal), 0);
+    } catch {
+      setErrorDescarga(
+        "No se pudo descargar el QR de pago. Mantén presionada la imagen para guardarla.",
+      );
+    } finally {
+      setDescargandoQr(false);
     }
   }
 
@@ -265,18 +308,31 @@ export function CarritoCatalogo({
               Total verificado: {formatearPrecioBolivianos(pedidoVigente.total)}. Se mantiene hasta el{" "}
               {FORMATEADOR_HORA.format(new Date(pedidoVigente.expiraEn))}.
             </p>
-            {pedidoVigente.enlaceWhatsapp ? (
-              <a
-                href={pedidoVigente.enlaceWhatsapp}
-                onClick={onAbrirWhatsapp}
-                rel="noreferrer"
-                target="_blank"
-              >
-                Continuar por WhatsApp
-              </a>
-            ) : (
-              <p>Guarda el código y comunícate con el negocio por otro medio.</p>
-            )}
+            <div className={styles.accionesExito}>
+              {pedidoVigente.enlaceWhatsapp ? (
+                <a
+                  href={pedidoVigente.enlaceWhatsapp}
+                  onClick={onAbrirWhatsapp}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Continuar por WhatsApp
+                </a>
+              ) : (
+                <p>Guarda el código y comunícate con el negocio por otro medio.</p>
+              )}
+              {datos.negocio.qrPagoUrl ? (
+                <button
+                  className={styles.descargarQr}
+                  disabled={descargandoQr}
+                  onClick={descargarQrPago}
+                  type="button"
+                >
+                  {descargandoQr ? "Preparando descarga…" : "Descargar QR de pago"}
+                </button>
+              ) : null}
+            </div>
+            {errorDescarga ? <p className={styles.errorDescarga}>{errorDescarga}</p> : null}
           </div>
         ) : null}
       </div>
