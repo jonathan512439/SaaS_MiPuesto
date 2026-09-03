@@ -14,13 +14,13 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 5: 2026-09-02.
 - Cierre de Fase 5: 2026-09-02.
 - Inicio de Fase 6: 2026-09-02.
-- Estado: **ajustes de usabilidad y auditorías automáticas completados; faltan despliegue y recorrido manual**.
+- Estado: **ajustes, auditorías y despliegue automático completados; falta el recorrido manual autenticado**.
 - Puerta de salida actual: un pedido vencido libera automáticamente sus cantidades reservadas y un intento fuera de horario no crea pedidos ni modifica inventario.
 
 ## Estado de Fase 6
 
 - Inicio: 2026-09-02.
-- Estado: **ajustes de cierre y auditorías automáticas completados; pendiente de despliegue y validación manual**.
+- Estado: **ajustes de cierre, auditorías y despliegue completados; pendiente de validación manual**.
 - Plan visual: `docs/PLAN-DISENO-FASE6.md` y `docs/PLAN-DISENO-AJUSTES-FASE6.md`.
 - Decisiones: reserva cuantitativa para admitir varias unidades y pedidos concurrentes; precios recalculados en una transacción; códigos estables de producto y pedido; expiración idempotente ejecutada directamente por Supabase Cron.
 - Riesgos principales: manipulación del total, sobreventa concurrente, duplicación por reintentos, abuso por IP, pedidos fuera de horario y acceso de un administrador a pedidos ajenos.
@@ -38,6 +38,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Aislamiento RLS | Cumplido | Nueve tablas con RLS; ocho tablas de negocio con políticas y la tabla interna de límites sin acceso desde Data API. Auditoría con dos usuarios aprobada. |
 | Calidad automática | Cumplido | ESLint, TypeScript, secretos, tokens, contraste, 93 pruebas, ambos builds, dry-run y arranque Worker, `npm audit`, lint SQL, reservas y RLS remoto aprobaron tras los ajustes. |
 | Secreto de ejecución | Cumplido | El usuario ejecutó el helper el 2026-09-03 y Wrangler confirmó `SUPABASE_SERVICE_ROLE_KEY` como secreto cifrado del Worker, sin mostrarlo ni guardarlo en Git. Su nombre queda declarado como requisito de despliegue. |
+| Despliegue | Cumplido | Workers Builds aprobó el commit `83e1c7c` y publicó la versión `f53aa2e2-90f7-4a16-bc25-d199a6238aa3`; el catálogo respondió HTTP 200 con navegación y stock, y la API de operación rechazó con HTTP 401 una solicitud sin sesión. |
 | Revisión visual e interacción real | Pendiente | Crear, duplicar, confirmar, cancelar y expirar pedidos a 360 px y escritorio siguiendo `docs/CONFIGURACION-MANUAL.md`. |
 
 ## Estado de Fase 5
@@ -248,6 +249,7 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 - Aprobaron secretos de cliente, ESLint, TypeScript, contraste, tokens y 93 pruebas; también los builds Next.js y vinext, `npm audit` sin vulnerabilidades, dry-run de Wrangler y arranque local con 69,5 ms de CPU activa.
 - Las auditorías enlazadas aprobaron: 9 tablas con RLS, 8 tablas de negocio aisladas entre dos usuarios, 4 políticas de Storage, pruebas transaccionales de reservas/expiración y lint SQL sin errores. El primer intento de lint tomó una credencial de entorno obsoleta; al ignorarla usó correctamente la sesión enlazada y aprobó sin modificar secretos.
 - El smoke test del Worker local devolvió HTTP 200 para `/tienda-kantuta`, mostró **Explorar por categoría** y rechazó con HTTP 401 el nuevo endpoint de operación sin sesión.
+- Workers Builds completó correctamente el build `07428b6b-604b-49e1-8892-9cc9125242bd` del commit `83e1c7c` y publicó la versión `f53aa2e2-90f7-4a16-bc25-d199a6238aa3`. La verificación pública repitió HTTP 200, selector y stock; `/api/negocios/operacion` devolvió HTTP 401 sin sesión.
 - No había un navegador conectado para automatizar la inspección visual; queda pendiente el recorrido manual a 360 px y escritorio después del despliegue.
 
 ### 2026-09-02
