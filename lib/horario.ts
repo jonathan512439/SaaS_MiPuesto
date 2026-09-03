@@ -46,6 +46,15 @@ const INDICE_DIA_INGLES: Record<string, number> = {
   Saturday: 5,
   Sunday: 6,
 };
+const ETIQUETAS_DIAS: Record<DiaSemana, string> = {
+  lunes: "lunes",
+  martes: "martes",
+  miercoles: "miércoles",
+  jueves: "jueves",
+  viernes: "viernes",
+  sabado: "sábado",
+  domingo: "domingo",
+};
 
 function esRegistro(valor: unknown): valor is Record<string, unknown> {
   return typeof valor === "object" && valor !== null && !Array.isArray(valor);
@@ -217,11 +226,53 @@ function resumirProximaAtencion(
     const dia = DIAS_SEMANA[(indiceActual + distancia) % DIAS_SEMANA.length];
     const intervalos = horario.dias[dia];
     if (intervalos.length > 0) {
-      return `Próxima atención: ${dia} ${resumirIntervalos(intervalos)}.`;
+      return `Próxima atención: ${ETIQUETAS_DIAS[dia]} ${resumirIntervalos(intervalos)}.`;
     }
   }
 
   return "No hay horarios de atención publicados.";
+}
+
+function formatearHoraSemanal(minutoSemanal: number) {
+  const minutoDia = ((minutoSemanal % (24 * 60)) + 24 * 60) % (24 * 60);
+  const hora = Math.floor(minutoDia / 60).toString().padStart(2, "0");
+  const minuto = (minutoDia % 60).toString().padStart(2, "0");
+  return `${hora}:${minuto}`;
+}
+
+function textoEstadoProgramado(
+  horario: HorarioNormalizado,
+  minutoActual: number | null,
+  abierto: boolean,
+) {
+  if (minutoActual === null) return abierto ? "Abierto ahora" : "Cerrado por ahora";
+  const segmentos = segmentosSemanales(horario);
+
+  if (abierto) {
+    const intervaloActual = segmentos.find(
+      (segmento) => minutoActual >= segmento.inicio && minutoActual < segmento.fin,
+    );
+    return intervaloActual
+      ? `Abierto ahora · Cierra a las ${formatearHoraSemanal(intervaloActual.fin)}`
+      : "Abierto ahora";
+  }
+
+  const siguiente =
+    segmentos.find((segmento) => segmento.inicio > minutoActual) ??
+    (segmentos[0]
+      ? { ...segmentos[0], inicio: segmentos[0].inicio + MINUTOS_SEMANA }
+      : null);
+  if (!siguiente) return "Cerrado por ahora";
+
+  const indiceDiaActual = Math.floor(minutoActual / (24 * 60));
+  const indiceDiaApertura = Math.floor(
+    (siguiente.inicio % MINUTOS_SEMANA) / (24 * 60),
+  );
+  const hora = formatearHoraSemanal(siguiente.inicio);
+  if (indiceDiaApertura === indiceDiaActual && siguiente.inicio < MINUTOS_SEMANA) {
+    return `Cerrado · Abre hoy a las ${hora}`;
+  }
+  return `Cerrado · Abre el ${ETIQUETAS_DIAS[DIAS_SEMANA[indiceDiaApertura]]} a las ${hora}`;
 }
 
 export function evaluarHorario(valor: unknown, fecha: Date = new Date()): EstadoAtencion {
@@ -271,7 +322,7 @@ export function evaluarHorario(valor: unknown, fecha: Date = new Date()): Estado
         modo: "programado",
         abierto: true,
         permiteAcciones: true,
-        texto: "Atención disponible",
+        texto: textoEstadoProgramado(validacion.horario, minutoActual, true),
         aviso: null,
         horarioBreve: null,
       }
@@ -279,7 +330,7 @@ export function evaluarHorario(valor: unknown, fecha: Date = new Date()): Estado
         modo: "programado",
         abierto: false,
         permiteAcciones: false,
-        texto: "Fuera del horario de atención",
+        texto: textoEstadoProgramado(validacion.horario, minutoActual, false),
         aviso: "Puedes seguir navegando; los pedidos están pausados.",
         horarioBreve: resumirProximaAtencion(validacion.horario, minutoActual),
       };

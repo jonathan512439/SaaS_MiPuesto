@@ -191,7 +191,7 @@ describe("modalidad y horario del catálogo público", () => {
       permiteAcciones: false,
       horarioBreve: "Hoy: 09:00–10:00.",
     });
-    expect(resultado.datos.negocio.atencion.texto).toContain("Fuera del horario");
+    expect(resultado.datos.negocio.atencion.texto).toBe("Cerrado · Abre el lunes a las 09:00");
     expect(resultado.datos.negocio.atencion.aviso).toContain("seguir navegando");
   });
 });

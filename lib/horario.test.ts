@@ -96,15 +96,23 @@ describe("estado de atención", () => {
   });
 
   it("resume el horario de hoy cuando el negocio está cerrado", () => {
-    expect(
-      evaluarHorario(horarioLunes, fechaBolivia("2026-09-07T08:00:00")).horarioBreve,
-    ).toBe("Hoy: 09:00–18:00.");
+    expect(evaluarHorario(horarioLunes, fechaBolivia("2026-09-07T08:00:00"))).toMatchObject({
+      texto: "Cerrado · Abre hoy a las 09:00",
+      horarioBreve: "Hoy: 09:00–18:00.",
+    });
   });
 
   it("informa la próxima atención cuando hoy está cerrado", () => {
-    expect(
-      evaluarHorario(horarioLunes, fechaBolivia("2026-09-06T12:00:00")).horarioBreve,
-    ).toBe("Próxima atención: lunes 09:00–18:00.");
+    expect(evaluarHorario(horarioLunes, fechaBolivia("2026-09-06T12:00:00"))).toMatchObject({
+      texto: "Cerrado · Abre el lunes a las 09:00",
+      horarioBreve: "Próxima atención: lunes 09:00–18:00.",
+    });
+  });
+
+  it("informa la hora de cierre mientras está abierto", () => {
+    expect(evaluarHorario(horarioLunes, fechaBolivia("2026-09-07T12:00:00")).texto).toBe(
+      "Abierto ahora · Cierra a las 18:00",
+    );
   });
 
   it("mantiene abierto un intervalo que cruza medianoche", () => {
@@ -115,6 +123,9 @@ describe("estado de atención", () => {
     expect(
       evaluarHorario(horarioNocturno, fechaBolivia("2026-09-11T23:30:00")).abierto,
     ).toBe(true);
+    expect(
+      evaluarHorario(horarioNocturno, fechaBolivia("2026-09-11T23:30:00")).texto,
+    ).toBe("Abierto ahora · Cierra a las 02:00");
     expect(
       evaluarHorario(horarioNocturno, fechaBolivia("2026-09-12T01:59:00")).abierto,
     ).toBe(true);
