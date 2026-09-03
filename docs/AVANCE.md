@@ -14,14 +14,14 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 5: 2026-09-02.
 - Cierre de Fase 5: 2026-09-02.
 - Inicio de Fase 6: 2026-09-02.
-- Estado: **implementación, auditorías automáticas y secreto de ejecución completados; falta desplegar y validar el recorrido manual**.
+- Estado: **ajustes de usabilidad y auditorías automáticas completados; faltan despliegue y recorrido manual**.
 - Puerta de salida actual: un pedido vencido libera automáticamente sus cantidades reservadas y un intento fuera de horario no crea pedidos ni modifica inventario.
 
 ## Estado de Fase 6
 
 - Inicio: 2026-09-02.
-- Estado: **pendiente de despliegue y validación manual**.
-- Plan visual: `docs/PLAN-DISENO-FASE6.md`.
+- Estado: **ajustes de cierre y auditorías automáticas completados; pendiente de despliegue y validación manual**.
+- Plan visual: `docs/PLAN-DISENO-FASE6.md` y `docs/PLAN-DISENO-AJUSTES-FASE6.md`.
 - Decisiones: reserva cuantitativa para admitir varias unidades y pedidos concurrentes; precios recalculados en una transacción; códigos estables de producto y pedido; expiración idempotente ejecutada directamente por Supabase Cron.
 - Riesgos principales: manipulación del total, sobreventa concurrente, duplicación por reintentos, abuso por IP, pedidos fuera de horario y acceso de un administrador a pedidos ajenos.
 
@@ -32,8 +32,11 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Idempotencia y abuso | Cumplido en base y pruebas | Una clave por intento evita duplicados y el límite registra como máximo cinco creaciones por negocio e IP anonimizada cada quince minutos. |
 | Vencimiento automático | Cumplido en base y auditoría remota | Supabase Cron ejecuta cada cinco minutos una función por lotes con `SKIP LOCKED`; repetirla no descuenta ni libera dos veces. |
 | Estados y auditoría | Cumplido en código y pruebas | El administrador puede confirmar o cancelar solo pedidos propios; se conservan usuario, fecha, artículos, cantidades, precios y códigos. |
+| Horario y duración | Cumplido en código y pruebas | El panel permite los tres modos, hasta tres intervalos por día y una duración entre 5 minutos y 24 horas; cliente y servidor comparten la validación. No requiere migración porque ambas columnas ya existían. |
+| Catálogo escalable | Cumplido en código y pruebas | Selector de categoría, doce productos públicos por página, acceso fijo al resumen y diez productos por página en el panel. El carrito se conserva entre páginas. |
+| Fotografías y disponibilidad | Cumplido en código y pruebas | Hasta cuatro fotografías pueden prepararse durante el alta; cada producto con control de stock informa las unidades disponibles reales. |
 | Aislamiento RLS | Cumplido | Nueve tablas con RLS; ocho tablas de negocio con políticas y la tabla interna de límites sin acceso desde Data API. Auditoría con dos usuarios aprobada. |
-| Calidad automática | Cumplido | ESLint, TypeScript, 88 pruebas, tokens, contraste, secretos de cliente, builds Next.js/vinext, dry-run Worker, arranque, lint SQL y auditorías remotas aprobaron. |
+| Calidad automática | Cumplido | ESLint, TypeScript, secretos, tokens, contraste, 93 pruebas, ambos builds, dry-run y arranque Worker, `npm audit`, lint SQL, reservas y RLS remoto aprobaron tras los ajustes. |
 | Secreto de ejecución | Cumplido | El usuario ejecutó el helper el 2026-09-03 y Wrangler confirmó `SUPABASE_SERVICE_ROLE_KEY` como secreto cifrado del Worker, sin mostrarlo ni guardarlo en Git. Su nombre queda declarado como requisito de despliegue. |
 | Revisión visual e interacción real | Pendiente | Crear, duplicar, confirmar, cancelar y expirar pedidos a 360 px y escritorio siguiendo `docs/CONFIGURACION-MANUAL.md`. |
 
@@ -234,6 +237,18 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 - Con autorización explícita, eliminar el Worker homónimo de la cuenta Tienda Blanco; se conserva por ahora como respaldo y no bloquea el cierre de la fase.
 
 ## Registro de verificaciones
+
+### 2026-09-03
+
+- Se incorporó en **Negocio** la configuración de `Sin horario publicado`, `Siempre abierto` y `Horario programado`, con días cerrados, hasta tres intervalos por día y duración de reserva entre 5 minutos y 24 horas. Cliente y servidor comparten la validación.
+- Se corrigió el recorrido de catálogos grandes: selector nativo para decenas de categorías, doce productos públicos por página, diez en el panel y acceso fijo **Ver pedido** cuando el carrito tiene artículos.
+- El formulario de alta permite preparar hasta cuatro fotografías antes de crear el producto. La creación obtiene primero el identificador seguro y luego sube las imágenes; la gestión posterior sigue disponible para reintentos o cambios.
+- Las tres plantillas muestran las unidades realmente disponibles solo en productos con control de existencias.
+- No se creó una migración: `horario`, `reserva_minutos`, `logo_url`, `portada_url` y `qr_pago_url` ya existen en `negocios`. La identidad visual completa permanece en la Fase 7.
+- Aprobaron secretos de cliente, ESLint, TypeScript, contraste, tokens y 93 pruebas; también los builds Next.js y vinext, `npm audit` sin vulnerabilidades, dry-run de Wrangler y arranque local con 69,5 ms de CPU activa.
+- Las auditorías enlazadas aprobaron: 9 tablas con RLS, 8 tablas de negocio aisladas entre dos usuarios, 4 políticas de Storage, pruebas transaccionales de reservas/expiración y lint SQL sin errores. El primer intento de lint tomó una credencial de entorno obsoleta; al ignorarla usó correctamente la sesión enlazada y aprobó sin modificar secretos.
+- El smoke test del Worker local devolvió HTTP 200 para `/tienda-kantuta`, mostró **Explorar por categoría** y rechazó con HTTP 401 el nuevo endpoint de operación sin sesión.
+- No había un navegador conectado para automatizar la inspección visual; queda pendiente el recorrido manual a 360 px y escritorio después del despliegue.
 
 ### 2026-09-02
 

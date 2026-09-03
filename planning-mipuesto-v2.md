@@ -237,6 +237,9 @@ Esta fase es nueva y **no se salta**. Construir pantallas sin un sistema de toke
 
 ### Fase 6 — Carrito, reserva temporal y pedido por WhatsApp
 - Carrito en memoria (estado del cliente, sin cuenta ni login del comprador)
+- Navegación escalable del catálogo: selector de categoría, doce productos por página y acceso fijo al resumen cuando el carrito tiene artículos; el panel muestra diez productos por página
+- Permitir seleccionar y preparar hasta cuatro fotografías durante el alta del producto, sin eliminar la gestión posterior de imágenes
+- Mostrar en cada producto con control de stock las unidades realmente disponibles (`cantidad_stock - cantidad_reservada`); no mostrar cantidades ficticias en productos sin control
 - Al enviar el pedido: crear fila en `pedidos` con estado `pendiente`, reservar únicamente la cantidad solicitada de los productos con `controla_stock = true` y generar el link `wa.me` con el detalle consolidado
 - Cada producto tiene un código estable y cada pedido o reserva recibe un código visible para identificarlo en WhatsApp y en el panel
 - Fuera del horario `programado`, permitir revisar productos y preparar el carrito, pero deshabilitar la confirmación. El servidor vuelve a evaluar el horario antes de crear el pedido: si está cerrado responde un error controlado, no crea la fila, no reserva inventario y no genera el enlace de WhatsApp
@@ -245,16 +248,15 @@ Esta fase es nueva y **no se salta**. Construir pantallas sin un sistema de toke
 - Proceso programado `expirar-reservas` (cada 5-10 min): pedidos `pendiente` con `expira_en` vencido pasan a `expirado` y las cantidades reservadas vuelven a estar disponibles. Debe ser transaccional e idempotente; puede ejecutarse directamente con Supabase Cron para evitar una llamada intermedia innecesaria
 - Panel de pedidos con estados `pendiente`, `confirmado`, `cancelado` y `expirado`, además de las acciones "Confirmar venta" y "Cancelar"
 - Auditoría mínima del pedido: quién confirmó o canceló, cuándo lo hizo y copia inmutable de códigos, cantidades y precios usados al reservar
-- **Criterio de aceptación:** un pedido no confirmado libera automáticamente sus productos al vencer el plazo; además, un intento fuera del horario programado se rechaza tanto en la interfaz como en el servidor y no modifica pedidos ni inventario.
+- Configuración administrativa de los tres modos de horario y del tiempo de reserva, validada tanto en el cliente como en el servidor. Se adelanta desde la Fase 7 porque es necesaria para probar el cierre por horario y la expiración real de esta fase
+- **Criterio de aceptación:** el administrador puede configurar horario y duración; un pedido no confirmado libera automáticamente sus productos al vencer el plazo; además, un intento fuera del horario programado se rechaza tanto en la interfaz como en el servidor y no modifica pedidos ni inventario.
 
 ### Fase 7 — Panel de administración completo
 - Promociones: descuento por % o monto fijo, sobre un producto o una categoría entera, con vencimiento opcional; el precio con descuento se refleja en el catálogo
 - **Toda la lógica de precios y promociones vive en `lib/precios.ts`**, en un solo lugar — no repartida entre componentes, o vas a tener el mismo producto con dos precios distintos en dos pantallas
-- Configuración de tienda: logo, portada, descripción, redes sociales, horario, QR de cobro y tiempo de reserva
-- El horario ofrece tres modos comprensibles: `Sin horario publicado`, `Siempre abierto` y `Horario programado`. En el modo programado, el administrador elige días, uno o más intervalos de apertura/cierre y puede marcar días cerrados; la interfaz explica el efecto sobre los pedidos antes de guardar
-- Validar el horario también en el servidor: formato de hora, intervalos sin solapamiento, días permitidos y contrato JSON completo
+- Completar la identidad y presencia de la tienda: foto de perfil o logo, portada, descripción, redes sociales y QR de cobro. Horario y tiempo de reserva ya quedan disponibles desde el cierre de la Fase 6
 - Historial de cambios de precio de productos y registro de activaciones o desactivaciones del negocio, con usuario, fecha y valor anterior
-- **Criterio de aceptación:** una promoción vencida deja de aplicarse automáticamente; el administrador puede guardar cualquiera de los tres modos de horario y el catálogo refleja correctamente el estado y la posibilidad de pedir.
+- **Criterio de aceptación:** una promoción vencida deja de aplicarse automáticamente; el administrador puede configurar y reemplazar la identidad visual y los datos complementarios sin dejar archivos huérfanos ni alterar productos o pedidos.
 
 ### Fase 8 — Funciones de plataforma
 - Badge "Abierto ahora / Cierra a las… / Abre el…" calculado desde el `horario`, en zona horaria `America/La_Paz`; no se muestra en `sin_horario` y usa "Siempre abierto" en ese modo

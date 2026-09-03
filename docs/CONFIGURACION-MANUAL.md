@@ -222,7 +222,7 @@ La configuración visual de días e intervalos llegará en la Fase 7. En esta fa
 
 ## 12. Despliegue y validación manual de la Fase 6
 
-Estado: **implementación, auditorías automáticas y secreto de ejecución completados; despliegue y recorrido final pendientes**.
+Estado: **implementación, ajustes de usabilidad, auditorías automáticas y secreto de ejecución completados; despliegue y recorrido final pendientes**.
 
 ### 12.1 Configurar el secreto servidor
 
@@ -255,13 +255,15 @@ SUPABASE_SERVICE_ROLE_KEY=tu_clave_privada
 
 ### 12.2 Validar el recorrido
 
-1. Esperá el despliegue de `main`, abrí el negocio de prueba configurado como **Tienda con carrito** y agregá dos productos con stock.
-2. Confirmá la reserva. Debe mostrar código, total calculado por el servidor y hora de vencimiento en Bolivia antes de abrir WhatsApp.
-3. Presioná dos veces o repetí la solicitud sin cambiar el carrito. Debe conservar el mismo pedido y no reservar unidades adicionales.
-4. Abrí **Dashboard → Pedidos**. El pedido pendiente debe mostrar códigos de pedido y producto, cantidades, precios, vencimiento y datos opcionales del cliente.
-5. Confirmá una venta y comprobá en **Catálogo** que las existencias físicas disminuyeron. La acción debe registrar quién confirmó y cuándo.
-6. Creá otro pedido y cancelalo. Las existencias físicas deben conservarse y las unidades reservadas deben volver a estar disponibles.
-7. Creá una tercera reserva y dejala vencer. El proceso automático puede tardar hasta cinco minutos después de la hora límite; luego debe aparecer como **Expirado** y liberar el stock.
-8. Intentá crear un pedido cuando el negocio esté cerrado. El catálogo debe seguir navegable, conservar el carrito y no crear ninguna fila ni modificar inventario.
-9. Repetí el recorrido principal a **360 px** y a un ancho mínimo de **1280 px**, sin desplazamiento horizontal y con foco visible mediante `Tab`.
-10. Al terminar, ejecutá `npm run test:rls:linked` y respondé `Fase 6 validada`.
+1. Esperá el despliegue de `main`, ingresá al panel y abrí **Negocio**. Elegí **Horario programado**, marcá los días e intervalos, definí el tiempo de reserva y guardá. Probá también **Siempre abierto** y volvé al horario que usarás en la prueba.
+2. En **Catálogo**, creá un producto con control de existencias y seleccioná sus fotografías dentro del mismo formulario. Debe crearse con sus imágenes; la ficha pública debe indicar cuántas unidades quedan.
+3. Con al menos trece productos, comprobá que el panel muestre diez por página y el catálogo público doce. Cambiar de categoría debe volver a la primera página; después de agregar un artículo, **Ver pedido** debe llevar directamente al resumen.
+4. Abrí el negocio de prueba configurado como **Tienda con carrito**, agregá dos productos con stock y confirmá la reserva. Debe mostrar código, total calculado por el servidor y hora de vencimiento en Bolivia antes de abrir WhatsApp.
+5. Presioná dos veces o repetí la solicitud sin cambiar el carrito. Debe conservar el mismo pedido y no reservar unidades adicionales.
+6. Abrí **Dashboard → Pedidos**. El pedido pendiente debe mostrar códigos de pedido y producto, cantidades, precios, vencimiento y datos opcionales del cliente.
+7. Confirmá una venta y comprobá en **Catálogo** que las existencias físicas disminuyeron. La acción debe registrar quién confirmó y cuándo.
+8. Creá otro pedido y cancelalo. Las existencias físicas deben conservarse y las unidades reservadas deben volver a estar disponibles.
+9. Creá una tercera reserva y dejala vencer. El proceso automático puede tardar hasta cinco minutos después de la hora límite; luego debe aparecer como **Expirado** y liberar el stock.
+10. Intentá crear un pedido cuando el negocio esté cerrado. El catálogo debe seguir navegable, conservar el carrito y no crear ninguna fila ni modificar inventario.
+11. Repetí el recorrido principal a **360 px** y a un ancho mínimo de **1280 px**, sin desplazamiento horizontal y con foco visible mediante `Tab`.
+12. Al terminar, ejecutá `npm run test:rls:linked` y respondé `Fase 6 validada`.

@@ -14,6 +14,8 @@ Convertir la selección local en una reserva verificable sin hacer que el client
 
 ## Flujo del comprador
 
+- Antes del listado puede elegir una categoría en un selector que sigue siendo manejable aunque existan decenas de categorías.
+- Se muestran doce productos por página y, tras agregar el primero, un acceso fijo lleva directamente al resumen sin recorrer todo el catálogo.
 - Puede cambiar cantidades y revisar el subtotal antes de reservar.
 - Nombre y teléfono son opcionales; si se escribe un teléfono debe tener un formato boliviano válido.
 - La acción final comunica que primero se reserva y luego se abre WhatsApp.
@@ -23,6 +25,8 @@ Convertir la selección local en una reserva verificable sin hacer que el client
 
 ## Flujo del administrador
 
+- La lista del catálogo muestra diez productos por página y permite seleccionar fotografías durante el alta del producto.
+- En Configuración puede elegir entre `Sin horario publicado`, `Siempre abierto` y `Horario programado`, definir hasta tres intervalos por día y ajustar la duración de cada reserva.
 - Cada fila muestra código, fecha, cliente si fue informado, artículos, total, vencimiento y estado escrito.
 - Un pedido pendiente permite "Confirmar venta" o "Cancelar pedido". Los demás estados son solo lectura.
 - Confirmar descuenta definitivamente las unidades reservadas. Cancelar o expirar libera únicamente esas unidades.
@@ -33,6 +37,7 @@ Convertir la selección local en una reserva verificable sin hacer que el client
 - El producto recibe un código estable para identificarlo sin depender de nombres repetidos.
 - El pedido recibe un código corto visible en el panel y en WhatsApp.
 - `cantidad_stock` representa existencias físicas y `cantidad_reservada` las unidades apartadas por pedidos pendientes. La disponibilidad es la diferencia entre ambas.
+- La ficha pública muestra esa disponibilidad solo cuando el producto controla existencias.
 - Un producto sin control de stock se registra en el pedido, pero nunca se bloquea ni cambia de estado por una reserva.
 
 ## Adaptación y accesibilidad
