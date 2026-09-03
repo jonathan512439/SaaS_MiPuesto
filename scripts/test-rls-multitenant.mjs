@@ -26,6 +26,7 @@ const correos = [`rls-a-${marca}@mipuesto.com`, `rls-b-${marca}@mipuesto.com`];
 const usuarios = [];
 const negocios = [];
 const rutasStorage = [];
+const rutasStorageNegocios = [];
 let clienteA;
 let clienteB;
 
@@ -283,6 +284,52 @@ try {
     "A pudo vincular su producto con categoría y subcategoría de B",
   );
 
+  const promocionProductoAjeno = await clienteA.from("promociones").insert({
+    negocio_id: negocios[0].id,
+    producto_id: productoB.id,
+    tipo: "porcentaje",
+    valor: 15,
+  });
+  comprobar(
+    Boolean(promocionProductoAjeno.error),
+    "A pudo crear una promoción sobre un producto de B",
+  );
+
+  const promocionCategoriaAjena = await clienteA.from("promociones").insert({
+    negocio_id: negocios[0].id,
+    categoria_id: categoriaB.id,
+    tipo: "monto_fijo",
+    valor: 3,
+  });
+  comprobar(
+    Boolean(promocionCategoriaAjena.error),
+    "A pudo crear una promoción sobre una categoría de B",
+  );
+
+  const cambioPrecio = await clienteA
+    .from("productos")
+    .update({ precio: 12 })
+    .eq("id", productoA.id)
+    .select("precio,precio_anterior,precio_actualizado_por,precio_actualizado_en")
+    .single();
+  comprobar(!cambioPrecio.error, `no se pudo auditar el precio propio: ${cambioPrecio.error?.message}`);
+  comprobar(
+    Number(cambioPrecio.data?.precio) === 12 &&
+      Number(cambioPrecio.data?.precio_anterior) === 10 &&
+      cambioPrecio.data?.precio_actualizado_por === usuarios[0] &&
+      Boolean(cambioPrecio.data?.precio_actualizado_en),
+    "el cambio de precio propio no conservó valor anterior, usuario y fecha",
+  );
+
+  const reactivacionPropia = await clienteA
+    .from("negocios")
+    .update({ activo: true })
+    .eq("id", negocios[0].id);
+  comprobar(
+    reactivacionPropia.error?.code === "42501",
+    "A pudo modificar el estado de suscripción de su negocio",
+  );
+
   const imagenPrueba = new Uint8Array([
     0x52, 0x49, 0x46, 0x46, 0x04, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
   ]);
@@ -290,6 +337,10 @@ try {
   const rutaB = `${negocios[1].id}/${productoB.id}/${randomUUID()}.webp`;
   const rutaIntrusa = `${negocios[1].id}/${productoB.id}/${randomUUID()}.webp`;
   rutasStorage.push(rutaA, rutaB, rutaIntrusa);
+  const logoA = `${negocios[0].id}/logo/${randomUUID()}.webp`;
+  const logoB = `${negocios[1].id}/logo/${randomUUID()}.webp`;
+  const logoIntruso = `${negocios[1].id}/portada/${randomUUID()}.webp`;
+  rutasStorageNegocios.push(logoA, logoB, logoIntruso);
 
   const subidaA = await clienteA.storage
     .from("productos")
@@ -314,8 +365,27 @@ try {
   const imagenBConservada = await administrador.storage.from("productos").download(rutaB);
   comprobar(!imagenBConservada.error, "A pudo borrar una imagen de B");
 
+  const subidaLogoA = await clienteA.storage
+    .from("negocios")
+    .upload(logoA, imagenPrueba, { contentType: "image/webp", upsert: false });
+  comprobar(!subidaLogoA.error, `A no pudo subir su logo: ${subidaLogoA.error?.message}`);
+
+  const subidaLogoB = await clienteB.storage
+    .from("negocios")
+    .upload(logoB, imagenPrueba, { contentType: "image/webp", upsert: false });
+  comprobar(!subidaLogoB.error, `B no pudo subir su logo: ${subidaLogoB.error?.message}`);
+
+  const subidaLogoAjeno = await clienteA.storage
+    .from("negocios")
+    .upload(logoIntruso, imagenPrueba, { contentType: "image/webp", upsert: false });
+  comprobar(Boolean(subidaLogoAjeno.error), "A pudo subir identidad en la carpeta de B");
+
+  await clienteA.storage.from("negocios").remove([logoB]);
+  const logoBConservado = await administrador.storage.from("negocios").download(logoB);
+  comprobar(!logoBConservado.error, "A pudo borrar una imagen de identidad de B");
+
   console.log(
-    "RLS multi-tenant: 2 usuarios, 8 tablas de negocio, límites internos, catálogo, Storage y apariencia aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 8 tablas de negocio, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([
@@ -325,6 +395,9 @@ try {
 
   if (rutasStorage.length > 0) {
     await administrador.storage.from("productos").remove(rutasStorage);
+  }
+  if (rutasStorageNegocios.length > 0) {
+    await administrador.storage.from("negocios").remove(rutasStorageNegocios);
   }
 
   if (negocios.length > 0) {

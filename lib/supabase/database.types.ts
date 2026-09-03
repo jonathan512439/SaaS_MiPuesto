@@ -114,6 +114,9 @@ export type Database = {
       negocios: {
         Row: {
           activo: boolean
+          activo_actualizado_en: string | null
+          activo_actualizado_por: string | null
+          activo_anterior: boolean | null
           admin_user_id: string
           creado_en: string
           descripcion: string | null
@@ -134,6 +137,9 @@ export type Database = {
         }
         Insert: {
           activo?: boolean
+          activo_actualizado_en?: string | null
+          activo_actualizado_por?: string | null
+          activo_anterior?: boolean | null
           admin_user_id: string
           creado_en?: string
           descripcion?: string | null
@@ -154,6 +160,9 @@ export type Database = {
         }
         Update: {
           activo?: boolean
+          activo_actualizado_en?: string | null
+          activo_actualizado_por?: string | null
+          activo_anterior?: boolean | null
           admin_user_id?: string
           creado_en?: string
           descripcion?: string | null
@@ -312,6 +321,9 @@ export type Database = {
           nombre: string
           orden: number
           precio: number
+          precio_actualizado_en: string | null
+          precio_actualizado_por: string | null
+          precio_anterior: number | null
           reservado_hasta: string | null
           subcategoria_id: string | null
           visible: boolean
@@ -331,6 +343,9 @@ export type Database = {
           nombre: string
           orden?: number
           precio: number
+          precio_actualizado_en?: string | null
+          precio_actualizado_por?: string | null
+          precio_anterior?: number | null
           reservado_hasta?: string | null
           subcategoria_id?: string | null
           visible?: boolean
@@ -350,6 +365,9 @@ export type Database = {
           nombre?: string
           orden?: number
           precio?: number
+          precio_actualizado_en?: string | null
+          precio_actualizado_por?: string | null
+          precio_anterior?: number | null
           reservado_hasta?: string | null
           subcategoria_id?: string | null
           visible?: boolean

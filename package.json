@@ -22,6 +22,7 @@
     "test:rls:multitenant": "node --env-file-if-exists=.env.local scripts/test-rls-multitenant.mjs",
     "test:rls:linked": "npm run test:rls:estructura:linked && npm run test:rls:multitenant",
     "test:reservas:linked": "supabase db query --linked --file supabase/tests/remote/fase6-reservas.sql",
+    "test:fase7:linked": "supabase db query --linked --file supabase/tests/remote/fase7-audit.sql",
     "auth:invitar": "node --env-file-if-exists=.env.local scripts/invitar-admin.mjs",
     "cloudflare:secret:pedidos": "node --env-file-if-exists=.env.local scripts/configurar-secreto-pedidos-cloudflare.mjs",
     "db:lint": "supabase db lint --local --schema public --fail-on error",
