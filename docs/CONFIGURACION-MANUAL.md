@@ -222,9 +222,11 @@ La configuración visual de días e intervalos llegará en la Fase 7. En esta fa
 
 ## 12. Despliegue y validación manual de la Fase 6
 
-Estado: **implementación y auditorías automáticas completadas; secreto de ejecución y recorrido final pendientes**.
+Estado: **implementación, auditorías automáticas y secreto de ejecución completados; despliegue y recorrido final pendientes**.
 
 ### 12.1 Configurar el secreto servidor
+
+Estado: **completado el 2026-09-03**. Los pasos siguientes quedan como procedimiento reproducible.
 
 Los pedidos usan una clave administrativa exclusivamente dentro del Worker para invocar las funciones transaccionales restringidas. Las variables públicas de Build no sustituyen este secreto de ejecución.
 

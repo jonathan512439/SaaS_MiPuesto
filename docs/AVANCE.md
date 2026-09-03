@@ -14,7 +14,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 5: 2026-09-02.
 - Cierre de Fase 5: 2026-09-02.
 - Inicio de Fase 6: 2026-09-02.
-- Estado: **implementación y auditorías automáticas completadas; falta configurar el secreto de ejecución, desplegar y validar el recorrido manual**.
+- Estado: **implementación, auditorías automáticas y secreto de ejecución completados; falta desplegar y validar el recorrido manual**.
 - Puerta de salida actual: un pedido vencido libera automáticamente sus cantidades reservadas y un intento fuera de horario no crea pedidos ni modifica inventario.
 
 ## Estado de Fase 6
@@ -34,7 +34,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Estados y auditoría | Cumplido en código y pruebas | El administrador puede confirmar o cancelar solo pedidos propios; se conservan usuario, fecha, artículos, cantidades, precios y códigos. |
 | Aislamiento RLS | Cumplido | Nueve tablas con RLS; ocho tablas de negocio con políticas y la tabla interna de límites sin acceso desde Data API. Auditoría con dos usuarios aprobada. |
 | Calidad automática | Cumplido | ESLint, TypeScript, 88 pruebas, tokens, contraste, secretos de cliente, builds Next.js/vinext, dry-run Worker, arranque, lint SQL y auditorías remotas aprobaron. |
-| Secreto de ejecución | Pendiente manual | Cloudflare todavía no contiene `SUPABASE_SERVICE_ROLE_KEY`. No se desplegará el checkout hasta cargarlo como secreto de runtime. |
+| Secreto de ejecución | Cumplido | El usuario ejecutó el helper el 2026-09-03 y Wrangler confirmó `SUPABASE_SERVICE_ROLE_KEY` como secreto cifrado del Worker, sin mostrarlo ni guardarlo en Git. Su nombre queda declarado como requisito de despliegue. |
 | Revisión visual e interacción real | Pendiente | Crear, duplicar, confirmar, cancelar y expirar pedidos a 360 px y escritorio siguiendo `docs/CONFIGURACION-MANUAL.md`. |
 
 ## Estado de Fase 5
