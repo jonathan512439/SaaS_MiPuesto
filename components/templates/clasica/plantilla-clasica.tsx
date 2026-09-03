@@ -4,6 +4,7 @@ import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
+import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-clasica.module.css";
 
@@ -13,6 +14,7 @@ export function PlantillaClasica({
   demostracion = true,
   cantidadesCarrito = {},
   alAgregarProducto,
+  ocultarNavegacionCategorias = false,
 }: PropiedadesPlantilla) {
   return (
     <article
@@ -31,15 +33,17 @@ export function PlantillaClasica({
 
       <AvisoHorario estado={datos.negocio.atencion} />
 
-      <nav className={styles.navegacion} aria-label="Categorías del catálogo">
-        {datos.categorias.map((categoria) => (
-          demostracion ? (
-            <button type="button" key={categoria.id}>{categoria.nombre}</button>
-          ) : (
-            <a href={`#categoria-${categoria.id}`} key={categoria.id}>{categoria.nombre}</a>
-          )
-        ))}
-      </nav>
+      {!ocultarNavegacionCategorias ? (
+        <nav className={styles.navegacion} aria-label="Categorías del catálogo">
+          {datos.categorias.map((categoria) => (
+            demostracion ? (
+              <button type="button" key={categoria.id}>{categoria.nombre}</button>
+            ) : (
+              <a href={`#categoria-${categoria.id}`} key={categoria.id}>{categoria.nombre}</a>
+            )
+          ))}
+        </nav>
+      ) : null}
 
       <div className={styles.categorias}>
         {datos.categorias.map((categoria) => {
@@ -75,6 +79,7 @@ export function PlantillaClasica({
                     <h5>{producto.nombre}</h5>
                     <p>{producto.descripcion}</p>
                     {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
+                    <EstadoStockProducto className={styles.stock} producto={producto} />
                     <AccionProducto
                       alAgregarProducto={alAgregarProducto}
                       cantidad={cantidadesCarrito[producto.id]}

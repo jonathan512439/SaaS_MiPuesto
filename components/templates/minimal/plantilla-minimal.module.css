@@ -171,6 +171,12 @@
   font-weight: 800;
 }
 
+.stock {
+  color: var(--catalogo-exito);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
 .servicio dt {
   grid-column: 2;
   font-size: var(--text-base);

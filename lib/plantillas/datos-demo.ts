@@ -43,6 +43,8 @@ export function crearDatosDemoPlantilla({
             precio: 45,
             accionWhatsapp: null,
             maximoCantidad: 99,
+            controlaStock: true,
+            cantidadDisponible: 8,
             imagen: {
               src: "/demo/productos/hamburguesa.webp",
               alt: "Hamburguesa doble con queso y vegetales frescos",
@@ -56,6 +58,8 @@ export function crearDatosDemoPlantilla({
             precio: 32,
             accionWhatsapp: null,
             maximoCantidad: 99,
+            controlaStock: true,
+            cantidadDisponible: 14,
             imagen: {
               src: "/demo/productos/papas.webp",
               alt: "Porción de papas rústicas doradas con salsa",
@@ -75,6 +79,8 @@ export function crearDatosDemoPlantilla({
             precio: 18,
             accionWhatsapp: null,
             maximoCantidad: 99,
+            controlaStock: true,
+            cantidadDisponible: 6,
             imagen: {
               src: "/demo/productos/limonada.webp",
               alt: "Vaso de limonada fría con limón y menta",

@@ -1,0 +1,112 @@
+@reference "../../app/globals.css";
+
+.contenedor {
+  position: relative;
+}
+
+.explorador {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  border-bottom: var(--borde-fino) solid var(--catalogo-borde);
+  padding: var(--spacing-4);
+}
+
+.explorador > div {
+  display: grid;
+  flex: 1;
+  gap: var(--spacing-2);
+}
+
+.explorador label {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.explorador select {
+  width: 100%;
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--catalogo-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  font: inherit;
+}
+
+.explorador p {
+  margin: 0;
+  color: color-mix(in srgb, var(--catalogo-texto) 72%, var(--catalogo-superficie));
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.paginacion {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-2);
+  border-top: var(--borde-fino) solid var(--catalogo-borde);
+  padding: var(--spacing-4);
+}
+
+.paginacion span {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-align: center;
+}
+
+.paginacion button {
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--catalogo-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-marca);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.paginacion button:disabled {
+  border-color: var(--catalogo-borde);
+  color: color-mix(in srgb, var(--catalogo-texto) 55%, var(--catalogo-superficie));
+  cursor: not-allowed;
+}
+
+.accesoCarrito {
+  position: fixed;
+  right: var(--spacing-4);
+  bottom: var(--spacing-4);
+  z-index: 20;
+  min-height: var(--control-alto);
+  border: var(--borde-marcado) solid var(--catalogo-superficie);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3) var(--spacing-5);
+  background: var(--catalogo-accion);
+  color: var(--catalogo-sobre-accion);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 24rem) {
+  .explorador {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .explorador p {
+    white-space: normal;
+  }
+
+  .accesoCarrito {
+    right: var(--spacing-3);
+    bottom: var(--spacing-3);
+    left: var(--spacing-3);
+    text-align: center;
+  }
+}

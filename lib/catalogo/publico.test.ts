@@ -73,6 +73,8 @@ describe("construirCatalogoPublico", () => {
     expect(resultado.datos.negocio.slug).toBe("mercado-uno");
     expect(resultado.datos.categorias[0].productos[0]).toMatchObject({
       codigo: "PRD-STOCK1",
+      controlaStock: true,
+      cantidadDisponible: 5,
       maximoCantidad: 5,
     });
   });

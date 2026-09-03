@@ -4,6 +4,7 @@ import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
+import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-minimal.module.css";
 
@@ -13,6 +14,7 @@ export function PlantillaMinimal({
   demostracion = true,
   cantidadesCarrito = {},
   alAgregarProducto,
+  ocultarNavegacionCategorias = false,
 }: PropiedadesPlantilla) {
   return (
     <article
@@ -34,11 +36,13 @@ export function PlantillaMinimal({
 
       <AvisoHorario estado={datos.negocio.atencion} />
 
-      <nav className={styles.navegacion} aria-label="Secciones de la demostración">
-        {datos.categorias.map((categoria) => (
-          <a href={`#${categoria.id}`} key={categoria.id}>{categoria.nombre}</a>
-        ))}
-      </nav>
+      {!ocultarNavegacionCategorias ? (
+        <nav className={styles.navegacion} aria-label="Secciones del catálogo">
+          {datos.categorias.map((categoria) => (
+            <a href={`#${categoria.id}`} key={categoria.id}>{categoria.nombre}</a>
+          ))}
+        </nav>
+      ) : null}
 
       <div className={styles.servicios}>
         {datos.categorias.map((categoria) => {
@@ -72,6 +76,9 @@ export function PlantillaMinimal({
                   <dd>{producto.descripcion}</dd>
                   <dd>{formatearPrecioBolivianos(producto.precio)}</dd>
                   {producto.estado === "agotado" ? <dd><span className={styles.agotado}>Agotado</span></dd> : null}
+                  {producto.controlaStock ? (
+                    <dd><EstadoStockProducto className={styles.stock} producto={producto} /></dd>
+                  ) : null}
                   {datos.negocio.modalidad !== "solo_lectura" ? (
                     <dd>
                       <AccionProducto

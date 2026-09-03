@@ -16,6 +16,8 @@ export type ProductoPlantilla = {
     alt: string;
   } | null;
   estado?: string;
+  controlaStock: boolean;
+  cantidadDisponible: number | null;
   maximoCantidad: number;
   accionWhatsapp: string | null;
 };
@@ -51,4 +53,5 @@ export type PropiedadesPlantilla = {
   demostracion?: boolean;
   cantidadesCarrito?: Record<string, number>;
   alAgregarProducto?: (productoId: string) => void;
+  ocultarNavegacionCategorias?: boolean;
 };

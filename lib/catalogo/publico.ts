@@ -79,6 +79,8 @@ export function construirCatalogoPublico(
       descripcion: producto.descripcion ?? "",
       precio,
       estado,
+      controlaStock: producto.controla_stock === true,
+      cantidadDisponible,
       maximoCantidad: cantidadDisponible === null ? 99 : Math.min(99, cantidadDisponible),
       accionWhatsapp:
         modalidad.accion === "accion_individual"

@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import {
-  PlantillaClasica,
-  PlantillaMinimal,
-  PlantillaModerna,
-} from "../../../components/templates";
 import { CatalogoInteractivo } from "../../../components/catalogo/catalogo-interactivo";
 import { construirCatalogoPublico } from "../../../lib/catalogo/publico";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
@@ -85,25 +80,14 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
     resultadoProductos.data ?? [],
     url,
   );
-  const Plantilla =
-    catalogo.plantilla === "moderna"
-      ? PlantillaModerna
-      : catalogo.plantilla === "minimal"
-        ? PlantillaMinimal
-        : PlantillaClasica;
-
   return (
     <main className={styles.pagina}>
       <div className={styles.catalogo}>
-        {catalogo.datos.negocio.modalidad === "carrito" ? (
-          <CatalogoInteractivo
-            datos={catalogo.datos}
-            paleta={catalogo.paleta}
-            plantilla={catalogo.plantilla}
-          />
-        ) : (
-          <Plantilla datos={catalogo.datos} demostracion={false} paleta={catalogo.paleta} />
-        )}
+        <CatalogoInteractivo
+          datos={catalogo.datos}
+          paleta={catalogo.paleta}
+          plantilla={catalogo.plantilla}
+        />
         {catalogo.datos.categorias.length === 0 ? (
           <section className={styles.vacio} aria-labelledby="catalogo-vacio">
             <h2 id="catalogo-vacio">El catálogo se está preparando</h2>

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useMemo, useState, type ComponentType } from "react";
 
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
+import { paginarCatalogo } from "../../lib/catalogo/paginacion";
 import type {
   DatosPlantilla,
   ProductoPlantilla,
@@ -11,6 +12,8 @@ import type {
 } from "../../lib/plantillas/tipos";
 import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
+import temaStyles from "../templates/tema-catalogo.module.css";
+import styles from "./catalogo-interactivo.module.css";
 
 type PropiedadesCatalogoInteractivo = {
   datos: DatosPlantilla;
@@ -51,7 +54,21 @@ export function CatalogoInteractivo({
   paleta,
 }: PropiedadesCatalogoInteractivo) {
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
+  const [categoriaActiva, setCategoriaActiva] = useState("");
+  const [pagina, setPagina] = useState(1);
   const productos = useMemo(() => obtenerProductos(datos), [datos]);
+  const paginaCatalogo = useMemo(
+    () => paginarCatalogo(datos.categorias, categoriaActiva, pagina),
+    [categoriaActiva, datos.categorias, pagina],
+  );
+  const datosPaginados = useMemo(
+    () => ({ ...datos, categorias: paginaCatalogo.categorias }),
+    [datos, paginaCatalogo.categorias],
+  );
+  const cantidadEnCarrito = Object.values(cantidades).reduce(
+    (total, cantidad) => total + cantidad,
+    0,
+  );
   const Vista = VISTAS[plantilla];
 
   function cambiarCantidad(productoId: string, cantidad: number) {
@@ -70,21 +87,95 @@ export function CatalogoInteractivo({
   }
 
   return (
-    <>
+    <div className={styles.contenedor}>
+      {datos.categorias.length > 0 ? (
+        <section
+          aria-labelledby="explorar-catalogo"
+          className={`${temaStyles.tema} ${styles.explorador}`}
+          data-paleta={paleta}
+        >
+          <div>
+            <label htmlFor="categoria-catalogo" id="explorar-catalogo">
+              Explorar por categoría
+            </label>
+            <select
+              id="categoria-catalogo"
+              onChange={(evento) => {
+                setCategoriaActiva(evento.target.value);
+                setPagina(1);
+              }}
+              value={categoriaActiva}
+            >
+              <option value="">Todas las categorías</option>
+              {datos.categorias.map((categoria) => (
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p>
+            {paginaCatalogo.totalProductos === 1
+              ? "1 producto"
+              : `${paginaCatalogo.totalProductos} productos`}
+          </p>
+        </section>
+      ) : null}
       <Vista
         alAgregarProducto={agregarProducto}
         cantidadesCarrito={cantidades}
-        datos={datos}
+        datos={datosPaginados}
         demostracion={false}
+        ocultarNavegacionCategorias
         paleta={paleta}
       />
-      <CarritoCatalogo
-        cantidades={cantidades}
-        datos={datos}
-        onCambiarCantidad={cambiarCantidad}
-        paleta={paleta}
-        productos={productos}
-      />
-    </>
+      {paginaCatalogo.totalPaginas > 1 ? (
+        <nav
+          aria-label="Páginas de productos"
+          className={`${temaStyles.tema} ${styles.paginacion}`}
+          data-paleta={paleta}
+        >
+          <button
+            disabled={paginaCatalogo.pagina === 1}
+            onClick={() => setPagina((actual) => Math.max(1, actual - 1))}
+            type="button"
+          >
+            Anterior
+          </button>
+          <span>
+            Página {paginaCatalogo.pagina} de {paginaCatalogo.totalPaginas}
+          </span>
+          <button
+            disabled={paginaCatalogo.pagina === paginaCatalogo.totalPaginas}
+            onClick={() =>
+              setPagina((actual) => Math.min(paginaCatalogo.totalPaginas, actual + 1))
+            }
+            type="button"
+          >
+            Siguiente
+          </button>
+        </nav>
+      ) : null}
+      {datos.negocio.modalidad === "carrito" ? (
+        <>
+          <CarritoCatalogo
+            cantidades={cantidades}
+            datos={datos}
+            onCambiarCantidad={cambiarCantidad}
+            paleta={paleta}
+            productos={productos}
+          />
+          {cantidadEnCarrito > 0 ? (
+            <a
+              className={`${temaStyles.tema} ${styles.accesoCarrito}`}
+              data-paleta={paleta}
+              href="#resumen-pedido"
+            >
+              Ver pedido ({cantidadEnCarrito})
+            </a>
+          ) : null}
+        </>
+      ) : null}
+    </div>
   );
 }

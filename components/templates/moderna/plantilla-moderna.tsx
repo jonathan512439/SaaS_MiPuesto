@@ -4,6 +4,7 @@ import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
+import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-moderna.module.css";
 
@@ -13,6 +14,7 @@ export function PlantillaModerna({
   demostracion = true,
   cantidadesCarrito = {},
   alAgregarProducto,
+  ocultarNavegacionCategorias = false,
 }: PropiedadesPlantilla) {
   const productos = datos.categorias.flatMap((categoria) => {
     const productosCategoria = [
@@ -52,19 +54,21 @@ export function PlantillaModerna({
 
       <AvisoHorario estado={datos.negocio.atencion} />
 
-      <nav className={styles.navegacion} aria-label="Categorías del catálogo">
-        {datos.categorias.map((categoria, indice) => (
-          demostracion ? (
-            <button className={indice === 0 ? styles.categoriaActiva : undefined} type="button" key={categoria.id}>
-              {categoria.nombre}
-            </button>
-          ) : (
-            <a className={indice === 0 ? styles.categoriaActiva : undefined} href={`#categoria-${categoria.id}`} key={categoria.id}>
-              {categoria.nombre}
-            </a>
-          )
-        ))}
-      </nav>
+      {!ocultarNavegacionCategorias ? (
+        <nav className={styles.navegacion} aria-label="Categorías del catálogo">
+          {datos.categorias.map((categoria, indice) => (
+            demostracion ? (
+              <button className={indice === 0 ? styles.categoriaActiva : undefined} type="button" key={categoria.id}>
+                {categoria.nombre}
+              </button>
+            ) : (
+              <a className={indice === 0 ? styles.categoriaActiva : undefined} href={`#categoria-${categoria.id}`} key={categoria.id}>
+                {categoria.nombre}
+              </a>
+            )
+          ))}
+        </nav>
+      ) : null}
 
       <ul className={styles.productos}>
         {productos.map((producto) => (
@@ -85,6 +89,7 @@ export function PlantillaModerna({
               <span>{producto.descripcion}</span>
               <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
               {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
+              <EstadoStockProducto className={styles.stock} producto={producto} />
               <AccionProducto
                 alAgregarProducto={alAgregarProducto}
                 cantidad={cantidadesCarrito[producto.id]}

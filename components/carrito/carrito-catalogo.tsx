@@ -120,6 +120,7 @@ export function CarritoCatalogo({
       aria-labelledby="titulo-carrito"
       className={`${temaStyles.tema} ${styles.carrito}`}
       data-paleta={paleta}
+      id="resumen-pedido"
     >
       <header>
         <div>
