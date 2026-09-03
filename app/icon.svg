@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="titulo">
+  <title id="titulo">MiPuesto</title>
+  <rect width="512" height="512" rx="96" fill="#1f5b63"/>
+  <path fill="#fbfaf8" d="M104 152h304v56H104zM128 208h256v176H128z"/>
+  <path fill="#b3440e" d="M88 104h336l-16 80H104z"/>
+  <path fill="#1f5b63" d="M176 256h64v128h-64zM272 256h64v64h-64z"/>
+</svg>
+

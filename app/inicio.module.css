@@ -1,0 +1,67 @@
+@reference "./globals.css";
+
+.pagina {
+  display: grid;
+  align-content: center;
+  gap: var(--spacing-4);
+  min-height: 100dvh;
+  width: min(calc(100% - var(--spacing-8)), 48rem);
+  margin: 0 auto;
+  padding: var(--spacing-12) 0;
+}
+
+.pagina h1,
+.pagina p {
+  margin: 0;
+}
+
+.pagina h1 {
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-3xl);
+}
+
+.pagina p {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+  font-size: var(--text-lg);
+}
+
+.pagina nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-2);
+}
+
+.pagina a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border: var(--borde-fino) solid var(--color-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.pagina a:first-child {
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+@media (max-width: 24rem) {
+  .pagina {
+    width: min(calc(100% - var(--spacing-6)), 48rem);
+  }
+
+  .pagina nav,
+  .pagina a {
+    width: 100%;
+  }
+
+  .pagina a {
+    justify-content: center;
+  }
+}
+

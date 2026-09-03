@@ -24,6 +24,7 @@ for (const carpeta of carpetas) {
     const ruta = relative(raiz, archivo).replaceAll("\\", "/");
 
     const esFuenteDePaletas = ruta === "components/templates/tema-catalogo.module.css";
+    const esImagenOpenGraph = ruta.endsWith("/opengraph-image.tsx");
 
     if (extension === ".css" && ruta !== "app/globals.css" && !esFuenteDePaletas) {
       for (const coincidencia of contenido.matchAll(/#[0-9a-fA-F]{3,8}|\b(?:rgb|hsl|oklch|lab|lch)\(/g)) {
@@ -61,7 +62,8 @@ for (const carpeta of carpetas) {
         registrar(archivo, "valor arbitrario de Tailwind", coincidencia[0]);
       }
 
-      if (/style\s*=\s*\{\{/.test(contenido)) {
+      // ImageResponse/Satori solo acepta estilos visuales inline para renderizar el PNG.
+      if (!esImagenOpenGraph && /style\s*=\s*\{\{/.test(contenido)) {
         registrar(archivo, "estilo visual inline", "style={{ ... }}");
       }
     }

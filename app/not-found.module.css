@@ -1,0 +1,93 @@
+@reference "./globals.css";
+
+.pagina {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: var(--spacing-6);
+  background: var(--color-fondo-suave);
+}
+
+.mensaje {
+  display: grid;
+  width: min(100%, 42rem);
+  gap: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-top: var(--spacing-2) solid var(--color-marca);
+  padding: var(--spacing-6);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-panel);
+}
+
+.mensaje p,
+.mensaje h1 {
+  margin: 0;
+}
+
+.marca {
+  width: fit-content;
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-lg);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.mensaje > p:first-of-type {
+  color: var(--color-accion-fuerte);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.mensaje h1 {
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+}
+
+.mensaje > p:last-of-type {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-2);
+}
+
+.acciones a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border: var(--borde-fino) solid var(--color-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.acciones a:first-child {
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+@media (max-width: 24rem) {
+  .pagina {
+    padding: var(--spacing-3);
+  }
+
+  .mensaje {
+    padding: var(--spacing-5);
+  }
+
+  .acciones,
+  .acciones a {
+    width: 100%;
+  }
+
+  .acciones a {
+    justify-content: center;
+  }
+}
+
