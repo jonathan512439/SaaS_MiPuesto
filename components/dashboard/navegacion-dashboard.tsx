@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import styles from "../../app/(admin)/dashboard/dashboard.module.css";
 
 const ENLACES = [
+  { href: "/dashboard", etiqueta: "Resumen" },
   { href: "/dashboard/configuracion", etiqueta: "Negocio" },
   { href: "/dashboard/plantilla", etiqueta: "Diseño" },
   { href: "/dashboard/catalogo", etiqueta: "Catálogo" },
