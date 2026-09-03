@@ -222,7 +222,7 @@ La configuración visual de días e intervalos llegará en la Fase 7. En esta fa
 
 ## 12. Despliegue y validación manual de la Fase 6
 
-Estado: **implementación, ajustes de usabilidad, auditorías, secreto y despliegue completados; recorrido final pendiente**.
+Estado: **completado el 2026-09-03**. El usuario confirmó el recorrido funcional y navegable; los pasos siguientes quedan como procedimiento reproducible.
 
 ### 12.1 Configurar el secreto servidor
 

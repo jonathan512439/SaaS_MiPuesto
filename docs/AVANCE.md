@@ -4,8 +4,8 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo** y **Fase 5 — Las tres modalidades de tienda**.
-- Fase en curso: **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp**.
+- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda** y **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp**.
+- Fase en curso: **Fase 7 — Panel de administración completo**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
@@ -14,13 +14,24 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 5: 2026-09-02.
 - Cierre de Fase 5: 2026-09-02.
 - Inicio de Fase 6: 2026-09-02.
-- Estado: **ajustes, auditorías y despliegue automático completados; falta el recorrido manual autenticado**.
-- Puerta de salida actual: un pedido vencido libera automáticamente sus cantidades reservadas y un intento fuera de horario no crea pedidos ni modifica inventario.
+- Cierre de Fase 6: 2026-09-03.
+- Inicio de Fase 7: 2026-09-03.
+- Estado: **Fase 7 en implementación**.
+- Puerta de salida actual: una promoción vencida deja de aplicarse automáticamente y las imágenes de identidad pueden reemplazarse sin dejar archivos huérfanos.
+
+## Estado de Fase 7
+
+- Inicio: 2026-09-03.
+- Estado: **en implementación**.
+- Plan visual y técnico: `docs/PLAN-DISENO-FASE7.md`.
+- Alcance: promociones por producto o categoría, cálculo centralizado, identidad visual y datos complementarios, QR de cobro y auditoría mínima de precios y activación.
+- Riesgos principales: precios negativos o divergentes, promociones cruzadas entre negocios, manipulación del total, configuración ajena y archivos huérfanos en Storage.
 
 ## Estado de Fase 6
 
 - Inicio: 2026-09-02.
-- Estado: **ajustes de cierre, auditorías y despliegue completados; pendiente de validación manual**.
+- Cierre: 2026-09-03.
+- Estado: **cerrada; implementación, auditorías automáticas, despliegue y validación manual cumplidos**.
 - Plan visual: `docs/PLAN-DISENO-FASE6.md` y `docs/PLAN-DISENO-AJUSTES-FASE6.md`.
 - Decisiones: reserva cuantitativa para admitir varias unidades y pedidos concurrentes; precios recalculados en una transacción; códigos estables de producto y pedido; expiración idempotente ejecutada directamente por Supabase Cron.
 - Riesgos principales: manipulación del total, sobreventa concurrente, duplicación por reintentos, abuso por IP, pedidos fuera de horario y acceso de un administrador a pedidos ajenos.
@@ -39,7 +50,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Calidad automática | Cumplido | ESLint, TypeScript, secretos, tokens, contraste, 95 pruebas, ambos builds, dry-run y arranque Worker, `npm audit`, lint SQL, reservas y RLS remoto aprobaron tras los ajustes. |
 | Secreto de ejecución | Cumplido | El usuario ejecutó el helper el 2026-09-03 y Wrangler confirmó `SUPABASE_SERVICE_ROLE_KEY` como secreto cifrado del Worker, sin mostrarlo ni guardarlo en Git. Su nombre queda declarado como requisito de despliegue. |
 | Despliegue | Cumplido | Workers Builds aprobó el commit `83e1c7c` y publicó la versión `f53aa2e2-90f7-4a16-bc25-d199a6238aa3`; el catálogo respondió HTTP 200 con navegación y stock, y la API de operación rechazó con HTTP 401 una solicitud sin sesión. |
-| Revisión visual e interacción real | Pendiente | Crear, duplicar, confirmar, cancelar y expirar pedidos a 360 px y escritorio siguiendo `docs/CONFIGURACION-MANUAL.md`. |
+| Revisión visual e interacción real | Cumplido manualmente | El usuario confirmó el 2026-09-03 que el recorrido completo es funcional y navegable, incluidos los ajustes finales del catálogo público. |
 
 ## Estado de Fase 5
 
