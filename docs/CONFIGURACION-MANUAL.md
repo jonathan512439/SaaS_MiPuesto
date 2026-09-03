@@ -97,7 +97,7 @@ La configuración aplicada queda documentada como referencia:
    - `NEXT_PUBLIC_SUPABASE_URL`: la URL de `mipuesto-dev`.
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: la clave Publishable de `mipuesto-dev`.
    - `NEXT_PUBLIC_SITE_URL`: `https://mipuesto-dev.mipuesto-app.workers.dev`.
-5. Las dos variables de Supabase ya están cargadas en **Settings → Variables & Secrets** del Worker. Agregá allí únicamente `NEXT_PUBLIC_SITE_URL` con la URL anterior. No agregués `SUPABASE_SERVICE_ROLE_KEY`: no se usa en esta fase.
+5. Las dos variables de Supabase ya están cargadas en **Settings → Variables & Secrets** del Worker. Agregá allí únicamente `NEXT_PUBLIC_SITE_URL` con la URL anterior. La clave administrativa no se usaba en la Fase 0; su incorporación controlada comienza recién en la Fase 6, según la sección 12.
 6. Guardá y ejecutá **Retry deployment** para probar el flujo automático desde GitHub. Esta prueba quedó aprobada con el build `2f82476f-5794-4a79-bd59-b22807cb40b4`.
 7. Abrí la URL asignada y comprobá:
    - `/` carga MiPuesto sin errores visibles.
@@ -151,7 +151,7 @@ Estado: **parcialmente completado el 2026-09-01**. La aplicación ya implementa 
 npm run auth:invitar -- correo-del-negocio@ejemplo.com
 ```
 
-La CLI ya enlazada solicita la clave administrativa solo en memoria. No copies `SUPABASE_SERVICE_ROLE_KEY` a `.env.local`, Cloudflare ni Git.
+La CLI ya enlazada solicita la clave administrativa solo en memoria. No copies `SUPABASE_SERVICE_ROLE_KEY` a Git, al código ni a una variable con prefijo `NEXT_PUBLIC_`. Su uso servidor en la Fase 6 se documenta en la sección 12.
 
 7. Abrí el correo recibido, definí una contraseña en el enlace y comprobá que podés ingresar y crear el negocio. La verificación del enlace ocurre en Supabase antes de la redirección: si alguna vez el enlace apunta a una URL incorrecta (por ejemplo, `localhost` desde otro dispositivo), la cuenta puede quedar creada aunque la página no cargue. En ese caso, después de corregir la URL, pedí recuperación de contraseña para ese correo y usá el enlace nuevo; no es necesario reenviar otra invitación.
 
@@ -219,3 +219,47 @@ Estado: **auditorías automáticas completadas; recorrido visual y WhatsApp pend
 7. Volvé a dejar tu negocio en la modalidad que realmente quieras usar. Cambiarla no debe alterar categorías, productos, fotografías, plantilla ni paleta.
 
 La configuración visual de días e intervalos llegará en la Fase 7. En esta fase, los negocios seed permiten comprobar el aviso y las pruebas automáticas cubren los límites temporales. Cuando todo esté correcto, respondé `Fase 5 validada`.
+
+## 12. Despliegue y validación manual de la Fase 6
+
+Estado: **implementación y auditorías automáticas completadas; secreto de ejecución y recorrido final pendientes**.
+
+### 12.1 Configurar el secreto servidor
+
+Los pedidos usan una clave administrativa exclusivamente dentro del Worker para invocar las funciones transaccionales restringidas. Las variables públicas de Build no sustituyen este secreto de ejecución.
+
+Opción recomendada, desde la raíz del proyecto y con los perfiles `supabase` y `mipuesto` ya autenticados:
+
+```powershell
+npm run cloudflare:secret:pedidos
+```
+
+El script obtiene la clave del proyecto Supabase enlazado y la entrega a Wrangler por la entrada estándar. No la muestra, no la escribe en `.env.local` y no la guarda en Git. Wrangler publicará una nueva versión del Worker al modificar el secreto.
+
+Alternativa manual en el panel:
+
+1. En Supabase abrí **Project Settings → API Keys** y copiá la clave `service_role` del proyecto `mipuesto-dev`. Nunca uses la Publishable para este paso.
+2. En Cloudflare abrí **Workers & Pages → mipuesto-dev → Settings → Variables & Secrets**.
+3. En **Runtime variables and secrets**, agregá un secreto cifrado llamado exactamente `SUPABASE_SERVICE_ROLE_KEY` y pegá la clave.
+4. Guardá, cerrá la pantalla y verificá que el panel muestre solamente el nombre y un valor cifrado.
+
+Para desarrollo local, si se necesita probar el pedido desde `npm run dev`, agregá la misma clave únicamente a `.env.local`:
+
+```dotenv
+SUPABASE_SERVICE_ROLE_KEY=tu_clave_privada
+```
+
+`.env.local` está ignorado por Git. No compartás su contenido en capturas, chat ni registros de terminal.
+
+### 12.2 Validar el recorrido
+
+1. Esperá el despliegue de `main`, abrí el negocio de prueba configurado como **Tienda con carrito** y agregá dos productos con stock.
+2. Confirmá la reserva. Debe mostrar código, total calculado por el servidor y hora de vencimiento en Bolivia antes de abrir WhatsApp.
+3. Presioná dos veces o repetí la solicitud sin cambiar el carrito. Debe conservar el mismo pedido y no reservar unidades adicionales.
+4. Abrí **Dashboard → Pedidos**. El pedido pendiente debe mostrar códigos de pedido y producto, cantidades, precios, vencimiento y datos opcionales del cliente.
+5. Confirmá una venta y comprobá en **Catálogo** que las existencias físicas disminuyeron. La acción debe registrar quién confirmó y cuándo.
+6. Creá otro pedido y cancelalo. Las existencias físicas deben conservarse y las unidades reservadas deben volver a estar disponibles.
+7. Creá una tercera reserva y dejala vencer. El proceso automático puede tardar hasta cinco minutos después de la hora límite; luego debe aparecer como **Expirado** y liberar el stock.
+8. Intentá crear un pedido cuando el negocio esté cerrado. El catálogo debe seguir navegable, conservar el carrito y no crear ninguna fila ni modificar inventario.
+9. Repetí el recorrido principal a **360 px** y a un ancho mínimo de **1280 px**, sin desplazamiento horizontal y con foco visible mediante `Tab`.
+10. Al terminar, ejecutá `npm run test:rls:linked` y respondé `Fase 6 validada`.

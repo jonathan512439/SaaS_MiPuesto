@@ -14,16 +14,28 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 5: 2026-09-02.
 - Cierre de Fase 5: 2026-09-02.
 - Inicio de Fase 6: 2026-09-02.
-- Estado: **diseño y alcance técnico de Fase 6 definidos; implementación en curso**.
+- Estado: **implementación y auditorías automáticas completadas; falta configurar el secreto de ejecución, desplegar y validar el recorrido manual**.
 - Puerta de salida actual: un pedido vencido libera automáticamente sus cantidades reservadas y un intento fuera de horario no crea pedidos ni modifica inventario.
 
 ## Estado de Fase 6
 
 - Inicio: 2026-09-02.
-- Estado: **en implementación**.
+- Estado: **pendiente de despliegue y validación manual**.
 - Plan visual: `docs/PLAN-DISENO-FASE6.md`.
 - Decisiones: reserva cuantitativa para admitir varias unidades y pedidos concurrentes; precios recalculados en una transacción; códigos estables de producto y pedido; expiración idempotente ejecutada directamente por Supabase Cron.
 - Riesgos principales: manipulación del total, sobreventa concurrente, duplicación por reintentos, abuso por IP, pedidos fuera de horario y acceso de un administrador a pedidos ajenos.
+
+| Control | Estado | Evidencia o pendiente |
+|---|---|---|
+| Creación segura | Cumplido en código y pruebas | El Route Handler valida productos y cantidades, vuelve a leer modalidad y horario, y la función transaccional calcula precios desde la base. El total del navegador se ignora. |
+| Stock y concurrencia | Cumplido en base y auditoría remota | Bloqueo ordenado de filas, disponibilidad cuantitativa, código estable por producto y liberación idempotente al cancelar o vencer. |
+| Idempotencia y abuso | Cumplido en base y pruebas | Una clave por intento evita duplicados y el límite registra como máximo cinco creaciones por negocio e IP anonimizada cada quince minutos. |
+| Vencimiento automático | Cumplido en base y auditoría remota | Supabase Cron ejecuta cada cinco minutos una función por lotes con `SKIP LOCKED`; repetirla no descuenta ni libera dos veces. |
+| Estados y auditoría | Cumplido en código y pruebas | El administrador puede confirmar o cancelar solo pedidos propios; se conservan usuario, fecha, artículos, cantidades, precios y códigos. |
+| Aislamiento RLS | Cumplido | Nueve tablas con RLS; ocho tablas de negocio con políticas y la tabla interna de límites sin acceso desde Data API. Auditoría con dos usuarios aprobada. |
+| Calidad automática | Cumplido | ESLint, TypeScript, 88 pruebas, tokens, contraste, secretos de cliente, builds Next.js/vinext, dry-run Worker, arranque, lint SQL y auditorías remotas aprobaron. |
+| Secreto de ejecución | Pendiente manual | Cloudflare todavía no contiene `SUPABASE_SERVICE_ROLE_KEY`. No se desplegará el checkout hasta cargarlo como secreto de runtime. |
+| Revisión visual e interacción real | Pendiente | Crear, duplicar, confirmar, cancelar y expirar pedidos a 360 px y escritorio siguiendo `docs/CONFIGURACION-MANUAL.md`. |
 
 ## Estado de Fase 5
 
