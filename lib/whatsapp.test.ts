@@ -30,12 +30,13 @@ describe("enlaces de WhatsApp", () => {
 
   it("consolida cantidades y subtotal del carrito", () => {
     const mensaje = construirMensajePedido("Tienda Kantuta", [
-      { nombre: "Bolso", precio: 95, cantidad: 2 },
+      { codigo: "PRD-BOLSO1", nombre: "Bolso", precio: 95, cantidad: 2 },
       { nombre: "Tarjeta", precio: 5, cantidad: 1 },
-    ]);
+    ], "PED-ABC12345");
 
-    expect(mensaje).toContain("2 × Bolso: Bs 190");
+    expect(mensaje).toContain("Código de reserva: PED-ABC12345");
+    expect(mensaje).toContain("2 × Bolso (PRD-BOLSO1): Bs 190");
     expect(mensaje).toContain("1 × Tarjeta: Bs 5");
-    expect(mensaje).toContain("Subtotal publicado: Bs 195");
+    expect(mensaje).toContain("Total reservado: Bs 195");
   });
 });

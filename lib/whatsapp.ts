@@ -1,6 +1,7 @@
 import { calcularSubtotal, formatearPrecioBolivianos } from "./precios";
 
 type ProductoParaWhatsapp = {
+  codigo?: string;
   nombre: string;
   precio: number;
 };
@@ -34,7 +35,11 @@ export function construirMensajeProducto(
   ].join("\n");
 }
 
-export function construirMensajePedido(negocio: string, items: ItemPedidoWhatsapp[]) {
+export function construirMensajePedido(
+  negocio: string,
+  items: ItemPedidoWhatsapp[],
+  codigoPedido?: string,
+) {
   const validos = items.filter(
     (item) =>
       item.nombre.trim() &&
@@ -48,13 +53,14 @@ export function construirMensajePedido(negocio: string, items: ItemPedidoWhatsap
   const total = calcularSubtotal(validos);
   return [
     `Hola, preparé este pedido en el catálogo de ${negocio}:`,
+    ...(codigoPedido ? [`Código de reserva: ${codigoPedido}.`] : []),
     ...validos.map(
       (item) =>
-        `- ${item.cantidad} × ${item.nombre}: ${formatearPrecioBolivianos(
+        `- ${item.cantidad} × ${item.nombre}${item.codigo ? ` (${item.codigo})` : ""}: ${formatearPrecioBolivianos(
           calcularSubtotal([item]),
         )}`,
     ),
-    `Subtotal publicado: ${formatearPrecioBolivianos(total)}.`,
-    "Quisiera confirmar disponibilidad y coordinar el pedido.",
+    `Total reservado: ${formatearPrecioBolivianos(total)}.`,
+    "Quisiera coordinar la entrega y el pago.",
   ].join("\n");
 }
