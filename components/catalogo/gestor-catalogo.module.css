@@ -2,8 +2,7 @@
 
 .gestor {
   display: grid;
-  gap: var(--spacing-6);
-  margin-top: var(--spacing-8);
+  gap: var(--spacing-5);
 }
 
 .mensajes:empty {
@@ -48,13 +47,16 @@
   color: var(--color-peligro);
 }
 
+/* El alta de producto es el unico bloque con borde de marca: separa "crear"
+   de "revisar" sin repetir el mismo recuadro en toda la pantalla. */
 .formularioProducto {
   display: grid;
-  gap: var(--spacing-6);
+  gap: var(--spacing-5);
   border: var(--borde-marcado) solid var(--color-marca);
   border-radius: var(--radius-panel);
   padding: var(--spacing-5);
   background: var(--color-superficie);
+  box-shadow: var(--sombra-elevada);
 }
 
 .cabeceraFormulario,
@@ -82,7 +84,7 @@
 
 .camposProducto {
   display: grid;
-  gap: var(--spacing-5);
+  gap: var(--spacing-4);
 }
 
 .descripcion {
@@ -177,7 +179,7 @@
 
 .columnas {
   display: grid;
-  gap: var(--spacing-8);
+  gap: var(--spacing-5);
 }
 
 .organizacion {
@@ -373,7 +375,7 @@
   align-items: center;
   gap: var(--spacing-2);
   border-top: var(--borde-fino) solid var(--color-borde-suave);
-  padding-top: var(--spacing-4);
+  padding-top: var(--spacing-3);
 }
 
 .paginacionProductos span {
@@ -403,25 +405,32 @@
 }
 
 .productos {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-4);
   min-width: 0;
 }
 
 .tituloProductos {
   align-items: center;
   border-bottom: var(--borde-marcado) solid var(--color-texto);
-  padding-bottom: var(--spacing-4);
+  padding-bottom: var(--spacing-3);
 }
 
 .estadoVacio {
   display: grid;
-  justify-items: start;
   gap: var(--spacing-3);
-  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-10) 0;
+  justify-items: center;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-8) var(--spacing-6);
+  background: var(--color-fondo-suave);
+  text-align: center;
 }
 
 .estadoVacio h3 {
   font-size: var(--text-lg);
+  font-weight: 800;
 }
 
 .estadoVacio p {
@@ -431,6 +440,7 @@
 
 .listaProductos {
   display: grid;
+  gap: var(--spacing-3);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -439,14 +449,21 @@
 .producto {
   display: grid;
   gap: var(--spacing-4);
-  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-5) 0;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
 }
 
 .fotos {
   display: flex;
   gap: var(--spacing-2);
   overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.fotos::-webkit-scrollbar {
+  display: none;
 }
 
 .foto,
@@ -535,17 +552,20 @@
 .estadoAgotado {
   border: var(--borde-fino) solid currentColor;
   border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-3);
   font-size: var(--text-xs);
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .estadoVisible {
+  background: var(--color-exito-tenue);
   color: var(--color-exito);
 }
 
 .estadoOculto,
 .estadoAgotado {
+  background: var(--color-alerta-tenue);
   color: var(--color-alerta);
 }
 
@@ -593,12 +613,15 @@
 @media (min-width: 60rem) {
   .columnas {
     grid-template-columns: 20rem minmax(0, 1fr);
+    gap: var(--spacing-6);
   }
 
+  /* La barra del panel queda fija arriba: la columna de organizacion se
+     ancla justo debajo para no esconderse tras ella. */
   .organizacion {
     position: sticky;
-    top: var(--spacing-4);
-    max-height: calc(100dvh - var(--spacing-8));
+    top: calc(var(--alto-barra-panel) + var(--spacing-4));
+    max-height: calc(100dvh - var(--alto-barra-panel) - var(--spacing-8));
     overflow-y: auto;
   }
 

@@ -39,7 +39,8 @@ export default async function PaginaPedidos() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.cabecera}>
+      <header className={styles.encabezado}>
+        <p>Ventas del día</p>
         <h1>Pedidos y reservas</h1>
         <p>
           Atiende primero los pedidos por confirmar. Confirmar descuenta las unidades vendidas;

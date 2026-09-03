@@ -1,17 +1,20 @@
 @reference "../../../globals.css";
 
 .contenido {
-  width: min(calc(100% - var(--spacing-8)), 72rem);
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-5);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
   margin: 0 auto;
-  padding: var(--spacing-8) 0 var(--spacing-16);
+  padding: var(--spacing-6) 0 var(--spacing-16);
 }
 
 .encabezado {
   display: grid;
-  max-width: 48rem;
+  max-width: 52rem;
   gap: var(--spacing-2);
   border-bottom: var(--borde-fino) solid var(--color-borde-suave);
-  padding-bottom: var(--spacing-6);
+  padding-bottom: var(--spacing-4);
 }
 
 .encabezado p,
@@ -30,11 +33,34 @@
 }
 
 .encabezado h1 {
-  font-size: var(--text-2xl);
-  line-height: 1.12;
+  overflow-wrap: anywhere;
+  font-size: var(--text-xl);
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .encabezado > p:last-child {
-  max-width: 65ch;
+  max-width: var(--ancho-lectura);
   color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 60rem) {
+  .contenido {
+    padding-top: var(--spacing-8);
+  }
+
+  .encabezado h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .encabezado > p:last-child {
+    font-size: var(--text-base);
+  }
+}
+
+@media (max-width: 24rem) {
+  .contenido {
+    width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
+  }
 }

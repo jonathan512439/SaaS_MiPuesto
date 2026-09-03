@@ -7,7 +7,6 @@
 .formulario {
   display: grid;
   gap: var(--spacing-5);
-  margin-top: var(--spacing-6);
   border: var(--borde-fino) solid var(--color-borde-suave);
   border-radius: var(--radius-panel);
   padding: var(--spacing-5);

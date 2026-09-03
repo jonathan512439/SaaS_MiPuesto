@@ -3,7 +3,6 @@
 .formulario {
   display: grid;
   gap: var(--spacing-10);
-  margin-top: var(--spacing-8);
 }
 
 .grupo {
