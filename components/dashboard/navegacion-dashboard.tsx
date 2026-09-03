@@ -9,6 +9,7 @@ const ENLACES = [
   { href: "/dashboard/configuracion", etiqueta: "Negocio" },
   { href: "/dashboard/plantilla", etiqueta: "Diseño" },
   { href: "/dashboard/catalogo", etiqueta: "Catálogo" },
+  { href: "/dashboard/pedidos", etiqueta: "Pedidos" },
 ] as const;
 
 export function NavegacionDashboard() {

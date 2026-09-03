@@ -1,0 +1,238 @@
+@reference "../../app/globals.css";
+
+.gestor {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.filtros {
+  display: flex;
+  gap: var(--spacing-2);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-2);
+}
+
+.filtros button {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.filtros button[aria-pressed="true"] {
+  border-color: var(--color-marca);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.filtros span {
+  min-width: var(--spacing-6);
+  text-align: center;
+}
+
+.error,
+.vacio,
+.sinDetalle,
+.auditoria {
+  margin: 0;
+}
+
+.error {
+  border-left: var(--borde-marcado) solid var(--color-peligro);
+  padding: var(--spacing-3);
+  background: var(--color-fondo-suave);
+  color: var(--color-peligro);
+}
+
+.vacio {
+  display: grid;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde);
+  padding: var(--spacing-6);
+}
+
+.vacio h2,
+.vacio p {
+  margin: 0;
+}
+
+.vacio h2 {
+  font-size: var(--text-lg);
+}
+
+.lista,
+.items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista {
+  border-top: var(--borde-marcado) solid var(--color-marca);
+}
+
+.pedido {
+  display: grid;
+  gap: var(--spacing-4);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
+  padding: var(--spacing-5) 0;
+}
+
+.pedido header,
+.items li,
+.resumen,
+.acciones {
+  display: flex;
+  align-items: center;
+}
+
+.pedido header,
+.items li,
+.resumen {
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.pedido h2,
+.pedido header p,
+.cliente p,
+.resumen p {
+  margin: 0;
+}
+
+.pedido h2 {
+  font-size: var(--text-xl);
+}
+
+.pedido header p,
+.items small,
+.sinDetalle,
+.auditoria {
+  font-size: var(--text-xs);
+}
+
+.pendiente,
+.confirmado,
+.cancelado,
+.expirado {
+  border: var(--borde-fino) solid currentColor;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.pendiente {
+  color: var(--color-alerta);
+}
+
+.confirmado {
+  color: var(--color-exito);
+}
+
+.cancelado,
+.expirado {
+  color: var(--color-texto-suave);
+}
+
+.cliente {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-3);
+  font-size: var(--text-sm);
+}
+
+.items {
+  display: grid;
+  border-top: var(--borde-fino) solid var(--color-borde);
+}
+
+.items li {
+  border-bottom: var(--borde-fino) solid var(--color-borde);
+  padding: var(--spacing-3) 0;
+}
+
+.items li > div {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.items span,
+.resumen strong {
+  font-weight: 900;
+}
+
+.resumen {
+  align-items: flex-start;
+}
+
+.resumen p {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.resumen span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.acciones {
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.acciones button {
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--color-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.acciones button:last-child {
+  border-color: var(--color-peligro);
+  background: transparent;
+  color: var(--color-peligro);
+}
+
+.acciones button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.auditoria {
+  border-left: var(--borde-marcado) solid var(--color-borde);
+  padding-left: var(--spacing-3);
+  color: var(--color-texto-suave);
+}
+
+@media (max-width: 24rem) {
+  .pedido header,
+  .resumen {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cliente {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones button {
+    width: 100%;
+  }
+}
