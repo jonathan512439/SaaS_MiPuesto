@@ -14,6 +14,7 @@ export function PlantillaMinimal({
   demostracion = true,
   cantidadesCarrito = {},
   alAgregarProducto,
+  alAbrirWhatsapp,
   ocultarNavegacionCategorias = false,
   navegacionCatalogo,
 }: PropiedadesPlantilla) {
@@ -104,6 +105,7 @@ export function PlantillaMinimal({
                     <dd>
                       <AccionProducto
                         alAgregarProducto={alAgregarProducto}
+                        alAbrirWhatsapp={alAbrirWhatsapp}
                         cantidad={cantidadesCarrito[producto.id]}
                         demostracion={demostracion}
                         modalidad={datos.negocio.modalidad}

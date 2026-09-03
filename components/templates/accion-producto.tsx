@@ -7,6 +7,7 @@ type PropiedadesAccionProducto = {
   demostracion: boolean;
   cantidad?: number;
   alAgregarProducto?: (productoId: string) => void;
+  alAbrirWhatsapp?: (productoId: string | null) => void;
 };
 
 export function AccionProducto({
@@ -16,6 +17,7 @@ export function AccionProducto({
   demostracion,
   cantidad = 0,
   alAgregarProducto,
+  alAbrirWhatsapp,
 }: PropiedadesAccionProducto) {
   if (modalidad === "solo_lectura") return null;
 
@@ -35,6 +37,7 @@ export function AccionProducto({
       <a
         aria-label={`${etiqueta}: ${producto.nombre}`}
         href={producto.accionWhatsapp}
+        onClick={() => alAbrirWhatsapp?.(producto.id)}
         rel="noreferrer"
         target="_blank"
       >

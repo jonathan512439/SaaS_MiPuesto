@@ -39,6 +39,7 @@ export type CategoriaPlantilla = {
 
 export type DatosPlantilla = {
   negocio: {
+    id: string;
     slug: string;
     nombre: string;
     descripcion: string;
@@ -60,6 +61,7 @@ export type PropiedadesPlantilla = {
   demostracion?: boolean;
   cantidadesCarrito?: Record<string, number>;
   alAgregarProducto?: (productoId: string) => void;
+  alAbrirWhatsapp?: (productoId: string | null) => void;
   ocultarNavegacionCategorias?: boolean;
   navegacionCatalogo?: ReactNode;
 };

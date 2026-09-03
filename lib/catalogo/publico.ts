@@ -10,6 +10,7 @@ import { obtenerRedesSociales } from "../negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
 
 type NegocioPublico = {
+  id?: string;
   slug?: string;
   nombre: string;
   descripcion: string | null;
@@ -163,6 +164,7 @@ export function construirCatalogoPublico(
         : "mercado",
     datos: {
       negocio: {
+        id: negocio.id ?? "",
         slug: negocio.slug ?? "",
         nombre: negocio.nombre,
         descripcion:

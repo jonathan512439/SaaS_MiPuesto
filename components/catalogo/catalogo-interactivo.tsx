@@ -1,9 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState, type ComponentType } from "react";
+import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react";
 
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
+import { registrarEventoAnalitica } from "../../lib/analitica-cliente";
 import { paginarCatalogo } from "../../lib/catalogo/paginacion";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type {
@@ -79,6 +80,17 @@ export function CatalogoInteractivo({
     (producto) => (cantidades[producto.id] ?? 0) > 0,
   ).length;
   const Vista = VISTAS[plantilla];
+  const registrar = useCallback(
+    (
+      tipo: "vista_catalogo" | "clic_whatsapp" | "clic_producto",
+      productoId: string | null = null,
+    ) => registrarEventoAnalitica(datos.negocio.id, tipo, productoId),
+    [datos.negocio.id],
+  );
+
+  useEffect(() => {
+    registrar("vista_catalogo");
+  }, [registrar]);
   const navegacionCatalogo = datos.categorias.length > 0 ? (
     <section aria-labelledby="explorar-catalogo" className={styles.explorador}>
       <div>
@@ -121,6 +133,7 @@ export function CatalogoInteractivo({
   }
 
   function agregarProducto(productoId: string) {
+    registrar("clic_producto", productoId);
     cambiarCantidad(productoId, (cantidades[productoId] ?? 0) + 1);
   }
 
@@ -132,6 +145,7 @@ export function CatalogoInteractivo({
     >
       <Vista
         alAgregarProducto={agregarProducto}
+        alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
         cantidadesCarrito={cantidades}
         datos={datosPaginados}
         demostracion={false}
@@ -171,6 +185,7 @@ export function CatalogoInteractivo({
             cantidades={cantidades}
             datos={datos}
             onCambiarCantidad={cambiarCantidad}
+            onAbrirWhatsapp={() => registrar("clic_whatsapp")}
             paleta={paleta}
             productos={productos}
           />

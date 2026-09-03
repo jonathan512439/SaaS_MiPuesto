@@ -14,6 +14,7 @@ export function PlantillaModerna({
   demostracion = true,
   cantidadesCarrito = {},
   alAgregarProducto,
+  alAbrirWhatsapp,
   ocultarNavegacionCategorias = false,
   navegacionCatalogo,
 }: PropiedadesPlantilla) {
@@ -113,6 +114,7 @@ export function PlantillaModerna({
               <EstadoStockProducto className={styles.stock} producto={producto} />
               <AccionProducto
                 alAgregarProducto={alAgregarProducto}
+                alAbrirWhatsapp={alAbrirWhatsapp}
                 cantidad={cantidadesCarrito[producto.id]}
                 demostracion={demostracion}
                 modalidad={datos.negocio.modalidad}

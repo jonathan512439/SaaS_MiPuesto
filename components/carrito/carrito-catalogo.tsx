@@ -15,6 +15,7 @@ type PropiedadesCarrito = {
   cantidades: Record<string, number>;
   paleta: PaletaId;
   onCambiarCantidad: (productoId: string, cantidad: number) => void;
+  onAbrirWhatsapp: () => void;
 };
 
 type RespuestaPedido = {
@@ -47,6 +48,7 @@ export function CarritoCatalogo({
   cantidades,
   paleta,
   onCambiarCantidad,
+  onAbrirWhatsapp,
 }: PropiedadesCarrito) {
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
@@ -264,7 +266,12 @@ export function CarritoCatalogo({
               {FORMATEADOR_HORA.format(new Date(pedidoVigente.expiraEn))}.
             </p>
             {pedidoVigente.enlaceWhatsapp ? (
-              <a href={pedidoVigente.enlaceWhatsapp} rel="noreferrer" target="_blank">
+              <a
+                href={pedidoVigente.enlaceWhatsapp}
+                onClick={onAbrirWhatsapp}
+                rel="noreferrer"
+                target="_blank"
+              >
                 Continuar por WhatsApp
               </a>
             ) : (

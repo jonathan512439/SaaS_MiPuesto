@@ -19,6 +19,7 @@ export function crearDatosDemoPlantilla({
   const modalidad = obtenerComportamientoModalidad(tipoNegocio);
   return {
     negocio: {
+      id: "",
       slug: "negocio-demostracion",
       nombre,
       descripcion:

@@ -49,6 +49,7 @@ export type Database = {
           id: string
           negocio_id: string
           producto_id: string | null
+          sesion_id: string
           tipo: string
         }
         Insert: {
@@ -56,6 +57,7 @@ export type Database = {
           id?: string
           negocio_id: string
           producto_id?: string | null
+          sesion_id: string
           tipo: string
         }
         Update: {
@@ -63,6 +65,7 @@ export type Database = {
           id?: string
           negocio_id?: string
           producto_id?: string | null
+          sesion_id?: string
           tipo?: string
         }
         Relationships: [
