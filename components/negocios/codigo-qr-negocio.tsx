@@ -1,0 +1,67 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { COLORES_MIPUESTO } from "../../lib/identidad-visual";
+import styles from "./codigo-qr-negocio.module.css";
+
+type PropiedadesCodigoQr = {
+  nombreNegocio: string;
+  urlCatalogo: string;
+};
+
+export function CodigoQrNegocio({ nombreNegocio, urlCatalogo }: PropiedadesCodigoQr) {
+  const [imagen, setImagen] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let activo = true;
+    import("qrcode")
+      .then(({ toDataURL }) =>
+        toDataURL(urlCatalogo, {
+          errorCorrectionLevel: "M",
+          margin: 2,
+          width: 320,
+          color: { dark: COLORES_MIPUESTO.texto, light: COLORES_MIPUESTO.superficie },
+        }),
+      )
+      .then((resultado) => {
+        if (activo) setImagen(resultado);
+      })
+      .catch(() => {
+        if (activo) setError("No se pudo preparar el QR. Recarga la página para intentarlo otra vez.");
+      });
+    return () => {
+      activo = false;
+    };
+  }, [urlCatalogo]);
+
+  return (
+    <section aria-labelledby="titulo-qr-catalogo" className={styles.bloque}>
+      <div className={styles.texto}>
+        <p>Enlace para compartir</p>
+        <h2 id="titulo-qr-catalogo">Código QR de tu catálogo</h2>
+        <p>
+          Tus clientes pueden escanearlo para abrir el catálogo. Se genera en este navegador y
+          no envía el enlace a servicios externos.
+        </p>
+        <a href={urlCatalogo} rel="noreferrer" target="_blank">Abrir catálogo público</a>
+      </div>
+      <div className={styles.vista} aria-live="polite">
+        {imagen ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img alt={`Código QR para abrir el catálogo de ${nombreNegocio}`} src={imagen} />
+            <a download={`qr-${nombreNegocio.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`} href={imagen}>
+              Descargar QR
+            </a>
+          </>
+        ) : error ? (
+          <p className={styles.error}>{error}</p>
+        ) : (
+          <p>Preparando el QR…</p>
+        )}
+      </div>
+    </section>
+  );
+}

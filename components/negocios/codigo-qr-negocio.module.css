@@ -1,0 +1,77 @@
+@reference "../../app/globals.css";
+
+.bloque {
+  display: grid;
+  gap: var(--spacing-5);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-5);
+  background: var(--color-fondo-suave);
+}
+
+.texto {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-2);
+}
+
+.texto p,
+.texto h2,
+.vista p {
+  margin: 0;
+}
+
+.texto > p:first-child {
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.texto h2 {
+  font-size: var(--text-lg);
+}
+
+.texto > p:last-of-type,
+.vista p {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.texto a,
+.vista a {
+  width: fit-content;
+  min-height: var(--control-alto);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-underline-offset: var(--spacing-1);
+}
+
+.vista {
+  display: grid;
+  place-items: center;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-tarjeta);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.vista img {
+  display: block;
+  width: min(100%, 15rem);
+  height: auto;
+}
+
+.error {
+  color: var(--color-peligro) !important;
+}
+
+@media (min-width: 48rem) {
+  .bloque {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    align-items: center;
+    padding: var(--spacing-6);
+  }
+}
+

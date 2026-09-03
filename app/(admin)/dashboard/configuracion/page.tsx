@@ -13,8 +13,10 @@ import {
   FormularioOperacion,
   type OperacionNegocioInicial,
 } from "../../../../components/negocios/formulario-operacion";
+import { CodigoQrNegocio } from "../../../../components/negocios/codigo-qr-negocio";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
+import { construirUrlPublicaNegocio } from "../../../../lib/url-sitio";
 import styles from "./configuracion.module.css";
 
 export const metadata: Metadata = {
@@ -73,6 +75,10 @@ export default async function PaginaConfiguracion() {
             identidadInicial={negocio as IdentidadNegocioInicial}
             negocioNombre={negocio.nombre}
             urlSupabase={url}
+          />
+          <CodigoQrNegocio
+            nombreNegocio={negocio.nombre}
+            urlCatalogo={construirUrlPublicaNegocio(negocio.slug)}
           />
         </>
       ) : null}
