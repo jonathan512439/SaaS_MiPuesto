@@ -46,6 +46,7 @@ const FORMULARIO_VACIO: FormularioProducto = {
 };
 
 const CATEGORIAS_POR_PAGINA = 5;
+const PRODUCTOS_POR_PAGINA = 10;
 
 async function solicitarJson<T>(ruta: string, opciones: RequestInit) {
   const respuesta = await fetch(ruta, opciones);
@@ -60,11 +61,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [productos, setProductos] = useState(datosIniciales.productos);
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [paginaCategorias, setPaginaCategorias] = useState(1);
+  const [paginaProductos, setPaginaProductos] = useState(1);
   const [nombreCategoria, setNombreCategoria] = useState("");
   const [nuevasSubcategorias, setNuevasSubcategorias] = useState<Record<string, string>>({});
   const [formularioAbierto, setFormularioAbierto] = useState(false);
   const [productoEditando, setProductoEditando] = useState<string | null>(null);
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
+  const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
   const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
   const [mensaje, setMensaje] = useState("");
@@ -80,6 +83,15 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   );
   const subcategoriasFormulario = subcategorias.filter(
     (subcategoria) => subcategoria.categoria_id === formulario.categoria_id,
+  );
+  const totalPaginasProductos = Math.max(
+    1,
+    Math.ceil(productosVisibles.length / PRODUCTOS_POR_PAGINA),
+  );
+  const paginaProductosActual = Math.min(paginaProductos, totalPaginasProductos);
+  const productosPaginados = productosVisibles.slice(
+    (paginaProductosActual - 1) * PRODUCTOS_POR_PAGINA,
+    paginaProductosActual * PRODUCTOS_POR_PAGINA,
   );
   const totalPaginasCategorias = Math.max(
     1,
@@ -116,6 +128,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       setCategorias((actuales) => [...actuales, categoria]);
       setPaginaCategorias(Math.ceil((categorias.length + 1) / CATEGORIAS_POR_PAGINA));
       setCategoriaActiva(categoria.id);
+      setPaginaProductos(1);
       setNombreCategoria("");
       informarExito(`Categoría “${categoria.nombre}” creada.`);
     } catch (error) {
@@ -176,7 +189,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             : producto,
         ),
       );
-      if (categoriaActiva === categoria.id) setCategoriaActiva("");
+      if (categoriaActiva === categoria.id) {
+        setCategoriaActiva("");
+        setPaginaProductos(1);
+      }
       setPaginaCategorias(
         Math.max(1, Math.ceil((categorias.length - 1) / CATEGORIAS_POR_PAGINA)),
       );
@@ -279,6 +295,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     setProductoEditando(null);
     setFormulario({ ...FORMULARIO_VACIO, categoria_id: categoriaActiva });
     setErroresFormulario({});
+    setImagenesPendientes([]);
     setFormularioAbierto(true);
     enfocarFormularioProducto();
   }
@@ -295,6 +312,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       cantidad_stock: producto.cantidad_stock === null ? "" : String(producto.cantidad_stock),
     });
     setErroresFormulario({});
+    setImagenesPendientes([]);
     setFormularioAbierto(true);
     enfocarFormularioProducto();
   }
@@ -303,6 +321,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     setFormularioAbierto(false);
     setProductoEditando(null);
     setErroresFormulario({});
+    setImagenesPendientes([]);
   }
 
   function actualizarCampo<K extends keyof FormularioProducto>(
@@ -314,6 +333,70 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       [campo]: valor,
       ...(campo === "categoria_id" ? { subcategoria_id: "" } : {}),
     }));
+  }
+
+  function seleccionarCategoria(id: string) {
+    setCategoriaActiva(id);
+    setPaginaProductos(1);
+  }
+
+  async function cargarArchivosProducto(
+    producto: ProductoCatalogo,
+    archivos: File[],
+    preparados = false,
+  ) {
+    let fotos = [...producto.fotos];
+    for (const archivoOriginal of archivos) {
+      setMensaje(`Preparando ${archivoOriginal.name}…`);
+      const archivo = preparados
+        ? archivoOriginal
+        : await prepararImagenParaSubir(archivoOriginal);
+      const datos = new FormData();
+      datos.append("producto_id", producto.id);
+      datos.append("archivo", archivo);
+      const { ruta } = await solicitarJson<{ ruta: string }>("/api/catalogo/imagenes", {
+        method: "POST",
+        body: datos,
+      });
+      fotos = [...fotos, ruta];
+      setProductos((actuales) =>
+        actuales.map((item) =>
+          item.id === producto.id ? { ...item, fotos } : item,
+        ),
+      );
+    }
+    return { ...producto, fotos };
+  }
+
+  async function prepararImagenesNuevas(evento: ChangeEvent<HTMLInputElement>) {
+    const archivos = Array.from(evento.target.files ?? []);
+    evento.target.value = "";
+    if (!archivos.length) return;
+    if (imagenesPendientes.length + archivos.length > 4) {
+      informarError(
+        new Error(`Puedes seleccionar ${4 - imagenesPendientes.length} foto(s) más.`),
+      );
+      return;
+    }
+
+    setOcupado(true);
+    try {
+      const preparadas: File[] = [];
+      for (const archivo of archivos) {
+        setMensaje(`Preparando ${archivo.name}…`);
+        preparadas.push(await prepararImagenParaSubir(archivo));
+      }
+      setImagenesPendientes((actuales) => [...actuales, ...preparadas]);
+      informarExito(
+        preparadas.length === 1
+          ? "Fotografía lista para guardar."
+          : "Fotografías listas para guardar.",
+      );
+    } catch (error) {
+      informarError(error);
+    } finally {
+      setOcupado(false);
+    }
   }
 
   async function guardarProducto(evento: FormEvent<HTMLFormElement>) {
@@ -340,8 +423,35 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           ? actuales.map((item) => (item.id === producto.id ? producto : item))
           : [...actuales, producto],
       );
+      let errorImagenes: unknown = null;
+      if (!productoEditando && imagenesPendientes.length > 0) {
+        try {
+          await cargarArchivosProducto(producto, imagenesPendientes, true);
+        } catch (error) {
+          errorImagenes = error;
+        }
+      }
+      if (!productoEditando) {
+        setPaginaProductos(
+          Math.max(1, Math.ceil((productosVisibles.length + 1) / PRODUCTOS_POR_PAGINA)),
+        );
+      }
       cerrarFormulario();
-      informarExito(productoEditando ? "Producto actualizado." : "Producto creado. Ya puedes agregarle fotos.");
+      if (errorImagenes) {
+        informarError(
+          new Error(
+            "El producto se creó, pero una fotografía no pudo subirse. Puedes agregarla desde su ficha.",
+          ),
+        );
+      } else {
+        informarExito(
+          productoEditando
+            ? "Producto actualizado."
+            : imagenesPendientes.length
+              ? "Producto y fotografías guardados."
+              : "Producto creado.",
+        );
+      }
     } catch (error) {
       const datos = (error as Error & { datos?: RespuestaError }).datos;
       if (datos?.errores) setErroresFormulario(datos.errores);
@@ -398,23 +508,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       return;
     }
     setOcupado(true);
-    let fotos = [...producto.fotos];
     try {
-      for (const archivoOriginal of archivos) {
-        setMensaje(`Preparando ${archivoOriginal.name}…`);
-        const archivo = await prepararImagenParaSubir(archivoOriginal);
-        const datos = new FormData();
-        datos.append("producto_id", producto.id);
-        datos.append("archivo", archivo);
-        const { ruta } = await solicitarJson<{ ruta: string }>("/api/catalogo/imagenes", {
-          method: "POST",
-          body: datos,
-        });
-        fotos = [...fotos, ruta];
-        setProductos((actuales) =>
-          actuales.map((item) => (item.id === producto.id ? { ...item, fotos } : item)),
-        );
-      }
+      await cargarArchivosProducto(producto, archivos);
       informarExito(archivos.length === 1 ? "Fotografía agregada." : "Fotografías agregadas.");
     } catch (error) {
       informarError(error);
@@ -538,6 +633,45 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               value={formulario.cantidad_stock}
             />
           ) : null}
+          {!productoEditando ? (
+            <section className={styles.imagenesFormulario} aria-labelledby="fotos-nuevo-producto">
+              <div>
+                <h3 id="fotos-nuevo-producto">Fotografías</h3>
+                <p>Selecciona hasta cuatro. Se optimizan antes de subirlas.</p>
+              </div>
+              <label className={styles.botonFoto}>
+                Seleccionar fotografías
+                <input
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={ocupado || imagenesPendientes.length >= 4}
+                  multiple
+                  onChange={(evento) => void prepararImagenesNuevas(evento)}
+                  type="file"
+                />
+              </label>
+              {imagenesPendientes.length ? (
+                <ul className={styles.archivosPendientes}>
+                  {imagenesPendientes.map((archivo, indice) => (
+                    <li key={`${archivo.name}-${archivo.lastModified}-${indice}`}>
+                      <span>Fotografía {indice + 1} lista</span>
+                      <button
+                        aria-label={`Quitar fotografía ${indice + 1}`}
+                        onClick={() =>
+                          setImagenesPendientes((actuales) =>
+                            actuales.filter((_, posicion) => posicion !== indice),
+                          )
+                        }
+                        type="button"
+                      >
+                        Quitar
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <small>{imagenesPendientes.length} de 4 fotografías seleccionadas</small>
+            </section>
+          ) : null}
           <div className={styles.accionesFormulario}>
             <Boton cargando={ocupado} type="submit">
               {productoEditando ? "Guardar cambios" : "Crear producto"}
@@ -571,7 +705,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           </form>
           <button
             className={!categoriaActiva ? styles.filtroActivo : styles.filtro}
-            onClick={() => setCategoriaActiva("")}
+            onClick={() => seleccionarCategoria("")}
             type="button"
           >
             Todos los productos <span>{productos.length}</span>
@@ -588,7 +722,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                 <section className={styles.categoria} key={categoria.id}>
                   <button
                     className={categoriaActiva === categoria.id ? styles.filtroActivo : styles.filtro}
-                    onClick={() => setCategoriaActiva(categoria.id)}
+                    onClick={() => seleccionarCategoria(categoria.id)}
                     type="button"
                   >
                     {categoria.nombre} <span>{cantidadProductos}</span>
@@ -630,7 +764,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                 disabled={paginaCategoriasActual === 1}
                 onClick={() => {
                   setPaginaCategorias((pagina) => Math.max(1, pagina - 1));
-                  setCategoriaActiva("");
+                  seleccionarCategoria("");
                 }}
                 type="button"
               >
@@ -641,7 +775,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                 disabled={paginaCategoriasActual === totalPaginasCategorias}
                 onClick={() => {
                   setPaginaCategorias((pagina) => Math.min(totalPaginasCategorias, pagina + 1));
-                  setCategoriaActiva("");
+                  seleccionarCategoria("");
                 }}
                 type="button"
               >
@@ -667,7 +801,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             </div>
           ) : (
             <ul className={styles.listaProductos}>
-              {productosVisibles.map((producto) => (
+              {productosPaginados.map((producto) => (
                 <li className={styles.producto} key={producto.id}>
                   <div className={styles.fotos}>
                     {producto.fotos.length ? producto.fotos.map((ruta, indice) => (
@@ -717,6 +851,29 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               ))}
             </ul>
           )}
+          {totalPaginasProductos > 1 ? (
+            <nav className={styles.paginacionProductos} aria-label="Páginas de productos">
+              <button
+                disabled={paginaProductosActual === 1}
+                onClick={() => setPaginaProductos((actual) => Math.max(1, actual - 1))}
+                type="button"
+              >
+                Anterior
+              </button>
+              <span>Página {paginaProductosActual} de {totalPaginasProductos}</span>
+              <button
+                disabled={paginaProductosActual === totalPaginasProductos}
+                onClick={() =>
+                  setPaginaProductos((actual) =>
+                    Math.min(totalPaginasProductos, actual + 1),
+                  )
+                }
+                type="button"
+              >
+                Siguiente
+              </button>
+            </nav>
+          ) : null}
         </section>
       </div>
     </div>
