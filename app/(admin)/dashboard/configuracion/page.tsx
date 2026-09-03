@@ -5,6 +5,10 @@ import {
   FormularioNegocio,
   type PerfilNegocioInicial,
 } from "../../../../components/negocios/formulario-negocio";
+import {
+  FormularioOperacion,
+  type OperacionNegocioInicial,
+} from "../../../../components/negocios/formulario-operacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./configuracion.module.css";
 
@@ -22,7 +26,7 @@ export default async function PaginaConfiguracion() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,slug,descripcion,tipo_negocio,telefono_whatsapp")
+    .select("nombre,slug,descripcion,tipo_negocio,telefono_whatsapp,horario,reserva_minutos")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -32,8 +36,7 @@ export default async function PaginaConfiguracion() {
         <p>{negocio ? "Configuración del catálogo" : "Alta inicial"}</p>
         <h1>{negocio ? "Revisa los datos de tu negocio" : "Crea el perfil de tu negocio"}</h1>
         <p>
-          Esta información será la base del catálogo. Podrás agregar fotos,
-          horarios y productos en las siguientes etapas.
+          Revisa los datos, la modalidad y las condiciones con las que recibirás pedidos.
         </p>
       </header>
 
@@ -54,6 +57,11 @@ export default async function PaginaConfiguracion() {
           </p>
         </aside>
       </div>
+      {negocio ? (
+        <FormularioOperacion
+          operacionInicial={negocio as OperacionNegocioInicial}
+        />
+      ) : null}
     </main>
   );
 }

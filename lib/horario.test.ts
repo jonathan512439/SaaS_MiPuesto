@@ -47,6 +47,17 @@ describe("validación de horario", () => {
         martes: [{ abre: "01:00", cierra: "03:00" }],
       },
     },
+    {
+      modo: "programado",
+      dias: {
+        lunes: [
+          { abre: "08:00", cierra: "09:00" },
+          { abre: "10:00", cierra: "11:00" },
+          { abre: "12:00", cierra: "13:00" },
+          { abre: "14:00", cierra: "15:00" },
+        ],
+      },
+    },
   ])("rechaza horarios inválidos", (horario) => {
     expect(validarHorario(horario).correcto).toBe(false);
   });

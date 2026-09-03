@@ -156,6 +156,9 @@ export function validarHorario(valor: unknown): ResultadoValidacionHorario {
       : intervalosSinValidar === null
         ? []
         : [intervalosSinValidar];
+    if (lista.length > 3) {
+      return { correcto: false, error: `Puedes configurar hasta tres intervalos en ${clave}.` };
+    }
     const intervalos = lista.map(normalizarIntervalo);
     if (intervalos.some((intervalo) => intervalo === null)) {
       return { correcto: false, error: `Hay un intervalo inválido en ${clave}.` };
