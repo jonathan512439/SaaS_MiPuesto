@@ -2,7 +2,7 @@
 
 .formulario {
   display: grid;
-  gap: var(--spacing-10);
+  gap: var(--spacing-6);
 }
 
 .grupo {
@@ -38,7 +38,13 @@
 .paletas {
   display: grid;
   gap: var(--spacing-3);
-  margin-top: var(--spacing-5);
+  margin-top: var(--spacing-3);
+}
+
+/* Las paletas se eligen de un vistazo: dos columnas desde el movil, porque
+   la muestra de color pesa mas que el texto que la acompana. */
+.paletas {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .opcion,
@@ -116,13 +122,17 @@
 
 .muestraPaleta {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   width: 100%;
-  height: var(--spacing-12);
+  height: var(--spacing-10);
   margin-bottom: var(--spacing-1);
   overflow: hidden;
   border: var(--borde-fino) solid var(--catalogo-borde);
   border-radius: var(--radius-control);
+}
+
+.muestraPaleta i:nth-child(3) {
+  background: var(--catalogo-superficie);
 }
 
 .muestraPaleta i:first-child {
@@ -130,7 +140,7 @@
 }
 
 .muestraPaleta i:nth-child(2) {
-  background: var(--catalogo-superficie);
+  background: var(--catalogo-texto);
 }
 
 .muestraPaleta i:last-child {
@@ -249,19 +259,28 @@
   }
 
   .paletas {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 64rem) {
-  .paletas {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 24rem) {
   .formulario {
-    gap: var(--spacing-8);
+    gap: var(--spacing-5);
+  }
+
+  .opcion,
+  .opcionElegida,
+  .paleta,
+  .paletaElegida {
+    padding: var(--spacing-3);
+  }
+
+  .opcion input,
+  .opcionElegida input,
+  .paleta input,
+  .paletaElegida input {
+    top: var(--spacing-3);
+    right: var(--spacing-3);
   }
 
   .acciones,

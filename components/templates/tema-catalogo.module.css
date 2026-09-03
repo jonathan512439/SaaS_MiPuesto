@@ -36,9 +36,9 @@
 .tema[data-paleta="tierra"] {
   --catalogo-superficie: #fff9f0;
   --catalogo-texto: #2d241e;
-  --catalogo-marca: #704029;
+  --catalogo-marca: #5a3722;
   --catalogo-sobre-marca: #fff9f0;
-  --catalogo-accion: #963b18;
+  --catalogo-accion: #a8341a;
   --catalogo-sobre-accion: #fff9f0;
   --catalogo-exito: #2d6846;
   --catalogo-alerta: #825a00;
@@ -49,7 +49,7 @@
   --catalogo-texto: #14303b;
   --catalogo-marca: #0f6178;
   --catalogo-sobre-marca: #f5fbfc;
-  --catalogo-accion: #9b3d1b;
+  --catalogo-accion: #b03562;
   --catalogo-sobre-accion: #f5fbfc;
   --catalogo-exito: #1f6a50;
   --catalogo-alerta: #7a5600;

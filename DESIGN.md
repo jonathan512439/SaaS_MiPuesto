@@ -37,8 +37,8 @@ El panel administrativo conserva siempre la paleta base de MiPuesto. El dueño p
 | Paleta | Superficie | Texto | Marca | Sobre marca | Acción | Sobre acción |
 |---|---|---|---|---|---|---|
 | Mercado | `#FBFAF8` | `#15292C` | `#1F5B63` | `#FBFAF8` | `#B3440E` | `#FBFAF8` |
-| Tierra | `#FFF9F0` | `#2D241E` | `#704029` | `#FFF9F0` | `#963B18` | `#FFF9F0` |
-| Océano | `#F5FBFC` | `#14303B` | `#0F6178` | `#F5FBFC` | `#9B3D1B` | `#F5FBFC` |
+| Tierra | `#FFF9F0` | `#2D241E` | `#5A3722` | `#FFF9F0` | `#A8341A` | `#FFF9F0` |
+| Océano | `#F5FBFC` | `#14303B` | `#0F6178` | `#F5FBFC` | `#B03562` | `#F5FBFC` |
 | Noche | `#151A1C` | `#F7F3EA` | `#8FD0C9` | `#132225` | `#F29A70` | `#2B1710` |
 
 Los fondos suaves y bordes se derivan de esos roles. Las combinaciones de texto, marca y acción deben conservar al menos 4,5:1 de contraste; el foco nunca depende del color de la paleta.

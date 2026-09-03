@@ -36,8 +36,8 @@ export const DEFINICIONES_PALETAS: ReadonlyArray<{
   descripcion: string;
 }> = [
   { id: "mercado", nombre: "Mercado", descripcion: "Verde profundo y naranja cálido." },
-  { id: "tierra", nombre: "Tierra", descripcion: "Tonos artesanales, acogedores y naturales." },
-  { id: "oceano", nombre: "Océano", descripcion: "Azules frescos con un acento enérgico." },
+  { id: "tierra", nombre: "Tierra", descripcion: "Cacao profundo con acento de ladrillo." },
+  { id: "oceano", nombre: "Océano", descripcion: "Azules frescos con acento frambuesa." },
   { id: "noche", nombre: "Noche", descripcion: "Fondo oscuro con acentos claros y elegantes." },
 ];
 

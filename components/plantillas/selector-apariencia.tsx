@@ -163,6 +163,7 @@ export function SelectorApariencia({
                   <i />
                   <i />
                   <i />
+                  <i />
                 </span>
                 <strong>{paleta.nombre}</strong>
                 <span>{paleta.descripcion}</span>
