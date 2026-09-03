@@ -67,6 +67,8 @@ describe("validación del catálogo", () => {
   it("calcula el estado inicial a partir del stock", () => {
     expect(estadoPorStock(true, 0)).toBe("agotado");
     expect(estadoPorStock(true, 3)).toBe("disponible");
+    expect(estadoPorStock(true, 3, 3)).toBe("reservado");
+    expect(estadoPorStock(true, 3, 1)).toBe("disponible");
     expect(estadoPorStock(false, null)).toBe("disponible");
   });
 });

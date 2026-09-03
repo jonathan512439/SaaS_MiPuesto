@@ -3,9 +3,11 @@ import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import type { DatosPlantilla } from "../plantillas/tipos";
 import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
+import { calcularCantidadDisponible } from "../reservas";
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 
 type NegocioPublico = {
+  slug?: string;
   nombre: string;
   descripcion: string | null;
   telefono_whatsapp: string;
@@ -13,6 +15,7 @@ type NegocioPublico = {
   horario: unknown;
   plantilla_id: string;
   paleta_id: string;
+  qr_pago_url?: string | null;
 };
 
 type CategoriaPublica = { id: string; nombre: string; orden: number };
@@ -20,6 +23,7 @@ type SubcategoriaPublica = { id: string; categoria_id: string; nombre: string; o
 
 type ProductoPublico = {
   id: string;
+  codigo?: string;
   categoria_id: string | null;
   subcategoria_id: string | null;
   nombre: string;
@@ -27,6 +31,9 @@ type ProductoPublico = {
   precio: number;
   fotos: string[];
   estado: string;
+  controla_stock?: boolean;
+  cantidad_stock?: number | null;
+  cantidad_reservada?: number;
   visible: boolean;
   orden: number;
 };
@@ -56,12 +63,23 @@ export function construirCatalogoPublico(
   );
   const convertirProducto = (producto: ProductoPublico) => {
     const precio = Number(producto.precio);
+    const cantidadDisponible = calcularCantidadDisponible({
+      controlaStock: producto.controla_stock === true,
+      cantidadStock: producto.cantidad_stock ?? null,
+      cantidadReservada: producto.cantidad_reservada ?? 0,
+    });
+    const estado =
+      cantidadDisponible === 0 && producto.estado === "disponible"
+        ? "reservado"
+        : producto.estado;
     return {
       id: producto.id,
+      codigo: producto.codigo ?? `PRD-${producto.id.slice(0, 8).toUpperCase()}`,
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? "",
       precio,
-      estado: producto.estado,
+      estado,
+      maximoCantidad: cantidadDisponible === null ? 99 : Math.min(99, cantidadDisponible),
       accionWhatsapp:
         modalidad.accion === "accion_individual"
           ? construirEnlaceWhatsapp(
@@ -127,6 +145,7 @@ export function construirCatalogoPublico(
         : "mercado",
     datos: {
       negocio: {
+        slug: negocio.slug ?? "",
         nombre: negocio.nombre,
         descripcion:
           negocio.descripcion?.trim() || "Conoce nuestros productos y servicios disponibles.",
@@ -134,6 +153,10 @@ export function construirCatalogoPublico(
         modalidad: modalidad.accion,
         descripcionModalidad: modalidad.descripcion,
         atencion,
+        qrPagoUrl:
+          typeof negocio.qr_pago_url === "string" && negocio.qr_pago_url.startsWith("https://")
+            ? negocio.qr_pago_url
+            : null,
       },
       categorias: agrupadas,
     },

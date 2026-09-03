@@ -41,7 +41,7 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
   const { data: negocio } = await supabase
     .from("negocios")
     .select(
-      "id,nombre,descripcion,tipo_negocio,telefono_whatsapp,horario,plantilla_id,paleta_id,activo",
+      "id,slug,nombre,descripcion,tipo_negocio,telefono_whatsapp,horario,plantilla_id,paleta_id,qr_pago_url,activo",
     )
     .eq("slug", slug)
     .eq("activo", true)
@@ -64,7 +64,7 @@ export default async function PaginaCatalogoPublico({ params }: PropiedadesPagin
     supabase
       .from("productos")
       .select(
-        "id,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,estado,visible,orden",
+        "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,cantidad_reservada,estado,visible,orden",
       )
       .eq("negocio_id", negocio.id)
       .eq("visible", true)

@@ -13,7 +13,7 @@ import {
 } from "../../../../lib/catalogo/servidor";
 
 const COLUMNAS_PRODUCTO =
-  "id,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,visible,estado,orden";
+  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden";
 
 export async function POST(solicitud: NextRequest) {
   const contexto = await obtenerContextoAdminCatalogo();
@@ -66,6 +66,7 @@ export async function POST(solicitud: NextRequest) {
       estado: estadoPorStock(
         validacion.datos.controla_stock,
         validacion.datos.cantidad_stock,
+        0,
       ),
       orden: (ultimo?.orden ?? 0) + 1,
     })
@@ -118,6 +119,28 @@ export async function PATCH(solicitud: NextRequest) {
   );
   if (errorJerarquia) return NextResponse.json({ error: errorJerarquia }, { status: 400 });
 
+  const { data: productoActual, error: errorProductoActual } = await contexto.supabase
+    .from("productos")
+    .select("cantidad_reservada")
+    .eq("id", datos.id)
+    .eq("negocio_id", contexto.negocio.id)
+    .maybeSingle();
+  if (errorProductoActual || !productoActual) {
+    return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
+  }
+  if (
+    productoActual.cantidad_reservada > 0 &&
+    (!validacion.datos.controla_stock ||
+      (validacion.datos.cantidad_stock ?? 0) < productoActual.cantidad_reservada)
+  ) {
+    return NextResponse.json(
+      {
+        error: `Hay ${productoActual.cantidad_reservada} unidad(es) reservada(s). No reduzcas las existencias por debajo de esa cantidad.`,
+      },
+      { status: 409 },
+    );
+  }
+
   const { data, error } = await contexto.supabase
     .from("productos")
     .update({
@@ -125,6 +148,7 @@ export async function PATCH(solicitud: NextRequest) {
       estado: estadoPorStock(
         validacion.datos.controla_stock,
         validacion.datos.cantidad_stock,
+        productoActual.cantidad_reservada,
       ),
     })
     .eq("id", datos.id)

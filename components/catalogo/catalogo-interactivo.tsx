@@ -9,6 +9,7 @@ import type {
   ProductoPlantilla,
   PropiedadesPlantilla,
 } from "../../lib/plantillas/tipos";
+import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
 
 type PropiedadesCatalogoInteractivo = {
@@ -54,10 +55,12 @@ export function CatalogoInteractivo({
   const Vista = VISTAS[plantilla];
 
   function cambiarCantidad(productoId: string, cantidad: number) {
+    const producto = productos.find(({ id }) => id === productoId);
+    if (!producto) return;
     setCantidades((actuales) => {
       const siguientes = { ...actuales };
       if (cantidad <= 0) delete siguientes[productoId];
-      else siguientes[productoId] = Math.min(cantidad, 99);
+      else siguientes[productoId] = limitarCantidadReserva(cantidad, producto.maximoCantidad);
       return siguientes;
     });
   }

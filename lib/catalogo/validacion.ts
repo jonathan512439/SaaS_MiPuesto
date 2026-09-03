@@ -106,6 +106,12 @@ export function validarProducto(entrada: unknown):
   };
 }
 
-export function estadoPorStock(controlaStock: boolean, cantidadStock: number | null) {
-  return controlaStock && cantidadStock === 0 ? "agotado" : "disponible";
+export function estadoPorStock(
+  controlaStock: boolean,
+  cantidadStock: number | null,
+  cantidadReservada = 0,
+) {
+  if (!controlaStock) return "disponible";
+  if (cantidadStock === 0) return "agotado";
+  return (cantidadStock ?? 0) - cantidadReservada <= 0 ? "reservado" : "disponible";
 }

@@ -7,6 +7,7 @@ export type { PaletaId, PlantillaId } from "../apariencia";
 
 export type ProductoPlantilla = {
   id: string;
+  codigo: string;
   nombre: string;
   descripcion: string;
   precio: number;
@@ -15,6 +16,7 @@ export type ProductoPlantilla = {
     alt: string;
   } | null;
   estado?: string;
+  maximoCantidad: number;
   accionWhatsapp: string | null;
 };
 
@@ -31,12 +33,14 @@ export type CategoriaPlantilla = {
 
 export type DatosPlantilla = {
   negocio: {
+    slug: string;
     nombre: string;
     descripcion: string;
     telefonoWhatsapp: string;
     modalidad: ModoAccionCatalogo;
     descripcionModalidad: string;
     atencion: EstadoAtencion;
+    qrPagoUrl: string | null;
   };
   categorias: CategoriaPlantilla[];
 };

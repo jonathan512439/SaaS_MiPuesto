@@ -13,6 +13,7 @@ export type SubcategoriaCatalogo = {
 
 export type ProductoCatalogo = {
   id: string;
+  codigo: string;
   categoria_id: string | null;
   subcategoria_id: string | null;
   nombre: string;
@@ -21,6 +22,7 @@ export type ProductoCatalogo = {
   fotos: string[];
   controla_stock: boolean;
   cantidad_stock: number | null;
+  cantidad_reservada: number;
   visible: boolean;
   estado: string;
   orden: number;

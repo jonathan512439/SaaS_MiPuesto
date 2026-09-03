@@ -688,9 +688,14 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                       <span className={producto.visible ? styles.estadoVisible : styles.estadoOculto}>{producto.visible ? "Visible" : "Oculto"}</span>
                       {producto.estado === "agotado" ? <span className={styles.estadoAgotado}>Agotado</span> : null}
                     </div>
+                    <small>Código: {producto.codigo}</small>
                     <strong>Bs {Number(producto.precio).toFixed(2).replace(".", ",")}</strong>
                     {producto.descripcion ? <p>{producto.descripcion}</p> : null}
-                    <small>{producto.controla_stock ? `${producto.cantidad_stock ?? 0} unidad(es) disponible(s)` : "Sin control de existencias"}</small>
+                    <small>
+                      {producto.controla_stock
+                        ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} disponible(s) de ${producto.cantidad_stock ?? 0}; ${producto.cantidad_reservada} reservada(s)`
+                        : "Sin control de existencias"}
+                    </small>
                     <div className={styles.accionesProducto}>
                       <Boton onClick={() => editarProducto(producto)} variante="secundario">Editar</Boton>
                       <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">{producto.visible ? "Ocultar" : "Mostrar"}</Boton>

@@ -20,6 +20,7 @@ export function AccionProducto({
   if (modalidad === "solo_lectura") return null;
 
   const noDisponible = producto.estado !== undefined && producto.estado !== "disponible";
+  const sinCantidad = modalidad === "carrito" && cantidad >= producto.maximoCantidad;
   if (modalidad === "accion_individual") {
     const etiqueta = "Pedir o agendar por WhatsApp";
     if (demostracion || !producto.accionWhatsapp || !permiteAcciones || noDisponible) {
@@ -45,11 +46,15 @@ export function AccionProducto({
   return (
     <button
       aria-label={`Agregar ${producto.nombre} al pedido`}
-      disabled={noDisponible || (!demostracion && !alAgregarProducto)}
+      disabled={noDisponible || sinCantidad || (!demostracion && !alAgregarProducto)}
       onClick={() => alAgregarProducto?.(producto.id)}
       type="button"
     >
-      {cantidad > 0 ? `Agregar otro (${cantidad} en el pedido)` : "Agregar al pedido"}
+      {sinCantidad
+        ? `Máximo disponible (${cantidad})`
+        : cantidad > 0
+          ? `Agregar otro (${cantidad} en el pedido)`
+          : "Agregar al pedido"}
     </button>
   );
 }

@@ -46,6 +46,37 @@ describe("construirCatalogoPublico", () => {
     expect(resultado.datos.categorias[0].productos[0].imagen?.src).toContain("foto.webp");
   });
 
+  it("expone solamente las unidades no reservadas", () => {
+    const resultado = construirCatalogoPublico(
+      { ...NEGOCIO, slug: "mercado-uno", tipo_negocio: "tienda_virtual" },
+      [{ id: "cat-1", nombre: "Comida", orden: 1 }],
+      [],
+      [{
+        id: "p-1",
+        codigo: "PRD-STOCK1",
+        categoria_id: "cat-1",
+        subcategoria_id: null,
+        nombre: "Producto",
+        descripcion: null,
+        precio: 20,
+        fotos: [],
+        estado: "disponible",
+        controla_stock: true,
+        cantidad_stock: 8,
+        cantidad_reservada: 3,
+        visible: true,
+        orden: 1,
+      }],
+      "https://proyecto.supabase.co",
+    );
+
+    expect(resultado.datos.negocio.slug).toBe("mercado-uno");
+    expect(resultado.datos.categorias[0].productos[0]).toMatchObject({
+      codigo: "PRD-STOCK1",
+      maximoCantidad: 5,
+    });
+  });
+
   it("agrupa los productos dentro de sus subcategorías", () => {
     const resultado = construirCatalogoPublico(
       NEGOCIO,
