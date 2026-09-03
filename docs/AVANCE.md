@@ -4,8 +4,8 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda** y **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp**.
-- Fase en curso: **Fase 7 — Panel de administración completo**.
+- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda**, **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp** y **Fase 7 — Panel de administración completo**.
+- Siguiente fase: **Fase 8 — Funciones de plataforma**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
@@ -16,13 +16,15 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 6: 2026-09-02.
 - Cierre de Fase 6: 2026-09-03.
 - Inicio de Fase 7: 2026-09-03.
-- Estado: **Fase 7 implementada, auditada y desplegada; validación manual pendiente**.
-- Puerta de salida actual: comprobar desde una sesión real que una promoción vencida deja de aplicarse automáticamente y que las imágenes de identidad pueden reemplazarse sin dejar archivos huérfanos.
+- Cierre de Fase 7: 2026-09-03.
+- Estado: **Fase 7 cerrada; implementación, auditorías, despliegue y validación manual cumplidos**.
+- Próxima puerta de salida: compartir el enlace de un negocio debe mostrar su vista previa con imagen y descripción, y un slug inexistente debe mostrar una página útil.
 
 ## Estado de Fase 7
 
 - Inicio: 2026-09-03.
-- Estado: **implementación, auditorías automáticas y despliegue cumplidos; validación manual pendiente**.
+- Cierre: 2026-09-03.
+- Estado: **cerrada; implementación, auditorías automáticas, despliegue y validación manual cumplidos**.
 - Plan visual y técnico: `docs/PLAN-DISENO-FASE7.md`.
 - Alcance: promociones por producto o categoría, cálculo centralizado, identidad visual y datos complementarios, QR de cobro y auditoría mínima de precios y activación.
 - Riesgos principales: precios negativos o divergentes, promociones cruzadas entre negocios, manipulación del total, configuración ajena y archivos huérfanos en Storage.
@@ -37,9 +39,9 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Aislamiento multi-tenant | Cumplido | Dos usuarios temporales comprobaron aislamiento de ocho tablas de negocio, promociones, auditoría, límites internos y ambos buckets de Storage. |
 | Calidad automática | Cumplido | Secretos, ESLint, TypeScript, contraste, tokens, 108 pruebas, ambos builds, `npm audit`, lint SQL, estado de migraciones, dry-run, tipos y arranque de Worker aprobaron. |
 | Despliegue | Cumplido | Workers Builds publicó el commit `caf1db3` como versión `c4983a23-2e6f-4786-bac1-247fa1b02bec` al 100 %. Inicio, catálogo y salud respondieron 200; panel sin sesión respondió 307 y las APIs nuevas respondieron 401. |
-| Revisión visual e interacción real | Pendiente | Ejecutar la sección 13 de `docs/CONFIGURACION-MANUAL.md` a 360 px y escritorio, incluida expiración real, pedido promocional y reemplazo de las tres imágenes. |
+| Revisión visual e interacción real | Cumplido manualmente | El usuario confirmó el 2026-09-03 la expiración real, el pedido promocional, la identidad del negocio y el reemplazo de imágenes en el recorrido a 360 px y escritorio. |
 
-Commits de Fase 7: `233a059`, `59d314b`, `7a25fb4`, `63e79c2` y `caf1db3`.
+Commits de Fase 7: `233a059`, `59d314b`, `7a25fb4`, `63e79c2`, `caf1db3` y `36c2509`.
 
 ## Estado de Fase 6
 

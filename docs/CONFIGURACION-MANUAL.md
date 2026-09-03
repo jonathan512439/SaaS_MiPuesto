@@ -270,7 +270,7 @@ SUPABASE_SERVICE_ROLE_KEY=tu_clave_privada
 
 ## 13. Validación manual de la Fase 7
 
-Estado: **implementación, auditorías y despliegue completados; recorrido manual pendiente**.
+Estado: **completado manualmente el 2026-09-03**. El usuario confirmó el recorrido funcional de promociones, precios transaccionales, identidad, reemplazo de imágenes y presentación adaptable.
 
 Usá un negocio de prueba con al menos una categoría, un producto visible y existencias suficientes. Las pruebas siguientes modifican su presentación y precios, por lo que conviene anotar primero los valores que quieras restaurar.
 
@@ -286,4 +286,4 @@ Usá un negocio de prueba con al menos una categoría, un producto visible y exi
 10. Intentá guardar una red sin `https://`, un archivo que no sea imagen y una imagen mayor al límite indicado. El panel debe rechazarlos con un mensaje claro y conservar la configuración anterior.
 11. Eliminá las promociones de prueba o dejá configuradas solamente las que realmente quieras usar. Restaurá también el precio del producto si era temporal.
 
-Las auditorías automáticas ya aprobaron RLS, pertenencia de destinos promocionales, precios no negativos, cálculo transaccional, permisos y cero archivos huérfanos. Cuando completes el recorrido anterior, respondé `Fase 7 validada` para registrar el cierre y habilitar la Fase 8.
+Las auditorías automáticas aprobaron RLS, pertenencia de destinos promocionales, precios no negativos, cálculo transaccional, permisos y cero archivos huérfanos. La confirmación manual cerró la Fase 7 y habilitó el inicio formal de la Fase 8.
