@@ -7,7 +7,9 @@ declare
     'productos',
     'promociones',
     'pedidos',
-    'eventos_analitica'
+    'pedido_items',
+    'eventos_analitica',
+    'limites_pedidos_ip'
   ];
   cantidad integer;
 begin
@@ -21,12 +23,14 @@ begin
     'public.productos'::regclass,
     'public.promociones'::regclass,
     'public.pedidos'::regclass,
-    'public.eventos_analitica'::regclass
+    'public.pedido_items'::regclass,
+    'public.eventos_analitica'::regclass,
+    'public.limites_pedidos_ip'::regclass
   )
   and relrowsecurity = true;
 
-  if cantidad <> 7 then
-    raise exception 'Auditoría RLS: se esperaban 7 tablas protegidas y se encontraron %', cantidad;
+  if cantidad <> 9 then
+    raise exception 'Auditoría RLS: se esperaban 9 tablas protegidas y se encontraron %', cantidad;
   end if;
 
   select count(distinct tablename)
@@ -34,8 +38,15 @@ begin
   from pg_policies
   where schemaname = 'public' and tablename = any(tablas);
 
-  if cantidad <> 7 then
-    raise exception 'Auditoría RLS: se esperaban políticas en 7 tablas y se encontraron %', cantidad;
+  if cantidad <> 8 then
+    raise exception 'Auditoría RLS: se esperaban políticas en 8 tablas y se encontraron %', cantidad;
+  end if;
+
+  if exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'limites_pedidos_ip'
+  ) then
+    raise exception 'Auditoría RLS: la tabla interna de límites no debe tener políticas públicas';
   end if;
 
   if has_column_privilege('anon', 'public.negocios', 'admin_user_id', 'select') then
@@ -185,8 +196,8 @@ end;
 $$;
 
 select
-  7 as tablas_con_rls,
-  7 as tablas_con_politicas,
+  9 as tablas_con_rls,
+  8 as tablas_con_politicas,
   2 as usuarios_prueba_requeridos,
   3 as negocios_seed,
   3 as modalidades_seed,

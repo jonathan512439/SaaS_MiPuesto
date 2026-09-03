@@ -82,6 +82,35 @@ export type Database = {
           },
         ]
       }
+      limites_pedidos_ip: {
+        Row: {
+          cantidad: number
+          huella_ip: string
+          negocio_id: string
+          ventana_inicio: string
+        }
+        Insert: {
+          cantidad?: number
+          huella_ip: string
+          negocio_id: string
+          ventana_inicio?: string
+        }
+        Update: {
+          cantidad?: number
+          huella_ip?: string
+          negocio_id?: string
+          ventana_inicio?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "limites_pedidos_ip_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       negocios: {
         Row: {
           activo: boolean
@@ -145,36 +174,114 @@ export type Database = {
         }
         Relationships: []
       }
+      pedido_items: {
+        Row: {
+          cantidad: number
+          controla_stock: boolean
+          creado_en: string
+          id: string
+          nombre: string
+          pedido_id: string
+          precio_unitario: number
+          producto_codigo: string
+          producto_id: string | null
+          reserva_activa: boolean
+          subtotal: number
+        }
+        Insert: {
+          cantidad: number
+          controla_stock: boolean
+          creado_en?: string
+          id?: string
+          nombre: string
+          pedido_id: string
+          precio_unitario: number
+          producto_codigo: string
+          producto_id?: string | null
+          reserva_activa?: boolean
+          subtotal: number
+        }
+        Update: {
+          cantidad?: number
+          controla_stock?: boolean
+          creado_en?: string
+          id?: string
+          nombre?: string
+          pedido_id?: string
+          precio_unitario?: number
+          producto_codigo?: string
+          producto_id?: string | null
+          reserva_activa?: boolean
+          subtotal?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedido_items_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedido_items_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pedidos: {
         Row: {
+          actualizado_en: string
+          cancelado_en: string | null
+          cancelado_por: string | null
           cliente_nombre: string | null
           cliente_telefono: string | null
+          codigo: string
+          confirmado_en: string | null
+          confirmado_por: string | null
           creado_en: string
           estado: string
           expira_en: string | null
           id: string
+          idempotencia: string
           items: Json
           negocio_id: string
           total: number
         }
         Insert: {
+          actualizado_en?: string
+          cancelado_en?: string | null
+          cancelado_por?: string | null
           cliente_nombre?: string | null
           cliente_telefono?: string | null
+          codigo?: string
+          confirmado_en?: string | null
+          confirmado_por?: string | null
           creado_en?: string
           estado?: string
           expira_en?: string | null
           id?: string
+          idempotencia?: string
           items: Json
           negocio_id: string
           total: number
         }
         Update: {
+          actualizado_en?: string
+          cancelado_en?: string | null
+          cancelado_por?: string | null
           cliente_nombre?: string | null
           cliente_telefono?: string | null
+          codigo?: string
+          confirmado_en?: string | null
+          confirmado_por?: string | null
           creado_en?: string
           estado?: string
           expira_en?: string | null
           id?: string
+          idempotencia?: string
           items?: Json
           negocio_id?: string
           total?: number
@@ -191,8 +298,10 @@ export type Database = {
       }
       productos: {
         Row: {
+          cantidad_reservada: number
           cantidad_stock: number | null
           categoria_id: string | null
+          codigo: string
           controla_stock: boolean
           creado_en: string
           descripcion: string | null
@@ -208,8 +317,10 @@ export type Database = {
           visible: boolean
         }
         Insert: {
+          cantidad_reservada?: number
           cantidad_stock?: number | null
           categoria_id?: string | null
+          codigo?: string
           controla_stock?: boolean
           creado_en?: string
           descripcion?: string | null
@@ -225,8 +336,10 @@ export type Database = {
           visible?: boolean
         }
         Update: {
+          cantidad_reservada?: number
           cantidad_stock?: number | null
           categoria_id?: string | null
+          codigo?: string
           controla_stock?: boolean
           creado_en?: string
           descripcion?: string | null
@@ -357,6 +470,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cambiar_estado_pedido_admin: {
+        Args: {
+          p_admin_user_id: string
+          p_nuevo_estado: string
+          p_pedido_id: string
+        }
+        Returns: Json
+      }
+      crear_pedido_reservado: {
+        Args: {
+          p_cliente_nombre: string
+          p_cliente_telefono: string
+          p_huella_ip: string
+          p_idempotencia: string
+          p_items: Json
+          p_slug: string
+        }
+        Returns: Json
+      }
+      expirar_reservas_vencidas: {
+        Args: { p_limite?: number }
+        Returns: number
+      }
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }
     }
     Enums: {

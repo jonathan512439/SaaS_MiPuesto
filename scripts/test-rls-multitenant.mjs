@@ -41,7 +41,7 @@ async function insertarUno(cliente, tabla, valores) {
   return data;
 }
 
-async function comprobarAislamiento(tabla, idAjeno, cambio) {
+async function comprobarAislamiento(tabla, idAjeno, cambio, escrituraRevocada = false) {
   const lectura = await clienteA.from(tabla).select("id").eq("id", idAjeno);
   comprobar(!lectura.error, `${tabla}: la lectura ajena produjo un error inesperado`);
   comprobar(lectura.data?.length === 0, `${tabla}: A pudo leer una fila de B`);
@@ -51,12 +51,26 @@ async function comprobarAislamiento(tabla, idAjeno, cambio) {
     .update(cambio)
     .eq("id", idAjeno)
     .select("id");
-  comprobar(!actualizacion.error, `${tabla}: la actualización ajena produjo un error inesperado`);
-  comprobar(actualizacion.data?.length === 0, `${tabla}: A pudo actualizar una fila de B`);
+  if (escrituraRevocada) {
+    comprobar(
+      actualizacion.error?.code === "42501",
+      `${tabla}: la actualización sin permiso no fue rechazada como se esperaba`,
+    );
+  } else {
+    comprobar(!actualizacion.error, `${tabla}: la actualización ajena produjo un error inesperado`);
+    comprobar(actualizacion.data?.length === 0, `${tabla}: A pudo actualizar una fila de B`);
+  }
 
   const borrado = await clienteA.from(tabla).delete().eq("id", idAjeno).select("id");
-  comprobar(!borrado.error, `${tabla}: el borrado ajeno produjo un error inesperado`);
-  comprobar(borrado.data?.length === 0, `${tabla}: A pudo borrar una fila de B`);
+  if (escrituraRevocada) {
+    comprobar(
+      borrado.error?.code === "42501",
+      `${tabla}: el borrado sin permiso no fue rechazado como se esperaba`,
+    );
+  } else {
+    comprobar(!borrado.error, `${tabla}: el borrado ajeno produjo un error inesperado`);
+    comprobar(borrado.data?.length === 0, `${tabla}: A pudo borrar una fila de B`);
+  }
 }
 
 try {
@@ -137,15 +151,35 @@ try {
     tipo: "monto_fijo",
     valor: 2,
   });
-  await insertarUno(clienteA, "pedidos", {
+  const pedidoA = await insertarUno(administrador, "pedidos", {
     negocio_id: negocios[0].id,
     items: [{ nombre: "Producto A", precio: 10, cantidad: 1 }],
     total: 10,
   });
-  const pedidoB = await insertarUno(clienteB, "pedidos", {
+  const pedidoB = await insertarUno(administrador, "pedidos", {
     negocio_id: negocios[1].id,
     items: [{ nombre: "Producto B", precio: 20, cantidad: 1 }],
     total: 20,
+  });
+  await insertarUno(administrador, "pedido_items", {
+    pedido_id: pedidoA.id,
+    producto_id: productoA.id,
+    producto_codigo: "PRD-RLS-A",
+    nombre: "Producto A",
+    precio_unitario: 10,
+    cantidad: 1,
+    subtotal: 10,
+    controla_stock: false,
+  });
+  const pedidoItemB = await insertarUno(administrador, "pedido_items", {
+    pedido_id: pedidoB.id,
+    producto_id: productoB.id,
+    producto_codigo: "PRD-RLS-B",
+    nombre: "Producto B",
+    precio_unitario: 20,
+    cantidad: 1,
+    subtotal: 20,
+    controla_stock: false,
   });
   await insertarUno(clienteA, "eventos_analitica", {
     negocio_id: negocios[0].id,
@@ -164,6 +198,7 @@ try {
     productos: productoB.id,
     promociones: promocionB.id,
     pedidos: pedidoB.id,
+    pedido_items: pedidoItemB.id,
     eventos_analitica: eventoB.id,
   };
   const cambios = {
@@ -173,12 +208,24 @@ try {
     productos: { nombre: "Intento ajeno" },
     promociones: { activo: false },
     pedidos: { estado: "cancelado" },
+    pedido_items: { nombre: "Intento ajeno" },
     eventos_analitica: { tipo: "clic_whatsapp" },
   };
 
   for (const tabla of Object.keys(filasB)) {
-    await comprobarAislamiento(tabla, filasB[tabla], cambios[tabla]);
+    await comprobarAislamiento(
+      tabla,
+      filasB[tabla],
+      cambios[tabla],
+      tabla === "pedidos" || tabla === "pedido_items",
+    );
   }
+
+  const limitesInternos = await clienteA.from("limites_pedidos_ip").select("negocio_id");
+  comprobar(
+    limitesInternos.error?.code === "42501",
+    "A pudo consultar la tabla interna de límites por IP",
+  );
 
   const actualizacionPlantillaPropia = await clienteA
     .from("negocios")
@@ -268,7 +315,7 @@ try {
   comprobar(!imagenBConservada.error, "A pudo borrar una imagen de B");
 
   console.log(
-    "RLS multi-tenant: 2 usuarios, 7 tablas, catálogo, Storage y apariencia aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 8 tablas de negocio, límites internos, catálogo, Storage y apariencia aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([
