@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState, type FormEvent } from "react";
 
 import type { PaletaId } from "../../lib/apariencia";
@@ -64,6 +65,7 @@ export function CarritoCatalogo({
   const subtotal = calcularSubtotal(
     items.map(({ producto, cantidad }) => ({ precio: producto.precio, cantidad })),
   );
+  const unidades = items.reduce((total, { cantidad }) => total + cantidad, 0);
   const puedeConfirmar =
     items.length > 0 && datos.negocio.atencion.permiteAcciones && Boolean(datos.negocio.slug);
 
@@ -138,9 +140,23 @@ export function CarritoCatalogo({
         <ul aria-live="polite">
           {items.map(({ producto, cantidad }) => (
             <li key={producto.id}>
+              {producto.imagen ? (
+                <Image
+                  alt={producto.imagen.alt}
+                  className={styles.miniatura}
+                  height={192}
+                  sizes="48px"
+                  src={producto.imagen.src}
+                  width={192}
+                />
+              ) : (
+                <span aria-hidden="true" className={styles.sinMiniatura}>
+                  Sin foto
+                </span>
+              )}
               <div className={styles.detalle}>
                 <strong>{producto.nombre}</strong>
-                <span>{producto.codigo} / {formatearPrecioBolivianos(producto.precio)} cada uno</span>
+                <span>{formatearPrecioBolivianos(producto.precio)} cada uno</span>
               </div>
               <div className={styles.cantidad} aria-label={`Cantidad de ${producto.nombre}`}>
                 <button
@@ -180,6 +196,11 @@ export function CarritoCatalogo({
       <div className={styles.resumen}>
         <span>Subtotal estimado</span>
         <strong>{formatearPrecioBolivianos(subtotal)}</strong>
+        <small>
+          {unidades === 1 ? "1 unidad" : `${unidades} unidades`} en{" "}
+          {items.length === 1 ? "1 producto" : `${items.length} productos`}. El envío o
+          los extras se acuerdan por WhatsApp.
+        </small>
       </div>
 
       {items.length > 0 ? (

@@ -84,7 +84,7 @@ export function PlantillaClasica({
                     <Image
                       alt={producto.imagen.alt}
                       height={800}
-                      sizes="64px"
+                      sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
                       src={producto.imagen.src}
                       width={800}
                     />

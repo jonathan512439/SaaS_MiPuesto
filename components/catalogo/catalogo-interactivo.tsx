@@ -5,6 +5,7 @@ import { useMemo, useState, type ComponentType } from "react";
 
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
 import { paginarCatalogo } from "../../lib/catalogo/paginacion";
+import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type {
   DatosPlantilla,
   ProductoPlantilla,
@@ -69,6 +70,14 @@ export function CatalogoInteractivo({
     (total, cantidad) => total + cantidad,
     0,
   );
+  const totalEnCarrito = calcularSubtotal(
+    productos
+      .map((producto) => ({ precio: producto.precio, cantidad: cantidades[producto.id] ?? 0 }))
+      .filter(({ cantidad }) => cantidad > 0),
+  );
+  const productosEnCarrito = productos.filter(
+    (producto) => (cantidades[producto.id] ?? 0) > 0,
+  ).length;
   const Vista = VISTAS[plantilla];
   const navegacionCatalogo = datos.categorias.length > 0 ? (
     <section aria-labelledby="explorar-catalogo" className={styles.explorador}>
@@ -118,6 +127,7 @@ export function CatalogoInteractivo({
   return (
     <div
       className={`${temaStyles.tema} ${styles.contenedor}`}
+      data-acceso-carrito={cantidadEnCarrito > 0 ? "si" : undefined}
       data-paleta={paleta}
     >
       <Vista
@@ -166,14 +176,24 @@ export function CatalogoInteractivo({
           />
           {cantidadEnCarrito > 0 ? (
             <a
-              aria-label={`Ver pedido con ${cantidadEnCarrito} artículo${cantidadEnCarrito === 1 ? "" : "s"}`}
+              aria-label={`Ver pedido: ${cantidadEnCarrito} ${cantidadEnCarrito === 1 ? "artículo" : "artículos"}, subtotal ${formatearPrecioBolivianos(totalEnCarrito)}`}
               className={styles.accesoCarrito}
               href="#resumen-pedido"
             >
-              <span>Ver pedido</span>
-              <small>
-                {cantidadEnCarrito} {cantidadEnCarrito === 1 ? "artículo" : "artículos"}
-              </small>
+              <span aria-hidden="true" className={styles.contadorCarrito}>
+                {cantidadEnCarrito}
+              </span>
+              <span className={styles.textoCarrito}>
+                <strong>Ver pedido</strong>
+                <small>
+                  {productosEnCarrito === 1 ? "1 producto" : `${productosEnCarrito} productos`}
+                  {", "}
+                  {cantidadEnCarrito === 1 ? "1 unidad" : `${cantidadEnCarrito} unidades`}
+                </small>
+              </span>
+              <span className={styles.totalCarrito}>
+                {formatearPrecioBolivianos(totalEnCarrito)}
+              </span>
             </a>
           ) : null}
         </>

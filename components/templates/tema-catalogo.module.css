@@ -1,6 +1,22 @@
 .tema {
+  /* Roles derivados: cada paleta define solo los ocho colores base y de aquí
+     salen fondos, bordes, velos y sombras sin duplicar valores por paleta. */
   --catalogo-fondo-suave: color-mix(in srgb, var(--catalogo-marca) 7%, var(--catalogo-superficie));
+  --catalogo-fondo-hundido: color-mix(in srgb, var(--catalogo-texto) 5%, var(--catalogo-superficie));
+  --catalogo-marca-tenue: color-mix(in srgb, var(--catalogo-marca) 14%, var(--catalogo-superficie));
+  --catalogo-accion-tenue: color-mix(in srgb, var(--catalogo-accion) 12%, var(--catalogo-superficie));
+  --catalogo-exito-tenue: color-mix(in srgb, var(--catalogo-exito) 12%, var(--catalogo-superficie));
+  --catalogo-alerta-tenue: color-mix(in srgb, var(--catalogo-alerta) 14%, var(--catalogo-superficie));
   --catalogo-borde: color-mix(in srgb, var(--catalogo-texto) 22%, var(--catalogo-superficie));
+  --catalogo-borde-suave: color-mix(in srgb, var(--catalogo-texto) 12%, var(--catalogo-superficie));
+  --catalogo-borde-marca: color-mix(in srgb, var(--catalogo-marca) 32%, var(--catalogo-superficie));
+  --catalogo-texto-suave: color-mix(in srgb, var(--catalogo-texto) 72%, var(--catalogo-superficie));
+  --catalogo-texto-tenue: color-mix(in srgb, var(--catalogo-texto) 55%, var(--catalogo-superficie));
+  --catalogo-velo: color-mix(in srgb, var(--catalogo-marca) 78%, transparent);
+  --catalogo-sombra: 0 0.125rem 0.5rem -0.25rem color-mix(in srgb, var(--catalogo-texto) 22%, transparent);
+  --catalogo-sombra-flotante:
+    0 0.5rem 1.5rem -0.25rem color-mix(in srgb, var(--catalogo-texto) 32%, transparent),
+    0 0.125rem 0.375rem color-mix(in srgb, var(--catalogo-texto) 16%, transparent);
 
   background: var(--catalogo-superficie);
   color: var(--catalogo-texto);

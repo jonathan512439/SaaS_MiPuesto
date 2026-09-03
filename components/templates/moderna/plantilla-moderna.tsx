@@ -93,7 +93,7 @@ export function PlantillaModerna({
                 alt={producto.imagen.alt}
                 className={styles.imagen}
                 height={800}
-                sizes="(min-width: 60rem) 176px, 50vw"
+                sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
                 src={producto.imagen.src}
                 width={800}
               />
