@@ -15,7 +15,10 @@ Evitar recorridos extensos en catálogos grandes y permitir que el administrador
 ## Decisiones de interacción
 
 - Un selector nativo escala mejor que cuarenta botones y sigue siendo usable con teclado y lector de pantalla.
+- El selector se integra después de la portada y del estado de atención, dentro de cada plantilla. La identidad del negocio siempre aparece primero.
 - Cambiar de categoría vuelve a la primera página; cambiar de página no borra el carrito.
+- **Ver pedido** usa una acción flotante rectangular, con texto y cantidad separados, y toma sus colores directamente de la paleta activa sin competir con el estilo general de la plantilla.
+- El aviso de cierre se reduce a una sola franja: estado, horario de hoy o próxima atención y confirmación de que el catálogo sigue navegable.
 - La lista administrativa muestra diez productos por página.
 - Las fotografías pueden seleccionarse durante el alta. El producto se crea primero para obtener su identificador y después se suben las imágenes preparadas al Storage.
 - Los productos con control de existencias informan las unidades realmente disponibles; los servicios o productos sin control no muestran una cantidad ficticia.

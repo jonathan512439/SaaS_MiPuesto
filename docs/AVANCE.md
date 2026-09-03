@@ -36,7 +36,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Catálogo escalable | Cumplido en código y pruebas | Selector de categoría, doce productos públicos por página, acceso fijo al resumen y diez productos por página en el panel. El carrito se conserva entre páginas. |
 | Fotografías y disponibilidad | Cumplido en código y pruebas | Hasta cuatro fotografías pueden prepararse durante el alta; cada producto con control de stock informa las unidades disponibles reales. |
 | Aislamiento RLS | Cumplido | Nueve tablas con RLS; ocho tablas de negocio con políticas y la tabla interna de límites sin acceso desde Data API. Auditoría con dos usuarios aprobada. |
-| Calidad automática | Cumplido | ESLint, TypeScript, secretos, tokens, contraste, 93 pruebas, ambos builds, dry-run y arranque Worker, `npm audit`, lint SQL, reservas y RLS remoto aprobaron tras los ajustes. |
+| Calidad automática | Cumplido | ESLint, TypeScript, secretos, tokens, contraste, 95 pruebas, ambos builds, dry-run y arranque Worker, `npm audit`, lint SQL, reservas y RLS remoto aprobaron tras los ajustes. |
 | Secreto de ejecución | Cumplido | El usuario ejecutó el helper el 2026-09-03 y Wrangler confirmó `SUPABASE_SERVICE_ROLE_KEY` como secreto cifrado del Worker, sin mostrarlo ni guardarlo en Git. Su nombre queda declarado como requisito de despliegue. |
 | Despliegue | Cumplido | Workers Builds aprobó el commit `83e1c7c` y publicó la versión `f53aa2e2-90f7-4a16-bc25-d199a6238aa3`; el catálogo respondió HTTP 200 con navegación y stock, y la API de operación rechazó con HTTP 401 una solicitud sin sesión. |
 | Revisión visual e interacción real | Pendiente | Crear, duplicar, confirmar, cancelar y expirar pedidos a 360 px y escritorio siguiendo `docs/CONFIGURACION-MANUAL.md`. |
@@ -250,6 +250,8 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 - Las auditorías enlazadas aprobaron: 9 tablas con RLS, 8 tablas de negocio aisladas entre dos usuarios, 4 políticas de Storage, pruebas transaccionales de reservas/expiración y lint SQL sin errores. El primer intento de lint tomó una credencial de entorno obsoleta; al ignorarla usó correctamente la sesión enlazada y aprobó sin modificar secretos.
 - El smoke test del Worker local devolvió HTTP 200 para `/tienda-kantuta`, mostró **Explorar por categoría** y rechazó con HTTP 401 el nuevo endpoint de operación sin sesión.
 - Workers Builds completó correctamente el build `07428b6b-604b-49e1-8892-9cc9125242bd` del commit `83e1c7c` y publicó la versión `f53aa2e2-90f7-4a16-bc25-d199a6238aa3`. La verificación pública repitió HTTP 200, selector y stock; `/api/negocios/operacion` devolvió HTTP 401 sin sesión.
+- Se refinó la jerarquía pública tras la revisión del usuario: la portada del negocio vuelve a ser el primer contenido, el selector de categoría se integra antes de los productos y **Ver pedido** usa la paleta en una acción flotante rectangular con cantidad legible.
+- El aviso de cierre quedó reducido a una franja de una línea con el horario de hoy o la próxima atención. Las pruebas aumentaron a 95 y el smoke test verificó en HTML el orden tienda → aviso → categorías; Next.js, vinext y el dry-run de Wrangler aprobaron nuevamente.
 - No había un navegador conectado para automatizar la inspección visual; queda pendiente el recorrido manual a 360 px y escritorio después del despliegue.
 
 ### 2026-09-02
