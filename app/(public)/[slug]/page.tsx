@@ -4,7 +4,6 @@ import { cache } from "react";
 
 import { CatalogoInteractivo } from "../../../components/catalogo/catalogo-interactivo";
 import { construirCatalogoPublico } from "../../../lib/catalogo/publico";
-import { obtenerUrlPublicaImagenNegocio } from "../../../lib/negocios/imagenes-publicas";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../lib/url-sitio";
@@ -41,14 +40,8 @@ export async function generateMetadata({ params }: PropiedadesPagina): Promise<M
       robots: { index: false, follow: false },
     };
   }
-  const { url } = obtenerVariablesPublicasSupabase();
-  const imagenConfigurada = obtenerUrlPublicaImagenNegocio(
-    url,
-    negocio.portada_url ?? negocio.logo_url,
-  );
   const urlCatalogo = construirUrlPublicaNegocio(negocio.slug);
   const descripcion = negocio.descripcion?.trim() || `Catálogo digital de ${negocio.nombre}.`;
-  const imagen = imagenConfigurada ?? `${urlCatalogo}/opengraph-image`;
   return {
     title: `${negocio.nombre} | MiPuesto`,
     description: descripcion,
@@ -60,13 +53,11 @@ export async function generateMetadata({ params }: PropiedadesPagina): Promise<M
       title: negocio.nombre,
       description: descripcion,
       url: urlCatalogo,
-      images: [{ url: imagen, alt: `Catálogo de ${negocio.nombre}` }],
     },
     twitter: {
       card: "summary_large_image",
       title: negocio.nombre,
       description: descripcion,
-      images: [imagen],
     },
   };
 }

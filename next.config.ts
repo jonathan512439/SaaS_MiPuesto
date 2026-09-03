@@ -16,23 +16,25 @@ const politicaContenido = [
   "form-action 'self'",
   "frame-ancestors 'none'",
 ].join("; ");
+const cabecerasSeguridad = [
+  { key: "Content-Security-Policy", value: politicaContenido },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Frame-Options", value: "DENY" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  },
+];
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
     return [
+      { source: "/", headers: cabecerasSeguridad },
       {
         source: "/:path*",
-        headers: [
-          { key: "Content-Security-Policy", value: politicaContenido },
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "X-Frame-Options", value: "DENY" },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
-          },
-        ],
+        headers: cabecerasSeguridad,
       },
     ];
   },
