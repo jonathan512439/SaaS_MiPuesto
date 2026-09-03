@@ -237,12 +237,14 @@ Esta fase es nueva y **no se salta**. Construir pantallas sin un sistema de toke
 
 ### Fase 6 — Carrito, reserva temporal y pedido por WhatsApp
 - Carrito en memoria (estado del cliente, sin cuenta ni login del comprador)
-- Al enviar el pedido: crear fila en `pedidos` con estado `pendiente`, marcar los productos con `controla_stock = true` como `reservado` con su `reservado_hasta`, y generar el link `wa.me` con el detalle consolidado
+- Al enviar el pedido: crear fila en `pedidos` con estado `pendiente`, reservar únicamente la cantidad solicitada de los productos con `controla_stock = true` y generar el link `wa.me` con el detalle consolidado
+- Cada producto tiene un código estable y cada pedido o reserva recibe un código visible para identificarlo en WhatsApp y en el panel
 - Fuera del horario `programado`, permitir revisar productos y preparar el carrito, pero deshabilitar la confirmación. El servidor vuelve a evaluar el horario antes de crear el pedido: si está cerrado responde un error controlado, no crea la fila, no reserva inventario y no genera el enlace de WhatsApp
 - **Productos con `controla_stock = false` nunca se reservan** — siempre quedan disponibles (un café no se agota como un producto único)
 - Mostrar el QR de cobro del negocio antes de enviar el pedido, si está configurado
-- Edge Function programada `expirar-reservas` (cada 5-10 min): pedidos `pendiente` con `expira_en` vencido pasan a `expirado` y sus productos vuelven a `disponible`
-- Panel de pedidos con "Confirmar venta" y "Cancelar"
+- Proceso programado `expirar-reservas` (cada 5-10 min): pedidos `pendiente` con `expira_en` vencido pasan a `expirado` y las cantidades reservadas vuelven a estar disponibles. Debe ser transaccional e idempotente; puede ejecutarse directamente con Supabase Cron para evitar una llamada intermedia innecesaria
+- Panel de pedidos con estados `pendiente`, `confirmado`, `cancelado` y `expirado`, además de las acciones "Confirmar venta" y "Cancelar"
+- Auditoría mínima del pedido: quién confirmó o canceló, cuándo lo hizo y copia inmutable de códigos, cantidades y precios usados al reservar
 - **Criterio de aceptación:** un pedido no confirmado libera automáticamente sus productos al vencer el plazo; además, un intento fuera del horario programado se rechaza tanto en la interfaz como en el servidor y no modifica pedidos ni inventario.
 
 ### Fase 7 — Panel de administración completo
@@ -251,6 +253,7 @@ Esta fase es nueva y **no se salta**. Construir pantallas sin un sistema de toke
 - Configuración de tienda: logo, portada, descripción, redes sociales, horario, QR de cobro y tiempo de reserva
 - El horario ofrece tres modos comprensibles: `Sin horario publicado`, `Siempre abierto` y `Horario programado`. En el modo programado, el administrador elige días, uno o más intervalos de apertura/cierre y puede marcar días cerrados; la interfaz explica el efecto sobre los pedidos antes de guardar
 - Validar el horario también en el servidor: formato de hora, intervalos sin solapamiento, días permitidos y contrato JSON completo
+- Historial de cambios de precio de productos y registro de activaciones o desactivaciones del negocio, con usuario, fecha y valor anterior
 - **Criterio de aceptación:** una promoción vencida deja de aplicarse automáticamente; el administrador puede guardar cualquiera de los tres modos de horario y el catálogo refleja correctamente el estado y la posibilidad de pedir.
 
 ### Fase 8 — Funciones de plataforma

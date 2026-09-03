@@ -4,21 +4,32 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas** y **Fase 4 — Catálogo**.
-- Fase en curso: **Fase 5 — Las tres modalidades de tienda**.
+- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo** y **Fase 5 — Las tres modalidades de tienda**.
+- Fase en curso: **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
 - Cierre de Fase 4: 2026-09-02.
-- Estado: **implementación y auditorías automáticas de Fase 5 completadas; validación manual pendiente**.
 - Inicio de Fase 4: 2026-09-02.
 - Inicio de Fase 5: 2026-09-02.
-- Puerta de salida actual: las tres modalidades cambian el comportamiento del catálogo y un horario cerrado mantiene la navegación pero bloquea el inicio o confirmación de pedidos.
+- Cierre de Fase 5: 2026-09-02.
+- Inicio de Fase 6: 2026-09-02.
+- Estado: **diseño y alcance técnico de Fase 6 definidos; implementación en curso**.
+- Puerta de salida actual: un pedido vencido libera automáticamente sus cantidades reservadas y un intento fuera de horario no crea pedidos ni modifica inventario.
+
+## Estado de Fase 6
+
+- Inicio: 2026-09-02.
+- Estado: **en implementación**.
+- Plan visual: `docs/PLAN-DISENO-FASE6.md`.
+- Decisiones: reserva cuantitativa para admitir varias unidades y pedidos concurrentes; precios recalculados en una transacción; códigos estables de producto y pedido; expiración idempotente ejecutada directamente por Supabase Cron.
+- Riesgos principales: manipulación del total, sobreventa concurrente, duplicación por reintentos, abuso por IP, pedidos fuera de horario y acceso de un administrador a pedidos ajenos.
 
 ## Estado de Fase 5
 
 - Inicio: 2026-09-02.
-- Estado: **implementada y auditada automáticamente; pendiente de validación manual en producción de desarrollo**.
+- Cierre: 2026-09-02.
+- Estado: **cerrada; implementación, auditorías automáticas y validación manual cumplidas**.
 - Plan visual: `docs/PLAN-DISENO-FASE5.md`.
 - Decisión de alcance: el carrito local y el mensaje consolidado pertenecen a esta fase; la creación del pedido, recálculo de servidor y reserva de inventario permanecen en la Fase 6.
 - Riesgos principales: horario inválido o evaluado en otra zona, enlaces de WhatsApp mal formados, acciones visibles en una modalidad incorrecta y lógica duplicada entre plantillas.
@@ -33,7 +44,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 | Validación de modalidad al procesar pedidos | Preparada para Fase 6 | Todavía no existe un endpoint que cree pedidos: una solicitud forzada es rechazada con 404 y no modifica datos. El endpoint de Fase 6 deberá reutilizar la modalidad y reevaluar el horario en servidor antes de crear o reservar. |
 | Aislamiento multi-tenant | Cumplido | Auditoría remota aprobada nuevamente: dos usuarios, siete tablas, catálogo, cuatro políticas de Storage y apariencia aislados. No hubo cambios de esquema. |
 | Calidad automática | Cumplido | Secretos, ESLint, TypeScript, 78 pruebas, tokens, contraste, `npm audit`, build Next.js/vinext, dry-run de Worker, lint SQL y estado de migraciones aprobaron. |
-| Revisión visual e interacción real | Pendiente manual | El navegador integrado no estaba disponible. Revisar las tres modalidades a 360 px y escritorio, cantidades del carrito y apertura real de WhatsApp en un celular. |
+| Revisión visual e interacción real | Cumplido manualmente | El usuario confirmó las tres modalidades, la navegación, el carrito, la restricción por horario y la apertura de WhatsApp el 2026-09-02. |
 
 Commits de implementación: `c99332b`, `658142a`, `d289ee9`, `403852e` y `d8e25bf`.
 
