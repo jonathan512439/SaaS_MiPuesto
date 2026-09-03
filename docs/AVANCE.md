@@ -5,7 +5,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Estado actual
 
 - Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda**, **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp** y **Fase 7 — Panel de administración completo**.
-- Siguiente fase: **Fase 8 — Funciones de plataforma**.
+- Fase en curso: **Fase 8 — Funciones de plataforma**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
@@ -17,8 +17,29 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Cierre de Fase 6: 2026-09-03.
 - Inicio de Fase 7: 2026-09-03.
 - Cierre de Fase 7: 2026-09-03.
-- Estado: **Fase 7 cerrada; implementación, auditorías, despliegue y validación manual cumplidos**.
+- Inicio de Fase 8: 2026-09-03.
+- Estado: **Fase 8 implementada y auditada; despliegue y validación manual pendientes**.
 - Próxima puerta de salida: compartir el enlace de un negocio debe mostrar su vista previa con imagen y descripción, y un slug inexistente debe mostrar una página útil.
+
+## Estado de Fase 8
+
+- Inicio: 2026-09-03.
+- Estado: **implementación y auditorías automáticas cumplidas; pendiente validación manual en el despliegue**.
+- Plan visual y técnico: `docs/PLAN-DISENO-FASE8.md`.
+- Alcance: estado de atención con próxima transición, QR local para compartir, Open Graph por negocio, directorio público paginado, analítica semanal privada, manifest PWA, 404 útil y cabeceras de seguridad.
+- Riesgos principales: lectura pública de métricas, llenado abusivo de la base gratuita, directorio con datos no públicos, vista previa social sin imagen y diferencias entre Next.js y vinext al aplicar rutas o cabeceras.
+
+| Control | Estado | Evidencia o pendiente |
+|---|---|---|
+| Estado de atención | Cumplido en código y pruebas | Usa `America/La_Paz`, informa próxima apertura o cierre, contempla medianoche, oculta `sin_horario` y conserva `Siempre abierto`. |
+| QR para compartir | Cumplido en código y build | Se genera y descarga en el navegador con la URL absoluta del negocio; no usa servicios externos y está separado del QR de cobro. |
+| Directorio y 404 | Cumplido en smoke local | El directorio consulta columnas explícitas, muestra solo negocios activos y pagina de doce en doce. Un slug inexistente devolvió HTTP 404 y un enlace útil al directorio. |
+| Open Graph y PWA | Cumplido en smoke local | Nombre y descripción son dinámicos; la ruta versionada de Open Graph respondió `image/png` con 34.851 bytes. El manifest respondió con `application/manifest+json`. |
+| Analítica semanal | Cumplido en código y RLS | Se registran visitas, interacciones de producto y salidas a WhatsApp sin datos personales. `/dashboard` consulta únicamente el negocio autenticado y resume los últimos siete días. |
+| Límite e inmutabilidad | Cumplido en base y auditoría remota | Una sesión no puede superar 60 eventos por negocio y hora ni duplicar una interacción. `anon` inserta pero nunca lee; administradores no actualizan ni borran eventos. |
+| Cabeceras de seguridad | Cumplido en smoke local | Portada, directorio, manifest, catálogo y 404 entregan CSP, `nosniff` y política de referencia; también se añadió protección contra marcos y permisos innecesarios. |
+| Calidad automática | Cumplido | Secretos, ESLint, TypeScript, contraste, tokens, 115 pruebas, ambos builds, lint SQL, RLS multinegocio, auditoría específica, dry-run y arranque Worker aprobaron. |
+| Despliegue y revisión real | Pendiente | Falta publicar los commits, comprobar la vista previa desde WhatsApp y completar el checklist móvil/escritorio. |
 
 ## Estado de Fase 7
 

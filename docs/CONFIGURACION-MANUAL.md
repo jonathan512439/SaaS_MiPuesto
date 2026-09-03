@@ -287,3 +287,19 @@ Usá un negocio de prueba con al menos una categoría, un producto visible y exi
 11. Eliminá las promociones de prueba o dejá configuradas solamente las que realmente quieras usar. Restaurá también el precio del producto si era temporal.
 
 Las auditorías automáticas aprobaron RLS, pertenencia de destinos promocionales, precios no negativos, cálculo transaccional, permisos y cero archivos huérfanos. La confirmación manual cerró la Fase 7 y habilitó el inicio formal de la Fase 8.
+
+## 14. Validación manual de la Fase 8
+
+Estado: **implementación y auditorías automáticas completadas; despliegue y recorrido manual pendientes**.
+
+1. Esperá a que Cloudflare termine el despliegue de `main`. Abrí `https://mipuesto-dev.mipuesto-app.workers.dev/directorio` en una ventana privada y comprobá que aparezca tu negocio con portada, logo, modalidad y estado de atención. Un negocio inactivo no debe aparecer.
+2. Desde **Dashboard → Negocio**, probá `Sin horario publicado`, `Siempre abierto` y un horario programado que cambie dentro de pocos minutos. El catálogo no debe mostrar badge en el primer modo; debe decir **Siempre abierto** en el segundo y **Abierto ahora · Cierra a las…** o **Cerrado · Abre…** en el tercero.
+3. Al final de **Negocio**, comprobá el bloque **Código QR de tu catálogo**. Usá **Abrir catálogo público**, descargá el PNG y escanealo desde otro celular. Debe abrir el enlace de producción de tu negocio, no `localhost`.
+4. Compartí el enlace del catálogo en un chat de WhatsApp. La vista previa debe mostrar el nombre del negocio, su descripción y una imagen PNG con su identidad o portada. Si WhatsApp conserva una vista anterior, compartí el enlace con un parámetro temporal como `?vista=1` para forzar una URL nueva durante la prueba.
+5. Abrí el catálogo desde una ventana privada, interactuá con un producto y continuá a WhatsApp. Luego ingresá al panel y abrí **Resumen**. Las cifras de los últimos siete días deben reflejar visita, interacción y salida a WhatsApp; no deben mostrar nombres, teléfonos ni detalles del pedido.
+6. Abrí `https://mipuesto-dev.mipuesto-app.workers.dev/negocio-que-no-existe`. Debe responder con la página **No encontramos este negocio**, ofrecer **Explorar negocios activos** y no mostrar un error técnico.
+7. Desde las herramientas del navegador revisá `/manifest.webmanifest`: debe responder correctamente y permitir que el navegador reconozca MiPuesto como aplicación web. No es obligatorio instalarla para cerrar esta fase.
+8. Repetí directorio, 404, catálogo, QR y resumen a **360 px** y a un ancho mínimo de **1280 px**. No debe haber desplazamiento horizontal y todos los enlaces y botones deben mostrar foco visible con `Tab`.
+9. Comprobá que el catálogo siga creando reservas y abriendo WhatsApp como antes; la analítica no debe bloquear una compra aunque falle su registro silencioso.
+
+Cuando todo esté correcto, respondé `Fase 8 validada`. Esa confirmación cerrará la fase y habilitará la Fase 9.

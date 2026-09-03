@@ -89,3 +89,32 @@ Las cuatro conservan contraste AA verificado por `test:contraste`.
   `--control-alto` en las acciones principales.
 - Estados de producto y de pedido con texto y fondo propios, no solo color.
 - El acceso al pedido anuncia unidades y subtotal en su `aria-label`.
+
+## Funciones de plataforma
+
+- **Estado de atención**: el indicador reutiliza el lugar reservado por cada
+  plantilla para informar `Abierto ahora · Cierra a las…`, `Cerrado · Abre…` o
+  `Siempre abierto`. No aparece cuando el negocio eligió no publicar horario.
+- **Directorio**: `/directorio` usa tarjetas de lectura rápida con portada,
+  identidad, modalidad, estado y acceso al catálogo. Presenta doce negocios por
+  página y nunca depende de una fila horizontal infinita.
+- **Resumen**: `/dashboard` pasa a ser la entrada del panel. Tres cifras de los
+  últimos siete días muestran visitas, interacciones con productos y salidas a
+  WhatsApp; cada una incluye una explicación y no recoge datos personales.
+- **QR para compartir**: vive al final de la configuración del negocio, separado
+  del QR de cobro. La vista tiene un único QR, un enlace de comprobación y una
+  acción para descargarlo.
+- **Catálogo no disponible**: la página 404 usa una banda de marca, explica en
+  lenguaje neutral que el enlace puede haber cambiado o estar inactivo y lleva
+  al directorio. No revela el motivo administrativo de la baja.
+- **Portada de MiPuesto**: ofrece dos accesos directos y disciplinados: explorar
+  el directorio o ingresar al panel. La presencia visual fuerte permanece en
+  los catálogos, como exige `DESIGN.md`.
+
+## Excepciones de formato justificadas
+
+La imagen PNG de Open Graph usa estilos inline porque `ImageResponse`/Satori no
+resuelve módulos CSS. Sus colores vienen de `lib/identidad-visual.ts`, fuente
+compartida con el manifest y el QR para formatos que no admiten variables CSS.
+El auditor de tokens permite esta excepción únicamente en archivos
+`opengraph-image.tsx`.
