@@ -12,7 +12,7 @@
 }
 
 .carrito header,
-.carrito footer,
+.resumen,
 .carrito li,
 .cantidad {
   display: flex;
@@ -20,7 +20,7 @@
 }
 
 .carrito header,
-.carrito footer {
+.resumen {
   justify-content: space-between;
   gap: var(--spacing-3);
 }
@@ -92,8 +92,7 @@
 
 .cantidad button,
 .quitar,
-.carrito footer a,
-.carrito footer button {
+.confirmacion > button {
   border: 0;
   font: inherit;
   cursor: pointer;
@@ -131,27 +130,26 @@
   text-underline-offset: var(--spacing-1);
 }
 
-.carrito footer {
+.resumen {
   border-top: var(--borde-fino) solid var(--catalogo-borde);
   padding-top: var(--spacing-4);
 }
 
-.carrito footer div {
-  display: grid;
-  gap: var(--spacing-1);
-}
-
-.carrito footer span {
+.resumen span {
   font-size: var(--text-xs);
 }
 
-.carrito footer strong {
+.resumen strong {
   color: var(--catalogo-accion);
   font-size: var(--text-lg);
 }
 
-.carrito footer a,
-.carrito footer button {
+.confirmacion > button,
+.exito a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius-control);
   padding: var(--spacing-3) var(--spacing-4);
   background: var(--catalogo-accion);
@@ -160,6 +158,109 @@
   font-weight: 800;
   text-align: center;
   text-decoration: none;
+}
+
+.confirmacion {
+  display: grid;
+  gap: var(--spacing-4);
+  border-top: var(--borde-fino) solid var(--catalogo-borde);
+  padding-top: var(--spacing-4);
+}
+
+.introduccion,
+.campos,
+.resultado,
+.exito {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.introduccion h3,
+.introduccion p,
+.resultado p,
+.exito h3,
+.qr,
+.qr figcaption {
+  margin: 0;
+}
+
+.introduccion h3,
+.exito h3 {
+  font-size: var(--text-base);
+}
+
+.introduccion p,
+.qr figcaption,
+.resultado p {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.campos {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.campos label {
+  grid-row: 1;
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.campos label span {
+  font-size: var(--text-xs);
+  font-weight: 400;
+}
+
+.campos input {
+  grid-row: 2;
+  min-width: 0;
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--catalogo-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  font: inherit;
+}
+
+.campos label:first-of-type,
+.campos input:first-of-type {
+  grid-column: 1;
+}
+
+.campos label:last-of-type,
+.campos input:last-of-type {
+  grid-column: 2;
+}
+
+.qr {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--catalogo-borde);
+  padding: var(--spacing-3);
+}
+
+.qr img {
+  width: calc(var(--spacing-16) * 2);
+  height: calc(var(--spacing-16) * 2);
+  object-fit: contain;
+}
+
+.resultado:empty {
+  display: none;
+}
+
+.error,
+.exito {
+  border-left: var(--borde-marcado) solid var(--catalogo-alerta);
+  padding: var(--spacing-3);
+  background: var(--catalogo-fondo-suave);
+}
+
+.exito {
+  border-left-color: var(--catalogo-exito);
 }
 
 .carrito button:disabled {
@@ -179,7 +280,7 @@
   }
 
   .carrito header,
-  .carrito footer {
+  .resumen {
     align-items: stretch;
     flex-direction: column;
   }
@@ -190,5 +291,23 @@
 
   .totalItem {
     min-width: 0;
+  }
+
+  .campos {
+    grid-template-columns: 1fr;
+  }
+
+  .campos label,
+  .campos input,
+  .campos label:first-of-type,
+  .campos input:first-of-type,
+  .campos label:last-of-type,
+  .campos input:last-of-type {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .qr {
+    grid-template-columns: 1fr;
   }
 }
