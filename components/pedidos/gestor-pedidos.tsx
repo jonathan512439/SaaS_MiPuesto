@@ -141,7 +141,7 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
           {visibles.map((pedido) => {
             const estado = esEstadoPedido(pedido.estado) ? pedido.estado : "expirado";
             return (
-              <li className={styles.pedido} key={pedido.id}>
+              <li className={styles.pedido} data-estado={estado} key={pedido.id}>
                 <header>
                   <div>
                     <h2>{pedido.codigo}</h2>

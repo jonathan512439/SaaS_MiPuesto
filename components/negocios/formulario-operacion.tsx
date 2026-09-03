@@ -190,10 +190,11 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
       {horario.modo === "programado" ? (
         <fieldset className={styles.semana}>
           <legend>Semana de atención</legend>
+          <div className={styles.listaDias}>
           {DIAS_SEMANA.map((dia) => {
             const intervalos = horario.dias[dia];
             return (
-              <div className={styles.dia} key={dia}>
+              <div className={styles.dia} data-abierto={intervalos.length ? "si" : undefined} key={dia}>
                 <label className={styles.activarDia}>
                   <input
                     checked={intervalos.length > 0}
@@ -252,6 +253,7 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
               </div>
             );
           })}
+          </div>
         </fieldset>
       ) : (
         <p className={styles.explicacionModo}>

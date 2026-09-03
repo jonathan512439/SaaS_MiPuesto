@@ -6,16 +6,20 @@
 }
 
 .barra {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   background: var(--color-marca);
   color: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
 }
 
 .barraContenido {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  width: min(calc(100% - var(--spacing-8)), 76rem);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
   align-items: center;
-  gap: var(--spacing-3) var(--spacing-4);
+  gap: var(--spacing-2) var(--spacing-4);
   margin: 0 auto;
   padding: var(--spacing-3) 0;
 }
@@ -26,7 +30,7 @@
   align-items: center;
   gap: var(--spacing-2);
   color: var(--color-superficie);
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: 900;
   text-decoration: none;
 }
@@ -59,28 +63,39 @@
   white-space: nowrap;
 }
 
+/* La navegación es una fila de pastillas que se desplaza en horizontal: con
+   cinco secciones, repartirlas en columnas iguales corta las etiquetas largas
+   en pantallas de 360 px. */
 .navegacion {
-  display: grid;
+  display: flex;
   grid-row: 2;
   grid-column: 1 / -1;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--spacing-2);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-1);
+  scrollbar-width: none;
+}
+
+.navegacion::-webkit-scrollbar {
+  display: none;
 }
 
 .enlace,
 .enlaceActivo {
   display: inline-flex;
-  min-height: var(--control-alto);
+  flex: 0 0 auto;
+  min-height: var(--spacing-10);
   align-items: center;
   justify-content: center;
-  border: var(--borde-fino) solid color-mix(in srgb, var(--color-superficie) 55%, transparent);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2);
+  border: var(--borde-fino) solid color-mix(in srgb, var(--color-superficie) 45%, transparent);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
   color: var(--color-superficie);
   font-size: var(--text-sm);
   font-weight: 800;
   text-align: center;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .enlace:hover,
@@ -106,13 +121,20 @@
 
 @media (min-width: 60rem) {
   .barraContenido {
-    grid-template-columns: auto minmax(24rem, 1fr) auto;
-    gap: var(--spacing-8);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--spacing-6);
+  }
+
+  .marca {
+    font-size: var(--text-xl);
   }
 
   .navegacion {
     grid-row: 1;
     grid-column: 2;
+    justify-content: center;
+    overflow-x: visible;
+    padding-bottom: 0;
   }
 
   .cuenta {
@@ -126,11 +148,11 @@
 
 @media (max-width: 24rem) {
   .barraContenido {
-    width: min(calc(100% - var(--spacing-6)), 76rem);
+    width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
   }
 
   .marca {
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
   }
 
   .isotipo {
@@ -142,5 +164,11 @@
 
   .sesion {
     display: none;
+  }
+
+  .enlace,
+  .enlaceActivo {
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--text-xs);
   }
 }
