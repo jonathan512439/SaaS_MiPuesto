@@ -16,16 +16,30 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 6: 2026-09-02.
 - Cierre de Fase 6: 2026-09-03.
 - Inicio de Fase 7: 2026-09-03.
-- Estado: **Fase 7 en implementación**.
-- Puerta de salida actual: una promoción vencida deja de aplicarse automáticamente y las imágenes de identidad pueden reemplazarse sin dejar archivos huérfanos.
+- Estado: **Fase 7 implementada, auditada y desplegada; validación manual pendiente**.
+- Puerta de salida actual: comprobar desde una sesión real que una promoción vencida deja de aplicarse automáticamente y que las imágenes de identidad pueden reemplazarse sin dejar archivos huérfanos.
 
 ## Estado de Fase 7
 
 - Inicio: 2026-09-03.
-- Estado: **en implementación**.
+- Estado: **implementación, auditorías automáticas y despliegue cumplidos; validación manual pendiente**.
 - Plan visual y técnico: `docs/PLAN-DISENO-FASE7.md`.
 - Alcance: promociones por producto o categoría, cálculo centralizado, identidad visual y datos complementarios, QR de cobro y auditoría mínima de precios y activación.
 - Riesgos principales: precios negativos o divergentes, promociones cruzadas entre negocios, manipulación del total, configuración ajena y archivos huérfanos en Storage.
+
+| Control | Estado | Evidencia o pendiente |
+|---|---|---|
+| Promociones | Cumplido en código y pruebas | Porcentaje o monto fijo para producto o categoría, inicio y vencimiento opcionales, pausa y reactivación. Entre varias ofertas se aplica la de menor precio; el resultado se limita a Bs 0. |
+| Precio transaccional | Cumplido en base y auditoría remota | El catálogo, carrito y pedido usan el precio promocional. La auditoría creó de forma reversible un producto de Bs 95 y comprobó total e instantánea del artículo en Bs 75. |
+| Identidad del negocio | Cumplido en código y pruebas | Logo, portada, QR de cobro y enlaces sociales se administran desde **Negocio** y aparecen en las tres plantillas. Las imágenes reutilizan la compresión y validación de productos. |
+| Limpieza de Storage | Cumplido en código y auditoría remota | Cada reemplazo usa una ruta nueva, compensa fallos y borra el archivo anterior. El bucket `negocios` fue auditado con cero archivos sin referencia. |
+| Auditoría y permisos | Cumplido en base y pruebas | El último cambio de precio conserva valor anterior, usuario y fecha. Un administrador puede editar solo la identidad de su negocio y no puede modificar `activo` ni `verificado`. |
+| Aislamiento multi-tenant | Cumplido | Dos usuarios temporales comprobaron aislamiento de ocho tablas de negocio, promociones, auditoría, límites internos y ambos buckets de Storage. |
+| Calidad automática | Cumplido | Secretos, ESLint, TypeScript, contraste, tokens, 108 pruebas, ambos builds, `npm audit`, lint SQL, estado de migraciones, dry-run, tipos y arranque de Worker aprobaron. |
+| Despliegue | Cumplido | Workers Builds publicó el commit `caf1db3` como versión `c4983a23-2e6f-4786-bac1-247fa1b02bec` al 100 %. Inicio, catálogo y salud respondieron 200; panel sin sesión respondió 307 y las APIs nuevas respondieron 401. |
+| Revisión visual e interacción real | Pendiente | Ejecutar la sección 13 de `docs/CONFIGURACION-MANUAL.md` a 360 px y escritorio, incluida expiración real, pedido promocional y reemplazo de las tres imágenes. |
+
+Commits de Fase 7: `233a059`, `59d314b`, `7a25fb4`, `63e79c2` y `caf1db3`.
 
 ## Estado de Fase 6
 

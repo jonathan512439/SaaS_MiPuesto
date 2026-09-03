@@ -267,3 +267,23 @@ SUPABASE_SERVICE_ROLE_KEY=tu_clave_privada
 10. Intentá crear un pedido cuando el negocio esté cerrado. El aviso debe ocupar una sola franja e indicar el horario de hoy o la próxima atención. El catálogo debe seguir navegable, conservar el carrito y no crear ninguna fila ni modificar inventario.
 11. Repetí el recorrido principal a **360 px** y a un ancho mínimo de **1280 px**, sin desplazamiento horizontal y con foco visible mediante `Tab`.
 12. Al terminar, ejecutá `npm run test:rls:linked` y respondé `Fase 6 validada`.
+
+## 13. Validación manual de la Fase 7
+
+Estado: **implementación, auditorías y despliegue completados; recorrido manual pendiente**.
+
+Usá un negocio de prueba con al menos una categoría, un producto visible y existencias suficientes. Las pruebas siguientes modifican su presentación y precios, por lo que conviene anotar primero los valores que quieras restaurar.
+
+1. Ingresá a `https://mipuesto-dev.mipuesto-app.workers.dev/dashboard/promociones`. Revisá la pantalla a **360 px** y a un ancho mínimo de **1280 px**; no debe existir desplazamiento horizontal y todos los controles deben mostrar foco visible con `Tab`.
+2. Creá una promoción porcentual para una categoría y otra de monto fijo para un producto de esa categoría. Elegí valores que produzcan precios distintos. El ejemplo debe mostrar el resultado antes de guardar y el listado debe marcar ambas como **Vigente**.
+3. Abrí el catálogo público en una ventana privada. El producto debe mostrar su precio anterior, el precio promocional y una sola oferta: la que deje el menor precio final. Pausá esa oferta desde el panel, recargá el catálogo y comprobá que se aplique la siguiente mejor; luego reactivala.
+4. Creá una promoción temporal cuya finalización sea unos minutos posterior a la hora actual de Bolivia. Confirmá que se aplique antes del vencimiento y que desaparezca al recargar después de esa hora, sin editarla ni ejecutar tareas manuales.
+5. En una tienda con carrito, reservá una unidad del producto promocionado. El resumen, WhatsApp y **Dashboard → Pedidos** deben conservar el mismo precio final calculado por el servidor y el total correcto. Cancelá el pedido de prueba para liberar la reserva.
+6. Abrí **Dashboard → Catálogo**, cambiá el precio del producto y guardá. Su ficha administrativa debe indicar el precio anterior, la fecha en Bolivia y quién realizó el cambio.
+7. Abrí **Dashboard → Negocio**. Cargá un logo, una portada y un QR de cobro JPEG, PNG o WebP. Guardá también uno o más enlaces sociales completos con `https://`. La previsualización debe actualizarse sin deformar las imágenes.
+8. Abrí el catálogo público y comprobá portada, logo, descripción, redes y QR. Repetí una revisión breve con las plantillas Clásica, Moderna y Mínima; cada una debe mantener su composición propia.
+9. Reemplazá sucesivamente el logo, la portada y el QR. En **Supabase → Storage → negocios**, cada tipo debe conservar solo el archivo vinculado actualmente. Después quitá el QR y comprobá que su archivo anterior también desaparezca.
+10. Intentá guardar una red sin `https://`, un archivo que no sea imagen y una imagen mayor al límite indicado. El panel debe rechazarlos con un mensaje claro y conservar la configuración anterior.
+11. Eliminá las promociones de prueba o dejá configuradas solamente las que realmente quieras usar. Restaurá también el precio del producto si era temporal.
+
+Las auditorías automáticas ya aprobaron RLS, pertenencia de destinos promocionales, precios no negativos, cálculo transaccional, permisos y cero archivos huérfanos. Cuando completes el recorrido anterior, respondé `Fase 7 validada` para registrar el cierre y habilitar la Fase 8.
