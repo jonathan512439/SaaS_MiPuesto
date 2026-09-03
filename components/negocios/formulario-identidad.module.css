@@ -43,13 +43,16 @@
   font-size: var(--text-sm);
 }
 
+/* Fachada editable: la portada es el unico foco visual de esta pantalla y
+   conserva la misma proporcion y el mismo radio que el catalogo publico. */
 .portadaPrevia {
   position: relative;
   display: grid;
   min-height: 12rem;
   place-items: center;
-  border: var(--borde-fino) solid var(--color-borde-suave);
   overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
   background: var(--color-marca-tenue);
   color: var(--color-marca-fuerte);
   font-weight: 800;
@@ -86,14 +89,16 @@
 
 .imagenes {
   display: grid;
-  border-block: var(--borde-fino) solid var(--color-borde-suave);
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
 }
 
 .imagenFila {
   display: grid;
-  gap: var(--spacing-4);
+  gap: var(--spacing-3);
   border-bottom: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-5) 0;
+  padding: var(--spacing-4);
 }
 
 .imagenFila:last-child {
@@ -143,6 +148,8 @@
   width: 6rem;
   height: 6rem;
   border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
   object-fit: contain;
 }
 
@@ -155,8 +162,10 @@
 .redes {
   display: grid;
   justify-items: start;
-  gap: var(--spacing-5);
+  gap: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-suave);
   border-left: var(--spacing-1) solid var(--color-marca);
+  border-radius: 0 var(--radius-panel) var(--radius-panel) 0;
   padding: var(--spacing-5);
   background: var(--color-superficie);
 }
@@ -195,19 +204,21 @@
 .exito,
 .error {
   border-left: var(--spacing-1) solid;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
   padding: var(--spacing-3) var(--spacing-4);
-  background: var(--color-superficie);
   font-size: var(--text-sm);
   font-weight: 700;
 }
 
 .exito {
   border-color: var(--color-exito);
+  background: var(--color-exito-tenue);
   color: var(--color-exito);
 }
 
 .error {
   border-color: var(--color-peligro);
+  background: var(--color-peligro-tenue);
   color: var(--color-peligro);
 }
 
@@ -215,6 +226,7 @@
   .imagenFila {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
+    gap: var(--spacing-4);
   }
 
   .imagenFila .accionesImagen {
