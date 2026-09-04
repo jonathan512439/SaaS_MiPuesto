@@ -40,12 +40,7 @@ export default async function PaginaPedidos() {
   return (
     <main className={styles.contenido}>
       <header className={styles.encabezado}>
-        <p>Ventas del día</p>
-        <h1>Pedidos y reservas</h1>
-        <p>
-          Atiende primero los pedidos por confirmar. Confirmar descuenta las unidades vendidas;
-          cancelar devuelve las unidades reservadas al catálogo.
-        </p>
+        <h1>Pedidos</h1>
       </header>
       <GestorPedidos pedidosIniciales={pedidos} />
     </main>

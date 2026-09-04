@@ -44,12 +44,8 @@ export default async function PaginaPlantilla() {
   return (
     <main className={styles.contenido}>
       <header className={styles.encabezado}>
-        <p>Apariencia del catálogo</p>
-        <h1>Construye una experiencia coherente con tu negocio</h1>
-        <p>
-          Combina una estructura y una paleta para ver el resultado completo. Tus productos y
-          datos no cambian, y podrás modificar la apariencia más adelante.
-        </p>
+        <h1>Apariencia</h1>
+        <p>Cambiarla no altera tus productos ni tus pedidos.</p>
       </header>
 
       <SelectorApariencia

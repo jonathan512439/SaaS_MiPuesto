@@ -49,12 +49,8 @@ export default async function PaginaPromociones() {
   return (
     <main className={styles.contenido}>
       <header className={styles.encabezado}>
-        <p>Precios especiales</p>
-        <h1>Promociones claras para tus clientes</h1>
-        <p>
-          Descuenta un producto o una categoría completa. Si coinciden varias ofertas,
-          MiPuesto aplica automáticamente la que deje el precio más bajo.
-        </p>
+        <h1>Promociones</h1>
+        <p>Si coinciden varias, se aplica la que deje el precio más bajo.</p>
       </header>
       <GestorPromociones
         categorias={resultadoCategorias.data ?? []}

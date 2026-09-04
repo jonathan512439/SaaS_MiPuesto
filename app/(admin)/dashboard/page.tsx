@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 };
 
 const METRICAS = [
-  { tipo: "vista_catalogo", etiqueta: "Visitas al catálogo", ayuda: "Sesiones que abrieron tu enlace público." },
-  { tipo: "clic_producto", etiqueta: "Interacciones con productos", ayuda: "Productos agregados o consultados por clientes." },
-  { tipo: "clic_whatsapp", etiqueta: "Salidas a WhatsApp", ayuda: "Personas que continuaron la conversación por WhatsApp." },
+  { tipo: "vista_catalogo", etiqueta: "Visitas al catálogo" },
+  { tipo: "clic_producto", etiqueta: "Productos agregados" },
+  { tipo: "clic_whatsapp", etiqueta: "Salidas a WhatsApp" },
 ] as const;
 
 export default async function PaginaDashboard() {
@@ -50,10 +50,7 @@ export default async function PaginaDashboard() {
       <header className={styles.encabezado}>
         <p>Últimos 7 días</p>
         <h1>Resumen de {negocio.nombre}</h1>
-        <p>
-          Estas cifras muestran cómo llegan y avanzan las personas en tu catálogo. No incluyen
-          nombres, teléfonos ni el contenido de los pedidos.
-        </p>
+        <p>Sin nombres, teléfonos ni contenido de los pedidos.</p>
       </header>
 
       {!negocio.activo ? (
@@ -65,10 +62,7 @@ export default async function PaginaDashboard() {
 
       <section aria-labelledby="actividad-semanal" className={styles.actividad}>
         <div className={styles.tituloSeccion}>
-          <div>
-            <p>Actividad pública</p>
-            <h2 id="actividad-semanal">Qué hicieron tus visitantes</h2>
-          </div>
+          <h2 id="actividad-semanal">Actividad pública</h2>
           <Link href={`/${negocio.slug}`} rel="noreferrer" target="_blank">Ver catálogo</Link>
         </div>
         <dl className={styles.metricas}>
@@ -76,7 +70,6 @@ export default async function PaginaDashboard() {
             <div key={metrica.tipo}>
               <dt>{metrica.etiqueta}</dt>
               <dd>{conteos[indice].count ?? 0}</dd>
-              <p>{metrica.ayuda}</p>
             </div>
           ))}
         </dl>

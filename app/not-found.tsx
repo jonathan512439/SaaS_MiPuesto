@@ -13,12 +13,8 @@ export default function PaginaNoEncontrada() {
     <main className={styles.pagina}>
       <section className={styles.mensaje}>
         <Link className={styles.marca} href="/">MiPuesto</Link>
-        <p>Catálogo no disponible</p>
         <h1>No encontramos este negocio</h1>
-        <p>
-          Es posible que el enlace haya cambiado o que el catálogo esté temporalmente inactivo.
-          No se eliminó ningún dato por esta visita.
-        </p>
+        <p>El enlace pudo cambiar, o el catálogo está inactivo por ahora.</p>
         <div className={styles.acciones}>
           <Link href="/directorio">Explorar negocios activos</Link>
           <Link href="/">Volver a MiPuesto</Link>

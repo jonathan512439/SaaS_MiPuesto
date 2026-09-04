@@ -39,12 +39,8 @@ export function CodigoQrNegocio({ nombreNegocio, urlCatalogo }: PropiedadesCodig
   return (
     <section aria-labelledby="titulo-qr-catalogo" className={styles.bloque}>
       <div className={styles.texto}>
-        <p>Enlace para compartir</p>
         <h2 id="titulo-qr-catalogo">Código QR de tu catálogo</h2>
-        <p>
-          Tus clientes pueden escanearlo para abrir el catálogo. Se genera en este navegador y
-          no envía el enlace a servicios externos.
-        </p>
+        <p>Imprímelo o compártelo: al escanearlo se abre tu catálogo.</p>
         <a href={urlCatalogo} rel="noreferrer" target="_blank">Abrir catálogo público</a>
       </div>
       <div className={styles.vista} aria-live="polite">

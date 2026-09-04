@@ -22,16 +22,6 @@
   margin: 0;
 }
 
-.encabezado > p:first-child {
-  width: fit-content;
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-marca-tenue);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-xs);
-  font-weight: 800;
-}
-
 .encabezado h1 {
   overflow-wrap: anywhere;
   font-size: var(--text-xl);
@@ -39,7 +29,7 @@
   line-height: 1.2;
 }
 
-.encabezado > p:last-child {
+.encabezado p {
   max-width: var(--ancho-lectura);
   color: var(--color-texto-suave);
   font-size: var(--text-sm);
@@ -54,7 +44,7 @@
     font-size: var(--text-2xl);
   }
 
-  .encabezado > p:last-child {
+  .encabezado p {
     font-size: var(--text-base);
   }
 }

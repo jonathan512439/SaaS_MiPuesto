@@ -60,12 +60,7 @@ export default async function PaginaCatalogo() {
   return (
     <main className={styles.contenido}>
       <header className={styles.encabezado}>
-        <p>Productos del negocio</p>
-        <h1>Organiza tu catálogo</h1>
-        <p>
-          Crea categorías para que tus clientes encuentren rápido lo que buscan. Puedes ocultar
-          un producto sin borrarlo y cambiar toda esta información cuando lo necesites.
-        </p>
+        <h1>Catálogo</h1>
       </header>
 
       <GestorCatalogo

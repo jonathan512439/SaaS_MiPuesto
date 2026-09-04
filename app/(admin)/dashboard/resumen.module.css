@@ -23,17 +23,14 @@
 
 .encabezado p,
 .encabezado h1,
-.tituloSeccion p,
 .tituloSeccion h2,
 .acciones h2,
 .metricas dt,
-.metricas dd,
-.metricas p {
+.metricas dd {
   margin: 0;
 }
 
-.encabezado > p:first-child,
-.tituloSeccion p {
+.encabezado > p:first-child {
   width: fit-content;
   color: var(--color-marca-fuerte);
   font-size: var(--text-xs);
@@ -52,8 +49,7 @@
   line-height: 1.2;
 }
 
-.encabezado > p:last-child,
-.metricas p {
+.encabezado > p:last-child {
   max-width: var(--ancho-lectura);
   color: var(--color-texto-suave);
   font-size: var(--text-sm);

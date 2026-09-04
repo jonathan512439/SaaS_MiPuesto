@@ -10,9 +10,7 @@
 .vistaDireccion,
 .mensajeError,
 .mensajeExito,
-.accionesFormulario p,
-.resumen h2,
-.resumen p {
+.accionesFormulario p {
   margin: 0;
 }
 
@@ -38,27 +36,11 @@
   margin: 0;
 }
 
-.encabezado > p:first-child {
-  width: fit-content;
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-marca-tenue);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-xs);
-  font-weight: 800;
-}
-
 .encabezado h1 {
   overflow-wrap: anywhere;
   font-size: var(--text-xl);
   font-weight: 800;
   line-height: 1.2;
-}
-
-.encabezado > p:last-child {
-  max-width: var(--ancho-lectura);
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
 }
 
 .rejilla {
@@ -108,8 +90,7 @@
   font-weight: 800;
 }
 
-.tituloBloque h2,
-.resumen h2 {
+.tituloBloque h2 {
   font-size: var(--text-lg);
   font-weight: 800;
 }
@@ -214,29 +195,6 @@
   font-size: var(--text-xs);
 }
 
-.resumen {
-  display: grid;
-  align-self: start;
-  gap: var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-6);
-  background: var(--color-fondo-suave);
-}
-
-.resumen ul {
-  display: grid;
-  gap: var(--spacing-2);
-  margin: 0;
-  padding-left: var(--spacing-4);
-  font-size: var(--text-sm);
-}
-
-.resumen p {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-}
-
 @media (min-width: 60rem) {
   .contenido {
     padding-top: var(--spacing-8);
@@ -246,12 +204,7 @@
     font-size: var(--text-2xl);
   }
 
-  .encabezado > p:last-child {
-    font-size: var(--text-base);
-  }
-
   .rejilla {
-    grid-template-columns: minmax(0, 1fr) 20rem;
     gap: var(--spacing-8);
   }
 
@@ -265,8 +218,7 @@
     width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
   }
 
-  .formulario,
-  .resumen {
+  .formulario {
     padding: var(--spacing-4);
   }
 
