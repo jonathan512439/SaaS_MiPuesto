@@ -1,5 +1,6 @@
 import { Archivo } from "next/font/google";
 import Image from "next/image";
+import Link from "next/link";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
@@ -126,7 +127,16 @@ export function PlantillaModerna({
             ) : <span className={styles.sinImagen}>Sin foto</span>}
             <div className={styles.detalle}>
               <p>{producto.subcategoria ? `${producto.categoria} / ${producto.subcategoria}` : producto.categoria}</p>
-              <h4>{producto.nombre}</h4>
+              <h4>{demostracion ? (
+                    producto.nombre
+                  ) : (
+                    <Link
+                      className={styles.enlaceProducto}
+                      href={`/${datos.negocio.slug}/p/${producto.codigo}`}
+                    >
+                      {producto.nombre}
+                    </Link>
+                  )}</h4>
               <span>{producto.descripcion}</span>
               <div className={styles.precio}>
                 {producto.tienePromocion ? (

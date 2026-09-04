@@ -1,5 +1,6 @@
 import { Fraunces } from "next/font/google";
 import Image from "next/image";
+import Link from "next/link";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
@@ -119,7 +120,16 @@ export function PlantillaClasica({
                   ) : <span className={styles.sinImagen}>Sin foto</span>}
                   <div>
                     {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
-                    <h5>{producto.nombre}</h5>
+                    <h5>{demostracion ? (
+                    producto.nombre
+                  ) : (
+                    <Link
+                      className={styles.enlaceProducto}
+                      href={`/${datos.negocio.slug}/p/${producto.codigo}`}
+                    >
+                      {producto.nombre}
+                    </Link>
+                  )}</h5>
                     <p>{producto.descripcion}</p>
                     {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
                     <EstadoStockProducto className={styles.stock} producto={producto} />
