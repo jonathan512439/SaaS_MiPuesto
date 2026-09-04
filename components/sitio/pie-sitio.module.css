@@ -1,0 +1,50 @@
+@reference "../../app/globals.css";
+
+.pie {
+  display: grid;
+  gap: var(--spacing-3);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
+  margin: 0 auto;
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  padding: var(--spacing-6) 0 var(--spacing-8);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.credito {
+  margin: 0;
+  font-weight: 700;
+}
+
+.enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2) var(--spacing-5);
+}
+
+.enlaces a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  color: var(--color-marca-fuerte);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.1875rem;
+}
+
+.enlaces a:hover {
+  text-decoration-thickness: var(--borde-marcado);
+}
+
+@media (min-width: 48rem) {
+  .pie {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+@media (max-width: 24rem) {
+  .pie {
+    width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
+  }
+}
