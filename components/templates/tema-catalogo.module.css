@@ -65,3 +65,36 @@
   --catalogo-exito: #7fc89d;
   --catalogo-alerta: #f0c36a;
 }
+
+.tema[data-paleta="altiplano"] {
+  --catalogo-superficie: #faf7fc;
+  --catalogo-texto: #241a2b;
+  --catalogo-marca: #543279;
+  --catalogo-sobre-marca: #faf7fc;
+  --catalogo-accion: #a62a54;
+  --catalogo-sobre-accion: #faf7fc;
+  --catalogo-exito: #1e6a45;
+  --catalogo-alerta: #8a5500;
+}
+
+.tema[data-paleta="jazmin"] {
+  --catalogo-superficie: #fff8fa;
+  --catalogo-texto: #2b1d25;
+  --catalogo-marca: #7a2b52;
+  --catalogo-sobre-marca: #fff8fa;
+  --catalogo-accion: #8a5a0f;
+  --catalogo-sobre-accion: #fff8fa;
+  --catalogo-exito: #2b6a48;
+  --catalogo-alerta: #a1442a;
+}
+
+.tema[data-paleta="grafito"] {
+  --catalogo-superficie: #f7f7f6;
+  --catalogo-texto: #1b1e20;
+  --catalogo-marca: #303539;
+  --catalogo-sobre-marca: #f7f7f6;
+  --catalogo-accion: #a32d3a;
+  --catalogo-sobre-accion: #f7f7f6;
+  --catalogo-exito: #1e6a45;
+  --catalogo-alerta: #8a5500;
+}

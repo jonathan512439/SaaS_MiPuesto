@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { COMBINACIONES_APARIENCIA } from "../apariencia";
+import { COMBINACIONES_APARIENCIA, PALETAS, PLANTILLAS } from "../apariencia";
 import { esPaletaId, esPlantillaId } from "./validacion";
 
 describe("validación de plantillas", () => {
@@ -17,7 +17,7 @@ describe("validación de plantillas", () => {
 });
 
 describe("validación de paletas", () => {
-  it.each(["mercado", "tierra", "oceano", "noche"])("acepta la paleta %s", (paleta) => {
+  it.each([...PALETAS])("acepta la paleta %s", (paleta) => {
     expect(esPaletaId(paleta)).toBe(true);
   });
 
@@ -28,12 +28,17 @@ describe("validación de paletas", () => {
     },
   );
 
-  it("expone las doce combinaciones de plantilla y paleta", () => {
-    expect(COMBINACIONES_APARIENCIA).toHaveLength(12);
+  /* No se fija un numero: al sumar una paleta habria que corregir la prueba y
+     esa correccion mecanica es la que suele esconder un olvido. Lo que importa
+     es que esten todas y que ninguna se repita. */
+  it("expone cada combinacion de plantilla y paleta una sola vez", () => {
+    const total = PLANTILLAS.length * PALETAS.length;
+
+    expect(COMBINACIONES_APARIENCIA).toHaveLength(total);
     expect(
       new Set(
         COMBINACIONES_APARIENCIA.map(({ plantilla, paleta }) => `${plantilla}:${paleta}`),
       ).size,
-    ).toBe(12);
+    ).toBe(total);
   });
 });

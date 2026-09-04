@@ -1,5 +1,13 @@
 export const PLANTILLAS = ["clasica", "moderna", "minimal"] as const;
-export const PALETAS = ["mercado", "tierra", "oceano", "noche"] as const;
+export const PALETAS = [
+  "mercado",
+  "tierra",
+  "oceano",
+  "noche",
+  "altiplano",
+  "jazmin",
+  "grafito",
+] as const;
 
 export type PlantillaId = (typeof PLANTILLAS)[number];
 export type PaletaId = (typeof PALETAS)[number];
@@ -39,6 +47,9 @@ export const DEFINICIONES_PALETAS: ReadonlyArray<{
   { id: "tierra", nombre: "Tierra", descripcion: "Cacao profundo con acento de ladrillo." },
   { id: "oceano", nombre: "Océano", descripcion: "Azules frescos con acento frambuesa." },
   { id: "noche", nombre: "Noche", descripcion: "Fondo oscuro con acentos claros y elegantes." },
+  { id: "altiplano", nombre: "Altiplano", descripcion: "Violeta andino con acento carmín." },
+  { id: "jazmin", nombre: "Jazmín", descripcion: "Ciruela suave con acento dorado." },
+  { id: "grafito", nombre: "Grafito", descripcion: "Gris carbón con acento rojo." },
 ];
 
 export const COMBINACIONES_APARIENCIA = PLANTILLAS.flatMap((plantilla) =>
