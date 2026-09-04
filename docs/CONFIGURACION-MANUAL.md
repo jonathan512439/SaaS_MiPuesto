@@ -290,7 +290,7 @@ Las auditorías automáticas aprobaron RLS, pertenencia de destinos promocionale
 
 ## 14. Validación manual de la Fase 8
 
-Estado: **implementación, auditorías automáticas y despliegue completados; recorrido manual pendiente**.
+Estado: **completado manualmente el 2026-09-03**. El usuario confirmó el recorrido funcional; además se incorporó y verificó en producción la descarga del QR de pago después de crear una reserva.
 
 1. Esperá a que Cloudflare termine el despliegue de `main`. Abrí `https://mipuesto-dev.mipuesto-app.workers.dev/directorio` en una ventana privada y comprobá que aparezca tu negocio con portada, logo, modalidad y estado de atención. Un negocio inactivo no debe aparecer.
 2. Desde **Dashboard → Negocio**, probá `Sin horario publicado`, `Siempre abierto` y un horario programado que cambie dentro de pocos minutos. El catálogo no debe mostrar badge en el primer modo; debe decir **Siempre abierto** en el segundo y **Abierto ahora · Cierra a las…** o **Cerrado · Abre…** en el tercero.
@@ -302,4 +302,4 @@ Estado: **implementación, auditorías automáticas y despliegue completados; re
 8. Repetí directorio, 404, catálogo, QR y resumen a **360 px** y a un ancho mínimo de **1280 px**. No debe haber desplazamiento horizontal y todos los enlaces y botones deben mostrar foco visible con `Tab`.
 9. Comprobá que el catálogo siga creando reservas y abriendo WhatsApp como antes; la analítica no debe bloquear una compra aunque falle su registro silencioso.
 
-Cuando todo esté correcto, respondé `Fase 8 validada`. Esa confirmación cerrará la fase y habilitará la Fase 9.
+La confirmación manual cerró la Fase 8 y habilitó la Fase 9. El commit final `da7b818` se publicó en la versión `8547dfdf-6501-4ad0-9902-eda8c8412d77` del Worker.

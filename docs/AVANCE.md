@@ -4,8 +4,8 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 
 ## Estado actual
 
-- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda**, **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp** y **Fase 7 — Panel de administración completo**.
-- Fase en curso: **Fase 8 — Funciones de plataforma**.
+- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda**, **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp**, **Fase 7 — Panel de administración completo** y **Fase 8 — Funciones de plataforma**.
+- Próxima fase: **Fase 9 — Testing, deploy y dominio**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
@@ -18,13 +18,15 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 7: 2026-09-03.
 - Cierre de Fase 7: 2026-09-03.
 - Inicio de Fase 8: 2026-09-03.
-- Estado: **Fase 8 implementada, auditada y desplegada; validación manual pendiente**.
-- Próxima puerta de salida: compartir el enlace de un negocio debe mostrar su vista previa con imagen y descripción, y un slug inexistente debe mostrar una página útil.
+- Cierre de Fase 8: 2026-09-03.
+- Estado: **Fase 8 cerrada; implementación, auditorías, despliegue y validación manual cumplidos**.
+- Próxima puerta de salida: un negocio piloto debe operar una semana completa sin intervenir manualmente la base de datos.
 
 ## Estado de Fase 8
 
 - Inicio: 2026-09-03.
-- Estado: **implementación, auditorías automáticas y despliegue cumplidos; pendiente validación manual**.
+- Cierre: 2026-09-03.
+- Estado: **cerrada; implementación, auditorías automáticas, despliegue y validación manual cumplidos**.
 - Plan visual y técnico: `docs/PLAN-DISENO-FASE8.md`.
 - Alcance: estado de atención con próxima transición, QR local para compartir, Open Graph por negocio, directorio público paginado, analítica semanal privada, manifest PWA, 404 útil y cabeceras de seguridad.
 - Riesgos principales: lectura pública de métricas, llenado abusivo de la base gratuita, directorio con datos no públicos, vista previa social sin imagen y diferencias entre Next.js y vinext al aplicar rutas o cabeceras.
@@ -33,14 +35,15 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 |---|---|---|
 | Estado de atención | Cumplido en código y pruebas | Usa `America/La_Paz`, informa próxima apertura o cierre, contempla medianoche, oculta `sin_horario` y conserva `Siempre abierto`. |
 | QR para compartir | Cumplido en código y build | Se genera y descarga en el navegador con la URL absoluta del negocio; no usa servicios externos y está separado del QR de cobro. |
+| QR de pago después de reservar | Cumplido en producción | Después de crear el pedido aparece **Descargar QR de pago** cuando el negocio lo configuró. Conserva PNG, JPEG o WebP, usa un nombre reconocible y ofrece una instrucción alternativa si el navegador bloquea la descarga. |
 | Directorio y 404 | Cumplido en smoke local | El directorio consulta columnas explícitas, muestra solo negocios activos y pagina de doce en doce. Un slug inexistente devolvió HTTP 404 y un enlace útil al directorio. |
 | Open Graph y PWA | Cumplido en smoke local | Nombre y descripción son dinámicos; la ruta versionada de Open Graph respondió `image/png` con 34.851 bytes. El manifest respondió con `application/manifest+json`. |
 | Analítica semanal | Cumplido en código y RLS | Se registran visitas, interacciones de producto y salidas a WhatsApp sin datos personales. `/dashboard` consulta únicamente el negocio autenticado y resume los últimos siete días. |
 | Límite e inmutabilidad | Cumplido en base y auditoría remota | Una sesión no puede superar 60 eventos por negocio y hora ni duplicar una interacción. `anon` inserta pero nunca lee; administradores no actualizan ni borran eventos. |
 | Cabeceras de seguridad | Cumplido en smoke local | Portada, directorio, manifest, catálogo y 404 entregan CSP, `nosniff` y política de referencia; también se añadió protección contra marcos y permisos innecesarios. |
 | Calidad automática | Cumplido | Secretos, ESLint, TypeScript, contraste, tokens, 115 pruebas, ambos builds, lint SQL, RLS multinegocio, auditoría específica, dry-run y arranque Worker aprobaron. |
-| Despliegue | Cumplido | Workers Builds publicó el commit `83e38af` mediante el build `429357e6-bce7-4813-bac3-a97c9b3e2c57`; la versión `9d04ca33-f46e-4fd1-9005-29d441e0c308` recibe el 100 % del tráfico. Portada, directorio, PNG social, manifest y 404 aprobaron el smoke público. |
-| Revisión real | Pendiente | Falta comprobar la vista previa desde WhatsApp, escanear el QR en otro celular y completar el checklist móvil/escritorio. |
+| Despliegue | Cumplido | El commit `da7b818` quedó publicado en la versión `8547dfdf-6501-4ad0-9902-eda8c8412d77`, que recibe el 100 % del tráfico. El catálogo respondió HTTP 200 con CSP; el bundle público contiene la descarga y el QR configurado respondió `image/webp` con CORS habilitado. |
+| Revisión real | Cumplido manualmente | El usuario confirmó el 2026-09-03 que el directorio, horarios, QR, WhatsApp, analítica, 404, manifest y navegación adaptable funcionan correctamente. |
 
 ## Estado de Fase 7
 
