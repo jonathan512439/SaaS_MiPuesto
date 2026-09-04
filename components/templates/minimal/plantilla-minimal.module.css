@@ -411,3 +411,10 @@
   font-size: var(--text-xs);
   font-weight: 800;
 }
+
+.conteoCategorias {
+  margin-left: auto;
+  align-self: center;
+  color: var(--catalogo-texto-tenue);
+  font-size: var(--text-xs);
+}

@@ -40,9 +40,11 @@ Fase posterior al planning original. Nace de una revisión crítica de la interf
 ### Decisiones de producto tomadas al abrir la fase
 
 - Se mantiene la venta personal y sin pasarela (confirma el ADR-006). La base y la landing quedan preparadas para sumar autoservicio más adelante, pero no se construye ahora.
-- El precio será un plan mensual único. La interfaz solo necesita distinguir **vigente / por vencer / vencido**; no habrá columna de plan ni medidores de uso por nivel.
+- El precio es un plan mensual único de **Bs 80** (decidido el 2026-09-04). La interfaz solo necesita distinguir **vigente / por vencer / vencido**; no habrá columna de plan ni medidores de uso por nivel.
 - Las tres plantillas no se rediseñan estructuralmente. Se corrige que la vista previa no coincida con lo publicado y se les da tipografía propia.
-- El precio exacto en bolivianos sigue sin definirse; se necesita recién para la landing del bloque 10.3.
+- Hay **primer mes gratis**; el panel muestra los días restantes y la landing lo anuncia junto al precio.
+- El cobro se resuelve por WhatsApp: la pantalla de cuenta muestra el vencimiento y un enlace para escribir. No se construye subida de comprobantes.
+- Los límites vigentes (40 categorías, 4 fotos por producto) son del producto y no del plan: con un solo nivel no hay nada que diferenciar.
 
 ### Bloque 10.1 — Sistema de diseño vivo (cerrado 2026-09-04)
 
@@ -57,12 +59,20 @@ Fase posterior al planning original. Nace de una revisión crítica de la interf
 - Recorte de texto redundante en el panel: los encabezados repetían en rótulo, título y párrafo lo que la navegación ya indicaba. Se eliminó el recuadro «Qué se configura ahora», que reproducía las etiquetas del formulario contiguo, y las tres ayudas del resumen, que reformulaban el nombre de su métrica. Sobrevive solo lo que la pantalla no muestra.
 - Saldo neto: 302 líneas eliminadas frente a 122 agregadas en la migración, más 216 líneas de CSS sin dueño.
 
+### Bloque 10.2a — Navegación real de las plantillas (cerrado 2026-09-04)
+
+- El catálogo público apagaba la barra de categorías de la plantilla elegida y la sustituía por un desplegable genérico. El motivo original era válido: la barra de la plantilla usaba anclas `#categoria-id`, que no funcionan con el catálogo filtrado y paginado. El efecto, en cambio, era que lo publicado no se parecía a la vista previa que el dueño usó para elegir.
+- Se reemplazan `ocultarNavegacionCategorias` y `navegacionCatalogo` por una sola propiedad `navegacion`, que lleva la lista completa de categorías, la activa, el total de productos y el manejador. Cada plantilla dibuja su propia barra con su estructura y sus clases, conectada a ese estado común.
+- La lista de categorías viaja aparte de `datos` porque las plantillas reciben el catálogo ya paginado: usar esa copia dejaría la barra mostrando solo la categoría filtrada.
+- Sin la propiedad, la plantilla está en modo demostración y su barra es inerte. No se deshabilita, para que la vista previa no se vea gris.
+- El control de tokens rechazó un `0.8125rem` escrito a mano en las tres hojas; se corrigió a `var(--text-xs)`.
+
 ### Pendiente inmediato de la fase
 
 - Verificación manual con sesión real: no se pudo ejecutar desde el entorno de trabajo. Debe comprobarse el borrado de una categoría, el renombrado y la confirmación de una venta.
-- Bloque 10.2 — tipografía: sustituir `Georgia`, `Arial` y `Trebuchet MS` por familias alojadas con `next/font/local`, y dar a los precios un rol tipográfico propio con `tabular-nums`.
+- Bloque 10.2 — tipografía: **bloqueado** a la espera del logotipo real. `DESIGN.md` §4 exige que la familia del producto conviva con la sans redondeada del logo, y el repositorio solo contiene el ícono geométrico de `app/icon.svg`, sin logotipo. Una vez recibido: sustituir `Georgia`, `Arial` y `Trebuchet MS` por familias alojadas con `next/font/local`, y dar a los precios un rol tipográfico propio con `tabular-nums`.
 - Bloque 10.3 — landing, páginas legales y estado de suscripción.
-- `next-env.d.ts` se regenera distinto según se ejecute `next build` o `build:vinext`; ensucia el árbol en cada cambio de pipeline y es candidato a `.gitignore`, pendiente de decisión.
+- Falta el número de WhatsApp de MiPuesto para la llamada a la acción de la landing y para la pantalla de cuenta. No hay ningún dato de contacto propio en la aplicación.
 - Riesgos principales: endpoint de mantenimiento público sin autenticación, secretos duplicados o expuestos, tareas programadas silenciosamente fallidas y declarar aprobado un piloto que todavía no cumplió siete días.
 
 ## Estado de Fase 8

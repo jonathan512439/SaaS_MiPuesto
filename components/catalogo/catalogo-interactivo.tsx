@@ -120,35 +120,19 @@ export function CatalogoInteractivo({
   useEffect(() => {
     registrar("vista_catalogo");
   }, [registrar]);
-  const navegacionCatalogo = datos.categorias.length > 0 ? (
-    <section aria-labelledby="explorar-catalogo" className={styles.explorador}>
-      <div>
-        <label htmlFor="categoria-catalogo" id="explorar-catalogo">
-          Categoría
-        </label>
-        <select
-          id="categoria-catalogo"
-          onChange={(evento) => {
-            setCategoriaActiva(evento.target.value);
-            setPagina(1);
-          }}
-          value={categoriaActiva}
-        >
-          <option value="">Todas las categorías</option>
-          {datos.categorias.map((categoria) => (
-            <option key={categoria.id} value={categoria.id}>
-              {categoria.nombre}
-            </option>
-          ))}
-        </select>
-      </div>
-      <p>
-        {paginaCatalogo.totalProductos === 1
-          ? "1 producto"
-          : `${paginaCatalogo.totalProductos} productos`}
-      </p>
-    </section>
-  ) : null;
+  /* La barra la dibuja la plantilla elegida, con su propia estructura; aqui
+     solo viaja el estado que comparten. Antes esta pantalla inyectaba un
+     desplegable generico y apagaba la barra de la plantilla, de modo que lo
+     publicado no se parecia a la vista previa del panel. */
+  const navegacion = {
+    categorias: datos.categorias.map(({ id, nombre }) => ({ id, nombre })),
+    activa: categoriaActiva,
+    totalProductos: paginaCatalogo.totalProductos,
+    alElegir: (categoriaId: string) => {
+      setCategoriaActiva(categoriaId);
+      setPagina(1);
+    },
+  };
 
   function cambiarCantidad(productoId: string, cantidad: number) {
     const producto = productos.find(({ id }) => id === productoId);
@@ -178,8 +162,7 @@ export function CatalogoInteractivo({
         cantidadesCarrito={cantidades}
         datos={datosPaginados}
         demostracion={false}
-        navegacionCatalogo={navegacionCatalogo}
-        ocultarNavegacionCategorias
+        navegacion={datos.categorias.length > 0 ? navegacion : undefined}
         paleta={paleta}
       />
       {paginaCatalogo.totalPaginas > 1 ? (

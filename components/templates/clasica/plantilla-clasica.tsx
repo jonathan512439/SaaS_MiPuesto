@@ -15,8 +15,7 @@ export function PlantillaClasica({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
-  ocultarNavegacionCategorias = false,
-  navegacionCatalogo,
+  navegacion,
 }: PropiedadesPlantilla) {
   return (
     <article
@@ -47,19 +46,37 @@ export function PlantillaClasica({
 
       <AvisoHorario estado={datos.negocio.atencion} />
 
-      {navegacionCatalogo}
-
-      {!ocultarNavegacionCategorias ? (
-        <nav className={styles.navegacion} aria-label="Categorías del catálogo">
-          {datos.categorias.map((categoria) => (
-            demostracion ? (
-              <button type="button" key={categoria.id}>{categoria.nombre}</button>
-            ) : (
-              <a href={`#categoria-${categoria.id}`} key={categoria.id}>{categoria.nombre}</a>
-            )
-          ))}
-        </nav>
-      ) : null}
+      <nav className={styles.navegacion} aria-label="Categorías del catálogo">
+        {navegacion ? (
+          <button
+            aria-pressed={navegacion.activa === ""}
+            onClick={() => navegacion.alElegir("")}
+            type="button"
+          >
+            Todo
+          </button>
+        ) : null}
+        {(navegacion?.categorias ?? datos.categorias).map((categoria) => {
+          const activa = navegacion?.activa === categoria.id;
+          return (
+            <button
+              aria-pressed={navegacion ? activa : undefined}
+              key={categoria.id}
+              onClick={() => navegacion?.alElegir(categoria.id)}
+              type="button"
+            >
+              {categoria.nombre}
+            </button>
+          );
+        })}
+        {navegacion ? (
+          <span aria-live="polite" className={styles.conteoCategorias}>
+            {navegacion.totalProductos === 1
+              ? "1 producto"
+              : `${navegacion.totalProductos} productos`}
+          </span>
+        ) : null}
+      </nav>
 
       <div className={styles.categorias}>
         {datos.categorias.map((categoria) => {

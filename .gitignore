@@ -24,3 +24,7 @@ Thumbs.db
 *.tsbuildinfo
 /dist/
 .vinext/
+
+# Generado por Next. next build y vinext build lo escriben distinto,
+# asi que versionarlo ensucia el arbol en cada cambio de pipeline.
+next-env.d.ts

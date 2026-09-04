@@ -15,8 +15,7 @@ export function PlantillaModerna({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
-  ocultarNavegacionCategorias = false,
-  navegacionCatalogo,
+  navegacion,
 }: PropiedadesPlantilla) {
   const productos = datos.categorias.flatMap((categoria) => {
     const productosCategoria = [
@@ -68,23 +67,39 @@ export function PlantillaModerna({
 
       <AvisoHorario estado={datos.negocio.atencion} />
 
-      {navegacionCatalogo}
-
-      {!ocultarNavegacionCategorias ? (
-        <nav className={styles.navegacion} aria-label="Categorías del catálogo">
-          {datos.categorias.map((categoria, indice) => (
-            demostracion ? (
-              <button className={indice === 0 ? styles.categoriaActiva : undefined} type="button" key={categoria.id}>
-                {categoria.nombre}
-              </button>
-            ) : (
-              <a className={indice === 0 ? styles.categoriaActiva : undefined} href={`#categoria-${categoria.id}`} key={categoria.id}>
-                {categoria.nombre}
-              </a>
-            )
-          ))}
-        </nav>
-      ) : null}
+      <nav className={styles.navegacion} aria-label="Categorías del catálogo">
+        {navegacion ? (
+          <button
+            aria-pressed={navegacion.activa === ""}
+            className={navegacion.activa === "" ? styles.categoriaActiva : undefined}
+            onClick={() => navegacion.alElegir("")}
+            type="button"
+          >
+            Todo
+          </button>
+        ) : null}
+        {(navegacion?.categorias ?? datos.categorias).map((categoria, indice) => {
+          const activa = navegacion ? navegacion.activa === categoria.id : indice === 0;
+          return (
+            <button
+              aria-pressed={navegacion ? activa : undefined}
+              className={activa ? styles.categoriaActiva : undefined}
+              key={categoria.id}
+              onClick={() => navegacion?.alElegir(categoria.id)}
+              type="button"
+            >
+              {categoria.nombre}
+            </button>
+          );
+        })}
+        {navegacion ? (
+          <span aria-live="polite" className={styles.conteoCategorias}>
+            {navegacion.totalProductos === 1
+              ? "1 producto"
+              : `${navegacion.totalProductos} productos`}
+          </span>
+        ) : null}
+      </nav>
 
       <ul className={styles.productos}>
         {productos.map((producto) => (

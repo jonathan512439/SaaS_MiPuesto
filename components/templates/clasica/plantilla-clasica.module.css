@@ -431,3 +431,10 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+.conteoCategorias {
+  margin-left: auto;
+  align-self: center;
+  color: var(--catalogo-texto-tenue);
+  font-size: var(--text-xs);
+}

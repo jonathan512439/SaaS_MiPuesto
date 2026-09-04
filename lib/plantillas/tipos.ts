@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 
 import type { PaletaId } from "../apariencia";
 import type { EstadoAtencion } from "../horario";
@@ -55,6 +54,13 @@ export type DatosPlantilla = {
   categorias: CategoriaPlantilla[];
 };
 
+export type NavegacionCatalogo = {
+  categorias: { id: string; nombre: string }[];
+  activa: string;
+  totalProductos: number;
+  alElegir: (categoriaId: string) => void;
+};
+
 export type PropiedadesPlantilla = {
   datos: DatosPlantilla;
   paleta?: PaletaId;
@@ -62,6 +68,9 @@ export type PropiedadesPlantilla = {
   cantidadesCarrito?: Record<string, number>;
   alAgregarProducto?: (productoId: string) => void;
   alAbrirWhatsapp?: (productoId: string | null) => void;
-  ocultarNavegacionCategorias?: boolean;
-  navegacionCatalogo?: ReactNode;
+  /* Cuando el catalogo corre de verdad, la navegacion filtra y pagina, asi que
+     no puede resolverse con anclas. Cada plantilla dibuja su propia barra con
+     su estructura, pero conectada a este estado comun. Sin esta propiedad la
+     plantilla esta en modo demostracion y su barra es inerte. */
+  navegacion?: NavegacionCatalogo;
 };
