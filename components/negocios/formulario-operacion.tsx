@@ -11,7 +11,7 @@ import {
   type ModoHorario,
 } from "../../lib/horario";
 import { validarOperacionNegocio } from "../../lib/negocios/operacion";
-import { Boton, Campo, Selector } from "../ui";
+import { Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "./formulario-operacion.module.css";
 
 export type OperacionNegocioInicial = {
@@ -47,14 +47,11 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
     String(operacionInicial.reserva_minutos),
   );
   const [errores, setErrores] = useState<Record<string, string>>({});
-  const [mensaje, setMensaje] = useState("");
-  const [mensajeEsError, setMensajeEsError] = useState(false);
+  const { mostrarAviso } = useAvisos();
   const [guardando, setGuardando] = useState(false);
 
   function cambiarModo(modo: ModoHorario) {
     setHorario((actual) => ({ ...actual, modo }));
-    setMensaje("");
-    setMensajeEsError(false);
   }
 
   function cambiarDia(dia: DiaSemana, abierto: boolean) {
@@ -106,8 +103,6 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
 
   async function guardar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    setMensaje("");
-    setMensajeEsError(false);
     const validacion = validarOperacionNegocio({
       horario,
       reserva_minutos: reservaMinutos,
@@ -136,11 +131,13 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
       }
       setHorario(horarioInicial(datos.negocio.horario));
       setReservaMinutos(String(datos.negocio.reserva_minutos));
-      setMensaje("Horario y tiempo de reserva guardados.");
-      setMensajeEsError(false);
+      mostrarAviso({ titulo: "Atención guardada", variante: "exito" });
     } catch (error) {
-      setMensaje(error instanceof Error ? error.message : "No se pudieron guardar los cambios.");
-      setMensajeEsError(true);
+      mostrarAviso({
+        titulo: "No se pudo guardar la atención",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
+        variante: "error",
+      });
     } finally {
       setGuardando(false);
     }
@@ -262,15 +259,6 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
             : "No mostraremos un horario y las acciones permanecerán disponibles."}
         </p>
       )}
-
-      {mensaje ? (
-        <p
-          className={mensajeEsError ? styles.error : styles.exito}
-          role={mensajeEsError ? "alert" : "status"}
-        >
-          {mensaje}
-        </p>
-      ) : null}
 
       <div className={styles.acciones}>
         <Boton cargando={guardando} type="submit">Guardar atención y reservas</Boton>

@@ -8,7 +8,7 @@ import {
   validarDatosNegocio,
   validarSlug,
 } from "../../lib/negocios/validacion";
-import { AreaTexto, Boton, Campo, Selector } from "../ui";
+import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "../../app/(admin)/dashboard/configuracion/configuracion.module.css";
 
 export type PerfilNegocioInicial = {
@@ -65,7 +65,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   const [telefono, setTelefono] = useState(negocioInicial?.telefono_whatsapp ?? "");
   const [estadoSlug, setEstadoSlug] = useState<EstadoSlug>("inicial");
   const [errores, setErrores] = useState<Record<string, string>>({});
-  const [mensaje, setMensaje] = useState("");
+  const { mostrarAviso } = useAvisos();
   const [guardando, setGuardando] = useState(false);
   const slugEditado = useRef(Boolean(negocioInicial?.slug));
   const errorFormatoSlug = validarSlug(slug);
@@ -116,7 +116,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
 
   async function guardar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    setMensaje("");
 
     const entrada = {
       nombre,
@@ -149,7 +148,11 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
 
     if (!respuesta.ok) {
       setErrores(datos.errores ?? {});
-      setMensaje(datos.error ?? "No se pudo guardar el negocio.");
+      mostrarAviso({
+        titulo: "No se pudo guardar el negocio",
+        mensaje: datos.error,
+        variante: "error",
+      });
       setGuardando(false);
       return;
     }
@@ -162,11 +165,11 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       setTelefono(datos.negocio.telefono_whatsapp);
     }
 
-    setMensaje(
-      negocioInicial
-        ? "Cambios guardados."
-        : "Negocio creado correctamente. Tu dirección quedó reservada para el catálogo público.",
-    );
+    mostrarAviso({
+      titulo: negocioInicial ? "Cambios guardados" : "Negocio creado",
+      mensaje: negocioInicial ? undefined : "Tu dirección quedó reservada.",
+      variante: "exito",
+    });
     setGuardando(false);
   }
 
@@ -300,15 +303,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           value={telefono}
         />
       </section>
-
-      {mensaje ? (
-        <p
-          className={Object.keys(errores).length ? styles.mensajeError : styles.mensajeExito}
-          role={Object.keys(errores).length ? "alert" : "status"}
-        >
-          {mensaje}
-        </p>
-      ) : null}
 
       <div className={styles.accionesFormulario}>
         <Boton cargando={guardando} type="submit">

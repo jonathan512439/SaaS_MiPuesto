@@ -21,7 +21,6 @@
 .ayuda,
 .avisoCambio,
 .avisoPendiente,
-.mensajes p,
 .demostracion header p,
 .demostracion header h2 {
   margin: 0;
@@ -223,36 +222,6 @@
   font-weight: 700;
 }
 
-.mensajes:empty {
-  display: none;
-}
-
-.exito,
-.error {
-  border: var(--borde-fino) solid;
-  border-left-width: var(--spacing-1);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--color-superficie);
-  box-shadow: var(--sombra-panel);
-  font-size: var(--text-sm);
-  font-weight: 600;
-}
-
-.exito {
-  border-color: color-mix(in srgb, var(--color-exito) 30%, transparent);
-  border-left-color: var(--color-exito);
-  background: color-mix(in srgb, var(--color-exito) 7%, var(--color-superficie));
-  color: var(--color-exito);
-}
-
-.error {
-  border-color: color-mix(in srgb, var(--color-peligro) 30%, transparent);
-  border-left-color: var(--color-peligro);
-  background: color-mix(in srgb, var(--color-peligro) 7%, var(--color-superficie));
-  color: var(--color-peligro);
-}
-
 @media (min-width: 42rem) {
   .plantillas {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -261,6 +230,7 @@
   .paletas {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
 }
 
 @media (max-width: 24rem) {
@@ -287,4 +257,5 @@
   .acciones > button {
     width: 100%;
   }
+
 }

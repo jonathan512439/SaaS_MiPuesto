@@ -21,8 +21,7 @@
 
 .ayuda,
 .avisoCambio,
-.avisoPendiente,
-.mensajes p {
+.avisoPendiente {
   margin: 0;
   font-size: var(--text-sm);
 }
@@ -162,41 +161,13 @@
   font-weight: 700;
 }
 
-.mensajes:empty {
-  display: none;
-}
-
-.exito,
-.error {
-  background: var(--color-superficie);
-  box-shadow: var(--sombra-panel);
-  border: var(--borde-fino) solid;
-  border-left-width: var(--spacing-1);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-3) var(--spacing-4);
-  font-weight: 600;
-}
-
-.exito {
-  border-color: color-mix(in srgb, var(--color-exito) 30%, transparent);
-  border-left-color: var(--color-exito);
-  background: color-mix(in srgb, var(--color-exito) 7%, var(--color-superficie));
-  color: var(--color-exito);
-}
-
-.error {
-  border-color: color-mix(in srgb, var(--color-peligro) 30%, transparent);
-  border-left-color: var(--color-peligro);
-  background: color-mix(in srgb, var(--color-peligro) 7%, var(--color-superficie));
-  color: var(--color-peligro);
-}
-
 @media (min-width: 60rem) {
   .opciones {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: start;
     gap: var(--spacing-4);
   }
+
 }
 
 @media (max-width: 24rem) {
@@ -208,4 +179,5 @@
   .vistaPrevia {
     padding: var(--spacing-2);
   }
+
 }

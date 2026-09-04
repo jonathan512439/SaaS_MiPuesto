@@ -11,7 +11,7 @@ import {
 } from "../../lib/apariencia";
 import type { DatosPlantilla, PropiedadesPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
-import { Boton } from "../ui/boton";
+import { Boton, useAvisos } from "../ui";
 import styles from "./selector-apariencia.module.css";
 
 type PropiedadesSelector = {
@@ -42,23 +42,15 @@ export function SelectorApariencia({
   const [plantillaGuardada, setPlantillaGuardada] = useState(plantillaInicial);
   const [paletaGuardada, setPaletaGuardada] = useState(paletaInicial);
   const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState("");
-  const [error, setError] = useState("");
+  const { mostrarAviso } = useAvisos();
 
   const VistaPrevia = VISTAS[plantillaElegida];
   const hayCambioPendiente =
     plantillaElegida !== plantillaGuardada || paletaElegida !== paletaGuardada;
 
-  function limpiarMensajes() {
-    setMensaje("");
-    setError("");
-  }
-
   async function guardarApariencia(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setGuardando(true);
-    limpiarMensajes();
-
     try {
       const respuesta = await fetch("/api/negocios/plantilla", {
         method: "PATCH",
@@ -80,13 +72,13 @@ export function SelectorApariencia({
 
       setPlantillaGuardada(resultado.plantilla_id);
       setPaletaGuardada(resultado.paleta_id);
-      setMensaje("Apariencia guardada. Puedes cambiarla nuevamente cuando quieras.");
+      mostrarAviso({ titulo: "Apariencia guardada", variante: "exito" });
     } catch (causa) {
-      setError(
-        causa instanceof Error
-          ? causa.message
-          : "No se pudo guardar la apariencia. Intenta nuevamente.",
-      );
+      mostrarAviso({
+        titulo: "No se pudo guardar la apariencia",
+        mensaje: causa instanceof Error ? causa.message : "Intenta nuevamente.",
+        variante: "error",
+      });
     } finally {
       setGuardando(false);
     }
@@ -115,7 +107,6 @@ export function SelectorApariencia({
                   name="plantilla"
                   onChange={() => {
                     setPlantillaElegida(plantilla.id);
-                    limpiarMensajes();
                   }}
                   type="radio"
                   value={plantilla.id}
@@ -150,7 +141,6 @@ export function SelectorApariencia({
                   name="paleta"
                   onChange={() => {
                     setPaletaElegida(paleta.id);
-                    limpiarMensajes();
                   }}
                   type="radio"
                   value={paleta.id}
@@ -187,10 +177,6 @@ export function SelectorApariencia({
       </section>
 
       <div className={styles.barra}>
-        <div aria-live="polite" className={styles.mensajes}>
-          {mensaje ? <p className={styles.exito}>{mensaje}</p> : null}
-          {error ? <p className={styles.error}>{error}</p> : null}
-        </div>
         <div className={styles.acciones}>
           <p className={hayCambioPendiente ? styles.avisoPendiente : styles.avisoCambio}>
             {hayCambioPendiente

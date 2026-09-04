@@ -7,7 +7,7 @@ import type {
   PlantillaId,
   PropiedadesPlantilla,
 } from "../../lib/plantillas/tipos";
-import { Boton } from "../ui/boton";
+import { Boton, useAvisos } from "../ui";
 import { PlantillaClasica, PlantillaMinimal, PlantillaModerna } from "../templates";
 import styles from "./selector-plantilla.module.css";
 
@@ -48,14 +48,11 @@ export function SelectorPlantilla({ datos, plantillaInicial }: PropiedadesSelect
   const [plantillaElegida, setPlantillaElegida] = useState(plantillaInicial);
   const [plantillaGuardada, setPlantillaGuardada] = useState(plantillaInicial);
   const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState("");
-  const [error, setError] = useState("");
+  const { mostrarAviso } = useAvisos();
 
   async function guardarPlantilla(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setGuardando(true);
-    setMensaje("");
-    setError("");
 
     try {
       const respuesta = await fetch("/api/negocios/plantilla", {
@@ -73,13 +70,13 @@ export function SelectorPlantilla({ datos, plantillaInicial }: PropiedadesSelect
       }
 
       setPlantillaGuardada(resultado.plantilla_id);
-      setMensaje("Plantilla guardada. Se usará cuando publiques tu catálogo.");
+      mostrarAviso({ titulo: "Plantilla guardada", variante: "exito" });
     } catch (causa) {
-      setError(
-        causa instanceof Error
-          ? causa.message
-          : "No se pudo guardar la plantilla. Intenta nuevamente.",
-      );
+      mostrarAviso({
+        titulo: "No se pudo guardar la plantilla",
+        mensaje: causa instanceof Error ? causa.message : "Intenta nuevamente.",
+        variante: "error",
+      });
     } finally {
       setGuardando(false);
     }
@@ -106,11 +103,7 @@ export function SelectorPlantilla({ datos, plantillaInicial }: PropiedadesSelect
                     checked={elegida}
                     id={`plantilla-${id}`}
                     name="plantilla"
-                    onChange={() => {
-                      setPlantillaElegida(id);
-                      setMensaje("");
-                      setError("");
-                    }}
+                    onChange={() => setPlantillaElegida(id)}
                     type="radio"
                     value={id}
                   />
@@ -136,10 +129,6 @@ export function SelectorPlantilla({ datos, plantillaInicial }: PropiedadesSelect
       </fieldset>
 
       <div className={styles.barra}>
-        <div aria-live="polite" className={styles.mensajes}>
-          {mensaje ? <p className={styles.exito}>{mensaje}</p> : null}
-          {error ? <p className={styles.error}>{error}</p> : null}
-        </div>
         <div className={styles.acciones}>
           <p className={hayCambioPendiente ? styles.avisoPendiente : styles.avisoCambio}>
             {hayCambioPendiente

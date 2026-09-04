@@ -9,7 +9,7 @@ import {
   type TipoImagenIdentidad,
 } from "../../lib/negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../../lib/negocios/imagenes-publicas";
-import { Boton } from "../ui/boton";
+import { Boton, useAvisos, useConfirmacion } from "../ui";
 import styles from "./formulario-identidad.module.css";
 
 export type IdentidadNegocioInicial = {
@@ -76,8 +76,8 @@ export function FormularioIdentidad({
     obtenerRedesSociales(identidadInicial.redes_sociales),
   );
   const [errores, setErrores] = useState<Record<string, string>>({});
-  const [mensaje, setMensaje] = useState("");
-  const [errorGeneral, setErrorGeneral] = useState("");
+  const { mostrarAviso } = useAvisos();
+  const confirmar = useConfirmacion();
   const [ocupado, setOcupado] = useState<TipoImagenIdentidad | "redes" | "">("");
 
   function actualizarRed(campo: keyof RedesSocialesNegocio, valor: string) {
@@ -89,8 +89,6 @@ export function FormularioIdentidad({
     const archivo = evento.target.files?.[0];
     evento.target.value = "";
     if (!archivo) return;
-    setMensaje("");
-    setErrorGeneral("");
     setOcupado(tipo);
     try {
       const imagen = await prepararImagenParaSubir(archivo);
@@ -113,18 +111,30 @@ export function FormularioIdentidad({
         ...actuales,
         [tipo]: { ruta: imagenGuardada.ruta, url: imagenGuardada.url },
       }));
-      setMensaje(tipo === "qr" ? "QR de cobro guardado." : "Imagen del negocio guardada.");
+      mostrarAviso({
+        titulo: tipo === "qr" ? "QR de cobro guardado" : "Imagen guardada",
+        variante: "exito",
+      });
     } catch (error) {
-      setErrorGeneral(error instanceof Error ? error.message : "No se pudo guardar la imagen.");
+      mostrarAviso({
+        titulo: "No se pudo guardar la imagen",
+        mensaje:
+          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
+        variante: "error",
+      });
     } finally {
       setOcupado("");
     }
   }
 
   async function borrarImagen(tipo: TipoImagenIdentidad) {
-    if (!window.confirm("¿Quitar esta imagen del negocio?")) return;
-    setMensaje("");
-    setErrorGeneral("");
+    const aceptado = await confirmar({
+      titulo: "Quitar esta imagen",
+      descripcion: "Deja de verse en tu catálogo público.",
+      destructiva: true,
+      textoAccion: "Quitar imagen",
+    });
+    if (!aceptado) return;
     setOcupado(tipo);
     try {
       const respuesta = await fetch("/api/negocios/identidad", {
@@ -135,9 +145,14 @@ export function FormularioIdentidad({
       const datos = (await respuesta.json().catch(() => ({}))) as { error?: string };
       if (!respuesta.ok) throw new Error(datos.error || "No se pudo quitar la imagen.");
       setImagenes((actuales) => ({ ...actuales, [tipo]: { ruta: null, url: null } }));
-      setMensaje("Imagen quitada del negocio.");
+      mostrarAviso({ titulo: "Imagen quitada", variante: "exito" });
     } catch (error) {
-      setErrorGeneral(error instanceof Error ? error.message : "No se pudo quitar la imagen.");
+      mostrarAviso({
+        titulo: "No se pudo quitar la imagen",
+        mensaje:
+          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
+        variante: "error",
+      });
     } finally {
       setOcupado("");
     }
@@ -145,8 +160,6 @@ export function FormularioIdentidad({
 
   async function guardarRedes(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    setMensaje("");
-    setErrorGeneral("");
     setErrores({});
     setOcupado("redes");
     try {
@@ -165,9 +178,14 @@ export function FormularioIdentidad({
         throw new Error(datos.error || "No se pudieron guardar los enlaces.");
       }
       setRedes(obtenerRedesSociales(datos.identidad.redes_sociales));
-      setMensaje("Enlaces de contacto guardados.");
+      mostrarAviso({ titulo: "Enlaces guardados", variante: "exito" });
     } catch (error) {
-      setErrorGeneral(error instanceof Error ? error.message : "No se pudieron guardar los enlaces.");
+      mostrarAviso({
+        titulo: "No se pudieron guardar los enlaces",
+        mensaje:
+          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
+        variante: "error",
+      });
     } finally {
       setOcupado("");
     }
@@ -261,10 +279,6 @@ export function FormularioIdentidad({
         <Boton cargando={ocupado === "redes"} type="submit">Guardar enlaces</Boton>
       </form>
 
-      <div aria-live="polite" className={styles.mensajes}>
-        {mensaje ? <p className={styles.exito}>{mensaje}</p> : null}
-        {errorGeneral ? <p className={styles.error}>{errorGeneral}</p> : null}
-      </div>
     </section>
   );
 }

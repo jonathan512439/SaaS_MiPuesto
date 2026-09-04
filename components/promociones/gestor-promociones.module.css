@@ -34,7 +34,6 @@
 .listado h2,
 .listado h3,
 .listado p,
-.mensajes p,
 .detalle p {
   margin: 0;
 }
@@ -52,7 +51,6 @@
 
 .formulario header > p,
 .listado header p,
-.vacio p,
 .detalle p,
 .detalle small {
   color: var(--color-texto-suave);
@@ -122,31 +120,6 @@
 
 .ejemplo > small {
   grid-column: 1 / -1;
-}
-
-.mensajes:empty {
-  display: none;
-}
-
-.exito,
-.error {
-  border-left: var(--spacing-1) solid;
-  border-radius: 0 var(--radius-control) var(--radius-control) 0;
-  padding: var(--spacing-3) var(--spacing-4);
-  font-size: var(--text-sm);
-  font-weight: 700;
-}
-
-.exito {
-  border-color: var(--color-exito);
-  background: var(--color-exito-tenue);
-  color: var(--color-exito);
-}
-
-.error {
-  border-color: var(--color-peligro);
-  background: var(--color-peligro-tenue);
-  color: var(--color-peligro);
 }
 
 .listado {
@@ -227,16 +200,6 @@
   gap: var(--spacing-2);
 }
 
-.vacio {
-  display: grid;
-  gap: var(--spacing-2);
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-8) var(--spacing-6);
-  background: var(--color-fondo-suave);
-  text-align: center;
-}
-
 @media (min-width: 42rem) {
   .campos {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -250,6 +213,7 @@
   .acciones {
     justify-content: flex-end;
   }
+
 }
 
 @media (max-width: 24rem) {
@@ -276,4 +240,5 @@
   .ejemplo > span {
     grid-column: 1 / -1;
   }
+
 }

@@ -1,5 +1,4 @@
 @reference "../../../globals.css";
-
 .encabezado p,
 .encabezado h1,
 .tituloBloque h2,
@@ -8,8 +7,6 @@
 .slugDisponible,
 .slugNoDisponible,
 .vistaDireccion,
-.mensajeError,
-.mensajeExito,
 .accionesFormulario p {
   margin: 0;
 }
@@ -156,30 +153,6 @@
   font-size: var(--text-sm);
 }
 
-.mensajeError,
-.mensajeExito {
-  border: var(--borde-fino) solid;
-  border-left-width: var(--spacing-1);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-3) var(--spacing-4);
-  font-size: var(--text-sm);
-  font-weight: 600;
-}
-
-.mensajeError {
-  border-color: color-mix(in srgb, var(--color-peligro) 30%, transparent);
-  border-left-color: var(--color-peligro);
-  background: color-mix(in srgb, var(--color-peligro) 7%, var(--color-superficie));
-  color: var(--color-peligro);
-}
-
-.mensajeExito {
-  border-color: color-mix(in srgb, var(--color-exito) 30%, transparent);
-  border-left-color: var(--color-exito);
-  background: color-mix(in srgb, var(--color-exito) 7%, var(--color-superficie));
-  color: var(--color-exito);
-}
-
 .accionesFormulario {
   display: flex;
   align-items: center;
@@ -211,6 +184,7 @@
   .formulario {
     padding: var(--spacing-8);
   }
+
 }
 
 @media (max-width: 24rem) {
@@ -226,4 +200,5 @@
   .accionesFormulario > button {
     width: 100%;
   }
+
 }

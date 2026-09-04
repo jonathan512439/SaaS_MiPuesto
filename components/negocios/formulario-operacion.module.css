@@ -28,9 +28,7 @@
 
 .cabecera p,
 .cabecera h2,
-.explicacionModo,
-.error,
-.exito {
+.explicacionModo {
   margin: 0;
 }
 
@@ -195,27 +193,6 @@
   color: var(--color-texto);
 }
 
-.error,
-.exito {
-  border-left: var(--spacing-1) solid;
-  border-radius: 0 var(--radius-control) var(--radius-control) 0;
-  padding: var(--spacing-3) var(--spacing-4);
-  font-size: var(--text-sm);
-  font-weight: 700;
-}
-
-.error {
-  border-left-color: var(--color-peligro);
-  background: var(--color-peligro-tenue);
-  color: var(--color-peligro);
-}
-
-.exito {
-  border-left-color: var(--color-exito);
-  background: var(--color-exito-tenue);
-  color: var(--color-exito);
-}
-
 .acciones {
   display: flex;
   border-top: var(--borde-fino) solid var(--color-borde-suave);
@@ -233,6 +210,7 @@
   .intervalos {
     padding-bottom: 0;
   }
+
 }
 
 @media (min-width: 48rem) {
@@ -245,6 +223,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--spacing-5);
   }
+
 }
 
 @media (max-width: 24rem) {
@@ -263,4 +242,5 @@
   .acciones > button {
     width: 100%;
   }
+
 }

@@ -10,7 +10,7 @@ import {
   type TipoPromocion,
 } from "../../lib/precios";
 import { validarPromocion } from "../../lib/promociones/validacion";
-import { Boton } from "../ui/boton";
+import { Boton, EstadoVacio, useAvisos, useConfirmacion } from "../ui";
 import styles from "./gestor-promociones.module.css";
 
 type Categoria = { id: string; nombre: string };
@@ -95,8 +95,8 @@ export function GestorPromociones({
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [errores, setErrores] = useState<Record<string, string>>({});
-  const [mensaje, setMensaje] = useState("");
-  const [errorGeneral, setErrorGeneral] = useState("");
+  const { mostrarAviso } = useAvisos();
+  const confirmar = useConfirmacion();
   const [ocupado, setOcupado] = useState(false);
   const ahora = new Date();
   const nombresCategorias = useMemo(
@@ -141,8 +141,6 @@ export function GestorPromociones({
 
   async function crearPromocion(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    setMensaje("");
-    setErrorGeneral("");
     const entrada = {
       tipo,
       valor,
@@ -168,19 +166,21 @@ export function GestorPromociones({
       setValor("");
       setFechaInicio("");
       setFechaFin("");
-      setMensaje("Promoción creada y lista para el catálogo.");
+      mostrarAviso({ titulo: "Promoción creada", variante: "exito" });
     } catch (error) {
       const motivo = error as Error & { errores?: Record<string, string> };
       setErrores(motivo.errores ?? {});
-      setErrorGeneral(motivo.message);
+      mostrarAviso({
+        titulo: "No se pudo crear la promoción",
+        mensaje: motivo.message,
+        variante: "error",
+      });
     } finally {
       setOcupado(false);
     }
   }
 
   async function cambiarEstado(promocion: PromocionAdmin) {
-    setMensaje("");
-    setErrorGeneral("");
     setOcupado(true);
     try {
       const datos = await solicitarJson<{ promocion: PromocionAdmin }>("/api/promociones", {
@@ -191,18 +191,29 @@ export function GestorPromociones({
       setPromociones((actuales) =>
         actuales.map((item) => (item.id === promocion.id ? datos.promocion : item)),
       );
-      setMensaje(datos.promocion.activo ? "Promoción activada." : "Promoción pausada.");
+      mostrarAviso({
+        titulo: datos.promocion.activo ? "Promoción activada" : "Promoción pausada",
+        variante: "exito",
+      });
     } catch (error) {
-      setErrorGeneral(error instanceof Error ? error.message : "No se pudo cambiar la promoción.");
+      mostrarAviso({
+        titulo: "No se pudo cambiar la promoción",
+        mensaje: error instanceof Error ? error.message : undefined,
+        variante: "error",
+      });
     } finally {
       setOcupado(false);
     }
   }
 
   async function borrarPromocion(promocion: PromocionAdmin) {
-    if (!window.confirm("¿Borrar esta promoción? Esta acción no se puede deshacer.")) return;
-    setMensaje("");
-    setErrorGeneral("");
+    const aceptado = await confirmar({
+      titulo: "Borrar esta promoción",
+      descripcion: "El precio vuelve a su valor normal. No se puede deshacer.",
+      destructiva: true,
+      textoAccion: "Borrar promoción",
+    });
+    if (!aceptado) return;
     setOcupado(true);
     try {
       await solicitarJson<{ eliminado: true }>("/api/promociones", {
@@ -211,9 +222,13 @@ export function GestorPromociones({
         body: JSON.stringify({ id: promocion.id }),
       });
       setPromociones((actuales) => actuales.filter((item) => item.id !== promocion.id));
-      setMensaje("Promoción borrada.");
+      mostrarAviso({ titulo: "Promoción borrada", variante: "exito" });
     } catch (error) {
-      setErrorGeneral(error instanceof Error ? error.message : "No se pudo borrar la promoción.");
+      mostrarAviso({
+        titulo: "No se pudo borrar la promoción",
+        mensaje: error instanceof Error ? error.message : undefined,
+        variante: "error",
+      });
     } finally {
       setOcupado(false);
     }
@@ -308,11 +323,6 @@ export function GestorPromociones({
         </Boton>
       </form>
 
-      <div aria-live="polite" className={styles.mensajes}>
-        {mensaje ? <p className={styles.exito}>{mensaje}</p> : null}
-        {errorGeneral ? <p className={styles.error}>{errorGeneral}</p> : null}
-      </div>
-
       <section className={styles.listado} aria-labelledby="promociones-creadas">
         <header>
           <div>
@@ -321,10 +331,10 @@ export function GestorPromociones({
           </div>
         </header>
         {promociones.length === 0 ? (
-          <div className={styles.vacio}>
-            <h3>Todavía no creaste promociones</h3>
-            <p>Usa el formulario para destacar tu primera oferta.</p>
-          </div>
+          <EstadoVacio
+            descripcion="Usa el formulario de arriba para destacar tu primera oferta."
+            titulo="Todavía no creaste promociones"
+          />
         ) : (
           <ul>
             {promociones.map((promocion) => {

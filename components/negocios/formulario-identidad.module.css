@@ -20,8 +20,7 @@
 .imagenFila h3,
 .imagenFila p,
 .redes h3,
-.redes p,
-.mensajes p {
+.redes p {
   margin: 0;
 }
 
@@ -197,31 +196,6 @@
   color: var(--color-peligro);
 }
 
-.mensajes:empty {
-  display: none;
-}
-
-.exito,
-.error {
-  border-left: var(--spacing-1) solid;
-  border-radius: 0 var(--radius-control) var(--radius-control) 0;
-  padding: var(--spacing-3) var(--spacing-4);
-  font-size: var(--text-sm);
-  font-weight: 700;
-}
-
-.exito {
-  border-color: var(--color-exito);
-  background: var(--color-exito-tenue);
-  color: var(--color-exito);
-}
-
-.error {
-  border-color: var(--color-peligro);
-  background: var(--color-peligro-tenue);
-  color: var(--color-peligro);
-}
-
 @media (min-width: 42rem) {
   .imagenFila {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -236,6 +210,7 @@
   .camposRedes {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
 }
 
 @media (max-width: 24rem) {
@@ -259,4 +234,5 @@
   .redes {
     padding: var(--spacing-4);
   }
+
 }
