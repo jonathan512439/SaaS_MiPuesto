@@ -106,14 +106,28 @@ Fase posterior al planning original. Nace de una revisión crítica de la interf
 - **No se construyó panel de super-administración**, porque `SECURITY.md` lo marca explícitamente como prematuro: «construilo cuando administrar a mano te empiece a doler». Con cuatro negocios no duele; el script quita el dolor sin sumar una pantalla privilegiada que proteger.
 - Riesgo detectado al aplicar la migración: el script documentado `supabase:push:dev` incluye `--include-seed`, de modo que habría reejecutado `seed.sql` sobre la base con el negocio piloto. Se usó `supabase db push --linked` sin el indicador. Conviene renombrar ese script o quitarle el indicador.
 
+### Bloque 10.4 — Ficha de producto y búsqueda (cerrado 2026-09-04)
+
+- Cada producto tiene dirección propia en `/[slug]/p/[codigo]`, formada con el código que ya existía y que la base garantiza único por negocio. Muestra todas las fotografías, la descripción completa, el precio con su promoción y la disponibilidad, con la paleta del dueño.
+- Hasta aquí un catálogo solo tenía una dirección: no se podía mandar un producto concreto por WhatsApp, que es el canal por el que este producto vende.
+- Los marcos de la galería reservan su proporción antes de que llegue la imagen, de modo que el texto no salta al terminar la descarga.
+- El nombre del producto enlaza a su ficha desde las tres plantillas, salvo en modo demostración, donde el slug es ficticio.
+- **Buscador en el catálogo público**, dentro de la barra de cada plantilla y no en un bloque genérico inyectado encima. Ignora tildes y mayúsculas, exige todas las palabras pero no su orden, mira también la descripción, se combina con el filtro de categoría y reinicia la página al escribir. Sin resultados, la pantalla lo dice y ofrece salida.
+
+### Vistas previas para compartir: un fallo silencioso
+
+- La imagen de Open Graph devolvía HTTP 200 con cero bytes exactamente en los productos que tienen fotografía, que son los que interesa compartir. Ningún control automático lo habría detectado, porque el código de estado era correcto.
+- Causa: `lib/imagenes.ts` convierte toda foto subida a WebP y el generador de imágenes solo rasteriza PNG y JPEG.
+- Guardar una segunda copia de cada foto habría duplicado el consumo del almacenamiento gratuito, declarado como límite real en el planning. En su lugar se pide a Supabase la conversión al vuelo, acotada a 800 px, que ocurre solo cuando alguien pega el enlace y no en cada visita.
+- Se conserva la comprobación de tipo como red: si esa conversión dejara de estar disponible, la tarjeta se arma solo con texto en vez de devolver una respuesta vacía. La portada del negocio tenía el mismo problema y sigue el mismo camino.
+- La fotografía se contiene y no se recorta: quien recibe el enlace tiene que ver el producto entero.
+
 ### Deuda conocida que la fase 10 no toca
 
 Detectada en la revisión crítica de apertura y deliberadamente aplazada:
 
-- El catálogo público no tiene buscador. Con hasta 40 categorías y paginación de 10 productos, encontrar algo exige navegar a ciegas.
-- No existe página de producto individual, así que no se puede compartir un enlace a un producto concreto. Para un producto cuyo canal es WhatsApp, es una limitación de negocio y no solo de interfaz.
 - El catálogo público es `force-dynamic`: cada visita consulta Supabase cuatro veces. Debería pasar a caché con revalidación por etiqueta, lo que además abarataría el refresco tras reservar.
-- Las imágenes no declaran `aspect-ratio` en su contenedor ni `placeholder`, de modo que el diseño salta mientras cargan.
+- Las imágenes del catálogo, a diferencia de las de la ficha de producto, siguen sin declarar `aspect-ratio` en su contenedor, de modo que el diseño salta mientras cargan.
 - El alta sigue siendo un muro de cuatro formularios en una sola pantalla, sin pasos ni progreso.
 - El resumen semanal muestra tres contadores sin comparación con la semana anterior.
 - Tailwind sigue instalado sin una sola utilidad ni un `@apply`: solo se usa el bloque `@theme` para declarar variables.
