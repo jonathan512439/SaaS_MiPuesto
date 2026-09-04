@@ -143,15 +143,22 @@ Fase posterior al planning original. Nace de una revisión crítica de la interf
 - El carrito pierde su marco y su cabecera propia, que dentro de la hoja dibujaban una caja dentro de otra y repetían el título.
 - Dos archivos habían quedado fuera del cambio de tipografía y seguían con `Arial`: el carrito y el aviso de horario.
 
+### Bloque 11.3 — Paletas y plantilla nuevas (cerrado 2026-09-04)
+
+- Tres paletas más: **Altiplano** (violeta andino con carmín), **Jazmín** (ciruela con dorado) y **Grafito** (gris carbón con rojo). No se eligieron por gusto sino por hueco: artesanía y textiles, belleza y pastelería, y barberías o talleres eran rubros que las cuatro anteriores no vestían.
+- Cuarta plantilla, **Feria**. Las tres anteriores presentan el producto; esta presenta el precio. Fila en vez de tarjeta, foto en miniatura y cifra grande en condensada (**Roboto Condensed**): donde una cuadrícula muestra cuatro productos por pantalla, la lista muestra siete.
+- El registro pasa a **4 plantillas x 7 paletas = 28 combinaciones**, y el guardián del bloque 11.1 verificó las cuatro ubicaciones de cada una antes de cerrar.
+- Las dos restricciones de la base se reemplazaron por migración versionada y se comprobaron contra la base real, no contra el archivo: `paleta_id` y `plantilla_id` devuelven las listas ampliadas. La migración se aplicó **antes** de fusionar, para que no existiera una versión donde el catálogo ofreciera un valor que la base rechaza.
+- La prueba de combinaciones dejó de fijar un número y lo deriva de las listas. Un total escrito a mano obliga a corregir la prueba cada vez que se suma una paleta, y esa corrección mecánica es donde se esconde el olvido que la prueba debería atrapar.
+- Se eliminó `selector-plantilla`, sin uso desde que `selector-apariencia` lo reemplazó y con su propia copia del registro de plantillas. Dejarlo significaba que Feria naciera con un cuarto sitio donde faltarle.
+
 ### Deuda conocida que la fase 10 no toca
 
 Detectada en la revisión crítica de apertura y deliberadamente aplazada:
 
-- Las imágenes del catálogo, a diferencia de las de la ficha de producto, siguen sin declarar `aspect-ratio` en su contenedor, de modo que el diseño salta mientras cargan.
 - El alta sigue siendo un muro de cuatro formularios en una sola pantalla, sin pasos ni progreso.
 - El resumen semanal muestra tres contadores sin comparación con la semana anterior.
 - Tailwind sigue instalado sin una sola utilidad ni un `@apply`: solo se usa el bloque `@theme` para declarar variables.
-- Falta el número de WhatsApp de MiPuesto para la llamada a la acción de la landing y para la pantalla de cuenta. No hay ningún dato de contacto propio en la aplicación.
 - Riesgos principales: endpoint de mantenimiento público sin autenticación, secretos duplicados o expuestos, tareas programadas silenciosamente fallidas y declarar aprobado un piloto que todavía no cumplió siete días.
 
 ## Estado de Fase 8
