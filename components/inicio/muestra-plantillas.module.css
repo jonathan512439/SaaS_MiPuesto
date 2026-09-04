@@ -1,0 +1,147 @@
+@reference "../../app/globals.css";
+
+.muestra {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.controles {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.controles fieldset {
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.controles legend {
+  padding: 0 0 var(--spacing-2);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.opciones {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.opcion,
+.opcionElegida {
+  display: grid;
+  gap: var(--spacing-1);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-tarjeta);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-superficie);
+  cursor: pointer;
+}
+
+.opcionElegida {
+  border-color: var(--color-marca);
+  border-left-width: var(--spacing-1);
+  background: var(--color-marca-tenue);
+}
+
+.opcion input,
+.opcionElegida input,
+.paleta input,
+.paletaElegida input {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.opcion:has(input:focus-visible),
+.opcionElegida:has(input:focus-visible),
+.paleta:has(input:focus-visible),
+.paletaElegida:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.opcion strong,
+.opcionElegida strong {
+  font-size: var(--text-base);
+}
+
+.opcion span,
+.opcionElegida span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.paletas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.paleta,
+.paletaElegida {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-superficie);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.paletaElegida {
+  border-color: var(--color-marca);
+  border-width: var(--borde-marcado);
+  background: var(--color-marca-tenue);
+}
+
+/* La pastilla muestra el color de marca de cada paleta, no un nombre a secas:
+   el dueño elige mirando, no leyendo. */
+.paleta span[data-paleta],
+.paletaElegida span[data-paleta] {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: 50%;
+}
+
+/* Los colores salen de la propia definicion de cada paleta, no de una copia:
+   el elemento lleva la clase del tema y toma sus variables. */
+.paleta span[data-paleta],
+.paletaElegida span[data-paleta] {
+  background: linear-gradient(
+    135deg,
+    var(--catalogo-marca) 50%,
+    var(--catalogo-accion) 50%
+  );
+}
+
+/* El lienzo imita un celular porque ahí es donde el cliente final abre el
+   enlace. Es el único elemento con audacia visual de la portada. */
+.lienzo {
+  overflow: hidden;
+  border: var(--borde-marcado) solid var(--color-texto);
+  border-radius: var(--radius-sheet);
+  box-shadow: var(--sombra-panel);
+}
+
+.cargando {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-5);
+}
+
+@media (min-width: 60rem) {
+  .muestra {
+    grid-template-columns: 20rem minmax(0, 1fr);
+    align-items: start;
+    gap: var(--spacing-8);
+  }
+}

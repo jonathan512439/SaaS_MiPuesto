@@ -8,6 +8,11 @@ import { CerrarSesion } from "../../../components/negocios/cerrar-sesion";
 import { ProveedorSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { ProveedorAvisos, ProveedorConfirmacion } from "../../../components/ui";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
+import {
+  describirDiasRestantes,
+  evaluarSuscripcion,
+  formatearFechaVencimiento,
+} from "../../../lib/suscripcion";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import styles from "./dashboard.module.css";
 
@@ -24,6 +29,18 @@ export default async function LayoutPanel({
   const idUsuario = datosClaims?.claims.sub;
 
   if (!idUsuario) redirect("/login?motivo=sesion");
+
+  /* El aviso vive en el layout y no en una pantalla suelta: si el dueño tiene
+     que entrar a buscarlo, se entera el día que su catálogo deja de verse. */
+  const { data: negocioSuscripcion } = await supabase
+    .from("negocios")
+    .select("suscripcion_vence_en")
+    .eq("admin_user_id", idUsuario)
+    .maybeSingle();
+  const suscripcion = negocioSuscripcion
+    ? evaluarSuscripcion(negocioSuscripcion.suscripcion_vence_en, new Date())
+    : null;
+  const avisaSuscripcion = suscripcion !== null && suscripcion.estado !== "vigente";
 
   const correo =
     typeof datosClaims.claims.email === "string"
@@ -59,6 +76,21 @@ export default async function LayoutPanel({
                 <NavegacionDashboard />
               </div>
             </header>
+            {avisaSuscripcion ? (
+              <aside
+                className={styles.avisoSuscripcion}
+                data-estado={suscripcion.estado}
+                role="status"
+              >
+                <p>
+                  <strong>{describirDiasRestantes(suscripcion.diasRestantes)}</strong>{" "}
+                  {suscripcion.estado === "vencida"
+                    ? `Tu catálogo dejó de publicarse el ${formatearFechaVencimiento(suscripcion.venceEn)}. Tus datos siguen acá.`
+                    : `Tu mes termina el ${formatearFechaVencimiento(suscripcion.venceEn)}.`}
+                </p>
+                <Link href="/dashboard/cuenta">Ver mi cuenta</Link>
+              </aside>
+            ) : null}
             {children}
           </div>
         </ProveedorConfirmacion>

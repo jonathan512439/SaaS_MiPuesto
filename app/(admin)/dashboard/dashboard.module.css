@@ -167,3 +167,44 @@
     font-size: var(--text-xs);
   }
 }
+
+/* La franja avisa antes de que el catálogo se apague. El color acompaña, pero
+   la frase dice el estado por sí sola. */
+.avisoSuscripcion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
+  margin: var(--spacing-4) auto 0;
+  border-left: var(--spacing-1) solid var(--color-alerta);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-alerta-tenue);
+  color: var(--color-alerta);
+  font-size: var(--text-sm);
+}
+
+.avisoSuscripcion[data-estado="vencida"] {
+  border-left-color: var(--color-peligro);
+  background: var(--color-peligro-tenue);
+  color: var(--color-peligro);
+}
+
+.avisoSuscripcion p {
+  margin: 0;
+  max-width: var(--ancho-lectura);
+}
+
+.avisoSuscripcion a {
+  display: inline-flex;
+  min-height: var(--spacing-10);
+  align-items: center;
+  border: var(--borde-fino) solid currentColor;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-4);
+  color: inherit;
+  font-weight: 800;
+  white-space: nowrap;
+}

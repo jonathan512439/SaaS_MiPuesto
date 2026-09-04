@@ -1,0 +1,87 @@
+@reference "../globals.css";
+
+.pagina {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-6);
+  width: min(calc(100% - var(--spacing-8)), 48rem);
+  margin: 0 auto;
+  padding: var(--spacing-10) 0 var(--spacing-16);
+}
+
+.pagina h1,
+.pagina h2,
+.pagina p,
+.pagina ul,
+.pagina li {
+  margin: 0;
+}
+
+.encabezado {
+  display: grid;
+  gap: var(--spacing-3);
+  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
+  padding-bottom: var(--spacing-5);
+}
+
+.encabezado h1 {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.vigencia {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.seccion {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.seccion h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.seccion p,
+.seccion li {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+}
+
+.seccion ul {
+  display: grid;
+  gap: var(--spacing-2);
+  padding-left: var(--spacing-5);
+}
+
+.contacto {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  width: fit-content;
+  border: var(--borde-fino) solid var(--color-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (min-width: 60rem) {
+  .pagina {
+    padding-top: var(--spacing-16);
+  }
+
+  .encabezado h1 {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (max-width: 24rem) {
+  .pagina {
+    width: min(calc(100% - var(--spacing-6)), 48rem);
+  }
+}

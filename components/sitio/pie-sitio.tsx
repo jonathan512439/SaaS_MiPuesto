@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   DESARROLLADOR,
   WHATSAPP_MIPUESTO,
@@ -14,7 +16,9 @@ export function PieSitio() {
       <p className={styles.credito}>
         Desarrollado por {DESARROLLADOR.nombre}
       </p>
-      <nav aria-label="Contacto de MiPuesto" className={styles.enlaces}>
+      <nav aria-label="Enlaces de MiPuesto" className={styles.enlaces}>
+        <Link href="/terminos">Términos</Link>
+        <Link href="/privacidad">Privacidad</Link>
         <a href={DESARROLLADOR.url} rel="noreferrer" target="_blank">
           Ver soluciones de {DESARROLLADOR.nombre}
         </a>

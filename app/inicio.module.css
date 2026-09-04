@@ -2,64 +2,266 @@
 
 .pagina {
   display: grid;
-  align-content: center;
-  gap: var(--spacing-4);
-  min-height: 100dvh;
-  width: min(calc(100% - var(--spacing-8)), 48rem);
+  gap: var(--spacing-16);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
   margin: 0 auto;
-  padding: var(--spacing-12) 0;
+  padding: var(--spacing-10) 0 var(--spacing-16);
 }
+
 .pagina h1,
-.pagina p {
+.pagina h2,
+.pagina h3,
+.pagina p,
+.pagina ol,
+.pagina ul,
+.pagina dl,
+.pagina dt,
+.pagina dd {
   margin: 0;
 }
 
-.pagina h1 {
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-3xl);
+/* ---- portada ---- */
+
+.portada {
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-5);
+  max-width: 44rem;
 }
 
-.pagina p {
+.logotipo {
+  width: auto;
+  height: var(--spacing-20);
+}
+
+.portada h1 {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.promesa {
   max-width: var(--ancho-lectura);
   color: var(--color-texto-suave);
   font-size: var(--text-lg);
 }
 
-.pagina nav {
+.acciones {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-3);
-  padding-top: var(--spacing-2);
 }
 
-.pagina a {
+.acciones a,
+.precio a {
   display: inline-flex;
   min-height: var(--control-alto);
   align-items: center;
-  border: var(--borde-fino) solid var(--color-marca);
+  border: var(--borde-marcado) solid var(--color-accion);
   border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-4);
-  color: var(--color-marca-fuerte);
+  padding: var(--spacing-2) var(--spacing-6);
+  background: var(--color-accion);
+  color: var(--color-superficie);
   font-weight: 800;
   text-decoration: none;
 }
 
-.pagina a:first-child {
+.acciones a + a {
+  border-color: var(--color-marca);
+  background: transparent;
+  color: var(--color-marca-fuerte);
+}
+
+.precioPortada {
+  border-left: var(--spacing-1) solid var(--color-marca);
+  padding-left: var(--spacing-3);
+  font-weight: 700;
+}
+
+/* ---- pasos ---- */
+
+.pasos {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.pasos h2,
+.demostracion h2,
+.preguntas h2 {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+}
+
+/* Los pasos si son una secuencia real, asi que el numero informa en vez de
+   decorar. El contador viene de la lista ordenada, no de texto escrito. */
+.pasos ol {
+  display: grid;
+  gap: var(--spacing-6);
+  counter-reset: paso;
+  padding: 0;
+  list-style: none;
+}
+
+.pasos li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-1) var(--spacing-4);
+  counter-increment: paso;
+}
+
+.pasos li::before {
+  content: counter(paso);
+  display: grid;
+  grid-row: 1 / 3;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  place-items: center;
+  border-radius: 50%;
   background: var(--color-marca);
   color: var(--color-superficie);
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.pasos h3 {
+  align-self: center;
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.pasos p {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+}
+
+/* ---- demostracion ---- */
+
+.demostracion {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.tituloDemostracion {
+  display: grid;
+  gap: var(--spacing-2);
+  max-width: var(--ancho-lectura);
+}
+
+.tituloDemostracion p {
+  color: var(--color-texto-suave);
+}
+
+/* ---- precio ---- */
+
+.precio {
+  border: var(--borde-marcado) solid var(--color-marca);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-8) var(--spacing-6);
+  background: var(--color-fondo-suave);
+}
+
+.precio > div {
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-4);
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.precio h2 {
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-3xl);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.precio ul {
+  display: grid;
+  gap: var(--spacing-2);
+  padding: 0;
+  list-style: none;
+}
+
+.precio li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-3);
+}
+
+.precio li::before {
+  content: "✓";
+  color: var(--color-exito);
+  font-weight: 900;
+}
+
+.aclaracion {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+/* ---- preguntas ---- */
+
+.preguntas {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.preguntas dl {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.preguntas dt {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.preguntas dd {
+  max-width: var(--ancho-lectura);
+  margin-top: var(--spacing-2);
+  color: var(--color-texto-suave);
+}
+
+@media (min-width: 48rem) {
+  .pasos ol {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: start;
+  }
+
+  .preguntas dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-6) var(--spacing-8);
+  }
+}
+
+@media (min-width: 60rem) {
+  .pagina {
+    padding-top: var(--spacing-16);
+  }
+
+  .portada h1 {
+    font-size: var(--text-4xl);
+  }
+
+  .precio {
+    padding: var(--spacing-12) var(--spacing-8);
+  }
 }
 
 @media (max-width: 24rem) {
   .pagina {
-    width: min(calc(100% - var(--spacing-6)), 48rem);
+    width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
   }
 
-  .pagina nav,
-  .pagina a {
+  .acciones,
+  .acciones a,
+  .precio a {
     width: 100%;
   }
 
-  .pagina a {
+  .acciones a,
+  .precio a {
     justify-content: center;
   }
 }

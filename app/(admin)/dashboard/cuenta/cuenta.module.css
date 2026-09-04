@@ -1,0 +1,170 @@
+@reference "../../../globals.css";
+
+.contenido {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-5);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
+  margin: 0 auto;
+  padding: var(--spacing-6) 0 var(--spacing-16);
+}
+
+.contenido h1,
+.contenido h2,
+.contenido p,
+.contenido dl,
+.contenido dt,
+.contenido dd {
+  margin: 0;
+}
+
+.encabezado {
+  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
+  padding-bottom: var(--spacing-4);
+}
+
+.encabezado h1 {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* El estado del plan es la única pieza con peso visual de la pantalla: es el
+   dato por el que el dueño entra acá. El color acompaña, pero la palabra y la
+   fecha bastan por sí solas. */
+.estado {
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-3);
+  border: var(--borde-marcado) solid var(--color-marca);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-6);
+  background: var(--color-fondo-suave);
+}
+
+.estado[data-estado="por_vencer"] {
+  border-color: var(--color-alerta);
+  background: var(--color-alerta-tenue);
+}
+
+.estado[data-estado="vencida"] {
+  border-color: var(--color-peligro);
+  background: var(--color-peligro-tenue);
+}
+
+.etiqueta {
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.estado[data-estado="por_vencer"] .etiqueta {
+  background: var(--color-alerta);
+}
+
+.estado[data-estado="vencida"] .etiqueta {
+  background: var(--color-peligro);
+}
+
+.estado h2 {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.fecha {
+  font-size: var(--text-lg);
+}
+
+.explicacion {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+}
+
+.renovar {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-6);
+  background: var(--color-accion);
+  color: var(--color-superficie);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.plan {
+  display: grid;
+  gap: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-5);
+}
+
+.plan h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.datos {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.datos > div {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.datos dt {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.datos dd {
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.monto {
+  font-variant-numeric: tabular-nums;
+}
+
+.aclaracion {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 48rem) {
+  .datos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 60rem) {
+  .contenido {
+    padding-top: var(--spacing-8);
+  }
+
+  .encabezado h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .plan {
+    padding: var(--spacing-6);
+  }
+}
+
+@media (max-width: 24rem) {
+  .contenido {
+    width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
+  }
+
+  .renovar {
+    width: 100%;
+    justify-content: center;
+  }
+}

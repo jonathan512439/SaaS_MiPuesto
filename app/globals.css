@@ -43,6 +43,10 @@
   --text-3xl: 2.5rem;
   --text-3xl--line-height: 2.75rem;
 
+  /* Tamaño de display, solo para la portada publica: el panel nunca lo usa. */
+  --text-4xl: 3.25rem;
+  --text-4xl--line-height: 3.5rem;
+
   --spacing-0: 0;
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;

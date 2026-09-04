@@ -134,6 +134,7 @@ export type Database = {
           redes_sociales: Json
           reserva_minutos: number
           slug: string
+          suscripcion_vence_en: string
           telefono_whatsapp: string
           tipo_negocio: string
           verificado: boolean
@@ -157,6 +158,7 @@ export type Database = {
           redes_sociales?: Json
           reserva_minutos?: number
           slug: string
+          suscripcion_vence_en?: string
           telefono_whatsapp: string
           tipo_negocio: string
           verificado?: boolean
@@ -180,6 +182,7 @@ export type Database = {
           redes_sociales?: Json
           reserva_minutos?: number
           slug?: string
+          suscripcion_vence_en?: string
           telefono_whatsapp?: string
           tipo_negocio?: string
           verificado?: boolean
