@@ -4,7 +4,7 @@ import { COMBINACIONES_APARIENCIA, PALETAS, PLANTILLAS } from "../apariencia";
 import { esPaletaId, esPlantillaId } from "./validacion";
 
 describe("validación de plantillas", () => {
-  it.each(["clasica", "moderna", "minimal"])("acepta la plantilla %s", (plantilla) => {
+  it.each([...PLANTILLAS])("acepta la plantilla %s", (plantilla) => {
     expect(esPlantillaId(plantilla)).toBe(true);
   });
 

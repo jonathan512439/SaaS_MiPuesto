@@ -62,6 +62,13 @@ const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
       ),
     { loading: CatalogoCargando },
   ),
+  feria: dynamic(
+    () =>
+      import("../templates/feria/plantilla-feria").then(
+        (modulo) => modulo.PlantillaFeria,
+      ),
+    { loading: CatalogoCargando },
+  ),
 };
 
 function obtenerProductos(datos: DatosPlantilla): ProductoPlantilla[] {

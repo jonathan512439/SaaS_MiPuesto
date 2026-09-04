@@ -1,4 +1,4 @@
-export const PLANTILLAS = ["clasica", "moderna", "minimal"] as const;
+export const PLANTILLAS = ["clasica", "moderna", "minimal", "feria"] as const;
 export const PALETAS = [
   "mercado",
   "tierra",
@@ -35,6 +35,12 @@ export const DEFINICIONES_PLANTILLAS: ReadonlyArray<{
     nombre: "Mínima",
     enfoque: "Servicios y contacto",
     recomendacion: "Para profesionales, reservas y negocios que priorizan atención directa.",
+  },
+  {
+    id: "feria",
+    nombre: "Feria",
+    enfoque: "Lista de precios",
+    recomendacion: "Para puestos de mercado y catálogos largos donde el precio decide la compra.",
   },
 ];
 

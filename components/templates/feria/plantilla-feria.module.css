@@ -1,0 +1,440 @@
+@reference "../../../app/globals.css";
+
+/* Feria: lista de precios de puesto de mercado. Las otras plantillas presentan
+   el producto; esta presenta el precio. Por eso las fotos bajan a miniatura y
+   los productos se ordenan en filas: en la misma pantalla donde una cuadrícula
+   muestra cuatro, aquí entran siete, que es como se recorre una lista cuando
+   ya se sabe lo que se busca. */
+
+.plantilla {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  font-family: var(--fuente-feria), "Segoe UI", sans-serif;
+}
+
+.cartel {
+  display: grid;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--catalogo-marca);
+  color: var(--catalogo-sobre-marca);
+}
+
+/* La portada es una franja y no una portada: en un puesto el cartel manda y la
+   foto acompaña. */
+.portadaImagen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 5;
+  overflow: hidden;
+}
+
+.portadaImagen img {
+  object-fit: cover;
+}
+
+.identidad {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+}
+
+.identidad img {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  flex: 0 0 var(--spacing-12);
+  border: var(--borde-marcado) solid var(--catalogo-sobre-marca);
+  border-radius: var(--radius-control);
+  object-fit: cover;
+}
+
+.rotulo {
+  display: grid;
+  min-width: 0;
+  flex: 1 1 12rem;
+  gap: var(--spacing-1);
+}
+
+.rotulo h3,
+.rotulo p {
+  margin: 0;
+}
+
+.rotulo h3 {
+  overflow-wrap: anywhere;
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.rotulo p {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.atencion {
+  flex: 0 0 auto;
+  border: var(--borde-fino) solid color-mix(in srgb, var(--catalogo-sobre-marca) 55%, transparent);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.buscador {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.etiquetaBusqueda {
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.buscador input {
+  width: 100%;
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--catalogo-borde);
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-4);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  font-family: inherit;
+  font-size: var(--text-base);
+}
+
+.buscador input::placeholder {
+  color: var(--catalogo-texto-tenue);
+}
+
+.navegacion {
+  display: flex;
+  gap: var(--spacing-2);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-1);
+  scrollbar-width: none;
+}
+
+.navegacion::-webkit-scrollbar {
+  display: none;
+}
+
+.navegacion button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-height: var(--spacing-10);
+  align-items: center;
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.navegacion .categoriaActiva {
+  border-color: var(--catalogo-texto);
+  background: var(--catalogo-texto);
+  color: var(--catalogo-superficie);
+}
+
+.conteoCategorias {
+  margin-left: auto;
+  align-self: center;
+  color: var(--catalogo-texto-tenue);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.productos {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* La foto ocupa las dos filas y la acción cruza el ancho restante: así el
+   precio queda pegado al borde derecho, donde la vista lo busca, y el botón no
+   estrecha la columna del nombre. */
+.producto {
+  display: grid;
+  grid-template-areas:
+    "foto info precio"
+    "foto accion accion";
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--spacing-1) var(--spacing-3);
+  align-items: center;
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border-radius: var(--radius-tarjeta);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--catalogo-superficie);
+}
+
+.foto {
+  grid-area: foto;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  overflow: hidden;
+  border-radius: var(--radius-control);
+  background: var(--catalogo-fondo-suave);
+}
+
+.imagen,
+.sinImagen {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.sinImagen {
+  display: grid;
+  place-items: center;
+  color: var(--catalogo-texto-tenue);
+}
+
+.info {
+  display: grid;
+  grid-area: info;
+  align-content: center;
+  justify-items: start;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.info h4,
+.info p {
+  margin: 0;
+}
+
+.info h4 {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: var(--text-base);
+  font-weight: 800;
+  line-height: 1.15;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.rubro {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--catalogo-texto-tenue);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agotado,
+.stock {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.agotado {
+  background: var(--catalogo-alerta-tenue);
+  color: var(--catalogo-alerta);
+}
+
+.stock {
+  background: var(--catalogo-exito-tenue);
+  color: var(--catalogo-exito);
+}
+
+/* El precio es lo que esta plantilla vende: cifras de ancho fijo para que la
+   columna alinee la coma, y tamaño de pizarra. */
+.precio {
+  display: grid;
+  grid-area: precio;
+  justify-items: end;
+  align-content: center;
+  gap: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.precio strong {
+  color: var(--catalogo-accion);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+
+.precio s {
+  color: var(--catalogo-texto-tenue);
+  font-size: var(--text-xs);
+}
+
+.precio small {
+  color: var(--catalogo-accion);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.accion {
+  grid-area: accion;
+}
+
+.accion button,
+.accion a {
+  display: inline-flex;
+  width: 100%;
+  min-height: var(--spacing-10);
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--catalogo-accion);
+  color: var(--catalogo-sobre-accion);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.accion button:disabled {
+  background: var(--catalogo-fondo-hundido);
+  color: var(--catalogo-texto-tenue);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* El nombre lleva a la ficha del producto, que es lo que se comparte por
+   WhatsApp. Hereda el estilo del título para no convertir la lista en una
+   sábana de enlaces subrayados. */
+.enlaceProducto {
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+}
+
+.enlaceProducto:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.1875rem;
+}
+
+.pie {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--catalogo-texto);
+  color: var(--catalogo-superficie);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.redes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2) var(--spacing-4);
+}
+
+.redes a {
+  color: var(--catalogo-superficie);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.pie button {
+  min-height: var(--spacing-10);
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--catalogo-accion);
+  color: var(--catalogo-sobre-accion);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Móvil angosto: la miniatura cede antes que el precio, porque la foto ayuda a
+   reconocer y el precio es el que decide. */
+@media (max-width: 24rem) {
+  .plantilla {
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+  }
+
+  .foto {
+    width: var(--spacing-12);
+    height: var(--spacing-12);
+  }
+
+  .precio strong {
+    font-size: var(--text-xl);
+  }
+
+  .rotulo h3 {
+    font-size: var(--text-xl);
+  }
+
+  .pie,
+  .pie button {
+    width: 100%;
+  }
+
+  .pie button {
+    justify-content: center;
+  }
+}
+
+/* En pantalla ancha una sola columna de filas dejaría media pantalla vacía y
+   perdería justo la densidad que esta plantilla promete. */
+@media (min-width: 48rem) {
+  .plantilla {
+    gap: var(--spacing-5);
+    padding: var(--spacing-6);
+  }
+
+  .productos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+  }
+
+  .rotulo h3 {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (min-width: 80rem) {
+  .productos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -49,6 +49,11 @@ const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
       import("../templates/minimal/plantilla-minimal").then((modulo) => modulo.PlantillaMinimal),
     { loading: VistaPreviaCargando },
   ),
+  feria: dynamic(
+    () =>
+      import("../templates/feria/plantilla-feria").then((modulo) => modulo.PlantillaFeria),
+    { loading: VistaPreviaCargando },
+  ),
 };
 
 export function SelectorApariencia({

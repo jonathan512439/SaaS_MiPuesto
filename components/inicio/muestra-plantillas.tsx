@@ -37,6 +37,10 @@ const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
       import("../templates/minimal/plantilla-minimal").then((m) => m.PlantillaMinimal),
     { loading: VistaCargando },
   ),
+  feria: dynamic(
+    () => import("../templates/feria/plantilla-feria").then((m) => m.PlantillaFeria),
+    { loading: VistaCargando },
+  ),
 };
 
 /* Los negocios de ejemplo cambian con la plantilla porque cada una nace de un
@@ -60,6 +64,12 @@ const EJEMPLOS: Record<PlantillaId, Parameters<typeof crearDatosDemoPlantilla>[0
     descripcion: "Cortes clásicos y arreglo de barba, con turno reservado.",
     telefonoWhatsapp: "70000000",
     tipoNegocio: "catalogo_cta",
+  },
+  feria: {
+    nombre: "Frutas Doña Rosa",
+    descripcion: "Puesto 42 del mercado, fruta de temporada al peso.",
+    telefonoWhatsapp: "70000000",
+    tipoNegocio: "tienda_virtual",
   },
 };
 
