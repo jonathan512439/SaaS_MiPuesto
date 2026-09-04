@@ -1,7 +1,10 @@
 import { ImageResponse } from "next/og";
 
 import { COLORES_MIPUESTO } from "../../../lib/identidad-visual";
-import { obtenerUrlPublicaImagenNegocio } from "../../../lib/negocios/imagenes-publicas";
+import {
+  construirUrlVistaPrevia,
+  obtenerFotoRasterizable,
+} from "../../../lib/catalogo/vista-previa-compartida";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 
@@ -26,7 +29,10 @@ export default async function ImagenCatalogo({
   const nombre = negocio?.nombre ?? "MiPuesto";
   const descripcion = negocio?.descripcion?.trim() || "Catálogos de negocios locales de Bolivia";
   const { url } = obtenerVariablesPublicasSupabase();
-  const portada = obtenerUrlPublicaImagenNegocio(url, negocio?.portada_url ?? null);
+  /* La portada tambien se guarda en WebP, asi que pasa por el mismo camino. */
+  const portada = await obtenerFotoRasterizable(
+    construirUrlVistaPrevia(url, "negocios", negocio?.portada_url ?? null),
+  );
 
   return new ImageResponse(
     (

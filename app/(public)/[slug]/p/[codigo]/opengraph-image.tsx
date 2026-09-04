@@ -1,6 +1,9 @@
 import { ImageResponse } from "next/og";
 
-import { obtenerUrlPublicaImagenProducto } from "../../../../../lib/catalogo/imagenes-publicas";
+import {
+  construirUrlVistaPrevia,
+  obtenerFotoRasterizable,
+} from "../../../../../lib/catalogo/vista-previa-compartida";
 import { COLORES_MIPUESTO } from "../../../../../lib/identidad-visual";
 import { formatearPrecioBolivianos } from "../../../../../lib/precios";
 import { crearClienteSupabasePublico } from "../../../../../lib/supabase/public";
@@ -15,22 +18,6 @@ export const dynamic = "force-dynamic";
    pegar el enlace en WhatsApp. La foto ocupa la mitad y el precio es el dato
    más grande, porque en una conversación se decide por foto y precio. */
 
-/* El generador solo rasteriza PNG y JPEG. Las fotos se guardan en WebP, así que
-   pasarle una directamente devuelve una respuesta vacía: una vista previa rota,
-   que es peor que una sin foto. Comprobamos el tipo antes de incluirla y, si no
-   sirve, la tarjeta se arma solo con texto. */
-const TIPOS_RASTERIZABLES = ["image/png", "image/jpeg"];
-
-async function obtenerFotoUtilizable(origen: string | null) {
-  if (!origen) return null;
-  try {
-    const respuesta = await fetch(origen, { method: "HEAD" });
-    const tipo = respuesta.headers.get("content-type")?.split(";")[0].trim() ?? "";
-    return respuesta.ok && TIPOS_RASTERIZABLES.includes(tipo) ? origen : null;
-  } catch {
-    return null;
-  }
-}
 export default async function ImagenProducto({
   params,
 }: {
@@ -55,8 +42,8 @@ export default async function ImagenProducto({
     : { data: null };
 
   const { url } = obtenerVariablesPublicasSupabase();
-  const foto = await obtenerFotoUtilizable(
-    producto?.fotos?.[0] ? obtenerUrlPublicaImagenProducto(url, producto.fotos[0]) : null,
+  const foto = await obtenerFotoRasterizable(
+    construirUrlVistaPrevia(url, "productos", producto?.fotos?.[0] ?? null),
   );
   const nombre = producto?.nombre ?? "Producto no disponible";
   const precio = producto ? formatearPrecioBolivianos(Number(producto.precio)) : "";
