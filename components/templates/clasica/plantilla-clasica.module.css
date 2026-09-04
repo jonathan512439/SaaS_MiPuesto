@@ -459,3 +459,28 @@
   text-decoration: underline;
   text-underline-offset: 0.1875rem;
 }
+
+.buscador {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.etiquetaBusqueda {
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.buscador input {
+  width: 100%;
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--catalogo-borde);
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-4);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  font-size: var(--text-base);
+}
+
+.buscador input::placeholder {
+  color: var(--catalogo-texto-tenue);
+}

@@ -59,6 +59,21 @@ export function PlantillaMinimal({
 
       <AvisoHorario estado={datos.negocio.atencion} />
 
+        {navegacion ? (
+          <search className={styles.buscador}>
+            <label className={styles.etiquetaBusqueda} htmlFor="buscar-en-catalogo">
+              Buscar
+            </label>
+            <input
+              autoComplete="off"
+              id="buscar-en-catalogo"
+              onChange={(evento) => navegacion.alBuscar(evento.target.value)}
+              placeholder="Nombre del producto"
+              type="search"
+              value={navegacion.busqueda}
+            />
+          </search>
+        ) : null}
       <nav className={styles.navegacion} aria-label="Secciones del catálogo">
         {navegacion ? (
           <button

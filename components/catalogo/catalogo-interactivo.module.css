@@ -134,3 +134,13 @@
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
+
+/* Una búsqueda sin resultados debe decirlo y ofrecer salida: la pantalla en
+   blanco deja al cliente pensando que el negocio no tiene nada. */
+.sinResultados {
+  margin: 0;
+  border-left: var(--spacing-1) solid var(--catalogo-alerta);
+  padding: var(--spacing-4);
+  background: var(--catalogo-alerta-tenue);
+  color: var(--catalogo-texto);
+}

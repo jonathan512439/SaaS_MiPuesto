@@ -59,6 +59,8 @@ export type NavegacionCatalogo = {
   activa: string;
   totalProductos: number;
   alElegir: (categoriaId: string) => void;
+  busqueda: string;
+  alBuscar: (termino: string) => void;
 };
 
 export type PropiedadesPlantilla = {

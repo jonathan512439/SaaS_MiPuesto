@@ -8,6 +8,23 @@ type ProductoUbicado = {
 
 export const PRODUCTOS_PUBLICOS_POR_PAGINA = 12;
 
+/* Quien busca "cafe" debe encontrar "Café", y quien busca "CAMISA" debe
+   encontrar "camisa". Sin quitar tildes, el buscador falla justo con las
+   palabras del español que el cliente escribe sin acento en el celular. */
+export function normalizarBusqueda(valor: string): string {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function coincide(producto: ProductoPlantilla, terminos: string[]): boolean {
+  if (terminos.length === 0) return true;
+  const texto = normalizarBusqueda(`${producto.nombre} ${producto.descripcion}`);
+  return terminos.every((termino) => texto.includes(termino));
+}
+
 function aplanarProductos(categorias: CategoriaPlantilla[]): ProductoUbicado[] {
   return categorias.flatMap((categoria) => [
     ...categoria.productos.map((producto) => ({
@@ -29,12 +46,18 @@ export function paginarCatalogo(
   categorias: CategoriaPlantilla[],
   categoriaId: string,
   paginaSolicitada: number,
+  busqueda = "",
   porPagina = PRODUCTOS_PUBLICOS_POR_PAGINA,
 ) {
   const categoriasFiltradas = categoriaId
     ? categorias.filter((categoria) => categoria.id === categoriaId)
     : categorias;
-  const productos = aplanarProductos(categoriasFiltradas);
+  /* Se buscan todas las palabras, en cualquier orden: "polera roja" encuentra
+     "Polera de algodón roja". */
+  const terminos = normalizarBusqueda(busqueda).split(/\s+/).filter(Boolean);
+  const productos = aplanarProductos(categoriasFiltradas).filter(({ producto }) =>
+    coincide(producto, terminos),
+  );
   const totalPaginas = Math.max(1, Math.ceil(productos.length / porPagina));
   const pagina = Math.min(Math.max(1, paginaSolicitada), totalPaginas);
   const seleccionados = productos.slice((pagina - 1) * porPagina, pagina * porPagina);
@@ -63,5 +86,6 @@ export function paginarCatalogo(
     pagina,
     totalPaginas,
     totalProductos: productos.length,
+    hayBusqueda: terminos.length > 0,
   };
 }

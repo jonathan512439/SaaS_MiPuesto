@@ -81,11 +81,12 @@ export function CatalogoInteractivo({
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
   const [firmaReservada, setFirmaReservada] = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("");
+  const [busqueda, setBusqueda] = useState("");
   const [pagina, setPagina] = useState(1);
   const productos = useMemo(() => obtenerProductos(datos), [datos]);
   const paginaCatalogo = useMemo(
-    () => paginarCatalogo(datos.categorias, categoriaActiva, pagina),
-    [categoriaActiva, datos.categorias, pagina],
+    () => paginarCatalogo(datos.categorias, categoriaActiva, pagina, busqueda),
+    [busqueda, categoriaActiva, datos.categorias, pagina],
   );
   const datosPaginados = useMemo(
     () => ({ ...datos, categorias: paginaCatalogo.categorias }),
@@ -132,6 +133,11 @@ export function CatalogoInteractivo({
       setCategoriaActiva(categoriaId);
       setPagina(1);
     },
+    busqueda,
+    alBuscar: (termino: string) => {
+      setBusqueda(termino);
+      setPagina(1);
+    },
   };
 
   function cambiarCantidad(productoId: string, cantidad: number) {
@@ -165,6 +171,12 @@ export function CatalogoInteractivo({
         navegacion={datos.categorias.length > 0 ? navegacion : undefined}
         paleta={paleta}
       />
+      {paginaCatalogo.totalProductos === 0 && paginaCatalogo.hayBusqueda ? (
+        <p className={styles.sinResultados} role="status">
+          No encontramos «{busqueda.trim()}». Probá con otra palabra o mirá todo el
+          catálogo.
+        </p>
+      ) : null}
       {paginaCatalogo.totalPaginas > 1 ? (
         <nav
           aria-label="Páginas de productos"
