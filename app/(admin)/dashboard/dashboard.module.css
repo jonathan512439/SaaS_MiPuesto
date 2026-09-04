@@ -35,15 +35,13 @@
   text-decoration: none;
 }
 
+/* La marca es tinta negra con transparencia; el filtro la lleva a blanco sobre
+   la barra teal sin necesitar un segundo archivo. */
 .isotipo {
-  display: grid;
-  flex: 0 0 var(--spacing-10);
-  width: var(--spacing-10);
-  height: var(--spacing-10);
-  place-items: center;
-  border: var(--borde-marcado) solid var(--color-superficie);
-  border-radius: var(--radius-control);
-  font-size: var(--text-lg);
+  flex: 0 0 auto;
+  width: auto;
+  height: var(--spacing-8);
+  filter: brightness(0) invert(1);
 }
 
 .cuenta {
@@ -156,10 +154,7 @@
   }
 
   .isotipo {
-    flex-basis: var(--spacing-8);
-    width: var(--spacing-8);
-    height: var(--spacing-8);
-    font-size: var(--text-sm);
+    height: var(--spacing-6);
   }
 
   .sesion {

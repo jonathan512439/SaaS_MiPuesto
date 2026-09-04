@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -41,9 +42,14 @@ export default async function LayoutPanel({
                   href="/dashboard/catalogo"
                   aria-label="MiPuesto, ir al catálogo"
                 >
-                  <span aria-hidden="true" className={styles.isotipo}>
-                    M
-                  </span>
+                  <Image
+                    alt=""
+                    className={styles.isotipo}
+                    height={325}
+                    priority
+                    src="/marca/mipuesto-marca.png"
+                    width={256}
+                  />
                   <span>MiPuesto</span>
                 </Link>
                 <div className={styles.cuenta}>
