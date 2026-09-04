@@ -7,5 +7,8 @@ export { EstadoVacio } from "./estado-vacio";
 export { HojaModal } from "./hoja-modal";
 export { IndicadorEstado } from "./indicador-estado";
 export type { EstadoProducto } from "./indicador-estado";
+export { ProveedorAvisos, useAvisos } from "./proveedor-avisos";
+export { ProveedorConfirmacion, useConfirmacion } from "./proveedor-confirmacion";
 export { Selector } from "./selector";
 export { Toast } from "./toast";
+export type { VarianteToast } from "./toast";

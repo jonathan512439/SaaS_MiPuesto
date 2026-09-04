@@ -11,6 +11,7 @@ import {
   type EstadoPedido,
 } from "../../lib/pedidos/estado";
 import { formatearPrecioBolivianos } from "../../lib/precios";
+import { EstadoVacio, useAvisos, useConfirmacion } from "../ui";
 import styles from "./gestor-pedidos.module.css";
 
 export type ItemPedidoAdmin = {
@@ -45,23 +46,64 @@ type PropiedadesGestor = {
 
 type Filtro = EstadoPedido | "todos";
 
+/* El diálogo repite el detalle del pedido porque confirmar una venta descuenta
+   stock: quien decide tiene que ver qué está aceptando, no solo el código. */
+function ResumenPedido({ pedido }: { pedido: PedidoAdmin }) {
+  return (
+    <div className={styles.confirmacion}>
+      <p>
+        <strong>{pedido.codigo}</strong> · {pedido.cliente_nombre || "Cliente no informado"}
+      </p>
+      {pedido.pedido_items.length > 0 ? (
+        <ul className={styles.items}>
+          {pedido.pedido_items.map((item) => (
+            <li key={item.id}>
+              <div>
+                <strong>
+                  {item.cantidad} × {item.nombre}
+                </strong>
+              </div>
+              <span>{formatearPrecioBolivianos(Number(item.subtotal))}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <p className={styles.totalConfirmacion}>
+        <span>Total</span>
+        <strong>{formatearPrecioBolivianos(Number(pedido.total))}</strong>
+      </p>
+    </div>
+  );
+}
+
 export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
   const router = useRouter();
+  const { mostrarAviso } = useAvisos();
+  const confirmar = useConfirmacion();
   const [pedidos, setPedidos] = useState(pedidosIniciales);
   const [filtro, setFiltro] = useState<Filtro>("pendiente");
   const [procesando, setProcesando] = useState<string | null>(null);
-  const [error, setError] = useState("");
   const visibles = useMemo(
     () => pedidos.filter((pedido) => filtro === "todos" || pedido.estado === filtro),
     [filtro, pedidos],
   );
 
   async function cambiarEstado(pedido: PedidoAdmin, estado: "confirmado" | "cancelado") {
-    const accion = estado === "confirmado" ? "confirmar esta venta" : "cancelar este pedido";
-    if (!window.confirm(`¿Quieres ${accion}? Código ${pedido.codigo}.`)) return;
+    const confirmando = estado === "confirmado";
+    const aceptado = await confirmar({
+      titulo: confirmando ? "Confirmar la venta" : "Cancelar el pedido",
+      descripcion: confirmando
+        ? "Se descuenta el stock reservado y el pedido pasa a vendido."
+        : "Se libera el stock reservado y el pedido queda cancelado.",
+      destructiva: !confirmando,
+      detalle: <ResumenPedido pedido={pedido} />,
+      textoAccion: confirmando ? "Confirmar venta" : "Cancelar pedido",
+      textoCancelar: "Volver",
+    });
+
+    if (!aceptado) return;
 
     setProcesando(pedido.id);
-    setError("");
     try {
       const respuesta = await fetch(`/api/pedidos/${pedido.id}/estado`, {
         method: "POST",
@@ -92,13 +134,23 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
             : actual,
         ),
       );
+      mostrarAviso({
+        titulo: confirmando ? "Venta confirmada" : "Pedido cancelado",
+        mensaje: confirmando
+          ? `Registramos la venta del pedido ${pedido.codigo}.`
+          : `Liberamos el stock reservado del pedido ${pedido.codigo}.`,
+        variante: confirmando ? "exito" : "informacion",
+      });
       router.refresh();
     } catch (motivo) {
-      setError(
-        motivo instanceof Error
-          ? motivo.message
-          : "No se pudo cambiar el pedido. Intenta nuevamente.",
-      );
+      mostrarAviso({
+        titulo: confirmando ? "No se pudo confirmar la venta" : "No se pudo cancelar el pedido",
+        mensaje:
+          motivo instanceof Error
+            ? motivo.message
+            : "Revisa tu conexión e intenta nuevamente.",
+        variante: "error",
+      });
     } finally {
       setProcesando(null);
     }
@@ -127,15 +179,19 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
         ))}
       </nav>
 
-      <div aria-live="polite">
-        {error ? <p className={styles.error}>{error}</p> : null}
-      </div>
-
       {visibles.length === 0 ? (
-        <section className={styles.vacio}>
-          <h2>No hay pedidos en este estado</h2>
-          <p>Cuando llegue uno, aparecerá aquí con su código, vencimiento y acciones disponibles.</p>
-        </section>
+        <EstadoVacio
+          descripcion={
+            filtro === "todos"
+              ? "Cuando llegue uno, aparecerá aquí con su código, vencimiento y acciones disponibles."
+              : "Prueba con otro filtro para ver los pedidos que ya resolviste."
+          }
+          titulo={
+            filtro === "todos"
+              ? "Todavía no recibiste pedidos"
+              : `No hay pedidos ${etiquetaEstadoPedido(filtro).toLocaleLowerCase("es-BO")}`
+          }
+        />
       ) : (
         <ol className={styles.lista}>
           {visibles.map((pedido) => {

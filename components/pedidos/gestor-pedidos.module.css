@@ -338,3 +338,22 @@
     flex: 1 1 100%;
   }
 }
+
+.confirmacion {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.confirmacion > p {
+  margin: 0;
+}
+
+.totalConfirmacion {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  border-top: var(--borde-fino) solid var(--color-borde);
+  padding-top: var(--spacing-3);
+  font-size: var(--text-lg);
+}

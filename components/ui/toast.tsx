@@ -2,7 +2,7 @@
 
 import styles from "./ui.module.css";
 
-type VarianteToast = "informacion" | "exito" | "advertencia" | "error";
+export type VarianteToast = "informacion" | "exito" | "advertencia" | "error";
 
 type PropiedadesToast = {
   titulo: string;

@@ -504,3 +504,56 @@
     flex: 1 1 auto;
   }
 }
+
+/* La pila se ancla abajo: en el panel la barra superior es pegajosa y un aviso
+   arriba taparía la navegación justo cuando el usuario acaba de actuar. */
+.pilaAvisos {
+  position: fixed;
+  z-index: 60;
+  right: var(--spacing-4);
+  bottom: var(--spacing-4);
+  left: var(--spacing-4);
+  display: grid;
+  gap: var(--spacing-2);
+  justify-items: stretch;
+  pointer-events: none;
+}
+
+.regionAvisos {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.regionAvisos:empty {
+  display: none;
+}
+
+.pilaAvisos .toast {
+  box-shadow: var(--sombra-flotante);
+  pointer-events: auto;
+  animation: entrarAviso 160ms ease-out;
+}
+
+@keyframes entrarAviso {
+  from {
+    transform: translateY(var(--spacing-3));
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 30rem) {
+  .pilaAvisos {
+    left: auto;
+    justify-items: end;
+    max-width: 26rem;
+  }
+
+  .pilaAvisos .toast {
+    min-width: 20rem;
+  }
+}

@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, Ref } from "react";
 
 import styles from "./ui.module.css";
 
@@ -6,6 +6,7 @@ type VarianteBoton = "principal" | "secundario" | "discreto" | "peligro";
 
 type PropiedadesBoton = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
+  ref?: Ref<HTMLButtonElement>;
   variante?: VarianteBoton;
   cargando?: boolean;
   anchoCompleto?: boolean;
