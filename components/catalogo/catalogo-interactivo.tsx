@@ -1,11 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react";
 
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
 import { registrarEventoAnalitica } from "../../lib/analitica-cliente";
 import { paginarCatalogo } from "../../lib/catalogo/paginacion";
+import { construirFirmaCarrito } from "../../lib/pedidos/firma";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type {
   DatosPlantilla,
@@ -75,7 +77,9 @@ export function CatalogoInteractivo({
   plantilla,
   paleta,
 }: PropiedadesCatalogoInteractivo) {
+  const router = useRouter();
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
+  const [firmaReservada, setFirmaReservada] = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [pagina, setPagina] = useState(1);
   const productos = useMemo(() => obtenerProductos(datos), [datos]);
@@ -91,6 +95,11 @@ export function CatalogoInteractivo({
     (total, cantidad) => total + cantidad,
     0,
   );
+  /* Mientras la selección siga siendo la que se reservó, el acceso flotante
+     sobra: el pedido ya está hecho y su código vive en el resumen. Si el
+     cliente cambia una cantidad, la firma deja de coincidir y vuelve. */
+  const hayReservaVigente =
+    firmaReservada !== "" && firmaReservada === construirFirmaCarrito(cantidades);
   const totalEnCarrito = calcularSubtotal(
     productos
       .map((producto) => ({ precio: producto.precio, cantidad: cantidades[producto.id] ?? 0 }))
@@ -206,10 +215,14 @@ export function CatalogoInteractivo({
             datos={datos}
             onCambiarCantidad={cambiarCantidad}
             onAbrirWhatsapp={() => registrar("clic_whatsapp")}
+            onPedidoReservado={(firma) => {
+              setFirmaReservada(firma);
+              router.refresh();
+            }}
             paleta={paleta}
             productos={productos}
           />
-          {cantidadEnCarrito > 0 ? (
+          {cantidadEnCarrito > 0 && !hayReservaVigente ? (
             <a
               aria-label={`Ver pedido: ${cantidadEnCarrito} ${cantidadEnCarrito === 1 ? "artículo" : "artículos"}, subtotal ${formatearPrecioBolivianos(totalEnCarrito)}`}
               className={styles.accesoCarrito}

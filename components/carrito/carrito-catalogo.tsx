@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState, type FormEvent } from "react";
 
 import type { PaletaId } from "../../lib/apariencia";
+import { construirFirmaCarrito } from "../../lib/pedidos/firma";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
@@ -16,6 +17,7 @@ type PropiedadesCarrito = {
   paleta: PaletaId;
   onCambiarCantidad: (productoId: string, cantidad: number) => void;
   onAbrirWhatsapp: () => void;
+  onPedidoReservado: (firmaCarrito: string) => void;
 };
 
 type RespuestaPedido = {
@@ -49,6 +51,7 @@ export function CarritoCatalogo({
   paleta,
   onCambiarCantidad,
   onAbrirWhatsapp,
+  onPedidoReservado,
 }: PropiedadesCarrito) {
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
@@ -61,10 +64,7 @@ export function CarritoCatalogo({
   const items = productos
     .map((producto) => ({ producto, cantidad: cantidades[producto.id] ?? 0 }))
     .filter(({ cantidad }) => cantidad > 0);
-  const firmaCarrito = items
-    .map(({ producto, cantidad }) => `${producto.id}:${cantidad}`)
-    .sort()
-    .join("|");
+  const firmaCarrito = construirFirmaCarrito(cantidades);
   const pedidoVigente = pedido?.firmaCarrito === firmaCarrito ? pedido : null;
   const subtotal = calcularSubtotal(
     items.map(({ producto, cantidad }) => ({ precio: producto.precio, cantidad })),
@@ -106,6 +106,10 @@ export function CarritoCatalogo({
           firmaCarrito,
           enlaceWhatsapp: contenido.enlaceWhatsapp ?? null,
         });
+        /* La reserva ya descontó unidades en la base. Avisamos al catálogo para
+           que recargue el stock y retire el acceso flotante, que a esta altura
+           ofreceria "ver un pedido" que en realidad ya fue reservado. */
+        onPedidoReservado(firmaCarrito);
       }
       if (!respuesta.ok || !contenido.pedido) {
         throw new Error(contenido.error || "No se pudo reservar el pedido.");
