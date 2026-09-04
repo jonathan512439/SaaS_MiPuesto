@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { CatalogoInteractivo } from "../../../components/catalogo/catalogo-interactivo";
+import { obtenerNegocioPublicoCacheado } from "../../../lib/catalogo/negocio-cacheado";
 import { construirCatalogoPublico } from "../../../lib/catalogo/publico";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
@@ -15,19 +16,9 @@ type PropiedadesPagina = {
 
 export const dynamic = "force-dynamic";
 
-const obtenerNegocioPublico = cache(async (slug: string) => {
-  const supabase = crearClienteSupabasePublico();
-  const { data, error } = await supabase
-    .from("negocios")
-    .select(
-      "id,slug,nombre,descripcion,tipo_negocio,telefono_whatsapp,horario,plantilla_id,paleta_id,logo_url,portada_url,qr_pago_url,redes_sociales,activo",
-    )
-    .eq("slug", slug)
-    .eq("activo", true)
-    .maybeSingle();
-  if (error) throw new Error("No se pudo consultar el negocio público.");
-  return data;
-});
+/* cache() de React evita repetir la consulta entre generateMetadata y la
+   pagina dentro de una misma peticion; unstable_cache la evita entre visitas. */
+const obtenerNegocioPublico = cache((slug: string) => obtenerNegocioPublicoCacheado(slug));
 
 export async function generateMetadata({ params }: PropiedadesPagina): Promise<Metadata> {
   const { slug } = await params;

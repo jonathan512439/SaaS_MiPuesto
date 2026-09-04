@@ -1,4 +1,7 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
+
+import { etiquetaNegocio } from "../../../../lib/catalogo/negocio-cacheado";
 
 import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
@@ -39,7 +42,7 @@ export async function PATCH(solicitud: NextRequest) {
     .from("negocios")
     .update({ plantilla_id: plantillaId, paleta_id: paletaId })
     .eq("admin_user_id", idUsuario)
-    .select("plantilla_id,paleta_id")
+    .select("slug,plantilla_id,paleta_id")
     .maybeSingle();
 
   if (error) {
@@ -52,6 +55,8 @@ export async function PATCH(solicitud: NextRequest) {
   if (!negocio) {
     return NextResponse.json({ error: "Primero debes registrar tu negocio." }, { status: 404 });
   }
+
+  revalidateTag(etiquetaNegocio(negocio.slug), { expire: 0 });
 
   return NextResponse.json({
     plantilla_id: negocio.plantilla_id,

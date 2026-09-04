@@ -1,4 +1,7 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
+
+import { etiquetaNegocio } from "../../../../lib/catalogo/negocio-cacheado";
 
 import { obtenerContextoAdminCatalogo, leerJson } from "../../../../lib/catalogo/servidor";
 import { extensionPorTipo, validarImagenBinaria } from "../../../../lib/imagenes";
@@ -13,7 +16,7 @@ import type { Database } from "../../../../lib/supabase/database.types";
 
 type ActualizacionNegocio = Database["public"]["Tables"]["negocios"]["Update"];
 
-const COLUMNAS_IDENTIDAD = "logo_url,portada_url,qr_pago_url,redes_sociales";
+const COLUMNAS_IDENTIDAD = "slug,logo_url,portada_url,qr_pago_url,redes_sociales";
 
 function cambioImagen(tipo: TipoImagenIdentidad, ruta: string | null): ActualizacionNegocio {
   return { [CAMPO_POR_TIPO_IMAGEN[tipo]]: ruta };
@@ -49,6 +52,8 @@ export async function PATCH(solicitud: NextRequest) {
   if (error || !data) {
     return NextResponse.json({ error: "No se pudieron guardar los enlaces." }, { status: 500 });
   }
+  revalidateTag(etiquetaNegocio(data.slug), { expire: 0 });
+
   return NextResponse.json({ identidad: data });
 }
 
@@ -131,6 +136,8 @@ export async function POST(solicitud: NextRequest) {
     }
   }
 
+  revalidateTag(etiquetaNegocio(identidad.slug), { expire: 0 });
+
   const { data: datosPublicos } = contexto.supabase.storage.from("negocios").getPublicUrl(ruta);
   return NextResponse.json(
     { identidad, imagen: { tipo, ruta, url: datosPublicos.publicUrl } },
@@ -191,5 +198,7 @@ export async function DELETE(solicitud: NextRequest) {
       { status: 500 },
     );
   }
+  revalidateTag(etiquetaNegocio(identidad.slug), { expire: 0 });
+
   return NextResponse.json({ eliminado: true, identidad });
 }

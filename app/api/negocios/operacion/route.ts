@@ -1,4 +1,7 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
+
+import { etiquetaNegocio } from "../../../../lib/catalogo/negocio-cacheado";
 
 import { validarOperacionNegocio } from "../../../../lib/negocios/operacion";
 import type { Json } from "../../../../lib/supabase/database.types";
@@ -34,7 +37,7 @@ export async function POST(solicitud: NextRequest) {
       reserva_minutos: validacion.datos.reserva_minutos,
     })
     .eq("admin_user_id", idUsuario)
-    .select("horario,reserva_minutos")
+    .select("slug,horario,reserva_minutos")
     .maybeSingle();
 
   if (error || !negocio) {
@@ -43,6 +46,8 @@ export async function POST(solicitud: NextRequest) {
       { status: 500 },
     );
   }
+
+  revalidateTag(etiquetaNegocio(negocio.slug), { expire: 0 });
 
   return NextResponse.json({ negocio });
 }
