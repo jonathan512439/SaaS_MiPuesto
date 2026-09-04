@@ -142,6 +142,52 @@
   border-color: var(--color-peligro);
 }
 
+.envolturaClave {
+  position: relative;
+  display: grid;
+}
+
+.campoClave {
+  padding-right: calc(var(--spacing-16)*1.25);
+}
+
+.alternarClave {
+  position: absolute;
+  inset-block: var(--borde-marcado);
+  right: var(--borde-marcado);
+  display: inline-flex;
+  align-items: center;
+  border: var(--borde-marcado) solid transparent;
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-3);
+  background: transparent;
+  color: var(--color-marca);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--movimiento-rapido) ease;
+}
+
+.alternarClave:hover:not(:disabled) {
+  background: var(--color-marca-tenue);
+}
+
+.alternarClave:disabled {
+  color: var(--color-texto-suave);
+  cursor: not-allowed;
+}
+
+.avisoClave {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .areaTexto {
   min-height: calc(var(--control-alto) * 3);
   resize: vertical;

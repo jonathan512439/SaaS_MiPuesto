@@ -6,7 +6,7 @@ import { type FormEvent, useState } from "react";
 
 import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
-import { Boton, Campo } from "../../../components/ui";
+import { Boton, Campo, CampoClave } from "../../../components/ui";
 import { mensajeErrorInicioSesion } from "../../../lib/auth/mensajes";
 
 type PropiedadesFormularioLogin = {
@@ -59,14 +59,13 @@ export function FormularioLogin({ sesionRequerida = false }: PropiedadesFormular
         required
         type="email"
       />
-      <Campo
+      <CampoClave
         autoComplete="current-password"
         etiqueta="Contraseña"
         id="clave"
         minLength={10}
         name="clave"
         required
-        type="password"
       />
       {error ? (
         <p className={styles.mensajeError} role="alert">

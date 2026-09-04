@@ -6,7 +6,7 @@ import { type FormEvent, useState } from "react";
 
 import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
-import { Boton, Campo } from "../../../components/ui";
+import { Boton, CampoClave } from "../../../components/ui";
 import { mensajeErrorActualizarClave } from "../../../lib/auth/mensajes";
 
 export function FormularioActualizarClave() {
@@ -48,7 +48,7 @@ export function FormularioActualizarClave() {
 
   return (
     <form className={styles.formulario} onSubmit={actualizarClave}>
-      <Campo
+      <CampoClave
         autoComplete="new-password"
         ayuda="Mínimo 10 caracteres. No reutilicés una contraseña personal."
         etiqueta="Contraseña nueva"
@@ -56,16 +56,14 @@ export function FormularioActualizarClave() {
         minLength={10}
         name="clave"
         required
-        type="password"
       />
-      <Campo
+      <CampoClave
         autoComplete="new-password"
         etiqueta="Repetí la contraseña"
         id="confirmacion"
         minLength={10}
         name="confirmacion"
         required
-        type="password"
       />
       {error ? (
         <p className={styles.mensajeError} role="alert">

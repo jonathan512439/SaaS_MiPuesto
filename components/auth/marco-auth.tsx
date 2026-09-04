@@ -17,8 +17,8 @@ export function MarcoAuth({
   paso,
 }: PropiedadesMarcoAuth) {
   return (
-    <main className={styles.pagina}>
-      <section className={styles.identidad} aria-label="Acceso privado MiPuesto">
+    <div className={styles.pagina}>
+      <aside className={styles.identidad} aria-label="Acceso privado MiPuesto">
         <Link className={styles.marca} href="/">
           MiPuesto
         </Link>
@@ -33,17 +33,17 @@ export function MarcoAuth({
           Las cuentas se habilitan por invitación. Si todavía no recibiste una,
           comunicate con MiPuesto.
         </p>
-      </section>
+      </aside>
 
-      <section className={styles.trabajo} aria-labelledby="titulo-auth">
-        <div className={styles.contenido}>
+      <main className={styles.trabajo} aria-labelledby="titulo-auth">
+        <div className={styles.tarjeta}>
           <header className={styles.cabecera}>
             <h1 id="titulo-auth">{titulo}</h1>
             <p>{descripcion}</p>
           </header>
           {children}
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -85,10 +85,12 @@ export function SelectorPlantilla({ datos, plantillaInicial }: PropiedadesSelect
     }
   }
 
+  const hayCambioPendiente = plantillaElegida !== plantillaGuardada;
+
   return (
     <form className={styles.formulario} onSubmit={guardarPlantilla}>
       <fieldset className={styles.grupo}>
-        <legend>Compara las tres opciones</legend>
+        <legend className={styles.leyenda}>Compara las tres opciones</legend>
         <p className={styles.ayuda}>
           Selecciona una vista previa y guarda el cambio cuando estés conforme.
         </p>
@@ -116,10 +118,16 @@ export function SelectorPlantilla({ datos, plantillaInicial }: PropiedadesSelect
                     <strong>{nombre}</strong>
                     <span>{recomendacion}</span>
                   </label>
-                  {elegida ? <span className={styles.estado}>Seleccionada</span> : null}
+                  {elegida ? (
+                    <span className={styles.estado}>
+                      <span aria-hidden="true">✓</span> Seleccionada
+                    </span>
+                  ) : null}
                 </div>
                 <div className={styles.vistaPrevia}>
-                  <VistaPrevia datos={datos} />
+                  <div className={styles.lienzo}>
+                    <VistaPrevia datos={datos} />
+                  </div>
                 </div>
               </section>
             );
@@ -127,24 +135,21 @@ export function SelectorPlantilla({ datos, plantillaInicial }: PropiedadesSelect
         </div>
       </fieldset>
 
-      <div className={styles.acciones}>
-        <Boton
-          cargando={guardando}
-          disabled={plantillaElegida === plantillaGuardada}
-          type="submit"
-        >
-          Guardar plantilla
-        </Boton>
-        <p className={styles.avisoCambio}>
-          {plantillaElegida === plantillaGuardada
-            ? "Esta es la plantilla guardada actualmente."
-            : "Tienes un cambio pendiente de guardar."}
-        </p>
-      </div>
-
-      <div aria-live="polite" className={styles.mensajes}>
-        {mensaje ? <p className={styles.exito}>{mensaje}</p> : null}
-        {error ? <p className={styles.error}>{error}</p> : null}
+      <div className={styles.barra}>
+        <div aria-live="polite" className={styles.mensajes}>
+          {mensaje ? <p className={styles.exito}>{mensaje}</p> : null}
+          {error ? <p className={styles.error}>{error}</p> : null}
+        </div>
+        <div className={styles.acciones}>
+          <p className={hayCambioPendiente ? styles.avisoPendiente : styles.avisoCambio}>
+            {hayCambioPendiente
+              ? "Tienes un cambio sin guardar."
+              : "Esta es la plantilla guardada actualmente."}
+          </p>
+          <Boton cargando={guardando} disabled={!hayCambioPendiente} type="submit">
+            Guardar plantilla
+          </Boton>
+        </div>
       </div>
     </form>
   );

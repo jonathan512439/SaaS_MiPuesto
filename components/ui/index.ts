@@ -1,6 +1,7 @@
 export { AreaTexto } from "./area-texto";
 export { Boton } from "./boton";
 export { Campo } from "./campo";
+export { CampoClave } from "./campo-clave";
 export { Esqueleto } from "./esqueleto";
 export { EstadoVacio } from "./estado-vacio";
 export { HojaModal } from "./hoja-modal";

@@ -43,7 +43,7 @@ export function FormularioRecuperacion() {
       />
       {solicitudTerminada ? (
         <p className={styles.mensajeExito} role="status">
-          {MENSAJE_GENERICO}
+          {MENSAJE_GENERICO} Revisá también la carpeta de correo no deseado.
         </p>
       ) : null}
       <div className={styles.acciones}>
