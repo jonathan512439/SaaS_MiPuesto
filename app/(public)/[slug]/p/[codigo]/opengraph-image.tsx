@@ -14,6 +14,23 @@ export const dynamic = "force-dynamic";
 /* Esta imagen es la razón de ser de la página de producto: es lo que se ve al
    pegar el enlace en WhatsApp. La foto ocupa la mitad y el precio es el dato
    más grande, porque en una conversación se decide por foto y precio. */
+
+/* El generador solo rasteriza PNG y JPEG. Las fotos se guardan en WebP, así que
+   pasarle una directamente devuelve una respuesta vacía: una vista previa rota,
+   que es peor que una sin foto. Comprobamos el tipo antes de incluirla y, si no
+   sirve, la tarjeta se arma solo con texto. */
+const TIPOS_RASTERIZABLES = ["image/png", "image/jpeg"];
+
+async function obtenerFotoUtilizable(origen: string | null) {
+  if (!origen) return null;
+  try {
+    const respuesta = await fetch(origen, { method: "HEAD" });
+    const tipo = respuesta.headers.get("content-type")?.split(";")[0].trim() ?? "";
+    return respuesta.ok && TIPOS_RASTERIZABLES.includes(tipo) ? origen : null;
+  } catch {
+    return null;
+  }
+}
 export default async function ImagenProducto({
   params,
 }: {
@@ -38,9 +55,9 @@ export default async function ImagenProducto({
     : { data: null };
 
   const { url } = obtenerVariablesPublicasSupabase();
-  const foto = producto?.fotos?.[0]
-    ? obtenerUrlPublicaImagenProducto(url, producto.fotos[0])
-    : null;
+  const foto = await obtenerFotoUtilizable(
+    producto?.fotos?.[0] ? obtenerUrlPublicaImagenProducto(url, producto.fotos[0]) : null,
+  );
   const nombre = producto?.nombre ?? "Producto no disponible";
   const precio = producto ? formatearPrecioBolivianos(Number(producto.precio)) : "";
 
@@ -68,9 +85,10 @@ export default async function ImagenProducto({
           style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
+            justifyContent: foto ? "space-between" : "center",
+            gap: foto ? 0 : 48,
             flex: 1,
-            padding: "64px",
+            padding: foto ? "64px" : "88px",
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
