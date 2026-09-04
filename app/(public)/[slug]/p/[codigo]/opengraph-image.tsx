@@ -65,7 +65,14 @@ export default async function ImagenProducto({
           <img
             alt=""
             src={foto}
-            style={{ width: "50%", height: "100%", objectFit: "cover" }}
+            /* Contener y no recortar: quien recibe el enlace tiene que ver el
+               producto entero. Recortarlo a la mitad es peor que dejar aire. */
+            style={{
+              width: "50%",
+              height: "100%",
+              objectFit: "contain",
+              background: COLORES_MIPUESTO.superficie,
+            }}
           />
         ) : null}
         <div
