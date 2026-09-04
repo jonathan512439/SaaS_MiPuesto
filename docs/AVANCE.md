@@ -20,7 +20,9 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 8: 2026-09-03.
 - Cierre de Fase 8: 2026-09-03.
 - Inicio de Fase 9: 2026-09-03.
-- Estado: **Fase 9 iniciada; dominio aplazado por decisión del propietario**.
+- Inicio de Fase 10: 2026-09-04.
+- Cierre del bloque 10.1 (sistema de diseño vivo): 2026-09-04.
+- Estado: **Fase 9 abierta con dominio aplazado; Fase 10 en curso sobre `fase-10-acabado-producto`**.
 - Próxima puerta de salida: un negocio piloto debe operar una semana completa sin intervenir manualmente la base de datos; el dominio se validará después como tarea separada.
 
 ## Estado de Fase 9
@@ -30,6 +32,37 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Plan técnico y de validación: `docs/PLAN-DISENO-FASE9.md`.
 - Alcance actual: keepalive externo, retención de datos personales, auditoría final, despliegue y preparación del piloto de siete días.
 - Fuera de alcance temporal: conexión de `mipuesto.com` y validación de su SSL; la URL `workers.dev` continúa siendo el entorno del piloto.
+
+## Estado de Fase 10 — Acabado de producto
+
+Fase posterior al planning original. Nace de una revisión crítica de la interfaz cuyo hallazgo central fue que el sistema de diseño existía pero no se usaba: `Toast`, `EstadoVacio`, `Esqueleto`, `IndicadorEstado` y `HojaModal` solo aparecían en `/estilos`, mientras las pantallas reales resolvían lo mismo con diálogos nativos del navegador y estado local duplicado.
+
+### Decisiones de producto tomadas al abrir la fase
+
+- Se mantiene la venta personal y sin pasarela (confirma el ADR-006). La base y la landing quedan preparadas para sumar autoservicio más adelante, pero no se construye ahora.
+- El precio será un plan mensual único. La interfaz solo necesita distinguir **vigente / por vencer / vencido**; no habrá columna de plan ni medidores de uso por nivel.
+- Las tres plantillas no se rediseñan estructuralmente. Se corrige que la vista previa no coincida con lo publicado y se les da tipografía propia.
+- El precio exacto en bolivianos sigue sin definirse; se necesita recién para la landing del bloque 10.3.
+
+### Bloque 10.1 — Sistema de diseño vivo (cerrado 2026-09-04)
+
+- Cola de avisos como reducer puro en `components/ui/cola-avisos.ts`, con seis pruebas propias. Un solo intervalo compartido avanza toda la cola, de modo que pausar es cambiar una condición y no cancelar temporizadores por aviso.
+- `ProveedorAvisos` monta la pila en el layout del panel, no en el raíz: el catálogo público no carga ese JavaScript. Las regiones vivas están en el contenedor y los avisos se renderizan con `anunciar={false}`, porque un `role="status"` insertado junto con su texto no se anuncia de forma fiable.
+- `ProveedorConfirmacion` expone `await confirmar({...})`. El foco arranca en la salida segura y no en la acción destructiva.
+- Los siete `window.confirm` y los dos `window.prompt` desaparecen del proyecto. El renombrado de categorías y subcategorías pasa a una hoja con un campo real.
+- Nueve pares de estado de mensaje y sus regiones vivas se retiran de seis pantallas. Los errores de credenciales se conservan junto al formulario a propósito: un aviso que se desvanece es peor ahí. El carrito público y el QR también los conservan, porque no tienen proveedor montado.
+- El progreso de subida de fotos se queda inline en vez de convertirse en avisos: son varios archivos seguidos.
+- `loading.tsx` en el segmento del panel y relleno para los seis `dynamic()` de plantillas, incluido el catálogo público.
+- `IndicadorEstado` declaraba `disponible, reservado, vendido, oculto`; la base define `disponible, reservado, vendido, agotado` y `oculto` pertenece al otro eje, la columna `visible`. Se corrigió la taxonomía y el gestor de catálogo dejó de usar sus tres etiquetas propias.
+- Recorte de texto redundante en el panel: los encabezados repetían en rótulo, título y párrafo lo que la navegación ya indicaba. Se eliminó el recuadro «Qué se configura ahora», que reproducía las etiquetas del formulario contiguo, y las tres ayudas del resumen, que reformulaban el nombre de su métrica. Sobrevive solo lo que la pantalla no muestra.
+- Saldo neto: 302 líneas eliminadas frente a 122 agregadas en la migración, más 216 líneas de CSS sin dueño.
+
+### Pendiente inmediato de la fase
+
+- Verificación manual con sesión real: no se pudo ejecutar desde el entorno de trabajo. Debe comprobarse el borrado de una categoría, el renombrado y la confirmación de una venta.
+- Bloque 10.2 — tipografía: sustituir `Georgia`, `Arial` y `Trebuchet MS` por familias alojadas con `next/font/local`, y dar a los precios un rol tipográfico propio con `tabular-nums`.
+- Bloque 10.3 — landing, páginas legales y estado de suscripción.
+- `next-env.d.ts` se regenera distinto según se ejecute `next build` o `build:vinext`; ensucia el árbol en cada cambio de pipeline y es candidato a `.gitignore`, pendiente de decisión.
 - Riesgos principales: endpoint de mantenimiento público sin autenticación, secretos duplicados o expuestos, tareas programadas silenciosamente fallidas y declarar aprobado un piloto que todavía no cumplió siete días.
 
 ## Estado de Fase 8
@@ -300,6 +333,15 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 - Con autorización explícita, eliminar el Worker homónimo de la cuenta Tienda Blanco; se conserva por ahora como respaldo y no bloquea el cierre de la fase.
 
 ## Registro de verificaciones
+
+### 2026-09-04
+
+- Fase 10 abierta sobre `fase-10-acabado-producto`, con los dos commits pendientes del árbol de trabajo incorporados primero: endurecimiento HTTPS y HSTS, y el alta de `CampoClave`.
+- Auditoría del bloque 10.1: control de secretos de cliente, ESLint, TypeScript, Vitest, tokens y contraste aprobados. La suite pasó de 118 a 124 casos con las pruebas de la cola de avisos.
+- `npm run build` y `npm run build:vinext` aprobados; el control posterior confirmó que el paquete de cliente no contiene la clave privilegiada.
+- Despliegue verificado en `https://mipuesto-dev.mipuesto-app.workers.dev`: `/`, `/login` y `/api/salud/supabase` respondieron HTTP 200, y este último con `{"estado":"ok","servicio":"supabase"}`.
+- Cabeceras comprobadas en producción: `strict-transport-security` con `max-age=31536000; includeSubDomains`, CSP activa sin `unsafe-eval` y `x-frame-options: DENY`.
+- Verificación de contenido en producción limitada a rutas públicas; el 404 sirvió el texto recortado. El panel no pudo validarse por falta de sesión en el entorno de trabajo.
 
 ### 2026-09-03
 
