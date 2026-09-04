@@ -10,7 +10,7 @@
   padding: var(--spacing-4);
   background: var(--catalogo-superficie);
   color: var(--catalogo-texto);
-  font-family: Arial, "Segoe UI", sans-serif;
+  font-family: var(--fuente-moderna), "Segoe UI", sans-serif;
 }
 
 .portada {
@@ -433,4 +433,11 @@
   align-self: center;
   color: var(--catalogo-texto-tenue);
   font-size: var(--text-xs);
+}
+
+/* Cifras de ancho fijo: una columna de precios debe alinear la coma, y el
+   precio tachado de una promocion debe ocupar lo mismo que el nuevo. */
+.precio {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
 }

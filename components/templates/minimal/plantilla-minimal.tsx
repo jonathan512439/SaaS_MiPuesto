@@ -1,3 +1,4 @@
+import { Karla } from "next/font/google";
 import Image from "next/image";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
@@ -7,6 +8,14 @@ import { AvisoHorario } from "../aviso-horario";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-minimal.module.css";
+
+/* Humanista de terminaciones abiertas y aire generoso: la plantilla de
+   servicios se lee de corrido, no se escanea. Reemplaza a Arial. */
+const fuente = Karla({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--fuente-minimal",
+});
 
 export function PlantillaMinimal({
   datos,
@@ -19,7 +28,7 @@ export function PlantillaMinimal({
 }: PropiedadesPlantilla) {
   return (
     <article
-      className={`${temaStyles.tema} ${styles.plantilla}`}
+      className={`${fuente.variable} ${temaStyles.tema} ${styles.plantilla}`}
       data-paleta={paleta}
       aria-label={demostracion ? "Vista previa de plantilla mínima" : `Catálogo de ${datos.negocio.nombre}`}
     >

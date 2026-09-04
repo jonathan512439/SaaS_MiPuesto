@@ -1,3 +1,4 @@
+import { Archivo } from "next/font/google";
 import Image from "next/image";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
@@ -7,6 +8,15 @@ import { AvisoHorario } from "../aviso-horario";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-moderna.module.css";
+
+/* Grotesca de asta ancha, pensada para titulares densos. Reemplaza a
+   Trebuchet MS, que no sostenia el escaparate de alto contraste que esta
+   plantilla promete. */
+const fuente = Archivo({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--fuente-moderna",
+});
 
 export function PlantillaModerna({
   datos,
@@ -36,7 +46,7 @@ export function PlantillaModerna({
 
   return (
     <article
-      className={`${temaStyles.tema} ${styles.plantilla}`}
+      className={`${fuente.variable} ${temaStyles.tema} ${styles.plantilla}`}
       data-paleta={paleta}
       aria-label={demostracion ? "Vista previa de plantilla moderna" : `Catálogo de ${datos.negocio.nombre}`}
     >

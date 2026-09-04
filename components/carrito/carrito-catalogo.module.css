@@ -439,3 +439,11 @@
     text-align: center;
   }
 }
+
+/* Cifras de ancho fijo: una columna de precios debe alinear la coma, y el
+   precio tachado de una promocion debe ocupar lo mismo que el nuevo. */
+.totalItem,
+.resumen strong {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}

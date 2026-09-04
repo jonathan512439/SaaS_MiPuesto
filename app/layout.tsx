@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
 import "./globals.css";
+
+/* El logotipo usa una sans geometrica y gruesa. Inter no la imita: se mantiene
+   neutra al lado, que es lo que pide DESIGN.md seccion 4, y aporta lo que el
+   logotipo no tiene que resolver — altura de x alta para pantallas de gama
+   media a plena luz, y cifras tabulares para que los precios alineen. */
+const fuenteProducto = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--fuente-producto",
+});
 import { obtenerUrlBaseSitio } from "../lib/url-sitio";
 
 export const metadata: Metadata = {
@@ -14,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="es-BO">
+    <html className={fuenteProducto.variable} lang="es-BO">
       <body>{children}</body>
     </html>
   );
