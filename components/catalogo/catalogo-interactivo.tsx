@@ -16,6 +16,7 @@ import type {
 } from "../../lib/plantillas/tipos";
 import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
+import { HojaCatalogo } from "./hoja-catalogo";
 import { Esqueleto } from "../ui";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./catalogo-interactivo.module.css";
@@ -80,6 +81,7 @@ export function CatalogoInteractivo({
   const router = useRouter();
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
   const [firmaReservada, setFirmaReservada] = useState("");
+  const [pedidoAbierto, setPedidoAbierto] = useState(false);
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [pagina, setPagina] = useState(1);
@@ -205,23 +207,30 @@ export function CatalogoInteractivo({
       ) : null}
       {datos.negocio.modalidad === "carrito" ? (
         <>
-          <CarritoCatalogo
-            cantidades={cantidades}
-            datos={datos}
-            onCambiarCantidad={cambiarCantidad}
-            onAbrirWhatsapp={() => registrar("clic_whatsapp")}
-            onPedidoReservado={(firma) => {
-              setFirmaReservada(firma);
-              router.refresh();
-            }}
+          <HojaCatalogo
+            abierta={pedidoAbierto}
+            onCerrar={() => setPedidoAbierto(false)}
             paleta={paleta}
-            productos={productos}
-          />
+            titulo="Tu pedido"
+          >
+            <CarritoCatalogo
+              cantidades={cantidades}
+              datos={datos}
+              onCambiarCantidad={cambiarCantidad}
+              onAbrirWhatsapp={() => registrar("clic_whatsapp")}
+              onPedidoReservado={(firma) => {
+                setFirmaReservada(firma);
+                router.refresh();
+              }}
+              productos={productos}
+            />
+          </HojaCatalogo>
           {cantidadEnCarrito > 0 && !hayReservaVigente ? (
-            <a
+            <button
               aria-label={`Ver pedido: ${cantidadEnCarrito} ${cantidadEnCarrito === 1 ? "artículo" : "artículos"}, subtotal ${formatearPrecioBolivianos(totalEnCarrito)}`}
               className={styles.accesoCarrito}
-              href="#resumen-pedido"
+              onClick={() => setPedidoAbierto(true)}
+              type="button"
             >
               <span aria-hidden="true" className={styles.contadorCarrito}>
                 {cantidadEnCarrito}
@@ -237,7 +246,7 @@ export function CatalogoInteractivo({
               <span className={styles.totalCarrito}>
                 {formatearPrecioBolivianos(totalEnCarrito)}
               </span>
-            </a>
+            </button>
           ) : null}
         </>
       ) : null}

@@ -1,0 +1,105 @@
+@reference "../../app/globals.css";
+
+/* Sube desde abajo en el celular, donde el pulgar está; centrada en pantallas
+   grandes, donde el gesto no existe. */
+.hoja {
+  width: 100%;
+  max-width: 34rem;
+  max-height: 88dvh;
+  margin: auto auto 0;
+  border: 0;
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  box-shadow: var(--catalogo-sombra-flotante);
+}
+
+.hoja[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  animation: subirHoja 200ms ease-out;
+}
+
+/* El velo sale de un token global y no de la paleta: ::backdrop no siempre
+   hereda las variables del elemento, y una paleta clara dejaria el fondo
+   practicamente invisible. */
+.hoja::backdrop {
+  background: color-mix(in srgb, var(--color-texto) 68%, transparent);
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  border-bottom: var(--borde-fino) solid var(--catalogo-borde-suave);
+  padding: var(--spacing-4) var(--spacing-5);
+  background: var(--catalogo-superficie);
+}
+
+.titulo {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.cerrar {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: var(--control-alto);
+  height: var(--control-alto);
+  place-items: center;
+  border: var(--borde-marcado) solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  font-size: var(--text-xl);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cerrar:hover {
+  border-color: currentColor;
+}
+
+.cuerpo {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes subirHoja {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 48rem) {
+  .hoja {
+    margin: auto;
+    max-height: 84dvh;
+    border-radius: var(--radius-sheet);
+  }
+
+  .hoja[open] {
+    animation-name: aparecerHoja;
+  }
+
+  @keyframes aparecerHoja {
+    from {
+      transform: translateY(var(--spacing-4));
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}

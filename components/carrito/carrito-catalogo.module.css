@@ -1,20 +1,15 @@
 @reference "../../app/globals.css";
 
-/* Resumen del pedido: un panel con cabecera propia, la lista de artículos con
-   fotografía y un cierre de totales. Es la única pieza del catálogo con
-   elevación, porque es donde el cliente decide. */
+/* El resumen del pedido vive dentro de la hoja del catálogo, que ya aporta
+   fondo, borde y elevación. Aquí solo va el contenido: repetir el marco
+   dibujaría una caja dentro de otra. */
 
 .carrito {
   display: grid;
   gap: 0;
-  margin: var(--spacing-4);
-  overflow: hidden;
-  border: var(--borde-fino) solid var(--catalogo-borde-suave);
-  border-radius: var(--radius-panel);
   background: var(--catalogo-superficie);
   color: var(--catalogo-texto);
-  box-shadow: var(--catalogo-sombra);
-  font-family: Arial, "Segoe UI", sans-serif;
+  font-family: var(--fuente-producto), system-ui, sans-serif;
 }
 
 .carrito header {

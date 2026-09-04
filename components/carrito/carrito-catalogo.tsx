@@ -3,18 +3,15 @@
 import Image from "next/image";
 import { useRef, useState, type FormEvent } from "react";
 
-import type { PaletaId } from "../../lib/apariencia";
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
-import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./carrito-catalogo.module.css";
 
 type PropiedadesCarrito = {
   datos: DatosPlantilla;
   productos: ProductoPlantilla[];
   cantidades: Record<string, number>;
-  paleta: PaletaId;
   onCambiarCantidad: (productoId: string, cantidad: number) => void;
   onAbrirWhatsapp: () => void;
   onPedidoReservado: (firmaCarrito: string) => void;
@@ -48,7 +45,6 @@ export function CarritoCatalogo({
   datos,
   productos,
   cantidades,
-  paleta,
   onCambiarCantidad,
   onAbrirWhatsapp,
   onPedidoReservado,
@@ -167,20 +163,7 @@ export function CarritoCatalogo({
   }
 
   return (
-    <section
-      aria-labelledby="titulo-carrito"
-      className={`${temaStyles.tema} ${styles.carrito}`}
-      data-paleta={paleta}
-      id="resumen-pedido"
-    >
-      <header>
-        <div>
-          <p>Tu selección</p>
-          <h2 id="titulo-carrito">Pedido por WhatsApp</h2>
-        </div>
-        <strong>{items.length === 1 ? "1 producto" : `${items.length} productos`}</strong>
-      </header>
-
+    <section className={styles.carrito} id="resumen-pedido">
       {items.length === 0 ? (
         <p className={styles.vacio}>
           Todavía no agregaste productos. Elige una opción del catálogo para preparar tu pedido.

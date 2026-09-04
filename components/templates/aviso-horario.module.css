@@ -9,7 +9,7 @@
   padding: var(--spacing-3) var(--spacing-4);
   background: var(--catalogo-alerta-tenue);
   color: var(--catalogo-texto);
-  font-family: Arial, "Segoe UI", sans-serif;
+  font-family: var(--fuente-producto), system-ui, sans-serif;
 }
 
 .aviso p {
