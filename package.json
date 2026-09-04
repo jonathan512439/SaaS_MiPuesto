@@ -28,6 +28,8 @@
     "supabase:functions:deploy": "supabase functions deploy ping-keepalive --use-api",
     "ops:keepalive:configurar": "node --env-file-if-exists=.env.local scripts/configurar-keepalive.mjs",
     "auth:invitar": "node --env-file-if-exists=.env.local scripts/invitar-admin.mjs",
+    "suscripcion:ver": "node --env-file-if-exists=.env.local scripts/suscripciones.mjs ver",
+    "suscripcion:renovar": "node --env-file-if-exists=.env.local scripts/suscripciones.mjs renovar",
     "cloudflare:secret:pedidos": "node --env-file-if-exists=.env.local scripts/configurar-secreto-pedidos-cloudflare.mjs",
     "db:lint": "supabase db lint --local --schema public --fail-on error",
     "db:lint:linked": "supabase db lint --linked --schema public --fail-on error",

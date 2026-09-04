@@ -91,6 +91,21 @@ Fase posterior al planning original. Nace de una revisión crítica de la interf
 - **Bloque 10.3 — landing, páginas legales y estado de suscripción. Sin empezar, y es lo que decide si el producto se puede cobrar.** Todos sus datos de entrada ya están resueltos: precio Bs 80, primer mes gratis, cobro por WhatsApp al 59161832872 y logotipo en formato usable.
 - Verificación visual de las tres plantillas con la tipografía nueva. El control automático valida contraste y tokens, pero no valida que un título con Fraunces siga entrando en su caja a 360 px.
 
+### Bloque 10.3 — Superficie comercial (cerrado 2026-09-04)
+
+- Portada real en `/`: promesa, tres pasos de puesta en marcha, precio con el primer mes gratis y seis preguntas. La demostración es viva y reutiliza las plantillas del panel, con un negocio de ejemplo distinto por estructura.
+- `/terminos` y `/privacidad` con contenido real, enlazados desde el pie. Son requisito para cobrar recolectando nombre y teléfono de clientes finales.
+- La columna `negocios.suscripcion_vence_en` guarda hasta cuándo está vigente cada negocio, con un mes gratis por defecto. `/dashboard/cuenta` muestra estado, fecha y renovación, y la franja de aviso vive en el layout para que el dueño se entere antes de que su catálogo se apague.
+- **La columna queda protegida por omisión**, y la migración lo documenta porque es fácil romperlo sin notarlo: `anon` y `authenticated` tienen sus permisos por lista de columnas, así que la fecha es invisible en público y el dueño no puede renovarse solo. Verificado contra la base: cero privilegios de actualización para `authenticated` y cero para `anon`.
+- Se agrega el token `--text-4xl`, que el panel no necesitaba y la portada sí.
+
+### Operación de suscripciones (2026-09-04)
+
+- `npm run suscripcion:ver` y `npm run suscripcion:renovar -- <slug> [meses]`, siguiendo el patrón de `auth:invitar`: la clave privilegiada se pide a la sesión local del CLI y nunca llega a producción.
+- Renovar suma los meses al final del período pagado si sigue vigente, y cuenta desde hoy si ya venció. Renovar tarde no regala días y renovar temprano no los quita. Reactiva el catálogo si estaba fuera de línea.
+- **No se construyó panel de super-administración**, porque `SECURITY.md` lo marca explícitamente como prematuro: «construilo cuando administrar a mano te empiece a doler». Con cuatro negocios no duele; el script quita el dolor sin sumar una pantalla privilegiada que proteger.
+- Riesgo detectado al aplicar la migración: el script documentado `supabase:push:dev` incluye `--include-seed`, de modo que habría reejecutado `seed.sql` sobre la base con el negocio piloto. Se usó `supabase db push --linked` sin el indicador. Conviene renombrar ese script o quitarle el indicador.
+
 ### Deuda conocida que la fase 10 no toca
 
 Detectada en la revisión crítica de apertura y deliberadamente aplazada:
