@@ -3,7 +3,7 @@ import type { VarianteToast } from "./toast";
 export type Aviso = {
   id: string;
   titulo: string;
-  mensaje: string;
+  mensaje?: string;
   variante: VarianteToast;
   restante: number;
 };

@@ -5,46 +5,38 @@
   gap: var(--spacing-5);
 }
 
-.mensajes:empty {
-  display: none;
-}
-
-.mensajes p,
 .cabeceraFormulario h2,
 .cabeceraFormulario p,
 .tituloSeccion h2,
 .tituloSeccion p,
 .tituloProductos h2,
 .tituloProductos p,
-.estadoVacio h3,
-.estadoVacio p,
 .detalleProducto h3,
 .detalleProducto p {
   margin: 0;
 }
 
-.exito,
-.error {
-  border: var(--borde-fino) solid;
-  border-left-width: var(--spacing-1);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-3) var(--spacing-4);
+/* El progreso de subida vive junto al gestor y no en un aviso: son varios
+   archivos seguidos y una pila de avisos por archivo seria ruido. */
+.progreso {
+  margin: 0;
+  border-left: var(--spacing-1) solid var(--color-marca);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-marca-tenue);
   font-size: var(--text-sm);
   font-weight: 700;
 }
 
-.exito {
-  border-color: color-mix(in srgb, var(--color-exito) 30%, transparent);
-  border-left-color: var(--color-exito);
-  background: color-mix(in srgb, var(--color-exito) 7%, var(--color-superficie));
-  color: var(--color-exito);
+.formularioRenombrado {
+  display: grid;
+  gap: var(--spacing-5);
 }
 
-.error {
-  border-color: color-mix(in srgb, var(--color-peligro) 30%, transparent);
-  border-left-color: var(--color-peligro);
-  background: color-mix(in srgb, var(--color-peligro) 7%, var(--color-superficie));
-  color: var(--color-peligro);
+.formularioRenombrado > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
 }
 
 /* El alta de producto es el unico bloque con borde de marca: separa "crear"
@@ -415,27 +407,6 @@
   align-items: center;
   border-bottom: var(--borde-marcado) solid var(--color-texto);
   padding-bottom: var(--spacing-3);
-}
-
-.estadoVacio {
-  display: grid;
-  gap: var(--spacing-3);
-  justify-items: center;
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-8) var(--spacing-6);
-  background: var(--color-fondo-suave);
-  text-align: center;
-}
-
-.estadoVacio h3 {
-  font-size: var(--text-lg);
-  font-weight: 800;
-}
-
-.estadoVacio p {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
 }
 
 .listaProductos {

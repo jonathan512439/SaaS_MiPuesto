@@ -6,7 +6,7 @@ export type VarianteToast = "informacion" | "exito" | "advertencia" | "error";
 
 type PropiedadesToast = {
   titulo: string;
-  mensaje: string;
+  mensaje?: string;
   variante?: VarianteToast;
   anunciar?: boolean;
   onCerrar?: () => void;
@@ -40,7 +40,7 @@ export function Toast({
       </span>
       <div>
         <p className={styles.tituloToast}>{titulo}</p>
-        <p className={styles.mensajeToast}>{mensaje}</p>
+        {mensaje ? <p className={styles.mensajeToast}>{mensaje}</p> : null}
       </div>
       {onCerrar ? (
         <button

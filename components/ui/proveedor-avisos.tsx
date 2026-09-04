@@ -24,7 +24,7 @@ import styles from "./ui.module.css";
 
 type SolicitudAviso = {
   titulo: string;
-  mensaje: string;
+  mensaje?: string;
   variante?: VarianteToast;
 };
 

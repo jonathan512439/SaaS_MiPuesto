@@ -12,10 +12,16 @@ import type {
   SubcategoriaCatalogo,
 } from "../../lib/catalogo/tipos";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
-import { AreaTexto } from "../ui/area-texto";
-import { Boton } from "../ui/boton";
-import { Campo } from "../ui/campo";
-import { Selector } from "../ui/selector";
+import {
+  AreaTexto,
+  Boton,
+  Campo,
+  EstadoVacio,
+  HojaModal,
+  Selector,
+  useAvisos,
+  useConfirmacion,
+} from "../ui";
 import styles from "./gestor-catalogo.module.css";
 
 const FORMATEADOR_CAMBIO_PRECIO = new Intl.DateTimeFormat("es-BO", {
@@ -40,6 +46,12 @@ type FormularioProducto = {
 };
 
 type RespuestaError = { error?: string; errores?: Record<string, string> };
+
+type Renombrado = {
+  etiqueta: string;
+  nombre: string;
+  guardar: (nombre: string) => void;
+};
 
 const FORMULARIO_VACIO: FormularioProducto = {
   nombre: "",
@@ -71,13 +83,15 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [nombreCategoria, setNombreCategoria] = useState("");
   const [nuevasSubcategorias, setNuevasSubcategorias] = useState<Record<string, string>>({});
   const [formularioAbierto, setFormularioAbierto] = useState(false);
+  const { mostrarAviso } = useAvisos();
+  const confirmar = useConfirmacion();
   const [productoEditando, setProductoEditando] = useState<string | null>(null);
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
   const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
   const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
-  const [mensaje, setMensaje] = useState("");
-  const [errorGeneral, setErrorGeneral] = useState("");
+  const [progreso, setProgreso] = useState("");
+  const [renombrando, setRenombrando] = useState<Renombrado | null>(null);
   const formularioProductoRef = useRef<HTMLFormElement>(null);
 
   const productosVisibles = useMemo(
@@ -109,14 +123,17 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     paginaCategoriasActual * CATEGORIAS_POR_PAGINA,
   );
 
-  function informarExito(texto: string) {
-    setErrorGeneral("");
-    setMensaje(texto);
+  function informarExito(titulo: string, mensaje?: string) {
+    mostrarAviso({ titulo, mensaje, variante: "exito" });
   }
 
-  function informarError(error: unknown) {
-    setMensaje("");
-    setErrorGeneral(error instanceof Error ? error.message : "No se pudo completar la acción.");
+  function informarError(titulo: string, error: unknown) {
+    mostrarAviso({
+      titulo,
+      mensaje:
+        error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
+      variante: "error",
+    });
   }
 
   async function crearCategoria(evento: FormEvent<HTMLFormElement>) {
@@ -136,9 +153,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       setCategoriaActiva(categoria.id);
       setPaginaProductos(1);
       setNombreCategoria("");
-      informarExito(`Categoría “${categoria.nombre}” creada.`);
+      informarExito("Categoría creada");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo crear la categoría", error);
     } finally {
       setOcupado(false);
     }
@@ -165,19 +182,28 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           ),
         );
       }
-      informarExito("Categoría actualizada.");
+      informarExito("Categoría actualizada");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo actualizar la categoría", error);
     }
   }
 
   function pedirNuevoNombreCategoria(categoria: CategoriaCatalogo) {
-    const nombre = window.prompt("Nuevo nombre de la categoría", categoria.nombre)?.trim();
-    if (nombre && nombre !== categoria.nombre) void cambiarCategoria(categoria.id, { nombre });
+    setRenombrando({
+      etiqueta: "Nombre de la categoría",
+      nombre: categoria.nombre,
+      guardar: (nombre) => void cambiarCategoria(categoria.id, { nombre }),
+    });
   }
 
   async function borrarCategoria(categoria: CategoriaCatalogo) {
-    if (!window.confirm(`¿Borrar la categoría “${categoria.nombre}”? Sus productos quedarán sin categoría.`)) return;
+    const aceptado = await confirmar({
+      titulo: `Borrar “${categoria.nombre}”`,
+      descripcion: "Sus productos se conservan, pero quedan sin categoría.",
+      destructiva: true,
+      textoAccion: "Borrar categoría",
+    });
+    if (!aceptado) return;
     try {
       await solicitarJson<{ eliminado: true }>("/api/catalogo/categorias", {
         method: "DELETE",
@@ -202,9 +228,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       setPaginaCategorias(
         Math.max(1, Math.ceil((categorias.length - 1) / CATEGORIAS_POR_PAGINA)),
       );
-      informarExito("Categoría borrada. Los productos se conservaron.");
+      informarExito("Categoría borrada", "Sus productos se conservaron sin categoría.");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo borrar la categoría", error);
     }
   }
 
@@ -222,9 +248,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       );
       setSubcategorias((actuales) => [...actuales, subcategoria]);
       setNuevasSubcategorias((actuales) => ({ ...actuales, [categoriaId]: "" }));
-      informarExito(`Subcategoría “${subcategoria.nombre}” creada.`);
+      informarExito("Subcategoría creada");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo crear la subcategoría", error);
     }
   }
 
@@ -255,21 +281,36 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           ...respuesta.subcategorias!,
         ]);
       }
-      informarExito("Subcategoría actualizada.");
+      informarExito("Subcategoría actualizada");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo actualizar la subcategoría", error);
     }
   }
 
   function pedirNuevoNombreSubcategoria(subcategoria: SubcategoriaCatalogo) {
-    const nombre = window.prompt("Nuevo nombre de la subcategoría", subcategoria.nombre)?.trim();
-    if (nombre && nombre !== subcategoria.nombre) {
-      void cambiarSubcategoria(subcategoria, { nombre });
-    }
+    setRenombrando({
+      etiqueta: "Nombre de la subcategoría",
+      nombre: subcategoria.nombre,
+      guardar: (nombre) => void cambiarSubcategoria(subcategoria, { nombre }),
+    });
+  }
+
+  function confirmarRenombrado(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    if (!renombrando) return;
+    const nombre = new FormData(evento.currentTarget).get("nombre")?.toString().trim();
+    if (nombre && nombre !== renombrando.nombre) renombrando.guardar(nombre);
+    setRenombrando(null);
   }
 
   async function borrarSubcategoria(subcategoria: SubcategoriaCatalogo) {
-    if (!window.confirm(`¿Borrar la subcategoría “${subcategoria.nombre}”?`)) return;
+    const aceptado = await confirmar({
+      titulo: `Borrar “${subcategoria.nombre}”`,
+      descripcion: "Sus productos se conservan dentro de la categoría.",
+      destructiva: true,
+      textoAccion: "Borrar subcategoría",
+    });
+    if (!aceptado) return;
     try {
       await solicitarJson<{ eliminado: true }>("/api/catalogo/subcategorias", {
         method: "DELETE",
@@ -284,9 +325,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             : producto,
         ),
       );
-      informarExito("Subcategoría borrada. Los productos se conservaron.");
+      informarExito("Subcategoría borrada", "Sus productos se conservaron.");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo borrar la subcategoría", error);
     }
   }
 
@@ -353,7 +394,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   ) {
     let fotos = [...producto.fotos];
     for (const archivoOriginal of archivos) {
-      setMensaje(`Preparando ${archivoOriginal.name}…`);
+      setProgreso(`Preparando ${archivoOriginal.name}…`);
       const archivo = preparados
         ? archivoOriginal
         : await prepararImagenParaSubir(archivoOriginal);
@@ -365,6 +406,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         body: datos,
       });
       fotos = [...fotos, ruta];
+      setProgreso("");
       setProductos((actuales) =>
         actuales.map((item) =>
           item.id === producto.id ? { ...item, fotos } : item,
@@ -380,7 +422,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     if (!archivos.length) return;
     if (imagenesPendientes.length + archivos.length > 4) {
       informarError(
-        new Error(`Puedes seleccionar ${4 - imagenesPendientes.length} foto(s) más.`),
+        "Demasiadas fotografías",
+        new Error(`Puedes seleccionar ${4 - imagenesPendientes.length} más.`),
       );
       return;
     }
@@ -389,17 +432,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     try {
       const preparadas: File[] = [];
       for (const archivo of archivos) {
-        setMensaje(`Preparando ${archivo.name}…`);
+        setProgreso(`Preparando ${archivo.name}…`);
         preparadas.push(await prepararImagenParaSubir(archivo));
       }
       setImagenesPendientes((actuales) => [...actuales, ...preparadas]);
-      informarExito(
-        preparadas.length === 1
-          ? "Fotografía lista para guardar."
-          : "Fotografías listas para guardar.",
-      );
+      informarExito(preparadas.length === 1 ? "Fotografía lista" : "Fotografías listas");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudieron preparar las fotografías", error);
     } finally {
       setOcupado(false);
     }
@@ -445,23 +484,16 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       cerrarFormulario();
       if (errorImagenes) {
         informarError(
-          new Error(
-            "El producto se creó, pero una fotografía no pudo subirse. Puedes agregarla desde su ficha.",
-          ),
+          "Producto creado con una foto pendiente",
+          new Error("Una fotografía no se pudo subir. Agrégala desde su ficha."),
         );
       } else {
-        informarExito(
-          productoEditando
-            ? "Producto actualizado."
-            : imagenesPendientes.length
-              ? "Producto y fotografías guardados."
-              : "Producto creado.",
-        );
+        informarExito(productoEditando ? "Producto actualizado" : "Producto creado");
       }
     } catch (error) {
       const datos = (error as Error & { datos?: RespuestaError }).datos;
       if (datos?.errores) setErroresFormulario(datos.errores);
-      informarError(error);
+      informarError("No se pudo guardar el producto", error);
     } finally {
       setOcupado(false);
     }
@@ -484,14 +516,20 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         },
       );
       reemplazarProducto(respuesta.producto);
-      informarExito(respuesta.producto.visible ? "Producto visible en el catálogo." : "Producto ocultado.");
+      informarExito(respuesta.producto.visible ? "Producto visible" : "Producto oculto");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo cambiar la visibilidad", error);
     }
   }
 
   async function borrarProducto(producto: ProductoCatalogo) {
-    if (!window.confirm(`¿Borrar “${producto.nombre}” y sus fotos? Esta acción no se puede deshacer.`)) return;
+    const aceptado = await confirmar({
+      titulo: `Borrar “${producto.nombre}”`,
+      descripcion: "Se borran también sus fotografías. No se puede deshacer.",
+      destructiva: true,
+      textoAccion: "Borrar producto",
+    });
+    if (!aceptado) return;
     try {
       await solicitarJson<{ eliminado: true }>("/api/catalogo/productos", {
         method: "DELETE",
@@ -499,9 +537,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         body: JSON.stringify({ id: producto.id }),
       });
       setProductos((actuales) => actuales.filter(({ id }) => id !== producto.id));
-      informarExito("Producto y fotografías borrados.");
+      informarExito("Producto borrado", "También borramos sus fotografías.");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo borrar el producto", error);
     }
   }
 
@@ -510,22 +548,27 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     evento.target.value = "";
     if (!archivos.length) return;
     if (producto.fotos.length + archivos.length > 4) {
-      informarError(new Error(`Puedes agregar ${4 - producto.fotos.length} foto(s) más a este producto.`));
+      informarError("Demasiadas fotografías", new Error(`Este producto admite ${4 - producto.fotos.length} más.`));
       return;
     }
     setOcupado(true);
     try {
       await cargarArchivosProducto(producto, archivos);
-      informarExito(archivos.length === 1 ? "Fotografía agregada." : "Fotografías agregadas.");
+      informarExito(archivos.length === 1 ? "Fotografía agregada" : "Fotografías agregadas");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudieron subir las fotografías", error);
     } finally {
       setOcupado(false);
     }
   }
 
   async function borrarImagen(producto: ProductoCatalogo, ruta: string) {
-    if (!window.confirm("¿Borrar esta fotografía?")) return;
+    const aceptado = await confirmar({
+      titulo: "Borrar esta fotografía",
+      destructiva: true,
+      textoAccion: "Borrar fotografía",
+    });
+    if (!aceptado) return;
     try {
       await solicitarJson<{ eliminado: true }>("/api/catalogo/imagenes", {
         method: "DELETE",
@@ -533,18 +576,45 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         body: JSON.stringify({ producto_id: producto.id, ruta }),
       });
       reemplazarProducto({ ...producto, fotos: producto.fotos.filter((foto) => foto !== ruta) });
-      informarExito("Fotografía borrada.");
+      informarExito("Fotografía borrada");
     } catch (error) {
-      informarError(error);
+      informarError("No se pudo borrar la fotografía", error);
     }
   }
 
   return (
     <div className={styles.gestor}>
-      <div aria-live="polite" className={styles.mensajes}>
-        {mensaje ? <p className={styles.exito}>{mensaje}</p> : null}
-        {errorGeneral ? <p className={styles.error}>{errorGeneral}</p> : null}
-      </div>
+      {progreso ? (
+        <p className={styles.progreso} role="status">
+          {progreso}
+        </p>
+      ) : null}
+
+      <HojaModal
+        abierta={renombrando !== null}
+        onCerrar={() => setRenombrando(null)}
+        titulo="Cambiar el nombre"
+      >
+        <form className={styles.formularioRenombrado} id="form-renombrar" onSubmit={confirmarRenombrado}>
+          <Campo
+            defaultValue={renombrando?.nombre}
+            etiqueta={renombrando?.etiqueta ?? "Nombre"}
+            id="nombre-renombrado"
+            key={renombrando?.nombre}
+            maxLength={60}
+            name="nombre"
+            required
+          />
+          <div>
+            <Boton onClick={() => setRenombrando(null)} variante="secundario">
+              Cancelar
+            </Boton>
+            <Boton form="form-renombrar" type="submit">
+              Guardar nombre
+            </Boton>
+          </div>
+        </form>
+      </HojaModal>
 
       {formularioAbierto ? (
         <form
@@ -800,11 +870,15 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             <Boton onClick={abrirProductoNuevo}>Crear producto</Boton>
           </div>
           {productosVisibles.length === 0 ? (
-            <div className={styles.estadoVacio}>
-              <h3>Todavía no cargaste productos aquí</h3>
-              <p>Empieza con el primero. Después podrás agregar hasta cuatro fotografías.</p>
-              <Boton onClick={abrirProductoNuevo}>Crear el primer producto</Boton>
-            </div>
+            <EstadoVacio
+              accion={<Boton onClick={abrirProductoNuevo}>Crear el primer producto</Boton>}
+              descripcion={
+                categoriaActiva
+                  ? "Esta categoría está vacía."
+                  : "Empieza por el primero."
+              }
+              titulo="Todavía no cargaste productos"
+            />
           ) : (
             <ul className={styles.listaProductos}>
               {productosPaginados.map((producto) => (
