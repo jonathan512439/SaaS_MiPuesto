@@ -67,11 +67,41 @@ Fase posterior al planning original. Nace de una revisión crítica de la interf
 - Sin la propiedad, la plantilla está en modo demostración y su barra es inerte. No se deshabilita, para que la vista previa no se vea gris.
 - El control de tokens rechazó un `0.8125rem` escrito a mano en las tres hojas; se corrigió a `var(--text-xs)`.
 
+### Bloque 10.2b — Tipografía y marca (cerrado 2026-09-04)
+
+- El panel corría con `system-ui` y las plantillas con familias del sistema operativo: Georgia y Arial en la clásica, **Arial en la moderna y Trebuchet MS en la mínima** (invertido respecto de lo que se creía al abrir la fase). Eran defaults, no decisiones.
+- El producto pasa a **Inter**. No imita al logotipo: se mantiene neutra a su lado, como pide `DESIGN.md` §4, y aporta altura de x alta para pantallas de gama media a plena luz.
+- Cada plantilla recibe la familia de su rubro y la carga en su propio *chunk*: **Fraunces** para la carta editorial, **Archivo** para el escaparate y **Karla** para el directorio de servicios.
+- Peso latino medido sobre el artefacto compilado, no estimado: Inter 47 KB, Fraunces 35 KB, Archivo 34 KB, Karla 31 KB, con todos los pesos incluidos. Un catálogo público descarga Inter más una plantilla.
+- Las fuentes se sirven desde el propio dominio (`/_next/static/_vinext_fonts/`), así que la CSP `font-src 'self'` no se modificó y no hay peticiones a Google durante la navegación. Verificado en producción: el subconjunto latino de Inter responde HTTP 200 con `rel="preload"`.
+- Los precios reciben cifras tabulares en las tres plantillas, el carrito y el acceso flotante, cumpliendo `DESIGN.md` §4, que lo pedía desde el inicio y no se había implementado.
+- El logotipo entregado era un PNG de 1254 px, 747 KB y fondo blanco sólido, inservible sobre la barra teal. Se extrajo el canal alfa desde la luminancia y se recortaron por separado el símbolo (12 KB) y el logotipo completo (29 KB), ambos con transparencia. El original se eliminó del repositorio.
+- La barra del panel deja de mostrar una «M» provisional y usa el símbolo real, llevado a blanco con un filtro para no duplicar el archivo. El icono de la aplicación pasa de un SVG dibujado a mano a la marca real sobre el teal de identidad.
+
+### Bloque 10.2c — Pie del sitio (cerrado 2026-09-04)
+
+- Pie único en el layout raíz, presente en portada, directorio, panel, error 404 y catálogos públicos. Lleva el crédito de desarrollo de JC-DEV con enlace a sus soluciones y contacto directo de WhatsApp.
+- Usa los colores del producto y no la paleta que el dueño eligió para su catálogo, porque es cromo de MiPuesto y no de su tienda.
+- Es el único `contentinfo` de la página: el pie que dibuja cada plantilla vive dentro de un `article` y no compite como punto de referencia.
+
 ### Pendiente inmediato de la fase
 
 - Verificación manual con sesión real: no se pudo ejecutar desde el entorno de trabajo. Debe comprobarse el borrado de una categoría, el renombrado y la confirmación de una venta.
 - Bloque 10.2 — tipografía: **bloqueado** a la espera del logotipo real. `DESIGN.md` §4 exige que la familia del producto conviva con la sans redondeada del logo, y el repositorio solo contiene el ícono geométrico de `app/icon.svg`, sin logotipo. Una vez recibido: sustituir `Georgia`, `Arial` y `Trebuchet MS` por familias alojadas con `next/font/local`, y dar a los precios un rol tipográfico propio con `tabular-nums`.
-- Bloque 10.3 — landing, páginas legales y estado de suscripción.
+- **Bloque 10.3 — landing, páginas legales y estado de suscripción. Sin empezar, y es lo que decide si el producto se puede cobrar.** Todos sus datos de entrada ya están resueltos: precio Bs 80, primer mes gratis, cobro por WhatsApp al 59161832872 y logotipo en formato usable.
+- Verificación visual de las tres plantillas con la tipografía nueva. El control automático valida contraste y tokens, pero no valida que un título con Fraunces siga entrando en su caja a 360 px.
+
+### Deuda conocida que la fase 10 no toca
+
+Detectada en la revisión crítica de apertura y deliberadamente aplazada:
+
+- El catálogo público no tiene buscador. Con hasta 40 categorías y paginación de 10 productos, encontrar algo exige navegar a ciegas.
+- No existe página de producto individual, así que no se puede compartir un enlace a un producto concreto. Para un producto cuyo canal es WhatsApp, es una limitación de negocio y no solo de interfaz.
+- El catálogo público es `force-dynamic`: cada visita consulta Supabase cuatro veces. Debería pasar a caché con revalidación por etiqueta, lo que además abarataría el refresco tras reservar.
+- Las imágenes no declaran `aspect-ratio` en su contenedor ni `placeholder`, de modo que el diseño salta mientras cargan.
+- El alta sigue siendo un muro de cuatro formularios en una sola pantalla, sin pasos ni progreso.
+- El resumen semanal muestra tres contadores sin comparación con la semana anterior.
+- Tailwind sigue instalado sin una sola utilidad ni un `@apply`: solo se usa el bloque `@theme` para declarar variables.
 - Falta el número de WhatsApp de MiPuesto para la llamada a la acción de la landing y para la pantalla de cuenta. No hay ningún dato de contacto propio en la aplicación.
 - Riesgos principales: endpoint de mantenimiento público sin autenticación, secretos duplicados o expuestos, tareas programadas silenciosamente fallidas y declarar aprobado un piloto que todavía no cumplió siete días.
 
