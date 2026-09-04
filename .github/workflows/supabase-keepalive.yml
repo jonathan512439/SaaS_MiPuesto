@@ -1,0 +1,46 @@
+name: Mantener activo Supabase
+
+on:
+  schedule:
+    - cron: "17 13 * * 1,4"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  comprobar-base:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Consultar MiPuesto sin exponer datos
+        env:
+          KEEPALIVE_SECRET: ${{ secrets.SUPABASE_KEEPALIVE_SECRET }}
+        shell: bash
+        run: |
+          if [ -z "$KEEPALIVE_SECRET" ]; then
+            echo "Falta configurar SUPABASE_KEEPALIVE_SECRET en GitHub." >&2
+            exit 1
+          fi
+
+          respuesta="$(mktemp)"
+          trap 'rm -f "$respuesta"' EXIT
+          estado="$(curl --silent --show-error \
+            --retry 2 --retry-all-errors \
+            --connect-timeout 10 --max-time 30 \
+            --output "$respuesta" --write-out "%{http_code}" \
+            --request POST \
+            --header "x-mipuesto-keepalive: ${KEEPALIVE_SECRET}" \
+            "https://afhnxjdqaruwccgsdxzb.supabase.co/functions/v1/ping-keepalive")"
+
+          if [ "$estado" != "200" ] || ! grep -q '"estado":"ok"' "$respuesta"; then
+            echo "El keepalive respondió HTTP ${estado}." >&2
+            sed -n '1p' "$respuesta" >&2
+            exit 1
+          fi
+
+          echo "Supabase respondió correctamente."

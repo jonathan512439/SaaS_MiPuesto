@@ -384,6 +384,11 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
+[functions.ping-keepalive]
+# GitHub Actions no posee un JWT de usuario. La función aplica autenticación
+# propia con KEEPALIVE_SECRET antes de consultar o anonimizar cualquier fila.
+verify_jwt = false
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
