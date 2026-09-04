@@ -5,7 +5,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Estado actual
 
 - Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda**, **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp**, **Fase 7 — Panel de administración completo** y **Fase 8 — Funciones de plataforma**.
-- Próxima fase: **Fase 9 — Testing, deploy y dominio**.
+- Fase en curso: **Fase 9 — Testing y cierre operativo, sin dominio por ahora**.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
@@ -19,8 +19,18 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Cierre de Fase 7: 2026-09-03.
 - Inicio de Fase 8: 2026-09-03.
 - Cierre de Fase 8: 2026-09-03.
-- Estado: **Fase 8 cerrada; implementación, auditorías, despliegue y validación manual cumplidos**.
-- Próxima puerta de salida: un negocio piloto debe operar una semana completa sin intervenir manualmente la base de datos.
+- Inicio de Fase 9: 2026-09-03.
+- Estado: **Fase 9 iniciada; dominio aplazado por decisión del propietario**.
+- Próxima puerta de salida: un negocio piloto debe operar una semana completa sin intervenir manualmente la base de datos; el dominio se validará después como tarea separada.
+
+## Estado de Fase 9
+
+- Inicio: 2026-09-03.
+- Estado: **en implementación**.
+- Plan técnico y de validación: `docs/PLAN-DISENO-FASE9.md`.
+- Alcance actual: keepalive externo, retención de datos personales, auditoría final, despliegue y preparación del piloto de siete días.
+- Fuera de alcance temporal: conexión de `mipuesto.com` y validación de su SSL; la URL `workers.dev` continúa siendo el entorno del piloto.
+- Riesgos principales: endpoint de mantenimiento público sin autenticación, secretos duplicados o expuestos, tareas programadas silenciosamente fallidas y declarar aprobado un piloto que todavía no cumplió siete días.
 
 ## Estado de Fase 8
 
