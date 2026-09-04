@@ -174,3 +174,9 @@
     font-size: var(--text-base);
   }
 }
+
+.cargando {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+}

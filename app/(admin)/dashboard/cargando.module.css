@@ -1,0 +1,56 @@
+@reference "../../globals.css";
+
+.soloLectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.contenido {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-5);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
+  margin: 0 auto;
+  padding: var(--spacing-6) 0 var(--spacing-16);
+}
+
+.encabezado {
+  display: grid;
+  gap: var(--spacing-3);
+  max-width: 52rem;
+  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
+  padding-bottom: var(--spacing-4);
+}
+
+.bloque {
+  display: grid;
+  gap: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-5);
+}
+
+.filas {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+@media (min-width: 60rem) {
+  .contenido {
+    padding-top: var(--spacing-8);
+  }
+
+  .bloque {
+    padding: var(--spacing-6);
+  }
+}
+
+@media (max-width: 24rem) {
+  .contenido {
+    width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
+  }
+}

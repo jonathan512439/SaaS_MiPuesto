@@ -348,3 +348,9 @@
     width: 100%;
   }
 }
+
+.filaBotones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}

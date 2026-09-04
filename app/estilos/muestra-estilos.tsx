@@ -10,7 +10,11 @@ import {
   EstadoVacio,
   HojaModal,
   IndicadorEstado,
+  ProveedorAvisos,
+  ProveedorConfirmacion,
   Toast,
+  useAvisos,
+  useConfirmacion,
 } from "@/components/ui";
 
 import styles from "./estilos.module.css";
@@ -25,8 +29,20 @@ const colores = [
 ];
 
 export function MuestraEstilos() {
+  return (
+    <ProveedorAvisos>
+      <ProveedorConfirmacion>
+        <Galeria />
+      </ProveedorConfirmacion>
+    </ProveedorAvisos>
+  );
+}
+
+function Galeria() {
   const [hojaAbierta, setHojaAbierta] = useState(false);
   const [avisoVisible, setAvisoVisible] = useState(true);
+  const { mostrarAviso } = useAvisos();
+  const confirmar = useConfirmacion();
 
   return (
     <main className={styles.pagina}>
@@ -139,6 +155,7 @@ export function MuestraEstilos() {
             <IndicadorEstado estado="disponible" />
             <IndicadorEstado estado="reservado" />
             <IndicadorEstado estado="vendido" />
+            <IndicadorEstado estado="agotado" />
             <IndicadorEstado estado="oculto" />
           </div>
         </section>
@@ -218,6 +235,52 @@ export function MuestraEstilos() {
               titulo="No se pudo subir la foto"
               variante="error"
             />
+          </div>
+        </section>
+
+        <section className={styles.seccion}>
+          <EncabezadoSeccion
+            titulo="Avisos y confirmaciones en uso"
+            descripcion="Los avisos se apilan abajo, se pausan al pasar el puntero y desaparecen solos. La confirmación arranca con el foco en la salida segura."
+          />
+          <div className={styles.filaBotones}>
+            <Boton
+              onClick={() =>
+                mostrarAviso({ titulo: "Producto publicado", variante: "exito" })
+              }
+              variante="secundario"
+            >
+              Aviso de éxito
+            </Boton>
+            <Boton
+              onClick={() =>
+                mostrarAviso({
+                  titulo: "No se pudo subir la foto",
+                  mensaje: "Pesa más de 5 MB. Probá con una imagen más liviana.",
+                  variante: "error",
+                })
+              }
+              variante="secundario"
+            >
+              Aviso de error
+            </Boton>
+            <Boton
+              onClick={async () => {
+                const aceptado = await confirmar({
+                  titulo: "Borrar “Hamburguesa clásica”",
+                  descripcion: "Se borran también sus fotografías. No se puede deshacer.",
+                  destructiva: true,
+                  textoAccion: "Borrar producto",
+                });
+                mostrarAviso({
+                  titulo: aceptado ? "Producto borrado" : "No se borró nada",
+                  variante: aceptado ? "exito" : "informacion",
+                });
+              }}
+              variante="peligro"
+            >
+              Confirmación destructiva
+            </Boton>
           </div>
         </section>
 

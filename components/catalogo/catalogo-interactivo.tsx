@@ -14,6 +14,7 @@ import type {
 } from "../../lib/plantillas/tipos";
 import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
+import { Esqueleto } from "../ui";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./catalogo-interactivo.module.css";
 
@@ -23,21 +24,40 @@ type PropiedadesCatalogoInteractivo = {
   paleta: PaletaId;
 };
 
+/* La plantilla llega en su propio chunk. En una conexion lenta ese hueco es
+   justo lo primero que ve el cliente, asi que reservamos su alto. */
+function CatalogoCargando() {
+  return (
+    <div aria-hidden="true" className={styles.cargando}>
+      <Esqueleto variante="imagen" />
+      <Esqueleto variante="titulo" />
+      <Esqueleto />
+      <Esqueleto />
+    </div>
+  );
+}
+
 const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
-  clasica: dynamic(() =>
-    import("../templates/clasica/plantilla-clasica").then(
-      (modulo) => modulo.PlantillaClasica,
-    ),
+  clasica: dynamic(
+    () =>
+      import("../templates/clasica/plantilla-clasica").then(
+        (modulo) => modulo.PlantillaClasica,
+      ),
+    { loading: CatalogoCargando },
   ),
-  moderna: dynamic(() =>
-    import("../templates/moderna/plantilla-moderna").then(
-      (modulo) => modulo.PlantillaModerna,
-    ),
+  moderna: dynamic(
+    () =>
+      import("../templates/moderna/plantilla-moderna").then(
+        (modulo) => modulo.PlantillaModerna,
+      ),
+    { loading: CatalogoCargando },
   ),
-  minimal: dynamic(() =>
-    import("../templates/minimal/plantilla-minimal").then(
-      (modulo) => modulo.PlantillaMinimal,
-    ),
+  minimal: dynamic(
+    () =>
+      import("../templates/minimal/plantilla-minimal").then(
+        (modulo) => modulo.PlantillaMinimal,
+      ),
+    { loading: CatalogoCargando },
   ),
 };
 

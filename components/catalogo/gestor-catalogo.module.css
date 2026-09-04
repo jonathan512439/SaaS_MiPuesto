@@ -518,28 +518,6 @@
   font-size: var(--text-xs);
 }
 
-.estadoVisible,
-.estadoOculto,
-.estadoAgotado {
-  border: var(--borde-fino) solid currentColor;
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.estadoVisible {
-  background: var(--color-exito-tenue);
-  color: var(--color-exito);
-}
-
-.estadoOculto,
-.estadoAgotado {
-  background: var(--color-alerta-tenue);
-  color: var(--color-alerta);
-}
-
 .botonFoto {
   display: inline-flex;
   min-height: var(--control-alto);

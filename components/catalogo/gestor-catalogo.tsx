@@ -18,6 +18,8 @@ import {
   Campo,
   EstadoVacio,
   HojaModal,
+  IndicadorEstado,
+  type EstadoProducto,
   Selector,
   useAvisos,
   useConfirmacion,
@@ -899,8 +901,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                   <div className={styles.detalleProducto}>
                     <div className={styles.nombreProducto}>
                       <h3>{producto.nombre}</h3>
-                      <span className={producto.visible ? styles.estadoVisible : styles.estadoOculto}>{producto.visible ? "Visible" : "Oculto"}</span>
-                      {producto.estado === "agotado" ? <span className={styles.estadoAgotado}>Agotado</span> : null}
+                      {producto.visible ? null : <IndicadorEstado estado="oculto" />}
+                      {producto.estado === "disponible" ? null : (
+                        <IndicadorEstado estado={producto.estado as EstadoProducto} />
+                      )}
                     </div>
                     <small>Código: {producto.codigo}</small>
                     <strong>Bs {Number(producto.precio).toFixed(2).replace(".", ",")}</strong>

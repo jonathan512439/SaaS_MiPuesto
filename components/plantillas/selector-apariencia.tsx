@@ -11,7 +11,7 @@ import {
 } from "../../lib/apariencia";
 import type { DatosPlantilla, PropiedadesPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
-import { Boton, useAvisos } from "../ui";
+import { Boton, Esqueleto, useAvisos } from "../ui";
 import styles from "./selector-apariencia.module.css";
 
 type PropiedadesSelector = {
@@ -20,15 +20,34 @@ type PropiedadesSelector = {
   paletaInicial: PaletaId;
 };
 
+/* El chunk de cada plantilla baja al elegirla. Sin este relleno el area de la
+   vista previa queda en blanco y el alto salta cuando llega el modulo. */
+function VistaPreviaCargando() {
+  return (
+    <div aria-hidden="true" className={styles.cargandoVista}>
+      <Esqueleto variante="imagen" />
+      <Esqueleto variante="titulo" />
+      <Esqueleto />
+      <Esqueleto />
+    </div>
+  );
+}
+
 const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
-  clasica: dynamic(() =>
-    import("../templates/clasica/plantilla-clasica").then((modulo) => modulo.PlantillaClasica),
+  clasica: dynamic(
+    () =>
+      import("../templates/clasica/plantilla-clasica").then((modulo) => modulo.PlantillaClasica),
+    { loading: VistaPreviaCargando },
   ),
-  moderna: dynamic(() =>
-    import("../templates/moderna/plantilla-moderna").then((modulo) => modulo.PlantillaModerna),
+  moderna: dynamic(
+    () =>
+      import("../templates/moderna/plantilla-moderna").then((modulo) => modulo.PlantillaModerna),
+    { loading: VistaPreviaCargando },
   ),
-  minimal: dynamic(() =>
-    import("../templates/minimal/plantilla-minimal").then((modulo) => modulo.PlantillaMinimal),
+  minimal: dynamic(
+    () =>
+      import("../templates/minimal/plantilla-minimal").then((modulo) => modulo.PlantillaMinimal),
+    { loading: VistaPreviaCargando },
   ),
 };
 

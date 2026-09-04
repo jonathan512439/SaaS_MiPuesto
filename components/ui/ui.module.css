@@ -244,6 +244,11 @@
   color: var(--color-superficie);
 }
 
+.estadoAgotado {
+  background: var(--color-alerta-tenue);
+  color: var(--color-alerta);
+}
+
 .estadoOculto {
   border-style: dashed;
   background: var(--color-superficie);
