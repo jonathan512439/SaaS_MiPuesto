@@ -122,11 +122,31 @@ Fase posterior al planning original. Nace de una revisión crítica de la interf
 - Se conserva la comprobación de tipo como red: si esa conversión dejara de estar disponible, la tarjeta se arma solo con texto en vez de devolver una respuesta vacía. La portada del negocio tenía el mismo problema y sigue el mismo camino.
 - La fotografía se contiene y no se recorta: quien recibe el enlace tiene que ver el producto entero.
 
+### Bloque 10.5 — Rendimiento del catálogo (cerrado 2026-09-04)
+
+- El catálogo resolvía en dos fases: primero buscaba el negocio por su dirección y recién después consultaba categorías, productos y promociones en paralelo. Esa primera consulta estaba sola en el camino crítico y costaba un viaje completo por visita.
+- Se cachea solo esa fase con `unstable_cache`. Lo que devuelve cambia cuando el dueño edita su perfil y no cuando alguien compra, de modo que **no hay riesgo de mostrar existencias viejas**: productos y promociones se siguen leyendo frescos y el refresco tras reservar sigue funcionando.
+- Las cuatro rutas del panel que tocan esos datos invalidan la etiqueta al guardar con `expire: 0`, para que el dueño vea su cambio al instante y no una versión vieja mientras se refresca por detrás. Al renombrar se invalida también la dirección anterior.
+- Medido en producción antes y después: el catálogo pasó de 0,63–1,73 s de TTFB a **0,49–0,57 s**, el mismo rango que una ruta estática. Confirma además que la caché persiste en el runtime de Workers, que era la incógnita.
+- **Corrección al análisis de apertura:** el punto sobre imágenes sin `aspect-ratio` era un error. Las tres plantillas ya lo declaraban en tarjetas, portada y logotipo.
+
+### Bloque 11.1 — Guardián de combinaciones (cerrado 2026-09-04)
+
+- El control de contraste tenía las cuatro paletas escritas a mano; ahora las descubre en el CSS del tema.
+- Compara además los cuatro sitios donde vive una paleta o una plantilla: el CSS, `DEFINICIONES_*`, la constante que alimenta al validador y la restricción de la base. Si alguno queda atrás, el dueño podría elegir algo que la base rechaza.
+- Verificado a la inversa: agregando una paleta solo en el CSS, el control falla y la señala.
+
+### Bloque 11.2 — El pedido en ventana propia (cerrado 2026-09-04)
+
+- El carrito era una sección al final del catálogo y el botón flotante un salto de ancla. En el celular el cliente aterrizaba al pie y perdía el sitio donde estaba mirando.
+- Pasa a una hoja modal que bloquea el desplazamiento del fondo, sube desde abajo en el celular y aparece centrada en pantallas grandes. No reutiliza la hoja del panel: aquella usa los colores del producto y esta respeta la paleta del dueño.
+- El carrito pierde su marco y su cabecera propia, que dentro de la hoja dibujaban una caja dentro de otra y repetían el título.
+- Dos archivos habían quedado fuera del cambio de tipografía y seguían con `Arial`: el carrito y el aviso de horario.
+
 ### Deuda conocida que la fase 10 no toca
 
 Detectada en la revisión crítica de apertura y deliberadamente aplazada:
 
-- El catálogo público es `force-dynamic`: cada visita consulta Supabase cuatro veces. Debería pasar a caché con revalidación por etiqueta, lo que además abarataría el refresco tras reservar.
 - Las imágenes del catálogo, a diferencia de las de la ficha de producto, siguen sin declarar `aspect-ratio` en su contenedor, de modo que el diseño salta mientras cargan.
 - El alta sigue siendo un muro de cuatro formularios en una sola pantalla, sin pasos ni progreso.
 - El resumen semanal muestra tres contadores sin comparación con la semana anterior.
