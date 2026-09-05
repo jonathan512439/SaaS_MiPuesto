@@ -72,6 +72,18 @@ npm run test:rls:linked  # al cierre de cada etapa, sin excepción
 - El control de tokens rechaza cualquier color, tamaño tipográfico o espaciado
   escrito a mano fuera de `app/globals.css`.
 
+### Lo que espera una acción del dueño
+
+Ninguna de estas cosas se puede hacer desde el repositorio:
+
+| | Dónde |
+|---|---|
+| Comprar y conectar el dominio | Bloquea correo propio, QR, NFC y el reporte por correo |
+| Cargar tres secretos del respaldo | `docs/RESPALDOS.md`, sección «Lo que hay que configurar» |
+| Hacer el ensayo de restauración | `docs/RESPALDOS.md`, sección «El ensayo» |
+| Poner un vigilante externo sobre `/api/salud` | Cualquier servicio gratuito de monitoreo |
+| La semana de piloto | Puerta de salida definida en la Fase 9 |
+
 ### Estado de la Fase 12 (etapa 0–1 del plan de crecimiento)
 
 | | Estado |
@@ -85,10 +97,15 @@ npm run test:rls:linked  # al cierre de cada etapa, sin excepción
 | Correcciones de la revisión del dueño | **cerradas y verificadas** |
 | Etapa 3: peso y uso diario | **cerrada y medida en producción** |
 | Etapa 3½: ubicación | **cerrada**; rubro y place id diferidos a sus etapas |
+| Etapa 5: respaldos y vigilancia | **código listo**; espera secretos y el ensayo de restauración |
 
-**Las etapas 0–1, 2, 3 y 3½ están cerradas.** Lo que sigue es la etapa 4
-—dominio y correo—, bloqueada hasta comprar el dominio, y la etapa 5, respaldos
-y monitoreo, que no depende de nada.
+**Las etapas 0–1, 2, 3 y 3½ están cerradas y la 5 tiene su código listo.** Lo
+que sigue es la etapa 6 —el panel de superadministrador—, que no depende de
+nada. La etapa 4 sigue bloqueada hasta comprar el dominio.
+
+Antes de eso, el dueño tiene que cargar los tres secretos del respaldo y hacer el
+ensayo de restauración: hasta entonces el respaldo es código, no una garantía.
+Los pasos están en `docs/RESPALDOS.md`.
 
 ### Decisiones que conviene no deshacer sin leer el motivo
 
@@ -455,6 +472,49 @@ contenido, no sobrecarga.
 El JavaScript —208 KB comprimidos— es el piso estructural de React más el
 runtime del framework, y no se ataca por ahora: recortarlo exige cambiar de
 arquitectura, no de código.
+
+### Bloque 12.10 — Etapa 5: respaldos y vigilancia (2026-09-05)
+
+**Vigilancia de las tareas programadas.** Tres trabajos sostienen la operación
+sin que nadie los mire. Si uno deja de correr no pasa nada visible —el catálogo
+sigue en pie— y por eso es peligroso: un corte que no corre publica gratis a
+quien no pagó, y nadie se entera hasta revisar a mano.
+
+`public.estado_tareas()` informa cuándo corrió bien cada una por última vez y si
+se pasó de su plazo. **Distingue «nunca corrió» de «dejó de correr»**: la primera
+versión marcaba atrasada la purga recién creada, que simplemente todavía no
+llegaba a su hora. Una alarma que suena el día uno por algo que está bien se
+aprende a ignorar, y entonces no sirve el día que suene de verdad.
+
+Al aplicarla apareció otro detalle: revocar de `public` deja fuera también a
+`service_role`, que es justamente quien tiene que leerla. Se concedió solo a ese
+rol.
+
+- **`/api/salud`** responde 200 o 503 para que cualquier vigilante externo sirva
+  sin abrir cuenta en ningún servicio. Responde en grueso a propósito: es
+  público, así que no dice qué tarea falló ni desde cuándo.
+- **`npm run salud`** da el detalle, con la clave privilegiada.
+
+**Respaldo diario de la base a R2**, en `.github/workflows/respaldo.yml`. Corre a
+las 07:00 UTC, antes de la purga y del corte, para que refleje el estado previo a
+cualquier borrado automático. Separa esquema y datos, y comprueba que los
+archivos pesen algo antes de subirlos: un volcado de cero bytes sube igual y da
+una falsa sensación de respaldo.
+
+Usa `pg_dump` directo y no `supabase db dump`, que exige Docker.
+
+### Lo que la etapa 5 dejó sin cerrar, y por qué
+
+| | Estado |
+|---|---|
+| Respaldo de la base | Escrito y listo; **falta que el dueño cargue tres secretos** |
+| Ensayo de restauración | **Pendiente**: exige un proyecto Supabase aparte |
+| Respaldo de fotografías | **No hecho**. La base es lo irreemplazable; las fotos se le pueden pedir al dueño, con molestia pero sin pérdida definitiva |
+| Vigilante externo que avise | **Pendiente**: `/api/salud` está listo, falta algo que lo consulte |
+| Alertas de errores en vivo | **No hecho**. Cloudflare ya guarda los registros; falta quien avise |
+
+Los cinco puntos están detallados en `docs/RESPALDOS.md`, con los pasos exactos
+de consola que solo puede hacer el dueño.
 
 ### Auditoría de cierre
 

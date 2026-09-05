@@ -365,14 +365,25 @@ verdad.
 **Criterio de cierre:** una invitación y una recuperación de clave llegan a la
 bandeja de entrada, no a spam.
 
-### Etapa 5 — Que se pueda dormir tranquilo (2 días)
+### Etapa 5 — Que se pueda dormir tranquilo — **CÓDIGO LISTO el 2026-09-05**
 
 - Respaldo diario a R2 **con una restauración probada**. Un respaldo sin
   restaurar no es un respaldo.
 - Monitoreo de errores y aviso de caída.
 
 **Criterio de cierre:** una base restaurada desde el respaldo del día anterior
-levanta y sirve un catálogo.
+levanta y sirve un catálogo. **Todavía no cumplido**: el ensayo exige un proyecto
+Supabase aparte y los secretos del flujo, dos cosas que solo puede hacer el
+dueño. El procedimiento y su criterio de aprobación están en `docs/RESPALDOS.md`.
+
+Dos apuntes para quien retome:
+
+- La vigilancia de tareas ya avisa por `/api/salud`. Lo que falta es algo externo
+  que lo consulte cada pocos minutos; alcanza cualquier servicio gratuito de
+  monitoreo.
+- **Las fotografías no se respaldan todavía.** Se priorizó la base porque es lo
+  irreemplazable, pero un dueño que subió 300 fotos hace seis meses probablemente
+  ya no las tenga.
 
 ### Etapa 6 — Panel de superadministrador (5 días)
 
