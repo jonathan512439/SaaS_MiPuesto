@@ -5,6 +5,12 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useRef, useState } from "react";
 
 import { obtenerUrlPublicaImagenProducto } from "../../lib/catalogo/imagenes-publicas";
+import {
+  AJUSTE_MAXIMO,
+  AJUSTE_MINIMO,
+  aplicarPorcentaje,
+  validarAjustePrecios,
+} from "../../lib/catalogo/precios-lote";
 import type {
   CategoriaCatalogo,
   DatosCatalogoAdmin,
@@ -92,6 +98,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
   const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
+  const [ajustePorcentaje, setAjustePorcentaje] = useState("");
+  const [ajusteCategoria, setAjusteCategoria] = useState("");
+  const [ajustando, setAjustando] = useState(false);
   const [progreso, setProgreso] = useState("");
   const [renombrando, setRenombrando] = useState<Renombrado | null>(null);
   const formularioProductoRef = useRef<HTMLFormElement>(null);
@@ -545,6 +554,85 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     }
   }
 
+  async function duplicarProducto(producto: ProductoCatalogo) {
+    try {
+      const { producto: copia, fotosCopiadas } = await solicitarJson<{
+        producto: ProductoCatalogo;
+        fotosCopiadas: number;
+      }>("/api/catalogo/productos/duplicar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: producto.id }),
+      });
+      setProductos((actuales) => [...actuales, copia]);
+      informarExito(
+        "Producto duplicado",
+        fotosCopiadas > 0
+          ? `La copia quedá oculta hasta que la edites. Se copiaron ${fotosCopiadas} fotografía(s).`
+          : "La copia queda oculta hasta que la edites.",
+      );
+    } catch (error) {
+      informarError("No se pudo duplicar el producto", error);
+    }
+  }
+
+  async function ajustarPrecios(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const porcentaje = Number(ajustePorcentaje);
+    const validacion = validarAjustePrecios({
+      porcentaje,
+      categoria_id: ajusteCategoria || null,
+    });
+    if (!validacion.correcto) {
+      informarError("Revisa el ajuste", new Error(validacion.error));
+      return;
+    }
+
+    const nombreCategoria = ajusteCategoria
+      ? categorias.find(({ id }) => id === ajusteCategoria)?.nombre
+      : null;
+    const alcance = nombreCategoria ? `la categoría ${nombreCategoria}` : "todo el catálogo";
+    const aceptado = await confirmar({
+      titulo: `${porcentaje > 0 ? "Subir" : "Bajar"} ${Math.abs(porcentaje)} % en ${alcance}`,
+      descripcion:
+        "Cada producto guarda su precio anterior, así que podés corregirlo uno por uno si algo no cuadra.",
+      textoAccion: "Ajustar precios",
+    });
+    if (!aceptado) return;
+
+    setAjustando(true);
+    try {
+      const { ajustados } = await solicitarJson<{ ajustados: number; revisados: number }>(
+        "/api/catalogo/precios",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(validacion.datos),
+        },
+      );
+      setProductos((actuales) =>
+        actuales.map((producto) =>
+          !ajusteCategoria || producto.categoria_id === ajusteCategoria
+            ? {
+                ...producto,
+                precio_anterior: producto.precio,
+                precio: aplicarPorcentaje(Number(producto.precio), porcentaje),
+              }
+            : producto,
+        ),
+      );
+      setAjustePorcentaje("");
+      informarExito(
+        "Precios ajustados",
+        `${ajustados} producto(s) cambiaron de precio en ${alcance}.`,
+      );
+    } catch (error) {
+      informarError("No se pudieron ajustar los precios", error);
+    } finally {
+      setAjustando(false);
+    }
+  }
+
   async function subirImagenes(producto: ProductoCatalogo, evento: ChangeEvent<HTMLInputElement>) {
     const archivos = Array.from(evento.target.files ?? []);
     evento.target.value = "";
@@ -871,6 +959,57 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             </div>
             <Boton onClick={abrirProductoNuevo}>Crear producto</Boton>
           </div>
+
+          {/* Ajustar precios de a uno sobre trescientos productos es lo que hace
+              que un catálogo quede desactualizado. Va acá arriba y no escondido
+              en otra pantalla porque con inflación se usa varias veces al año. */}
+          {productos.length > 0 ? (
+            <form className={styles.ajustePrecios} onSubmit={ajustarPrecios}>
+              <div className={styles.tituloAjuste}>
+                <h3>Ajustar precios en lote</h3>
+                <p>Cada producto guarda su precio anterior, así que se puede corregir uno por uno.</p>
+              </div>
+              <div className={styles.controlesAjuste}>
+                <label htmlFor="ajuste-alcance">
+                  Qué ajustar
+                  <select
+                    id="ajuste-alcance"
+                    onChange={(evento) => setAjusteCategoria(evento.target.value)}
+                    value={ajusteCategoria}
+                  >
+                    <option value="">Todo el catálogo</option>
+                    {categorias.map((categoria) => (
+                      <option key={categoria.id} value={categoria.id}>
+                        {categoria.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label htmlFor="ajuste-porcentaje">
+                  Porcentaje
+                  <input
+                    id="ajuste-porcentaje"
+                    inputMode="decimal"
+                    max={AJUSTE_MAXIMO}
+                    min={AJUSTE_MINIMO}
+                    onChange={(evento) => setAjustePorcentaje(evento.target.value)}
+                    placeholder="10"
+                    step="0.1"
+                    type="number"
+                    value={ajustePorcentaje}
+                  />
+                </label>
+                <Boton cargando={ajustando} disabled={!ajustePorcentaje} type="submit">
+                  Aplicar
+                </Boton>
+              </div>
+              <p className={styles.ayudaAjuste}>
+                Escribí <strong>10</strong> para subir un 10 % o <strong>-10</strong> para
+                bajarlo. Ningún precio queda en cero.
+              </p>
+            </form>
+          ) : null}
+
           {productosVisibles.length === 0 ? (
             <EstadoVacio
               accion={<Boton onClick={abrirProductoNuevo}>Crear el primer producto</Boton>}
@@ -921,6 +1060,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                     </small>
                     <div className={styles.accionesProducto}>
                       <Boton onClick={() => editarProducto(producto)} variante="secundario">Editar</Boton>
+                      <Boton onClick={() => void duplicarProducto(producto)} variante="discreto">Duplicar</Boton>
                       <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">{producto.visible ? "Ocultar" : "Mostrar"}</Boton>
                       <label className={styles.botonFoto}>
                         Agregar fotos

@@ -6,6 +6,7 @@ export const LIMITE_SUBCATEGORIAS_POR_CATEGORIA = 20;
    descargaba la ficha de todos los productos para mostrar doce, así que subir
    el límite antes habría empeorado el catálogo en vez de mejorarlo. */
 export const LIMITE_PRODUCTOS = 300;
+export const LARGO_MAXIMO_NOMBRE_PRODUCTO = 120;
 
 const PATRON_UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -61,7 +62,8 @@ export function validarProducto(entrada: unknown):
     valor.subcategoria_id === null || valor.subcategoria_id === "" ? null : valor.subcategoria_id;
 
   if (!nombre) errores.nombre = "El nombre es obligatorio.";
-  else if (nombre.length > 120) errores.nombre = "Usa como máximo 120 caracteres.";
+  else if (nombre.length > LARGO_MAXIMO_NOMBRE_PRODUCTO)
+    errores.nombre = `Usa como máximo ${LARGO_MAXIMO_NOMBRE_PRODUCTO} caracteres.`;
 
   if (descripcion && descripcion.length > 1000) {
     errores.descripcion = "Usa como máximo 1000 caracteres.";
