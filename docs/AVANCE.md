@@ -80,10 +80,12 @@ npm run test:rls:linked  # al cierre de cada etapa, sin excepción
 | Textos legales alineados | **cerrado** |
 | `supabase:push:dev` desactivado | **cerrado** |
 | Horarios especiales y feriados | **cerrado y verificado en producción** |
+| Etapa 2: paginación en la consulta | **cerrada y verificada en producción** |
+| Etapa 2: duplicar y precios en lote | **cerrado** |
 
-**La etapa 0–1 está cerrada.** Lo que sigue, según el plan, es la etapa 2:
-paginación y filtrado en la consulta, y recién después el límite de 300
-productos. Es la etapa que permite el tamaño objetivo.
+**Las etapas 0–1 y 2 están cerradas.** Lo que sigue es la etapa 3: imágenes de
+400 y 1200 px generadas en el navegador —sin guardar el original de 1600— y
+purga de analítica a 90 días.
 
 ### Decisiones que conviene no deshacer sin leer el motivo
 
@@ -181,18 +183,92 @@ documentación.
   mostró «Cerrado hoy · Prueba de feriado» y los pedidos quedaron pausados. La
   excepción de prueba se retiró después.
 
+### Bloque 12.5 — Paginación en la consulta (cerrado 2026-09-05)
+
+Etapa 2 del plan de crecimiento.
+
+- El servidor mandaba el catálogo entero y el navegador mostraba doce. Ahora la
+  categoría, la búsqueda y la página viajan en la dirección y Postgres devuelve
+  solo el tramo que se muestra.
+- Migración `20260905140000_fase12_busqueda_en_consulta.sql`: columna generada
+  `texto_busqueda` con el nombre y la descripción en minúscula y sin acentos, más
+  un índice de trigramas. Se usa `translate` y no la extensión `unaccent` porque
+  `unaccent` no es inmutable y por lo tanto no sirve en una columna generada, que
+  es lo que permite indexar.
+- Las páginas pasan a ser enlaces: se pueden compartir, abrir en otra pestaña y
+  quedan en el historial. Una página que ya no existe corrige la dirección en vez
+  de mostrarse vacía. PostgREST responde ese caso con `PGRST103`, así que el
+  código lo trata como dirección vieja y no como fallo del catálogo.
+- **El pedido pasa a guardarse en la sesión.** Con la paginación en el servidor
+  dejó de ser una comodidad: cambiar de página o buscar es navegar. Guarda además
+  una copia de cada producto agregado, porque la página que se está viendo ya no
+  lo contiene necesariamente. El precio que se cobra lo sigue calculando
+  `crear_pedido_reservado` en la base, así que esa copia es solo para mostrar.
+- Se eliminó `paginarCatalogo`, que quedó sin uso. Dejarlo significaba mantener
+  dos paginaciones que podían divergir.
+- `LIMITE_PRODUCTOS` sube a 300 recién después de lo anterior: subirlo antes
+  habría empeorado el catálogo en vez de mejorarlo.
+
+**Medición en producción**, sobre el catálogo del piloto:
+
+| Vista | Peso |
+|---|---|
+| Catálogo completo | 53.738 bytes |
+| Con una búsqueda que devuelve un producto | 39.110 bytes |
+| Búsqueda sin resultados | 36.324 bytes |
+
+El peso ahora sigue al resultado y no al tamaño del catálogo, que es lo que
+permite los 300 productos.
+
+Comprobado además: mayúsculas y acentos indistintos en los dos sentidos
+(`camara`, `CAMARA` y `eléctrica` encuentran el mismo producto), los comodines
+de `ilike` recortados antes de la consulta, una categoría inventada cae en
+«todo», y la página 99 redirige con 307.
+
+### Bloque 12.6 — Duplicar y ajustar precios (cerrado 2026-09-05)
+
+- **Duplicar producto.** Media carga de catálogo son variantes del mismo
+  artículo. La copia nace oculta, porque es un borrador hasta que alguien la
+  edite. Las fotos se copian de verdad en el almacenamiento: borrar el original
+  borra sus archivos, y una copia que apuntara a las mismas rutas se quedaría sin
+  imágenes sin motivo aparente.
+- **Ajuste de precios en lote**, sobre todo el catálogo o sobre una categoría.
+  Se recorre fila por fila y no con una sola sentencia porque el disparador
+  `productos_registrar_cambio_precio` es por fila: así cada producto conserva su
+  precio anterior y el ajuste es reversible uno por uno. Ningún precio puede
+  quedar en cero.
+
+### Corrección: la apariencia elegida no se publicaba
+
+Encontrado mientras se preparaba la etapa 2, y anterior a ella. La resolución de
+plantilla y paleta del catálogo público estaba escrita a mano y se había quedado
+en tres plantillas y cuatro paletas. **Un negocio que elegía Feria recibía
+Clásica, y uno que elegía Altiplano, Jazmín o Grafito recibía Mercado**, sin que
+nada avisara: el panel mostraba la vista previa correcta y el catálogo servía
+otra cosa.
+
+Ahora se resuelve con los validadores, que salen del mismo registro que el resto
+del sistema, y hay una prueba que recorre las 28 combinaciones.
+
+### Deuda menor detectada y no tocada
+
+`components/catalogo/gestor-catalogo.tsx` usa la clase `listaCategorias`, que no
+existe en su hoja de estilos. Es anterior a esta fase y no afecta el
+comportamiento; se deja anotado en vez de cambiar la maquetación al cierre de una
+etapa grande.
+
 ### Auditoría de cierre
 
-- TypeScript, ESLint, 179 pruebas, tokens, contraste y build de vinext:
+- TypeScript, ESLint, 213 pruebas, tokens, contraste y build de vinext:
   aprobados.
 - RLS remoto: 9 tablas con RLS, 8 con políticas, 4 políticas de almacenamiento y
   aislamiento multiinquilino correcto.
 
 ### Lo que sigue
 
-Etapa 2 del plan: paginación y filtrado en la consulta, y recién después subir
-`LIMITE_PRODUCTOS` a 300. Hoy el servidor manda el catálogo entero y el
-navegador muestra doce.
+Etapa 3 del plan: imágenes de 400 y 1200 px generadas en el navegador, sin
+guardar el original de 1600, y purga de analítica a 90 días. Con eso la primera
+visita debería bajar de 500 KB.
 
 ## Estado de Fase 9
 

@@ -232,7 +232,7 @@ Dos apuntes para quien retome:
 - El calendario de borrado quedó **sin automatizar a propósito**. Se automatiza
   en la etapa 4, junto con el aviso por correo que los términos prometen.
 
-### Etapa 2 — Que aguante 300 productos (4½ días)
+### Etapa 2 — Que aguante 300 productos — **CERRADA el 2026-09-05**
 
 - **Paginación y filtrado en la consulta**, no en el navegador. Hoy el servidor
   manda el catálogo entero y el cliente muestra doce.
@@ -246,7 +246,21 @@ Dos apuntes para quien retome:
   ninguna tabla.
 
 **Criterio de cierre:** un negocio sembrado con 300 productos responde en el
-mismo tiempo que uno con 12.
+mismo tiempo que uno con 12. **Cumplido por construcción**: la consulta pide
+siempre doce filas con `range`, así que el peso de la página sigue al resultado
+y no al tamaño del catálogo. Medido en producción, el detalle está en
+`docs/AVANCE.md`, bloque 12.5.
+
+Tres apuntes para quien retome:
+
+- Buscar en la base obligó a una columna generada, `texto_busqueda`, porque
+  `ilike` no resuelve acentos. No usar `unaccent`: no es inmutable y no sirve en
+  una columna generada.
+- El pedido ahora vive en `sessionStorage` con una copia de cada producto
+  elegido. Sin eso, paginar en el servidor vaciaría el carrito.
+- Falta la prueba con un negocio real de 300 productos. La consulta no puede
+  crecer, pero la lista del panel sí: ahí la paginación sigue siendo del
+  navegador.
 
 ### Etapa 3 — Peso y uso diario (5 días)
 
