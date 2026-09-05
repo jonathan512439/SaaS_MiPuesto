@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { GestorCatalogo } from "../../../../components/catalogo/gestor-catalogo";
@@ -29,7 +30,12 @@ export default async function PaginaCatalogo() {
     .maybeSingle();
   if (!negocio) redirect("/dashboard/configuracion");
 
-  const [resultadoCategorias, resultadoSubcategorias, resultadoProductos] = await Promise.all([
+  const [
+    resultadoCategorias,
+    resultadoSubcategorias,
+    resultadoProductos,
+    resultadoPapelera,
+  ] = await Promise.all([
     supabase
       .from("categorias")
       .select("id,nombre,orden")
@@ -48,9 +54,19 @@ export default async function PaginaCatalogo() {
         "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden",
       )
       .eq("negocio_id", negocio.id)
+      .is("eliminado_en", null)
       .order("orden")
       .order("creado_en"),
+    /* Solo el número: la papelera se abre pocas veces y traer sus filas acá
+       sería peso en cada carga del catálogo para una pantalla que casi nadie
+       visita. */
+    supabase
+      .from("productos")
+      .select("id", { count: "exact", head: true })
+      .eq("negocio_id", negocio.id)
+      .not("eliminado_en", "is", null),
   ]);
+  const enPapelera = resultadoPapelera.count ?? 0;
 
   const subcategorias = (resultadoSubcategorias.data ?? []).map(
     ({ id, categoria_id, nombre, orden }) => ({ id, categoria_id, nombre, orden }),
@@ -61,6 +77,13 @@ export default async function PaginaCatalogo() {
     <main className={styles.contenido}>
       <header className={styles.encabezado}>
         <h1>Catálogo</h1>
+        {/* El enlace aparece solo cuando hay algo que recuperar: una papelera
+            vacía anunciada en cada visita es ruido. */}
+        {enPapelera > 0 ? (
+          <Link className={styles.enlacePapelera} href="/dashboard/catalogo/papelera">
+            Papelera ({enPapelera})
+          </Link>
+        ) : null}
       </header>
 
       <GestorCatalogo

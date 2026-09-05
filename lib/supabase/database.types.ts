@@ -379,6 +379,7 @@ export type Database = {
           controla_stock: boolean
           creado_en: string
           descripcion: string | null
+          eliminado_en: string | null
           estado: string
           fotos: string[]
           id: string
@@ -402,6 +403,7 @@ export type Database = {
           controla_stock?: boolean
           creado_en?: string
           descripcion?: string | null
+          eliminado_en?: string | null
           estado?: string
           fotos?: string[]
           id?: string
@@ -425,6 +427,7 @@ export type Database = {
           controla_stock?: boolean
           creado_en?: string
           descripcion?: string | null
+          eliminado_en?: string | null
           estado?: string
           fotos?: string[]
           id?: string

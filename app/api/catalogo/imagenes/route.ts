@@ -35,6 +35,7 @@ export async function POST(solicitud: NextRequest) {
     .select("id,fotos")
     .eq("id", productoId)
     .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null)
     .maybeSingle();
   if (errorProducto || !producto) {
     return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
@@ -97,6 +98,7 @@ export async function DELETE(solicitud: NextRequest) {
     .select("id,fotos")
     .eq("id", datos.producto_id)
     .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null)
     .maybeSingle();
   if (errorProducto || !producto || !producto.fotos.includes(datos.ruta)) {
     return NextResponse.json({ error: "La imagen no pertenece a este producto." }, { status: 404 });

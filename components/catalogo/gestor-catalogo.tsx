@@ -5,6 +5,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useRef, useState } from "react";
 
 import { obtenerUrlPublicaImagenProducto } from "../../lib/catalogo/imagenes-publicas";
+import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
 import {
   AJUSTE_MAXIMO,
   AJUSTE_MINIMO,
@@ -566,7 +567,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   async function borrarProducto(producto: ProductoCatalogo) {
     const aceptado = await confirmar({
       titulo: `Borrar “${producto.nombre}”`,
-      descripcion: "Se borran también sus fotografías. No se puede deshacer.",
+      /* Ya no dice «no se puede deshacer» porque ahora sí se puede, y decirlo
+         asusta de más a quien sólo quiere ordenar su catálogo. */
+      descripcion: `Va a la papelera con sus fotografías. Podés recuperarlo durante ${DIAS_PAPELERA} días.`,
       destructiva: true,
       textoAccion: "Borrar producto",
     });
@@ -578,7 +581,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         body: JSON.stringify({ id: producto.id }),
       });
       setProductos((actuales) => actuales.filter(({ id }) => id !== producto.id));
-      informarExito("Producto borrado", "También borramos sus fotografías.");
+      informarExito(
+        "Producto borrado",
+        `Está en la papelera. Podés recuperarlo durante ${DIAS_PAPELERA} días.`,
+      );
     } catch (error) {
       informarError("No se pudo borrar el producto", error);
     }

@@ -105,6 +105,7 @@ export default async function PaginaDashboard() {
         .from("productos")
         .select("id,nombre")
         .eq("negocio_id", negocio.id)
+        .is("eliminado_en", null)
         .in(
           "id",
           masVistos.map(({ productoId }) => productoId),

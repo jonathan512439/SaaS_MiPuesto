@@ -151,6 +151,64 @@ decide la venta.
 nombran, porque la plantilla Moderna es la que más depende de la foto y no hay
 fotos de ropa. Queda pendiente para cuando existan.
 
+## Papelera de productos
+
+Borrar un producto ya no es definitivo. Antes borraba la fila y, antes todavía,
+sus fotografías del almacenamiento: un toque equivocado no tenía vuelta.
+
+**Por qué no se resuelve con el respaldo.** Sacar una fila de un volcado
+comprimido es cirugía a mano sobre la base viva, con la clave de servicio, hecha
+por el autor. Eso no es una función, es un favor que no escala y que obliga a
+repetir la operación más peligrosa del sistema cada vez que alguien lo pide.
+Ofrecerlo por escrito sería prometer un plazo de respuesta que no se puede
+cumplir.
+
+**Treinta días, no noventa.** Un arrepentimiento ocurre en horas o en días; a los
+tres meses nadie recuerda qué borró, y cada producto retenido son sus fotografías
+ocupando espacio. Los noventa siguen siendo el plazo de guarda de un negocio dado
+de baja, que responde a otra cosa: que dejó de pagar.
+
+**Las fotografías se conservan mientras el producto esté en la papelera** y se
+borran junto con él. Recuperar un producto sin sus imágenes no es recuperarlo.
+
+### Cómo está hecho
+
+- Columna `eliminado_en` en `productos`, con índice **parcial**: la papelera es la
+  excepción y no debe hacer trabajar a cada consulta del catálogo.
+- **El filtro vive en la política de RLS**, no solo en las consultas: si mañana
+  alguien escribe una pantalla pública y se olvida del `is null`, un producto
+  borrado no reaparece igual.
+- Las consultas del dueño sí llevan el filtro explícito, una por una: panel,
+  promociones, precios en lote, duplicar, imágenes y el límite de productos. Un
+  producto en la papelera **no cuenta contra el límite del plan**.
+- El código del producto sigue ocupado mientras esté en la papelera, a propósito:
+  si se liberara, recuperarlo chocaría contra el que tomó su lugar. No molesta a
+  nadie porque el código se genera solo y el dueño nunca lo escribe.
+
+### La purga, y su límite conocido
+
+`purgarPapeleraVencida` corre dentro de una petición del dueño —al borrar un
+producto y al actuar sobre la papelera— y solo sobre su propio negocio, así que
+el trabajo está acotado. No hay tarea programada porque `pg_cron` no puede tocar
+el almacenamiento, y hacerlo desde fuera exigiría exponer la clave de servicio en
+un flujo más.
+
+**La consecuencia, escrita para que no sorprenda:** un dueño que no entra en dos
+meses conserva su papelera hasta que vuelva. Lo prometido es «recuperable treinta
+días», no «borrado el día treinta y uno». Si alguna vez hace falta la garantía
+fuerte, el lugar natural es el flujo que traiga el espejo de fotografías, que ya
+va a necesitar acceso al almacenamiento desde afuera.
+
+Si el borrado de las fotografías falla, la purga deja las filas y reintenta a la
+siguiente: un producto sin fotos es peor que un producto de más, porque el dueño
+lo ve roto y no entiende por qué.
+
+### Pendiente relacionado
+
+**El espejo de fotografías a R2 se hará después del dominio y de las fases que
+vienen con él** —decidido el 2026-09-05—. El detalle técnico y el motivo del
+orden están en `docs/PLAN-CRECIMIENTO.md`, etapa 5.
+
 ## Estado de Fase 13 — Panel de plataforma
 
 Etapa 6 del plan de crecimiento. `SECURITY.md` decía construirlo cuando

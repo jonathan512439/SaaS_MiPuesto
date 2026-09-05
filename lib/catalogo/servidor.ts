@@ -1,4 +1,5 @@
 import { crearClienteSupabaseServidor } from "../supabase/server";
+import { fechaDeCorte } from "./papelera";
 
 export async function obtenerContextoAdminCatalogo() {
   const supabase = await crearClienteSupabaseServidor();
@@ -81,4 +82,46 @@ export async function validarJerarquiaProducto(
   }
 
   return "";
+}
+
+/* Borra de verdad lo que pasó el plazo: primero las fotografías, después las
+   filas. Corre dentro de una petición del dueño —no hay tarea programada,
+   porque `pg_cron` no puede tocar el almacenamiento y hacerlo desde fuera
+   exigiría exponer la clave de servicio en un flujo más— y solo sobre su propio
+   negocio, así que el trabajo está acotado por definición.
+
+   La consecuencia, escrita para que no sorprenda: un dueño que no entra en dos
+   meses conserva su papelera hasta que vuelva. Lo prometido es «recuperable
+   treinta días», no «borrado el día treinta y uno». */
+export async function purgarPapeleraVencida(
+  supabase: ClienteCatalogo,
+  negocioId: string,
+): Promise<void> {
+  const { data: vencidos } = await supabase
+    .from("productos")
+    .select("id,fotos")
+    .eq("negocio_id", negocioId)
+    .not("eliminado_en", "is", null)
+    .lt("eliminado_en", fechaDeCorte())
+    .limit(100);
+
+  if (!vencidos || vencidos.length === 0) return;
+
+  const fotos = vencidos.flatMap(({ fotos: rutas }) => rutas as string[]);
+  if (fotos.length > 0) {
+    const { error } = await supabase.storage.from("productos").remove(fotos);
+    /* Si el almacenamiento falla se dejan las filas: un producto sin fotos es
+       peor que un producto de más, porque el dueño lo ve roto y no entiende por
+       qué. Se reintenta en la próxima purga. */
+    if (error) return;
+  }
+
+  await supabase
+    .from("productos")
+    .delete()
+    .in(
+      "id",
+      vencidos.map(({ id }) => id),
+    )
+    .eq("negocio_id", negocioId);
 }

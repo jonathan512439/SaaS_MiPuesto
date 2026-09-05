@@ -21,6 +21,7 @@ async function validarDestino(
         .select("id")
         .eq("id", productoId)
         .eq("negocio_id", contexto.negocio.id)
+        .is("eliminado_en", null)
         .maybeSingle()
     : contexto.supabase
         .from("categorias")

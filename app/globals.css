@@ -77,6 +77,9 @@
   --borde-fino: 0.0625rem;
   --borde-marcado: 0.125rem;
   --control-alto: 2.75rem;
+  /* 4,5rem = 72 px, el mismo número que pide la miniatura de la papelera al
+     optimizador de imágenes: si divergen, se sirve un archivo de otro tamaño. */
+  --miniatura-papelera: 4.5rem;
   --foco-ancho: 0.1875rem;
   --foco-exterior: 0.375rem;
   --movimiento-rapido: 150ms;

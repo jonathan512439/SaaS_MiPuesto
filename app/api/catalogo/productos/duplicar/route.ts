@@ -39,6 +39,7 @@ export async function POST(solicitud: NextRequest) {
     )
     .eq("id", id)
     .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null)
     .maybeSingle();
   if (errorOriginal || !original) {
     return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
@@ -47,7 +48,8 @@ export async function POST(solicitud: NextRequest) {
   const { count, error: errorConteo } = await contexto.supabase
     .from("productos")
     .select("id", { count: "exact", head: true })
-    .eq("negocio_id", contexto.negocio.id);
+    .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null);
   if (errorConteo) {
     return NextResponse.json({ error: "No se pudo comprobar el catálogo." }, { status: 500 });
   }

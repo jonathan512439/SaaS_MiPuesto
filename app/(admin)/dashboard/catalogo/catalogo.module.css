@@ -54,3 +54,13 @@
     width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
   }
 }
+
+.enlacePapelera {
+  justify-self: start;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--color-fondo-suave);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}

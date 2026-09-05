@@ -385,6 +385,19 @@ Dos apuntes para quien retome:
   irreemplazable, pero un dueño que subió 300 fotos hace seis meses probablemente
   ya no las tenga.
 
+**El espejo de fotografías se hará, y va después de la etapa 4.** Decidido el
+2026-09-05. Va como espejo y no como instantánea fechada: una copia de cada
+archivo en el mismo balde de R2, bajo el prefijo `fotos/`, subiendo solo lo que
+cambió. A cien clientes son ~4,5 GB —el código ya comprime a 1200 px y WebP 0,82,
+unos 120 KB por foto—, por debajo de los 10 GB sin cargo de R2, y el listado de
+archivos sale de `storage.objects` con el `SUPABASE_DB_URL` que el flujo ya usa:
+**ningún secreto nuevo**. Las huérfanas se conservan 90 días, el mismo plazo de
+guarda que rige para un negocio dado de baja.
+
+**Por qué después y no ahora.** El seguro vale cero hoy —tres negocios de prueba,
+horas de trabajo en juego— y empieza a valer con el primer catálogo real cargado.
+El dominio y lo que trae con él llegan antes que ese cliente.
+
 ### Etapa 6 — Panel de superadministrador — **CERRADA el 2026-09-05**
 
 - Tabla `plataforma_admins` y políticas RLS aditivas.

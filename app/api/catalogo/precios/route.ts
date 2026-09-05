@@ -34,7 +34,8 @@ export async function POST(solicitud: NextRequest) {
   let consulta = contexto.supabase
     .from("productos")
     .select("id,precio")
-    .eq("negocio_id", contexto.negocio.id);
+    .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null);
   if (categoria_id) consulta = consulta.eq("categoria_id", categoria_id);
 
   const { data: productos, error: errorLectura } = await consulta;

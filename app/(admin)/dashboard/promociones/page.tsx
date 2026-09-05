@@ -34,6 +34,7 @@ export default async function PaginaPromociones() {
       .from("productos")
       .select("id,nombre,precio,categoria_id,visible")
       .eq("negocio_id", negocio.id)
+      .is("eliminado_en", null)
       .order("nombre"),
     supabase
       .from("promociones")

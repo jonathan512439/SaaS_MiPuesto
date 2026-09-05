@@ -9,6 +9,7 @@ import {
 import {
   leerJson,
   obtenerContextoAdminCatalogo,
+  purgarPapeleraVencida,
   validarJerarquiaProducto,
 } from "../../../../lib/catalogo/servidor";
 
@@ -32,7 +33,8 @@ export async function POST(solicitud: NextRequest) {
   const { count, error: errorConteo } = await contexto.supabase
     .from("productos")
     .select("id", { count: "exact", head: true })
-    .eq("negocio_id", contexto.negocio.id);
+    .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null);
   if (errorConteo) {
     return NextResponse.json({ error: "No se pudo comprobar el catálogo." }, { status: 500 });
   }
@@ -55,6 +57,7 @@ export async function POST(solicitud: NextRequest) {
     .from("productos")
     .select("orden")
     .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null)
     .order("orden", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -99,6 +102,7 @@ export async function PATCH(solicitud: NextRequest) {
       .update({ visible: datos.visible })
       .eq("id", datos.id)
       .eq("negocio_id", contexto.negocio.id)
+      .is("eliminado_en", null)
       .select(COLUMNAS_PRODUCTO)
       .maybeSingle();
     if (error || !data) {
@@ -119,6 +123,7 @@ export async function PATCH(solicitud: NextRequest) {
       .select("controla_stock,cantidad_stock,cantidad_reservada")
       .eq("id", datos.id)
       .eq("negocio_id", contexto.negocio.id)
+      .is("eliminado_en", null)
       .maybeSingle();
     if (!actual) {
       return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
@@ -143,6 +148,7 @@ export async function PATCH(solicitud: NextRequest) {
       .update(cambios)
       .eq("id", datos.id)
       .eq("negocio_id", contexto.negocio.id)
+      .is("eliminado_en", null)
       .select(COLUMNAS_PRODUCTO)
       .maybeSingle();
     if (error || !data) {
@@ -168,6 +174,7 @@ export async function PATCH(solicitud: NextRequest) {
     .select("cantidad_reservada")
     .eq("id", datos.id)
     .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null)
     .maybeSingle();
   if (errorProductoActual || !productoActual) {
     return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
@@ -224,28 +231,20 @@ export async function DELETE(solicitud: NextRequest) {
 
   const { data: producto, error: errorProducto } = await contexto.supabase
     .from("productos")
-    .select("id,fotos")
+    .select("id")
     .eq("id", id)
     .eq("negocio_id", contexto.negocio.id)
+    .is("eliminado_en", null)
     .maybeSingle();
   if (errorProducto || !producto) {
     return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
   }
-  if (producto.fotos.length > 0) {
-    const { error: errorStorage } = await contexto.supabase.storage
-      .from("productos")
-      .remove(producto.fotos);
-    if (errorStorage) {
-      return NextResponse.json(
-        { error: "No se pudieron borrar las imágenes. El producto se conservó." },
-        { status: 500 },
-      );
-    }
-  }
 
+  /* Se marca en vez de borrarse, y las fotografías se conservan: recuperar un
+     producto sin sus fotos no es recuperarlo. Se van juntas en la purga. */
   const { data, error } = await contexto.supabase
     .from("productos")
-    .delete()
+    .update({ eliminado_en: new Date().toISOString() })
     .eq("id", producto.id)
     .eq("negocio_id", contexto.negocio.id)
     .select("id")
@@ -253,5 +252,10 @@ export async function DELETE(solicitud: NextRequest) {
   if (error || !data) {
     return NextResponse.json({ error: "No se pudo borrar el producto." }, { status: 500 });
   }
-  return NextResponse.json({ eliminado: true });
+
+  /* La limpieza viaja de a caballo con el borrado: es el momento en que el dueño
+     ya está mirando su catálogo y una petición un poco más lenta no molesta. */
+  await purgarPapeleraVencida(contexto.supabase, contexto.negocio.id);
+
+  return NextResponse.json({ eliminado: true, enPapelera: true });
 }
