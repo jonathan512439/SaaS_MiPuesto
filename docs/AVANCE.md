@@ -83,7 +83,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | Hacer el ensayo de restauración | `docs/RESPALDOS.md`, sección «El ensayo» |
 | Poner un vigilante externo sobre `/api/salud` | Cualquier servicio gratuito de monitoreo |
 | La semana de piloto | Puerta de salida definida en la Fase 9 |
-| Darse de alta como administrador de plataforma | `docs/AVANCE.md`, «Cómo darse de alta». **Antes conviene construir el segundo factor** |
+| Darse de alta como administrador de plataforma | `docs/AVANCE.md`, «Cómo darse de alta». Al entrar la primera vez se pide inscribir el segundo factor |
 
 ### Estado de la Fase 12 (etapa 0–1 del plan de crecimiento)
 
@@ -99,7 +99,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | Etapa 3: peso y uso diario | **cerrada y medida en producción** |
 | Etapa 3½: ubicación | **cerrada**; rubro y place id diferidos a sus etapas |
 | Etapa 5: respaldos y vigilancia | **código listo**; espera secretos y el ensayo de restauración |
-| Etapa 6: panel de plataforma | **funcional**; falta el segundo factor antes de usarlo |
+| Etapa 6: panel de plataforma | **cerrada**, con segundo factor obligatorio |
 
 **Las etapas 0–1, 2, 3 y 3½ están cerradas y la 5 tiene su código listo.** Lo
 que sigue es la etapa 6 —el panel de superadministrador—, que no depende de
@@ -178,23 +178,29 @@ pedidos guardan nombre y teléfono de compradores, que son terceros que nunca
 aceptaron nada con MiPuesto. Se quitó: un permiso que no se usa solo agrega
 superficie.
 
+### Segundo factor
+
+**Hecho.** El panel exige `aal2`: con solo contraseña no se entra. Según
+corresponda muestra la pantalla de inscripción —con QR y clave para cargar a
+mano— o la del código de seis dígitos.
+
+Todo ocurre en el navegador porque son llamadas al sistema de autenticación: la
+clave del factor nunca toca el Worker. Los factores a medio inscribir se
+descartan antes de crear otro, porque la clave de un intento anterior ya no se
+puede volver a mostrar y si no se acumularían.
+
+**Si se pierde la aplicación de autenticación no hay recuperación desde la
+aplicación**, y es a propósito: Supabase no tiene códigos de respaldo. Se
+recupera borrando el factor desde la consola de Supabase —Authentication →
+Users→ el usuario → factores— y volviendo a inscribirlo. Quien administra la
+plataforma tiene acceso a esa consola por definición.
+
 ### Lo que falta de la etapa 6
 
 | | Estado |
 |---|---|
-| Segundo factor obligatorio | **No hecho.** Ver abajo |
-| Notas por cliente | No hecho |
+| Notas por cliente | No hecho. Se hará si administrar de memoria empieza a fallar |
 | Alta de administradores desde el panel | **No se hará**: darse el poder de administrar es un acto deliberado en la consola |
-
-**Sobre el segundo factor.** Se declaró obligatorio al diseñar la fase,
-apartándose a propósito de `SECURITY.md`, y no está construido. Mitiga que la
-tabla arranque vacía —hoy nadie tiene el poder— y que el peor caso del panel sea
-operativo y quede registrado: suspender o renovar, todo en la bitácora, sin
-acceso a datos personales de compradores.
-
-**Antes de dar de alta al primer administrador conviene construirlo.** Supabase
-trae MFA por TOTP; hace falta la pantalla de inscripción y exigir `aal2` en el
-acceso al panel.
 
 ### Cómo darse de alta como administrador
 

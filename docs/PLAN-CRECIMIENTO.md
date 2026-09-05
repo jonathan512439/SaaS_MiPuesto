@@ -385,7 +385,7 @@ Dos apuntes para quien retome:
   irreemplazable, pero un dueño que subió 300 fotos hace seis meses probablemente
   ya no las tenga.
 
-### Etapa 6 — Panel de superadministrador — **FUNCIONAL el 2026-09-05**
+### Etapa 6 — Panel de superadministrador — **CERRADA el 2026-09-05**
 
 - Tabla `plataforma_admins` y políticas RLS aditivas.
 - Segundo factor obligatorio.
@@ -400,10 +400,9 @@ negocios ni toca su propio vencimiento, y que un superadmin queda registrado.
 de escritura por columnas sigue dejando fuera el vencimiento—. La segunda se
 verifica cuando exista el primer administrador.
 
-**Falta el segundo factor antes de dar de alta a nadie.** Se declaró obligatorio
-al diseñar la fase y no está construido; mitiga que la tabla arranque vacía y que
-el peor caso del panel sea operativo y quede en bitácora. El detalle está en
-`docs/AVANCE.md`, sección «Estado de Fase 13».
+El segundo factor quedó construido y es obligatorio: con solo contraseña no se
+entra. El detalle, incluida la recuperación si se pierde la aplicación de
+autenticación, está en `docs/AVANCE.md`, sección «Estado de Fase 13».
 
 ### Etapa 7 — NFC, mesa y Google (5 días)
 
