@@ -354,6 +354,32 @@ TEMP=D:\tmp-mipuesto\tmp
 No es un problema del proyecto, pero conviene saberlo antes de perder media hora
 diagnosticando un build que falla sin motivo aparente.
 
+### Cierre medido de la etapa 2 (2026-09-05)
+
+El criterio era «un negocio sembrado con 300 productos responde en el mismo
+tiempo que uno con 12». Estaba dado por construcción y sin medir; se midió.
+
+Se sembraron 299 productos marcados con código `CARGA-` en `sabor-camba` —el
+negocio de ejemplo, nunca el piloto— y se borraron exactamente esos después.
+
+| | 1 producto | 300 productos |
+|---|---|---|
+| Peso | 33.349 b | 41.679 b |
+| TTFB | 0,36–1,04 s | **0,35–0,39 s** |
+| Página 20 de 25 | — | 41.327 b · 0,38 s |
+| Búsqueda | — | 33.711 b · 0,44 s |
+
+**Criterio cumplido**: el peso sigue al resultado y no al tamaño del catálogo.
+
+Se verificó además contra los datos reales que **duplicar copia todo**: la copia
+que hizo el dueño conserva nombre, precio, categoría y **la fotografía**, y queda
+oculta a propósito. Lo que faltaba no era contenido sino saber dónde había caído,
+que es lo que se corrigió abriendo la copia para editar en el acto.
+
+Queda anotado como decisión y no como deuda que la lista del panel siga paginando
+en el navegador: son 156 KB con 300 productos, medidos, a cambio de filtrar sin
+esperar sobre todo el catálogo.
+
 ### Auditoría de cierre
 
 - TypeScript, ESLint, 213 pruebas, tokens, contraste y build de vinext:

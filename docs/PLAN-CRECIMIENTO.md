@@ -282,6 +282,20 @@ siempre doce filas con `range`, así que el peso de la página sigue al resultad
 y no al tamaño del catálogo. Medido en producción, el detalle está en
 `docs/AVANCE.md`, bloque 12.5.
 
+**Medido el 2026-09-05** sembrando 299 productos en el negocio de ejemplo
+`sabor-camba` y borrándolos después:
+
+| | 1 producto | 300 productos |
+|---|---|---|
+| Peso de la página | 33.349 b | 41.679 b |
+| TTFB | 0,36–1,04 s | **0,35–0,39 s** |
+| Página 20 | — | 41.327 b · 0,38 s |
+| Búsqueda | — | 33.711 b · 0,44 s |
+
+El catálogo con 300 productos responde **igual o mejor** que con uno. Los 8 KB
+de diferencia son las once tarjetas extra que se muestran, no los 299 productos
+que no se mandan.
+
 Tres apuntes para quien retome:
 
 - Buscar en la base obligó a una columna generada, `texto_busqueda`, porque
@@ -289,9 +303,12 @@ Tres apuntes para quien retome:
   una columna generada.
 - El pedido ahora vive en `sessionStorage` con una copia de cada producto
   elegido. Sin eso, paginar en el servidor vaciaría el carrito.
-- Falta la prueba con un negocio real de 300 productos. La consulta no puede
-  crecer, pero la lista del panel sí: ahí la paginación sigue siendo del
-  navegador.
+- **La lista del panel sigue paginando en el navegador, y es deliberado.** Con
+  300 productos manda 156 KB de datos, medido. A cambio, buscar y filtrar en el
+  panel es instantáneo sobre todo el catálogo. El catálogo público tiene que ser
+  liviano porque es la primera impresión de un cliente con datos contados; el
+  panel es una herramienta de trabajo donde filtrar sin esperar vale más que
+  156 KB. Se revisa si el límite de productos sube de 300.
 
 ### Etapa 3 — Peso y uso diario (5 días)
 
