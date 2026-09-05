@@ -10,21 +10,21 @@ type PropiedadesFotoProducto = {
   sizes: string;
   className?: string;
   respaldo: ReactNode;
-  alVerFotos?: (productoId: string) => void;
+  alVerProducto?: (productoId: string) => void;
 };
 
-/* La fotografía se vuelve pulsable solo cuando hay más de una: con una sola no
-   hay nada que recorrer, y abrir una pantalla para mostrar lo mismo que ya
-   estaba en la tarjeta es un paso de más entre el cliente y su pedido.
-   El contador lo dice sin texto: sin él, el destino táctil sería invisible,
-   que es justo el problema que tenía el nombre cuando era enlace. */
+/* La fotografía abre la ficha del producto, tenga una foto o cuatro: adentro
+   están la descripción entera, el precio y la acción, así que la ficha vale
+   incluso sin galería que recorrer.
+   El rótulo dice qué hace al tocarla. Sin él sería un destino táctil invisible,
+   que es exactamente lo que fallaba cuando el nombre era enlace. */
 export function FotoProducto({
   producto,
   ancho,
   sizes,
   className,
   respaldo,
-  alVerFotos,
+  alVerProducto,
 }: PropiedadesFotoProducto) {
   if (!producto.imagen) return <>{respaldo}</>;
 
@@ -39,19 +39,24 @@ export function FotoProducto({
     />
   );
 
+  if (!alVerProducto) return foto;
+
   const total = producto.imagenes.length;
-  if (!alVerFotos || total < 2) return foto;
 
   return (
     <button
-      aria-label={`Ver las ${total} fotografías de ${producto.nombre}`}
+      aria-label={
+        total > 1
+          ? `Ver ${producto.nombre}, ${total} fotografías`
+          : `Ver ${producto.nombre}`
+      }
       className={styles.disparador}
-      onClick={() => alVerFotos(producto.id)}
+      onClick={() => alVerProducto(producto.id)}
       type="button"
     >
       {foto}
-      <span aria-hidden="true" className={styles.contador}>
-        {total} fotos
+      <span aria-hidden="true" className={styles.rotulo}>
+        {total > 1 ? `Ver · ${total} fotos` : "Ver"}
       </span>
     </button>
   );

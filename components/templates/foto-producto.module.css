@@ -20,7 +20,7 @@
   display: block;
 }
 
-.contador {
+.rotulo {
   position: absolute;
   right: var(--spacing-2);
   bottom: var(--spacing-2);
@@ -35,7 +35,7 @@
 }
 
 @media (max-width: 24rem) {
-  .contador {
+  .rotulo {
     right: var(--spacing-1);
     bottom: var(--spacing-1);
     padding: var(--spacing-1);

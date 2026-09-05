@@ -25,7 +25,7 @@ export function PlantillaMinimal({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
-  alVerFotos,
+  alVerProducto,
   navegacion,
 }: PropiedadesPlantilla) {
   return (
@@ -124,7 +124,7 @@ export function PlantillaMinimal({
               {productos.map((producto) => (
                 <div className={styles.servicio} key={producto.id}>
                   <FotoProducto
-                    alVerFotos={alVerFotos}
+                    alVerProducto={alVerProducto}
                     ancho={800}
                     producto={producto}
                     respaldo={<span className={styles.sinImagen}>Sin foto</span>}

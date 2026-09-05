@@ -26,7 +26,7 @@ export function PlantillaClasica({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
-  alVerFotos,
+  alVerProducto,
   navegacion,
 }: PropiedadesPlantilla) {
   return (
@@ -126,7 +126,7 @@ export function PlantillaClasica({
               {productos.map((producto) => (
                 <li className={styles.producto} key={producto.id}>
                   <FotoProducto
-                    alVerFotos={alVerFotos}
+                    alVerProducto={alVerProducto}
                     ancho={800}
                     producto={producto}
                     respaldo={<span className={styles.sinImagen}>Sin foto</span>}

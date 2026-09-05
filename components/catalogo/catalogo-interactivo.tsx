@@ -29,7 +29,7 @@ import type {
 } from "../../lib/plantillas/tipos";
 import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
-import { GaleriaProducto } from "./galeria-producto";
+import { HojaProducto } from "./hoja-producto";
 import { HojaCatalogo } from "./hoja-catalogo";
 import { Esqueleto } from "../ui";
 import temaStyles from "../templates/tema-catalogo.module.css";
@@ -130,7 +130,7 @@ export function CatalogoInteractivo({
   const [elegidos, setElegidos] = useState<Record<string, ProductoPlantilla>>({});
   const [firmaReservada, setFirmaReservada] = useState("");
   const [pedidoAbierto, setPedidoAbierto] = useState(false);
-  const [fotosDe, setFotosDe] = useState<string | null>(null);
+  const [fichaDe, setFichaDe] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState(filtros.busqueda);
   const [busquedaDelServidor, setBusquedaDelServidor] = useState(filtros.busqueda);
   const temporizadorBusqueda = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -249,7 +249,10 @@ export function CatalogoInteractivo({
     });
   }
 
-  const productoConFotos = productosPagina.find(({ id }) => id === fotosDe) ?? null;
+  /* La ficha se busca entre lo elegido además de la página: si el cliente
+     agregó algo y después buscó otra cosa, la ventana sigue abriendo bien. */
+  const productoEnFicha =
+    productos.find(({ id }) => id === fichaDe) ?? null;
 
   function agregarProducto(productoId: string) {
     registrar("clic_producto", productoId);
@@ -265,19 +268,22 @@ export function CatalogoInteractivo({
       <Vista
         alAgregarProducto={agregarProducto}
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
-        alVerFotos={setFotosDe}
+        alVerProducto={setFichaDe}
         cantidadesCarrito={cantidades}
         datos={datos}
         demostracion={false}
         navegacion={categoriasNavegacion.length > 0 ? navegacion : undefined}
         paleta={paleta}
       />
-      <GaleriaProducto
-        abierta={productoConFotos !== null}
-        imagenes={productoConFotos?.imagenes ?? []}
-        onCerrar={() => setFotosDe(null)}
+      <HojaProducto
+        alAgregarProducto={agregarProducto}
+        alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
+        cantidad={productoEnFicha ? (cantidades[productoEnFicha.id] ?? 0) : 0}
+        modalidad={datos.negocio.modalidad}
+        onCerrar={() => setFichaDe(null)}
         paleta={paleta}
-        titulo={productoConFotos?.nombre ?? ""}
+        permiteAcciones={datos.negocio.atencion.permiteAcciones}
+        producto={productoEnFicha}
       />
       {totalProductos === 0 && filtros.busqueda.trim() ? (
         <p className={styles.sinResultados} role="status">

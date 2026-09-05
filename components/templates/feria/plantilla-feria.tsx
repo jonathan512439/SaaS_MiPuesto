@@ -26,7 +26,7 @@ export function PlantillaFeria({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
-  alVerFotos,
+  alVerProducto,
   navegacion,
 }: PropiedadesPlantilla) {
   const productos = datos.categorias.flatMap((categoria) => {
@@ -141,7 +141,7 @@ export function PlantillaFeria({
           <li className={styles.producto} id={producto.anclaCategoria} key={producto.id}>
             <div className={styles.foto}>
               <FotoProducto
-                alVerFotos={alVerFotos}
+                alVerProducto={alVerProducto}
                 ancho={240}
                 className={styles.imagen}
                 producto={producto}

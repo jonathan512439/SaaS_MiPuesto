@@ -26,7 +26,7 @@ export function PlantillaModerna({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
-  alVerFotos,
+  alVerProducto,
   navegacion,
 }: PropiedadesPlantilla) {
   const productos = datos.categorias.flatMap((categoria) => {
@@ -132,7 +132,7 @@ export function PlantillaModerna({
         {productos.map((producto) => (
           <li className={styles.producto} id={producto.anclaCategoria} key={producto.id}>
             <FotoProducto
-              alVerFotos={alVerFotos}
+              alVerProducto={alVerProducto}
               ancho={800}
               className={styles.imagen}
               producto={producto}
