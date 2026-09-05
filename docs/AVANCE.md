@@ -104,7 +104,7 @@ Fase posterior al planning original. Nace de una revisión crítica de la interf
 - `npm run suscripcion:ver` y `npm run suscripcion:renovar -- <slug> [meses]`, siguiendo el patrón de `auth:invitar`: la clave privilegiada se pide a la sesión local del CLI y nunca llega a producción.
 - Renovar suma los meses al final del período pagado si sigue vigente, y cuenta desde hoy si ya venció. Renovar tarde no regala días y renovar temprano no los quita. Reactiva el catálogo si estaba fuera de línea.
 - **No se construyó panel de super-administración**, porque `SECURITY.md` lo marca explícitamente como prematuro: «construilo cuando administrar a mano te empiece a doler». Con cuatro negocios no duele; el script quita el dolor sin sumar una pantalla privilegiada que proteger.
-- Riesgo detectado al aplicar la migración: el script documentado `supabase:push:dev` incluye `--include-seed`, de modo que habría reejecutado `seed.sql` sobre la base con el negocio piloto. Se usó `supabase db push --linked` sin el indicador. Conviene renombrar ese script o quitarle el indicador.
+- Riesgo detectado al aplicar la migración: el script documentado `supabase:push:dev` incluye `--include-seed`, de modo que habría reejecutado `seed.sql` sobre la base con el negocio piloto. Se usó `supabase db push --linked` sin el indicador. Resuelto el 2026-09-05: el script se dividió en `supabase:push` (enlazada, sin seed) y `supabase:seed:local` (solo local).
 
 ### Bloque 10.4 — Ficha de producto y búsqueda (cerrado 2026-09-04)
 

@@ -217,8 +217,8 @@ Van en el mismo commit: el producto no puede seguir prometiendo lo que no hace.
 - Estado explícito en el panel: «tu catálogo está fuera de línea por falta de
   pago», con el enlace para escribir.
 - **Horarios especiales y feriados.** `horario` es jsonb: no necesita migración.
-- **Renombrar o eliminar `supabase:push:dev`**, que lleva `--include-seed` y
-  reejecutaría `seed.sql` contra la base viva.
+- ~~Renombrar o eliminar `supabase:push:dev`~~. Hecho: se dividió en
+  `supabase:push` (enlazada, sin seed) y `supabase:seed:local` (solo local).
 
 **Criterio de cierre:** un negocio con vencimiento en el pasado queda fuera de
 línea sin intervención, su panel sigue accesible, y las páginas legales

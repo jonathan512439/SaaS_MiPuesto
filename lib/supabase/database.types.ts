@@ -135,6 +135,7 @@ export type Database = {
           reserva_minutos: number
           slug: string
           suscripcion_vence_en: string
+          suspendido_en: string | null
           telefono_whatsapp: string
           tipo_negocio: string
           verificado: boolean
@@ -159,6 +160,7 @@ export type Database = {
           reserva_minutos?: number
           slug: string
           suscripcion_vence_en?: string
+          suspendido_en?: string | null
           telefono_whatsapp: string
           tipo_negocio: string
           verificado?: boolean
@@ -183,6 +185,7 @@ export type Database = {
           reserva_minutos?: number
           slug?: string
           suscripcion_vence_en?: string
+          suspendido_en?: string | null
           telefono_whatsapp?: string
           tipo_negocio?: string
           verificado?: boolean
@@ -518,6 +521,7 @@ export type Database = {
         Returns: number
       }
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }
+      suspender_suscripciones_vencidas: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never

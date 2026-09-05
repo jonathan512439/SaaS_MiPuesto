@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Qué datos guarda MiPuesto, para qué los usa y cómo pedir que se borren.",
 };
 
-const VIGENCIA = "4 de septiembre de 2026";
+const VIGENCIA = "5 de septiembre de 2026";
 
 export default function PaginaPrivacidad() {
   return (
@@ -81,13 +81,22 @@ export default function PaginaPrivacidad() {
       <section className={styles.seccion}>
         <h2>Cuánto tiempo se conservan</h2>
         <p>
-          Mientras tu cuenta esté activa, conservamos tu catálogo y tus pedidos. Si dejás
-          de pagar, tu catálogo deja de publicarse pero no se borra nada: seguís entrando
-          a tu panel y tus datos te esperan.
+          Mientras tu cuenta esté activa, conservamos tu catálogo y tus pedidos.
+        </p>
+        <p>
+          Si dejás de pagar, tu catálogo deja de publicarse y tus datos te esperan en el
+          panel durante <strong>noventa días</strong>. Pasado ese plazo podemos borrarlos,
+          y te avisamos antes por WhatsApp.
         </p>
         <p>
           Si pedís que borremos tu cuenta, eliminamos tu negocio, tus productos, tus
           imágenes y los pedidos asociados dentro de los treinta días siguientes.
+        </p>
+        <p>
+          El nombre y el teléfono de quien te hace un pedido se guardan por su propio
+          plazo, más corto: pasados seis meses de un pedido cerrado los quitamos, aunque
+          tu cuenta siga activa. Son datos de tu cliente y no hay motivo para conservarlos
+          más tiempo.
         </p>
       </section>
 

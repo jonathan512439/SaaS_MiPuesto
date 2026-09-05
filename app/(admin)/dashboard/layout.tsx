@@ -35,13 +35,17 @@ export default async function LayoutPanel({
      que entrar a buscarlo, se entera el día que su catálogo deja de verse. */
   const { data: negocioSuscripcion } = await supabase
     .from("negocios")
-    .select("suscripcion_vence_en")
+    .select("activo,suspendido_en,suscripcion_vence_en")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   const suscripcion = negocioSuscripcion
     ? evaluarSuscripcion(negocioSuscripcion.suscripcion_vence_en, new Date())
     : null;
   const avisaSuscripcion = suscripcion !== null && suscripcion.estado !== "vigente";
+  const suspendidoPorPago =
+    negocioSuscripcion !== null &&
+    !negocioSuscripcion.activo &&
+    negocioSuscripcion.suspendido_en !== null;
 
   const correo =
     typeof datosClaims.claims.email === "string"
@@ -85,9 +89,11 @@ export default async function LayoutPanel({
               >
                 <p>
                   <strong>{describirDiasRestantes(suscripcion.diasRestantes)}</strong>{" "}
-                  {suscripcion.estado === "vencida"
-                    ? `Tu catálogo dejó de publicarse el ${formatearFechaVencimiento(suscripcion.venceEn)}. Tus datos siguen acá.`
-                    : `Tu mes termina el ${formatearFechaVencimiento(suscripcion.venceEn)}.`}
+                  {suspendidoPorPago
+                    ? `Tu catálogo dejó de publicarse. Venció el ${formatearFechaVencimiento(suscripcion.venceEn)} y tus datos siguen acá.`
+                    : suscripcion.estado === "vencida"
+                      ? `Venció el ${formatearFechaVencimiento(suscripcion.venceEn)}. Tu catálogo deja de publicarse en las próximas horas.`
+                      : `Tu mes termina el ${formatearFechaVencimiento(suscripcion.venceEn)}.`}
                 </p>
                 <Link href="/dashboard/cuenta">Ver mi cuenta</Link>
               </aside>

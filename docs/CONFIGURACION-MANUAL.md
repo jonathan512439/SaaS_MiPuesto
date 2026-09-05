@@ -59,7 +59,7 @@ Estado: **completado el 2026-09-01**. El proyecto vinculado es `mipuesto-dev` (`
 2. Ejecutá `npx supabase login` y completá el flujo del navegador.
 3. Copiá el identificador del proyecto y ejecutá `npx supabase link --project-ref ID_DEL_PROYECTO`.
 4. Previsualizá las migraciones con `npm run supabase:push:dry`.
-5. Si el resultado es correcto, aplicá migración y seed con `npm run supabase:push:dev`.
+5. Si el resultado es correcto, aplicá las migraciones con `npm run supabase:push`. El seed **solo** se aplica contra la base local, con `npm run supabase:seed:local`: contra la base enlazada reejecutaría `seed.sql` sobre los datos reales.
 6. Ejecutá `npm run db:lint:linked` y `npm run test:rls:linked`.
 7. Obtené la clave Publishable desde **Connect** en Supabase y completá `.env.local` según la sección 2.
 

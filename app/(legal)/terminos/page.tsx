@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Condiciones de uso de MiPuesto: qué incluye, cuánto cuesta y qué pasa si dejás de pagar.",
 };
 
-const VIGENCIA = "4 de septiembre de 2026";
+const VIGENCIA = "5 de septiembre de 2026";
 
 export default function PaginaTerminos() {
   return (
@@ -48,9 +48,16 @@ export default function PaginaTerminos() {
       <section className={styles.seccion}>
         <h2>Si dejás de pagar</h2>
         <p>
-          Tu catálogo deja de publicarse y sale del directorio, pero tus datos no se
-          borran. Seguís entrando a tu panel y ves tus productos, tus pedidos y tu
-          historial. Cuando reanudás el pago, tu catálogo vuelve tal cual estaba.
+          Al día siguiente del vencimiento tu catálogo deja de publicarse y sale del
+          directorio. Seguís entrando a tu panel y ves tus productos, tus pedidos y tu
+          historial. Cuando reanudás el pago, tu catálogo vuelve tal cual estaba, el
+          mismo día.
+        </p>
+        <p>
+          Guardamos todo por <strong>noventa días</strong> desde que tu catálogo sale de
+          línea. Pasado ese plazo podemos borrarlo. Antes de borrar nada te escribimos al
+          WhatsApp que registraste, y si querés una copia de tus datos nos la pedís y te
+          la damos.
         </p>
       </section>
 

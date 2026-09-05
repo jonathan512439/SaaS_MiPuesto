@@ -33,6 +33,20 @@ const formatearFecha = new Intl.DateTimeFormat("es-BO", {
   dateStyle: "medium",
 });
 
+/* Los datos se conservan noventa días desde que el catálogo sale de línea, tal
+   como lo prometen los términos. El borrado no se automatiza todavía: hasta que
+   exista el aviso por correo, quien vende mira esta lista y escribe antes. */
+const DIAS_DE_GUARDA = 90;
+
+function describirGuarda(suspendidoEn) {
+  if (!suspendidoEn) return "";
+  const dias =
+    DIAS_DE_GUARDA - Math.floor((Date.now() - new Date(suspendidoEn)) / 86400000);
+  if (dias <= 0) return " · BORRADO VENCIDO";
+  if (dias <= 10) return ` · se borra en ${dias} d`;
+  return ` · guarda ${dias} d`;
+}
+
 function describir(vence) {
   const dias = Math.round((new Date(vence) - Date.now()) / 86400000);
   if (dias < 0) return `vencida hace ${Math.abs(dias)} d`;
@@ -43,7 +57,7 @@ function describir(vence) {
 async function ver() {
   const { data, error } = await supabase
     .from("negocios")
-    .select("slug,nombre,activo,suscripcion_vence_en")
+    .select("slug,nombre,activo,suspendido_en,suscripcion_vence_en")
     .order("suscripcion_vence_en");
   if (error) throw new Error(`No se pudo leer los negocios: ${error.message}`);
 
@@ -51,7 +65,11 @@ async function ver() {
     ["ESTADO".padEnd(18), "SLUG".padEnd(22), "VENCE".padEnd(14), "NEGOCIO"].join(" "),
   );
   for (const negocio of data) {
-    const publicado = negocio.activo ? "" : " (fuera de línea)";
+    const publicado = negocio.activo
+      ? ""
+      : negocio.suspendido_en
+        ? ` (fuera de línea por falta de pago${describirGuarda(negocio.suspendido_en)})`
+        : " (fuera de línea a mano)";
     console.log(
       [
         describir(negocio.suscripcion_vence_en).padEnd(18),
@@ -72,7 +90,7 @@ async function renovar() {
 
   const { data: negocio, error: errorLectura } = await supabase
     .from("negocios")
-    .select("nombre,activo,suscripcion_vence_en")
+    .select("nombre,activo,suspendido_en,suscripcion_vence_en")
     .eq("slug", slug)
     .maybeSingle();
   if (errorLectura) throw new Error(`No se pudo leer el negocio: ${errorLectura.message}`);
@@ -87,16 +105,25 @@ async function renovar() {
   const nuevaFecha = new Date(desde);
   nuevaFecha.setMonth(nuevaFecha.getMonth() + meses);
 
-  const { error } = await supabase
-    .from("negocios")
-    .update({ suscripcion_vence_en: nuevaFecha.toISOString(), activo: true })
-    .eq("slug", slug);
+  /* Renovar deshace solo lo que hizo el corte automático. Si el catálogo se
+     bajó a mano por otro motivo, sigue bajo: republicarlo sería revertir una
+     decisión que este comando no tomó y no puede conocer. */
+  const republica = !negocio.activo && negocio.suspendido_en !== null;
+  const cambios = { suscripcion_vence_en: nuevaFecha.toISOString(), suspendido_en: null };
+  if (republica) cambios.activo = true;
+
+  const { error } = await supabase.from("negocios").update(cambios).eq("slug", slug);
   if (error) throw new Error(`No se pudo renovar: ${error.message}`);
 
   console.log(
     `${negocio.nombre}: ${meses} mes(es) sumados. Vence el ${formatearFecha.format(nuevaFecha)}.`,
   );
-  if (!negocio.activo) console.log("El catálogo volvió a publicarse.");
+  if (republica) console.log("El catálogo volvió a publicarse.");
+  if (!negocio.activo && !republica) {
+    console.log(
+      "Sigue fuera de línea: se bajó a mano y no por falta de pago. Republicalo vos si corresponde.",
+    );
+  }
 }
 
 await (accion === "ver" ? ver() : renovar());
