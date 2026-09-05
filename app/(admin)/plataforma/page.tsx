@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { AccionesCliente } from "../../../components/plataforma/acciones-cliente";
 import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
+import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
 import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
 import {
   ETIQUETAS_ESTADO,
@@ -30,6 +31,15 @@ export default async function PaginaPlataforma() {
   /* Sin permiso la página no existe, no «está prohibida»: quien no administra la
      plataforma no tiene por qué enterarse de que hay una. */
   if (!esAdmin) notFound();
+
+  /* Esta cuenta ya no protege un negocio sino a todos, así que exige segundo
+     factor. `aal2` significa que la sesión lo completó; `aal1` es solo
+     contraseña, y con eso no se entra. Qué mostrar —inscribir o pedir el
+     código— lo resuelve el componente, que es quien puede consultar los factores
+     desde el navegador. */
+  if (datosClaims.claims.aal !== "aal2") {
+    return <SegundoFactor />;
+  }
 
   const { data: negocios, error } = await supabase
     .from("negocios")
