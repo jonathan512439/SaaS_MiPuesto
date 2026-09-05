@@ -152,7 +152,17 @@ export default function Inicio() {
       <section className={styles.portada}>
         <div className={styles.portadaContenido}>
           <div className={styles.discurso}>
-            <p className={styles.marcador}>Catálogos digitales para negocios de Bolivia</p>
+            <p className={styles.marcador}>
+              <Image
+                alt=""
+                className={styles.marcaMarcador}
+                height={325}
+                priority
+                src="/marca/mipuesto-marca.png"
+                width={256}
+              />
+              Catálogos digitales para negocios de Bolivia
+            </p>
             <h1>
               Tu puesto, abierto en el celular de tus clientes
             </h1>
@@ -184,6 +194,14 @@ export default function Inicio() {
       </section>
 
       <section aria-label="En resumen" className={styles.franja}>
+        <Image
+          alt=""
+          aria-hidden="true"
+          className={styles.filigrana}
+          height={325}
+          src="/marca/mipuesto-marca.png"
+          width={256}
+        />
         <div className={styles.franjaContenido}>
           <p>
             <strong>Bs {PRECIO_MENSUAL_BS}</strong>
