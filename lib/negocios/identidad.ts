@@ -33,6 +33,21 @@ function normalizarUrl(valor: unknown) {
   }
 }
 
+/* El enlace del mapa se valida como los de redes sociales: HTTPS y con techo de
+   largo. No se exige que sea de Google: hay negocios que comparten su punto
+   desde otro mapa, y rechazarlo obligaría a explicar por qué su enlace «no
+   sirve» cuando sí lleva a su puerta. */
+export function normalizarUbicacion(valor: unknown) {
+  const url = normalizarUrl(valor);
+  if (url === undefined) {
+    return {
+      correcto: false as const,
+      error: "Pegá un enlace HTTPS válido de hasta 300 caracteres.",
+    };
+  }
+  return { correcto: true as const, ubicacion: url };
+}
+
 export function normalizarRedesSociales(valor: unknown) {
   const entrada =
     typeof valor === "object" && valor !== null && !Array.isArray(valor)

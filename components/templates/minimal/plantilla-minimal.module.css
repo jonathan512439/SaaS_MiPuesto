@@ -415,6 +415,7 @@
   gap: var(--spacing-2) var(--spacing-4);
 }
 
+.comoLlegar,
 .redes a {
   color: var(--catalogo-marca);
   font-size: var(--text-xs);

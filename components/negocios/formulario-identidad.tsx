@@ -17,6 +17,7 @@ export type IdentidadNegocioInicial = {
   portada_url: string | null;
   qr_pago_url: string | null;
   redes_sociales: unknown;
+  ubicacion_url: string | null;
 };
 
 type Propiedades = {
@@ -72,6 +73,7 @@ export function FormularioIdentidad({
   urlSupabase,
 }: Propiedades) {
   const [imagenes, setImagenes] = useState(() => valoresIniciales(identidadInicial, urlSupabase));
+  const [ubicacion, setUbicacion] = useState(identidadInicial.ubicacion_url ?? "");
   const [redes, setRedes] = useState<RedesSocialesNegocio>(() =>
     obtenerRedesSociales(identidadInicial.redes_sociales),
   );
@@ -166,18 +168,19 @@ export function FormularioIdentidad({
       const respuesta = await fetch("/api/negocios/identidad", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ redes_sociales: redes }),
+        body: JSON.stringify({ redes_sociales: redes, ubicacion_url: ubicacion }),
       });
       const datos = (await respuesta.json().catch(() => ({}))) as {
         error?: string;
         errores?: Record<string, string>;
-        identidad?: { redes_sociales: unknown };
+        identidad?: { redes_sociales: unknown; ubicacion_url: string | null };
       };
       if (!respuesta.ok || !datos.identidad) {
         setErrores(datos.errores ?? {});
         throw new Error(datos.error || "No se pudieron guardar los enlaces.");
       }
       setRedes(obtenerRedesSociales(datos.identidad.redes_sociales));
+      setUbicacion(datos.identidad.ubicacion_url ?? "");
       mostrarAviso({ titulo: "Enlaces guardados", variante: "exito" });
     } catch (error) {
       mostrarAviso({
@@ -252,9 +255,29 @@ export function FormularioIdentidad({
 
       <form className={styles.redes} onSubmit={guardarRedes}>
         <header>
-          <h3>Redes y sitio web</h3>
+          <h3>Contacto y ubicación</h3>
           <p>Pega el enlace completo que comienza con https://. Todos son opcionales.</p>
         </header>
+
+        {/* Se pide el enlace del mapa y no una dirección escrita: en un barrio
+            boliviano una dirección rara vez lleva a la puerta, y el punto que el
+            propio dueño verificó sí. */}
+        <label className={styles.campoUbicacion}>
+          Enlace del mapa
+          <input
+            inputMode="url"
+            maxLength={300}
+            onChange={(evento) => setUbicacion(evento.target.value)}
+            placeholder="https://maps.app.goo.gl/..."
+            type="url"
+            value={ubicacion}
+          />
+          <small className={styles.ayudaUbicacion}>
+            Abrí Google Maps, buscá tu negocio, tocá «Compartir» y pegá acá el enlace. Tus
+            clientes verán un botón «Cómo llegar».
+          </small>
+          {errores.ubicacion_url ? <small>{errores.ubicacion_url}</small> : null}
+        </label>
         <div className={styles.camposRedes}>
           {([
             ["facebook", "Facebook"],

@@ -7,6 +7,7 @@ import {
   CAMPO_POR_TIPO_IMAGEN,
   esTipoImagenIdentidad,
   normalizarRedesSociales,
+  normalizarUbicacion,
   rutaPerteneceAImagenNegocio,
   type TipoImagenIdentidad,
 } from "../../../../lib/negocios/identidad";
@@ -14,7 +15,8 @@ import type { Database } from "../../../../lib/supabase/database.types";
 
 type ActualizacionNegocio = Database["public"]["Tables"]["negocios"]["Update"];
 
-const COLUMNAS_IDENTIDAD = "slug,logo_url,portada_url,qr_pago_url,redes_sociales";
+const COLUMNAS_IDENTIDAD =
+  "slug,logo_url,portada_url,qr_pago_url,redes_sociales,ubicacion_url";
 
 function cambioImagen(tipo: TipoImagenIdentidad, ruta: string | null): ActualizacionNegocio {
   return { [CAMPO_POR_TIPO_IMAGEN[tipo]]: ruta };
@@ -40,9 +42,27 @@ export async function PATCH(solicitud: NextRequest) {
     );
   }
 
+  const ubicacion = normalizarUbicacion(
+    entrada.correcto &&
+      typeof entrada.datos === "object" &&
+      entrada.datos !== null &&
+      "ubicacion_url" in entrada.datos
+      ? entrada.datos.ubicacion_url
+      : null,
+  );
+  if (!ubicacion.correcto) {
+    return NextResponse.json(
+      { error: "Revisa los enlaces de contacto.", errores: { ubicacion_url: ubicacion.error } },
+      { status: 400 },
+    );
+  }
+
   const { data, error } = await contexto.supabase
     .from("negocios")
-    .update({ redes_sociales: redes.redes })
+    .update({
+      redes_sociales: redes.redes,
+      ubicacion_url: ubicacion.ubicacion || null,
+    })
     .eq("id", contexto.negocio.id)
     .eq("admin_user_id", contexto.idUsuario)
     .select(COLUMNAS_IDENTIDAD)

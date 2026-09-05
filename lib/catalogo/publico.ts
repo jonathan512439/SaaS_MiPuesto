@@ -23,6 +23,7 @@ type NegocioPublico = {
   logo_url?: string | null;
   portada_url?: string | null;
   qr_pago_url?: string | null;
+  ubicacion_url?: string | null;
   redes_sociales?: unknown;
 };
 
@@ -181,6 +182,7 @@ export function construirCatalogoPublico(
           "portada",
         ),
         qrPagoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.qr_pago_url ?? null, "qr"),
+        ubicacionUrl: negocio.ubicacion_url?.trim() || null,
         redesSociales: [
           { nombre: "Facebook", url: redes.facebook },
           { nombre: "Instagram", url: redes.instagram },

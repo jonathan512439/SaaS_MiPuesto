@@ -168,6 +168,16 @@ export function PlantillaMinimal({
 
       <footer className={styles.pie}>
         <p>Cuéntanos qué necesitas y te orientamos personalmente.</p>
+        {datos.negocio.ubicacionUrl ? (
+          <a
+            className={styles.comoLlegar}
+            href={datos.negocio.ubicacionUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Cómo llegar
+          </a>
+        ) : null}
         {datos.negocio.redesSociales.length ? (
           <nav aria-label="Enlaces del negocio" className={styles.redes}>
             {datos.negocio.redesSociales.map((red) => (

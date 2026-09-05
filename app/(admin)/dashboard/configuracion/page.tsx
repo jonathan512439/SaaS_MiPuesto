@@ -33,7 +33,7 @@ export default async function PaginaConfiguracion() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,slug,descripcion,tipo_negocio,telefono_whatsapp,horario,reserva_minutos,logo_url,portada_url,qr_pago_url,redes_sociales")
+    .select("nombre,slug,descripcion,tipo_negocio,telefono_whatsapp,horario,reserva_minutos,logo_url,portada_url,qr_pago_url,redes_sociales,ubicacion_url")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 

@@ -54,6 +54,9 @@ export type DatosPlantilla = {
     portadaUrl: string | null;
     qrPagoUrl: string | null;
     redesSociales: Array<{ nombre: string; url: string }>;
+    /* Vacío significa que el negocio no publicó su ubicación, no que no la
+       tenga: el pie no dibuja nada en vez de mostrar un enlace roto. */
+    ubicacionUrl: string | null;
   };
   categorias: CategoriaPlantilla[];
 };

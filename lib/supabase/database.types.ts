@@ -138,6 +138,7 @@ export type Database = {
           suspendido_en: string | null
           telefono_whatsapp: string
           tipo_negocio: string
+          ubicacion_url: string | null
           verificado: boolean
         }
         Insert: {
@@ -163,6 +164,7 @@ export type Database = {
           suspendido_en?: string | null
           telefono_whatsapp: string
           tipo_negocio: string
+          ubicacion_url?: string | null
           verificado?: boolean
         }
         Update: {
@@ -188,6 +190,7 @@ export type Database = {
           suspendido_en?: string | null
           telefono_whatsapp?: string
           tipo_negocio?: string
+          ubicacion_url?: string | null
           verificado?: boolean
         }
         Relationships: []
@@ -523,6 +526,7 @@ export type Database = {
         Args: { p_limite?: number }
         Returns: number
       }
+      purgar_analitica_vieja: { Args: { p_dias?: number }; Returns: number }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }
