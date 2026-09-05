@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { MuestraPlantillas } from "../components/inicio/muestra-plantillas";
+import { VitrinaPortada } from "../components/inicio/vitrina-portada";
+import { PALETAS, PLANTILLAS } from "../lib/apariencia";
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
 import styles from "./inicio.module.css";
 
@@ -11,19 +13,64 @@ export const metadata: Metadata = {
   description: `Catálogo propio para tu negocio, con pedidos que se cierran por WhatsApp. Bs ${PRECIO_MENSUAL_BS} al mes y el primer mes gratis.`,
 };
 
+/* Las cifras salen del registro y no de un texto escrito a mano: la portada ya
+   quedó desactualizada una vez cuando se sumaron plantillas y paletas. */
+const TOTAL_PLANTILLAS = PLANTILLAS.length;
+const TOTAL_PALETAS = PALETAS.length;
+
+const GARANTIAS = [
+  "Sin comisión por venta",
+  "Sin app ni cuenta para tus clientes",
+  "Primer mes gratis",
+];
+
+const RUBROS = [
+  {
+    titulo: "Restaurantes y comida",
+    detalle: "Carta por categorías, pedidos con carrito y aviso de si estás abierto.",
+    plantilla: "Clásica",
+  },
+  {
+    titulo: "Tiendas y ropa",
+    detalle: "Vitrina con fotos grandes, tallas y colores como productos aparte.",
+    plantilla: "Moderna",
+  },
+  {
+    titulo: "Servicios con turno",
+    detalle: "Barberías, consultorios y talleres. En vez de carrito, tus clientes reservan.",
+    plantilla: "Mínima",
+  },
+  {
+    titulo: "Puestos de mercado",
+    detalle: "Lista de precios: cifras grandes y muchos productos en una sola pantalla.",
+    plantilla: "Feria",
+  },
+];
+
 const PASOS = [
   {
     titulo: "Cargás tus productos",
-    detalle: "Foto, nombre y precio. Podés hacerlo desde el celular, entre cliente y cliente.",
+    detalle: "Foto, nombre y precio. Desde el celular, entre cliente y cliente.",
   },
   {
     titulo: "Elegís cómo se ve",
-    detalle: "Tres estructuras y cuatro colores. Cambiarlo después no toca tus productos.",
+    detalle: `${TOTAL_PLANTILLAS} estructuras y ${TOTAL_PALETAS} colores. Cambiarlo después no toca tus productos.`,
   },
   {
     titulo: "Compartís tu enlace",
     detalle: "Un link y un código QR para imprimir. El pedido te llega por WhatsApp.",
   },
+];
+
+/* La objeción real no es el precio: es que el catálogo de WhatsApp es gratis.
+   Contestarla de frente vale más que cualquier lista de características. */
+const COMPARACION = [
+  { que: "Dirección web propia para compartir", whatsapp: false },
+  { que: "Código QR para pegar en tu puesto", whatsapp: false },
+  { que: "Buscar entre cientos de productos", whatsapp: false },
+  { que: "Promociones con fecha y control de stock", whatsapp: false },
+  { que: "Saber cuántos te visitan cada semana", whatsapp: false },
+  { que: "Pedido con carrito y total calculado", whatsapp: false },
 ];
 
 const INCLUYE = [
@@ -32,6 +79,7 @@ const INCLUYE = [
   "Pedidos y reservas que llegan por WhatsApp",
   "Control de existencias y promociones",
   "Cuántas personas te visitan cada semana",
+  "Ficha de cada producto para compartir suelta",
 ];
 
 const PREGUNTAS = [
@@ -52,7 +100,7 @@ const PREGUNTAS = [
   {
     pregunta: "¿Puedo usarlo si no vendo productos, sino servicios?",
     respuesta:
-      "Sí. Una de las tres estructuras está pensada para servicios con turno: barberías, consultorios, talleres. En vez de carrito, tus clientes reservan.",
+      "Sí. Una de las estructuras está pensada para servicios con turno: barberías, consultorios, talleres. En vez de carrito, tus clientes reservan.",
   },
   {
     pregunta: "¿Necesito saber de computación?",
@@ -73,83 +121,243 @@ export default function Inicio() {
 
   return (
     <main className={styles.pagina}>
-      <header className={styles.portada}>
-        <Image
-          alt="MiPuesto"
-          className={styles.logotipo}
-          height={390}
-          priority
-          src="/marca/mipuesto-completo.png"
-          width={560}
-        />
-        <h1>Tu puesto, en el celular de tus clientes</h1>
-        <p className={styles.promesa}>
-          Un catálogo propio para mostrar lo que vendés, con precios al día y pedidos que
-          te llegan por WhatsApp. Sin comisiones por venta.
-        </p>
-        <div className={styles.acciones}>
-          <a href={enlaceAlta} rel="noreferrer" target="_blank">
+      <header className={styles.barra}>
+        <div className={styles.barraContenido}>
+          <Image
+            alt="MiPuesto"
+            className={styles.marca}
+            height={390}
+            priority
+            src="/marca/mipuesto-completo.png"
+            width={560}
+          />
+          <nav aria-label="Secciones de esta página" className={styles.enlaces}>
+            <a href="#rubros">Para quién es</a>
+            <a href="#asi-se-ve">Así se ve</a>
+            <a href="#precio">Precio</a>
+            <a href="#preguntas">Preguntas</a>
+          </nav>
+          <a className={styles.botonBarra} href={enlaceAlta} rel="noreferrer" target="_blank">
             Quiero mi catálogo
           </a>
-          <Link href="/directorio">Ver negocios que ya lo usan</Link>
         </div>
-        <p className={styles.precioPortada}>
-          Bs {PRECIO_MENSUAL_BS} al mes. El primer mes es gratis.
-        </p>
       </header>
 
-      <section aria-labelledby="como-funciona" className={styles.pasos}>
-        <h2 id="como-funciona">Cómo se pone en marcha</h2>
-        <ol>
-          {PASOS.map(({ titulo, detalle }) => (
-            <li key={titulo}>
-              <h3>{titulo}</h3>
-              <p>{detalle}</p>
-            </li>
-          ))}
-        </ol>
+      <section className={styles.portada}>
+        <div className={styles.portadaContenido}>
+          <div className={styles.discurso}>
+            <p className={styles.marcador}>Catálogos digitales para negocios de Bolivia</p>
+            <h1>
+              Tu puesto, abierto en el celular de tus clientes
+            </h1>
+            <p className={styles.promesa}>
+              Un catálogo propio para mostrar lo que vendés, con precios al día y pedidos
+              que te llegan por WhatsApp. Seguís cobrando como cobrás hoy.
+            </p>
+            <div className={styles.acciones}>
+              <a
+                className={styles.botonPrincipal}
+                href={enlaceAlta}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Quiero mi catálogo
+              </a>
+              <Link className={styles.botonSecundario} href="/directorio">
+                Ver negocios que ya lo usan
+              </Link>
+            </div>
+            <ul className={styles.garantias}>
+              {GARANTIAS.map((garantia) => (
+                <li key={garantia}>{garantia}</li>
+              ))}
+            </ul>
+          </div>
+          <VitrinaPortada />
+        </div>
       </section>
 
-      <section aria-labelledby="asi-se-ve" className={styles.demostracion}>
-        <div className={styles.tituloDemostracion}>
-          <h2 id="asi-se-ve">Así se ve tu catálogo</h2>
+      <section aria-label="En resumen" className={styles.franja}>
+        <div className={styles.franjaContenido}>
           <p>
-            Probá las combinaciones. Cada estructura nació de un rubro distinto, así que
-            no cambian solo de color.
+            <strong>Bs {PRECIO_MENSUAL_BS}</strong>
+            <span>al mes, sin contrato</span>
+          </p>
+          <p>
+            <strong>0 %</strong>
+            <span>de comisión por venta</span>
+          </p>
+          <p>
+            <strong>{TOTAL_PLANTILLAS} × {TOTAL_PALETAS}</strong>
+            <span>maneras de verse</span>
+          </p>
+          <p>
+            <strong>1 mes</strong>
+            <span>gratis para probar</span>
           </p>
         </div>
-        <MuestraPlantillas />
       </section>
 
-      <section aria-labelledby="precio" className={styles.precio}>
-        <div>
-          <h2 id="precio">Bs {PRECIO_MENSUAL_BS} al mes</h2>
-          <p>El primer mes es gratis. Sin contrato y sin comisión por venta.</p>
-          <ul>
-            {INCLUYE.map((item) => (
-              <li key={item}>{item}</li>
+      <section aria-labelledby="rubros" className={styles.seccion}>
+        <div className={styles.seccionContenido}>
+          <div className={styles.encabezado}>
+            <h2 id="rubros">Para quién es</h2>
+            <p>
+              Cada estructura nació de un rubro distinto. No cambian solo de color: cambia
+              qué se ve primero.
+            </p>
+          </div>
+          <ul className={styles.rubros}>
+            {RUBROS.map(({ titulo, detalle, plantilla }) => (
+              <li key={titulo}>
+                <span className={styles.etiquetaPlantilla}>{plantilla}</span>
+                <h3>{titulo}</h3>
+                <p>{detalle}</p>
+              </li>
             ))}
           </ul>
-          <a href={enlaceAlta} rel="noreferrer" target="_blank">
-            Escribinos por WhatsApp
-          </a>
-          <p className={styles.aclaracion}>
-            La cuenta se abre conversando con nosotros. Te ayudamos a cargar los primeros
-            productos.
+        </div>
+      </section>
+
+      <section aria-labelledby="como-funciona" className={styles.seccionSuave}>
+        <div className={styles.seccionContenido}>
+          <div className={styles.encabezado}>
+            <h2 id="como-funciona">Cómo se pone en marcha</h2>
+            <p>Se hace en una tarde, y no hace falta que sepas de computación.</p>
+          </div>
+          <ol className={styles.pasos}>
+            {PASOS.map(({ titulo, detalle }, indice) => (
+              <li key={titulo}>
+                <span aria-hidden="true" className={styles.numero}>
+                  {indice + 1}
+                </span>
+                <h3>{titulo}</h3>
+                <p>{detalle}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section aria-labelledby="asi-se-ve" className={styles.seccion}>
+        <div className={styles.seccionContenido}>
+          <div className={styles.encabezado}>
+            <h2 id="asi-se-ve">Probá cómo se vería el tuyo</h2>
+            <p>
+              Elegí estructura y color. Lo que ves acá es exactamente lo que recibe tu
+              cliente, no una imagen de muestra.
+            </p>
+          </div>
+          <MuestraPlantillas />
+        </div>
+      </section>
+
+      <section aria-labelledby="comparacion" className={styles.seccionSuave}>
+        <div className={styles.seccionContenido}>
+          <div className={styles.encabezado}>
+            <h2 id="comparacion">¿Y el catálogo de WhatsApp?</h2>
+            <p>
+              Es gratis y sirve. Pero se queda corto apenas tu negocio crece, y nunca fue
+              una vidriera.
+            </p>
+          </div>
+          <div className={styles.tablaEnvoltorio}>
+            <table className={styles.comparacion}>
+            <thead>
+              <tr>
+                <th scope="col">
+                  <span className={styles.ocultoVisual}>Función</span>
+                </th>
+                <th scope="col">Catálogo de WhatsApp</th>
+                <th scope="col">MiPuesto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARACION.map(({ que }) => (
+                <tr key={que}>
+                  <th scope="row">{que}</th>
+                  <td>
+                    <span className={styles.no}>No</span>
+                  </td>
+                  <td>
+                    <span className={styles.si}>Sí</span>
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <th scope="row">Dónde se cierra la venta</th>
+                <td>WhatsApp</td>
+                <td>WhatsApp</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+          <p className={styles.remate}>
+            No te sacamos de WhatsApp. Te damos la vidriera que le falta.
           </p>
         </div>
       </section>
 
-      <section aria-labelledby="preguntas" className={styles.preguntas}>
-        <h2 id="preguntas">Preguntas frecuentes</h2>
-        <dl>
-          {PREGUNTAS.map(({ pregunta, respuesta }) => (
-            <div key={pregunta}>
-              <dt>{pregunta}</dt>
-              <dd>{respuesta}</dd>
+      <section aria-labelledby="precio" className={styles.seccion}>
+        <div className={styles.seccionContenido}>
+          <div className={styles.panelPrecio}>
+            <div className={styles.montoPrecio}>
+              <p className={styles.monto}>
+                Bs {PRECIO_MENSUAL_BS}
+                <span>al mes</span>
+              </p>
+              <p className={styles.gratis}>El primer mes es gratis</p>
+              <a
+                className={styles.botonPrincipal}
+                href={enlaceAlta}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Escribinos por WhatsApp
+              </a>
+              <p className={styles.aclaracion}>
+                La cuenta se abre conversando. Te ayudamos a cargar los primeros productos.
+              </p>
             </div>
-          ))}
-        </dl>
+            <div className={styles.incluye}>
+              <h2 id="precio">Todo incluido</h2>
+              <ul>
+                {INCLUYE.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="preguntas" className={styles.seccion}>
+        <div className={styles.seccionContenido}>
+          <div className={styles.encabezado}>
+            <h2 id="preguntas">Preguntas frecuentes</h2>
+          </div>
+          <div className={styles.preguntas}>
+            {PREGUNTAS.map(({ pregunta, respuesta }) => (
+              <details key={pregunta}>
+                <summary>{pregunta}</summary>
+                <p>{respuesta}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="cierre" className={styles.cierre}>
+        <div className={styles.cierreContenido}>
+          <h2 id="cierre">Tu catálogo puede estar listo hoy</h2>
+          <p>
+            Escribinos por WhatsApp y lo armamos juntos. Si no te convence, el primer mes
+            no te costó nada.
+          </p>
+          <a className={styles.botonCierre} href={enlaceAlta} rel="noreferrer" target="_blank">
+            Quiero mi catálogo
+          </a>
+        </div>
       </section>
     </main>
   );

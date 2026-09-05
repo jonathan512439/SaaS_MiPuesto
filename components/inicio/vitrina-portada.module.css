@@ -1,0 +1,76 @@
+@reference "../../app/globals.css";
+
+.vitrina {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+}
+
+/* El marco imita un celular porque ahí es donde el cliente final abre el
+   enlace. Dentro va el catálogo a su ancho real de móvil, así que lo que se ve
+   no es una maqueta a escala: es el tamaño verdadero. */
+.telefono {
+  width: min(100%, 20rem);
+  overflow: hidden;
+  border: var(--spacing-2) solid var(--color-texto);
+  border-radius: var(--radius-sheet);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-flotante);
+}
+
+.pantalla {
+  max-height: 34rem;
+  overflow: hidden;
+  border-radius: var(--radius-tarjeta);
+  /* El corte inferior insinúa que sigue hacia abajo, en vez de fingir que el
+     catálogo termina justo donde termina el marco. */
+  mask-image: linear-gradient(to bottom, var(--color-texto) 78%, transparent 100%);
+}
+
+.cargando {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+}
+
+/* El segundo teléfono no existe en móvil: ahí el ancho es el recurso escaso y
+   una pila de dos marcos empuja la llamada a la acción fuera de la pantalla. */
+.telefonoAtras {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .vitrina {
+    justify-items: end;
+    padding-bottom: var(--spacing-8);
+  }
+
+  .telefono {
+    position: relative;
+    z-index: 1;
+    transform: rotate(-2deg);
+  }
+
+  .telefonoAtras {
+    position: absolute;
+    z-index: 0;
+    right: var(--spacing-24);
+    bottom: 0;
+    display: block;
+    width: 17rem;
+    transform: rotate(5deg);
+    opacity: 0.92;
+  }
+
+  .telefonoAtras .pantalla {
+    max-height: 26rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .telefono,
+  .telefonoAtras {
+    transform: none;
+  }
+}
