@@ -3,9 +3,9 @@
 import dynamic from "next/dynamic";
 import { useState, type ComponentType } from "react";
 
-import { DEFINICIONES_PALETAS, DEFINICIONES_PLANTILLAS } from "../../lib/apariencia";
+import { DEFINICIONES_PALETAS } from "../../lib/apariencia";
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
-import { crearDatosDemoPlantilla } from "../../lib/plantillas/datos-demo";
+import { DEMOS_POR_RUBRO } from "../../lib/plantillas/demos-rubro";
 import type { PropiedadesPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import { Esqueleto } from "../ui";
@@ -43,69 +43,44 @@ const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
   ),
 };
 
-/* Los negocios de ejemplo cambian con la plantilla porque cada una nace de un
-   rubro distinto: mostrar la carta editorial con nombre de tienda de ropa
-   desperdicia justo el argumento que sostiene el selector. */
-const EJEMPLOS: Record<PlantillaId, Parameters<typeof crearDatosDemoPlantilla>[0]> = {
-  clasica: {
-    nombre: "Sabor Camba",
-    descripcion: "Cocina cruceña de olla, servida como en casa desde 1998.",
-    telefonoWhatsapp: "70000000",
-    tipoNegocio: "tienda_virtual",
-  },
-  moderna: {
-    nombre: "Tienda Kantuta",
-    descripcion: "Ropa y accesorios elegidos uno por uno en la feria.",
-    telefonoWhatsapp: "70000000",
-    tipoNegocio: "tienda_virtual",
-  },
-  minimal: {
-    nombre: "Barbería Central",
-    descripcion: "Cortes clásicos y arreglo de barba, con turno reservado.",
-    telefonoWhatsapp: "70000000",
-    tipoNegocio: "catalogo_cta",
-  },
-  feria: {
-    nombre: "Frutas Doña Rosa",
-    descripcion: "Puesto 42 del mercado, fruta de temporada al peso.",
-    telefonoWhatsapp: "70000000",
-    tipoNegocio: "tienda_virtual",
-  },
-};
-
+/* Se elige por rubro y no por «estructura»: un comerciante sabe a qué se dedica
+   y no tiene por qué saber qué es una plantilla. Cada rubro trae la combinación
+   que le corresponde, con productos y precios de su oficio; el color queda
+   suelto porque es lo único que sí se elige por gusto. */
 export function MuestraPlantillas() {
-  const [plantilla, setPlantilla] = useState<PlantillaId>("moderna");
-  const [paleta, setPaleta] = useState<PaletaId>("mercado");
-  const Vista = VISTAS[plantilla];
+  const [rubroId, setRubroId] = useState(DEMOS_POR_RUBRO[0].id);
+  const [paletaElegida, setPaletaElegida] = useState<PaletaId | null>(null);
 
-  const definicion = DEFINICIONES_PLANTILLAS.find(({ id }) => id === plantilla);
+  const demo = DEMOS_POR_RUBRO.find(({ id }) => id === rubroId) ?? DEMOS_POR_RUBRO[0];
+  const paleta = paletaElegida ?? demo.paleta;
+  const Vista = VISTAS[demo.plantilla];
 
   return (
     <div className={styles.muestra}>
       <div className={styles.controles}>
         <fieldset>
           <div className={styles.tituloGrupo}>
-            <legend>Estructura</legend>
-            {/* El enfoque de la elegida se lee al lado del título y no dentro de
-                cada opción: repetirlo cuatro veces convierte el selector en un
-                párrafo. */}
-            <p aria-live="polite">{definicion?.enfoque}</p>
+            <legend>Tu rubro</legend>
+            <p aria-live="polite">{demo.gancho}</p>
           </div>
           <div className={styles.opciones}>
-            {DEFINICIONES_PLANTILLAS.map(({ id, nombre, recomendacion }) => (
-              <label
-                className={plantilla === id ? styles.opcionElegida : styles.opcion}
-                key={id}
-              >
+            {DEMOS_POR_RUBRO.map(({ id, rubro, datos }) => (
+              <label className={rubroId === id ? styles.opcionElegida : styles.opcion} key={id}>
                 <input
-                  checked={plantilla === id}
-                  name="muestra-plantilla"
-                  onChange={() => setPlantilla(id)}
+                  checked={rubroId === id}
+                  name="muestra-rubro"
+                  onChange={() => {
+                    setRubroId(id);
+                    /* Al cambiar de rubro vuelve su color recomendado: si se
+                       conservara el elegido antes, la muestra siguiente saldría
+                       con una combinación que nadie eligió. */
+                    setPaletaElegida(null);
+                  }}
                   type="radio"
                   value={id}
                 />
-                <strong>{nombre}</strong>
-                <span>{recomendacion}</span>
+                <strong>{rubro}</strong>
+                <span>{datos.negocio.nombre}</span>
               </label>
             ))}
           </div>
@@ -117,14 +92,11 @@ export function MuestraPlantillas() {
           </div>
           <div className={styles.paletas}>
             {DEFINICIONES_PALETAS.map(({ id, nombre }) => (
-              <label
-                className={paleta === id ? styles.paletaElegida : styles.paleta}
-                key={id}
-              >
+              <label className={paleta === id ? styles.paletaElegida : styles.paleta} key={id}>
                 <input
                   checked={paleta === id}
                   name="muestra-paleta"
-                  onChange={() => setPaleta(id)}
+                  onChange={() => setPaletaElegida(id)}
                   type="radio"
                   value={id}
                 />
@@ -143,7 +115,7 @@ export function MuestraPlantillas() {
           <span className={styles.bateria} />
         </div>
         <div className={styles.lienzo}>
-          <Vista datos={crearDatosDemoPlantilla(EJEMPLOS[plantilla])} paleta={paleta} />
+          <Vista datos={demo.datos} paleta={paleta} />
         </div>
       </div>
     </div>

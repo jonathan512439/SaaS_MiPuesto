@@ -120,6 +120,30 @@ Los pasos están en `docs/RESPALDOS.md`.
   las páginas propias. Está en el plan, sección «Marca en el catálogo del
   cliente».
 
+## Portada: la demostración se elige por rubro
+
+La portada pedía elegir «estructura y color». Eso es vocabulario de producto: un
+comerciante sabe a qué se dedica, no qué es una plantilla. Ahora la
+demostración se elige por rubro —restaurante, ferretería, barbería, tienda de
+barrio— y cada uno trae la plantilla y la paleta que le corresponden, con
+productos y precios de su oficio. El color sigue suelto porque es lo único que
+de verdad se elige por gusto; al cambiar de rubro vuelve al recomendado, para
+que nadie termine viendo una combinación que no eligió.
+
+Los datos viven en `lib/plantillas/demos-rubro.ts`.
+
+**Solo el restaurante lleva fotografías**, porque son las tres únicas que
+existen de verdad y no se van a inventar las demás. Tampoco hacen falta: los
+otros rubros usan las plantillas donde la foto es lo de menos —lista de precios
+y listado de servicios— y de paso muestran cómo se ve un catálogo el primer día,
+antes de cargar imágenes. Un test verifica que toda ruta de foto exista en
+`public/`: una imagen rota en la portada es un hueco en la única pantalla que
+decide la venta.
+
+**No hay demostración de boutique** aunque las tarjetas de «Para quién es» la
+nombran, porque la plantilla Moderna es la que más depende de la foto y no hay
+fotos de ropa. Queda pendiente para cuando existan.
+
 ## Estado de Fase 13 — Panel de plataforma
 
 Etapa 6 del plan de crecimiento. `SECURITY.md` decía construirlo cuando

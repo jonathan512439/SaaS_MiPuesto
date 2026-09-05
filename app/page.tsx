@@ -271,10 +271,10 @@ export default function Inicio() {
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
               <p className={styles.rotulo}>Demostración en vivo</p>
-              <h2 id="asi-se-ve">Probá cómo se vería el tuyo</h2>
+              <h2 id="asi-se-ve">Elegí tu rubro y miralo</h2>
               <p>
-                Elegí estructura y color. Lo que ves acá es exactamente lo que recibe tu
-                cliente, no una imagen de muestra.
+                Con productos y precios de tu oficio. Lo que ves acá es exactamente lo
+                que recibe tu cliente, no una imagen de muestra.
               </p>
             </div>
             <MuestraPlantillas />
