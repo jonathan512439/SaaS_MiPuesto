@@ -22,8 +22,79 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 9: 2026-09-03.
 - Inicio de Fase 10: 2026-09-04.
 - Cierre del bloque 10.1 (sistema de diseño vivo): 2026-09-04.
-- Estado: **Fase 9 abierta con dominio aplazado; Fase 10 en curso sobre `fase-10-acabado-producto`**.
+- Estado: **Fase 12 en curso sobre `main`** (etapa 0–1 del plan de crecimiento). Fase 9 sigue abierta con el dominio aplazado.
 - Próxima puerta de salida: un negocio piloto debe operar una semana completa sin intervenir manualmente la base de datos; el dominio se validará después como tarea separada.
+
+## Cómo continuar este proyecto
+
+Escrito el 2026-09-05 para que otra persona —o otro agente— pueda retomar sin
+reconstruir el contexto.
+
+### Qué leer, y en qué orden
+
+1. `AGENTS.md` — reglas de trabajo del repositorio. Son obligatorias.
+2. `SECURITY.md` — sobre todo la sección final, «Cosas que NO hay que hacer
+   todavía». Se respeta salvo excepción escrita y justificada.
+3. `docs/PLAN-CRECIMIENTO.md` — **el plan vigente.** Trae el filtro con el que se
+   decide qué entra, los números medidos, las decisiones tomadas con su motivo y
+   las diez etapas con criterio de cierre. Se lee antes de empezar cada etapa.
+4. Este archivo, para saber qué quedó cerrado y con qué evidencia.
+
+### Dónde está el trabajo
+
+- Rama de trabajo: `main`. El despliegue sale solo al empujar (Cloudflare
+  Workers Builds); no hay archivo de flujo en el repositorio.
+- Producción: `https://mipuesto-dev.mipuesto-app.workers.dev`. **No hay dominio
+  propio todavía**, y por eso no se imprime ningún QR: cambiarían todos.
+
+### Comandos que se corren siempre antes de dar algo por terminado
+
+```
+npm run typecheck
+npm run lint
+npm test                 # incluye contraste y tokens de diseño
+npm run build:vinext
+npm run test:rls:linked  # al cierre de cada etapa, sin excepción
+```
+
+### Trampas conocidas
+
+- **`npm run supabase:push`** aplica migraciones a la base real. `supabase:seed:local`
+  es lo único que lleva `--include-seed`, y solo apunta a la base local. Nunca
+  correr el seed contra la enlazada: reescribiría los negocios reales.
+- Antes de `npm run build:vinext`, cerrar cualquier `wrangler dev`: mantiene
+  tomado `dist/client` y el build falla con `EBUSY`.
+- Después de cualquier migración, regenerar tipos con `npm run types:db:linked`
+  o TypeScript seguirá viendo el esquema viejo.
+- El guardián `scripts/check-design-contrast.mjs` exige que cada plantilla y cada
+  paleta estén en **cuatro** sitios: CSS del tema, `DEFINICIONES_*`, la constante
+  y la restricción de la base. Falla el build si falta una.
+- El control de tokens rechaza cualquier color, tamaño tipográfico o espaciado
+  escrito a mano fuera de `app/globals.css`.
+
+### Estado de la Fase 12 (etapa 0–1 del plan de crecimiento)
+
+| | Estado |
+|---|---|
+| Corte automático por vencimiento | **cerrado y verificado en producción** |
+| Textos legales alineados | **cerrado** |
+| `supabase:push:dev` desactivado | **cerrado** |
+| Horarios especiales y feriados | **en curso** |
+
+Lo que sigue, según el plan: terminar horarios especiales y pasar a la etapa 2
+—paginación en la consulta y límite de 300 productos—, que es la que permite el
+tamaño objetivo.
+
+### Decisiones que conviene no deshacer sin leer el motivo
+
+- El corte usa **un solo interruptor** (`activo`) y una columna de motivo
+  (`suspendido_en`). Está explicado en la migración
+  `20260905090000_fase12_corte_por_vencimiento.sql`.
+- El borrado a los 90 días **no está automatizado a propósito**: los términos
+  prometen aviso previo y el aviso por correo llega en la etapa 4.
+- En el catálogo de un cliente firma solo MiPuesto; el crédito a JC-DEV vive en
+  las páginas propias. Está en el plan, sección «Marca en el catálogo del
+  cliente».
 
 ## Estado de Fase 9
 
