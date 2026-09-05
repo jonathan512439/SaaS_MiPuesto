@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { PALETAS, PLANTILLAS } from "../apariencia";
 import { construirCatalogoPublico, obtenerTextoHorario } from "./publico";
 
 const NEGOCIO = {
@@ -193,5 +194,41 @@ describe("modalidad y horario del catálogo público", () => {
     });
     expect(resultado.datos.negocio.atencion.texto).toBe("Cerrado · Abre el lunes a las 09:00");
     expect(resultado.datos.negocio.atencion.aviso).toContain("seguir navegando");
+  });
+});
+
+describe("apariencia publicada", () => {
+  /* Regresión: la resolución estaba escrita a mano con tres plantillas y cuatro
+     paletas, así que un negocio que elegía Feria recibía Clásica en silencio. */
+  it("respeta cada plantilla y cada paleta del registro", () => {
+    for (const plantilla of PLANTILLAS) {
+      for (const paleta of PALETAS) {
+        const catalogo = construirCatalogoPublico(
+          { ...NEGOCIO, plantilla_id: plantilla, paleta_id: paleta },
+          [],
+          [],
+          [],
+          "https://ejemplo.supabase.co",
+          new Date("2026-09-07T12:00:00-04:00"),
+          [],
+        );
+        expect(catalogo.plantilla).toBe(plantilla);
+        expect(catalogo.paleta).toBe(paleta);
+      }
+    }
+  });
+
+  it("cae en la plantilla y la paleta base si el valor no existe", () => {
+    const catalogo = construirCatalogoPublico(
+      { ...NEGOCIO, plantilla_id: "inventada", paleta_id: "inventada" },
+      [],
+      [],
+      [],
+      "https://ejemplo.supabase.co",
+      new Date("2026-09-07T12:00:00-04:00"),
+      [],
+    );
+    expect(catalogo.plantilla).toBe("clasica");
+    expect(catalogo.paleta).toBe("mercado");
   });
 });

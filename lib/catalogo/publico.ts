@@ -8,6 +8,7 @@ import { calcularPrecioProducto, type PromocionPrecio } from "../precios";
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 import { obtenerRedesSociales } from "../negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
+import { esPaletaId, esPlantillaId } from "../plantillas/validacion";
 
 type NegocioPublico = {
   id?: string;
@@ -152,16 +153,12 @@ export function construirCatalogoPublico(
   }
 
   return {
-    plantilla:
-      negocio.plantilla_id === "moderna" || negocio.plantilla_id === "minimal"
-        ? negocio.plantilla_id
-        : "clasica",
-    paleta:
-      negocio.paleta_id === "tierra" ||
-      negocio.paleta_id === "oceano" ||
-      negocio.paleta_id === "noche"
-        ? negocio.paleta_id
-        : "mercado",
+    /* Se resuelve con el validador y no con una lista escrita a mano: la lista
+       anterior se quedó en tres plantillas y cuatro paletas, de modo que un
+       negocio que elegía Feria o Altiplano recibía Clásica y Mercado sin que
+       nada avisara. El validador sale del mismo registro que el resto. */
+    plantilla: esPlantillaId(negocio.plantilla_id) ? negocio.plantilla_id : "clasica",
+    paleta: esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado",
     datos: {
       negocio: {
         id: negocio.id ?? "",

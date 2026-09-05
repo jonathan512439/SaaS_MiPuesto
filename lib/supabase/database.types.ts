@@ -335,6 +335,7 @@ export type Database = {
           precio_anterior: number | null
           reservado_hasta: string | null
           subcategoria_id: string | null
+          texto_busqueda: string | null
           visible: boolean
         }
         Insert: {
@@ -357,6 +358,7 @@ export type Database = {
           precio_anterior?: number | null
           reservado_hasta?: string | null
           subcategoria_id?: string | null
+          texto_busqueda?: string | null
           visible?: boolean
         }
         Update: {
@@ -379,6 +381,7 @@ export type Database = {
           precio_anterior?: number | null
           reservado_hasta?: string | null
           subcategoria_id?: string | null
+          texto_busqueda?: string | null
           visible?: boolean
         }
         Relationships: [
@@ -520,6 +523,8 @@ export type Database = {
         Args: { p_limite?: number }
         Returns: number
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }
       suspender_suscripciones_vencidas: { Args: never; Returns: number }
     }
