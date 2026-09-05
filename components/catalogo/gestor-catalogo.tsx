@@ -604,6 +604,36 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     }
   }
 
+  /* Un toque, sin abrir el formulario. Es lo que un negocio hace varias veces
+     al día, y por el camino largo se termina no haciendo: el catálogo miente y
+     el cliente pide algo que no hay. */
+  async function alternarAgotado(producto: ProductoCatalogo) {
+    const agotado = producto.estado !== "agotado";
+    try {
+      const { producto: actualizado } = await solicitarJson<{ producto: ProductoCatalogo }>(
+        "/api/catalogo/productos",
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: producto.id, agotado }),
+        },
+      );
+      setProductos((actuales) =>
+        actuales.map((item) => (item.id === producto.id ? actualizado : item)),
+      );
+      informarExito(
+        agotado ? "Marcado como agotado" : "Vuelve a estar disponible",
+        agotado && producto.controla_stock
+          ? "Sus existencias quedaron en cero. Para reponer, editá la cantidad."
+          : agotado
+            ? "Tocá «Hay de nuevo» cuando vuelva a haber."
+            : "Ya se puede pedir otra vez.",
+      );
+    } catch (error) {
+      informarError("No se pudo cambiar el estado", error);
+    }
+  }
+
   async function duplicarProducto(producto: ProductoCatalogo) {
     try {
       const { producto: copia, fotosCopiadas } = await solicitarJson<{
@@ -1198,6 +1228,14 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                       <Boton onClick={() => editarProducto(producto)} variante="secundario">Editar</Boton>
                       <Boton onClick={() => void duplicarProducto(producto)} variante="discreto">Duplicar</Boton>
                       <Boton onClick={() => void copiarEnlaceProducto(producto)} variante="discreto">Copiar enlace</Boton>
+                      {producto.estado !== "agotado" || !producto.controla_stock ? (
+                        <Boton
+                          onClick={() => void alternarAgotado(producto)}
+                          variante="discreto"
+                        >
+                          {producto.estado === "agotado" ? "Hay de nuevo" : "Agotado"}
+                        </Boton>
+                      ) : null}
                       <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">{producto.visible ? "Ocultar" : "Mostrar"}</Boton>
                       <label className={styles.botonFoto}>
                         Agregar fotos

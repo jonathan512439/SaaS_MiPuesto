@@ -107,6 +107,50 @@ export async function PATCH(solicitud: NextRequest) {
     return NextResponse.json({ producto: data });
   }
 
+  /* Marcar agotado es lo que un negocio hace varias veces al día, y hacerlo por
+     el formulario completo es tanto trabajo que se termina no haciendo: el
+     catálogo miente y el cliente pide algo que no hay. */
+  if (
+    typeof datos.agotado === "boolean" &&
+    Object.keys(datos).every((clave) => clave === "id" || clave === "agotado")
+  ) {
+    const { data: actual } = await contexto.supabase
+      .from("productos")
+      .select("controla_stock,cantidad_stock,cantidad_reservada")
+      .eq("id", datos.id)
+      .eq("negocio_id", contexto.negocio.id)
+      .maybeSingle();
+    if (!actual) {
+      return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
+    }
+
+    /* Con control de existencias el estado lo decide el stock, así que marcar
+       agotado es dejarlo en cero. Reponer no se puede adivinar: cuántas
+       unidades llegaron lo sabe el dueño y va por el formulario. */
+    if (actual.controla_stock && !datos.agotado) {
+      return NextResponse.json(
+        { error: "Este producto lleva existencias: indicá cuántas unidades hay." },
+        { status: 409 },
+      );
+    }
+
+    const cambios = actual.controla_stock
+      ? { cantidad_stock: 0, estado: "agotado" }
+      : { estado: datos.agotado ? "agotado" : "disponible" };
+
+    const { data, error } = await contexto.supabase
+      .from("productos")
+      .update(cambios)
+      .eq("id", datos.id)
+      .eq("negocio_id", contexto.negocio.id)
+      .select(COLUMNAS_PRODUCTO)
+      .maybeSingle();
+    if (error || !data) {
+      return NextResponse.json({ error: "No se pudo cambiar el estado." }, { status: 500 });
+    }
+    return NextResponse.json({ producto: data });
+  }
+
   const validacion = validarProducto(datos);
   if (!validacion.correcto) {
     return NextResponse.json({ error: "Revisa los datos del producto.", errores: validacion.errores }, { status: 400 });

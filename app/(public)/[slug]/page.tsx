@@ -46,6 +46,9 @@ export async function generateMetadata({ params }: PropiedadesPagina): Promise<M
     title: `${negocio.nombre} | MiPuesto`,
     description: descripcion,
     alternates: { canonical: urlCatalogo },
+    /* Su propio manifiesto: guardar el catálogo en el inicio del teléfono tiene
+       que dejar la tienda del comerciante, no el directorio de MiPuesto. */
+    manifest: `/${negocio.slug}/manifest.webmanifest`,
     openGraph: {
       type: "website",
       locale: "es_BO",
