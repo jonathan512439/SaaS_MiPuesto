@@ -47,6 +47,11 @@ export default async function LayoutPanel({
     !negocioSuscripcion.activo &&
     negocioSuscripcion.suspendido_en !== null;
 
+  /* El enlace a la plataforma solo aparece para quien la administra. Sin él hay
+     que recordar una dirección que no está en ningún lado, y equivocarse lleva a
+     un «no encontramos este negocio» que no explica nada. */
+  const { data: esAdminPlataforma } = await supabase.rpc("es_admin_plataforma");
+
   const correo =
     typeof datosClaims.claims.email === "string"
       ? datosClaims.claims.email
@@ -75,6 +80,11 @@ export default async function LayoutPanel({
                   <span>MiPuesto</span>
                 </Link>
                 <div className={styles.cuenta}>
+                  {esAdminPlataforma ? (
+                    <Link className={styles.enlacePlataforma} href="/plataforma">
+                      Plataforma
+                    </Link>
+                  ) : null}
                   <p className={styles.sesion}>{correo}</p>
                   <CerrarSesion className={styles.botonSalir} texto="Salir" />
                 </div>
