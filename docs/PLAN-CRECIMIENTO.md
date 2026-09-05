@@ -385,7 +385,7 @@ Dos apuntes para quien retome:
   irreemplazable, pero un dueño que subió 300 fotos hace seis meses probablemente
   ya no las tenga.
 
-### Etapa 6 — Panel de superadministrador (5 días)
+### Etapa 6 — Panel de superadministrador — **FUNCIONAL el 2026-09-05**
 
 - Tabla `plataforma_admins` y políticas RLS aditivas.
 - Segundo factor obligatorio.
@@ -396,6 +396,14 @@ Dos apuntes para quien retome:
 
 **Criterio de cierre:** la prueba de RLS demuestra que un dueño no lee otros
 negocios ni toca su propio vencimiento, y que un superadmin queda registrado.
+**La primera mitad está verificada** —la prueba multiinquilino pasa y el permiso
+de escritura por columnas sigue dejando fuera el vencimiento—. La segunda se
+verifica cuando exista el primer administrador.
+
+**Falta el segundo factor antes de dar de alta a nadie.** Se declaró obligatorio
+al diseñar la fase y no está construido; mitiga que la tabla arranque vacía y que
+el peor caso del panel sea operativo y quede en bitácora. El detalle está en
+`docs/AVANCE.md`, sección «Estado de Fase 13».
 
 ### Etapa 7 — NFC, mesa y Google (5 días)
 

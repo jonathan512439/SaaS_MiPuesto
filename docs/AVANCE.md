@@ -83,6 +83,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | Hacer el ensayo de restauración | `docs/RESPALDOS.md`, sección «El ensayo» |
 | Poner un vigilante externo sobre `/api/salud` | Cualquier servicio gratuito de monitoreo |
 | La semana de piloto | Puerta de salida definida en la Fase 9 |
+| Darse de alta como administrador de plataforma | `docs/AVANCE.md`, «Cómo darse de alta». **Antes conviene construir el segundo factor** |
 
 ### Estado de la Fase 12 (etapa 0–1 del plan de crecimiento)
 
@@ -98,6 +99,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | Etapa 3: peso y uso diario | **cerrada y medida en producción** |
 | Etapa 3½: ubicación | **cerrada**; rubro y place id diferidos a sus etapas |
 | Etapa 5: respaldos y vigilancia | **código listo**; espera secretos y el ensayo de restauración |
+| Etapa 6: panel de plataforma | **funcional**; falta el segundo factor antes de usarlo |
 
 **Las etapas 0–1, 2, 3 y 3½ están cerradas y la 5 tiene su código listo.** Lo
 que sigue es la etapa 6 —el panel de superadministrador—, que no depende de
@@ -117,6 +119,93 @@ Los pasos están en `docs/RESPALDOS.md`.
 - En el catálogo de un cliente firma solo MiPuesto; el crédito a JC-DEV vive en
   las páginas propias. Está en el plan, sección «Marca en el catálogo del
   cliente».
+
+## Estado de Fase 13 — Panel de plataforma
+
+Etapa 6 del plan de crecimiento. `SECURITY.md` decía construirlo cuando
+administrar a mano empezara a doler, y ya duele: dar de alta un cliente exigía
+correr un script desde la máquina del vendedor con la clave privilegiada, y eso
+no se hace desde un celular en el mercado, que es donde se cierra la venta.
+
+### La decisión que ordena todo lo demás
+
+**El panel no corre sobre la clave de servicio.** Meterla detrás de una pantalla
+con botones la convierte en modo dios a un clic, y un fallo de autorización
+expondría las bases de todos los clientes.
+
+En su lugar:
+
+- `plataforma_admins`, cerrada a `anon` y `authenticated`. **Arranca vacía**: el
+  panel está inerte hasta que alguien se dé de alta a mano en la consola.
+- `es_admin_plataforma()`, definer porque esa tabla está cerrada.
+- Políticas de RLS **aditivas**: la existente sigue dejando que cada dueño vea lo
+  suyo, y Postgres combina las permisivas con «o». Nadie pierde acceso.
+- Las acciones que necesitan más permiso que leer van como funciones definer.
+  Renovar y publicar no se hacen con escrituras directas porque el `grant update`
+  de `authenticated` es por lista de columnas y deja fuera `activo`,
+  `suspendido_en` y `suscripcion_vence_en`. **Esa omisión es la que impide que un
+  dueño se renueve solo, y no se toca.**
+
+### Lo que hace
+
+- **Lista ordenada por urgencia**, no por fecha: quien está por perder sus datos
+  va antes que quien vence dentro de un mes. Cinco estados, porque cada uno pide
+  una acción distinta, y los días de guarda restantes del suspendido.
+- **Renovar** suma al final del período pagado y deshace solo la suspensión por
+  falta de pago: un catálogo bajado a mano sigue bajo.
+- **Bajar y publicar** con confirmación enfocada en la salida segura.
+- **Invitar** a un negocio nuevo por correo.
+- **Bitácora** de toda acción, escrita únicamente por funciones: ninguna fila
+  aparece sin pasar por un control de quién la escribe.
+
+Sin permiso la página responde 404 en vez de 403: quien no administra la
+plataforma no tiene por qué enterarse de que existe. Verificado en producción
+que sin sesión `/plataforma` redirige al ingreso y la ruta de acciones responde
+401.
+
+### El único lugar con clave de servicio
+
+Invitar crea un usuario en el sistema de autenticación y eso no se puede expresar
+con RLS. La ruta usa la clave, pero **solo después de preguntarle a la base si
+quien pide administra la plataforma**. Un fallo de autorización ahí no abre la
+base: permite mandar una invitación de más.
+
+### Corrección durante la fase
+
+Se había agregado una política que dejaba a la plataforma leer todos los pedidos,
+pensando en «ver si un negocio usa el sistema». La pantalla no la usaba y los
+pedidos guardan nombre y teléfono de compradores, que son terceros que nunca
+aceptaron nada con MiPuesto. Se quitó: un permiso que no se usa solo agrega
+superficie.
+
+### Lo que falta de la etapa 6
+
+| | Estado |
+|---|---|
+| Segundo factor obligatorio | **No hecho.** Ver abajo |
+| Notas por cliente | No hecho |
+| Alta de administradores desde el panel | **No se hará**: darse el poder de administrar es un acto deliberado en la consola |
+
+**Sobre el segundo factor.** Se declaró obligatorio al diseñar la fase,
+apartándose a propósito de `SECURITY.md`, y no está construido. Mitiga que la
+tabla arranque vacía —hoy nadie tiene el poder— y que el peor caso del panel sea
+operativo y quede registrado: suspender o renovar, todo en la bitácora, sin
+acceso a datos personales de compradores.
+
+**Antes de dar de alta al primer administrador conviene construirlo.** Supabase
+trae MFA por TOTP; hace falta la pantalla de inscripción y exigir `aal2` en el
+acceso al panel.
+
+### Cómo darse de alta como administrador
+
+Desde el editor SQL de la consola de Supabase, una sola vez:
+
+```sql
+insert into public.plataforma_admins (user_id, nota)
+select id, 'dueño de MiPuesto' from auth.users where email = 'tu@correo.com';
+```
+
+No hay forma de hacerlo desde la aplicación, y es a propósito.
 
 ## Estado de Fase 12 — Corte por vencimiento y horarios
 
