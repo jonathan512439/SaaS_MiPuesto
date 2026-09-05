@@ -522,6 +522,17 @@ export type Database = {
         }
         Returns: Json
       }
+      estado_tareas: {
+        Args: never
+        Returns: {
+          atrasada: boolean
+          minutos_desde: number
+          nunca_corrio: boolean
+          tarea: string
+          tolerancia_minutos: number
+          ultima_corrida: string
+        }[]
+      }
       expirar_reservas_vencidas: {
         Args: { p_limite?: number }
         Returns: number

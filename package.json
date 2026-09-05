@@ -46,7 +46,8 @@
     "build:vinext": "vinext build",
     "postbuild:vinext": "npm run security:client-secrets",
     "start:vinext": "wrangler dev --config dist/server/wrangler.json",
-    "deploy:vinext": "wrangler deploy --config dist/server/wrangler.json --keep-vars"
+    "deploy:vinext": "wrangler deploy --config dist/server/wrangler.json --keep-vars",
+    "salud": "node --env-file-if-exists=.env.local scripts/salud.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",
