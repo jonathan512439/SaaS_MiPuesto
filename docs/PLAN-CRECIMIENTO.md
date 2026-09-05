@@ -502,7 +502,7 @@ productos. Menos del 4 % de un cargo de instalación de Bs 150–300.
 
 ---
 
-## 10. Catálogos por rubro — evaluado, no iniciado
+## 10. Catálogos por rubro — capa 1 hecha, capas 2 y 3 en espera
 
 Idea del 2026-09-05: muestras por rubro en la portada y campos propios para
 negocios que los exigen, cobrando por ello. Se evaluó y se dividió en tres capas
@@ -510,7 +510,7 @@ con costos muy distintos.
 
 | Capa | Qué es | Costo | Disparador |
 |---|---|---|---|
-| 1. Muestras por rubro en la portada | Datos de demostración y copia. Feria con tornillos **ya es** un catálogo de ferretería | ~1 día | Se puede hacer cuando se quiera |
+| 1. Muestras por rubro en la portada | Datos de demostración y copia. Feria con tornillos **ya es** un catálogo de ferretería | ~1 día | **HECHA el 2026-09-05** |
 | 2. Campos propios por rubro | Una columna `atributos jsonb` en productos; el rubro decide qué campos pedir | ~4 días el primero, ~½ día cada rubro siguiente | **Un cliente pagó la instalación** |
 | 3. Variantes con stock propio | Talla M: 3, talla L: 7. Tabla nueva; toca carrito, pedido, reservas y analítica | ~2 semanas | Pagado por adelantado, y probablemente conviene decir que todavía no |
 
