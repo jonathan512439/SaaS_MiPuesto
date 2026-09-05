@@ -97,6 +97,12 @@ de cobranza al mes.** Por eso el cobro anual vale más que cualquier optimizaci�
   cambio de ser el DBA de guardia, y baja la disponibilidad de un servicio
   gestionado con réplica a una sola máquina. Se revisa si Supabase pasa de
   $150/mes, lo que ocurre alrededor de los 500 a 1.000 clientes.
+- **No se cachea la consulta del negocio.** Se intentó con `unstable_cache` y una
+  etiqueta invalidada al guardar; no funciona porque cada isolate del Worker
+  tiene su propia copia en memoria y solo se limpia la del isolate que atendió el
+  guardado. El dueño cambiaba su apariencia y no la veía hasta cinco minutos
+  después. Si alguna vez hace falta cachear, tiene que ser en un almacén
+  compartido —KV o la Cache API con purga explícita—, nunca en memoria.
 - **R2 entra solo para respaldos.** Para imágenes no ahorraría nada —el tráfico
   proyectado es de 7 a 20 GB contra 250 GB incluidos— y obligaría a rehacer la
   autorización de subida, que hoy la resuelven las políticas de Storage atadas a

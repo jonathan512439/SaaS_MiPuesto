@@ -257,6 +257,48 @@ existe en su hoja de estilos. Es anterior a esta fase y no afecta el
 comportamiento; se deja anotado en vez de cambiar la maquetación al cierre de una
 etapa grande.
 
+### Bloque 12.7 — Correcciones tras la revisión del dueño (2026-09-05)
+
+Cuatro problemas reportados al probar el producto, y uno encontrado al
+investigarlos.
+
+**La caché del negocio no se podía invalidar.** El catálogo guardaba los datos
+del negocio con `unstable_cache` y una etiqueta que las rutas del panel
+invalidaban al guardar. Esa invalidación nunca funcionó: **cada isolate del
+Worker tiene su propia copia en memoria**, así que borrarla en el que atendió el
+guardado no toca la del que sirve el catálogo. Lo único que llegaba a ocurrir era
+la expiración por tiempo, cinco minutos después.
+
+Medido: con la paleta ya cambiada en la base, producción siguió sirviendo la
+anterior y recién cambió sola un minuto más tarde. Para el dueño eso es cambiar
+su plantilla, abrir su catálogo y no ver nada distinto.
+
+Se quitó la caché. **No costó tiempo**: los productos ahora se piden en paralelo
+con las categorías en vez de esperarlas, y el TTFB quedó en 0,36–0,68 s contra
+los 0,49–0,57 s que daba con caché. Un cambio de paleta se ve en segundos.
+
+**El panel mezclaba dos listas.** Categorías y productos compartían pantalla y
+ambos listaban todo. Ahora buscar, filtrar y crear viven en una barra arriba de
+todo —lo que se usa a diario— y las categorías bajan a un panel plegado. El
+buscador mira nombre, descripción y código, sin tildes ni mayúsculas, y hay
+filtros de estado: todos, publicados, ocultos.
+
+**Duplicar no se entendía.** La copia caía al final de la lista, oculta y en otra
+página: el dueño duplicaba y no encontraba nada. Ahora duplicar **abre la copia
+para editar en el acto**, y el filtro «Ocultos» permite encontrarlas después.
+
+**El nombre del producto era un destino táctil invisible.** Era un enlace sin
+color ni subrayado; en el celular no hay hover, así que parecía un segundo botón
+sin rótulo. Ahora se ve como enlace en las cuatro plantillas.
+
+**El logotipo del negocio sube un escalón** en las cuatro plantillas. La mínima
+nunca tuvo regla propia para el suyo y se dibujaba sin recorte ni borde.
+
+No era un problema: la ficha de Pepsi mostraba «cuatro fotos de otros productos»
+porque el producto tiene cuatro fotografías propias cargadas. La consulta filtra
+por negocio y por código, y las rutas de esas imágenes están en la carpeta del
+propio producto.
+
 ### Auditoría de cierre
 
 - TypeScript, ESLint, 213 pruebas, tokens, contraste y build de vinext:
