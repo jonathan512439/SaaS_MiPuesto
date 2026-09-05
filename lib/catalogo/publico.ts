@@ -174,9 +174,13 @@ export function construirCatalogoPublico(
         modalidad: modalidad.accion,
         descripcionModalidad: modalidad.descripcion,
         atencion,
-        logoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.logo_url ?? null),
-        portadaUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.portada_url ?? null),
-        qrPagoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.qr_pago_url ?? null),
+        logoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.logo_url ?? null, "logo"),
+        portadaUrl: obtenerUrlPublicaImagenNegocio(
+          urlSupabase,
+          negocio.portada_url ?? null,
+          "portada",
+        ),
+        qrPagoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.qr_pago_url ?? null, "qr"),
         redesSociales: [
           { nombre: "Facebook", url: redes.facebook },
           { nombre: "Instagram", url: redes.instagram },
