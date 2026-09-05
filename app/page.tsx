@@ -123,14 +123,20 @@ export default function Inicio() {
     <main className={styles.pagina}>
       <header className={styles.barra}>
         <div className={styles.barraContenido}>
-          <Image
-            alt="MiPuesto"
-            className={styles.marca}
-            height={390}
-            priority
-            src="/marca/mipuesto-completo.png"
-            width={560}
-          />
+          <Link className={styles.marca} href="/">
+            <Image
+              alt=""
+              className={styles.isotipo}
+              height={325}
+              priority
+              src="/marca/mipuesto-marca.png"
+              width={256}
+            />
+            <span className={styles.nombreMarca}>
+              <strong>MiPuesto</strong>
+              <small>Bolivia</small>
+            </span>
+          </Link>
           <nav aria-label="Secciones de esta página" className={styles.enlaces}>
             <a href="#rubros">Para quién es</a>
             <a href="#asi-se-ve">Así se ve</a>
@@ -355,6 +361,13 @@ export default function Inicio() {
 
       <section aria-labelledby="cierre" className={styles.cierre}>
         <div className={styles.cierreContenido}>
+          <Image
+            alt="MiPuesto"
+            className={styles.logotipoCierre}
+            height={390}
+            src="/marca/mipuesto-completo.png"
+            width={560}
+          />
           <h2 id="cierre">Tu catálogo puede estar listo hoy</h2>
           <p>
             Escribinos por WhatsApp y lo armamos juntos. Si no te convence, el primer mes
