@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState, type ComponentType } from "react";
 
-import { DEFINICIONES_PALETAS } from "../../lib/apariencia";
+import { DEFINICIONES_PALETAS, DEFINICIONES_PLANTILLAS } from "../../lib/apariencia";
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
 import { DEMOS_POR_RUBRO } from "../../lib/plantillas/demos-rubro";
 import type { PropiedadesPlantilla } from "../../lib/plantillas/tipos";
@@ -43,17 +43,20 @@ const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
   ),
 };
 
-/* Se elige por rubro y no por «estructura»: un comerciante sabe a qué se dedica
-   y no tiene por qué saber qué es una plantilla. Cada rubro trae la combinación
-   que le corresponde, con productos y precios de su oficio; el color queda
-   suelto porque es lo único que sí se elige por gusto. */
+/* Se entra por rubro y no por «estructura»: un comerciante sabe a qué se dedica
+   y no tiene por qué saber qué es una plantilla. Cada rubro llega con la
+   combinación que le recomendamos, pero los cuatro diseños y los siete colores
+   quedan a la vista y se pueden cambiar acá mismo: si no se muestran, nadie se
+   entera de que puede elegir. */
 export function MuestraPlantillas() {
   const [rubroId, setRubroId] = useState(DEMOS_POR_RUBRO[0].id);
+  const [plantillaElegida, setPlantillaElegida] = useState<PlantillaId | null>(null);
   const [paletaElegida, setPaletaElegida] = useState<PaletaId | null>(null);
 
   const demo = DEMOS_POR_RUBRO.find(({ id }) => id === rubroId) ?? DEMOS_POR_RUBRO[0];
+  const plantilla = plantillaElegida ?? demo.plantilla;
   const paleta = paletaElegida ?? demo.paleta;
-  const Vista = VISTAS[demo.plantilla];
+  const Vista = VISTAS[plantilla];
 
   return (
     <div className={styles.muestra}>
@@ -71,9 +74,11 @@ export function MuestraPlantillas() {
                   name="muestra-rubro"
                   onChange={() => {
                     setRubroId(id);
-                    /* Al cambiar de rubro vuelve su color recomendado: si se
-                       conservara el elegido antes, la muestra siguiente saldría
-                       con una combinación que nadie eligió. */
+                    /* Al cambiar de rubro vuelven el diseño y el color
+                       recomendados: si se conservaran los elegidos antes, la
+                       muestra siguiente saldría con una combinación que nadie
+                       eligió. */
+                    setPlantillaElegida(null);
                     setPaletaElegida(null);
                   }}
                   type="radio"
@@ -88,7 +93,41 @@ export function MuestraPlantillas() {
 
         <fieldset>
           <div className={styles.tituloGrupo}>
+            <legend>Diseño</legend>
+            <p>
+              Son {DEFINICIONES_PLANTILLAS.length}. Te marcamos el que recomendamos para
+              tu rubro, pero elegís el que quieras.
+            </p>
+          </div>
+          <div className={styles.opciones}>
+            {DEFINICIONES_PLANTILLAS.map(({ id, nombre, enfoque }) => (
+              <label
+                className={plantilla === id ? styles.opcionElegida : styles.opcion}
+                key={id}
+              >
+                <input
+                  checked={plantilla === id}
+                  name="muestra-plantilla"
+                  onChange={() => setPlantillaElegida(id)}
+                  type="radio"
+                  value={id}
+                />
+                <strong>
+                  {nombre}
+                  {demo.plantilla === id ? (
+                    <span className={styles.recomendado}> · recomendado</span>
+                  ) : null}
+                </strong>
+                <span>{enfoque}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <div className={styles.tituloGrupo}>
             <legend>Color</legend>
+            <p>Son {DEFINICIONES_PALETAS.length}, y se cambian cuando quieras.</p>
           </div>
           <div className={styles.paletas}>
             {DEFINICIONES_PALETAS.map(({ id, nombre }) => (

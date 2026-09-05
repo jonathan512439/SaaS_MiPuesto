@@ -132,6 +132,13 @@ que nadie termine viendo una combinación que no eligió.
 
 Los datos viven en `lib/plantillas/demos-rubro.ts`.
 
+**Los cuatro diseños siguen a la vista y se pueden cambiar en la propia
+demostración.** Entrar por rubro corría el riesgo de esconder que hay de dónde
+elegir: si el visitante no ve las opciones, no se entera de que las tiene. El
+selector de diseño marca el recomendado para el rubro elegido y deja probar los
+otros tres; la portada dice «4 diseños y 7 colores» en la franja de cifras, en
+el encabezado de «Para quién es» y en el de la demostración.
+
 **Solo el restaurante lleva fotografías**, porque son las tres únicas que
 existen de verdad y no se van a inventar las demás. Tampoco hacen falta: los
 otros rubros usan las plantillas donde la foto es lo de menos —lista de precios

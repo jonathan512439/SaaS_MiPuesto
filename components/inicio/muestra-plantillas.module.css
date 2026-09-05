@@ -104,6 +104,15 @@
   line-height: 1.35;
 }
 
+/* La marca del recomendado va dentro del nombre y no como etiqueta aparte: es
+   un matiz de la opción, no una quinta cosa que leer. */
+.opcion strong .recomendado,
+.opcionElegida strong .recomendado {
+  color: var(--color-marca);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
 .paletas {
   display: flex;
   flex-wrap: wrap;

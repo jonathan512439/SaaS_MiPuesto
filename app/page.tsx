@@ -214,8 +214,8 @@ export default function Inicio() {
               <span>de comisión por venta</span>
             </p>
             <p>
-              <strong>{TOTAL_PLANTILLAS} × {TOTAL_PALETAS}</strong>
-              <span>maneras de verse</span>
+              <strong>{TOTAL_PLANTILLAS} diseños</strong>
+              <span>y {TOTAL_PALETAS} colores para elegir</span>
             </p>
             <p>
               <strong>1 mes</strong>
@@ -227,11 +227,11 @@ export default function Inicio() {
         <section aria-labelledby="rubros" className={styles.seccion}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
-              <p className={styles.rotulo}>Cada rubro, su forma</p>
+              <p className={styles.rotulo}>{TOTAL_PLANTILLAS} diseños para elegir</p>
               <h2 id="rubros">Para quién es</h2>
               <p>
-                Cada estructura nació de un rubro distinto. No cambian solo de color: cambia
-                qué se ve primero.
+                Cada diseño nació de un rubro distinto. No cambian solo de color: cambia
+                qué se ve primero. Te recomendamos uno, pero elegís el que quieras.
               </p>
             </div>
             <ul className={styles.rubros}>
@@ -273,8 +273,9 @@ export default function Inicio() {
               <p className={styles.rotulo}>Demostración en vivo</p>
               <h2 id="asi-se-ve">Elegí tu rubro y miralo</h2>
               <p>
-                Con productos y precios de tu oficio. Lo que ves acá es exactamente lo
-                que recibe tu cliente, no una imagen de muestra.
+                Con productos y precios de tu oficio, y los {TOTAL_PLANTILLAS} diseños a
+                mano para probarlos. Lo que ves acá es exactamente lo que recibe tu
+                cliente, no una imagen de muestra.
               </p>
             </div>
             <MuestraPlantillas />
