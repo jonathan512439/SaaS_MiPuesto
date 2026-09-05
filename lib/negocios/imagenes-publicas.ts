@@ -1,13 +1,24 @@
-/* Anchos por rol, no por capricho: son los que cada imagen ocupa de verdad en
- * pantalla, con margen para pantallas de alta densidad. La portada del catálogo
- * se servía cruda —106 KB medidos en producción, y es la primera imagen que
- * pide el navegador— porque este constructor devolvía la ruta del archivo tal
- * cual mientras las fotos de producto sí pasaban por el transformador.
+/* Anchos y calidad elegidos midiendo, no estimando. La portada del catálogo se
+ * servía cruda —106 KB, y es la primera imagen que pide el navegador— porque
+ * este constructor devolvía la ruta tal cual mientras las fotos de producto sí
+ * pasaban por el transformador.
+ *
+ * Al medirlo apareció algo que no se ve venir: **el transformador devuelve JPEG**,
+ * así que reducir un WebP puede engordarlo. La misma portada, medida:
+ *
+ *   cruda (WebP)            106.572 b
+ *   1200 px, calidad 78     142.543 b   ← peor que no hacer nada
+ *   800 px, calidad 70       71.752 b
+ *   800 px, calidad 60       61.261 b
+ *
+ * Se toma 800 px, que es lo que declara `sizes` en las plantillas, con calidad
+ * 70: por debajo de eso el ahorro se paga con una portada visiblemente sucia
+ * detrás del nombre del negocio.
  */
-export const ANCHO_PORTADA = 1200;
-export const ANCHO_LOGO = 256;
+export const ANCHO_PORTADA = 800;
+export const ANCHO_LOGO = 192;
 export const ANCHO_QR = 640;
-const CALIDAD = 78;
+const CALIDAD = 70;
 
 export type RolImagenNegocio = "portada" | "logo" | "qr" | "original";
 

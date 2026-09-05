@@ -15,6 +15,12 @@ describe("imágenes públicas del negocio", () => {
     expect(url).toContain(`width=${ANCHO_PORTADA}`);
   });
 
+  /* El transformador devuelve JPEG, así que un ancho de más engorda el archivo
+     en vez de aliviarlo: la portada tiene que pedirse al tamaño que se muestra. */
+  it("no pide la portada más grande de lo que se muestra", () => {
+    expect(ANCHO_PORTADA).toBeLessThanOrEqual(800);
+  });
+
   it("pide el logotipo mucho más chico que la portada", () => {
     const url = obtenerUrlPublicaImagenNegocio(URL_SUPABASE, "n1/logo/a.webp", "logo");
     expect(url).toContain(`width=${ANCHO_LOGO}`);
