@@ -79,11 +79,11 @@ npm run test:rls:linked  # al cierre de cada etapa, sin excepción
 | Corte automático por vencimiento | **cerrado y verificado en producción** |
 | Textos legales alineados | **cerrado** |
 | `supabase:push:dev` desactivado | **cerrado** |
-| Horarios especiales y feriados | **en curso** |
+| Horarios especiales y feriados | **cerrado y verificado en producción** |
 
-Lo que sigue, según el plan: terminar horarios especiales y pasar a la etapa 2
-—paginación en la consulta y límite de 300 productos—, que es la que permite el
-tamaño objetivo.
+**La etapa 0–1 está cerrada.** Lo que sigue, según el plan, es la etapa 2:
+paginación y filtrado en la consulta, y recién después el límite de 300
+productos. Es la etapa que permite el tamaño objetivo.
 
 ### Decisiones que conviene no deshacer sin leer el motivo
 
@@ -95,6 +95,104 @@ tamaño objetivo.
 - En el catálogo de un cliente firma solo MiPuesto; el crédito a JC-DEV vive en
   las páginas propias. Está en el plan, sección «Marca en el catálogo del
   cliente».
+
+## Estado de Fase 12 — Corte por vencimiento y horarios
+
+Primera etapa del `docs/PLAN-CRECIMIENTO.md`. Nace de un hallazgo incómodo: el
+producto prometía por escrito dos cosas que no hacía.
+
+- Los términos decían que un catálogo impago deja de publicarse. Nada lo
+  apagaba: `evaluarSuscripcion` solo pintaba un aviso en el panel.
+- La privacidad decía que no se borra nada, sin política de retención detrás.
+
+### Corrección al análisis de apertura
+
+Se afirmó que la columna `activo` significaba dos cosas —«pausado por el dueño»
+y «suspendido por falta de pago»— y **era falso**. El `grant update` de
+`authenticated` es por lista de columnas y no incluye `activo`: el dueño nunca
+pudo pausar su catálogo, y esa función no existe.
+
+### Bloque 12.1 — Corte automático (cerrado 2026-09-05)
+
+- Migración `20260905090000_fase12_corte_por_vencimiento.sql`: columna
+  `suspendido_en` y función `suspender_suscripciones_vencidas()`, agendada con
+  `pg_cron` a las 09:00 UTC —05:00 en Bolivia—, para que nadie quede fuera de
+  línea en medio de una venta.
+- **Un solo interruptor.** Se descartó agregar una segunda condición de
+  visibilidad: `activo` ya gobierna siete políticas de RLS y seis consultas, y
+  olvidar una sola dejaría publicado a quien no pagó. `suspendido_en` guarda el
+  motivo, no la visibilidad.
+- Con el motivo guardado, `suscripcion:renovar` deshace **solo** lo que hizo el
+  corte y nunca republica un catálogo bajado a mano por otro asunto.
+- La columna queda protegida por omisión: `anon` no la ve y `authenticated` no
+  la puede escribir, igual que `suscripcion_vence_en`.
+- El panel deja de anunciar el corte antes de que ocurra. El trabajo corre una
+  vez al día, así que hay horas entre el vencimiento y el corte; el texto ahora
+  sale del estado real y no de la fecha.
+
+**Verificación de ida y vuelta**, sobre `barberia-central` y no sobre el piloto:
+
+| Prueba | Resultado |
+|---|---|
+| Vencimiento forzado y corte | `activo = false` con motivo |
+| Catálogo público | HTTP 404 |
+| Segunda corrida de la función | 0 — repetirla no cambia nada |
+| Renovación | republicado, HTTP 200 |
+| Bajado a mano y luego renovado | sigue bajo, con aviso explícito |
+
+Los cuatro negocios quedaron con sus fechas originales.
+
+### Bloque 12.2 — Textos legales (cerrado 2026-09-05)
+
+- Términos: el catálogo baja al día siguiente del vencimiento y hay **noventa
+  días** de guarda, con aviso previo por WhatsApp.
+- Privacidad: los mismos noventa días, más el plazo propio y más corto de los
+  datos de quien compra —seis meses desde un pedido cerrado—.
+- **El borrado a los 90 días no se automatizó a propósito:** los términos
+  prometen aviso previo y el aviso por correo llega en la etapa 4. Automatizar
+  un borrado irreversible sin el aviso que lo precede repetiría el error que
+  esta fase vino a corregir. Mientras tanto `npm run suscripcion:ver` muestra la
+  guarda restante.
+
+### Bloque 12.3 — `supabase:push:dev` (cerrado 2026-09-05)
+
+Llevaba `--include-seed` y habría reejecutado `seed.sql` sobre los negocios
+reales. Se dividió en `supabase:push` (enlazada, sin seed) y
+`supabase:seed:local` (solo local). Se corrigieron las tres referencias en la
+documentación.
+
+### Bloque 12.4 — Fechas especiales y feriados (cerrado 2026-09-05)
+
+- El horario solo sabía de días de la semana. Ahora acepta **excepciones por
+  fecha**, que mandan sobre el día que les toque y tapan incluso el «siempre
+  abierto», que es justo el caso que el dueño quería poder decir sin desarmar su
+  configuración.
+- El motor de evaluación pasó de una semana abstracta a una **ventana de fechas
+  reales**. El modelo anterior no tenía dónde poner una fecha, y la ventana
+  resuelve además el intervalo que cruza la medianoche: un sábado marcado como
+  cerrado ya no corta un turno que empezó el viernes a las diez de la noche.
+  Hay una prueba dedicada a eso.
+- Cambio de redacción: cuando la próxima apertura es el día siguiente se dice
+  «mañana» en vez de nombrar el día. La prueba que fijaba el texto viejo se
+  actualizó a propósito, no se rompió.
+- Sin migración: `horario` ya era `jsonb`. Máximo veinte fechas por negocio, y
+  las que ya pasaron se limpian solas al guardar.
+- Verificado en producción sobre el piloto: con un feriado cargado, el catálogo
+  mostró «Cerrado hoy · Prueba de feriado» y los pedidos quedaron pausados. La
+  excepción de prueba se retiró después.
+
+### Auditoría de cierre
+
+- TypeScript, ESLint, 179 pruebas, tokens, contraste y build de vinext:
+  aprobados.
+- RLS remoto: 9 tablas con RLS, 8 con políticas, 4 políticas de almacenamiento y
+  aislamiento multiinquilino correcto.
+
+### Lo que sigue
+
+Etapa 2 del plan: paginación y filtrado en la consulta, y recién después subir
+`LIMITE_PRODUCTOS` a 300. Hoy el servidor manda el catálogo entero y el
+navegador muestra doce.
 
 ## Estado de Fase 9
 

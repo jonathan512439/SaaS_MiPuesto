@@ -203,7 +203,7 @@ negocio que cambia de rubro no pierde nada de lo que cargó.
 Cada función viaja montada sobre infraestructura que ya se iba a tocar. Nada se
 construye dos veces.
 
-### Etapa 0–1 — El contrato y el mecanismo (3 días)
+### Etapa 0–1 — El contrato y el mecanismo — **CERRADA el 2026-09-05**
 
 Van en el mismo commit: el producto no puede seguir prometiendo lo que no hace.
 
@@ -222,7 +222,15 @@ Van en el mismo commit: el producto no puede seguir prometiendo lo que no hace.
 
 **Criterio de cierre:** un negocio con vencimiento en el pasado queda fuera de
 línea sin intervención, su panel sigue accesible, y las páginas legales
-describen exactamente eso.
+describen exactamente eso. **Cumplido y verificado de ida y vuelta en
+producción**; el detalle está en `docs/AVANCE.md`, sección «Estado de Fase 12».
+
+Dos apuntes para quien retome:
+
+- La columna que separa los dos motivos terminó siendo `suspendido_en`, y el
+  interruptor sigue siendo `activo`. El porqué está escrito en la migración.
+- El calendario de borrado quedó **sin automatizar a propósito**. Se automatiza
+  en la etapa 4, junto con el aviso por correo que los términos prometen.
 
 ### Etapa 2 — Que aguante 300 productos (4½ días)
 
