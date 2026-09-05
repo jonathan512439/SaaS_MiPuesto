@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      bitacora_plataforma: {
+        Row: {
+          accion: string
+          actor: string
+          creado_en: string
+          detalle: Json
+          id: string
+          negocio_id: string | null
+        }
+        Insert: {
+          accion: string
+          actor: string
+          creado_en?: string
+          detalle?: Json
+          id?: string
+          negocio_id?: string | null
+        }
+        Update: {
+          accion?: string
+          actor?: string
+          creado_en?: string
+          detalle?: Json
+          id?: string
+          negocio_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bitacora_plataforma_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categorias: {
         Row: {
           id: string
@@ -317,6 +352,24 @@ export type Database = {
           },
         ]
       }
+      plataforma_admins: {
+        Row: {
+          creado_en: string
+          nota: string | null
+          user_id: string
+        }
+        Insert: {
+          creado_en?: string
+          nota?: string | null
+          user_id: string
+        }
+        Update: {
+          creado_en?: string
+          nota?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       productos: {
         Row: {
           cantidad_reservada: number
@@ -503,6 +556,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_cambiar_publicacion: {
+        Args: { p_activo: boolean; p_motivo?: string; p_negocio_id: string }
+        Returns: Json
+      }
+      admin_renovar_suscripcion: {
+        Args: { p_meses?: number; p_negocio_id: string }
+        Returns: Json
+      }
       cambiar_estado_pedido_admin: {
         Args: {
           p_admin_user_id: string
@@ -522,6 +583,7 @@ export type Database = {
         }
         Returns: Json
       }
+      es_admin_plataforma: { Args: never; Returns: boolean }
       estado_tareas: {
         Args: never
         Returns: {
