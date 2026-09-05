@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { PieSitio } from "../../components/sitio/pie-sitio";
 import { ProveedorSupabaseNavegador } from "../../components/supabase/proveedor-supabase-navegador";
 import { obtenerVariablesPublicasSupabase } from "../../lib/supabase/variables";
 
@@ -13,6 +14,7 @@ export default function LayoutAuth({ children }: PropiedadesLayoutAuth) {
   return (
     <ProveedorSupabaseNavegador clavePublica={clavePublica} url={url}>
       {children}
+      <PieSitio />
     </ProveedorSupabaseNavegador>
   );
 }

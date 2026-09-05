@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
-import { PieSitio } from "../components/sitio/pie-sitio";
 import "./globals.css";
 
 /* El logotipo usa una sans geometrica y gruesa. Inter no la imita: se mantiene
@@ -27,10 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html className={fuenteProducto.variable} lang="es-BO">
-      <body>
-        {children}
-        <PieSitio />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

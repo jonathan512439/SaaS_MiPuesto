@@ -36,10 +36,58 @@
   text-decoration-thickness: var(--borde-marcado);
 }
 
+
+/* En el catálogo la firma es discreta y va al final, después del pedido: nada
+   de MiPuesto puede competir con la venta del negocio que nos paga. */
+.pieCatalogo {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: var(--spacing-2);
+  text-align: center;
+}
+
+.firma {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.firma strong {
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+}
+
+.firma:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 0.1875rem;
+}
+
+.isotipo {
+  width: auto;
+  height: var(--spacing-5);
+}
+
+.pieCatalogo .enlaces {
+  justify-content: center;
+  gap: var(--spacing-1) var(--spacing-4);
+}
+
+.pieCatalogo .enlaces a {
+  min-height: var(--spacing-10);
+  font-size: var(--text-xs);
+}
+
 @media (min-width: 48rem) {
   .pie {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
+  }
+
+  .pieCatalogo {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

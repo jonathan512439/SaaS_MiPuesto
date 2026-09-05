@@ -159,6 +159,21 @@ de cobranza al mes.** Por eso el cobro anual vale más que cualquier optimizaci�
 - **Nunca filtrar por satisfacción.** El patrón «¿te gustó? sí → Google / no →
   formulario» viola las políticas de Google y penaliza la ficha del cliente.
 
+### Marca en el catálogo del cliente
+
+Decidido el 2026-09-05: **una marca por superficie**.
+
+- En el catálogo de un negocio firma **solo MiPuesto**, discreta y al final,
+  después del pedido: quien mira una vitrina puede querer la suya, y ese es el
+  único mensaje que le sirve. Nada de MiPuesto puede competir con la venta del
+  negocio que paga.
+- El crédito a **JC-DEV** vive en las páginas propias —portada, términos,
+  privacidad, directorio—, donde tiene a quién decírselo. Dos marcas en la
+  vitrina de un cliente que paga son una de más.
+- El enlace de la firma lleva `?desde=catalogo`, para poder distinguir en la
+  analítica del borde cuánta gente llega por ahí. Sin marcarlo no hay forma de
+  saber si la firma sirve de algo.
+
 ### Segmentación por rubro
 
 `tipo_negocio` describe **cómo vende** (lectura, acción, carrito), no **qué

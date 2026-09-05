@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { PieSitio } from "../../components/sitio/pie-sitio";
 import { MuestraEstilos } from "./muestra-estilos";
 
 export const metadata: Metadata = {
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function PaginaEstilos() {
-  return <MuestraEstilos />;
+  return (
+    <>
+      <MuestraEstilos />
+      <PieSitio />
+    </>
+  );
 }

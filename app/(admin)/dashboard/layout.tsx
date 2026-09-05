@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PieSitio } from "../../../components/sitio/pie-sitio";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -92,6 +93,7 @@ export default async function LayoutPanel({
               </aside>
             ) : null}
             {children}
+            <PieSitio />
           </div>
         </ProveedorConfirmacion>
       </ProveedorAvisos>
