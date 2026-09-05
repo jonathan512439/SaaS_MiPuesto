@@ -1,6 +1,5 @@
 import { Roboto_Condensed } from "next/font/google";
 import Image from "next/image";
-import Link from "next/link";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
@@ -156,18 +155,7 @@ export function PlantillaFeria({
             </div>
 
             <div className={styles.info}>
-              <h4>
-                {demostracion ? (
-                  producto.nombre
-                ) : (
-                  <Link
-                    className={styles.enlaceProducto}
-                    href={`/${datos.negocio.slug}/p/${producto.codigo}`}
-                  >
-                    {producto.nombre}
-                  </Link>
-                )}
-              </h4>
+              <h4>{producto.nombre}</h4>
               <p className={styles.rubro}>
                 {producto.subcategoria
                   ? `${producto.categoria} / ${producto.subcategoria}`

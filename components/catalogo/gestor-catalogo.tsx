@@ -18,6 +18,7 @@ import type {
   SubcategoriaCatalogo,
 } from "../../lib/catalogo/tipos";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
+import { construirUrlPublicaProducto } from "../../lib/url-sitio";
 import {
   AreaTexto,
   Boton,
@@ -580,6 +581,26 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       informarExito("Producto borrado", "También borramos sus fotografías.");
     } catch (error) {
       informarError("No se pudo borrar el producto", error);
+    }
+  }
+
+  /* El enlace de la ficha vive acá y no en la tarjeta del catálogo: quien
+     reparte un producto suelto por WhatsApp es el dueño. En la tarjeta era un
+     destino táctil de más, compitiendo con el botón de pedir. */
+  async function copiarEnlaceProducto(producto: ProductoCatalogo) {
+    const enlace = construirUrlPublicaProducto(
+      datosIniciales.negocio.slug,
+      producto.codigo,
+    );
+    try {
+      await navigator.clipboard.writeText(enlace);
+      informarExito("Enlace copiado", "Pegalo en WhatsApp para compartir este producto.");
+    } catch {
+      mostrarAviso({
+        titulo: "Copiá el enlace a mano",
+        mensaje: enlace,
+        variante: "informacion",
+      });
     }
   }
 
@@ -1176,6 +1197,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                     <div className={styles.accionesProducto}>
                       <Boton onClick={() => editarProducto(producto)} variante="secundario">Editar</Boton>
                       <Boton onClick={() => void duplicarProducto(producto)} variante="discreto">Duplicar</Boton>
+                      <Boton onClick={() => void copiarEnlaceProducto(producto)} variante="discreto">Copiar enlace</Boton>
                       <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">{producto.visible ? "Ocultar" : "Mostrar"}</Boton>
                       <label className={styles.botonFoto}>
                         Agregar fotos

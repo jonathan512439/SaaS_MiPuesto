@@ -75,11 +75,14 @@
   font-weight: 700;
 }
 
+/* La presentación ocupaba media pantalla antes del primer producto. Se aprieta
+   el respiro y se acorta la descripción; el logotipo no se toca, que es lo que
+   identifica al negocio. */
 .presentacion {
   display: grid;
   justify-items: start;
-  gap: var(--spacing-3);
-  padding: var(--spacing-6) var(--spacing-4);
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
 }
 
 .presentacion p,
@@ -99,15 +102,19 @@
 .presentacion h3 {
   max-width: 18ch;
   overflow-wrap: anywhere;
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .presentacion > p:not(:first-child) {
+  display: -webkit-box;
+  overflow: hidden;
   max-width: 42ch;
   font-size: var(--text-sm);
-  line-height: 1.5;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .presentacion button,
@@ -377,11 +384,11 @@
   }
 
   .presentacion {
-    padding: var(--spacing-5) var(--spacing-4);
+    padding: var(--spacing-3);
   }
 
   .presentacion h3 {
-    font-size: var(--text-xl);
+    font-size: var(--text-lg);
   }
 
   .detalle {
@@ -410,11 +417,11 @@
   }
 
   .presentacion {
-    padding: var(--spacing-8) var(--spacing-6);
+    padding: var(--spacing-6);
   }
 
   .presentacion h3 {
-    font-size: var(--text-3xl);
+    font-size: var(--text-2xl);
   }
 
   .detalle h4 {
@@ -445,21 +452,6 @@
 /* El nombre lleva a la ficha del producto, que es lo que se comparte por
    WhatsApp. Hereda el estilo del titulo para no convertir la lista en una
    sabana de enlaces subrayados. */
-/* El enlace se ve como enlace. Antes heredaba el color del titulo y no llevaba
-   subrayado, asi que en el celular —donde no hay hover— era un destino tactil
-   invisible: se tocaba el nombre sin saber que llevaba a otra parte, y parecia
-   un segundo boton sin rotulo. */
-.enlaceProducto {
-  color: var(--catalogo-marca);
-  font: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: var(--borde-fino);
-  text-underline-offset: 0.1875rem;
-}
-
-.enlaceProducto:hover {
-  text-decoration-thickness: var(--borde-marcado);
-}
 
 .buscador {
   display: grid;

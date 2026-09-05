@@ -1,6 +1,5 @@
 import { Karla } from "next/font/google";
 import Image from "next/image";
-import Link from "next/link";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
@@ -133,16 +132,7 @@ export function PlantillaMinimal({
                   ) : <span className={styles.sinImagen}>Sin foto</span>}
                   <dt>
                     {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
-                    {demostracion ? (
-                    producto.nombre
-                  ) : (
-                    <Link
-                      className={styles.enlaceProducto}
-                      href={`/${datos.negocio.slug}/p/${producto.codigo}`}
-                    >
-                      {producto.nombre}
-                    </Link>
-                  )}
+                    {producto.nombre}
                   </dt>
                   <dd>{producto.descripcion}</dd>
                   <dd className={styles.precio}>
