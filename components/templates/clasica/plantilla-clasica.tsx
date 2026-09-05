@@ -5,6 +5,7 @@ import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
+import { FotoProducto } from "../foto-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-clasica.module.css";
@@ -25,6 +26,7 @@ export function PlantillaClasica({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
+  alVerFotos,
   navegacion,
 }: PropiedadesPlantilla) {
   return (
@@ -123,15 +125,13 @@ export function PlantillaClasica({
             <ul>
               {productos.map((producto) => (
                 <li className={styles.producto} key={producto.id}>
-                  {producto.imagen ? (
-                    <Image
-                      alt={producto.imagen.alt}
-                      height={800}
-                      sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
-                      src={producto.imagen.src}
-                      width={800}
-                    />
-                  ) : <span className={styles.sinImagen}>Sin foto</span>}
+                  <FotoProducto
+                    alVerFotos={alVerFotos}
+                    ancho={800}
+                    producto={producto}
+                    respaldo={<span className={styles.sinImagen}>Sin foto</span>}
+                    sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
+                  />
                   <div>
                     {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
                     <h5>{producto.nombre}</h5>

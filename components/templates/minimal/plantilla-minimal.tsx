@@ -5,6 +5,7 @@ import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
+import { FotoProducto } from "../foto-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-minimal.module.css";
@@ -24,6 +25,7 @@ export function PlantillaMinimal({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
+  alVerFotos,
   navegacion,
 }: PropiedadesPlantilla) {
   return (
@@ -121,15 +123,13 @@ export function PlantillaMinimal({
             <dl>
               {productos.map((producto) => (
                 <div className={styles.servicio} key={producto.id}>
-                  {producto.imagen ? (
-                    <Image
-                      alt={producto.imagen.alt}
-                      height={800}
-                      sizes="64px"
-                      src={producto.imagen.src}
-                      width={800}
-                    />
-                  ) : <span className={styles.sinImagen}>Sin foto</span>}
+                  <FotoProducto
+                    alVerFotos={alVerFotos}
+                    ancho={800}
+                    producto={producto}
+                    respaldo={<span className={styles.sinImagen}>Sin foto</span>}
+                    sizes="64px"
+                  />
                   <dt>
                     {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
                     {producto.nombre}

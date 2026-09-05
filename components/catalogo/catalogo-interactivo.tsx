@@ -29,6 +29,7 @@ import type {
 } from "../../lib/plantillas/tipos";
 import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
+import { GaleriaProducto } from "./galeria-producto";
 import { HojaCatalogo } from "./hoja-catalogo";
 import { Esqueleto } from "../ui";
 import temaStyles from "../templates/tema-catalogo.module.css";
@@ -129,6 +130,7 @@ export function CatalogoInteractivo({
   const [elegidos, setElegidos] = useState<Record<string, ProductoPlantilla>>({});
   const [firmaReservada, setFirmaReservada] = useState("");
   const [pedidoAbierto, setPedidoAbierto] = useState(false);
+  const [fotosDe, setFotosDe] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState(filtros.busqueda);
   const [busquedaDelServidor, setBusquedaDelServidor] = useState(filtros.busqueda);
   const temporizadorBusqueda = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -247,6 +249,8 @@ export function CatalogoInteractivo({
     });
   }
 
+  const productoConFotos = productosPagina.find(({ id }) => id === fotosDe) ?? null;
+
   function agregarProducto(productoId: string) {
     registrar("clic_producto", productoId);
     cambiarCantidad(productoId, (cantidades[productoId] ?? 0) + 1);
@@ -261,11 +265,19 @@ export function CatalogoInteractivo({
       <Vista
         alAgregarProducto={agregarProducto}
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
+        alVerFotos={setFotosDe}
         cantidadesCarrito={cantidades}
         datos={datos}
         demostracion={false}
         navegacion={categoriasNavegacion.length > 0 ? navegacion : undefined}
         paleta={paleta}
+      />
+      <GaleriaProducto
+        abierta={productoConFotos !== null}
+        imagenes={productoConFotos?.imagenes ?? []}
+        onCerrar={() => setFotosDe(null)}
+        paleta={paleta}
+        titulo={productoConFotos?.nombre ?? ""}
       />
       {totalProductos === 0 && filtros.busqueda.trim() ? (
         <p className={styles.sinResultados} role="status">

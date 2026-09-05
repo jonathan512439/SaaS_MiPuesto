@@ -113,6 +113,10 @@ export function construirCatalogoPublico(
             alt: producto.nombre,
           }
         : null,
+      imagenes: producto.fotos.map((ruta, indice) => ({
+        src: obtenerUrlPublicaImagenProducto(urlSupabase, ruta),
+        alt: indice === 0 ? producto.nombre : `${producto.nombre}, fotografía ${indice + 1}`,
+      })),
     };
   };
   const agrupadas = categoriasOrdenadas

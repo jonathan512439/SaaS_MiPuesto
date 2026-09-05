@@ -41,6 +41,7 @@ const PRODUCTO: ProductoPlantilla = {
   precioOriginal: 50,
   tienePromocion: false,
   imagen: null,
+  imagenes: [],
   controlaStock: false,
   cantidadDisponible: null,
   maximoCantidad: 5,

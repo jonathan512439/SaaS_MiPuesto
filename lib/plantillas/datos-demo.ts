@@ -55,6 +55,7 @@ export function crearDatosDemoPlantilla({
               src: "/demo/productos/hamburguesa.webp",
               alt: "Hamburguesa doble con queso y vegetales frescos",
             },
+            imagenes: [{ src: "/demo/productos/hamburguesa.webp", alt: "Hamburguesa doble con queso y vegetales frescos" }],
           },
           {
             id: "demo-2",
@@ -72,6 +73,7 @@ export function crearDatosDemoPlantilla({
               src: "/demo/productos/papas.webp",
               alt: "Porción de papas rústicas doradas con salsa",
             },
+            imagenes: [{ src: "/demo/productos/papas.webp", alt: "Porción de papas rústicas doradas con salsa" }],
           },
         ],
       },
@@ -95,6 +97,7 @@ export function crearDatosDemoPlantilla({
               src: "/demo/productos/limonada.webp",
               alt: "Vaso de limonada fría con limón y menta",
             },
+            imagenes: [{ src: "/demo/productos/limonada.webp", alt: "Vaso de limonada fría con limón y menta" }],
           },
         ],
       },

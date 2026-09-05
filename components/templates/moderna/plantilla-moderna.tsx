@@ -5,6 +5,7 @@ import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
+import { FotoProducto } from "../foto-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-moderna.module.css";
@@ -25,6 +26,7 @@ export function PlantillaModerna({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
+  alVerFotos,
   navegacion,
 }: PropiedadesPlantilla) {
   const productos = datos.categorias.flatMap((categoria) => {
@@ -129,16 +131,14 @@ export function PlantillaModerna({
       <ul className={styles.productos}>
         {productos.map((producto) => (
           <li className={styles.producto} id={producto.anclaCategoria} key={producto.id}>
-            {producto.imagen ? (
-              <Image
-                alt={producto.imagen.alt}
-                className={styles.imagen}
-                height={800}
-                sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
-                src={producto.imagen.src}
-                width={800}
-              />
-            ) : <span className={styles.sinImagen}>Sin foto</span>}
+            <FotoProducto
+              alVerFotos={alVerFotos}
+              ancho={800}
+              className={styles.imagen}
+              producto={producto}
+              respaldo={<span className={styles.sinImagen}>Sin foto</span>}
+              sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
+            />
             <div className={styles.detalle}>
               <p>{producto.subcategoria ? `${producto.categoria} / ${producto.subcategoria}` : producto.categoria}</p>
               <h4>{producto.nombre}</h4>

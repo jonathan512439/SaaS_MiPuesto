@@ -5,6 +5,7 @@ import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
+import { FotoProducto } from "../foto-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-feria.module.css";
@@ -25,6 +26,7 @@ export function PlantillaFeria({
   cantidadesCarrito = {},
   alAgregarProducto,
   alAbrirWhatsapp,
+  alVerFotos,
   navegacion,
 }: PropiedadesPlantilla) {
   const productos = datos.categorias.flatMap((categoria) => {
@@ -138,20 +140,18 @@ export function PlantillaFeria({
         {productos.map((producto) => (
           <li className={styles.producto} id={producto.anclaCategoria} key={producto.id}>
             <div className={styles.foto}>
-              {producto.imagen ? (
-                <Image
-                  alt={producto.imagen.alt}
-                  className={styles.imagen}
-                  height={240}
-                  sizes="96px"
-                  src={producto.imagen.src}
-                  width={240}
-                />
-              ) : (
-                <span className={styles.sinImagen} aria-hidden="true">
-                  ·
-                </span>
-              )}
+              <FotoProducto
+                alVerFotos={alVerFotos}
+                ancho={240}
+                className={styles.imagen}
+                producto={producto}
+                respaldo={
+                  <span className={styles.sinImagen} aria-hidden="true">
+                    ·
+                  </span>
+                }
+                sizes="96px"
+              />
             </div>
 
             <div className={styles.info}>
