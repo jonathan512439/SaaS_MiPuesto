@@ -4,8 +4,12 @@ import { useState, type FormEvent } from "react";
 
 import {
   DIAS_SEMANA,
+  fechaHoyEnLaPaz,
+  MAXIMO_EXCEPCIONES,
+  MAXIMO_MOTIVO,
   validarHorario,
   type DiaSemana,
+  type ExcepcionHorario,
   type HorarioNormalizado,
   type IntervaloHorario,
   type ModoHorario,
@@ -35,10 +39,30 @@ const NOMBRES_DIAS: Record<DiaSemana, string> = {
 
 function horarioInicial(valor: unknown): HorarioNormalizado {
   const validacion = validarHorario(valor);
-  if (validacion.correcto) return validacion.horario;
+  const base = validacion.correcto ? validacion.horario : null;
+  if (base) return { ...base, excepciones: soloVigentes(base.excepciones) };
+
   const horarioVacio = validarHorario({});
   if (horarioVacio.correcto) return horarioVacio.horario;
   throw new Error("No se pudo preparar el horario inicial.");
+}
+
+/* Las fechas que ya pasaron no se muestran, y como el formulario guarda lo que
+   muestra, guardar limpia la lista sola. Un feriado del año pasado no informa
+   nada y solo gasta uno de los cupos. */
+function soloVigentes(excepciones: ExcepcionHorario[]) {
+  const hoy = fechaHoyEnLaPaz();
+  return excepciones.filter((excepcion) => excepcion.fecha >= hoy);
+}
+
+function formatearFechaLegible(fecha: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return "";
+  return new Intl.DateTimeFormat("es-BO", {
+    timeZone: "UTC",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date(`${fecha}T00:00:00Z`));
 }
 
 export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioOperacion) {
@@ -98,6 +122,37 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
         ...actual.dias,
         [dia]: actual.dias[dia].filter((_, posicion) => posicion !== indice),
       },
+    }));
+  }
+
+  function cambiarExcepcion(indice: number, cambios: Partial<ExcepcionHorario>) {
+    setHorario((actual) => ({
+      ...actual,
+      excepciones: actual.excepciones.map((excepcion, posicion) =>
+        posicion === indice ? { ...excepcion, ...cambios } : excepcion,
+      ),
+    }));
+  }
+
+  function agregarExcepcion() {
+    setHorario((actual) => ({
+      ...actual,
+      excepciones: [
+        ...actual.excepciones,
+        {
+          fecha: fechaHoyEnLaPaz(),
+          cerrado: true,
+          intervalos: [{ abre: "09:00", cierra: "13:00" }],
+          motivo: "",
+        },
+      ],
+    }));
+  }
+
+  function quitarExcepcion(indice: number) {
+    setHorario((actual) => ({
+      ...actual,
+      excepciones: actual.excepciones.filter((_, posicion) => posicion !== indice),
     }));
   }
 
@@ -258,6 +313,131 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
             ? "Los pedidos estarán disponibles todos los días y a cualquier hora."
             : "No mostraremos un horario y las acciones permanecerán disponibles."}
         </p>
+      )}
+
+      {horario.modo === "sin_horario" ? null : (
+        <fieldset className={styles.excepciones}>
+          <legend>Fechas especiales</legend>
+          <p className={styles.ayudaExcepciones}>
+            Un feriado, un inventario o una fiesta patronal. Mandan sobre el horario de
+            ese día, y las que ya pasaron se borran al guardar.
+          </p>
+
+          {horario.excepciones.length === 0 ? (
+            <p className={styles.sinExcepciones}>Todavía no cargaste ninguna.</p>
+          ) : (
+            <ul className={styles.listaExcepciones}>
+              {horario.excepciones.map((excepcion, indice) => (
+                <li className={styles.excepcion} key={`excepcion-${indice}`}>
+                  <div className={styles.filaExcepcion}>
+                    <label>
+                      Fecha
+                      <input
+                        min={fechaHoyEnLaPaz()}
+                        onChange={(evento) =>
+                          cambiarExcepcion(indice, { fecha: evento.target.value })
+                        }
+                        type="date"
+                        value={excepcion.fecha}
+                      />
+                    </label>
+                    <label>
+                      Motivo
+                      <input
+                        maxLength={MAXIMO_MOTIVO}
+                        onChange={(evento) =>
+                          cambiarExcepcion(indice, { motivo: evento.target.value })
+                        }
+                        placeholder="Día de la Patria"
+                        type="text"
+                        value={excepcion.motivo}
+                      />
+                    </label>
+                    <button
+                      aria-label={`Quitar la fecha especial ${excepcion.fecha}`}
+                      onClick={() => quitarExcepcion(indice)}
+                      type="button"
+                    >
+                      Quitar
+                    </button>
+                  </div>
+
+                  <div className={styles.filaExcepcion}>
+                    <label className={styles.opcionCerrado}>
+                      <input
+                        checked={excepcion.cerrado}
+                        onChange={(evento) =>
+                          cambiarExcepcion(indice, { cerrado: evento.target.checked })
+                        }
+                        type="checkbox"
+                      />
+                      <span>Cerrado todo el día</span>
+                    </label>
+                    {excepcion.cerrado ? null : (
+                      <>
+                        <label>
+                          Abre
+                          <input
+                            aria-label={`Hora de apertura del ${excepcion.fecha}`}
+                            onChange={(evento) =>
+                              cambiarExcepcion(indice, {
+                                intervalos: [
+                                  {
+                                    abre: evento.target.value,
+                                    cierra: excepcion.intervalos[0]?.cierra ?? "13:00",
+                                  },
+                                ],
+                              })
+                            }
+                            type="time"
+                            value={excepcion.intervalos[0]?.abre ?? "09:00"}
+                          />
+                        </label>
+                        <label>
+                          Cierra
+                          <input
+                            aria-label={`Hora de cierre del ${excepcion.fecha}`}
+                            onChange={(evento) =>
+                              cambiarExcepcion(indice, {
+                                intervalos: [
+                                  {
+                                    abre: excepcion.intervalos[0]?.abre ?? "09:00",
+                                    cierra: evento.target.value,
+                                  },
+                                ],
+                              })
+                            }
+                            type="time"
+                            value={excepcion.intervalos[0]?.cierra ?? "13:00"}
+                          />
+                        </label>
+                      </>
+                    )}
+                  </div>
+
+                  <p className={styles.resumenExcepcion}>
+                    {formatearFechaLegible(excepcion.fecha) || "Elegí una fecha"}
+                    {excepcion.cerrado
+                      ? ": cerrado"
+                      : `: ${excepcion.intervalos[0]?.abre ?? "09:00"} a ${
+                          excepcion.intervalos[0]?.cierra ?? "13:00"
+                        }`}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {horario.excepciones.length < MAXIMO_EXCEPCIONES ? (
+            <button className={styles.agregarExcepcion} onClick={agregarExcepcion} type="button">
+              Agregar una fecha especial
+            </button>
+          ) : (
+            <p className={styles.sinExcepciones}>
+              Llegaste al máximo de {MAXIMO_EXCEPCIONES} fechas.
+            </p>
+          )}
+        </fieldset>
       )}
 
       <div className={styles.acciones}>

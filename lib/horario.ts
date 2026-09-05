@@ -18,9 +18,20 @@ export type IntervaloHorario = {
   cierra: string;
 };
 
+/* Una excepción manda sobre el día de la semana que le toque: un feriado, un
+   inventario, una fiesta patronal. Se guarda por fecha y no por día porque es
+   justamente lo que el horario semanal no puede expresar. */
+export type ExcepcionHorario = {
+  fecha: string;
+  cerrado: boolean;
+  intervalos: IntervaloHorario[];
+  motivo: string;
+};
+
 export type HorarioNormalizado = {
   modo: ModoHorario;
   dias: Record<DiaSemana, IntervaloHorario[]>;
+  excepciones: ExcepcionHorario[];
 };
 
 export type EstadoAtencion = {
@@ -36,16 +47,15 @@ export type ResultadoValidacionHorario =
   | { correcto: true; horario: HorarioNormalizado }
   | { correcto: false; error: string };
 
-const MINUTOS_SEMANA = 7 * 24 * 60;
-const INDICE_DIA_INGLES: Record<string, number> = {
-  Monday: 0,
-  Tuesday: 1,
-  Wednesday: 2,
-  Thursday: 3,
-  Friday: 4,
-  Saturday: 5,
-  Sunday: 6,
-};
+const MINUTOS_DIA = 24 * 60;
+const MINUTOS_SEMANA = 7 * MINUTOS_DIA;
+export const MAXIMO_EXCEPCIONES = 20;
+export const MAXIMO_MOTIVO = 60;
+/* La ventana arranca el día anterior para que un intervalo que cruzó la
+   medianoche siga contando, y llega a ocho días para poder anunciar la próxima
+   atención aunque el negocio abra una sola vez por semana. */
+const DIAS_ANTES = 1;
+const DIAS_ADELANTE = 8;
 const ETIQUETAS_DIAS: Record<DiaSemana, string> = {
   lunes: "lunes",
   martes: "martes",
@@ -70,6 +80,32 @@ function diasVacios(): Record<DiaSemana, IntervaloHorario[]> {
     sabado: [],
     domingo: [],
   };
+}
+
+function horarioVacio(modo: ModoHorario): HorarioNormalizado {
+  return { modo, dias: diasVacios(), excepciones: [] };
+}
+
+const PATRON_FECHA = /^\d{4}-\d{2}-\d{2}$/;
+
+function esFechaReal(fecha: string) {
+  if (!PATRON_FECHA.test(fecha)) return false;
+  const instante = new Date(`${fecha}T00:00:00Z`);
+  return (
+    !Number.isNaN(instante.getTime()) && instante.toISOString().slice(0, 10) === fecha
+  );
+}
+
+function sumarDias(fecha: string, dias: number) {
+  const instante = new Date(`${fecha}T00:00:00Z`);
+  instante.setUTCDate(instante.getUTCDate() + dias);
+  return instante.toISOString().slice(0, 10);
+}
+
+/* Bolivia no cambia de hora, así que el día de la semana de una fecha se puede
+   calcular en UTC sin arrastrar la zona. */
+function indiceDiaDeFecha(fecha: string) {
+  return (new Date(`${fecha}T00:00:00Z`).getUTCDay() + 6) % 7;
 }
 
 function minutosHora(valor: unknown) {
@@ -121,9 +157,88 @@ function tieneSolapamientos(horario: HorarioNormalizado) {
   );
 }
 
+function validarExcepciones(valor: unknown):
+  | { correcto: true; excepciones: ExcepcionHorario[] }
+  | { correcto: false; error: string } {
+  if (valor === undefined || valor === null) return { correcto: true, excepciones: [] };
+  if (!Array.isArray(valor)) {
+    return { correcto: false, error: "Las excepciones del horario no son válidas." };
+  }
+  if (valor.length > MAXIMO_EXCEPCIONES) {
+    return {
+      correcto: false,
+      error: `Puedes guardar hasta ${MAXIMO_EXCEPCIONES} fechas especiales.`,
+    };
+  }
+
+  const excepciones: ExcepcionHorario[] = [];
+  const vistas = new Set<string>();
+
+  for (const cruda of valor) {
+    if (!esRegistro(cruda)) {
+      return { correcto: false, error: "Hay una fecha especial mal formada." };
+    }
+    const fecha = typeof cruda.fecha === "string" ? cruda.fecha : "";
+    if (!esFechaReal(fecha)) {
+      return { correcto: false, error: `La fecha “${fecha}” no es válida.` };
+    }
+    if (vistas.has(fecha)) {
+      return { correcto: false, error: `La fecha ${fecha} está repetida.` };
+    }
+    vistas.add(fecha);
+
+    const motivo = typeof cruda.motivo === "string" ? cruda.motivo.trim() : "";
+    if (motivo.length > MAXIMO_MOTIVO) {
+      return {
+        correcto: false,
+        error: `El motivo del ${fecha} no puede pasar de ${MAXIMO_MOTIVO} caracteres.`,
+      };
+    }
+
+    const cerrado = cruda.cerrado !== false;
+    if (cerrado) {
+      excepciones.push({ fecha, cerrado: true, intervalos: [], motivo });
+      continue;
+    }
+
+    const lista = Array.isArray(cruda.intervalos) ? cruda.intervalos : [];
+    if (lista.length === 0 || lista.length > 3) {
+      return {
+        correcto: false,
+        error: `El ${fecha} necesita entre uno y tres intervalos, o marcarse como cerrado.`,
+      };
+    }
+    const intervalos = lista.map(normalizarIntervalo);
+    if (intervalos.some((intervalo) => intervalo === null)) {
+      return { correcto: false, error: `Hay un intervalo inválido en el ${fecha}.` };
+    }
+
+    const franjas = (intervalos as IntervaloHorario[])
+      .map(({ abre, cierra }) => {
+        const inicio = minutosHora(abre) ?? 0;
+        let fin = minutosHora(cierra) ?? 0;
+        if (fin <= inicio) fin += MINUTOS_DIA;
+        return { inicio, fin };
+      })
+      .sort((a, b) => a.inicio - b.inicio);
+    if (franjas.some((franja, indice) => indice > 0 && franja.inicio < franjas[indice - 1].fin)) {
+      return { correcto: false, error: `Los intervalos del ${fecha} no pueden solaparse.` };
+    }
+
+    excepciones.push({
+      fecha,
+      cerrado: false,
+      intervalos: intervalos as IntervaloHorario[],
+      motivo,
+    });
+  }
+
+  return { correcto: true, excepciones: excepciones.sort((a, b) => a.fecha.localeCompare(b.fecha)) };
+}
+
 export function validarHorario(valor: unknown): ResultadoValidacionHorario {
   if (!esRegistro(valor) || Object.keys(valor).length === 0) {
-    return { correcto: true, horario: { modo: "sin_horario", dias: diasVacios() } };
+    return { correcto: true, horario: horarioVacio("sin_horario") };
   }
 
   const modoExplicito = valor.modo;
@@ -143,8 +258,21 @@ export function validarHorario(valor: unknown): ResultadoValidacionHorario {
           : null;
 
   if (!modo) return { correcto: false, error: "El modo de horario no es válido." };
+
+  const validacionExcepciones = validarExcepciones(valor.excepciones);
+  if (!validacionExcepciones.correcto) {
+    return { correcto: false, error: validacionExcepciones.error };
+  }
+
   if (modo !== "programado") {
-    return { correcto: true, horario: { modo, dias: diasVacios() } };
+    return {
+      correcto: true,
+      horario: {
+        modo,
+        dias: diasVacios(),
+        excepciones: validacionExcepciones.excepciones,
+      },
+    };
   }
 
   const fuenteDias = modoExplicito === "programado" ? valor.dias : valor;
@@ -152,7 +280,11 @@ export function validarHorario(valor: unknown): ResultadoValidacionHorario {
     return { correcto: false, error: "Los días del horario programado no son válidos." };
   }
 
-  const horario: HorarioNormalizado = { modo, dias: diasVacios() };
+  const horario: HorarioNormalizado = {
+    modo,
+    dias: diasVacios(),
+    excepciones: validacionExcepciones.excepciones,
+  };
   for (const [clave, intervalosSinValidar] of Object.entries(fuenteDias)) {
     if (!DIAS_SEMANA.includes(clave as DiaSemana)) {
       if (modoExplicito === "programado") {
@@ -183,123 +315,135 @@ export function validarHorario(valor: unknown): ResultadoValidacionHorario {
   return { correcto: true, horario };
 }
 
-function minutoSemanalEnLaPaz(fecha: Date) {
-  const partes = new Intl.DateTimeFormat("en-US", {
+/* La evaluacion trabaja sobre fechas reales y no sobre una semana abstracta:
+   una excepcion es una fecha, y el modelo anterior no tenia donde ponerla. La
+   ventana resuelve ademas el intervalo que cruza la medianoche, porque el dia
+   anterior sigue dentro. */
+function momentoEnLaPaz(fecha: Date) {
+  const partes = new Intl.DateTimeFormat("en-CA", {
     timeZone: ZONA_HORARIA_NEGOCIO,
-    weekday: "long",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
   }).formatToParts(fecha);
   const obtener = (tipo: Intl.DateTimeFormatPartTypes) =>
     partes.find((parte) => parte.type === tipo)?.value ?? "";
-  const indiceDia = INDICE_DIA_INGLES[obtener("weekday")];
+
+  const anio = obtener("year");
+  const mes = obtener("month");
+  const dia = obtener("day");
   const hora = Number(obtener("hour"));
   const minuto = Number(obtener("minute"));
 
-  if (indiceDia === undefined || !Number.isInteger(hora) || !Number.isInteger(minuto)) {
+  if (!anio || !mes || !dia || !Number.isInteger(hora) || !Number.isInteger(minuto)) {
     return null;
   }
-  return indiceDia * 24 * 60 + hora * 60 + minuto;
+
+  return { fecha: anio + "-" + mes + "-" + dia, minutoDia: hora * 60 + minuto };
+}
+
+/* La fecha de hoy en Bolivia, para que el panel no ofrezca guardar un feriado
+   que ya pasó ni lo cuente como próximo. */
+export function fechaHoyEnLaPaz(fecha: Date = new Date()) {
+  return momentoEnLaPaz(fecha)?.fecha ?? "";
+}
+
+function excepcionDe(horario: HorarioNormalizado, fecha: string) {
+  return horario.excepciones.find((excepcion) => excepcion.fecha === fecha) ?? null;
+}
+
+function intervalosDeFecha(horario: HorarioNormalizado, fecha: string) {
+  const excepcion = excepcionDe(horario, fecha);
+  if (excepcion) return excepcion.cerrado ? [] : excepcion.intervalos;
+  return horario.dias[DIAS_SEMANA[indiceDiaDeFecha(fecha)]];
+}
+
+type FranjaFechada = { inicio: number; fin: number; fecha: string };
+
+function franjasDeLaVentana(horario: HorarioNormalizado, hoy: string): FranjaFechada[] {
+  const franjas: FranjaFechada[] = [];
+
+  for (
+    let desplazamiento = -DIAS_ANTES;
+    desplazamiento <= DIAS_ADELANTE;
+    desplazamiento += 1
+  ) {
+    const fecha = sumarDias(hoy, desplazamiento);
+    const base = desplazamiento * MINUTOS_DIA;
+
+    for (const intervalo of intervalosDeFecha(horario, fecha)) {
+      const inicio = base + (minutosHora(intervalo.abre) ?? 0);
+      let fin = base + (minutosHora(intervalo.cierra) ?? 0);
+      if (fin <= inicio) fin += MINUTOS_DIA;
+      franjas.push({ inicio, fin, fecha });
+    }
+  }
+
+  return franjas.sort((a, b) => a.inicio - b.inicio || a.fin - b.fin);
+}
+
+function formatearMinuto(minuto: number) {
+  const minutoDia = ((minuto % MINUTOS_DIA) + MINUTOS_DIA) % MINUTOS_DIA;
+  const hora = Math.floor(minutoDia / 60).toString().padStart(2, "0");
+  return hora + ":" + (minutoDia % 60).toString().padStart(2, "0");
 }
 
 function resumirIntervalos(intervalos: IntervaloHorario[]) {
-  return intervalos
-    .map(({ abre, cierra }) => `${abre}–${cierra}`)
-    .join(" y ");
+  return intervalos.map((intervalo) => intervalo.abre + "–" + intervalo.cierra).join(" y ");
 }
 
-function resumirProximaAtencion(
-  horario: HorarioNormalizado,
-  minutoActual: number | null,
-) {
-  if (minutoActual === null) return null;
-  const indiceActual = Math.floor(minutoActual / (24 * 60));
-  const diaActual = DIAS_SEMANA[indiceActual];
-  const intervalosHoy = horario.dias[diaActual];
+function describirApertura(franja: FranjaFechada, hoy: string) {
+  const hora = formatearMinuto(franja.inicio);
+  if (franja.inicio < MINUTOS_DIA && franja.fecha === hoy) return "Abre hoy a las " + hora;
+  if (franja.fecha === sumarDias(hoy, 1)) return "Abre mañana a las " + hora;
+  const dia = ETIQUETAS_DIAS[DIAS_SEMANA[indiceDiaDeFecha(franja.fecha)]];
+  return "Abre el " + dia + " a las " + hora;
+}
 
-  if (intervalosHoy.length > 0) {
-    return `Hoy: ${resumirIntervalos(intervalosHoy)}.`;
-  }
+function resumirProxima(horario: HorarioNormalizado, hoy: string) {
+  const intervalosHoy = intervalosDeFecha(horario, hoy);
+  if (intervalosHoy.length > 0) return "Hoy: " + resumirIntervalos(intervalosHoy) + ".";
 
-  for (let distancia = 1; distancia < DIAS_SEMANA.length; distancia += 1) {
-    const dia = DIAS_SEMANA[(indiceActual + distancia) % DIAS_SEMANA.length];
-    const intervalos = horario.dias[dia];
+  for (let distancia = 1; distancia <= DIAS_ADELANTE; distancia += 1) {
+    const fecha = sumarDias(hoy, distancia);
+    const intervalos = intervalosDeFecha(horario, fecha);
     if (intervalos.length > 0) {
-      return `Próxima atención: ${ETIQUETAS_DIAS[dia]} ${resumirIntervalos(intervalos)}.`;
+      const nombre =
+        distancia === 1
+          ? "mañana"
+          : ETIQUETAS_DIAS[DIAS_SEMANA[indiceDiaDeFecha(fecha)]];
+      return "Próxima atención: " + nombre + " " + resumirIntervalos(intervalos) + ".";
     }
   }
 
   return "No hay horarios de atención publicados.";
 }
 
-function formatearHoraSemanal(minutoSemanal: number) {
-  const minutoDia = ((minutoSemanal % (24 * 60)) + 24 * 60) % (24 * 60);
-  const hora = Math.floor(minutoDia / 60).toString().padStart(2, "0");
-  const minuto = (minutoDia % 60).toString().padStart(2, "0");
-  return `${hora}:${minuto}`;
+function cerradoPorExcepcion(excepcion: ExcepcionHorario) {
+  return excepcion.motivo ? "Cerrado hoy · " + excepcion.motivo : "Cerrado hoy";
 }
 
-function textoEstadoProgramado(
+const AVISO_PAUSADO = "Puedes seguir navegando; los pedidos están pausados.";
+
+const ESTADO_INVALIDO: EstadoAtencion = {
+  modo: "programado",
+  abierto: false,
+  permiteAcciones: false,
+  texto: "Horario no disponible",
+  aviso: AVISO_PAUSADO,
+  horarioBreve: null,
+};
+
+function evaluarSiempreAbierto(
   horario: HorarioNormalizado,
-  minutoActual: number | null,
-  abierto: boolean,
-) {
-  if (minutoActual === null) return abierto ? "Abierto ahora" : "Cerrado por ahora";
-  const segmentos = segmentosSemanales(horario);
+  momento: { fecha: string; minutoDia: number } | null,
+): EstadoAtencion {
+  const excepcion = momento ? excepcionDe(horario, momento.fecha) : null;
 
-  if (abierto) {
-    const intervaloActual = segmentos.find(
-      (segmento) => minutoActual >= segmento.inicio && minutoActual < segmento.fin,
-    );
-    return intervaloActual
-      ? `Abierto ahora · Cierra a las ${formatearHoraSemanal(intervaloActual.fin)}`
-      : "Abierto ahora";
-  }
-
-  const siguiente =
-    segmentos.find((segmento) => segmento.inicio > minutoActual) ??
-    (segmentos[0]
-      ? { ...segmentos[0], inicio: segmentos[0].inicio + MINUTOS_SEMANA }
-      : null);
-  if (!siguiente) return "Cerrado por ahora";
-
-  const indiceDiaActual = Math.floor(minutoActual / (24 * 60));
-  const indiceDiaApertura = Math.floor(
-    (siguiente.inicio % MINUTOS_SEMANA) / (24 * 60),
-  );
-  const hora = formatearHoraSemanal(siguiente.inicio);
-  if (indiceDiaApertura === indiceDiaActual && siguiente.inicio < MINUTOS_SEMANA) {
-    return `Cerrado · Abre hoy a las ${hora}`;
-  }
-  return `Cerrado · Abre el ${ETIQUETAS_DIAS[DIAS_SEMANA[indiceDiaApertura]]} a las ${hora}`;
-}
-
-export function evaluarHorario(valor: unknown, fecha: Date = new Date()): EstadoAtencion {
-  const validacion = validarHorario(valor);
-  if (!validacion.correcto) {
-    return {
-      modo: "programado",
-      abierto: false,
-      permiteAcciones: false,
-      texto: "Horario no disponible",
-      aviso: "Puedes seguir navegando; los pedidos están pausados.",
-      horarioBreve: null,
-    };
-  }
-
-  if (validacion.horario.modo === "sin_horario") {
-    return {
-      modo: "sin_horario",
-      abierto: null,
-      permiteAcciones: true,
-      texto: null,
-      aviso: null,
-      horarioBreve: null,
-    };
-  }
-
-  if (validacion.horario.modo === "siempre_abierto") {
+  if (!excepcion) {
     return {
       modo: "siempre_abierto",
       abierto: true,
@@ -310,28 +454,105 @@ export function evaluarHorario(valor: unknown, fecha: Date = new Date()): Estado
     };
   }
 
-  const minutoActual = minutoSemanalEnLaPaz(fecha);
-  const abierto =
-    minutoActual !== null &&
-    segmentosSemanales(validacion.horario).some(
-      (segmento) => minutoActual >= segmento.inicio && minutoActual < segmento.fin,
-    );
+  if (excepcion.cerrado) {
+    return {
+      modo: "siempre_abierto",
+      abierto: false,
+      permiteAcciones: false,
+      texto: cerradoPorExcepcion(excepcion),
+      aviso: AVISO_PAUSADO,
+      horarioBreve: "Mañana volvemos al horario de siempre.",
+    };
+  }
+
+  const minutoDia = momento ? momento.minutoDia : 0;
+  const abierto = excepcion.intervalos.some((intervalo) => {
+    const inicio = minutosHora(intervalo.abre) ?? 0;
+    let fin = minutosHora(intervalo.cierra) ?? 0;
+    if (fin <= inicio) fin += MINUTOS_DIA;
+    return minutoDia >= inicio && minutoDia < fin;
+  });
+  const resumen = "Hoy: " + resumirIntervalos(excepcion.intervalos) + ".";
 
   return abierto
     ? {
-        modo: "programado",
+        modo: "siempre_abierto",
         abierto: true,
         permiteAcciones: true,
-        texto: textoEstadoProgramado(validacion.horario, minutoActual, true),
+        texto: excepcion.motivo
+          ? "Abierto ahora · " + excepcion.motivo
+          : "Abierto ahora",
         aviso: null,
-        horarioBreve: null,
+        horarioBreve: resumen,
       }
     : {
-        modo: "programado",
+        modo: "siempre_abierto",
         abierto: false,
         permiteAcciones: false,
-        texto: textoEstadoProgramado(validacion.horario, minutoActual, false),
-        aviso: "Puedes seguir navegando; los pedidos están pausados.",
-        horarioBreve: resumirProximaAtencion(validacion.horario, minutoActual),
+        texto: cerradoPorExcepcion(excepcion),
+        aviso: AVISO_PAUSADO,
+        horarioBreve: resumen,
       };
+}
+
+export function evaluarHorario(valor: unknown, fecha: Date = new Date()): EstadoAtencion {
+  const validacion = validarHorario(valor);
+  if (!validacion.correcto) return ESTADO_INVALIDO;
+
+  const horario = validacion.horario;
+
+  if (horario.modo === "sin_horario") {
+    return {
+      modo: "sin_horario",
+      abierto: null,
+      permiteAcciones: true,
+      texto: null,
+      aviso: null,
+      horarioBreve: null,
+    };
+  }
+
+  const momento = momentoEnLaPaz(fecha);
+
+  /* Una excepcion tapa tambien el "siempre abierto": es justamente el caso que
+     el dueno quiere poder decir sin desarmar su configuracion. */
+  if (horario.modo === "siempre_abierto") {
+    return evaluarSiempreAbierto(horario, momento);
+  }
+
+  if (!momento) return ESTADO_INVALIDO;
+
+  const franjas = franjasDeLaVentana(horario, momento.fecha);
+  const actual = franjas.find(
+    (franja) => momento.minutoDia >= franja.inicio && momento.minutoDia < franja.fin,
+  );
+
+  if (actual) {
+    return {
+      modo: "programado",
+      abierto: true,
+      permiteAcciones: true,
+      texto: "Abierto ahora · Cierra a las " + formatearMinuto(actual.fin),
+      aviso: null,
+      horarioBreve: null,
+    };
+  }
+
+  const excepcionHoy = excepcionDe(horario, momento.fecha);
+  const siguiente = franjas.find((franja) => franja.inicio > momento.minutoDia) ?? null;
+  const texto =
+    excepcionHoy && excepcionHoy.cerrado
+      ? cerradoPorExcepcion(excepcionHoy)
+      : siguiente
+        ? "Cerrado · " + describirApertura(siguiente, momento.fecha)
+        : "Cerrado por ahora";
+
+  return {
+    modo: "programado",
+    abierto: false,
+    permiteAcciones: false,
+    texto,
+    aviso: AVISO_PAUSADO,
+    horarioBreve: resumirProxima(horario, momento.fecha),
+  };
 }
