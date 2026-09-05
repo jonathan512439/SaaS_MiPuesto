@@ -57,16 +57,22 @@
 .enlacePlataforma {
   display: inline-flex;
   flex: 0 0 auto;
-  min-height: var(--spacing-10);
+  min-height: var(--control-alto);
   align-items: center;
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-xs);
+  border: var(--borde-marcado) solid var(--color-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-size: var(--text-sm);
   font-weight: 800;
   white-space: nowrap;
   text-decoration: none;
+}
+
+.enlacePlataforma:hover {
+  background: var(--color-marca-fuerte);
+  border-color: var(--color-marca-fuerte);
 }
 
 .sesion {

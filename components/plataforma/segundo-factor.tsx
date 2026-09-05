@@ -44,15 +44,24 @@ export function SegundoFactor() {
         return;
       }
 
-      /* Los factores a medio inscribir se descartan antes de crear otro: sin
-         esto, cada visita a la página dejaría uno nuevo sin verificar, y la
-         clave de un intento anterior ya no se puede volver a mostrar. */
-      for (const pendiente of existentes?.totp ?? []) {
+      /* Se recorre `all` y no `totp`: esa lista solo trae los verificados, así
+         que los intentos a medio inscribir quedaban invisibles y se acumulaban.
+         Al segundo intento la inscripción fallaba con «ya existe un factor con
+         ese nombre», sin forma de salir desde la pantalla. */
+      const pendientes = (existentes?.all ?? []).filter(
+        (factor) => factor.factor_type === "totp" && factor.status !== "verified",
+      );
+      for (const pendiente of pendientes) {
         await supabase.auth.mfa.unenroll({ factorId: pendiente.id });
       }
       if (cancelado) return;
 
-      const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp" });
+      /* Con nombre propio: sin él Supabase guarda uno vacío, y dos factores
+         vacíos chocan entre sí en vez de dar un error entendible. */
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: `MiPuesto ${new Date().toISOString().slice(0, 10)}`,
+      });
       if (cancelado) return;
       if (error || !data) {
         mostrarAviso({
