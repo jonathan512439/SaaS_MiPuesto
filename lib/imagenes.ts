@@ -1,6 +1,10 @@
 export const PESO_MAXIMO_ORIGINAL = 5 * 1024 * 1024;
 export const PESO_MAXIMO_COMPRIMIDO = 2 * 1024 * 1024;
-export const LADO_MAXIMO_IMAGEN = 1600;
+/* 1200 y no 1600: nadie amplía la foto de un producto en un catálogo, y el
+   tamaño más grande que se pide en toda la aplicación es la galería de la ficha,
+   que es justamente 1200. Guardar un master mayor era pagar disco por píxeles
+   que no se sirven nunca. */
+export const LADO_MAXIMO_IMAGEN = 1200;
 
 export type TipoImagenPermitido = "image/webp" | "image/jpeg" | "image/png";
 

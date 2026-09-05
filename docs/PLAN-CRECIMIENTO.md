@@ -310,7 +310,7 @@ Tres apuntes para quien retome:
   panel es una herramienta de trabajo donde filtrar sin esperar vale más que
   156 KB. Se revisa si el límite de productos sube de 300.
 
-### Etapa 3 — Peso y uso diario (5 días)
+### Etapa 3 — Peso y uso diario — **CERRADA el 2026-09-05**
 
 - **Imágenes 400 y 1200 px, sin master de 1600.**
 - **Purga de analítica a 90 días** con `pg_cron`.
@@ -322,7 +322,18 @@ Tres apuntes para quien retome:
   aviso automático solo aparece en Android; en iPhone se explica el gesto.
 
 **Criterio de cierre:** primera visita por debajo de 500 KB, medida en
-producción.
+producción. **Cumplido: ~414 KB**, con el desglose en `docs/AVANCE.md`, bloque
+12.9.
+
+Dos apuntes para quien retome:
+
+- **El transformador de Supabase devuelve JPEG.** Reducir un WebP con él puede
+  engordarlo: la portada a 1200 px pesaba más que el archivo crudo. Cualquier
+  ancho nuevo se mide antes de fijarlo.
+- Las imágenes no se generan en varios tamaños al subir, como decía el plan
+  original. Se descartó al medir: el transformador ya entrega el tamaño correcto
+  y guardar variantes propias habría sumado archivos sin mejorar la entrega. Lo
+  que sí se hizo del plan es dejar de guardar un master de 1600, que bajó a 1200.
 
 ### Etapa 3½ — Una sola migración de `negocios` (2½ días)
 

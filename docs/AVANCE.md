@@ -83,10 +83,11 @@ npm run test:rls:linked  # al cierre de cada etapa, sin excepción
 | Etapa 2: paginación en la consulta | **cerrada y verificada en producción** |
 | Etapa 2: duplicar y precios en lote | **cerrado** |
 | Correcciones de la revisión del dueño | **cerradas y verificadas** |
+| Etapa 3: peso y uso diario | **cerrada y medida en producción** |
 
-**Las etapas 0–1 y 2 están cerradas.** Lo que sigue es la etapa 3: imágenes de
-400 y 1200 px generadas en el navegador —sin guardar el original de 1600— y
-purga de analítica a 90 días.
+**Las etapas 0–1, 2 y 3 están cerradas.** Lo que sigue es la etapa 3½: una sola
+migración de `negocios` con rubro, ubicación y `google_place_id`. Está bloqueada
+hasta decidir la lista cerrada de rubros.
 
 ### Decisiones que conviene no deshacer sin leer el motivo
 
@@ -379,6 +380,80 @@ que es lo que se corrigió abriendo la copia para editar en el acto.
 Queda anotado como decisión y no como deuda que la lista del panel siga paginando
 en el navegador: son 156 KB con 300 productos, medidos, a cambio de filtrar sin
 esperar sobre todo el catálogo.
+
+### Bloque 12.9 — Etapa 3: peso y uso diario (cerrado 2026-09-05)
+
+**La portada del negocio se servía cruda.** 106.572 bytes medidos, y es la
+primera imagen que pide el navegador. Las fotos de producto sí pasaban por el
+transformador; las del negocio no, porque su constructor de direcciones devolvía
+la ruta del archivo tal cual.
+
+Al arreglarlo apareció algo que no se ve venir: **el transformador de Supabase
+devuelve JPEG**, así que reducir un WebP puede engordarlo. La misma portada:
+
+| | Peso |
+|---|---|
+| Cruda (WebP) | 106.572 b |
+| 1200 px, calidad 78 | **142.543 b** — peor que no hacer nada |
+| 800 px, calidad 70 | **71.752 b** |
+| 800 px, calidad 60 | 61.261 b |
+
+Se tomó 800 px —lo que declaran las plantillas en `sizes`— con calidad 70. Una
+prueba impide que alguien vuelva a subir el ancho sin medir. El logotipo bajó a
+192 px, que con densidad triple cubre de sobra los 56 px en que se dibuja.
+
+**El master guardado bajó de 1600 a 1200 px.** El tamaño más grande que pide la
+aplicación es la galería de la ficha, que es 1200: guardar más era pagar disco
+por píxeles que no se sirven nunca.
+
+**Purga de analítica a los 90 días** con `pg_cron`, a las 08:30 UTC —media hora
+antes del corte por vencimiento, para que dos trabajos pesados no se estorben—.
+Es el mismo plazo que promete la privacidad, así que no hay dos relojes que
+explicar. Sin esto, a 500 visitas diarias son 550.000 filas al año de datos que
+nadie mira: el panel resume los últimos siete días.
+
+**Agotado en un toque.** Con control de existencias, marcar agotado deja el
+stock en cero; reponer sigue por el formulario, porque cuántas unidades llegaron
+no se puede adivinar.
+
+**Manifiesto por negocio.** Guardar el catálogo en el inicio del teléfono deja la
+tienda del comerciante, con su nombre y su logotipo, y no el directorio de
+MiPuesto. No lleva el color de la paleta elegida a propósito: esos colores viven
+en el CSS y copiarlos sería una segunda fuente de verdad, que es el error que
+dejó a Feria sin publicar.
+
+De paso se corrigió el manifiesto del sitio, que apuntaba a `/icon.svg` desde que
+el ícono pasó a PNG: **instalar MiPuesto quedaba sin imagen**.
+
+**El resumen pasó a ser un reporte.** Cada métrica se compara con la ventana
+anterior del mismo largo y el color dice el sentido antes de leer. Cuando la
+semana previa fue cero no se inventa un porcentaje: pasar de cero a uno es un
+estreno, no una tendencia. Suma los pedidos de la semana con su total —aclarando
+que es lo reservado y no necesariamente lo cobrado— y el orden de los productos
+que más se agregan.
+
+### Cierre medido de la etapa 3
+
+Criterio: primera visita por debajo de 500 KB. Medido en producción, transferencia
+real comprimida:
+
+| | Bytes |
+|---|---|
+| HTML (brotli) | 10.216 |
+| JavaScript (brotli) | 208.540 |
+| CSS (brotli) | 13.257 |
+| Tipografía Inter | 48.432 |
+| Portada | 71.752 |
+| **Subtotal** | **352.197** |
+| 2 fotos de producto visibles (384 px) | ~62.000 |
+| **Primera vista** | **~414 KB** |
+
+**Criterio cumplido.** Las fotos siguientes cargan al desplazarse y son
+contenido, no sobrecarga.
+
+El JavaScript —208 KB comprimidos— es el piso estructural de React más el
+runtime del framework, y no se ataca por ahora: recortarlo exige cambiar de
+arquitectura, no de código.
 
 ### Auditoría de cierre
 
