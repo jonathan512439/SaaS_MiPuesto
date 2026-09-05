@@ -180,6 +180,31 @@ Decidido el 2026-09-05: **una marca por superficie**.
   analítica del borde cuánta gente llega por ahí. Sin marcarlo no hay forma de
   saber si la firma sirve de algo.
 
+### Qué puede y qué no puede una plantilla
+
+Decidido el 2026-09-05, después de evaluar si convenía fijar plantilla y paleta
+al crear el negocio.
+
+**Se mantiene el cambio libre.** El costo del sistema está en cuántas variantes
+hay, no en permitir cambiarlas: fijarlas al inicio no reduce ni las plantillas
+que hay que mantener, ni las paletas, ni las 28 combinaciones, ni el guardián.
+Lo único que ahorraría es una pantalla ya construida, y a cambio obligaría al
+comerciante a elegir en el peor momento posible —al abrir la cuenta, con cero
+productos cargados— y convertiría cada arrepentimiento en un pedido de soporte.
+
+**La regla que lo sostiene: una plantilla decide qué muestra, nunca qué existe.**
+Todas reciben el mismo contrato de datos y lo dibujan distinto. Por eso cambiar
+de plantilla no pierde nada y por eso pueden diferenciarse tanto como se quiera.
+
+**El día que eso se rompa, fijar al inicio pasa a ser lo correcto.** Si una
+plantilla llega a necesitar un dato que las otras no tienen, cambiar deja de ser
+gratis. Ese es el disparador para revisar esta decisión, y no el cansancio de
+mantener variedad.
+
+**Congelado en cuatro plantillas.** No se agrega una quinta hasta que un cliente
+que paga la pida. Las paletas sí pueden crecer: son CSS más registro, y el
+guardián verifica contraste y sincronización solo.
+
 ### Segmentación por rubro
 
 `tipo_negocio` describe **cómo vende** (lectura, acción, carrito), no **qué
@@ -423,3 +448,54 @@ productos. Menos del 4 % de un cargo de instalación de Bs 150–300.
 
 **Bloqueante para arrancar:** las cuatro decisiones de la sección 5.
 **Bloqueante para vender:** el dominio y la semana de piloto.
+
+---
+
+## 10. Catálogos por rubro — evaluado, no iniciado
+
+Idea del 2026-09-05: muestras por rubro en la portada y campos propios para
+negocios que los exigen, cobrando por ello. Se evaluó y se dividió en tres capas
+con costos muy distintos.
+
+| Capa | Qué es | Costo | Disparador |
+|---|---|---|---|
+| 1. Muestras por rubro en la portada | Datos de demostración y copia. Feria con tornillos **ya es** un catálogo de ferretería | ~1 día | Se puede hacer cuando se quiera |
+| 2. Campos propios por rubro | Una columna `atributos jsonb` en productos; el rubro decide qué campos pedir | ~4 días el primero, ~½ día cada rubro siguiente | **Un cliente pagó la instalación** |
+| 3. Variantes con stock propio | Talla M: 3, talla L: 7. Tabla nueva; toca carrito, pedido, reservas y analítica | ~2 semanas | Pagado por adelantado, y probablemente conviene decir que todavía no |
+
+### Por qué `atributos jsonb` y no una tabla por rubro
+
+Una tabla por rubro multiplica migraciones, permisos y formularios, y hace que
+cambiar de rubro pierda datos. Una sola columna anulable no rompe nada: los
+productos que ya existen quedan en `null` y las plantillas no dibujan nada extra.
+
+**No hay que reservar campos por adelantado.** En Postgres, agregar una columna
+anulable sin valor por defecto cambia metadatos y no reescribe la tabla: cuesta
+lo mismo hoy que dentro de seis meses. Los `campo_extra_1`, `campo_extra_2` son
+el patrón que se lamenta a los dos años.
+
+**Las definiciones de campos van en código, no en una tabla.** Una tabla de
+definiciones es un constructor de formularios, que es un producto en sí mismo.
+En código va versionado, se revisa en el commit y el guardián puede vigilarlo.
+
+**Una cuenta por rubro está descartada.** Serían $25 al mes por cada una contra
+$25 en total, migraciones que sincronizar a mano y el directorio partido. El
+aislamiento entre negocios ya lo resuelve RLS, verificado en cada cierre de
+etapa.
+
+### La línea que no se cruza
+
+| Pedido | Respuesta |
+|---|---|
+| Un campo que solo se muestra —marca, unidad, porciones— | Sí, ~½ día |
+| Un campo que entra en el precio o en el pedido | Se cotiza aparte: es código en la ruta del dinero |
+| Variantes con stock propio | No es un atributo, es otro modelo de producto |
+
+**Un atributo puede describir un producto; no puede cambiar cómo se cobra.**
+
+### Sobre publicitarlo
+
+Las muestras por rubro se pueden anunciar desde ya, porque no prometen nada que
+no exista. Los campos a medida **no van a la portada hasta haberlos hecho una
+vez**: una página que los anuncia crea expectativa de producto terminado, y una
+conversación permite acotar y cotizar cada caso.

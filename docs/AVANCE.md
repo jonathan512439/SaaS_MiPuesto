@@ -82,6 +82,7 @@ npm run test:rls:linked  # al cierre de cada etapa, sin excepción
 | Horarios especiales y feriados | **cerrado y verificado en producción** |
 | Etapa 2: paginación en la consulta | **cerrada y verificada en producción** |
 | Etapa 2: duplicar y precios en lote | **cerrado** |
+| Correcciones de la revisión del dueño | **cerradas y verificadas** |
 
 **Las etapas 0–1 y 2 están cerradas.** Lo que sigue es la etapa 3: imágenes de
 400 y 1200 px generadas en el navegador —sin guardar el original de 1600— y
@@ -298,6 +299,60 @@ No era un problema: la ficha de Pepsi mostraba «cuatro fotos de otros productos
 porque el producto tiene cuatro fotografías propias cargadas. La consulta filtra
 por negocio y por código, y las rutas de esas imágenes están en la carpeta del
 propio producto.
+
+### Bloque 12.8 — La tarjeta y la ficha del producto (2026-09-05)
+
+Segunda vuelta de revisión del dueño, sobre el mismo tema: cómo se entra a la
+información de un producto.
+
+**El nombre dejó de ser enlace.** Se probó primero hacerlo visible —color y
+subrayado— y no alcanzó: seguía siendo un destino táctil de más entre la foto y
+el precio, compitiendo con el botón de pedir en el único lugar donde la tarjeta
+ya tenía una acción clara.
+
+**La ficha suelta se mudó al panel.** Quien reparte un producto por WhatsApp es
+el dueño, no el cliente que está mirando, así que cada producto del panel ganó
+«Copiar enlace» y la tarjeta pública quedó con una sola acción.
+
+**La foto abre la ficha completa.** Fotografía grande y sin recortar, nombre,
+precio, descripción entera, existencias y la acción de pedir. Se abre siempre,
+tenga una foto o cuatro: un producto con una sola imagen también necesita dónde
+mostrar su descripción. Flechas, teclado y miniaturas aparecen solo con más de
+una.
+
+La acción dentro de la ficha es la misma que usan las tarjetas, así que en un
+catálogo de solo lectura no dibuja nada por su cuenta y la ficha queda como
+vitrina. No hizo falta programar esa excepción.
+
+El rótulo sobre la foto —«Ver» o «Ver · 4 fotos»— dice qué hace al tocarla. Sin
+él sería otra vez un destino táctil invisible, que es exactamente lo que fallaba
+con el nombre.
+
+**La cabecera de la moderna se compactó** sin achicar el logotipo, que acababa de
+agrandarse a pedido.
+
+**Guardián nuevo contra el error de fondo.** El fallo que dejó a Feria y a tres
+paletas sin publicar fue una comparación escrita a mano, `plantilla_id ===
+"moderna"`, que se quedó en la lista vieja mientras el registro crecía. El
+guardián ya cuidaba los cuatro sitios donde se declara una plantilla, pero no que
+alguien la reconociera por su cuenta en otro archivo. Ahora recorre `app`, `lib`
+y `components` y rechaza cualquier comparación directa contra un identificador de
+plantilla o paleta fuera del registro y su validador. Verificado al revés: al
+reponer la comparación vieja, el control falla y nombra el archivo.
+
+### Nota de entorno
+
+El disco `C:` de la máquina de desarrollo se llenó por completo durante esta
+sesión y el build empezó a fallar con `ENOSPC`. Limpiar la caché de npm no
+liberó espacio. Se trabajó apuntando caché y temporales a `D:`:
+
+```
+npm_config_cache=D:\tmp-mipuesto\npm-cache
+TEMP=D:\tmp-mipuesto\tmp
+```
+
+No es un problema del proyecto, pero conviene saberlo antes de perder media hora
+diagnosticando un build que falla sin motivo aparente.
 
 ### Auditoría de cierre
 
