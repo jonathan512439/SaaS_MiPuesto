@@ -176,6 +176,7 @@
 
 .organizacion {
   align-self: start;
+  grid-column: 1 / -1;
   border: var(--borde-fino) solid var(--color-borde-suave);
   border-radius: var(--radius-panel);
   overflow: hidden;
@@ -560,18 +561,10 @@
 }
 
 @media (min-width: 60rem) {
+  /* Una sola columna a propósito: la barra de arriba resuelve buscar y filtrar,
+     así que las categorías ya no necesitan ocupar un costado permanente. */
   .columnas {
-    grid-template-columns: 20rem minmax(0, 1fr);
     gap: var(--spacing-6);
-  }
-
-  /* La barra del panel queda fija arriba: la columna de organizacion se
-     ancla justo debajo para no esconderse tras ella. */
-  .organizacion {
-    position: sticky;
-    top: calc(var(--alto-barra-panel) + var(--spacing-4));
-    max-height: calc(100dvh - var(--alto-barra-panel) - var(--spacing-8));
-    overflow-y: auto;
   }
 
   .formularioProducto {
@@ -685,5 +678,139 @@
   .controlesAjuste select,
   .controlesAjuste input {
     width: 100%;
+  }
+}
+
+/* ---- barra de trabajo del catálogo ---- */
+
+/* Buscar, filtrar y crear viven arriba y juntos porque es lo que se hace todos
+   los días. Antes había que recorrer a ojo dos listas completas —categorías y
+   productos— para encontrar uno solo. */
+.barraCatalogo {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+}
+
+.buscadorProductos {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.buscadorProductos label {
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.buscadorProductos input {
+  width: 100%;
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-base);
+}
+
+.filtrosCatalogo {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.filtrosCatalogo label {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.filtrosCatalogo select {
+  min-width: 11rem;
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.chipsEstado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.chip,
+.chipActivo {
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-texto-suave);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chipActivo {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+}
+
+.filtrosCatalogo > button:last-child {
+  margin-left: auto;
+}
+
+/* Las categorías pasan a un panel plegado: se administran de vez en cuando y no
+   tienen por qué competir con la lista de productos. */
+/* Estaba en el marcado sin ninguna regla detrás desde antes de esta fase: el
+   contenedor de la lista de categorías quedaba sin separación. */
+.listaCategorias {
+  display: grid;
+  gap: var(--spacing-1);
+  padding: 0 var(--spacing-4) var(--spacing-4);
+}
+
+.resumenOrganizacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  font-size: var(--text-base);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.resumenOrganizacion small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+@media (max-width: 30rem) {
+  .filtrosCatalogo label,
+  .filtrosCatalogo select {
+    width: 100%;
+  }
+
+  .filtrosCatalogo > button:last-child {
+    width: 100%;
+    margin-left: 0;
   }
 }

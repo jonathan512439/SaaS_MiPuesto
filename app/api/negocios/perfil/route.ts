@@ -1,7 +1,5 @@
-import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { etiquetaNegocio } from "../../../../lib/catalogo/negocio-cacheado";
 
 import { validarDatosNegocio } from "../../../../lib/negocios/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
@@ -99,9 +97,7 @@ export async function POST(solicitud: NextRequest) {
 
   /* Al renombrar cambia la direccion, asi que se invalida tambien la anterior:
      de lo contrario el catalogo viejo seguiria sirviendose desde la cache. */
-  revalidateTag(etiquetaNegocio(negocio.slug), { expire: 0 });
   if (negocioActual?.slug && negocioActual.slug !== negocio.slug) {
-    revalidateTag(etiquetaNegocio(negocioActual.slug), { expire: 0 });
   }
 
   return NextResponse.json({ negocio }, { status: negocioActual ? 200 : 201 });

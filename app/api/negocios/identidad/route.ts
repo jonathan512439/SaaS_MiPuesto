@@ -1,7 +1,5 @@
-import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { etiquetaNegocio } from "../../../../lib/catalogo/negocio-cacheado";
 
 import { obtenerContextoAdminCatalogo, leerJson } from "../../../../lib/catalogo/servidor";
 import { extensionPorTipo, validarImagenBinaria } from "../../../../lib/imagenes";
@@ -52,7 +50,6 @@ export async function PATCH(solicitud: NextRequest) {
   if (error || !data) {
     return NextResponse.json({ error: "No se pudieron guardar los enlaces." }, { status: 500 });
   }
-  revalidateTag(etiquetaNegocio(data.slug), { expire: 0 });
 
   return NextResponse.json({ identidad: data });
 }
@@ -136,7 +133,6 @@ export async function POST(solicitud: NextRequest) {
     }
   }
 
-  revalidateTag(etiquetaNegocio(identidad.slug), { expire: 0 });
 
   const { data: datosPublicos } = contexto.supabase.storage.from("negocios").getPublicUrl(ruta);
   return NextResponse.json(
@@ -198,7 +194,6 @@ export async function DELETE(solicitud: NextRequest) {
       { status: 500 },
     );
   }
-  revalidateTag(etiquetaNegocio(identidad.slug), { expire: 0 });
 
   return NextResponse.json({ eliminado: true, identidad });
 }

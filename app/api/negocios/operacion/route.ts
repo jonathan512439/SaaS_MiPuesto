@@ -1,7 +1,5 @@
-import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { etiquetaNegocio } from "../../../../lib/catalogo/negocio-cacheado";
 
 import { validarOperacionNegocio } from "../../../../lib/negocios/operacion";
 import type { Json } from "../../../../lib/supabase/database.types";
@@ -47,7 +45,6 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  revalidateTag(etiquetaNegocio(negocio.slug), { expire: 0 });
 
   return NextResponse.json({ negocio });
 }

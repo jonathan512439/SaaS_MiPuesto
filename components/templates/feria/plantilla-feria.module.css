@@ -45,9 +45,9 @@
 }
 
 .identidad img {
-  width: var(--spacing-12);
-  height: var(--spacing-12);
-  flex: 0 0 var(--spacing-12);
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  flex: 0 0 var(--spacing-16);
   border: var(--borde-marcado) solid var(--catalogo-sobre-marca);
   border-radius: var(--radius-control);
   object-fit: cover;
@@ -334,15 +334,20 @@
 /* El nombre lleva a la ficha del producto, que es lo que se comparte por
    WhatsApp. Hereda el estilo del título para no convertir la lista en una
    sábana de enlaces subrayados. */
+/* El enlace se ve como enlace. Antes heredaba el color del titulo y no llevaba
+   subrayado, asi que en el celular —donde no hay hover— era un destino tactil
+   invisible: se tocaba el nombre sin saber que llevaba a otra parte, y parecia
+   un segundo boton sin rotulo. */
 .enlaceProducto {
-  color: inherit;
+  color: var(--catalogo-marca);
   font: inherit;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-thickness: var(--borde-fino);
+  text-underline-offset: 0.1875rem;
 }
 
 .enlaceProducto:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.1875rem;
+  text-decoration-thickness: var(--borde-marcado);
 }
 
 .pie {

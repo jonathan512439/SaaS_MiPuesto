@@ -32,6 +32,16 @@ import {
 } from "../ui";
 import styles from "./gestor-catalogo.module.css";
 
+/* Buscar sin tildes ni mayúsculas: quien escribe "cafe" en el panel espera
+   encontrar "Café", igual que en el catálogo público. */
+function normalizarTexto(valor: string) {
+  return valor
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 const FORMATEADOR_CAMBIO_PRECIO = new Intl.DateTimeFormat("es-BO", {
   timeZone: "America/La_Paz",
   dateStyle: "medium",
@@ -98,6 +108,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
   const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
+  const [busquedaProductos, setBusquedaProductos] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState<"todos" | "visibles" | "ocultos">(
+    "todos",
+  );
   const [ajustePorcentaje, setAjustePorcentaje] = useState("");
   const [ajusteCategoria, setAjusteCategoria] = useState("");
   const [ajustando, setAjustando] = useState(false);
@@ -105,12 +119,27 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [renombrando, setRenombrando] = useState<Renombrado | null>(null);
   const formularioProductoRef = useRef<HTMLFormElement>(null);
 
-  const productosVisibles = useMemo(
-    () =>
-      categoriaActiva
-        ? productos.filter((producto) => producto.categoria_id === categoriaActiva)
-        : productos,
-    [categoriaActiva, productos],
+  /* Tres filtros que se combinan, y no una lista entera para recorrer a ojo:
+     con trescientos productos, encontrar uno sin buscador es abrir la lista y
+     bajar. El de estado existe sobre todo para las copias, que nacen ocultas. */
+  const productosVisibles = useMemo(() => {
+    const terminos = normalizarTexto(busquedaProductos).split(/\s+/).filter(Boolean);
+
+    return productos.filter((producto) => {
+      if (categoriaActiva && producto.categoria_id !== categoriaActiva) return false;
+      if (filtroEstado === "visibles" && !producto.visible) return false;
+      if (filtroEstado === "ocultos" && producto.visible) return false;
+      if (terminos.length === 0) return true;
+
+      const texto = normalizarTexto(
+        `${producto.nombre} ${producto.descripcion ?? ""} ${producto.codigo}`,
+      );
+      return terminos.every((termino) => texto.includes(termino));
+    });
+  }, [busquedaProductos, categoriaActiva, filtroEstado, productos]);
+  const ocultos = useMemo(
+    () => productos.filter((producto) => !producto.visible).length,
+    [productos],
   );
   const subcategoriasFormulario = subcategorias.filter(
     (subcategoria) => subcategoria.categoria_id === formulario.categoria_id,
@@ -565,11 +594,14 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         body: JSON.stringify({ id: producto.id }),
       });
       setProductos((actuales) => [...actuales, copia]);
+      /* Se abre la copia para editar en el acto. Antes quedaba al final de la
+         lista, oculta y en otra página: el dueño duplicaba y no encontraba nada. */
+      editarProducto(copia);
       informarExito(
-        "Producto duplicado",
+        "Copia lista para editar",
         fotosCopiadas > 0
-          ? `La copia quedá oculta hasta que la edites. Se copiaron ${fotosCopiadas} fotografía(s).`
-          : "La copia queda oculta hasta que la edites.",
+          ? `Se copiaron ${fotosCopiadas} fotografía(s). Queda oculta hasta que la publiques.`
+          : "Queda oculta hasta que la publiques.",
       );
     } catch (error) {
       informarError("No se pudo duplicar el producto", error);
@@ -847,14 +879,72 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         </form>
       ) : null}
 
-      <div className={styles.columnas}>
-        <aside className={styles.organizacion} aria-labelledby="titulo-organizacion">
-          <div className={styles.tituloSeccion}>
-            <div>
-              <h2 id="titulo-organizacion">Categorías</h2>
-              <p>{categorias.length} de 40 creadas</p>
-            </div>
+      {/* Buscar, filtrar y crear van juntos y arriba de todo: es lo que se hace
+          todos los días. Las categorías se administran de vez en cuando, así que
+          bajan a un panel plegado. */}
+      <section className={styles.barraCatalogo} aria-label="Buscar productos">
+        <div className={styles.buscadorProductos}>
+          <label htmlFor="buscar-producto">Buscar producto</label>
+          <input
+            autoComplete="off"
+            id="buscar-producto"
+            onChange={(evento) => {
+              setBusquedaProductos(evento.target.value);
+              setPaginaProductos(1);
+            }}
+            placeholder="Nombre, descripción o código"
+            type="search"
+            value={busquedaProductos}
+          />
+        </div>
+        <div className={styles.filtrosCatalogo}>
+          <label htmlFor="filtrar-categoria">
+            Categoría
+            <select
+              id="filtrar-categoria"
+              onChange={(evento) => seleccionarCategoria(evento.target.value)}
+              value={categoriaActiva}
+            >
+              <option value="">Todas</option>
+              {categorias.map((categoria) => (
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nombre}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className={styles.chipsEstado} role="group" aria-label="Estado de publicación">
+            {(
+              [
+                ["todos", `Todos (${productos.length})`],
+                ["visibles", `Publicados (${productos.length - ocultos})`],
+                ["ocultos", `Ocultos (${ocultos})`],
+              ] as const
+            ).map(([valor, etiqueta]) => (
+              <button
+                aria-pressed={filtroEstado === valor}
+                className={filtroEstado === valor ? styles.chipActivo : styles.chip}
+                key={valor}
+                onClick={() => {
+                  setFiltroEstado(valor);
+                  setPaginaProductos(1);
+                }}
+                type="button"
+              >
+                {etiqueta}
+              </button>
+            ))}
           </div>
+          <Boton onClick={abrirProductoNuevo}>Crear producto</Boton>
+        </div>
+      </section>
+
+      <div className={styles.columnas}>
+        <details className={styles.organizacion}>
+          <summary className={styles.resumenOrganizacion}>
+            <span>Organizar categorías</span>
+            <small>{categorias.length} de 40 creadas</small>
+          </summary>
           <form className={styles.nuevaCategoria} onSubmit={crearCategoria}>
             <label htmlFor="nueva-categoria">Nueva categoría</label>
             <div>
@@ -949,15 +1039,21 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               </button>
             </nav>
           ) : null}
-        </aside>
+        </details>
 
         <section className={styles.productos} aria-labelledby="titulo-productos">
           <div className={styles.tituloProductos}>
             <div>
-              <h2 id="titulo-productos">{categoriaActiva ? categorias.find(({ id }) => id === categoriaActiva)?.nombre : "Todos los productos"}</h2>
-              <p>{productosVisibles.length} producto(s) en esta vista</p>
+              <h2 id="titulo-productos">
+                {categoriaActiva
+                  ? categorias.find(({ id }) => id === categoriaActiva)?.nombre
+                  : "Todos los productos"}
+              </h2>
+              <p>
+                {productosVisibles.length} de {productos.length} producto(s)
+                {busquedaProductos.trim() ? ` para «${busquedaProductos.trim()}»` : ""}
+              </p>
             </div>
-            <Boton onClick={abrirProductoNuevo}>Crear producto</Boton>
           </div>
 
           {/* Ajustar precios de a uno sobre trescientos productos es lo que hace
@@ -1012,13 +1108,32 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
 
           {productosVisibles.length === 0 ? (
             <EstadoVacio
-              accion={<Boton onClick={abrirProductoNuevo}>Crear el primer producto</Boton>}
-              descripcion={
-                categoriaActiva
-                  ? "Esta categoría está vacía."
-                  : "Empieza por el primero."
+              accion={
+                productos.length === 0 ? (
+                  <Boton onClick={abrirProductoNuevo}>Crear el primer producto</Boton>
+                ) : (
+                  <Boton
+                    onClick={() => {
+                      setBusquedaProductos("");
+                      setFiltroEstado("todos");
+                      seleccionarCategoria("");
+                    }}
+                    variante="secundario"
+                  >
+                    Quitar los filtros
+                  </Boton>
+                )
               }
-              titulo="Todavía no cargaste productos"
+              descripcion={
+                productos.length === 0
+                  ? "Empieza por el primero."
+                  : "Probá con otra palabra o quitá los filtros."
+              }
+              titulo={
+                productos.length === 0
+                  ? "Todavía no cargaste productos"
+                  : "Ningún producto coincide"
+              }
             />
           ) : (
             <ul className={styles.listaProductos}>

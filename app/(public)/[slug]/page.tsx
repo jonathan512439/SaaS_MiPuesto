@@ -10,8 +10,9 @@ import {
   extraerTerminos,
   leerFiltrosCatalogo,
 } from "../../../lib/catalogo/consulta-publica";
-import { obtenerNegocioPublicoCacheado } from "../../../lib/catalogo/negocio-cacheado";
+import { obtenerNegocioPublico as consultarNegocioPublico } from "../../../lib/catalogo/negocio-publico";
 import { construirCatalogoPublico } from "../../../lib/catalogo/publico";
+import { esUuid } from "../../../lib/catalogo/validacion";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../lib/url-sitio";
@@ -26,7 +27,7 @@ export const dynamic = "force-dynamic";
 
 /* cache() de React evita repetir la consulta entre generateMetadata y la
    pagina dentro de una misma peticion; unstable_cache la evita entre visitas. */
-const obtenerNegocioPublico = cache((slug: string) => obtenerNegocioPublicoCacheado(slug));
+const obtenerNegocioPublico = cache((slug: string) => consultarNegocioPublico(slug));
 
 export async function generateMetadata({ params }: PropiedadesPagina): Promise<Metadata> {
   const { slug } = await params;
@@ -67,6 +68,41 @@ function esRangoFueraDeAlcance(error: { code?: string } | null) {
   return error?.code === "PGRST103";
 }
 
+function leerCategoriaPedida(parametros: Record<string, string | string[] | undefined>) {
+  const valor = parametros.categoria;
+  const pedida = (Array.isArray(valor) ? valor[0] : valor)?.trim() ?? "";
+  return esUuid(pedida) ? pedida : "";
+}
+
+const COLUMNAS_PRODUCTO_PUBLICO =
+  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,cantidad_reservada,estado,visible,orden";
+
+/* Filtrar y paginar aquí, y no en el navegador, es lo que permite un catálogo
+   de trescientos productos: antes viajaba la ficha completa de cada uno en cada
+   visita para mostrar doce. */
+function consultarProductos(
+  supabase: ReturnType<typeof crearClienteSupabasePublico>,
+  negocioId: string,
+  parametros: Record<string, string | string[] | undefined>,
+  categoria: string,
+) {
+  const filtros = leerFiltrosCatalogo(parametros, []);
+  const { desde, hasta } = calcularRango(filtros.pagina);
+
+  let consulta = supabase
+    .from("productos")
+    .select(COLUMNAS_PRODUCTO_PUBLICO, { count: "exact" })
+    .eq("negocio_id", negocioId)
+    .eq("visible", true);
+
+  if (categoria) consulta = consulta.eq("categoria_id", categoria);
+  for (const termino of extraerTerminos(filtros.busqueda)) {
+    consulta = consulta.ilike("texto_busqueda", `%${termino}%`);
+  }
+
+  return consulta.order("orden").order("creado_en").range(desde, hasta);
+}
+
 export default async function PaginaCatalogoPublico({
   params,
   searchParams,
@@ -76,11 +112,20 @@ export default async function PaginaCatalogoPublico({
   const negocio = await obtenerNegocioPublico(slug);
   if (!negocio) notFound();
 
-  /* Las categorías se piden primero porque el filtro se valida contra ellas: un
-     identificador inventado en la dirección tiene que caer a «todo» y no
-     devolver un catálogo vacío. */
-  const [resultadoCategorias, resultadoSubcategorias, resultadoPromociones] =
-    await Promise.all([
+  /* Todo en un solo viaje. Los productos se piden con el filtro tal como llegó
+     en la dirección, comprobando solo su forma; si después resulta que esa
+     categoría no es de este negocio, se vuelve a preguntar sin filtro. Esperar
+     a las categorías para validar costaba un viaje entero en cada visita, y el
+     caso que lo justificaba es una dirección manipulada. */
+  const parametros = await searchParams;
+  const categoriaPedida = leerCategoriaPedida(parametros);
+
+  const [
+    resultadoCategorias,
+    resultadoSubcategorias,
+    resultadoPromociones,
+    resultadoOptimista,
+  ] = await Promise.all([
       supabase
         .from("categorias")
         .select("id,nombre,orden")
@@ -97,36 +142,19 @@ export default async function PaginaCatalogoPublico({
         .from("promociones")
         .select("id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo")
         .eq("negocio_id", negocio.id),
+      consultarProductos(supabase, negocio.id, parametros, categoriaPedida),
     ]);
 
   const categorias = resultadoCategorias.data ?? [];
-  const filtros = leerFiltrosCatalogo(await searchParams, categorias);
-  const terminos = extraerTerminos(filtros.busqueda);
-  const { desde, hasta } = calcularRango(filtros.pagina);
+  const filtros = leerFiltrosCatalogo(parametros, categorias);
 
-  /* Filtrar y paginar aquí, y no en el navegador, es lo que permite un catálogo
-     de trescientos productos: antes viajaba la ficha completa de cada uno en
-     cada visita para mostrar doce. */
-  let consultaProductos = supabase
-    .from("productos")
-    .select(
-      "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,cantidad_reservada,estado,visible,orden",
-      { count: "exact" },
-    )
-    .eq("negocio_id", negocio.id)
-    .eq("visible", true);
-
-  if (filtros.categoria) {
-    consultaProductos = consultaProductos.eq("categoria_id", filtros.categoria);
-  }
-  for (const termino of terminos) {
-    consultaProductos = consultaProductos.ilike("texto_busqueda", `%${termino}%`);
-  }
-
-  const resultadoProductos = await consultaProductos
-    .order("orden")
-    .order("creado_en")
-    .range(desde, hasta);
+  /* La consulta optimista sirve salvo que la dirección traiga una categoría que
+     no es de este negocio: ahí se rehace sin filtro, para que el visitante vea
+     el catálogo entero y no una página vacía. */
+  const resultadoProductos =
+    categoriaPedida && !filtros.categoria
+      ? await consultarProductos(supabase, negocio.id, parametros, "")
+      : resultadoOptimista;
 
   /* Pedir un tramo que no existe no es un fallo del catálogo sino una dirección
      vieja: pasa cuando alguien comparte el enlace de la página cuatro y el
@@ -139,7 +167,7 @@ export default async function PaginaCatalogoPublico({
       .eq("negocio_id", negocio.id)
       .eq("visible", true);
     if (filtros.categoria) consultaTotal = consultaTotal.eq("categoria_id", filtros.categoria);
-    for (const termino of terminos) {
+    for (const termino of extraerTerminos(filtros.busqueda)) {
       consultaTotal = consultaTotal.ilike("texto_busqueda", `%${termino}%`);
     }
 
