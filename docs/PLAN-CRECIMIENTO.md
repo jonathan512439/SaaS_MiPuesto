@@ -220,7 +220,6 @@ negocio que cambia de rubro no pierde nada de lo que cargó.
 
 | Decisión | Qué bloquea |
 |---|---|
-| **Lista cerrada de rubros** | La migración de la etapa 3½. Va en un `check`, igual que las paletas |
 | **Cobro anual Bs 800** | Lo que muestra la pantalla de cuenta |
 | **Cargo de instalación Bs 150–300** | Si la carga por foto se paga sola |
 | **Botón «Llamar»** | `tel:` real, WhatsApp con otro nombre, o nada |
@@ -335,19 +334,25 @@ Dos apuntes para quien retome:
   y guardar variantes propias habría sumado archivos sin mejorar la entrega. Lo
   que sí se hizo del plan es dejar de guardar un master de 1600, que bajó a 1200.
 
-### Etapa 3½ — Una sola migración de `negocios` (2½ días)
+### Etapa 3½ — Ubicación — **CERRADA el 2026-09-05**
 
-Tres columnas en una migración: tocar la base en vivo tres veces por tres
-columnas es tres veces el riesgo.
+Se planificó como una sola migración con tres columnas —rubro, ubicación y
+`google_place_id`— con el argumento de que tocar la base tres veces es tres
+veces el riesgo. **Ese argumento era flojo:** agregar una columna anulable en
+Postgres cambia metadatos y es instantáneo. Era el mismo error de reservar
+campos por adelantado contra el que ya se había decidido en la sección 10.
 
-- `rubro` — con la lista cerrada que falta decidir.
-- `ubicacion` — habilita **Cómo llegar** y es el dato del que depende el
-  directorio por zona.
-- `google_place_id` — para la etapa 7.
-- **Segmentación por rubro en el panel**, como filtro de presentación.
+Se hizo solo `ubicacion_url`, que es la única con valor hoy: el dueño pega el
+enlace de su mapa y las cuatro plantillas muestran **Cómo llegar**.
 
-**Criterio de cierre:** la prueba de RLS pasa y un negocio que cambia de rubro
-conserva todos sus datos.
+Se guarda el enlace y no coordenadas: geocodificar exige una API paga, y una
+dirección escrita a mano rara vez lleva a la puerta correcta en un barrio
+boliviano. Tampoco se exige que el enlace sea de Google.
+
+**`rubro` y `google_place_id` quedan para cuando lleguen sus funciones** —etapas
+8 y 7—. Definir ocho valores de rubro para un uso que llega dentro de varias
+etapas es adivinar; con tres clientes reales se sabrá qué rubros existen de
+verdad.
 
 ### Etapa 4 — Dominio y correo (5 días)
 

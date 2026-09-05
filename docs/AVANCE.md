@@ -84,10 +84,11 @@ npm run test:rls:linked  # al cierre de cada etapa, sin excepción
 | Etapa 2: duplicar y precios en lote | **cerrado** |
 | Correcciones de la revisión del dueño | **cerradas y verificadas** |
 | Etapa 3: peso y uso diario | **cerrada y medida en producción** |
+| Etapa 3½: ubicación | **cerrada**; rubro y place id diferidos a sus etapas |
 
-**Las etapas 0–1, 2 y 3 están cerradas.** Lo que sigue es la etapa 3½: una sola
-migración de `negocios` con rubro, ubicación y `google_place_id`. Está bloqueada
-hasta decidir la lista cerrada de rubros.
+**Las etapas 0–1, 2, 3 y 3½ están cerradas.** Lo que sigue es la etapa 4
+—dominio y correo—, bloqueada hasta comprar el dominio, y la etapa 5, respaldos
+y monitoreo, que no depende de nada.
 
 ### Decisiones que conviene no deshacer sin leer el motivo
 
