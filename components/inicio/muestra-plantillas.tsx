@@ -78,11 +78,19 @@ export function MuestraPlantillas() {
   const [paleta, setPaleta] = useState<PaletaId>("mercado");
   const Vista = VISTAS[plantilla];
 
+  const definicion = DEFINICIONES_PLANTILLAS.find(({ id }) => id === plantilla);
+
   return (
     <div className={styles.muestra}>
       <div className={styles.controles}>
         <fieldset>
-          <legend>Estructura</legend>
+          <div className={styles.tituloGrupo}>
+            <legend>Estructura</legend>
+            {/* El enfoque de la elegida se lee al lado del título y no dentro de
+                cada opción: repetirlo cuatro veces convierte el selector en un
+                párrafo. */}
+            <p aria-live="polite">{definicion?.enfoque}</p>
+          </div>
           <div className={styles.opciones}>
             {DEFINICIONES_PLANTILLAS.map(({ id, nombre, recomendacion }) => (
               <label
@@ -104,7 +112,9 @@ export function MuestraPlantillas() {
         </fieldset>
 
         <fieldset>
-          <legend>Color</legend>
+          <div className={styles.tituloGrupo}>
+            <legend>Color</legend>
+          </div>
           <div className={styles.paletas}>
             {DEFINICIONES_PALETAS.map(({ id, nombre }) => (
               <label
@@ -126,8 +136,15 @@ export function MuestraPlantillas() {
         </fieldset>
       </div>
 
-      <div className={styles.lienzo}>
-        <Vista datos={crearDatosDemoPlantilla(EJEMPLOS[plantilla])} paleta={paleta} />
+      <div className={styles.marco}>
+        <div aria-hidden="true" className={styles.barraTelefono}>
+          <span>9:41</span>
+          <span className={styles.muesca} />
+          <span className={styles.bateria} />
+        </div>
+        <div className={styles.lienzo}>
+          <Vista datos={crearDatosDemoPlantilla(EJEMPLOS[plantilla])} paleta={paleta} />
+        </div>
       </div>
     </div>
   );

@@ -201,6 +201,7 @@ export default function Inicio() {
       <section aria-labelledby="rubros" className={styles.seccion}>
         <div className={styles.seccionContenido}>
           <div className={styles.encabezado}>
+            <p className={styles.rotulo}>Cada rubro, su forma</p>
             <h2 id="rubros">Para quién es</h2>
             <p>
               Cada estructura nació de un rubro distinto. No cambian solo de color: cambia
@@ -222,6 +223,7 @@ export default function Inicio() {
       <section aria-labelledby="como-funciona" className={styles.seccionSuave}>
         <div className={styles.seccionContenido}>
           <div className={styles.encabezado}>
+            <p className={styles.rotulo}>Simple y rápido</p>
             <h2 id="como-funciona">Cómo se pone en marcha</h2>
             <p>Se hace en una tarde, y no hace falta que sepas de computación.</p>
           </div>
@@ -242,6 +244,7 @@ export default function Inicio() {
       <section aria-labelledby="asi-se-ve" className={styles.seccion}>
         <div className={styles.seccionContenido}>
           <div className={styles.encabezado}>
+            <p className={styles.rotulo}>Demostración en vivo</p>
             <h2 id="asi-se-ve">Probá cómo se vería el tuyo</h2>
             <p>
               Elegí estructura y color. Lo que ves acá es exactamente lo que recibe tu
@@ -255,6 +258,7 @@ export default function Inicio() {
       <section aria-labelledby="comparacion" className={styles.seccionSuave}>
         <div className={styles.seccionContenido}>
           <div className={styles.encabezado}>
+            <p className={styles.rotulo}>La pregunta honesta</p>
             <h2 id="comparacion">¿Y el catálogo de WhatsApp?</h2>
             <p>
               Es gratis y sirve. Pero se queda corto apenas tu negocio crece, y nunca fue
@@ -302,6 +306,7 @@ export default function Inicio() {
         <div className={styles.seccionContenido}>
           <div className={styles.panelPrecio}>
             <div className={styles.montoPrecio}>
+              <p className={styles.rotuloPlan}>Plan único</p>
               <p className={styles.monto}>
                 Bs {PRECIO_MENSUAL_BS}
                 <span>al mes</span>
@@ -334,6 +339,7 @@ export default function Inicio() {
       <section aria-labelledby="preguntas" className={styles.seccion}>
         <div className={styles.seccionContenido}>
           <div className={styles.encabezado}>
+            <p className={styles.rotulo}>Dudas resueltas</p>
             <h2 id="preguntas">Preguntas frecuentes</h2>
           </div>
           <div className={styles.preguntas}>
@@ -359,6 +365,12 @@ export default function Inicio() {
           </a>
         </div>
       </section>
+
+      <div className={styles.accionFija}>
+        <a className={styles.botonFijo} href={enlaceAlta} rel="noreferrer" target="_blank">
+          Quiero mi catálogo
+        </a>
+      </div>
     </main>
   );
 }

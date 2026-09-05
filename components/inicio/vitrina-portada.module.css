@@ -19,6 +19,40 @@
   box-shadow: var(--sombra-flotante);
 }
 
+/* La barra de estado fija la escala: sin ella el catálogo se lee como una
+   página angosta en vez de una pantalla de celular. */
+.barraTelefono {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.muesca {
+  width: var(--spacing-12);
+  height: var(--spacing-3);
+  border-radius: var(--radius-status);
+  background: var(--color-deshabilitado);
+}
+
+.bateria {
+  width: var(--spacing-6);
+  height: var(--spacing-3);
+  border: var(--borde-fino) solid currentColor;
+  border-radius: 0.1875rem;
+  background: linear-gradient(
+    to right,
+    currentColor 0%,
+    currentColor 65%,
+    transparent 65%
+  );
+}
+
 .pantalla {
   max-height: 34rem;
   overflow: hidden;

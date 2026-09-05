@@ -53,11 +53,21 @@ export function VitrinaPortada() {
   return (
     <div className={styles.vitrina}>
       <div className={styles.telefono}>
+        <div aria-hidden="true" className={styles.barraTelefono}>
+          <span>9:41</span>
+          <span className={styles.muesca} />
+          <span className={styles.bateria} />
+        </div>
         <div className={styles.pantalla}>
           <Feria datos={PUESTO} paleta="mercado" />
         </div>
       </div>
       <div className={`${styles.telefono} ${styles.telefonoAtras}`} aria-hidden="true">
+        <div className={styles.barraTelefono}>
+          <span>9:41</span>
+          <span className={styles.muesca} />
+          <span className={styles.bateria} />
+        </div>
         <div className={styles.pantalla}>
           <Moderna datos={TIENDA} paleta="noche" />
         </div>

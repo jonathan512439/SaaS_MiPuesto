@@ -5,9 +5,17 @@
   gap: var(--spacing-5);
 }
 
+/* Los controles viven en su propia tarjeta, separados del catálogo que
+   modifican: así se lee como un panel de mandos y no como más contenido de la
+   página. */
 .controles {
   display: grid;
-  gap: var(--spacing-5);
+  gap: var(--spacing-6);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-sheet);
+  padding: var(--spacing-5);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
 }
 
 .controles fieldset {
@@ -17,31 +25,50 @@
   padding: 0;
 }
 
-.controles legend {
-  padding: 0 0 var(--spacing-2);
-  font-size: var(--text-sm);
+.tituloGrupo {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding: 0 0 var(--spacing-3);
+}
+
+.tituloGrupo legend {
+  padding: 0;
+  font-size: var(--text-base);
   font-weight: 800;
+}
+
+.tituloGrupo p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .opciones {
   display: grid;
-  gap: var(--spacing-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-2);
 }
 
 .opcion,
 .opcionElegida {
   display: grid;
+  align-content: start;
   gap: var(--spacing-1);
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-tarjeta);
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--color-superficie);
+  border: var(--borde-marcado) solid transparent;
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+  background: var(--color-fondo-suave);
   cursor: pointer;
 }
 
 .opcionElegida {
   border-color: var(--color-marca);
-  border-left-width: var(--spacing-1);
   background: var(--color-marca-tenue);
 }
 
@@ -67,12 +94,14 @@
 .opcion strong,
 .opcionElegida strong {
   font-size: var(--text-base);
+  font-weight: 800;
 }
 
 .opcion span,
 .opcionElegida span {
   color: var(--color-texto-suave);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
+  line-height: 1.35;
 }
 
 .paletas {
@@ -84,13 +113,13 @@
 .paleta,
 .paletaElegida {
   display: inline-flex;
-  min-height: var(--control-alto);
+  min-height: var(--spacing-10);
   align-items: center;
   gap: var(--spacing-2);
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-marcado) solid transparent;
   border-radius: var(--radius-status);
   padding: var(--spacing-2) var(--spacing-4);
-  background: var(--color-superficie);
+  background: var(--color-fondo-suave);
   font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
@@ -98,24 +127,18 @@
 
 .paletaElegida {
   border-color: var(--color-marca);
-  border-width: var(--borde-marcado);
   background: var(--color-marca-tenue);
 }
 
-/* La pastilla muestra el color de marca de cada paleta, no un nombre a secas:
-   el dueño elige mirando, no leyendo. */
+/* La pastilla muestra los colores de cada paleta, no un nombre a secas: el
+   dueño elige mirando, no leyendo. Salen de la propia definición del tema y no
+   de una copia. */
 .paleta span[data-paleta],
 .paletaElegida span[data-paleta] {
   width: var(--spacing-5);
   height: var(--spacing-5);
   border: var(--borde-fino) solid var(--color-borde);
   border-radius: 50%;
-}
-
-/* Los colores salen de la propia definicion de cada paleta, no de una copia:
-   el elemento lleva la clase del tema y toma sus variables. */
-.paleta span[data-paleta],
-.paletaElegida span[data-paleta] {
   background: linear-gradient(
     135deg,
     var(--catalogo-marca) 50%,
@@ -123,13 +146,54 @@
   );
 }
 
-/* El lienzo imita un celular porque ahí es donde el cliente final abre el
-   enlace. Es el único elemento con audacia visual de la portada. */
+/* El marco imita un celular porque ahí es donde el cliente final abre el
+   enlace. La barra de estado no es adorno: fija la escala, y sin ella el
+   catálogo se lee como una página web angosta en vez de una pantalla. */
+.marco {
+  display: grid;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-sheet);
+  padding: var(--spacing-3);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-panel);
+}
+
+.barraTelefono {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  padding: 0 var(--spacing-3);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.muesca {
+  width: var(--spacing-14);
+  height: var(--spacing-3);
+  border-radius: var(--radius-status);
+  background: var(--color-deshabilitado);
+}
+
+.bateria {
+  width: var(--spacing-6);
+  height: var(--spacing-3);
+  border: var(--borde-fino) solid currentColor;
+  border-radius: 0.1875rem;
+  background: linear-gradient(
+    to right,
+    currentColor 0%,
+    currentColor 65%,
+    transparent 65%
+  );
+}
+
 .lienzo {
   overflow: hidden;
-  border: var(--borde-marcado) solid var(--color-texto);
-  border-radius: var(--radius-sheet);
-  box-shadow: var(--sombra-panel);
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
 }
 
 .cargando {
@@ -140,8 +204,8 @@
 
 @media (min-width: 60rem) {
   .muestra {
-    grid-template-columns: 20rem minmax(0, 1fr);
+    grid-template-columns: 22rem minmax(0, 1fr);
     align-items: start;
-    gap: var(--spacing-8);
+    gap: var(--spacing-6);
   }
 }
