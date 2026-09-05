@@ -1,4 +1,8 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const raizProyecto = fileURLToPath(new URL("..", import.meta.url));
 
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 const cssPaletas = readFileSync(
@@ -192,6 +196,55 @@ compararListas("Plantillas", plantillas, leerRestriccionSql("plantilla_id"), "la
 console.log(
   `Registro sincronizado: ${plantillas.length} plantillas x ${paletas.length} paletas = ${plantillas.length * paletas.length} combinaciones.`,
 );
+
+/* Una plantilla o una paleta se comprueba con su validador, nunca con una
+   comparacion escrita a mano. La resolucion de apariencia del catalogo publico
+   se habia quedado en tres plantillas y cuatro paletas justamente asi: un
+   negocio que elegia Feria recibia Clasica y nada avisaba. */
+function buscarComparacionesALaMano(identificadores) {
+  const carpetas = ["app", "lib", "components"];
+  const permitidos = [
+    "lib/apariencia.ts",
+    "lib/plantillas/validacion.ts",
+    "components/templates/tema-catalogo.module.css",
+  ];
+  const hallazgos = [];
+
+  function recorrer(ruta) {
+    for (const nombre of readdirSync(ruta)) {
+      const completa = join(ruta, nombre);
+      if (statSync(completa).isDirectory()) {
+        recorrer(completa);
+        continue;
+      }
+      if (!/\.(ts|tsx)$/.test(nombre)) continue;
+
+      const relativa = relative(raizProyecto, completa).replaceAll("\\", "/");
+      if (permitidos.includes(relativa)) continue;
+      if (relativa.endsWith(".test.ts") || relativa.endsWith(".test.tsx")) continue;
+
+      const contenido = readFileSync(completa, "utf8");
+      for (const identificador of identificadores) {
+        if (contenido.includes(`=== "${identificador}"`)) {
+          hallazgos.push(`${relativa}: === "${identificador}"`);
+        }
+      }
+    }
+  }
+
+  for (const carpeta of carpetas) recorrer(join(raizProyecto, carpeta));
+  return hallazgos;
+}
+
+const comparaciones = buscarComparacionesALaMano([...plantillas, ...paletas]);
+if (comparaciones.length > 0) {
+  throw new Error(
+    "Apariencia comparada a mano en vez de con su validador:\n" +
+      comparaciones.map((hallazgo) => `- ${hallazgo}`).join("\n"),
+  );
+}
+
+console.log("Ninguna apariencia se compara a mano.");
 
 for (const paleta of paletas) {
   const coloresPaleta = leerColoresPaleta(paleta);
