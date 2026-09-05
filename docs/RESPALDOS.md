@@ -93,9 +93,19 @@ psql "<URL_DEL_PROYECTO_DE_PRUEBA>" -f esquema.sql
 psql "<URL_DEL_PROYECTO_DE_PRUEBA>" -f datos.sql
 ```
 
-Se da por bueno cuando, contra el proyecto restaurado:
+Y se compara con la base real de un comando:
 
-- La cantidad de negocios, productos y pedidos coincide con la real.
+```bash
+RESTAURADO_URL=https://<proyecto-de-prueba>.supabase.co RESTAURADO_KEY=<clave de servicio de ese proyecto> npm run respaldo:verificar
+```
+
+Imprime tabla por tabla cuántas filas hay en cada lado. Se admite que el
+restaurado tenga **menos** —el respaldo es de ayer y la base real siguió
+recibiendo pedidos—; lo que no se admite es una tabla vacía cuando la real tiene
+contenido, y eso el comando lo marca y termina con error.
+
+Se da por bueno cuando, además:
+
 - Un catálogo se ve completo apuntando la aplicación a ese proyecto.
 - Las políticas de RLS siguen en pie: `npm run test:rls:linked` pasa.
 
