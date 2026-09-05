@@ -560,6 +560,10 @@ export type Database = {
         Args: { p_activo: boolean; p_motivo?: string; p_negocio_id: string }
         Returns: Json
       }
+      admin_registrar_invitacion: {
+        Args: { p_correo: string }
+        Returns: undefined
+      }
       admin_renovar_suscripcion: {
         Args: { p_meses?: number; p_negocio_id: string }
         Returns: Json

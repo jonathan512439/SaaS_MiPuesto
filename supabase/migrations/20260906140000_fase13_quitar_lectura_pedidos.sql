@@ -1,0 +1,12 @@
+-- Se agregó una política que dejaba a la plataforma leer todos los pedidos,
+-- pensando en «ver si un negocio está usando el sistema». La pantalla no la usa
+-- y los pedidos guardan nombre y teléfono de compradores, que son terceros que
+-- nunca aceptaron nada con MiPuesto.
+--
+-- Un permiso que no se usa solo agrega superficie: si la cuenta de plataforma se
+-- compromete, la diferencia entre poder suspender catálogos y poder leer los
+-- datos personales de los clientes de todos es enorme.
+--
+-- Se quita. El día que haga falta contar pedidos por negocio, un conteo agregado
+-- responde lo mismo sin exponer una fila.
+drop policy if exists "plataforma_lee_pedidos" on public.pedidos;

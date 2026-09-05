@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { AccionesCliente } from "../../../components/plataforma/acciones-cliente";
+import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
 import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
 import {
   ETIQUETAS_ESTADO,
@@ -54,6 +55,8 @@ export default async function PaginaPlataforma() {
           {cobrables * PRECIO_MENSUAL_BS} al mes si todos pagan
         </p>
       </header>
+
+      <InvitarNegocio />
 
       {clientes.length === 0 ? (
         <p className={styles.vacio}>Todavía no hay negocios cargados.</p>
