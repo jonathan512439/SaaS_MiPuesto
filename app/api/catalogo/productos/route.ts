@@ -6,6 +6,7 @@ import {
   estadoPorStock,
   validarProducto,
 } from "../../../../lib/catalogo/validacion";
+import { fechaHoyBolivia } from "../../../../lib/catalogo/carta-del-dia";
 import {
   leerJson,
   obtenerContextoAdminCatalogo,
@@ -14,7 +15,7 @@ import {
 } from "../../../../lib/catalogo/servidor";
 
 const COLUMNAS_PRODUCTO =
-  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden";
+  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden,en_carta_hasta";
 
 export async function POST(solicitud: NextRequest) {
   const contexto = await obtenerContextoAdminCatalogo();
@@ -107,6 +108,27 @@ export async function PATCH(solicitud: NextRequest) {
       .maybeSingle();
     if (error || !data) {
       return NextResponse.json({ error: "No se pudo cambiar la visibilidad." }, { status: 404 });
+    }
+    return NextResponse.json({ producto: data });
+  }
+
+  /* La carta del día se arma y se deshace en un toque, varias veces por semana.
+     Se guarda la fecha de hoy en Bolivia y no un sí/no: así se vacía sola a la
+     medianoche y nadie tiene que acordarse de apagarla. */
+  if (
+    typeof datos.en_carta === "boolean" &&
+    Object.keys(datos).every((clave) => clave === "id" || clave === "en_carta")
+  ) {
+    const { data, error } = await contexto.supabase
+      .from("productos")
+      .update({ en_carta_hasta: datos.en_carta ? fechaHoyBolivia() : null })
+      .eq("id", datos.id)
+      .eq("negocio_id", contexto.negocio.id)
+      .is("eliminado_en", null)
+      .select(COLUMNAS_PRODUCTO)
+      .maybeSingle();
+    if (error || !data) {
+      return NextResponse.json({ error: "No se pudo cambiar la carta del día." }, { status: 404 });
     }
     return NextResponse.json({ producto: data });
   }

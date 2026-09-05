@@ -8,6 +8,7 @@ import type {
   ProductoCatalogo,
   SubcategoriaCatalogo,
 } from "../../../../lib/catalogo/tipos";
+import { rubroOfrece } from "../../../../lib/negocios/rubros";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import styles from "./catalogo.module.css";
@@ -25,7 +26,7 @@ export default async function PaginaCatalogo() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("id,nombre,slug")
+    .select("id,nombre,slug,rubro")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect("/dashboard/configuracion");
@@ -51,7 +52,7 @@ export default async function PaginaCatalogo() {
     supabase
       .from("productos")
       .select(
-        "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden",
+        "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden,en_carta_hasta",
       )
       .eq("negocio_id", negocio.id)
       .is("eliminado_en", null)
@@ -79,6 +80,18 @@ export default async function PaginaCatalogo() {
         <h1>Catálogo</h1>
         {/* El enlace aparece solo cuando hay algo que recuperar: una papelera
             vacía anunciada en cada visita es ruido. */}
+        {/* Solo para los rubros a los que les sirve: un menú impreso en una
+            boutique es un botón que nadie va a tocar nunca. */}
+        {rubroOfrece(negocio.rubro, "menu_imprimible") ? (
+          <Link
+            className={styles.enlacePapelera}
+            href={`/${negocio.slug}/imprimir`}
+            rel="noreferrer"
+            target="_blank"
+          >
+            Menú para imprimir
+          </Link>
+        ) : null}
         {enPapelera > 0 ? (
           <Link className={styles.enlacePapelera} href="/dashboard/catalogo/papelera">
             Papelera ({enPapelera})

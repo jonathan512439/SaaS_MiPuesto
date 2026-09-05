@@ -232,3 +232,61 @@ describe("apariencia publicada", () => {
     expect(catalogo.paleta).toBe("mercado");
   });
 });
+
+describe("carta del día", () => {
+  const negocio = {
+    nombre: "Almuerzos Doña Rosa",
+    descripcion: null,
+    telefono_whatsapp: "59170000000",
+    tipo_negocio: "tienda_virtual",
+    horario: { modo: "siempre_abierto", dias: {} },
+    plantilla_id: "clasica",
+    paleta_id: "mercado",
+  };
+  const categorias = [{ id: "cat-1", nombre: "Platos", orden: 1 }];
+  const base = {
+    categoria_id: "cat-1",
+    subcategoria_id: null,
+    descripcion: null,
+    precio: 30,
+    fotos: [] as string[],
+    estado: "disponible",
+    visible: true,
+  };
+  const HOY_EN_BOLIVIA = new Date("2026-03-10T15:00:00.000Z");
+
+  function construir(enCartaHasta: string | null) {
+    return construirCatalogoPublico(
+      negocio,
+      categorias,
+      [],
+      [
+        { ...base, id: "p-1", nombre: "Silpancho", orden: 1, en_carta_hasta: enCartaHasta },
+        { ...base, id: "p-2", nombre: "Milanesa", orden: 2, en_carta_hasta: null },
+      ],
+      "https://ejemplo.supabase.co",
+      HOY_EN_BOLIVIA,
+    );
+  }
+
+  it("pone lo de hoy delante de todo", () => {
+    const { datos } = construir("2026-03-10");
+    expect(datos.categorias[0].nombre).toBe("Hoy");
+    expect(datos.categorias[0].productos.map(({ nombre }) => nombre)).toEqual(["Silpancho"]);
+  });
+
+  /* Repetir el plato del día más abajo alarga el catálogo en vez de acortarlo,
+     que es lo contrario de para qué existe la carta del día. */
+  it("no repite el plato en su categoría", () => {
+    const { datos } = construir("2026-03-10");
+    const platos = datos.categorias.find(({ nombre }) => nombre === "Platos");
+    expect(platos?.productos.map(({ nombre }) => nombre)).toEqual(["Milanesa"]);
+  });
+
+  it("no arma la sección cuando la marca venció", () => {
+    const { datos } = construir("2026-03-09");
+    expect(datos.categorias.map(({ nombre }) => nombre)).toEqual(["Platos"]);
+    const platos = datos.categorias[0];
+    expect(platos.productos.map(({ nombre }) => nombre)).toEqual(["Silpancho", "Milanesa"]);
+  });
+});

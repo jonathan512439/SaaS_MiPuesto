@@ -168,6 +168,7 @@ export type Database = {
           qr_pago_url: string | null
           redes_sociales: Json
           reserva_minutos: number
+          rubro: string | null
           slug: string
           suscripcion_vence_en: string
           suspendido_en: string | null
@@ -194,6 +195,7 @@ export type Database = {
           qr_pago_url?: string | null
           redes_sociales?: Json
           reserva_minutos?: number
+          rubro?: string | null
           slug: string
           suscripcion_vence_en?: string
           suspendido_en?: string | null
@@ -220,6 +222,7 @@ export type Database = {
           qr_pago_url?: string | null
           redes_sociales?: Json
           reserva_minutos?: number
+          rubro?: string | null
           slug?: string
           suscripcion_vence_en?: string
           suspendido_en?: string | null
@@ -380,6 +383,7 @@ export type Database = {
           creado_en: string
           descripcion: string | null
           eliminado_en: string | null
+          en_carta_hasta: string | null
           estado: string
           fotos: string[]
           id: string
@@ -404,6 +408,7 @@ export type Database = {
           creado_en?: string
           descripcion?: string | null
           eliminado_en?: string | null
+          en_carta_hasta?: string | null
           estado?: string
           fotos?: string[]
           id?: string
@@ -428,6 +433,7 @@ export type Database = {
           creado_en?: string
           descripcion?: string | null
           eliminado_en?: string | null
+          en_carta_hasta?: string | null
           estado?: string
           fotos?: string[]
           id?: string

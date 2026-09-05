@@ -349,6 +349,9 @@ Se guarda el enlace y no coordenadas: geocodificar exige una API paga, y una
 dirección escrita a mano rara vez lleva a la puerta correcta en un barrio
 boliviano. Tampoco se exige que el enlace sea de Google.
 
+**`rubro` se agregó el 2026-09-05 con la etapa 8**, que es cuando llegó su
+primera función. `google_place_id` sigue esperando la etapa 7.
+
 **`rubro` y `google_place_id` quedan para cuando lleguen sus funciones** —etapas
 8 y 7—. Definir ocho valores de rubro para un uso que llega dentro de varias
 etapas es adivinar; con tres clientes reales se sabrá qué rubros existen de
@@ -425,7 +428,7 @@ autenticación, está en `docs/AVANCE.md`, sección «Estado de Fase 13».
 - **Directorio por zona.** Se construye ahora y se promociona cuando haya ~30
   negocios en una ciudad: un directorio con 10 se ve vacío y resta.
 
-### Etapa 8 — Paquete de restaurantes (4 días)
+### Etapa 8 — Paquete de restaurantes — **carta del día y menú impreso HECHOS el 2026-09-05**
 
 Todo gobernado por el rubro de la etapa 3½.
 

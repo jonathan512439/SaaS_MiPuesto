@@ -5,7 +5,9 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useRef, useState } from "react";
 
 import { obtenerUrlPublicaImagenProducto } from "../../lib/catalogo/imagenes-publicas";
+import { estaEnLaCartaDeHoy } from "../../lib/catalogo/carta-del-dia";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
+import { rubroOfrece } from "../../lib/negocios/rubros";
 import {
   AJUSTE_MAXIMO,
   AJUSTE_MINIMO,
@@ -97,6 +99,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [categorias, setCategorias] = useState(datosIniciales.categorias);
   const [subcategorias, setSubcategorias] = useState(datosIniciales.subcategorias);
   const [productos, setProductos] = useState(datosIniciales.productos);
+  /* El rubro apaga botones, nunca datos: quien no eligió rubro los ve todos, y
+     cambiar de rubro no borra ninguna marca ya puesta. */
+  const ofreceCartaDelDia = rubroOfrece(datosIniciales.negocio.rubro, "carta_del_dia");
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [paginaCategorias, setPaginaCategorias] = useState(1);
   const [paginaProductos, setPaginaProductos] = useState(1);
@@ -637,6 +642,34 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       );
     } catch (error) {
       informarError("No se pudo cambiar el estado", error);
+    }
+  }
+
+  /* Se guarda la fecha de hoy y no un sí/no: la carta se vacía sola a la
+     medianoche. Un interruptor que hay que apagar a mano queda encendido, y a
+     los tres días la carta «de hoy» miente sobre lo que se está sirviendo. */
+  async function alternarCartaDelDia(producto: ProductoCatalogo) {
+    const enCarta = !estaEnLaCartaDeHoy(producto.en_carta_hasta);
+    try {
+      const { producto: actualizado } = await solicitarJson<{ producto: ProductoCatalogo }>(
+        "/api/catalogo/productos",
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: producto.id, en_carta: enCarta }),
+        },
+      );
+      setProductos((actuales) =>
+        actuales.map((item) => (item.id === producto.id ? actualizado : item)),
+      );
+      informarExito(
+        enCarta ? "Está en la carta de hoy" : "Salió de la carta de hoy",
+        enCarta
+          ? "Aparece primero en tu catálogo. Se quita solo a la medianoche."
+          : "Volvió a su categoría de siempre.",
+      );
+    } catch (error) {
+      informarError("No se pudo cambiar la carta del día", error);
     }
   }
 
@@ -1240,6 +1273,16 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                           variante="discreto"
                         >
                           {producto.estado === "agotado" ? "Hay de nuevo" : "Agotado"}
+                        </Boton>
+                      ) : null}
+                      {ofreceCartaDelDia ? (
+                        <Boton
+                          onClick={() => void alternarCartaDelDia(producto)}
+                          variante="discreto"
+                        >
+                          {estaEnLaCartaDeHoy(producto.en_carta_hasta)
+                            ? "Sacar de hoy"
+                            : "Poner en hoy"}
                         </Boton>
                       ) : null}
                       <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">{producto.visible ? "Ocultar" : "Mostrar"}</Boton>

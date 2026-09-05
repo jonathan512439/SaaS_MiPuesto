@@ -1,0 +1,108 @@
+@reference "../../../globals.css";
+
+/* Una hoja, no una página web. Sin tema oscuro, sin colores de marca y sin
+   fotografías: la tinta de color cuesta, y un menú impreso se lee de un metro
+   de distancia por el precio, no por la imagen. */
+.hoja {
+  max-width: var(--ancho-lectura);
+  margin: 0 auto;
+  padding: var(--spacing-6) var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+
+.encabezado {
+  margin-bottom: var(--spacing-5);
+  border-bottom: var(--borde-marcado) solid var(--color-texto);
+  padding-bottom: var(--spacing-3);
+  text-align: center;
+}
+
+.encabezado h1 {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+}
+
+.encabezado p {
+  margin-top: var(--spacing-1);
+  font-size: var(--text-sm);
+}
+
+.contacto {
+  color: var(--color-texto-suave);
+}
+
+.categoria {
+  margin-bottom: var(--spacing-5);
+}
+
+.categoria h2 {
+  margin-bottom: var(--spacing-2);
+  border-bottom: var(--borde-fino) solid var(--color-borde);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.categoria h3 {
+  margin-top: var(--spacing-3);
+  margin-bottom: var(--spacing-1);
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+
+.lista {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.lista li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  font-size: var(--text-base);
+}
+
+/* La guía de puntos es lo que hace legible una lista de precios de un vistazo:
+   el ojo sigue la línea del nombre hasta la cifra sin perderse de renglón. */
+.guia {
+  flex: 1;
+  border-bottom: var(--borde-fino) dotted var(--color-borde);
+}
+
+.nombre {
+  font-weight: 600;
+}
+
+.precio {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.pie {
+  margin-top: var(--spacing-6);
+  border-top: var(--borde-fino) solid var(--color-borde);
+  padding-top: var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+
+@media print {
+  .hoja {
+    max-width: none;
+    padding: 0;
+  }
+
+  /* Que una categoría no se parta entre dos hojas, y que su título nunca quede
+     solo al pie de una. */
+  .categoria {
+    break-inside: avoid;
+  }
+
+  .categoria h2,
+  .categoria h3 {
+    break-after: avoid;
+  }
+}

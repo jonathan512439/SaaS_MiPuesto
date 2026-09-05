@@ -151,6 +151,61 @@ decide la venta.
 nombran, porque la plantilla Moderna es la que más depende de la foto y no hay
 fotos de ropa. Queda pendiente para cuando existan.
 
+## Rubro del negocio y paquete de restaurantes (etapa 8, parcial)
+
+`tipo_negocio` dice **cómo vende** —lectura, acción, carrito—. El rubro dice
+**qué vende**, y llega ahora porque llegaron sus dos primeras funciones. Hasta
+este cambio había una incoherencia: la portada le pregunta al comerciante a qué
+se dedica, y el producto nunca se lo preguntaba.
+
+**Regla que no se rompe: el rubro oculta interfaz, nunca datos ni permisos.**
+Cambiar de rubro apaga botones; no borra ni esconde nada de lo cargado, y no
+toca ninguna política de acceso. **Vacío es un valor legítimo**: los negocios que
+ya existían no eligieron rubro y ven el panel completo, que es exactamente lo que
+tenían. Quitarles pantallas sería castigarlos por no contestar una pregunta que
+nunca se les hizo.
+
+El registro vive en `lib/negocios/rubros.ts` y un test verifica que coincida con
+el `check` de la migración: si divergen, el panel ofrece un rubro que la base
+rechaza al guardar, con un error que el dueño no puede entender ni evitar.
+
+### Carta del día
+
+**Se guarda una fecha, no un sí/no.** Un interruptor que hay que apagar a mano
+queda encendido, y a los tres días la carta «de hoy» miente sobre lo que se está
+sirviendo. Con la fecha, la carta se vacía sola a la medianoche sin que nadie
+haga nada.
+
+La medianoche es la boliviana. El servidor corre en UTC y Bolivia no cambia de
+hora en todo el año, así que el desfase es fijo y se escribe explícito: sin él,
+entre las 20:00 y la medianoche el sistema ya estaría en el día siguiente y la
+carta se vaciaría en plena cena.
+
+En el catálogo aparece como una categoría **«Hoy» delante de todo**, y los
+productos marcados **salen de su categoría**: una carta del día que repite lo que
+ya está más abajo alarga el catálogo en vez de acortarlo. Se resolvió como una
+categoría sintética en `construirCatalogoPublico`, así que **las cuatro
+plantillas la muestran sin un solo cambio**.
+
+### Menú imprimible
+
+Ruta pública `/<slug>/imprimir`, los mismos datos con hoja de estilos propia.
+Sin fotografías ni colores de marca —la tinta de color cuesta y un menú se lee
+por el precio—, con guía de puntos entre el nombre y la cifra, y reglas de
+impresión para que una categoría no se parta entre dos hojas. Lleva la fecha del
+día a propósito: una lista de precios sin fecha sigue circulando meses después
+de que los precios cambiaron. No se indexa: es la misma información que el
+catálogo y competiría contra la propia página del negocio.
+
+El enlace aparece en el panel solo para los rubros a los que les sirve. La ruta,
+en cambio, funciona para cualquiera: **el rubro oculta interfaz, no datos.**
+
+### Lo que falta de la etapa 8
+
+**Precios por horario.** Va sola y va última: toca `calcular_precio_producto`,
+que está en la ruta del dinero, y exige zona horaria, cruce de medianoche y
+pruebas propias.
+
 ## Papelera de productos
 
 Borrar un producto ya no es definitivo. Antes borraba la fila y, antes todavía,

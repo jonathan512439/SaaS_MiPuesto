@@ -1,3 +1,5 @@
+import { esRubroId, type RubroId } from "./rubros";
+
 export const TIPOS_NEGOCIO = [
   "catalogo_estatico",
   "catalogo_cta",
@@ -25,6 +27,7 @@ export type DatosNegocioValidados = {
   descripcion: string | null;
   tipo_negocio: TipoNegocio;
   telefono_whatsapp: string;
+  rubro: RubroId | null;
 };
 
 export type ResultadoValidacionNegocio =
@@ -83,6 +86,7 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
   const slug = normalizarSlug(objeto.slug);
   const descripcion = textoDesde(objeto.descripcion);
   const tipo = textoDesde(objeto.tipo_negocio);
+  const rubro = textoDesde(objeto.rubro);
   const telefono = normalizarTelefonoWhatsapp(objeto.telefono_whatsapp);
   const errores: Record<string, string> = {};
 
@@ -99,6 +103,13 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
 
   if (!TIPOS_NEGOCIO.includes(tipo as TipoNegocio)) {
     errores.tipo_negocio = "Elegí una modalidad válida.";
+  }
+
+  /* Vacío es válido y significa «no lo dijo»: quien no elige rubro ve el panel
+     completo. Lo que no se acepta es un rubro inventado, que la base rechazaría
+     recién al guardar con un error que el dueño no puede entender. */
+  if (rubro && !esRubroId(rubro)) {
+    errores.rubro = "Elegí un rubro de la lista.";
   }
 
   if (!PATRON_TELEFONO_BOLIVIA.test(telefono)) {
@@ -118,6 +129,7 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
       descripcion: descripcion || null,
       tipo_negocio: tipo as TipoNegocio,
       telefono_whatsapp: telefono,
+      rubro: esRubroId(rubro) ? rubro : null,
     },
   };
 }

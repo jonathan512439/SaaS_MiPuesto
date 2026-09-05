@@ -5,6 +5,11 @@ import type { DatosPlantilla } from "../plantillas/tipos";
 import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
 import { calcularCantidadDisponible } from "../reservas";
 import { calcularPrecioProducto, type PromocionPrecio } from "../precios";
+import {
+  CATEGORIA_CARTA_DEL_DIA,
+  NOMBRE_CARTA_DEL_DIA,
+  estaEnLaCartaDeHoy,
+} from "./carta-del-dia";
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 import { obtenerRedesSociales } from "../negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
@@ -45,6 +50,7 @@ type ProductoPublico = {
   cantidad_reservada?: number;
   visible: boolean;
   orden: number;
+  en_carta_hasta?: string | null;
 };
 
 export function obtenerTextoHorario(horario: unknown) {
@@ -66,6 +72,12 @@ export function construirCatalogoPublico(
   const visibles = productos
     .filter((producto) => producto.visible)
     .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
+  const enLaCartaDeHoy = (producto: ProductoPublico) =>
+    estaEnLaCartaDeHoy(producto.en_carta_hasta ?? null, fecha);
+  /* Los del día salen de su categoría y no aparecen dos veces: una carta del
+     día que repite lo que ya está más abajo hace más largo el catálogo en vez de
+     más corto, que es justamente lo contrario de para qué existe. */
+  const delResto = visibles.filter((producto) => !enLaCartaDeHoy(producto));
   const categoriasOrdenadas = [...categorias].sort(
     (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
   );
@@ -124,7 +136,7 @@ export function construirCatalogoPublico(
     .map((categoria) => ({
       id: categoria.id,
       nombre: categoria.nombre,
-      productos: visibles
+      productos: delResto
         .filter(
           (producto) =>
             producto.categoria_id === categoria.id && producto.subcategoria_id === null,
@@ -135,7 +147,7 @@ export function construirCatalogoPublico(
         .map((subcategoria) => ({
           id: subcategoria.id,
           nombre: subcategoria.nombre,
-          productos: visibles
+          productos: delResto
             .filter((producto) => producto.subcategoria_id === subcategoria.id)
             .map(convertirProducto),
         }))
@@ -145,7 +157,7 @@ export function construirCatalogoPublico(
       (categoria) =>
         categoria.productos.length > 0 || categoria.subcategorias.length > 0,
     );
-  const sinCategoria = visibles
+  const sinCategoria = delResto
     .filter((producto) => producto.categoria_id === null)
     .map(convertirProducto);
   if (sinCategoria.length > 0) {
@@ -153,6 +165,18 @@ export function construirCatalogoPublico(
       id: "otros",
       nombre: "Otros",
       productos: sinCategoria,
+      subcategorias: [],
+    });
+  }
+
+  /* Delante de todo: quien abre el catálogo al mediodía quiere saber qué hay
+     hoy, no recorrer la carta entera. */
+  const delDia = visibles.filter(enLaCartaDeHoy).map(convertirProducto);
+  if (delDia.length > 0) {
+    agrupadas.unshift({
+      id: CATEGORIA_CARTA_DEL_DIA,
+      nombre: NOMBRE_CARTA_DEL_DIA,
+      productos: delDia,
       subcategorias: [],
     });
   }

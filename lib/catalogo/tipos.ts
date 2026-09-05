@@ -29,6 +29,7 @@ export type ProductoCatalogo = {
   visible: boolean;
   estado: string;
   orden: number;
+  en_carta_hasta: string | null;
 };
 
 export type DatosProductoEntrada = {
@@ -46,6 +47,7 @@ export type DatosCatalogoAdmin = {
     id: string;
     nombre: string;
     slug: string;
+    rubro: string | null;
   };
   categorias: CategoriaCatalogo[];
   subcategorias: SubcategoriaCatalogo[];

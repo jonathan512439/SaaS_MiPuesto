@@ -78,7 +78,7 @@ function leerCategoriaPedida(parametros: Record<string, string | string[] | unde
 }
 
 const COLUMNAS_PRODUCTO_PUBLICO =
-  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,cantidad_reservada,estado,visible,orden";
+  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,cantidad_reservada,estado,visible,orden,en_carta_hasta";
 
 /* Filtrar y paginar aquí, y no en el navegador, es lo que permite un catálogo
    de trescientos productos: antes viajaba la ficha completa de cada uno en cada

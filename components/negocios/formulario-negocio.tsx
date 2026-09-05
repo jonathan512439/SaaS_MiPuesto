@@ -8,6 +8,7 @@ import {
   validarDatosNegocio,
   validarSlug,
 } from "../../lib/negocios/validacion";
+import { DEFINICIONES_RUBROS } from "../../lib/negocios/rubros";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "../../app/(admin)/dashboard/configuracion/configuracion.module.css";
 
@@ -16,6 +17,7 @@ export type PerfilNegocioInicial = {
   slug: string;
   descripcion: string | null;
   tipo_negocio: string;
+  rubro?: string | null;
   telefono_whatsapp: string;
 };
 
@@ -63,6 +65,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
     (negocioInicial?.tipo_negocio as TipoNegocio | undefined) ?? "catalogo_estatico",
   );
   const [telefono, setTelefono] = useState(negocioInicial?.telefono_whatsapp ?? "");
+  const [rubro, setRubro] = useState(negocioInicial?.rubro ?? "");
   const [estadoSlug, setEstadoSlug] = useState<EstadoSlug>("inicial");
   const [errores, setErrores] = useState<Record<string, string>>({});
   const { mostrarAviso } = useAvisos();
@@ -123,6 +126,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       descripcion,
       tipo_negocio: tipo,
       telefono_whatsapp: telefono,
+      rubro,
     };
     const validacion = validarDatosNegocio(entrada);
 
@@ -162,6 +166,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       setSlug(datos.negocio.slug);
       setDescripcion(datos.negocio.descripcion ?? "");
       setTipo(datos.negocio.tipo_negocio as TipoNegocio);
+      setRubro(datos.negocio.rubro ?? "");
       setTelefono(datos.negocio.telefono_whatsapp);
     }
 
@@ -281,6 +286,24 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           {Object.entries(ETIQUETAS_MODALIDAD).map(([valor, etiqueta]) => (
             <option key={valor} value={valor}>
               {etiqueta}
+            </option>
+          ))}
+        </Selector>
+        {/* El rubro va junto a la modalidad porque son las dos mitades de la
+            misma pregunta: cómo vende y qué vende. Solo enciende o apaga
+            pantallas del panel; no toca ni un dato de lo que ya cargó. */}
+        <Selector
+          ayuda="Solo decide qué herramientas te ofrecemos. Cambiarlo no borra nada."
+          error={errores.rubro}
+          etiqueta="¿Qué vendés?"
+          id="rubro-negocio"
+          onChange={(evento) => setRubro(evento.target.value)}
+          value={rubro}
+        >
+          <option value="">Prefiero no decirlo</option>
+          {DEFINICIONES_RUBROS.map(({ id, nombre, ejemplo }) => (
+            <option key={id} value={id}>
+              {nombre} — {ejemplo}
             </option>
           ))}
         </Selector>

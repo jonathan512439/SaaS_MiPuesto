@@ -25,6 +25,7 @@ describe("validación del perfil de negocio", () => {
         descripcion: "Café de especialidad.",
         tipo_negocio: "catalogo_cta",
         telefono_whatsapp: "59171234567",
+        rubro: null,
       },
     });
   });
@@ -72,5 +73,33 @@ describe("validación del perfil de negocio", () => {
     expect(proponerSlug("Café & Panadería Illimani")).toBe(
       "cafe-panaderia-illimani",
     );
+  });
+});
+
+describe("rubro del negocio", () => {
+  const base = {
+    nombre: "Café Illimani",
+    slug: "cafe-illimani",
+    descripcion: "",
+    tipo_negocio: "catalogo_cta",
+    telefono_whatsapp: "71234567",
+  };
+
+  it("acepta un rubro de la lista", () => {
+    const resultado = validarDatosNegocio({ ...base, rubro: "restaurante" });
+    expect(resultado.correcto && resultado.datos.rubro).toBe("restaurante");
+  });
+
+  /* Vacío significa «no lo dijo» y es un valor legítimo: quien no elige rubro ve
+     el panel completo. */
+  it("trata el vacío como no elegido", () => {
+    const resultado = validarDatosNegocio({ ...base, rubro: "" });
+    expect(resultado.correcto && resultado.datos.rubro).toBe(null);
+  });
+
+  it("rechaza un rubro inventado antes de que lo haga la base", () => {
+    const resultado = validarDatosNegocio({ ...base, rubro: "panaderia" });
+    expect(resultado.correcto).toBe(false);
+    expect(!resultado.correcto && resultado.errores.rubro).toBeTruthy();
   });
 });

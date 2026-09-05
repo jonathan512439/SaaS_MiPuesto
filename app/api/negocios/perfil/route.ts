@@ -5,7 +5,7 @@ import { validarDatosNegocio } from "../../../../lib/negocios/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 
 const COLUMNAS_PERFIL =
-  "id,nombre,slug,descripcion,tipo_negocio,telefono_whatsapp,activo,verificado";
+  "id,nombre,slug,descripcion,tipo_negocio,telefono_whatsapp,activo,verificado,rubro";
 
 export async function POST(solicitud: NextRequest) {
   const supabase = await crearClienteSupabaseServidor();
