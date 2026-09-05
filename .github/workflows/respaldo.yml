@@ -1,0 +1,91 @@
+name: Respaldo diario de la base
+
+# Un volcado por día a R2. La base es lo irreemplazable: los productos, los
+# pedidos y los vencimientos de cada negocio. Sin esto, cobrar por custodiar
+# datos que no se respaldan es un riesgo que se paga una sola vez y caro.
+#
+# Corre a las 07:00 UTC —03:00 en Bolivia—, antes de la purga de analítica
+# (08:30) y del corte por vencimiento (09:00), para que el respaldo del día
+# refleje el estado previo a cualquier borrado automático.
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: respaldo
+  cancel-in-progress: false
+
+jobs:
+  respaldar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # pg_dump directo y no `supabase db dump`, que exige Docker. El cliente se
+      # instala en la versión del servidor —Postgres 17— porque un pg_dump más
+      # viejo se niega a volcar una base más nueva.
+      - name: Instalar el cliente de Postgres 17
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          pg_dump --version
+
+      - name: Volcar la base
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "Falta el secreto SUPABASE_DB_URL." >&2
+            exit 1
+          fi
+          # El esquema y los datos por separado: restaurar solo los datos sobre
+          # un esquema sano es lo que se necesita casi siempre.
+          pg_dump "$SUPABASE_DB_URL" --schema-only --schema=public \
+            --no-owner --no-privileges -f respaldo-esquema.sql
+          pg_dump "$SUPABASE_DB_URL" --data-only --schema=public \
+            --no-owner --no-privileges -f respaldo-datos.sql
+          gzip respaldo-esquema.sql respaldo-datos.sql
+          ls -lh respaldo-*.sql.gz
+
+      # Un volcado de cero bytes sube igual y da una falsa sensación de respaldo.
+      - name: Comprobar que el volcado tiene contenido
+        run: |
+          for archivo in respaldo-esquema.sql.gz respaldo-datos.sql.gz; do
+            tamano=$(stat -c%s "$archivo")
+            if [ "$tamano" -lt 1024 ]; then
+              echo "$archivo pesa $tamano bytes: el volcado falló." >&2
+              exit 1
+            fi
+          done
+
+      - name: Subir a R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BALDE: ${{ vars.R2_BUCKET_RESPALDOS }}
+        run: |
+          if [ -z "$BALDE" ]; then
+            echo "Falta la variable R2_BUCKET_RESPALDOS." >&2
+            exit 1
+          fi
+          FECHA=$(date -u +%Y-%m-%d)
+          for archivo in respaldo-esquema respaldo-datos; do
+            npx --yes wrangler@4 r2 object put \
+              "${BALDE}/${FECHA}/${archivo}.sql.gz" \
+              --file "${archivo}.sql.gz" \
+              --remote
+          done
+          echo "Respaldo del $FECHA subido a $BALDE."
