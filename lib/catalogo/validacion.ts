@@ -2,7 +2,10 @@ import type { DatosProductoEntrada } from "./tipos";
 
 export const LIMITE_CATEGORIAS = 40;
 export const LIMITE_SUBCATEGORIAS_POR_CATEGORIA = 20;
-export const LIMITE_PRODUCTOS = 200;
+/* Sube a 300 recién ahora: con la paginación en el navegador, cada visita
+   descargaba la ficha de todos los productos para mostrar doce, así que subir
+   el límite antes habría empeorado el catálogo en vez de mejorarlo. */
+export const LIMITE_PRODUCTOS = 300;
 
 const PATRON_UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

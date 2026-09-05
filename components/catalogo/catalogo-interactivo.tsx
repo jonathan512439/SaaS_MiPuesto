@@ -1,13 +1,26 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ComponentType,
+} from "react";
 
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
 import { registrarEventoAnalitica } from "../../lib/analitica-cliente";
-import { paginarCatalogo } from "../../lib/catalogo/paginacion";
+import {
+  construirRutaCatalogo,
+  type FiltrosCatalogo,
+} from "../../lib/catalogo/consulta-publica";
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
+import { guardarPedido, leerPedidoGuardado } from "../../lib/pedidos/pedido-guardado";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type {
   DatosPlantilla,
@@ -25,7 +38,16 @@ type PropiedadesCatalogoInteractivo = {
   datos: DatosPlantilla;
   plantilla: PlantillaId;
   paleta: PaletaId;
+  slug: string;
+  categoriasNavegacion: Array<{ id: string; nombre: string }>;
+  filtros: FiltrosCatalogo;
+  totalProductos: number;
+  totalPaginas: number;
 };
+
+/* Lo que se escribe se ve al instante, pero la consulta espera: sin esta pausa
+   cada tecla sería un viaje al servidor. */
+const ESPERA_BUSQUEDA = 350;
 
 /* La plantilla llega en su propio chunk. En una conexion lenta ese hueco es
    justo lo primero que ve el cliente, asi que reservamos su alto. */
@@ -71,6 +93,10 @@ const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
   ),
 };
 
+function suscribirInmutable() {
+  return () => {};
+}
+
 function obtenerProductos(datos: DatosPlantilla): ProductoPlantilla[] {
   return datos.categorias.flatMap((categoria) => [
     ...categoria.productos,
@@ -84,23 +110,54 @@ export function CatalogoInteractivo({
   datos,
   plantilla,
   paleta,
+  slug,
+  categoriasNavegacion,
+  filtros,
+  totalProductos,
+  totalPaginas,
 }: PropiedadesCatalogoInteractivo) {
   const router = useRouter();
   const [cantidades, setCantidades] = useState<Record<string, number>>({});
+  /* sessionStorage no existe al renderizar en el servidor; useSyncExternalStore
+     da esa distinción sin encender estado en un efecto. */
+  const montado = useSyncExternalStore(suscribirInmutable, () => true, () => false);
+  const [negocioLeido, setNegocioLeido] = useState("");
+  /* El carrito guarda su propia copia de cada producto agregado. Con la
+     paginación en el servidor, la página que se está viendo ya no contiene
+     necesariamente lo que el cliente eligió antes, y sin esta copia el pedido
+     perdería los artículos al pasar de página. */
+  const [elegidos, setElegidos] = useState<Record<string, ProductoPlantilla>>({});
   const [firmaReservada, setFirmaReservada] = useState("");
   const [pedidoAbierto, setPedidoAbierto] = useState(false);
-  const [categoriaActiva, setCategoriaActiva] = useState("");
-  const [busqueda, setBusqueda] = useState("");
-  const [pagina, setPagina] = useState(1);
-  const productos = useMemo(() => obtenerProductos(datos), [datos]);
-  const paginaCatalogo = useMemo(
-    () => paginarCatalogo(datos.categorias, categoriaActiva, pagina, busqueda),
-    [busqueda, categoriaActiva, datos.categorias, pagina],
-  );
-  const datosPaginados = useMemo(
-    () => ({ ...datos, categorias: paginaCatalogo.categorias }),
-    [datos, paginaCatalogo.categorias],
-  );
+  const [busqueda, setBusqueda] = useState(filtros.busqueda);
+  const [busquedaDelServidor, setBusquedaDelServidor] = useState(filtros.busqueda);
+  const temporizadorBusqueda = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /* La búsqueda del servidor llega por la dirección, así que el campo se
+     resincroniza cuando esa dirección cambia por fuera: atrás, adelante o un
+     enlace compartido. Se ajusta durante el render y no en un efecto, que es la
+     forma de no dibujar una vez con el valor viejo. */
+  if (filtros.busqueda !== busquedaDelServidor) {
+    setBusquedaDelServidor(filtros.busqueda);
+    setBusqueda(filtros.busqueda);
+  }
+
+  /* El pedido sobrevive a la navegación y a una recarga. Con la paginación en
+     el servidor eso dejó de ser una comodidad: cambiar de página o buscar es
+     navegar, y sin esto el cliente perdería lo que ya había elegido. */
+  if (montado && negocioLeido !== datos.negocio.id) {
+    const guardado = leerPedidoGuardado(datos.negocio.id);
+    setNegocioLeido(datos.negocio.id);
+    setCantidades(guardado.cantidades);
+    setElegidos(guardado.elegidos);
+  }
+  const productosPagina = useMemo(() => obtenerProductos(datos), [datos]);
+  const productosCarrito = useMemo(() => Object.values(elegidos), [elegidos]);
+  const productos = useMemo(() => {
+    const porId = new Map(productosCarrito.map((producto) => [producto.id, producto]));
+    for (const producto of productosPagina) porId.set(producto.id, producto);
+    return [...porId.values()];
+  }, [productosCarrito, productosPagina]);
   const cantidadEnCarrito = Object.values(cantidades).reduce(
     (total, cantidad) => total + cantidad,
     0,
@@ -130,22 +187,44 @@ export function CatalogoInteractivo({
   useEffect(() => {
     registrar("vista_catalogo");
   }, [registrar]);
+
+  useEffect(() => {
+    if (negocioLeido !== datos.negocio.id) return;
+    guardarPedido(datos.negocio.id, { cantidades, elegidos });
+  }, [cantidades, datos.negocio.id, elegidos, negocioLeido]);
+
+  useEffect(
+    () => () => {
+      if (temporizadorBusqueda.current) clearTimeout(temporizadorBusqueda.current);
+    },
+    [],
+  );
+
+  const irA = useCallback(
+    (siguientes: Partial<FiltrosCatalogo>) => {
+      router.push(construirRutaCatalogo(slug, { ...filtros, pagina: 1, ...siguientes }), {
+        scroll: false,
+      });
+    },
+    [filtros, router, slug],
+  );
   /* La barra la dibuja la plantilla elegida, con su propia estructura; aqui
      solo viaja el estado que comparten. Antes esta pantalla inyectaba un
      desplegable generico y apagaba la barra de la plantilla, de modo que lo
      publicado no se parecia a la vista previa del panel. */
   const navegacion = {
-    categorias: datos.categorias.map(({ id, nombre }) => ({ id, nombre })),
-    activa: categoriaActiva,
-    totalProductos: paginaCatalogo.totalProductos,
-    alElegir: (categoriaId: string) => {
-      setCategoriaActiva(categoriaId);
-      setPagina(1);
-    },
+    categorias: categoriasNavegacion,
+    activa: filtros.categoria,
+    totalProductos,
+    alElegir: (categoriaId: string) => irA({ categoria: categoriaId }),
     busqueda,
     alBuscar: (termino: string) => {
       setBusqueda(termino);
-      setPagina(1);
+      if (temporizadorBusqueda.current) clearTimeout(temporizadorBusqueda.current);
+      temporizadorBusqueda.current = setTimeout(
+        () => irA({ busqueda: termino }),
+        ESPERA_BUSQUEDA,
+      );
     },
   };
 
@@ -157,6 +236,14 @@ export function CatalogoInteractivo({
       if (cantidad <= 0) delete siguientes[productoId];
       else siguientes[productoId] = limitarCantidadReserva(cantidad, producto.maximoCantidad);
       return siguientes;
+    });
+    setElegidos((actuales) => {
+      if (cantidad <= 0) {
+        const siguientes = { ...actuales };
+        delete siguientes[productoId];
+        return siguientes;
+      }
+      return { ...actuales, [productoId]: producto };
     });
   }
 
@@ -175,41 +262,44 @@ export function CatalogoInteractivo({
         alAgregarProducto={agregarProducto}
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
         cantidadesCarrito={cantidades}
-        datos={datosPaginados}
+        datos={datos}
         demostracion={false}
-        navegacion={datos.categorias.length > 0 ? navegacion : undefined}
+        navegacion={categoriasNavegacion.length > 0 ? navegacion : undefined}
         paleta={paleta}
       />
-      {paginaCatalogo.totalProductos === 0 && paginaCatalogo.hayBusqueda ? (
+      {totalProductos === 0 && filtros.busqueda.trim() ? (
         <p className={styles.sinResultados} role="status">
-          No encontramos «{busqueda.trim()}». Probá con otra palabra o mirá todo el
-          catálogo.
+          No encontramos «{filtros.busqueda.trim()}». Probá con otra palabra o mirá todo
+          el catálogo.
         </p>
       ) : null}
-      {paginaCatalogo.totalPaginas > 1 ? (
-        <nav
-          aria-label="Páginas de productos"
-          className={styles.paginacion}
-        >
-          <button
-            disabled={paginaCatalogo.pagina === 1}
-            onClick={() => setPagina((actual) => Math.max(1, actual - 1))}
-            type="button"
-          >
-            Anterior
-          </button>
+      {/* Las páginas son enlaces y no botones: así se pueden compartir, abrir en
+          otra pestaña y quedar en el historial. */}
+      {totalPaginas > 1 ? (
+        <nav aria-label="Páginas de productos" className={styles.paginacion}>
+          {filtros.pagina > 1 ? (
+            <Link
+              href={construirRutaCatalogo(slug, { ...filtros, pagina: filtros.pagina - 1 })}
+              scroll={false}
+            >
+              Anterior
+            </Link>
+          ) : (
+            <span aria-hidden="true" />
+          )}
           <span>
-            Página {paginaCatalogo.pagina} de {paginaCatalogo.totalPaginas}
+            Página {filtros.pagina} de {totalPaginas}
           </span>
-          <button
-            disabled={paginaCatalogo.pagina === paginaCatalogo.totalPaginas}
-            onClick={() =>
-              setPagina((actual) => Math.min(paginaCatalogo.totalPaginas, actual + 1))
-            }
-            type="button"
-          >
-            Siguiente
-          </button>
+          {filtros.pagina < totalPaginas ? (
+            <Link
+              href={construirRutaCatalogo(slug, { ...filtros, pagina: filtros.pagina + 1 })}
+              scroll={false}
+            >
+              Siguiente
+            </Link>
+          ) : (
+            <span aria-hidden="true" />
+          )}
         </nav>
       ) : null}
       {datos.negocio.modalidad === "carrito" ? (
@@ -229,7 +319,7 @@ export function CatalogoInteractivo({
                 setFirmaReservada(firma);
                 router.refresh();
               }}
-              productos={productos}
+              productos={productosCarrito}
             />
           </HojaCatalogo>
           {cantidadEnCarrito > 0 && !hayReservaVigente ? (
