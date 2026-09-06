@@ -151,6 +151,48 @@ decide la venta.
 nombran, porque la plantilla Moderna es la que más depende de la foto y no hay
 fotos de ropa. Queda pendiente para cuando existan.
 
+## Control de almacenamiento en la plataforma
+
+El techo del plan gratuito llega antes de lo que uno cree: mil megabytes se
+reparten entre todos los clientes, y hasta ahora nadie se enteraba de que se
+acercaba ni de quién lo estaba gastando.
+
+**Se calcula al consultar; no hay contador guardado.** Un contador mantenido por
+disparadores sobre `storage.objects` se desincroniza al primer borrado que no
+pase por la aplicación —una limpieza a mano, una restauración, un fallo a mitad
+de camino— y un número de ocupación equivocado es peor que no tener número,
+porque se decide con él. Sumar unos miles de filas cuesta milisegundos.
+
+El efecto práctico es el que se pidió: **cada foto que se sube o se borra ya
+cambia el número de la próxima vez que se abre la pantalla**, sin que nadie tenga
+que acordarse de actualizar nada, y sin poder quedar desfasado.
+
+### Los dos techos, medidos aparte
+
+Archivos (1 GB) y base de datos (500 MB) se llenan por caminos distintos: las
+fotografías van a los baldes, y los productos, pedidos y analítica engordan la
+base. Estar cómodo en uno no dice nada del otro. Al pasar al plan pago se
+cambian dos constantes en `lib/plataforma/almacenamiento.ts` y nada más.
+
+**El aviso salta a la mitad, no al 90 %:** mudarse de plan o limpiar lleva días,
+y enterarse con el disco lleno es enterarse tarde.
+
+Además del reparto por negocio, la pantalla estima **cuántos negocios más
+entran** con la ocupación promedio actual, que es la pregunta que se hace al
+vender, y avisa de los **archivos huérfanos**: los que quedaron en una carpeta
+sin negocio dueño, sobras de una baja o de un borrado a medias.
+
+### Cómo se puede verificar
+
+El cálculo vive en `private.calcular_uso_almacenamiento()` y tiene dos puertas:
+`public.uso_almacenamiento()`, que exige ser administrador de la plataforma y es
+la que usa el panel, y `public.uso_almacenamiento_servicio()`, solo para la clave
+privilegiada. La segunda existe porque un número que gobierna la decisión de
+pagar un plan merece poder comprobarse desde afuera sin entrar al panel.
+
+Medición del 2026-09-06: 22 archivos, 2,25 MB en baldes, 15,3 MB de base, cero
+huérfanos.
+
 ## Etapa 8 cerrada — precios por horario
 
 La función más riesgosa del plan, y por eso fue la última: toca

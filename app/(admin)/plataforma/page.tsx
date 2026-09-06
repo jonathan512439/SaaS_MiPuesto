@@ -5,6 +5,8 @@ import { AccionesCliente } from "../../../components/plataforma/acciones-cliente
 import { EtiquetasNfc } from "../../../components/plataforma/etiquetas-nfc";
 import type { EtiquetaPlataforma } from "../../../components/plataforma/etiquetas-nfc";
 import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
+import { UsoAlmacenamientoPanel } from "../../../components/plataforma/uso-almacenamiento";
+import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
 import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
 import {
@@ -43,7 +45,7 @@ export default async function PaginaPlataforma() {
     return <SegundoFactor />;
   }
 
-  const [{ data: negocios, error }, { data: etiquetas }] = await Promise.all([
+  const [{ data: negocios, error }, { data: etiquetas }, { data: uso }] = await Promise.all([
     supabase
       .from("negocios")
       .select("id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en")
@@ -52,6 +54,11 @@ export default async function PaginaPlataforma() {
       .from("etiquetas")
       .select("codigo,negocio_id,nota,creado_en,ultimo_uso_en")
       .order("creado_en", { ascending: false }),
+    /* Se mide al abrir la pantalla, no con un contador guardado: un contador
+       mantenido por disparadores se desincroniza al primer borrado que no pase
+       por la aplicación, y un número de ocupación equivocado es peor que no
+       tenerlo, porque se decide con él. */
+    supabase.rpc("uso_almacenamiento"),
   ]);
   if (error) throw new Error("No se pudo leer la lista de negocios.");
 
@@ -75,6 +82,8 @@ export default async function PaginaPlataforma() {
       </header>
 
       <InvitarNegocio />
+
+      <UsoAlmacenamientoPanel uso={(uso as UsoAlmacenamiento | null) ?? null} />
 
       <EtiquetasNfc
         etiquetas={(etiquetas ?? []) as EtiquetaPlataforma[]}

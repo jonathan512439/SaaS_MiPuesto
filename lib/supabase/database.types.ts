@@ -717,6 +717,8 @@ export type Database = {
       show_trgm: { Args: { "": string }; Returns: string[] }
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }
       suspender_suscripciones_vencidas: { Args: never; Returns: number }
+      uso_almacenamiento: { Args: never; Returns: Json }
+      uso_almacenamiento_servicio: { Args: never; Returns: Json }
     }
     Enums: {
       [_ in never]: never

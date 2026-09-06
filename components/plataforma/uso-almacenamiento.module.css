@@ -1,0 +1,163 @@
+@reference "../../app/globals.css";
+
+.panel {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.panel h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.panel header p,
+.vacio,
+.detalle,
+.fila p,
+.ocupa span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.medidores {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.medidor {
+  display: grid;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+}
+
+.cifras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.titulo {
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cifras strong {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.cifras strong span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+/* Un `<progress>` se pinta con propiedades propias de cada motor, y no hay una
+   sola forma que sirva en todos: se apagan las apariencias por omisión y se
+   dibujan las tres piezas. */
+.barra {
+  appearance: none;
+  inline-size: 100%;
+  overflow: hidden;
+  block-size: var(--spacing-2);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-suave);
+  color: var(--color-marca);
+}
+
+.barra::-webkit-progress-bar {
+  background: var(--color-fondo-suave);
+}
+
+.barra::-webkit-progress-value {
+  background: var(--color-marca);
+}
+
+.barra::-moz-progress-bar {
+  background: var(--color-marca);
+}
+
+/* El color cambia en el umbral, no de a poco: un degradado obliga a interpretar
+   un tono, y lo que hace falta es saber si hay que hacer algo o no. */
+.medidor[data-nivel="atencion"] .barra::-webkit-progress-value {
+  background: var(--color-accion);
+}
+
+.medidor[data-nivel="atencion"] .barra::-moz-progress-bar {
+  background: var(--color-accion);
+}
+
+.medidor[data-nivel="critico"] .barra::-webkit-progress-value {
+  background: var(--color-peligro);
+}
+
+.medidor[data-nivel="critico"] .barra::-moz-progress-bar {
+  background: var(--color-peligro);
+}
+
+.medidor[data-nivel="critico"] {
+  border-color: var(--color-peligro);
+}
+
+.detalle,
+.huerfanos {
+  font-size: var(--text-xs);
+}
+
+.huerfanos {
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2);
+  background: var(--color-peligro-tenue);
+  color: var(--color-peligro);
+  font-weight: 700;
+}
+
+.lista {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  padding-top: var(--spacing-2);
+}
+
+.fila strong {
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+
+.fila p {
+  font-size: var(--text-xs);
+}
+
+.ocupa {
+  display: grid;
+  justify-items: end;
+}
+
+.ocupa span {
+  font-size: var(--text-xs);
+}
+
+@media (min-width: 40rem) {
+  .medidores {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
