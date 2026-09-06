@@ -151,6 +151,46 @@ decide la venta.
 nombran, porque la plantilla Moderna es la que más depende de la foto y no hay
 fotos de ropa. Queda pendiente para cuando existan.
 
+## Etapa 8 cerrada — precios por horario
+
+La función más riesgosa del plan, y por eso fue la última: toca
+`private.calcular_precio_producto`, que está en la ruta del dinero. Lo que
+devuelve es el precio que ve el comprador, el que se congela en el pedido y el
+que se suma en el total reservado.
+
+### Lo que la hace segura
+
+**Las columnas son anulables y lo que ya existía no cambia.** Una promoción sin
+horario ni días se comporta exactamente igual que antes de la migración. Hay un
+test que lo fija.
+
+**La hora es la de Bolivia, escrita explícita.** El servidor corre en UTC; sin la
+conversión, una promoción de almuerzo de 12:00 a 14:00 se activaría a las 08:00
+de la mañana. Bolivia no cambia de hora en todo el año, así que el desfase es
+fijo y no hace falta una biblioteca de zonas.
+
+**La madrugada pertenece al día anterior.** «Viernes de 22:00 a 02:00» es una
+noche, no dos ventanas sueltas: a la 01:00 del sábado la promoción sigue siendo
+la del viernes. Sin esta regla el happy hour se corta a las doce en punto y el
+cliente que ya estaba sentado paga otro precio.
+
+**Dos checks cierran la ambigüedad en la base:** una sola hora no define
+ninguna ventana, y un inicio igual al fin sería cero o veinticuatro horas según
+cómo se lea. Esa duda no se deja abierta en la ruta del dinero.
+
+### El espejo, que es el riesgo real
+
+`lib/precios.ts` y `private.calcular_precio_producto` calculan lo mismo por
+separado: el primero pinta el precio en el catálogo, el segundo es el que se
+cobra al reservar. **Si divergen, el comprador ve un precio y paga otro.** Las
+dos implementaciones aplican las mismas tres reglas —ventana de horas con el fin
+excluido, cruce de medianoche invirtiendo la condición, y día efectivo corrido
+hacia atrás en la madrugada— y `0 = domingo` en ambos lados, igual que
+`extract(dow)`.
+
+Los días de la semana del formulario empiezan en domingo por lo mismo: si la
+pantalla empezara en lunes, el día marcado y el guardado serían distintos.
+
 ## Etapa 7 cerrada — etiquetas, directorio por zona y Google
 
 Las tres piezas que faltaban comparten una idea: el catálogo existe para que

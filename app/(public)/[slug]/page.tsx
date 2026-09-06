@@ -143,7 +143,7 @@ export default async function PaginaCatalogoPublico({
         .order("nombre"),
       supabase
         .from("promociones")
-        .select("id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo")
+        .select("id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo,hora_inicio,hora_fin,dias")
         .eq("negocio_id", negocio.id),
       consultarProductos(supabase, negocio.id, parametros, categoriaPedida),
     ]);

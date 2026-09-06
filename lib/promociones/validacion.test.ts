@@ -19,6 +19,9 @@ describe("validarPromocion", () => {
       correcto: true,
       datos: {
         activo: true,
+      hora_inicio: null,
+      hora_fin: null,
+      dias: null,
         categoria_id: null,
         fecha_fin: "2026-09-04T16:00:00.000Z",
         fecha_inicio: "2026-09-03T16:00:00.000Z",
@@ -59,5 +62,46 @@ describe("validarPromocion", () => {
       expect(resultado.errores).toHaveProperty("valor");
       expect(resultado.errores).toHaveProperty("destino_id");
     }
+  });
+});
+
+describe("horario de la promoción", () => {
+  const base = {
+    tipo: "porcentaje",
+    valor: "20",
+    destino: "producto",
+    destino_id: "50000000-0000-4000-8000-000000000001",
+  };
+
+  it("guarda la ventana con segundos, como la columna", () => {
+    const resultado = validarPromocion({
+      ...base,
+      hora_inicio: "12:00",
+      hora_fin: "14:30",
+      dias: [3, 1, 1],
+    });
+    expect(resultado.correcto && resultado.datos.hora_inicio).toBe("12:00:00");
+    expect(resultado.correcto && resultado.datos.hora_fin).toBe("14:30:00");
+    expect(resultado.correcto && resultado.datos.dias).toEqual([1, 3]);
+  });
+
+  /* Una sola hora no define ninguna ventana. La base lo rechaza con un check;
+     acá se avisa con algo que el dueño entiende. */
+  it("rechaza media ventana", () => {
+    const resultado = validarPromocion({ ...base, hora_inicio: "12:00" });
+    expect(resultado.correcto).toBe(false);
+    expect(!resultado.correcto && resultado.errores.horario).toBeTruthy();
+  });
+
+  it("rechaza una ventana de largo cero y un día inexistente", () => {
+    expect(
+      validarPromocion({ ...base, hora_inicio: "12:00", hora_fin: "12:00" }).correcto,
+    ).toBe(false);
+    expect(validarPromocion({ ...base, dias: [7] }).correcto).toBe(false);
+  });
+
+  it("acepta una ventana que cruza la medianoche", () => {
+    const resultado = validarPromocion({ ...base, hora_inicio: "22:00", hora_fin: "02:00" });
+    expect(resultado.correcto).toBe(true);
   });
 });

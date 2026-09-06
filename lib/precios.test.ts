@@ -127,3 +127,83 @@ describe("promociones", () => {
     expect(resultado).toMatchObject({ precioFinal: 50, ahorro: 0, promocion: null });
   });
 });
+
+describe("precios por horario", () => {
+  const base = {
+    tipo: "porcentaje",
+    valor: 50,
+    producto_id: "p-1",
+    categoria_id: null,
+    fecha_inicio: null,
+    fecha_fin: null,
+    activo: true,
+  };
+
+  /* Bolivia va cuatro horas detrás de UTC. Las 16:00 UTC son las 12:00 acá. */
+  const MEDIODIA_BOLIVIA = new Date("2026-03-11T16:00:00.000Z"); // miércoles
+  const OCHO_MANANA_BOLIVIA = new Date("2026-03-11T12:00:00.000Z");
+
+  it("usa la hora de Bolivia y no la del servidor", () => {
+    const almuerzo = { ...base, hora_inicio: "12:00:00", hora_fin: "14:00:00" };
+    expect(promocionEstaVigente(almuerzo, MEDIODIA_BOLIVIA)).toBe(true);
+    /* Sin la conversión, las 12:00 UTC —8 de la mañana acá— caerían dentro. */
+    expect(promocionEstaVigente(almuerzo, OCHO_MANANA_BOLIVIA)).toBe(false);
+  });
+
+  it("incluye el minuto de inicio y excluye el de fin", () => {
+    const ventana = { ...base, hora_inicio: "12:00:00", hora_fin: "14:00:00" };
+    expect(promocionEstaVigente(ventana, new Date("2026-03-11T16:00:00.000Z"))).toBe(true);
+    expect(promocionEstaVigente(ventana, new Date("2026-03-11T17:59:00.000Z"))).toBe(true);
+    expect(promocionEstaVigente(ventana, new Date("2026-03-11T18:00:00.000Z"))).toBe(false);
+  });
+
+  /* «Viernes de 22:00 a 02:00» es una noche, no dos ventanas sueltas. Sin esta
+     regla el happy hour se corta a las doce en punto y el cliente que ya estaba
+     sentado paga otro precio. */
+  it("trata la madrugada como parte de la noche anterior", () => {
+    const nocheDelViernes = {
+      ...base,
+      hora_inicio: "22:00:00",
+      hora_fin: "02:00:00",
+      dias: [5],
+    };
+    // Viernes 23:00 en Bolivia = sábado 03:00 UTC
+    expect(promocionEstaVigente(nocheDelViernes, new Date("2026-03-14T03:00:00.000Z"))).toBe(true);
+    // Sábado 01:00 en Bolivia = sábado 05:00 UTC: sigue siendo la del viernes
+    expect(promocionEstaVigente(nocheDelViernes, new Date("2026-03-14T05:00:00.000Z"))).toBe(true);
+    // Sábado 23:00 en Bolivia: ya es otra noche, no aplica
+    expect(promocionEstaVigente(nocheDelViernes, new Date("2026-03-15T03:00:00.000Z"))).toBe(false);
+  });
+
+  it("respeta los días sin ventana de horas", () => {
+    const soloMiercoles = { ...base, dias: [3] };
+    expect(promocionEstaVigente(soloMiercoles, MEDIODIA_BOLIVIA)).toBe(true);
+    expect(promocionEstaVigente(soloMiercoles, new Date("2026-03-12T16:00:00.000Z"))).toBe(false);
+  });
+
+  /* Lo que ya existe no cambia de precio: una promoción sin horario ni días se
+     comporta exactamente como antes de esta función. */
+  it("no toca las promociones sin horario", () => {
+    expect(promocionEstaVigente(base, MEDIODIA_BOLIVIA)).toBe(true);
+    expect(promocionEstaVigente({ ...base, dias: null }, OCHO_MANANA_BOLIVIA)).toBe(true);
+  });
+
+  it("aplica el descuento solo dentro de la ventana", () => {
+    const promociones = [{ ...base, hora_inicio: "12:00:00", hora_fin: "14:00:00" }];
+    const dentro = calcularPrecioProducto(
+      40,
+      { productoId: "p-1", categoriaId: null },
+      promociones,
+      MEDIODIA_BOLIVIA,
+    );
+    const fuera = calcularPrecioProducto(
+      40,
+      { productoId: "p-1", categoriaId: null },
+      promociones,
+      OCHO_MANANA_BOLIVIA,
+    );
+    expect(dentro.precioFinal).toBe(20);
+    expect(fuera.precioFinal).toBe(40);
+    expect(fuera.promocion).toBe(null);
+  });
+});

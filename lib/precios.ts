@@ -14,6 +14,11 @@ export type PromocionPrecio = {
   fecha_inicio: string | null;
   fecha_fin: string | null;
   activo: boolean;
+  /* "HH:MM:SS" en hora de Bolivia. Nulo: aplica todo el día. */
+  hora_inicio?: string | null;
+  hora_fin?: string | null;
+  /* 0 = domingo, como `extract(dow)` en la base. Nulo: todos los días. */
+  dias?: number[] | null;
 };
 
 export type PrecioCalculado = {
@@ -33,6 +38,67 @@ function fechaValida(valor: string | null) {
   return Number.isNaN(fecha.getTime()) ? undefined : fecha;
 }
 
+/* Bolivia no cambia de hora en todo el año, así que el desfase es fijo. Se
+   escribe explícito porque el servidor corre en UTC: sin esto, una promoción de
+   almuerzo de 12:00 a 14:00 se activaría a las 08:00 de la mañana.
+
+   Este cálculo es el espejo de `private.calcular_precio_producto`. Los dos tienen
+   que decir lo mismo: uno pinta el precio en el catálogo y el otro es el que se
+   cobra al reservar el pedido. Si divergen, el comprador ve un precio y paga
+   otro. */
+const HORAS_DETRAS_DE_UTC = 4;
+
+type RelojBolivia = { minutos: number; dia: number; diaAnterior: number };
+
+function relojBolivia(fecha: Date): RelojBolivia {
+  const local = new Date(fecha.getTime() - HORAS_DETRAS_DE_UTC * 60 * 60 * 1000);
+  const dia = local.getUTCDay();
+  return {
+    minutos: local.getUTCHours() * 60 + local.getUTCMinutes(),
+    dia,
+    diaAnterior: (dia + 6) % 7,
+  };
+}
+
+function minutosDesdeHora(valor: string | null | undefined) {
+  if (typeof valor !== "string") return null;
+  const partes = /^(\d{2}):(\d{2})/.exec(valor);
+  if (!partes) return null;
+  const horas = Number(partes[1]);
+  const minutos = Number(partes[2]);
+  if (horas > 23 || minutos > 59) return null;
+  return horas * 60 + minutos;
+}
+
+export function promocionAplicaAhora(
+  promocion: PromocionPrecio,
+  fecha: Date = new Date(),
+) {
+  const inicio = minutosDesdeHora(promocion.hora_inicio);
+  const fin = minutosDesdeHora(promocion.hora_fin);
+  const reloj = relojBolivia(fecha);
+  /* Una sola hora no define ninguna ventana; la base lo prohibe con un check y
+     acá se ignora en vez de inventar un límite. */
+  const ventana = inicio !== null && fin !== null && inicio !== fin;
+  const cruzaMedianoche = ventana && inicio > fin;
+
+  if (ventana) {
+    const dentro = cruzaMedianoche
+      ? reloj.minutos >= inicio || reloj.minutos < fin
+      : reloj.minutos >= inicio && reloj.minutos < fin;
+    if (!dentro) return false;
+  }
+
+  if (!Array.isArray(promocion.dias) || promocion.dias.length === 0) return true;
+
+  /* En una ventana que cruza la medianoche, la madrugada cuenta como el día
+     anterior: «viernes de 22:00 a 02:00» es una noche, no dos ventanas sueltas,
+     y a la 01:00 del sábado sigue siendo la del viernes. */
+  const diaEfectivo =
+    cruzaMedianoche && reloj.minutos < (fin as number) ? reloj.diaAnterior : reloj.dia;
+  return promocion.dias.includes(diaEfectivo);
+}
+
 export function promocionEstaVigente(
   promocion: PromocionPrecio,
   fecha: Date = new Date(),
@@ -41,7 +107,9 @@ export function promocionEstaVigente(
   const inicio = fechaValida(promocion.fecha_inicio);
   const fin = fechaValida(promocion.fecha_fin);
   if (inicio === undefined || fin === undefined) return false;
-  return (!inicio || inicio <= fecha) && (!fin || fecha < fin);
+  if (inicio && inicio > fecha) return false;
+  if (fin && fecha >= fin) return false;
+  return promocionAplicaAhora(promocion, fecha);
 }
 
 function calcularPrecioConUnaPromocion(

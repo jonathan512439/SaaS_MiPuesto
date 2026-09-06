@@ -11,6 +11,9 @@ export type DatosPromocionValidados = {
   fecha_inicio: string | null;
   fecha_fin: string | null;
   activo: boolean;
+  hora_inicio: string | null;
+  hora_fin: string | null;
+  dias: number[] | null;
 };
 
 type ResultadoValidacion =
@@ -22,6 +25,25 @@ function normalizarFecha(valor: unknown) {
   if (typeof valor !== "string") return undefined;
   const fecha = new Date(valor);
   return Number.isNaN(fecha.getTime()) ? undefined : fecha.toISOString();
+}
+
+/* "HH:MM" es lo que entrega un `<input type="time">`. Se guarda con segundos
+   porque la columna es `time` y así lo que se lee de vuelta coincide con lo que
+   se escribió, sin sorpresas al comparar. */
+function normalizarHora(valor: unknown) {
+  if (valor === undefined || valor === null || valor === "") return null;
+  if (typeof valor !== "string") return undefined;
+  const partes = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(valor.trim());
+  return partes ? `${partes[1]}:${partes[2]}:00` : undefined;
+}
+
+function normalizarDias(valor: unknown) {
+  if (valor === undefined || valor === null) return null;
+  if (!Array.isArray(valor)) return undefined;
+  const dias = [...new Set(valor.map(Number))].sort((a, b) => a - b);
+  if (dias.length === 0) return null;
+  if (dias.some((dia) => !Number.isInteger(dia) || dia < 0 || dia > 6)) return undefined;
+  return dias;
 }
 
 export function validarPromocion(entrada: unknown): ResultadoValidacion {
@@ -38,6 +60,9 @@ export function validarPromocion(entrada: unknown): ResultadoValidacion {
   const destinoId = datos.destino_id;
   const fechaInicio = normalizarFecha(datos.fecha_inicio);
   const fechaFin = normalizarFecha(datos.fecha_fin);
+  const horaInicio = normalizarHora(datos.hora_inicio);
+  const horaFin = normalizarHora(datos.hora_fin);
+  const dias = normalizarDias(datos.dias);
   const errores: Record<string, string> = {};
 
   if (tipo !== "porcentaje" && tipo !== "monto_fijo") {
@@ -64,6 +89,20 @@ export function validarPromocion(entrada: unknown): ResultadoValidacion {
     errores.fecha_fin = "La finalización debe ser posterior al inicio.";
   }
 
+  if (horaInicio === undefined || horaFin === undefined) {
+    errores.horario = "Escribí las horas en formato 24 h, como 12:00.";
+  } else if ((horaInicio === null) !== (horaFin === null)) {
+    /* Una sola hora no define ninguna ventana, y la base lo rechaza con un
+       check: se avisa acá para que el dueño lea algo que entiende. */
+    errores.horario = "Completá la hora de inicio y la de fin, o dejá las dos vacías.";
+  } else if (horaInicio !== null && horaInicio === horaFin) {
+    errores.horario = "El inicio y el fin no pueden ser la misma hora.";
+  }
+
+  if (dias === undefined) {
+    errores.dias = "Elegí días de la semana válidos.";
+  }
+
   if (Object.keys(errores).length > 0) return { correcto: false, errores };
 
   return {
@@ -76,6 +115,9 @@ export function validarPromocion(entrada: unknown): ResultadoValidacion {
       fecha_inicio: fechaInicio as string | null,
       fecha_fin: fechaFin as string | null,
       activo: datos.activo !== false,
+      hora_inicio: horaInicio as string | null,
+      hora_fin: horaFin as string | null,
+      dias: dias as number[] | null,
     },
   };
 }

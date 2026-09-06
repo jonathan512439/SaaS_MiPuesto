@@ -38,7 +38,7 @@ export default async function PaginaPromociones() {
       .order("nombre"),
     supabase
       .from("promociones")
-      .select("id,negocio_id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo")
+      .select("id,negocio_id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo,hora_inicio,hora_fin,dias")
       .eq("negocio_id", negocio.id)
       .order("fecha_fin", { ascending: false, nullsFirst: true }),
   ]);

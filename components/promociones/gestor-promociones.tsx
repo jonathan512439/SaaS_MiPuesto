@@ -46,6 +46,10 @@ function convertirFechaBolivia(valor: string) {
   return valor ? new Date(`${valor}:00-04:00`).toISOString() : null;
 }
 
+/* 0 = domingo, el mismo orden que `extract(dow)` en la base. Si acá se
+   empezara por lunes, el día marcado y el día guardado serían distintos. */
+const NOMBRES_DIAS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
 function describirDescuento(promocion: Pick<PromocionAdmin, "tipo" | "valor">) {
   return promocion.tipo === "porcentaje"
     ? `${promocion.valor.toLocaleString("es-BO")} % menos`
@@ -94,6 +98,9 @@ export function GestorPromociones({
   const [destinoId, setDestinoId] = useState(productos[0]?.id ?? "");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
+  const [horaInicio, setHoraInicio] = useState("");
+  const [horaFin, setHoraFin] = useState("");
+  const [dias, setDias] = useState<number[]>([]);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const { mostrarAviso } = useAvisos();
   const confirmar = useConfirmacion();
@@ -148,6 +155,9 @@ export function GestorPromociones({
       destino_id: destinoId,
       fecha_inicio: convertirFechaBolivia(fechaInicio),
       fecha_fin: convertirFechaBolivia(fechaFin),
+      hora_inicio: horaInicio,
+      hora_fin: horaFin,
+      dias: dias.length > 0 ? dias : null,
     };
     const validacion = validarPromocion(entrada);
     if (!validacion.correcto) {
@@ -308,6 +318,60 @@ export function GestorPromociones({
             {errores.fecha_fin ? <small className={styles.errorCampo}>{errores.fecha_fin}</small> : null}
           </label>
         </div>
+
+        {/* El horario va después de las fechas porque es un recorte dentro de
+            ellas: primero desde cuándo hasta cuándo existe la promoción, después
+            en qué momentos de ese período se aplica. */}
+        <fieldset className={styles.horario}>
+          <legend>Solo a ciertas horas <span>Opcional</span></legend>
+          <p>
+            Dejá todo vacío y el descuento vale siempre. Si el fin es menor que el
+            inicio, la ventana cruza la medianoche: de 22:00 a 02:00 es una sola
+            noche, y a la 01:00 sigue contando como el día que empezó.
+          </p>
+          <div className={styles.horas}>
+            <label>
+              Desde
+              <input
+                onChange={(evento) => setHoraInicio(evento.target.value)}
+                type="time"
+                value={horaInicio}
+              />
+            </label>
+            <label>
+              Hasta
+              <input
+                onChange={(evento) => setHoraFin(evento.target.value)}
+                type="time"
+                value={horaFin}
+              />
+            </label>
+          </div>
+          {errores.horario ? <small className={styles.errorCampo}>{errores.horario}</small> : null}
+          <div className={styles.dias}>
+            {NOMBRES_DIAS.map((nombre, indice) => (
+              <label
+                className={dias.includes(indice) ? styles.diaElegido : styles.dia}
+                key={nombre}
+              >
+                <input
+                  checked={dias.includes(indice)}
+                  onChange={(evento) =>
+                    setDias((actuales) =>
+                      evento.target.checked
+                        ? [...actuales, indice].sort((a, b) => a - b)
+                        : actuales.filter((dia) => dia !== indice),
+                    )
+                  }
+                  type="checkbox"
+                />
+                {nombre}
+              </label>
+            ))}
+          </div>
+          <small>Sin días marcados, vale todos los días.</small>
+          {errores.dias ? <small className={styles.errorCampo}>{errores.dias}</small> : null}
+        </fieldset>
 
         {precioEjemplo && productoEjemplo ? (
           <aside className={styles.ejemplo} aria-label="Ejemplo del precio promocional">

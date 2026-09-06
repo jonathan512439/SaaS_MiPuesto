@@ -8,7 +8,7 @@ import {
 } from "../../../lib/promociones/validacion";
 
 const COLUMNAS_PROMOCION =
-  "id,negocio_id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo";
+  "id,negocio_id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo,hora_inicio,hora_fin,dias";
 
 async function validarDestino(
   contexto: Extract<Awaited<ReturnType<typeof obtenerContextoAdminCatalogo>>, { correcto: true }>,

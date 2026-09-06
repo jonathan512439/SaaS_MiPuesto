@@ -527,8 +527,11 @@ export type Database = {
         Row: {
           activo: boolean
           categoria_id: string | null
+          dias: number[] | null
           fecha_fin: string | null
           fecha_inicio: string | null
+          hora_fin: string | null
+          hora_inicio: string | null
           id: string
           negocio_id: string
           producto_id: string | null
@@ -538,8 +541,11 @@ export type Database = {
         Insert: {
           activo?: boolean
           categoria_id?: string | null
+          dias?: number[] | null
           fecha_fin?: string | null
           fecha_inicio?: string | null
+          hora_fin?: string | null
+          hora_inicio?: string | null
           id?: string
           negocio_id: string
           producto_id?: string | null
@@ -549,8 +555,11 @@ export type Database = {
         Update: {
           activo?: boolean
           categoria_id?: string | null
+          dias?: number[] | null
           fecha_fin?: string | null
           fecha_inicio?: string | null
+          hora_fin?: string | null
+          hora_inicio?: string | null
           id?: string
           negocio_id?: string
           producto_id?: string | null

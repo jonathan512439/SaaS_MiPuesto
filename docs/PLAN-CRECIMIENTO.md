@@ -428,7 +428,7 @@ autenticación, está en `docs/AVANCE.md`, sección «Estado de Fase 13».
 - **Directorio por zona.** Se construye ahora y se promociona cuando haya ~30
   negocios en una ciudad: un directorio con 10 se ve vacío y resta.
 
-### Etapa 8 — Paquete de restaurantes — **carta del día y menú impreso HECHOS el 2026-09-05**
+### Etapa 8 — Paquete de restaurantes — **CERRADA el 2026-09-05**
 
 Todo gobernado por el rubro de la etapa 3½.
 

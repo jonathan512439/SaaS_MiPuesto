@@ -44,7 +44,7 @@ const obtenerProducto = cache(async (slug: string, codigo: string) => {
 
   const { data: promociones } = await supabase
     .from("promociones")
-    .select("id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo")
+    .select("id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo,hora_inicio,hora_fin,dias")
     .eq("negocio_id", negocio.id);
 
   const { url } = obtenerVariablesPublicasSupabase();
