@@ -27,6 +27,8 @@ describe("validación del perfil de negocio", () => {
         telefono_whatsapp: "59171234567",
         rubro: null,
         pide_numero_mesa: false,
+        ciudad: null,
+        zona: null,
       },
     });
   });
@@ -102,5 +104,36 @@ describe("rubro del negocio", () => {
     const resultado = validarDatosNegocio({ ...base, rubro: "panaderia" });
     expect(resultado.correcto).toBe(false);
     expect(!resultado.correcto && resultado.errores.rubro).toBeTruthy();
+  });
+});
+
+describe("ciudad y zona", () => {
+  const base = {
+    nombre: "Café Illimani",
+    slug: "cafe-illimani",
+    descripcion: "",
+    tipo_negocio: "catalogo_cta",
+    telefono_whatsapp: "71234567",
+  };
+
+  it("guarda la ciudad de la lista y la zona libre", () => {
+    const resultado = validarDatosNegocio({
+      ...base,
+      ciudad: "cochabamba",
+      zona: " Cala Cala ",
+    });
+    expect(resultado.correcto && resultado.datos.ciudad).toBe("cochabamba");
+    expect(resultado.correcto && resultado.datos.zona).toBe("Cala Cala");
+  });
+
+  it("rechaza una ciudad fuera de la lista", () => {
+    const resultado = validarDatosNegocio({ ...base, ciudad: "beni" });
+    expect(resultado.correcto).toBe(false);
+  });
+
+  it("trata el vacío como no informado", () => {
+    const resultado = validarDatosNegocio({ ...base, ciudad: "", zona: "" });
+    expect(resultado.correcto && resultado.datos.ciudad).toBe(null);
+    expect(resultado.correcto && resultado.datos.zona).toBe(null);
   });
 });

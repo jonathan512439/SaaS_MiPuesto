@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { AccionesCliente } from "../../../components/plataforma/acciones-cliente";
+import { EtiquetasNfc } from "../../../components/plataforma/etiquetas-nfc";
+import type { EtiquetaPlataforma } from "../../../components/plataforma/etiquetas-nfc";
 import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
 import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
@@ -41,10 +43,16 @@ export default async function PaginaPlataforma() {
     return <SegundoFactor />;
   }
 
-  const { data: negocios, error } = await supabase
-    .from("negocios")
-    .select("id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en")
-    .order("nombre");
+  const [{ data: negocios, error }, { data: etiquetas }] = await Promise.all([
+    supabase
+      .from("negocios")
+      .select("id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en")
+      .order("nombre"),
+    supabase
+      .from("etiquetas")
+      .select("codigo,negocio_id,nota,creado_en,ultimo_uso_en")
+      .order("creado_en", { ascending: false }),
+  ]);
   if (error) throw new Error("No se pudo leer la lista de negocios.");
 
   const clientes = ordenarPorUrgencia(
@@ -67,6 +75,11 @@ export default async function PaginaPlataforma() {
       </header>
 
       <InvitarNegocio />
+
+      <EtiquetasNfc
+        etiquetas={(etiquetas ?? []) as EtiquetaPlataforma[]}
+        negocios={(negocios ?? []).map(({ id, nombre }) => ({ id, nombre }))}
+      />
 
       {clientes.length === 0 ? (
         <p className={styles.vacio}>Todavía no hay negocios cargados.</p>

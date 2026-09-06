@@ -69,6 +69,7 @@ function negocio(
     qrPagoUrl: null,
     ubicacionUrl: null,
     pideNumeroMesa: false,
+    resenasUrl: null,
     redesSociales: [],
   };
 }

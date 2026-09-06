@@ -18,6 +18,7 @@ export type IdentidadNegocioInicial = {
   qr_pago_url: string | null;
   redes_sociales: unknown;
   ubicacion_url: string | null;
+  resenas_url: string | null;
 };
 
 type Propiedades = {
@@ -74,6 +75,7 @@ export function FormularioIdentidad({
 }: Propiedades) {
   const [imagenes, setImagenes] = useState(() => valoresIniciales(identidadInicial, urlSupabase));
   const [ubicacion, setUbicacion] = useState(identidadInicial.ubicacion_url ?? "");
+  const [resenas, setResenas] = useState(identidadInicial.resenas_url ?? "");
   const [redes, setRedes] = useState<RedesSocialesNegocio>(() =>
     obtenerRedesSociales(identidadInicial.redes_sociales),
   );
@@ -168,12 +170,20 @@ export function FormularioIdentidad({
       const respuesta = await fetch("/api/negocios/identidad", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ redes_sociales: redes, ubicacion_url: ubicacion }),
+        body: JSON.stringify({
+          redes_sociales: redes,
+          resenas_url: resenas,
+          ubicacion_url: ubicacion,
+        }),
       });
       const datos = (await respuesta.json().catch(() => ({}))) as {
         error?: string;
         errores?: Record<string, string>;
-        identidad?: { redes_sociales: unknown; ubicacion_url: string | null };
+        identidad?: {
+          redes_sociales: unknown;
+          ubicacion_url: string | null;
+          resenas_url: string | null;
+        };
       };
       if (!respuesta.ok || !datos.identidad) {
         setErrores(datos.errores ?? {});
@@ -181,6 +191,7 @@ export function FormularioIdentidad({
       }
       setRedes(obtenerRedesSociales(datos.identidad.redes_sociales));
       setUbicacion(datos.identidad.ubicacion_url ?? "");
+      setResenas(datos.identidad.resenas_url ?? "");
       mostrarAviso({ titulo: "Enlaces guardados", variante: "exito" });
     } catch (error) {
       mostrarAviso({
@@ -277,6 +288,22 @@ export function FormularioIdentidad({
             clientes verán un botón «Cómo llegar».
           </small>
           {errores.ubicacion_url ? <small>{errores.ubicacion_url}</small> : null}
+        </label>
+        <label className={styles.campoUbicacion}>
+          Enlace para calificarte en Google
+          <input
+            inputMode="url"
+            maxLength={300}
+            onChange={(evento) => setResenas(evento.target.value)}
+            placeholder="https://g.page/r/..."
+            type="url"
+            value={resenas}
+          />
+          <small className={styles.ayudaUbicacion}>
+            Se lo mostramos a tu cliente recién cuando termina de pedir, que es el
+            momento en que está contento y todavía tiene el teléfono en la mano.
+          </small>
+          {errores.resenas_url ? <small>{errores.resenas_url}</small> : null}
         </label>
         <div className={styles.camposRedes}>
           {([

@@ -151,6 +151,58 @@ decide la venta.
 nombran, porque la plantilla Moderna es la que más depende de la foto y no hay
 fotos de ropa. Queda pendiente para cuando existan.
 
+## Etapa 7 cerrada — etiquetas, directorio por zona y Google
+
+Las tres piezas que faltaban comparten una idea: el catálogo existe para que
+alguien llegue a él, y hasta acá la única puerta era que el dueño mandara el
+enlace por WhatsApp.
+
+### Etiquetas NFC y QR — `/t/CODIGO`
+
+**El código es estable y reasignable.** La etiqueta pegada en una mesa sobrevive
+al negocio que la usaba: si el local cambia de dueño se reapunta el código desde
+el panel de plataforma y el plástico sigue sirviendo. Imprimir el slug obligaría
+a tirar el lote entero.
+
+**Nadie lee la tabla directamente.** `resolver_etiqueta()` es definer y devuelve
+solo el slug: así no se puede enumerar el mapa completo, y de paso se anota el
+último escaneo, que es lo que dice si un lote se está usando o quedó en un cajón.
+
+Un código inexistente, uno sin negocio y uno de un negocio dado de baja **se ven
+igual desde afuera**: quien escanea una etiqueta vieja no necesita saber cuál de
+los tres casos le tocó.
+
+El alfabeto de los códigos deja fuera vocales, O/0, I/1 y S/5: un código se dicta
+por teléfono más veces de lo que uno cree. El slug `t` quedó reservado, porque
+sin eso un negocio con ese nombre quedaría tapado por la ruta.
+
+### Directorio por zona
+
+Se extendió el directorio que ya existía en vez de escribir uno nuevo. Ciudad de
+**lista cerrada** y zona en **texto libre**: al revés no funciona, porque un
+directorio agrupa por ciudad y si cada dueño escribe «Sta Cruz», «santa cruz» o
+«SCZ» no hay agrupación posible; el barrio, en cambio, no entra en ninguna lista
+que podamos escribir.
+
+El filtro viaja en la dirección —`/directorio?ciudad=cochabamba`— para que un
+enlace a los negocios de una ciudad se pueda mandar por WhatsApp, que es como
+circula todo acá. Se filtra en la consulta y no en el navegador porque la lista
+está paginada, y filtrar después de paginar deja páginas medio vacías.
+
+**Sigue sin promocionarse.** El plan dice construirlo ahora y promocionarlo con
+unos treinta negocios en una ciudad: uno con diez se ve vacío y resta.
+
+### Calificación en Google
+
+Se guarda **el enlace que el dueño pega**, no un identificador de lugar, por el
+mismo motivo que la ubicación: buscar el lugar por API cuesta y adivinarlo sale
+mal. El enlace que el propio dueño abrió y verificó es el dato más confiable.
+
+Se muestra **después del pedido y no antes**: pedir una calificación mientras
+alguien decide qué comprar es interrumpirlo; pedirla cuando ya pidió es
+preguntárselo a alguien contento que todavía tiene el teléfono en la mano. Va
+discreto a propósito: es un favor que se pide, no una acción del pedido.
+
 ## Número de mesa en el pedido (etapa 7, parcial)
 
 Un mozo que recibe «pedido #A3F2» sin mesa tiene que salir a preguntar quién

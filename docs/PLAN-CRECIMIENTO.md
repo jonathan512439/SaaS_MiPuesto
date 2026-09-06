@@ -420,7 +420,7 @@ El segundo factor quedó construido y es obligatorio: con solo contraseña no se
 entra. El detalle, incluida la recuperación si se pierde la aplicación de
 autenticación, está en `docs/AVANCE.md`, sección «Estado de Fase 13».
 
-### Etapa 7 — NFC, mesa y Google (5 días)
+### Etapa 7 — NFC, mesa y Google — **CERRADA el 2026-09-05**
 
 - Ruta `/t/<codigo>` con código estable y reasignable.
 - **Número de mesa en el pedido.** **HECHO el 2026-09-05.**

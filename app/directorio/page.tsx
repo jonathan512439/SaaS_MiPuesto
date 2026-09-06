@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { obtenerDirectorio } from "../../lib/directorio";
+import { CIUDADES, NOMBRES_CIUDADES } from "../../lib/negocios/lugares";
 import styles from "./directorio.module.css";
 
 export const metadata: Metadata = {
@@ -20,14 +21,30 @@ const TIPOS: Record<string, string> = {
 };
 
 type PropiedadesDirectorio = {
-  searchParams: Promise<{ pagina?: string | string[] }>;
+  searchParams: Promise<{ pagina?: string | string[]; ciudad?: string | string[] }>;
 };
+
+function primero(valor: string | string[] | undefined) {
+  return Array.isArray(valor) ? valor[0] : valor;
+}
 
 export default async function PaginaDirectorio({ searchParams }: PropiedadesDirectorio) {
   const parametros = await searchParams;
   const paginaPedida = Array.isArray(parametros.pagina) ? parametros.pagina[0] : parametros.pagina;
   const pagina = Number(paginaPedida ?? 1);
-  const directorio = await obtenerDirectorio(pagina);
+  const ciudadPedida = primero(parametros.ciudad);
+  const directorio = await obtenerDirectorio(pagina, new Date(), ciudadPedida);
+  /* El filtro viaja en la dirección para que un enlace a «negocios de
+     Cochabamba» se pueda mandar por WhatsApp, que es como circula todo acá. */
+  const conFiltro = (extra: Record<string, string | number>) => {
+    const parametrosUrl = new URLSearchParams();
+    if (directorio.ciudad) parametrosUrl.set("ciudad", directorio.ciudad);
+    for (const [clave, valor] of Object.entries(extra)) {
+      parametrosUrl.set(clave, String(valor));
+    }
+    const cadena = parametrosUrl.toString();
+    return cadena ? `/directorio?${cadena}` : "/directorio";
+  };
 
   return (
     <>
@@ -38,6 +55,24 @@ export default async function PaginaDirectorio({ searchParams }: PropiedadesDire
           <h1>Negocios locales en un solo lugar</h1>
           <p>Explora catálogos activos y comunícate directamente con cada negocio.</p>
         </header>
+
+        <nav aria-label="Filtrar por ciudad" className={styles.ciudades}>
+          <Link
+            className={directorio.ciudad ? styles.ciudad : styles.ciudadElegida}
+            href="/directorio"
+          >
+            Todas
+          </Link>
+          {CIUDADES.filter((id) => id !== "otra").map((id) => (
+            <Link
+              className={directorio.ciudad === id ? styles.ciudadElegida : styles.ciudad}
+              href={`/directorio?ciudad=${id}`}
+              key={id}
+            >
+              {NOMBRES_CIUDADES[id]}
+            </Link>
+          ))}
+        </nav>
 
         {directorio.negocios.length > 0 ? (
           <section aria-label="Negocios disponibles" className={styles.resultados}>
@@ -64,6 +99,7 @@ export default async function PaginaDirectorio({ searchParams }: PropiedadesDire
                         <h2>{negocio.nombre}</h2>
                       </div>
                     </div>
+                    {negocio.zona ? <p className={styles.zona}>{negocio.zona}</p> : null}
                     <p className={styles.descripcion}>{negocio.descripcion}</p>
                     {negocio.estadoAtencion.texto ? (
                       <span
@@ -88,9 +124,9 @@ export default async function PaginaDirectorio({ searchParams }: PropiedadesDire
 
         {directorio.totalPaginas > 1 ? (
           <nav aria-label="Páginas del directorio" className={styles.paginacion}>
-            {directorio.pagina > 1 ? <Link href={`/directorio?pagina=${directorio.pagina - 1}`}>Anterior</Link> : <span />}
+            {directorio.pagina > 1 ? <Link href={conFiltro({ pagina: directorio.pagina - 1 })}>Anterior</Link> : <span />}
             <p>Página {directorio.pagina} de {directorio.totalPaginas}</p>
-            {directorio.pagina < directorio.totalPaginas ? <Link href={`/directorio?pagina=${directorio.pagina + 1}`}>Siguiente</Link> : <span />}
+            {directorio.pagina < directorio.totalPaginas ? <Link href={conFiltro({ pagina: directorio.pagina + 1 })}>Siguiente</Link> : <span />}
           </nav>
         ) : null}
       </main>

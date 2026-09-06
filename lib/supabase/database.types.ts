@@ -78,6 +78,41 @@ export type Database = {
           },
         ]
       }
+      etiquetas: {
+        Row: {
+          codigo: string
+          creado_en: string
+          negocio_id: string | null
+          nota: string | null
+          reasignado_en: string | null
+          ultimo_uso_en: string | null
+        }
+        Insert: {
+          codigo: string
+          creado_en?: string
+          negocio_id?: string | null
+          nota?: string | null
+          reasignado_en?: string | null
+          ultimo_uso_en?: string | null
+        }
+        Update: {
+          codigo?: string
+          creado_en?: string
+          negocio_id?: string | null
+          nota?: string | null
+          reasignado_en?: string | null
+          ultimo_uso_en?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etiquetas_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       eventos_analitica: {
         Row: {
           creado_en: string
@@ -156,6 +191,7 @@ export type Database = {
           activo_actualizado_por: string | null
           activo_anterior: boolean | null
           admin_user_id: string
+          ciudad: string | null
           creado_en: string
           descripcion: string | null
           horario: Json
@@ -168,6 +204,7 @@ export type Database = {
           portada_url: string | null
           qr_pago_url: string | null
           redes_sociales: Json
+          resenas_url: string | null
           reserva_minutos: number
           rubro: string | null
           slug: string
@@ -177,6 +214,7 @@ export type Database = {
           tipo_negocio: string
           ubicacion_url: string | null
           verificado: boolean
+          zona: string | null
         }
         Insert: {
           activo?: boolean
@@ -184,6 +222,7 @@ export type Database = {
           activo_actualizado_por?: string | null
           activo_anterior?: boolean | null
           admin_user_id: string
+          ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
           horario?: Json
@@ -196,6 +235,7 @@ export type Database = {
           portada_url?: string | null
           qr_pago_url?: string | null
           redes_sociales?: Json
+          resenas_url?: string | null
           reserva_minutos?: number
           rubro?: string | null
           slug: string
@@ -205,6 +245,7 @@ export type Database = {
           tipo_negocio: string
           ubicacion_url?: string | null
           verificado?: boolean
+          zona?: string | null
         }
         Update: {
           activo?: boolean
@@ -212,6 +253,7 @@ export type Database = {
           activo_actualizado_por?: string | null
           activo_anterior?: boolean | null
           admin_user_id?: string
+          ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
           horario?: Json
@@ -224,6 +266,7 @@ export type Database = {
           portada_url?: string | null
           qr_pago_url?: string | null
           redes_sociales?: Json
+          resenas_url?: string | null
           reserva_minutos?: number
           rubro?: string | null
           slug?: string
@@ -233,6 +276,7 @@ export type Database = {
           tipo_negocio?: string
           ubicacion_url?: string | null
           verificado?: boolean
+          zona?: string | null
         }
         Relationships: []
       }
@@ -620,6 +664,7 @@ export type Database = {
         Returns: number
       }
       purgar_analitica_vieja: { Args: { p_dias?: number }; Returns: number }
+      resolver_etiqueta: { Args: { p_codigo: string }; Returns: string }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }

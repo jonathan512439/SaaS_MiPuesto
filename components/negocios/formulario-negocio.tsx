@@ -8,6 +8,11 @@ import {
   validarDatosNegocio,
   validarSlug,
 } from "../../lib/negocios/validacion";
+import {
+  CIUDADES,
+  LARGO_MAXIMO_ZONA,
+  NOMBRES_CIUDADES,
+} from "../../lib/negocios/lugares";
 import { DEFINICIONES_RUBROS, rubroOfrece } from "../../lib/negocios/rubros";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "../../app/(admin)/dashboard/configuracion/configuracion.module.css";
@@ -19,6 +24,8 @@ export type PerfilNegocioInicial = {
   tipo_negocio: string;
   rubro?: string | null;
   pide_numero_mesa?: boolean | null;
+  ciudad?: string | null;
+  zona?: string | null;
   telefono_whatsapp: string;
 };
 
@@ -68,6 +75,8 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   const [telefono, setTelefono] = useState(negocioInicial?.telefono_whatsapp ?? "");
   const [rubro, setRubro] = useState(negocioInicial?.rubro ?? "");
   const [pideMesa, setPideMesa] = useState(negocioInicial?.pide_numero_mesa === true);
+  const [ciudad, setCiudad] = useState(negocioInicial?.ciudad ?? "");
+  const [zona, setZona] = useState(negocioInicial?.zona ?? "");
   const [estadoSlug, setEstadoSlug] = useState<EstadoSlug>("inicial");
   const [errores, setErrores] = useState<Record<string, string>>({});
   const { mostrarAviso } = useAvisos();
@@ -130,6 +139,8 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       telefono_whatsapp: telefono,
       rubro,
       pide_numero_mesa: pideMesa,
+      ciudad,
+      zona,
     };
     const validacion = validarDatosNegocio(entrada);
 
@@ -171,6 +182,8 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       setTipo(datos.negocio.tipo_negocio as TipoNegocio);
       setRubro(datos.negocio.rubro ?? "");
       setPideMesa(datos.negocio.pide_numero_mesa === true);
+      setCiudad(datos.negocio.ciudad ?? "");
+      setZona(datos.negocio.zona ?? "");
       setTelefono(datos.negocio.telefono_whatsapp);
     }
 
@@ -316,6 +329,34 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
             pedido. Si el rubro cambia y deja de ofrecerlo, la marca guardada no
             se borra —el rubro oculta interfaz, nunca datos—, pero el catálogo
             deja de preguntar. */}
+        {/* Ciudad de lista cerrada y zona libre: el directorio agrupa por
+            ciudad, y si cada uno escribe «Sta Cruz» o «SCZ» no hay agrupación
+            posible. El barrio, en cambio, no entra en ninguna lista. */}
+        <Selector
+          ayuda="Sirve para que te encuentren en el directorio por zona."
+          error={errores.ciudad}
+          etiqueta="Ciudad"
+          id="ciudad-negocio"
+          onChange={(evento) => setCiudad(evento.target.value)}
+          value={ciudad}
+        >
+          <option value="">Prefiero no decirlo</option>
+          {CIUDADES.map((id) => (
+            <option key={id} value={id}>
+              {NOMBRES_CIUDADES[id]}
+            </option>
+          ))}
+        </Selector>
+        <Campo
+          ayuda="El barrio o la referencia con la que te conocen."
+          error={errores.zona}
+          etiqueta="Zona"
+          id="zona-negocio"
+          maxLength={LARGO_MAXIMO_ZONA}
+          onChange={(evento) => setZona(evento.target.value)}
+          placeholder="Ej.: Villa Fátima, frente al mercado"
+          value={zona}
+        />
         {rubroOfrece(rubro, "numero_de_mesa") ? (
           <label className={styles.interruptor}>
             <input

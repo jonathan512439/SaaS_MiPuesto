@@ -1,3 +1,4 @@
+import { LARGO_MAXIMO_ZONA, esCiudadId, type CiudadId } from "./lugares";
 import { esRubroId, type RubroId } from "./rubros";
 
 export const TIPOS_NEGOCIO = [
@@ -19,6 +20,9 @@ export const SLUGS_RESERVADOS = new Set([
   "login",
   "recuperar-clave",
   "registro",
+  /* La puerta de las etiquetas NFC. Sin reservarla, un negocio con el nombre
+     «t» quedaría tapado por la ruta en cuanto tuviera una segunda página. */
+  "t",
 ]);
 
 export type DatosNegocioValidados = {
@@ -29,6 +33,8 @@ export type DatosNegocioValidados = {
   telefono_whatsapp: string;
   rubro: RubroId | null;
   pide_numero_mesa: boolean;
+  ciudad: CiudadId | null;
+  zona: string | null;
 };
 
 export type ResultadoValidacionNegocio =
@@ -88,6 +94,8 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
   const descripcion = textoDesde(objeto.descripcion);
   const tipo = textoDesde(objeto.tipo_negocio);
   const rubro = textoDesde(objeto.rubro);
+  const ciudad = textoDesde(objeto.ciudad);
+  const zona = textoDesde(objeto.zona);
   const telefono = normalizarTelefonoWhatsapp(objeto.telefono_whatsapp);
   const errores: Record<string, string> = {};
 
@@ -113,6 +121,14 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
     errores.rubro = "Elegí un rubro de la lista.";
   }
 
+  if (ciudad && !esCiudadId(ciudad)) {
+    errores.ciudad = "Elegí una ciudad de la lista.";
+  }
+
+  if (zona.length > LARGO_MAXIMO_ZONA) {
+    errores.zona = `La zona admite hasta ${LARGO_MAXIMO_ZONA} caracteres.`;
+  }
+
   if (!PATRON_TELEFONO_BOLIVIA.test(telefono)) {
     errores.telefono_whatsapp =
       "Ingresá un celular boliviano de 8 dígitos que empiece con 6 o 7.";
@@ -132,6 +148,8 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
       telefono_whatsapp: telefono,
       rubro: esRubroId(rubro) ? rubro : null,
       pide_numero_mesa: objeto.pide_numero_mesa === true,
+      ciudad: esCiudadId(ciudad) ? ciudad : null,
+      zona: zona || null,
     },
   };
 }

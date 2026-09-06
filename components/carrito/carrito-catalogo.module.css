@@ -249,6 +249,14 @@
   font-weight: 700;
 }
 
+/* Discreto a propósito: es un favor que se pide, no una acción del pedido, y
+   compitiendo en tamaño con «Continuar por WhatsApp» sería un estorbo. */
+.resenas a {
+  color: var(--catalogo-texto-suave);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+}
+
 .confirmacion {
   display: grid;
   gap: var(--spacing-4);

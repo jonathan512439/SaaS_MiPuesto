@@ -48,6 +48,20 @@ export function normalizarUbicacion(valor: unknown) {
   return { correcto: true as const, ubicacion: url };
 }
 
+/* Un enlace pegado y no un identificador de lugar, por el mismo motivo que la
+   ubicación: buscar el lugar por API cuesta y adivinarlo sale mal. El enlace que
+   el propio dueño abrió y verificó es el dato más confiable que hay. */
+export function normalizarResenas(valor: unknown) {
+  const url = normalizarUrl(valor);
+  if (url === undefined) {
+    return {
+      correcto: false as const,
+      error: "Pegá el enlace HTTPS de tu ficha en Google, de hasta 300 caracteres.",
+    };
+  }
+  return { correcto: true as const, resenas: url };
+}
+
 export function normalizarRedesSociales(valor: unknown) {
   const entrada =
     typeof valor === "object" && valor !== null && !Array.isArray(valor)

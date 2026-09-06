@@ -339,6 +339,16 @@ export function CarritoCatalogo({
               ) : null}
             </div>
             {errorDescarga ? <p className={styles.errorDescarga}>{errorDescarga}</p> : null}
+            {/* Después del pedido y no antes: pedir una calificación mientras
+                alguien decide qué comprar es interrumpirlo; pedirla cuando ya
+                pidió es preguntarle a alguien contento. */}
+            {datos.negocio.resenasUrl ? (
+              <p className={styles.resenas}>
+                <a href={datos.negocio.resenasUrl} rel="noreferrer" target="_blank">
+                  Calificá a {datos.negocio.nombre} en Google
+                </a>
+              </p>
+            ) : null}
           </div>
         ) : null}
       </div>

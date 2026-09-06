@@ -60,6 +60,9 @@ export type DatosPlantilla = {
     /* Solo donde se atiende en el local: pedirle la mesa a quien compra ropa
        por WhatsApp es un campo más entre él y el pedido. */
     pideNumeroMesa: boolean;
+    /* Se ofrece recién después de pedir, que es cuando el cliente está contento
+       y todavía tiene el teléfono en la mano. Vacío: no se muestra nada. */
+    resenasUrl: string | null;
   };
   categorias: CategoriaPlantilla[];
 };

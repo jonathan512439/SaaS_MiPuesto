@@ -1,0 +1,78 @@
+@reference "../../app/globals.css";
+
+.panel {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.panel h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.panel header p,
+.vacio,
+.nota,
+.uso {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.crear {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.crear input,
+.asignar select {
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-2);
+  min-height: var(--control-alto);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+
+.lista {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.fila {
+  display: grid;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+}
+
+/* Monoespaciada y grande: este código se dicta por teléfono y se teclea a mano
+   más veces de lo que uno cree. */
+.codigo {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-lg);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.uso {
+  font-size: var(--text-xs);
+}
+
+.asignar {
+  display: grid;
+  gap: var(--spacing-1);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+@media (min-width: 40rem) {
+  .fila {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
