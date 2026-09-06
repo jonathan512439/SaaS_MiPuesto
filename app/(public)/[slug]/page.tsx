@@ -17,6 +17,7 @@ import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../lib/url-sitio";
 import styles from "./catalogo-publico.module.css";
+import { COLUMNAS_PRODUCTO_PUBLICO } from "../../../lib/catalogo/columnas";
 
 type PropiedadesPagina = {
   params: Promise<{ slug: string }>;
@@ -77,8 +78,6 @@ function leerCategoriaPedida(parametros: Record<string, string | string[] | unde
   return esUuid(pedida) ? pedida : "";
 }
 
-const COLUMNAS_PRODUCTO_PUBLICO =
-  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,controla_stock,cantidad_stock,cantidad_reservada,estado,visible,orden,en_carta_hasta";
 
 /* Filtrar y paginar aquí, y no en el navegador, es lo que permite un catálogo
    de trescientos productos: antes viajaba la ficha completa de cada uno en cada

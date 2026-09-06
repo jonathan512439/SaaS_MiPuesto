@@ -6,9 +6,8 @@ import {
   obtenerContextoAdminCatalogo,
 } from "../../../../../lib/catalogo/servidor";
 import { nombreDeCopia } from "../../../../../lib/catalogo/duplicado";
+import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../../lib/catalogo/columnas";
 
-const COLUMNAS_PRODUCTO =
-  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden";
 
 /* Duplicar existe porque media carga de catálogo son variantes del mismo
    artículo: la misma polera en tres tallas, el mismo plato en dos porciones.
@@ -85,7 +84,7 @@ export async function POST(solicitud: NextRequest) {
       fotos: [],
       orden: (ultimo?.orden ?? 0) + 1,
     })
-    .select(COLUMNAS_PRODUCTO)
+    .select(COLUMNAS_PRODUCTO_ADMIN)
     .single();
   if (error || !copia) {
     return NextResponse.json({ error: "No se pudo duplicar el producto." }, { status: 500 });
@@ -113,7 +112,7 @@ export async function POST(solicitud: NextRequest) {
     .update({ fotos })
     .eq("id", copia.id)
     .eq("negocio_id", contexto.negocio.id)
-    .select(COLUMNAS_PRODUCTO)
+    .select(COLUMNAS_PRODUCTO_ADMIN)
     .maybeSingle();
 
   return NextResponse.json(

@@ -12,6 +12,7 @@ import { rubroOfrece } from "../../../../lib/negocios/rubros";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import styles from "./catalogo.module.css";
+import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../lib/catalogo/columnas";
 
 export const metadata: Metadata = {
   title: "Catálogo | MiPuesto",
@@ -51,9 +52,7 @@ export default async function PaginaCatalogo() {
       .order("nombre"),
     supabase
       .from("productos")
-      .select(
-        "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden,en_carta_hasta",
-      )
+      .select(COLUMNAS_PRODUCTO_ADMIN)
       .eq("negocio_id", negocio.id)
       .is("eliminado_en", null)
       .order("orden")

@@ -25,6 +25,11 @@ for (const carpeta of carpetas) {
 
     const esFuenteDePaletas = ruta === "components/templates/tema-catalogo.module.css";
     const esImagenOpenGraph = ruta.endsWith("/opengraph-image.tsx");
+    /* `global-error.tsx` solo se renderiza cuando falló el layout raíz, que es
+       el que importa `globals.css`. Sin esa hoja no existen los tokens, así que
+       una pantalla escrita con `var(--color-...)` saldría sin colores justo en
+       el único momento en que se la ve. Es la única excepción, y es por eso. */
+    const esUltimaRed = ruta === "app/global-error.tsx";
 
     if (extension === ".css" && ruta !== "app/globals.css" && !esFuenteDePaletas) {
       for (const coincidencia of contenido.matchAll(/#[0-9a-fA-F]{3,8}|\b(?:rgb|hsl|oklch|lab|lch)\(/g)) {
@@ -51,6 +56,8 @@ for (const carpeta of carpetas) {
 
     if ([".tsx", ".ts", ".jsx", ".js"].includes(extension)) {
       const documentaPaleta = ruta === "app/estilos/muestra-estilos.tsx";
+
+      if (esUltimaRed) continue;
 
       if (!documentaPaleta) {
         for (const coincidencia of contenido.matchAll(/#[0-9a-fA-F]{3,8}/g)) {

@@ -7,6 +7,7 @@ import { formatearPrecioBolivianos } from "../../../../lib/precios";
 import { crearClienteSupabasePublico } from "../../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import styles from "./menu-imprimible.module.css";
+import { COLUMNAS_PRODUCTO_IMPRESO } from "../../../../lib/catalogo/columnas";
 
 export const dynamic = "force-dynamic";
 
@@ -51,9 +52,7 @@ export default async function PaginaMenuImprimible({ params }: PropiedadesPagina
       .order("nombre"),
     supabase
       .from("productos")
-      .select(
-        "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,estado,visible,orden,en_carta_hasta",
-      )
+      .select(COLUMNAS_PRODUCTO_IMPRESO)
       .eq("negocio_id", negocio.id)
       .eq("visible", true)
       .order("orden")

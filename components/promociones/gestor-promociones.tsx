@@ -56,6 +56,19 @@ function describirDescuento(promocion: Pick<PromocionAdmin, "tipo" | "valor">) {
     : `${formatearPrecioBolivianos(promocion.valor)} menos`;
 }
 
+function describirHorario(promocion: PromocionAdmin) {
+  const partes: string[] = [];
+  if (promocion.hora_inicio && promocion.hora_fin) {
+    partes.push(
+      `De ${promocion.hora_inicio.slice(0, 5)} a ${promocion.hora_fin.slice(0, 5)}`,
+    );
+  }
+  if (promocion.dias && promocion.dias.length > 0 && promocion.dias.length < 7) {
+    partes.push(promocion.dias.map((dia) => NOMBRES_DIAS[dia]).join(", "));
+  }
+  return partes.join(" · ");
+}
+
 function obtenerEstado(promocion: PromocionAdmin, ahora: Date) {
   if (!promocion.activo) return { texto: "Pausada", clase: styles.pausada };
   if (promocion.fecha_inicio && new Date(promocion.fecha_inicio) > ahora) {
@@ -64,9 +77,16 @@ function obtenerEstado(promocion: PromocionAdmin, ahora: Date) {
   if (promocion.fecha_fin && new Date(promocion.fecha_fin) <= ahora) {
     return { texto: "Vencida", clase: styles.vencida };
   }
-  return promocionEstaVigente(promocion, ahora)
-    ? { texto: "Vigente", clase: styles.vigente }
-    : { texto: "Revisar", clase: styles.vencida };
+  if (promocionEstaVigente(promocion, ahora)) {
+    return { texto: "Vigente", clase: styles.vigente };
+  }
+  /* Una promoción con horario está dormida casi todo el día, y eso es lo normal.
+     Marcarla en rojo como «Revisar» haría que el dueño entrara a arreglar algo
+     que no está roto —o peor, que la borrara—. */
+  if (promocion.hora_inicio || (promocion.dias?.length ?? 0) > 0) {
+    return { texto: "Espera su horario", clase: styles.programada };
+  }
+  return { texto: "Revisar", clase: styles.vencida };
 }
 
 async function solicitarJson<T>(url: string, opciones: RequestInit) {
@@ -424,6 +444,11 @@ export function GestorPromociones({
                         ? ` hasta ${FORMATEADOR_FECHA.format(new Date(promocion.fecha_fin))}`
                         : ", sin vencimiento"}
                     </small>
+                    {/* Sin esto, «Espera su horario» no dice qué horario, y el
+                        dueño tiene que abrir el formulario para recordarlo. */}
+                    {describirHorario(promocion) ? (
+                      <small>{describirHorario(promocion)}</small>
+                    ) : null}
                   </div>
                   <div className={styles.acciones}>
                     <Boton disabled={ocupado} onClick={() => void cambiarEstado(promocion)} variante="discreto">

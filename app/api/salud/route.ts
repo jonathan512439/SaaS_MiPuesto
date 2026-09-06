@@ -13,7 +13,36 @@ export const dynamic = "force-dynamic";
  * se consulta con `npm run salud`, que corre con la clave privilegiada. Un
  * atacante no aprende nada acá que no sepa mirando si la página carga.
  */
+/* Es pública y sin límite a propósito —cualquier vigilante tiene que poder
+   consultarla sin credenciales—, pero cada llamada abría el cliente
+   privilegiado y hacía dos consultas. Quince segundos de memoria bastan: un
+   monitor pregunta cada uno o cinco minutos, y quien la martille recibe la
+   misma respuesta sin tocar la base.
+
+   La caché es por isolate, así que no es una barrera: es un colchón. La barrera
+   de verdad la pone `Cache-Control`, que deja que el borde de Cloudflare
+   absorba las repeticiones antes de que lleguen acá. */
+const VIDA_CACHE_MS = 15_000;
+
+let respuestaCacheada: { cuerpo: Record<string, unknown>; estado: number; hasta: number } | null =
+  null;
+
+function responder(cuerpo: Record<string, unknown>, estado: number) {
+  respuestaCacheada = { cuerpo, estado, hasta: Date.now() + VIDA_CACHE_MS };
+  return NextResponse.json(cuerpo, {
+    status: estado,
+    headers: { "Cache-Control": `public, max-age=${VIDA_CACHE_MS / 1000}` },
+  });
+}
+
 export async function GET() {
+  if (respuestaCacheada && respuestaCacheada.hasta > Date.now()) {
+    return NextResponse.json(respuestaCacheada.cuerpo, {
+      status: respuestaCacheada.estado,
+      headers: { "Cache-Control": `public, max-age=${VIDA_CACHE_MS / 1000}` },
+    });
+  }
+
   try {
     const supabase = crearClienteSupabaseAdmin();
 
@@ -23,23 +52,23 @@ export async function GET() {
     ]);
 
     if (negocios.error) {
-      return NextResponse.json({ estado: "sin_base" }, { status: 503 });
+      return responder({ estado: "sin_base" }, 503);
     }
 
     /* Si la vigilancia no responde, se informa la base sana y la vigilancia
        caída por separado: confundir las dos cosas manda a revisar el lugar
        equivocado. */
     if (tareas.error) {
-      return NextResponse.json({ estado: "sin_vigilancia" }, { status: 503 });
+      return responder({ estado: "sin_vigilancia" }, 503);
     }
 
     const atrasadas = (tareas.data ?? []).filter((tarea) => tarea.atrasada).length;
     if (atrasadas > 0) {
-      return NextResponse.json({ estado: "tareas_atrasadas", atrasadas }, { status: 503 });
+      return responder({ estado: "tareas_atrasadas", atrasadas }, 503);
     }
 
-    return NextResponse.json({ estado: "ok" });
+    return responder({ estado: "ok" }, 200);
   } catch {
-    return NextResponse.json({ estado: "sin_configurar" }, { status: 503 });
+    return responder({ estado: "sin_configurar" }, 503);
   }
 }

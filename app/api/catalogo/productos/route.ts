@@ -13,9 +13,8 @@ import {
   purgarPapeleraVencida,
   validarJerarquiaProducto,
 } from "../../../../lib/catalogo/servidor";
+import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../lib/catalogo/columnas";
 
-const COLUMNAS_PRODUCTO =
-  "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,precio_anterior,precio_actualizado_en,precio_actualizado_por,fotos,controla_stock,cantidad_stock,cantidad_reservada,visible,estado,orden,en_carta_hasta";
 
 export async function POST(solicitud: NextRequest) {
   const contexto = await obtenerContextoAdminCatalogo();
@@ -74,7 +73,7 @@ export async function POST(solicitud: NextRequest) {
       ),
       orden: (ultimo?.orden ?? 0) + 1,
     })
-    .select(COLUMNAS_PRODUCTO)
+    .select(COLUMNAS_PRODUCTO_ADMIN)
     .single();
   if (error) {
     return NextResponse.json({ error: "No se pudo crear el producto." }, { status: 500 });
@@ -104,7 +103,7 @@ export async function PATCH(solicitud: NextRequest) {
       .eq("id", datos.id)
       .eq("negocio_id", contexto.negocio.id)
       .is("eliminado_en", null)
-      .select(COLUMNAS_PRODUCTO)
+      .select(COLUMNAS_PRODUCTO_ADMIN)
       .maybeSingle();
     if (error || !data) {
       return NextResponse.json({ error: "No se pudo cambiar la visibilidad." }, { status: 404 });
@@ -125,7 +124,7 @@ export async function PATCH(solicitud: NextRequest) {
       .eq("id", datos.id)
       .eq("negocio_id", contexto.negocio.id)
       .is("eliminado_en", null)
-      .select(COLUMNAS_PRODUCTO)
+      .select(COLUMNAS_PRODUCTO_ADMIN)
       .maybeSingle();
     if (error || !data) {
       return NextResponse.json({ error: "No se pudo cambiar la carta del día." }, { status: 404 });
@@ -171,7 +170,7 @@ export async function PATCH(solicitud: NextRequest) {
       .eq("id", datos.id)
       .eq("negocio_id", contexto.negocio.id)
       .is("eliminado_en", null)
-      .select(COLUMNAS_PRODUCTO)
+      .select(COLUMNAS_PRODUCTO_ADMIN)
       .maybeSingle();
     if (error || !data) {
       return NextResponse.json({ error: "No se pudo cambiar el estado." }, { status: 500 });
@@ -226,7 +225,7 @@ export async function PATCH(solicitud: NextRequest) {
     })
     .eq("id", datos.id)
     .eq("negocio_id", contexto.negocio.id)
-    .select(COLUMNAS_PRODUCTO)
+    .select(COLUMNAS_PRODUCTO_ADMIN)
     .maybeSingle();
   if (error || !data) {
     return NextResponse.json({ error: "No se pudo actualizar el producto." }, { status: 404 });
