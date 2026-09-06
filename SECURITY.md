@@ -143,6 +143,16 @@ Trescientos eventos por IP y negocio cada quince minutos: una casa o una oficina
 enteras detrás de una sola salida a internet generan muchos eventos legítimos, y
 cortarles la medición sería peor que el problema.
 
+**Verificado contra producción después del cambio.** Con el contador por debajo
+del tope, un evento se guarda; con el contador en 300, dos eventos seguidos no
+guardan ninguno. Y la escritura directa desde la clave pública responde 42501.
+
+Al crear la tabla del conteo se olvidó devolverle los permisos a `service_role`
+—el mismo descuido que hubo con `plataforma_admins`—. La función definer escribía
+igual porque corre como su dueña, así que el límite funcionaba; lo que no se podía
+era mirarlo, ni para verificarlo ni para atender una queja de «no me registra
+las visitas».
+
 ### 2. Faltaban tres slugs reservados
 
 `plataforma`, `privacidad` y `terminos`. Una ruta estática le gana al slug, así
