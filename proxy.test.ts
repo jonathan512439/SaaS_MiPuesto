@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { proxy } from "./proxy";
+import { proxy, requiereGestionDeSesion } from "./proxy";
 
 describe("proxy HTTPS", () => {
   afterEach(() => {
@@ -34,5 +34,21 @@ describe("proxy HTTPS", () => {
 
     expect(respuesta.status).toBe(200);
     expect(respuesta.headers.get("x-middleware-next")).toBe("1");
+  });
+});
+
+describe("qué rutas renuevan la sesión", () => {
+  /* `/plataforma` era la única ruta sensible que quedaba fuera: al administrador
+     lo echaba al ingreso en medio del trabajo. */
+  it("cubre la plataforma además del panel", () => {
+    expect(requiereGestionDeSesion("/plataforma")).toBe(true);
+    expect(requiereGestionDeSesion("/dashboard/catalogo")).toBe(true);
+    expect(requiereGestionDeSesion("/login")).toBe(true);
+  });
+
+  it("no toca las páginas públicas", () => {
+    expect(requiereGestionDeSesion("/directorio")).toBe(false);
+    expect(requiereGestionDeSesion("/sabor-camba")).toBe(false);
+    expect(requiereGestionDeSesion("/t/BCD234")).toBe(false);
   });
 });

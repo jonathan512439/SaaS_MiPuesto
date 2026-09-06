@@ -155,6 +155,35 @@ export type Database = {
           },
         ]
       }
+      limites_analitica_ip: {
+        Row: {
+          cantidad: number
+          huella_ip: string
+          negocio_id: string
+          ventana_inicio: string
+        }
+        Insert: {
+          cantidad?: number
+          huella_ip: string
+          negocio_id: string
+          ventana_inicio?: string
+        }
+        Update: {
+          cantidad?: number
+          huella_ip?: string
+          negocio_id?: string
+          ventana_inicio?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "limites_analitica_ip_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       limites_pedidos_ip: {
         Row: {
           cantidad: number
@@ -673,6 +702,16 @@ export type Database = {
         Returns: number
       }
       purgar_analitica_vieja: { Args: { p_dias?: number }; Returns: number }
+      registrar_evento_analitica: {
+        Args: {
+          p_huella_ip: string
+          p_negocio_id: string
+          p_producto_id: string
+          p_sesion_id: string
+          p_tipo: string
+        }
+        Returns: boolean
+      }
       resolver_etiqueta: { Args: { p_codigo: string }; Returns: string }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

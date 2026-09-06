@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { evaluarHorario } from "../../../lib/horario";
+import {
+  crearHuellaIp,
+  leerSecretoHuella,
+  obtenerIpSolicitud,
+} from "../../../lib/huella-ip";
 import { validarSolicitudPedido } from "../../../lib/pedidos/validacion";
 import { construirEnlaceWhatsapp, construirMensajePedido } from "../../../lib/whatsapp";
 import { crearClienteSupabaseAdmin } from "../../../lib/supabase/admin";
@@ -56,25 +61,6 @@ const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }> = {
   },
 };
 
-function obtenerIp(solicitud: NextRequest) {
-  const ipCloudflare = solicitud.headers.get("cf-connecting-ip")?.trim();
-  if (ipCloudflare) return ipCloudflare.slice(0, 64);
-  const primeraIp = solicitud.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return (primeraIp || "entorno-local").slice(0, 64);
-}
-
-async function crearHuellaIp(ip: string, secreto: string) {
-  const clave = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secreto),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const firma = await crypto.subtle.sign("HMAC", clave, new TextEncoder().encode(ip));
-  return Array.from(new Uint8Array(firma), (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
 function esPedidoGuardado(valor: unknown): valor is PedidoGuardado {
   if (typeof valor !== "object" || valor === null || Array.isArray(valor)) return false;
   const pedido = valor as Record<string, unknown>;
@@ -114,8 +100,7 @@ export async function POST(solicitud: NextRequest) {
   let secreto: string;
   try {
     supabase = crearClienteSupabaseAdmin();
-    secreto =
-      process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+    secreto = leerSecretoHuella();
   } catch {
     return NextResponse.json(
       { error: "Los pedidos todavía no están habilitados en este entorno." },
@@ -149,7 +134,7 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  const huellaIp = await crearHuellaIp(obtenerIp(solicitud), secreto);
+  const huellaIp = await crearHuellaIp(obtenerIpSolicitud(solicitud), secreto);
   const { data, error } = await supabase.rpc("crear_pedido_reservado", {
     p_slug: validacion.datos.slug,
     p_items: validacion.datos.items.map((item) => ({

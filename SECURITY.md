@@ -114,3 +114,66 @@ Parte de gestionar el riesgo es no gastar esfuerzo donde no hace falta:
 - No hagas pruebas end-to-end automatizadas. El costo de mantenimiento supera el beneficio a esta escala.
 - No implementes autenticación de dos factores todavía. Sí, cuando manejes negocios con volumen real.
 - No construyas un panel de super-admin para vos mismo en las primeras fases. Usá la consola de Supabase directamente; construilo cuando administrar a mano te empiece a doler.
+
+## Recorrido de seguridad del 2026-09-06
+
+Verificado contra producción, no sobre el código. Lo que estaba bien: las siete
+cabeceras vivas, HTTPS forzado con 308, las siete APIs de panel y plataforma en
+401 sin sesión, `/plataforma` en 404 para quien no administra, permisos por
+columna ocultando `admin_user_id` y `suscripcion_vence_en` a `anon`, datos de
+compradores cerrados, y la propiedad del pedido comprobada dentro de la función
+de la base y no en la ruta.
+
+Cinco correcciones aplicadas el mismo día.
+
+### 1. La analítica se podía inundar
+
+El tope de sesenta eventos por hora era **por sesión**, y la sesión la elige el
+navegador. Se comprobó: diez eventos desde una sola IP rotando el UUID, los diez
+aceptados. Cualquiera con un bucle escribía filas sin fin —cuota de la base— y
+envenenaba las estadísticas que el dueño usa para decidir qué reponer.
+
+Ahora cuenta por huella de IP, como los pedidos. **La huella solo vale si el
+cliente no puede elegirla**, así que el registro dejó de estar abierto a `anon`:
+pasa por `registrar_evento_analitica`, revocada de `anon` y `authenticated`, y se
+revocó el `insert` directo sobre la tabla. Mientras esa puerta estuviera abierta,
+el límite era decorativo.
+
+Trescientos eventos por IP y negocio cada quince minutos: una casa o una oficina
+enteras detrás de una sola salida a internet generan muchos eventos legítimos, y
+cortarles la medición sería peor que el problema.
+
+### 2. Faltaban tres slugs reservados
+
+`plataforma`, `privacidad` y `terminos`. Una ruta estática le gana al slug, así
+que un negocio con uno de esos nombres pagaba, cargaba su catálogo y su dirección
+nunca abría.
+
+### 3. La analítica aceptaba productos en la papelera
+
+Su política comprobaba `visible = true`, y un producto borrado lo conserva —el
+mismo agujero que se cerró en la creación de pedidos, en otra tabla—. La función
+nueva exige `eliminado_en is null`.
+
+### 4. `/plataforma` no renovaba la sesión
+
+El proxy solo cubría `/dashboard`. Justo la ruta más sensible era la única cuya
+sesión no se renovaba, así que al administrador lo echaba al ingreso en medio del
+trabajo.
+
+### 5. La prueba de aislamiento se había quedado atrás
+
+Cubría ocho tablas y no las columnas ni la tabla agregadas después. Ahora
+comprueba también que un dueño común no lea ni cree etiquetas, no mande a la
+papelera ni ponga en la carta del día un producto ajeno, no cambie rubro, ciudad
+ni reseñas de otro negocio, no escriba analítica salteándose la ruta y no lea el
+conteo de límites por IP — y que sí pueda guardar lo suyo.
+
+### Lo que quedó pendiente a propósito
+
+| Pendiente | Por qué no ahora |
+|---|---|
+| `/api/salud` sin límite y con clave de servicio | No filtra nada; el riesgo es de cuota. Se resuelve cacheando la respuesta unos segundos |
+| `'unsafe-inline'` en `script-src` | Quitarlo exige nonces y hay que ver si vinext los soporta. No renderizamos HTML de usuario |
+| Sin tope de almacenamiento por negocio | El techo existe —2 MB por foto, 4 por producto, 300 productos— pero nadie avisa al acercarse |
+| Invitaciones sin límite | Exige una cuenta con segundo factor ya comprometida |

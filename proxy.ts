@@ -6,8 +6,17 @@ import { actualizarSesionSupabase } from "./lib/supabase/proxy";
 const RUTAS_AUTH = new Set(["/login", "/recuperar-clave", "/actualizar-clave"]);
 const HOSTS_LOCALES = new Set(["localhost", "127.0.0.1", "::1"]);
 
-function requiereGestionDeSesion(ruta: string) {
-  return ruta === "/dashboard" || ruta.startsWith("/dashboard/") || RUTAS_AUTH.has(ruta);
+/* `/plataforma` entra acá aunque viva fuera de `/dashboard`: es la ruta más
+   sensible del sistema y era la única cuya sesión no se renovaba, así que al
+   administrador lo echaba al ingreso en medio del trabajo. */
+export function requiereGestionDeSesion(ruta: string) {
+  return (
+    ruta === "/dashboard" ||
+    ruta.startsWith("/dashboard/") ||
+    ruta === "/plataforma" ||
+    ruta.startsWith("/plataforma/") ||
+    RUTAS_AUTH.has(ruta)
+  );
 }
 
 function debeForzarHttps(solicitud: NextRequest) {

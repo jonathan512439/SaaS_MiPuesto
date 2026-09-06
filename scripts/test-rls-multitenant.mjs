@@ -388,8 +388,84 @@ try {
   const logoBConservado = await administrador.storage.from("negocios").download(logoB);
   comprobar(!logoBConservado.error, "A pudo borrar una imagen de identidad de B");
 
+  // Lo que se agregó después de escribir esta prueba: cada columna y tabla
+  // nuevas son superficie nueva, y una prueba que se queda en el esquema de
+  // ayer da una confianza que ya no corresponde.
+  const etiquetasAjenas = await clienteA.from("etiquetas").select("codigo");
+  comprobar(
+    Boolean(etiquetasAjenas.error) || (etiquetasAjenas.data ?? []).length === 0,
+    "un dueño común pudo leer las etiquetas de la plataforma",
+  );
+
+  const etiquetaInventada = await clienteA
+    .from("etiquetas")
+    .insert({ codigo: "ZZZ999", negocio_id: negocios[0].id });
+  comprobar(
+    Boolean(etiquetaInventada.error),
+    "un dueño común pudo crearse una etiqueta apuntando a su negocio",
+  );
+
+  const papeleraAjena = await clienteA
+    .from("productos")
+    .update({ eliminado_en: new Date().toISOString() })
+    .eq("id", productoB.id)
+    .select("id");
+  comprobar(
+    Boolean(papeleraAjena.error) || (papeleraAjena.data ?? []).length === 0,
+    "A pudo mandar a la papelera un producto de B",
+  );
+
+  const cartaAjena = await clienteA
+    .from("productos")
+    .update({ en_carta_hasta: "2026-01-01" })
+    .eq("id", productoB.id)
+    .select("id");
+  comprobar(
+    Boolean(cartaAjena.error) || (cartaAjena.data ?? []).length === 0,
+    "A pudo poner en la carta del día un producto de B",
+  );
+
+  const identidadAjena = await clienteA
+    .from("negocios")
+    .update({ rubro: "restaurante", ciudad: "la_paz", resenas_url: "https://ejemplo.com" })
+    .eq("id", negocios[1].id)
+    .select("id");
+  comprobar(
+    Boolean(identidadAjena.error) || (identidadAjena.data ?? []).length === 0,
+    "A pudo cambiar rubro, ciudad o reseñas de B",
+  );
+
+  const propiaIdentidad = await clienteA
+    .from("negocios")
+    .update({ rubro: "restaurante", ciudad: "la_paz", zona: "Miraflores", pide_numero_mesa: true })
+    .eq("id", negocios[0].id)
+    .select("rubro,ciudad,zona,pide_numero_mesa")
+    .maybeSingle();
+  comprobar(
+    !propiaIdentidad.error && propiaIdentidad.data?.rubro === "restaurante",
+    `A no pudo guardar su propio rubro y ciudad: ${propiaIdentidad.error?.message}`,
+  );
+
+  // La analítica dejó de aceptar escrituras directas: si esto vuelve a pasar,
+  // el límite por IP de la ruta se puede saltear escribiendo a la base.
+  const analiticaDirecta = await clienteA.from("eventos_analitica").insert({
+    negocio_id: negocios[0].id,
+    sesion_id: randomUUID(),
+    tipo: "vista_catalogo",
+  });
+  comprobar(
+    Boolean(analiticaDirecta.error),
+    "se pudo escribir analítica sin pasar por la ruta que cuenta por IP",
+  );
+
+  const limitesAnalitica = await clienteA.from("limites_analitica_ip").select("negocio_id");
+  comprobar(
+    Boolean(limitesAnalitica.error) || (limitesAnalitica.data ?? []).length === 0,
+    "un dueño común pudo leer el conteo de límites por IP",
+  );
+
   console.log(
-    "RLS multi-tenant: 2 usuarios, 8 tablas de negocio, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 8 tablas de negocio, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([

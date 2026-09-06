@@ -18,6 +18,12 @@ export const SLUGS_RESERVADOS = new Set([
   "directorio",
   "estilos",
   "login",
+  /* Faltaban tres, y no era inofensivo: una ruta estática le gana al slug, así
+     que un negocio con uno de estos nombres pagaba, cargaba su catálogo y su
+     dirección nunca abría. */
+  "plataforma",
+  "privacidad",
+  "terminos",
   "recuperar-clave",
   "registro",
   /* La puerta de las etiquetas NFC. Sin reservarla, un negocio con el nombre
