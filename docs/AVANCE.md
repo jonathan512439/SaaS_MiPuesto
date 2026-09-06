@@ -5,7 +5,7 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 ## Estado actual
 
 - Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda**, **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp**, **Fase 7 — Panel de administración completo** y **Fase 8 — Funciones de plataforma**.
-- Fase en curso: **Fase 9 — Testing y cierre operativo, sin dominio por ahora**.
+- Fase en curso: **Fase 9 — Testing y cierre operativo**, con el dominio aplazado hasta después de las etiquetas NFC.
 - Inicio de Fase 2: 2026-09-01.
 - Cierre de Fase 2: 2026-09-02.
 - Cierre de Fase 3: 2026-09-02.
@@ -22,8 +22,31 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 - Inicio de Fase 9: 2026-09-03.
 - Inicio de Fase 10: 2026-09-04.
 - Cierre del bloque 10.1 (sistema de diseño vivo): 2026-09-04.
-- Estado: **Fase 12 en curso sobre `main`** (etapa 0–1 del plan de crecimiento). Fase 9 sigue abierta con el dominio aplazado.
-- Próxima puerta de salida: un negocio piloto debe operar una semana completa sin intervenir manualmente la base de datos; el dominio se validará después como tarea separada.
+- Estado al **2026-09-06**: el plan de crecimiento (`docs/PLAN-CRECIMIENTO.md`)
+  tiene **siete de sus diez etapas cerradas** —0–1, 2, 3, 3½, 6, 7 y 8— más la
+  capa 1 de catálogos por rubro. Todo está en `main` y desplegado.
+
+| Etapa | Estado |
+|---|---|
+| 0–1 El contrato y el mecanismo | Cerrada |
+| 2 Que aguante 300 productos | Cerrada |
+| 3 Peso y uso diario | Cerrada |
+| 3½ Ubicación | Cerrada |
+| 4 Dominio y correo | **Espera la compra del dominio** |
+| 5 Que se pueda dormir tranquilo | Código listo; **falta el ensayo de restauración**, que solo puede hacer el dueño |
+| 6 Panel de superadministrador | Cerrada |
+| 7 NFC, mesa y Google | Cerrada |
+| 8 Paquete de restaurantes | Cerrada |
+| 9 Carga desde foto | No iniciada, y va última a propósito |
+
+- Fuera del plan y ya hechos: papelera de productos, control de almacenamiento en
+  la plataforma, recorrido de seguridad con cinco correcciones, y pantallas de
+  error para cuando algo falla del lado del servidor.
+- **La Fase 9 sigue abierta**, y su puerta de salida no cambió: un negocio piloto
+  tiene que operar una semana completa sin que nadie toque la base a mano. Nada
+  de lo construido reemplaza eso.
+- Lo anterior a probar a mano está en `docs/PRUEBAS-LANZAMIENTO.md`. **Ninguna de
+  las pantallas construidas desde el 5 de septiembre la abrió una persona.**
 
 ## Cómo continuar este proyecto
 
