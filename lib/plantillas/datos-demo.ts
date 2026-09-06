@@ -33,6 +33,7 @@ export function crearDatosDemoPlantilla({
       portadaUrl: null,
       qrPagoUrl: null,
       ubicacionUrl: null,
+    pideNumeroMesa: false,
     redesSociales: [],
     },
     categorias: [

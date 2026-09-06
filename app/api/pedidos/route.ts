@@ -46,6 +46,14 @@ const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }> = {
     estado: 400,
     mensaje: "Escribe un celular boliviano válido de 8 dígitos.",
   },
+  MESA_NO_PERMITIDA: {
+    estado: 400,
+    mensaje: "Este negocio no atiende por mesa.",
+  },
+  MESA_INVALIDA: {
+    estado: 400,
+    mensaje: "El número de mesa admite hasta 10 caracteres.",
+  },
 };
 
 function obtenerIp(solicitud: NextRequest) {
@@ -150,6 +158,7 @@ export async function POST(solicitud: NextRequest) {
     })),
     p_cliente_nombre: validacion.datos.clienteNombre as string,
     p_cliente_telefono: validacion.datos.clienteTelefono as string,
+    p_numero_mesa: validacion.datos.numeroMesa as string,
     p_idempotencia: validacion.datos.idempotencia,
     p_huella_ip: huellaIp,
   });
@@ -171,7 +180,12 @@ export async function POST(solicitud: NextRequest) {
     precio: Number(item.precio_unitario),
     cantidad: Number(item.cantidad),
   }));
-  const mensaje = construirMensajePedido(negocio.nombre, items, data.codigo);
+  const mensaje = construirMensajePedido(
+    negocio.nombre,
+    items,
+    data.codigo,
+    validacion.datos.numeroMesa,
+  );
   const enlaceWhatsapp = construirEnlaceWhatsapp(negocio.telefono_whatsapp, mensaje);
   if (!enlaceWhatsapp) {
     return NextResponse.json(

@@ -8,7 +8,7 @@ import {
   validarDatosNegocio,
   validarSlug,
 } from "../../lib/negocios/validacion";
-import { DEFINICIONES_RUBROS } from "../../lib/negocios/rubros";
+import { DEFINICIONES_RUBROS, rubroOfrece } from "../../lib/negocios/rubros";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "../../app/(admin)/dashboard/configuracion/configuracion.module.css";
 
@@ -18,6 +18,7 @@ export type PerfilNegocioInicial = {
   descripcion: string | null;
   tipo_negocio: string;
   rubro?: string | null;
+  pide_numero_mesa?: boolean | null;
   telefono_whatsapp: string;
 };
 
@@ -66,6 +67,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   );
   const [telefono, setTelefono] = useState(negocioInicial?.telefono_whatsapp ?? "");
   const [rubro, setRubro] = useState(negocioInicial?.rubro ?? "");
+  const [pideMesa, setPideMesa] = useState(negocioInicial?.pide_numero_mesa === true);
   const [estadoSlug, setEstadoSlug] = useState<EstadoSlug>("inicial");
   const [errores, setErrores] = useState<Record<string, string>>({});
   const { mostrarAviso } = useAvisos();
@@ -127,6 +129,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       tipo_negocio: tipo,
       telefono_whatsapp: telefono,
       rubro,
+      pide_numero_mesa: pideMesa,
     };
     const validacion = validarDatosNegocio(entrada);
 
@@ -167,6 +170,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       setDescripcion(datos.negocio.descripcion ?? "");
       setTipo(datos.negocio.tipo_negocio as TipoNegocio);
       setRubro(datos.negocio.rubro ?? "");
+      setPideMesa(datos.negocio.pide_numero_mesa === true);
       setTelefono(datos.negocio.telefono_whatsapp);
     }
 
@@ -307,6 +311,27 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
             </option>
           ))}
         </Selector>
+        {/* Aparece pegado al rubro porque solo tiene sentido ahí: pedirle la
+            mesa a quien compra ropa por WhatsApp es un campo más entre él y el
+            pedido. Si el rubro cambia y deja de ofrecerlo, la marca guardada no
+            se borra —el rubro oculta interfaz, nunca datos—, pero el catálogo
+            deja de preguntar. */}
+        {rubroOfrece(rubro, "numero_de_mesa") ? (
+          <label className={styles.interruptor}>
+            <input
+              checked={pideMesa}
+              onChange={(evento) => setPideMesa(evento.target.checked)}
+              type="checkbox"
+            />
+            <span>
+              <strong>Pedir el número de mesa</strong>
+              <small>
+                Al confirmar, tu cliente escribe en qué mesa está y lo ves en el pedido
+                y en el mensaje de WhatsApp.
+              </small>
+            </span>
+          </label>
+        ) : null}
         <div className={styles.modalidadExplicacion} aria-live="polite">
           <h3>{EXPLICACIONES_MODALIDAD[tipo].titulo}</h3>
           <p>{EXPLICACIONES_MODALIDAD[tipo].descripcion}</p>

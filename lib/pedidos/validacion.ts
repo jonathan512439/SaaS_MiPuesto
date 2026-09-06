@@ -13,6 +13,7 @@ export type SolicitudPedidoValidada = {
   items: ItemSolicitudPedido[];
   clienteNombre: string | null;
   clienteTelefono: string | null;
+  numeroMesa: string | null;
   idempotencia: string;
 };
 
@@ -92,6 +93,14 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
     };
   }
 
+  /* Diez caracteres: en los locales reales las mesas se llaman «A1», «Barra» o
+     «Terraza». Que el negocio realmente pida mesa lo comprueba la base, que es
+     la única que sabe de qué negocio se trata. */
+  const numeroMesa = normalizarTextoOpcional(valor.numeroMesa, 10);
+  if (numeroMesa === undefined) {
+    return { correcto: false, error: "El número de mesa admite hasta 10 caracteres." };
+  }
+
   if (!esUuid(valor.idempotencia)) {
     return { correcto: false, error: "No se pudo identificar este intento de pedido." };
   }
@@ -103,6 +112,7 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
       items,
       clienteNombre,
       clienteTelefono,
+      numeroMesa,
       idempotencia: valor.idempotencia,
     },
   };

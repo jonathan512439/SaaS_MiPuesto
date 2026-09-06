@@ -40,3 +40,29 @@ describe("enlaces de WhatsApp", () => {
     expect(mensaje).toContain("Total reservado: Bs 195");
   });
 });
+
+describe("mesa en el mensaje de pedido", () => {
+  /* El mozo que lee el mensaje en el celular necesita saber a dónde llevarlo
+     antes que qué lleva. */
+  it("nombra la mesa antes del detalle", () => {
+    const mensaje = construirMensajePedido(
+      "Sabor Camba",
+      [{ nombre: "Silpancho", precio: 38, cantidad: 1 }],
+      "PED-1",
+      " 5 ",
+    );
+    const lineas = mensaje.split(String.fromCharCode(10));
+    expect(lineas[2]).toBe("Mesa: 5.");
+    expect(lineas[3]).toContain("Silpancho");
+  });
+
+  it("no menciona la mesa cuando no la hay", () => {
+    const mensaje = construirMensajePedido(
+      "Sabor Camba",
+      [{ nombre: "Silpancho", precio: 38, cantidad: 1 }],
+      "PED-1",
+      "   ",
+    );
+    expect(mensaje).not.toContain("Mesa");
+  });
+});

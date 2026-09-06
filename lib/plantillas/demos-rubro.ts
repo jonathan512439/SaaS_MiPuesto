@@ -68,6 +68,7 @@ function negocio(
     portadaUrl: null,
     qrPagoUrl: null,
     ubicacionUrl: null,
+    pideNumeroMesa: false,
     redesSociales: [],
   };
 }

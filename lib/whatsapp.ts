@@ -39,6 +39,7 @@ export function construirMensajePedido(
   negocio: string,
   items: ItemPedidoWhatsapp[],
   codigoPedido?: string,
+  numeroMesa?: string | null,
 ) {
   const validos = items.filter(
     (item) =>
@@ -54,6 +55,9 @@ export function construirMensajePedido(
   return [
     `Hola, preparé este pedido en el catálogo de ${negocio}:`,
     ...(codigoPedido ? [`Código de reserva: ${codigoPedido}.`] : []),
+    /* Antes del detalle: el mozo que lee el mensaje en el celular necesita
+       saber a dónde llevarlo antes que qué lleva. */
+    ...(numeroMesa?.trim() ? [`Mesa: ${numeroMesa.trim()}.`] : []),
     ...validos.map(
       (item) =>
         `- ${item.cantidad} × ${item.nombre}${item.codigo ? ` (${item.codigo})` : ""}: ${formatearPrecioBolivianos(

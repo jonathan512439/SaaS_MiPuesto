@@ -202,3 +202,32 @@
   }
 
 }
+
+/* Un interruptor con su explicación al lado, no debajo: la pregunta «¿atendés
+   en mesas?» no se entiende sola sin decir qué cambia si se responde que sí. */
+.interruptor {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+  cursor: pointer;
+}
+
+.interruptor:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.interruptor strong {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.interruptor small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}

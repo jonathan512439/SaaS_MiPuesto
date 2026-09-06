@@ -28,6 +28,7 @@ export type DatosNegocioValidados = {
   tipo_negocio: TipoNegocio;
   telefono_whatsapp: string;
   rubro: RubroId | null;
+  pide_numero_mesa: boolean;
 };
 
 export type ResultadoValidacionNegocio =
@@ -130,6 +131,7 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
       tipo_negocio: tipo as TipoNegocio,
       telefono_whatsapp: telefono,
       rubro: esRubroId(rubro) ? rubro : null,
+      pide_numero_mesa: objeto.pide_numero_mesa === true,
     },
   };
 }

@@ -163,6 +163,7 @@ export type Database = {
           logo_url: string | null
           nombre: string
           paleta_id: string
+          pide_numero_mesa: boolean
           plantilla_id: string
           portada_url: string | null
           qr_pago_url: string | null
@@ -190,6 +191,7 @@ export type Database = {
           logo_url?: string | null
           nombre: string
           paleta_id?: string
+          pide_numero_mesa?: boolean
           plantilla_id?: string
           portada_url?: string | null
           qr_pago_url?: string | null
@@ -217,6 +219,7 @@ export type Database = {
           logo_url?: string | null
           nombre?: string
           paleta_id?: string
+          pide_numero_mesa?: boolean
           plantilla_id?: string
           portada_url?: string | null
           qr_pago_url?: string | null
@@ -307,6 +310,7 @@ export type Database = {
           idempotencia: string
           items: Json
           negocio_id: string
+          numero_mesa: string | null
           total: number
         }
         Insert: {
@@ -325,6 +329,7 @@ export type Database = {
           idempotencia?: string
           items: Json
           negocio_id: string
+          numero_mesa?: string | null
           total: number
         }
         Update: {
@@ -343,6 +348,7 @@ export type Database = {
           idempotencia?: string
           items?: Json
           negocio_id?: string
+          numero_mesa?: string | null
           total?: number
         }
         Relationships: [
@@ -592,6 +598,7 @@ export type Database = {
           p_huella_ip: string
           p_idempotencia: string
           p_items: Json
+          p_numero_mesa?: string
           p_slug: string
         }
         Returns: Json

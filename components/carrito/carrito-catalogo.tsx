@@ -51,6 +51,7 @@ export function CarritoCatalogo({
 }: PropiedadesCarrito) {
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
+  const [numeroMesa, setNumeroMesa] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [descargandoQr, setDescargandoQr] = useState(false);
   const [error, setError] = useState("");
@@ -91,6 +92,7 @@ export function CarritoCatalogo({
           })),
           clienteNombre,
           clienteTelefono,
+          numeroMesa,
           idempotencia: intento.current.id,
         }),
       });
@@ -244,6 +246,23 @@ export function CarritoCatalogo({
             </p>
           </div>
           <div className={styles.campos}>
+            {/* Primero la mesa: es el único dato que el mozo necesita sí o sí
+                para llevar el pedido, y el único que el comprador tiene delante
+                de los ojos mientras completa el formulario. */}
+            {datos.negocio.pideNumeroMesa ? (
+              <>
+                <label htmlFor="pedido-numero-mesa">
+                  Número de mesa <span>Opcional</span>
+                </label>
+                <input
+                  id="pedido-numero-mesa"
+                  maxLength={10}
+                  onChange={(evento) => setNumeroMesa(evento.target.value)}
+                  placeholder="Ej.: 5 o Terraza"
+                  value={numeroMesa}
+                />
+              </>
+            ) : null}
             <label htmlFor="pedido-cliente-nombre">
               Nombre <span>Opcional</span>
             </label>

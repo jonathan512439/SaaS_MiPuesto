@@ -151,6 +151,40 @@ decide la venta.
 nombran, porque la plantilla Moderna es la que más depende de la foto y no hay
 fotos de ropa. Queda pendiente para cuando existan.
 
+## Número de mesa en el pedido (etapa 7, parcial)
+
+Un mozo que recibe «pedido #A3F2» sin mesa tiene que salir a preguntar quién
+pidió qué, que es exactamente el trabajo que el catálogo vino a ahorrar. Es la
+única parte de la etapa 7 que el dominio no bloquea.
+
+**Se guarda texto y no un número.** En los locales reales las mesas se llaman
+«A1», «Barra» o «Terraza»; forzar un entero obliga al dueño a inventar una
+numeración que su personal no usa. Diez caracteres, comprobados en la base.
+
+**Va detrás de un interruptor por negocio** —`negocios.pide_numero_mesa`— que
+aparece pegado al rubro y solo para los rubros a los que les sirve. Pedirle la
+mesa a quien compra ropa por WhatsApp es un campo más entre él y el pedido.
+
+**La base comprueba que el negocio realmente pida mesa**, no el navegador: sin
+eso, cualquiera podría mandar un texto arbitrario al pedido de un negocio que no
+atiende mesas, y ese texto se muestra en el panel del dueño. `crear_pedido_reservado`
+levanta `MESA_NO_PERMITIDA`.
+
+La mesa aparece en la primera línea de la confirmación del panel y en el mensaje
+de WhatsApp **antes del detalle**: quien lo lee necesita saber a dónde llevarlo
+antes que qué lleva.
+
+### Un agujero de la papelera, cerrado en el camino
+
+`crear_pedido_reservado` comprobaba disponibilidad con `visible = true`, y un
+producto mandado a la papelera **conserva `visible = true`**. Un comprador con la
+página vieja abierta podía pedir algo ya borrado. La comprobación ahora exige
+`eliminado_en is null`.
+
+La función se reemplazó en vez de agregar una segunda versión: dos funciones con
+el mismo nombre —una de seis parámetros y otra de siete con valor por defecto—
+se vuelven ambiguas en cuanto alguien llama con seis.
+
 ## Rubro del negocio y paquete de restaurantes (etapa 8, parcial)
 
 `tipo_negocio` dice **cómo vende** —lectura, acción, carrito—. El rubro dice

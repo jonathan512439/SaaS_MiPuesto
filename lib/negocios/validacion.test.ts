@@ -26,6 +26,7 @@ describe("validación del perfil de negocio", () => {
         tipo_negocio: "catalogo_cta",
         telefono_whatsapp: "59171234567",
         rubro: null,
+        pide_numero_mesa: false,
       },
     });
   });

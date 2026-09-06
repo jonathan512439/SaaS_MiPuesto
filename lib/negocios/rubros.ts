@@ -19,7 +19,7 @@ export type RubroId = (typeof RUBROS)[number];
 /* Solo dos funciones por ahora, y las dos del mismo paquete. La lista crece
    cuando una función nueva de verdad no le sirve a todos, no antes: inventar
    banderas para funciones que no existen es adivinar. */
-export type FuncionDeRubro = "carta_del_dia" | "menu_imprimible";
+export type FuncionDeRubro = "carta_del_dia" | "menu_imprimible" | "numero_de_mesa";
 
 export const DEFINICIONES_RUBROS: ReadonlyArray<{
   id: RubroId;
@@ -31,7 +31,7 @@ export const DEFINICIONES_RUBROS: ReadonlyArray<{
     id: "restaurante",
     nombre: "Restaurante o comida",
     ejemplo: "Almuerzos, pollos, pizzería, café",
-    funciones: ["carta_del_dia", "menu_imprimible"],
+    funciones: ["carta_del_dia", "menu_imprimible", "numero_de_mesa"],
   },
   {
     id: "tienda_barrio",

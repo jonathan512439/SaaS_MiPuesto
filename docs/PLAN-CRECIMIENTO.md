@@ -423,7 +423,7 @@ autenticación, está en `docs/AVANCE.md`, sección «Estado de Fase 13».
 ### Etapa 7 — NFC, mesa y Google (5 días)
 
 - Ruta `/t/<codigo>` con código estable y reasignable.
-- **Número de mesa en el pedido.**
+- **Número de mesa en el pedido.** **HECHO el 2026-09-05.**
 - Calificación de Google después de pedir.
 - **Directorio por zona.** Se construye ahora y se promociona cuando haya ~30
   negocios en una ciudad: un directorio con 10 se ve vacío y resta.

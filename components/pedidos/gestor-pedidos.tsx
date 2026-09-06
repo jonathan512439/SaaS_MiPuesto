@@ -28,6 +28,7 @@ export type PedidoAdmin = {
   id: string;
   codigo: string;
   cliente_nombre: string | null;
+  numero_mesa: string | null;
   cliente_telefono: string | null;
   total: number;
   estado: string;
@@ -53,6 +54,9 @@ function ResumenPedido({ pedido }: { pedido: PedidoAdmin }) {
     <div className={styles.confirmacion}>
       <p>
         <strong>{pedido.codigo}</strong> · {pedido.cliente_nombre || "Cliente no informado"}
+        {/* La mesa va en la primera línea de la confirmación: es el dato que
+            decide a dónde va el plato, y quien confirma lo lee de un vistazo. */}
+        {pedido.numero_mesa ? <> · <strong>Mesa {pedido.numero_mesa}</strong></> : null}
       </p>
       {pedido.pedido_items.length > 0 ? (
         <ul className={styles.items}>
@@ -209,6 +213,9 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
                 <div className={styles.cliente}>
                   <p><strong>Cliente:</strong> {pedido.cliente_nombre || "No informado"}</p>
                   <p><strong>Celular:</strong> {pedido.cliente_telefono || "No informado"}</p>
+                  {pedido.numero_mesa ? (
+                    <p><strong>Mesa:</strong> {pedido.numero_mesa}</p>
+                  ) : null}
                 </div>
 
                 {pedido.pedido_items.length > 0 ? (

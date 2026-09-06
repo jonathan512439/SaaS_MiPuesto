@@ -57,6 +57,9 @@ export type DatosPlantilla = {
     /* Vacío significa que el negocio no publicó su ubicación, no que no la
        tenga: el pie no dibuja nada en vez de mostrar un enlace roto. */
     ubicacionUrl: string | null;
+    /* Solo donde se atiende en el local: pedirle la mesa a quien compra ropa
+       por WhatsApp es un campo más entre él y el pedido. */
+    pideNumeroMesa: boolean;
   };
   categorias: CategoriaPlantilla[];
 };

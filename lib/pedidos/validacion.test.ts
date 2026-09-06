@@ -19,7 +19,8 @@ describe("validación de pedidos", () => {
     expect(resultado).toEqual({
       correcto: true,
       datos: {
-        slug: "tienda-kantuta",
+        numeroMesa: null,
+      slug: "tienda-kantuta",
         items: [{ productoId: PRODUCTO_ID, cantidad: 2 }],
         clienteNombre: "Ana Pérez",
         clienteTelefono: "59171234567",
@@ -64,5 +65,30 @@ describe("validación de pedidos", () => {
     expect(normalizarTelefonoCliente("")).toBeNull();
     expect(normalizarTelefonoCliente("+591 6123 4567")).toBe("59161234567");
     expect(normalizarTelefonoCliente("12345678")).toBeUndefined();
+  });
+});
+
+describe("número de mesa", () => {
+  const base = {
+    slug: "sabor-camba",
+    items: [{ productoId: "11111111-1111-4111-8111-111111111111", cantidad: 1 }],
+    idempotencia: "22222222-2222-4222-8222-222222222222",
+  };
+
+  it("acepta un nombre de mesa corto", () => {
+    const resultado = validarSolicitudPedido({ ...base, numeroMesa: " Terraza " });
+    expect(resultado.correcto && resultado.datos.numeroMesa).toBe("Terraza");
+  });
+
+  it("trata el vacío como sin mesa", () => {
+    const resultado = validarSolicitudPedido({ ...base, numeroMesa: "  " });
+    expect(resultado.correcto && resultado.datos.numeroMesa).toBe(null);
+    const ausente = validarSolicitudPedido(base);
+    expect(ausente.correcto && ausente.datos.numeroMesa).toBe(null);
+  });
+
+  it("rechaza una mesa demasiado larga", () => {
+    const resultado = validarSolicitudPedido({ ...base, numeroMesa: "12345678901" });
+    expect(resultado.correcto).toBe(false);
   });
 });
