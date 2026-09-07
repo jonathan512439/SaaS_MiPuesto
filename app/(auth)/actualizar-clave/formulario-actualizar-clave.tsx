@@ -102,17 +102,17 @@ export function FormularioActualizarClave() {
 
     setEnviando(true);
 
-    /* Quien llegó con un enlace no pasa por el SDK. `verifyOtp` responde bien y
-       `updateUser` devuelve 401 inmediatamente después, mientras que la misma
-       secuencia contra la API —canjear y usar el token devuelto en la cabecera—
-       está probada de punta a punta y funciona. Se usa lo que anda. */
-    if (!haySesion) {
-      if (tokens.tipo !== "hash") {
-        setError("Esta página se abre desde el enlace que te llega por correo.");
-        setEnviando(false);
-        return;
-      }
+    /* **El enlace manda sobre cualquier sesión guardada.** Antes se prefería la
+       sesión existente, y bastaba una vieja —de un intento anterior, ya vencida—
+       para que el enlace recién llegado ni se mirara: el cambio salía por el SDK
+       con una credencial muerta y devolvía 401. Quien abre un enlace del correo
+       trae el dato más fresco que existe; lo demás es historia.
 
+       Y no se pasa por el SDK: `verifyOtp` responde bien y `updateUser` devuelve
+       401 inmediatamente después, mientras que la misma secuencia contra la API
+       —canjear y usar el token devuelto en la cabecera— está probada de punta a
+       punta y funciona. */
+    if (tokens.tipo === "hash") {
       const canje = await canjearEnlace(url, clavePublica, tokens.tokenHash, tokens.verificacion);
       if (!canje.correcto) {
         setError(`No pudimos confirmar el enlace: ${canje.motivo}`);
@@ -140,6 +140,32 @@ export function FormularioActualizarClave() {
       return;
     }
 
+    /* Un correo viejo, de antes de cambiar la plantilla, trae la sesión ya
+       abierta en la propia dirección. Ahí el token está a mano y se usa igual,
+       sin pasar por el SDK. */
+    if (tokens.tipo === "implicito") {
+      const cambio = await definirClaveConToken(url, clavePublica, tokens.accessToken, clave);
+      if (!cambio.correcto) {
+        setError(cambio.motivo);
+        setEnviando(false);
+        return;
+      }
+      await supabase.auth.setSession({
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
+      });
+      await supabase.auth.signOut({ scope: "others" });
+      router.replace("/dashboard/configuracion");
+      router.refresh();
+      return;
+    }
+
+    if (!haySesion) {
+      setError("Esta página se abre desde el enlace que te llega por correo.");
+      setEnviando(false);
+      return;
+    }
+
     const { error: errorAuth } = await supabase.auth.updateUser({ password: clave });
 
     if (errorAuth) {
@@ -158,6 +184,8 @@ export function FormularioActualizarClave() {
 
   if (!listo) return null;
 
+  /* Se muestra el formulario si hay enlace o si hay sesión. Con las dos cosas,
+     gana el enlace. */
   if (!haySesion && (tokens.tipo === "ninguno" || tokens.tipo === "error")) {
     return (
       <div className={styles.formulario}>

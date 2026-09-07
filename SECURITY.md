@@ -299,3 +299,26 @@ al abrirse**, así que un antivirus de correo que lo visite no lo quema.
 Verificado de punta a punta sobre un usuario descartable: canje del enlace (200,
 sesión abierta), cambio de contraseña (200) e ingreso con la nueva (funciona).
 El usuario se borró al terminar.
+
+### La sesión vieja que ganaba sobre el enlace nuevo — 2026-09-07
+
+Último eslabón de la misma cadena. Con todo lo anterior corregido, el circuito
+seguía fallando con el mismo texto, y el texto era la pista: solo podía salir de
+una rama, la que usa el SDK.
+
+Es decir que al cargar la página **había sesión**. Una vieja, de los intentos
+anteriores, ya vencida. Y la condición era `if (!haySesion)`: con una sesión
+guardada, por muerta que estuviera, **el enlace recién llegado ni se miraba**. El
+cambio salía por el SDK con una credencial invlida y devolvía 401.
+
+**Ahora el enlace manda sobre cualquier sesión guardada.** Quien abre un enlace
+del correo trae el dato más fresco que existe; lo demás es historia. El SDK se
+usa solo cuando no hay enlace —alguien que cambia su contraseña desde adentro del
+panel—.
+
+Los correos anteriores al cambio de plantilla también funcionan: traen la sesión
+en la propia dirección y ese token se usa igual, sin pasar por el SDK.
+
+**Lección para el próximo:** el mensaje de error fue lo único que permitió
+ubicar esto, porque cada rama dice algo distinto. Mientras todas decían «el
+enlace venció», cada intento se veía igual y no había nada que deducir.
