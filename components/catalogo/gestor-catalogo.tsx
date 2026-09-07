@@ -696,16 +696,41 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         body: JSON.stringify({ imagen: foto.base64, tipo: foto.tipo }),
       });
 
+      /* Si el título que propone coincide con una categoría que ya existe, se
+         elige sola. Crear una categoría nueva desde acá no: eso es una decisión
+         de cómo se organiza el catálogo y no la toma una fotografía. */
+      const categoriaSugerida = categorias.find(
+        (categoria) => categoria.nombre.toLowerCase() === propuesta.categoria.toLowerCase(),
+      );
+
+      const habiaNombre = formulario.nombre.trim().length > 0;
+      const habiaDescripcion = formulario.descripcion.trim().length > 0;
+
       setFormulario((actual) => ({
         ...actual,
         nombre: actual.nombre.trim() || propuesta.nombre,
         descripcion: actual.descripcion.trim() || propuesta.descripcion,
+        categoria_id: actual.categoria_id || categoriaSugerida?.id || "",
       }));
+
+      /* Cuando no pisa nada porque ya había texto, hay que decirlo: si no, el
+         botón parece roto. Es el reclamo más probable de alguien que lo toca dos
+         veces seguidas y la segunda no ve cambiar nada. */
+      const conservado =
+        habiaNombre && habiaDescripcion
+          ? "Dejamos lo que ya habías escrito. Borrá el nombre y la descripción si querés que los reescriba."
+          : habiaNombre
+            ? "Conservamos el nombre que ya tenías."
+            : habiaDescripcion
+              ? "Conservamos la descripción que ya tenías."
+              : "";
+
       informarExito(
-        "Campos completados",
-        propuesta.confianza === "alta"
-          ? "Revisá el texto y poné tu precio."
-          : "No estamos seguros de qué es. Revisá bien antes de guardar.",
+        habiaNombre && habiaDescripcion ? "No había campos vacíos" : "Campos completados",
+        conservado ||
+          (propuesta.confianza === "alta"
+            ? "Revisá el texto y poné tu precio."
+            : "No estamos seguros de qué es. Revisá bien antes de guardar."),
       );
     } catch (error) {
       informarError("No se pudo leer la foto", error);

@@ -92,4 +92,5 @@ Reglas que no se rompen:
 - Si la lista no tiene títulos de sección, dejá categoria vacía en todos.
 - descripcion: solo si el renglón trae detalle además del nombre, por ejemplo "Silpancho — carne apanada, arroz, papa y huevo". Si no hay detalle, dejala vacía. No la inventes ni la deduzcas de lo que sabés del plato.
 - confianza: "alta" si el nombre y el precio se leen sin esfuerzo; "baja" si tuviste que adivinar alguna letra o número.
+- Escribí TODO en español, incluidos los nombres y las categorías. Si la lista tiene una palabra en otro idioma que es el nombre propio del producto, dejala como está; todo lo demás va en español.
 - es_lista_de_precios: false si la foto no es una lista de precios, por ejemplo si es una estantería, una vitrina o un producto suelto. En ese caso devolvé la lista de productos vacía.`;

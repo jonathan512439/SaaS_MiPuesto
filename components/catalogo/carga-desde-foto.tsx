@@ -299,6 +299,14 @@ export function CargaDesdeFoto({
           {titulos.map((titulo) => (
             <div className={styles.grupo} key={titulo}>
               {titulo === SIN_TITULO ? null : <h3>{titulo}</h3>}
+              {/* Las cabeceras se repiten en cada sección y no una sola vez
+                  arriba: en el celular hay que desplazarse, y una cabecera que
+                  quedó tres pantallas más arriba no dice qué columna es cuál. */}
+              <div aria-hidden="true" className={styles.cabeceras}>
+                <span>Incluir</span>
+                <span>Producto</span>
+                <span>Precio Bs</span>
+              </div>
               <ul className={styles.filas}>
                 {productos.map((producto, indice) =>
                   (producto.categoria || SIN_TITULO) !== titulo ? null : (
