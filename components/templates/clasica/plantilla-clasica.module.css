@@ -81,10 +81,22 @@
   font-weight: 800;
 }
 
+/* El nombre va sobre una placa de la marca y no suelto sobre el fondo. El par
+   sobre-marca/marca es de los que la guarda de contraste comprueba paleta por
+   paleta, en las siete: no puede quedar flojo en ninguna. Un color elegido a
+   ojo si podria, y se descubriria en el catalogo de un cliente. */
 .cabecera h3 {
+  /* `width: fit-content` y no `justify-self`: este h3 no siempre es hijo de
+     una rejilla, y alli `justify-self` no hace nada y la placa se estiraria. */
+  width: fit-content;
+  margin-inline: auto;
   overflow-wrap: anywhere;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--catalogo-marca);
+  color: var(--catalogo-sobre-marca);
   font-size: var(--text-2xl);
-  font-weight: 600;
+  font-weight: 800;
   line-height: 1.15;
 }
 

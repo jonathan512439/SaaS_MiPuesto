@@ -37,10 +37,19 @@
   font-weight: 800;
 }
 
+/* Aca el realce es un contorno y no una placa llena: la plantilla se llama
+   minima y una mancha de color solido la contradice. El texto pasa al color de
+   la marca, que la guarda comprueba contra la superficie en las siete paletas. */
 .cabecera h3 {
+  width: fit-content;
   max-width: 20ch;
   overflow-wrap: anywhere;
+  border: var(--borde-marcado) solid var(--catalogo-marca);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
+  color: var(--catalogo-marca);
   font-size: var(--text-2xl);
+  font-weight: 700;
   line-height: 1.15;
 }
 
