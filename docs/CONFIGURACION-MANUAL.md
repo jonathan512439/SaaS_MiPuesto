@@ -337,3 +337,17 @@ muestra un botón «Continuar» y el enlace se usa recién ahí.
 **Mientras no se cambie**, la aplicación sigue aceptando la forma vieja y explica
 el motivo real cuando falla, nombrando al antivirus del correo como causa más
 probable.
+
+### Verificado el 2026-09-07, con las plantillas ya cambiadas
+
+Se comprobó el circuito completo contra producción, imitando lo que hace un
+antivirus de correo:
+
+1. Se visitó la página con el `token_hash`, **sin tocar el botón**: respondió 200
+   y no consumió nada.
+2. Después se verificó el mismo token, como hace el botón: **devolvió 200 con la
+   sesión abierta**.
+
+Con la forma anterior, el paso 1 quemaba el enlace y el paso 2 devolvía
+`otp_expired`. El `Site URL` del proyecto apunta correctamente a la dirección de
+producción, que es lo que `{{ .SiteURL }}` resuelve en las plantillas.
