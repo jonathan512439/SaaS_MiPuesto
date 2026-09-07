@@ -81,21 +81,46 @@ export function FormularioActualizarClave() {
   async function confirmarEnlace() {
     if (porConfirmar?.tipo !== "hash") return;
     setEnviando(true);
-    const { error: errorAuth } = await supabase.auth.verifyOtp({
+    const { data, error: errorAuth } = await supabase.auth.verifyOtp({
       token_hash: porConfirmar.tokenHash,
       type: porConfirmar.verificacion as "recovery" | "invite" | "email",
     });
     setEnviando(false);
+
     if (errorAuth) {
       setDiagnostico({
         titulo: "El enlace ya no sirve",
-        detalle: "Pedí uno nuevo desde Recuperar contraseña.",
+        detalle: `Pedí uno nuevo desde Recuperar contraseña. (${errorAuth.code ?? errorAuth.message})`,
       });
       setPorConfirmar(null);
       return;
     }
+
+    /* Verificar el enlace y quedar con sesión abierta son dos cosas distintas, y
+       antes se daban por iguales: si Supabase respondía sin error pero sin
+       sesión, se mostraba el formulario igual y el fallo aparecía recién al
+       guardar, disfrazado de «enlace vencido». */
+    if (data.session?.access_token) {
+      await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+    }
+
+    const { data: comprobacion } = await supabase.auth.getSession();
     window.history.replaceState(window.history.state, "", limpiarUrl(window.location.href));
     setPorConfirmar(null);
+
+    if (!comprobacion.session) {
+      setDiagnostico({
+        titulo: "Verificamos el enlace pero no se abrió la sesión",
+        detalle:
+          "Suele pasar cuando el navegador bloquea las cookies de este sitio. Probá sin modo incógnito, o con otro navegador, y avisanos.",
+      });
+      setHaySesion(false);
+      return;
+    }
+
     setHaySesion(true);
   }
 
@@ -118,6 +143,19 @@ export function FormularioActualizarClave() {
     }
 
     setEnviando(true);
+
+    /* Se comprueba justo antes de escribir. Si la sesión se cayó entre que se
+       abrió el formulario y este momento, decirlo así es distinto de culpar al
+       enlace, que es lo que se hacía y mandaba a pedir otro que fallaba igual. */
+    const { data: antesDeGuardar } = await supabase.auth.getSession();
+    if (!antesDeGuardar.session) {
+      setError(
+        "La sesión se cerró antes de guardar. Volvé a abrir el enlace del correo sin cerrar esta pestaña.",
+      );
+      setEnviando(false);
+      return;
+    }
+
     const { error: errorAuth } = await supabase.auth.updateUser({ password: clave });
 
     if (errorAuth) {

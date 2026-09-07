@@ -11,9 +11,12 @@ describe("mensajes al definir la contraseña", () => {
     expect(mensajeErrorActualizarClave({ code: "weak_password" })).toContain("adivinar");
   });
 
-  it("solo culpa al enlace cuando de verdad no hay sesión", () => {
+  it("no culpa al enlace cuando lo que falta es la sesión", () => {
     const sinSesion = mensajeErrorActualizarClave({ status: 401 });
-    expect(sinSesion).toContain("otro navegador");
+    /* Culpar al enlace cuando ya se verificó bien manda a pedir otro que va a
+       fallar igual: lo que falta es la sesión, no el enlace. */
+    expect(sinSesion).toContain("sesión");
+    expect(sinSesion).not.toContain("venció");
     expect(mensajeErrorActualizarClave({})).not.toContain("enlace");
   });
 
