@@ -13,11 +13,18 @@
   font-family: var(--fuente-minimal), "Segoe UI", sans-serif;
 }
 
+/* La cabecera necesita fondo propio: sin el, el patron pasa por detras del logo
+   y de los textos y se leen sobre el dibujo. Es una tarjeta, no un bloque suelto
+   sobre la pagina. */
 .cabecera {
   display: grid;
   gap: var(--spacing-4);
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
   border-bottom: var(--borde-marcado) solid var(--catalogo-marca);
-  padding-bottom: var(--spacing-5);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-5);
+  background: var(--catalogo-superficie);
+  box-shadow: var(--catalogo-sombra);
 }
 
 .cabecera h3,

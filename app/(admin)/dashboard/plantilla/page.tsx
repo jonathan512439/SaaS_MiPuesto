@@ -22,7 +22,7 @@ export default async function PaginaPlantilla() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,paleta_id")
+    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,paleta_id,rubro,patron_fondo")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -39,6 +39,8 @@ export default async function PaginaPlantilla() {
     tipoNegocio: esTipoNegocio(negocio.tipo_negocio)
       ? negocio.tipo_negocio
       : "catalogo_estatico",
+    rubro: negocio.rubro,
+    patronFondo: negocio.patron_fondo !== false,
   });
 
   return (
@@ -51,6 +53,7 @@ export default async function PaginaPlantilla() {
       <SelectorApariencia
         datos={datos}
         paletaInicial={paletaInicial}
+        patronInicial={negocio.patron_fondo !== false}
         plantillaInicial={plantillaInicial}
       />
     </main>

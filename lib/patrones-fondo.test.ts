@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { patronDeRubro } from "./patrones-fondo";
@@ -20,8 +22,31 @@ describe("patrón del fondo", () => {
   });
 
   it("tiene un patrón para quien no eligió rubro", () => {
-    expect(patronDeRubro(null)).toBe("rombos");
-    expect(patronDeRubro("")).toBe("rombos");
-    expect(patronDeRubro("panaderia")).toBe("rombos");
+    expect(patronDeRubro(null)).toBe("comercio");
+    expect(patronDeRubro("")).toBe("comercio");
+    expect(patronDeRubro("panaderia")).toBe("comercio");
+  });
+});
+
+/* El nombre del patrón vive en TypeScript y el dibujo en CSS, apuntando a un
+   archivo. Si alguno de los tres se desalinea no falla nada: el fondo sale liso
+   y hay que descubrirlo mirando un catálogo. */
+describe("los dibujos del patrón", () => {
+  const raiz = join(import.meta.dirname, "..");
+  const css = readFileSync(join(raiz, "app", "globals.css"), "utf8");
+
+  it("declara una regla y un archivo por cada rubro", () => {
+    for (const rubro of RUBROS) {
+      const patron = patronDeRubro(rubro);
+      const inicio = css.indexOf(`[data-patron="${patron}"]`);
+      expect(inicio, `falta la regla de «${patron}» en globals.css`).toBeGreaterThan(-1);
+
+      const bloque = css.slice(inicio, css.indexOf("}", inicio));
+      const desde = bloque.indexOf('url("');
+      expect(desde, `«${patron}» no apunta a ningún dibujo`).toBeGreaterThan(-1);
+
+      const ruta = bloque.slice(desde + 5, bloque.indexOf('"', desde + 5));
+      expect(existsSync(join(raiz, "public", ruta)), `falta ${ruta}`).toBe(true);
+    }
   });
 });

@@ -265,7 +265,8 @@ export function CatalogoInteractivo({
       className={`${temaStyles.tema} ${styles.contenedor}`}
       data-acceso-carrito={cantidadEnCarrito > 0 ? "si" : undefined}
       data-paleta={paleta}
-      data-patron={patronDeRubro(datos.negocio.rubro)}
+      /* Sin atributo no hay patron: apagarlo es no ponerlo, no pintar encima. */
+      data-patron={datos.negocio.patronFondo ? patronDeRubro(datos.negocio.rubro) : undefined}
     >
       <Vista
         alAgregarProducto={agregarProducto}

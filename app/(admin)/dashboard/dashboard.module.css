@@ -5,8 +5,6 @@
   min-height: 100dvh;
   isolation: isolate;
   background-color: var(--color-superficie);
-  background-image: var(--patron-imagen, none);
-  background-size: var(--patron-tamano, auto);
 }
 
 /* La mascara no puede ir en `.pagina`: enmascarar un elemento tapa tambien su

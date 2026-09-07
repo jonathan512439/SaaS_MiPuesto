@@ -14,14 +14,18 @@
   font-family: var(--fuente-clasica), Georgia, "Times New Roman", serif;
 }
 
+/* Borde y sombra, no solo un fondo mas claro: sobre el patron un tono apenas
+   distinto se lee como un claro del dibujo y no como una tarjeta. */
 .cabecera {
   display: grid;
   justify-items: center;
   gap: var(--spacing-4);
   overflow: hidden;
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
   border-radius: var(--radius-panel);
   background: var(--catalogo-fondo-suave);
   padding-bottom: var(--spacing-5);
+  box-shadow: var(--catalogo-sombra);
   text-align: center;
 }
 

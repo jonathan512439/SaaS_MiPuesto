@@ -163,14 +163,15 @@ select,
 /* ---------------------------------------------------------------------------
    Patrón del fondo.
 
-   Uno por rubro, y cada uno dibuja algo del oficio. Son texturas y no íconos a
-   propósito: un tenedor o una llave inglesa a esta opacidad y a este tamaño se
-   convierten en manchas, y lo que sobrevive al 6-8 % es la trama, no el objeto.
+   Uno por rubro, y cada uno dibuja los objetos del oficio desparramados, como el
+   fondo de WhatsApp. Las baldosas viven en `public/patrones/` y las arma
+   `scripts/armar-patrones.mjs`.
 
-   Se dibuja con degradados, sin imágenes: cero bytes de descarga y cero
-   peticiones. La tinta sale de `--patron-tinta`, que cada contexto define con el
-   color de su propia paleta, así funciona en las siete y en la oscura la trama
-   sale más clara que el fondo en vez de más oscura.
+   Van como **máscara** y no como imagen de fondo. Un SVG de fondo no puede leer
+   el color de la paleta: quedaría escrito dentro del archivo y harían falta
+   siete rubros por siete paletas, con el dibujo negro sobre negro en la oscura.
+   Como máscara el archivo aporta la forma y el color lo sigue poniendo la
+   paleta, incluida la oscura, donde el dibujo sale más claro que el fondo.
 
    El 8 % es el piso medido para que se vea: por debajo, la diferencia contra el
    fondo queda en unos siete niveles sobre 255 y en una pantalla sin calibrar no
@@ -184,98 +185,64 @@ select,
    --------------------------------------------------------------------------- */
 [data-patron] {
   --patron-tinta: color-mix(in srgb, var(--color-texto) 8%, transparent);
-  /* Mas floja para los dibujos que rellenan superficie en vez de trazar lineas:
-     con la misma tinta, media pantalla pintada al 8 % deja de ser una textura y
-     pasa a ser otro color de fondo. */
-  --patron-tinta-suave: color-mix(in srgb, var(--color-texto) 5%, transparent);
-  --patron-imagen: none;
-  --patron-tamano: auto;
   /* La baldosa de siluetas va como mascara, no como imagen: asi el color lo
      sigue poniendo la paleta. `--patron-relleno` existe para que el velo quede
      transparente cuando no hay mascara; sin el, el rubro sin baldosa recibiria
      una capa lisa de tinta sobre toda la pantalla. */
   --patron-mascara: none;
   --patron-relleno: transparent;
+  --patron-tamano: 18rem 18rem;
 }
 
-/* Restaurante: objetos de cocina desparramados, sin repetir una figura. La
-   baldosa es de 360 px y trae dieciseis: mas chica, el ojo encuentra la grilla;
-   los objetos que tocan un borde estan dibujados tambien del otro lado, asi que
-   no queda una calle vacia donde una baldosa se junta con la siguiente. */
+/* Cada rubro trae su baldosa de siluetas. Son 360 px con veinticinco objetos,
+   dibujados a 18 rem: la reduccion aprieta el dibujo sin rehacer el archivo. Los
+   objetos que tocan un borde estan repetidos del otro lado, asi no queda una
+   calle vacia donde una baldosa se junta con la siguiente. */
+/* Restaurante: lo que se cocina y lo que se sirve. */
 [data-patron="comida"] {
   --patron-mascara: url("/patrones/restaurante.svg");
   --patron-relleno: var(--patron-tinta);
-  --patron-tamano: 22.5rem 22.5rem;
 }
 
-/* Ferreteria: papel milimetrado. Los dos pesos de linea son el patron; con uno
-   solo vuelve a ser una cuadricula cualquiera. */
-[data-patron="plano"] {
-  --patron-imagen:
-    linear-gradient(to right, var(--patron-tinta) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--patron-tinta) 1px, transparent 1px),
-    linear-gradient(to right, var(--patron-tinta-suave) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--patron-tinta-suave) 1px, transparent 1px);
-  --patron-tamano: 2.5rem 2.5rem, 2.5rem 2.5rem, 0.5rem 0.5rem, 0.5rem 0.5rem;
+/* Ferreteria: herramienta, obra y electricidad. */
+[data-patron="herramientas"] {
+  --patron-mascara: url("/patrones/ferreteria.svg");
+  --patron-relleno: var(--patron-tinta);
 }
 
-/* Tienda de barrio: las rayas del toldo de la esquina. */
-[data-patron="toldo"] {
-  --patron-imagen: repeating-linear-gradient(
-    90deg,
-    var(--patron-tinta-suave) 0 0.9rem,
-    transparent 0.9rem 1.8rem
-  );
+/* Tienda de barrio: canasta, envase, balanza y caja. */
+[data-patron="abarrotes"] {
+  --patron-mascara: url("/patrones/tienda-barrio.svg");
+  --patron-relleno: var(--patron-tinta);
 }
 
-/* Ropa y calzado: sarga, la diagonal apretada del tejido de un pantalon. Va a
-   60 grados y no a 45 para que no se confunda con una diagonal decorativa. */
-[data-patron="sarga"] {
-  --patron-imagen: repeating-linear-gradient(
-    60deg,
-    var(--patron-tinta) 0 1px,
-    transparent 1px 0.4rem
-  );
+/* Ropa y calzado: prenda, calzado y accesorio. */
+[data-patron="vestuario"] {
+  --patron-mascara: url("/patrones/ropa-calzado.svg");
+  --patron-relleno: var(--patron-tinta);
 }
 
-/* Belleza: escamas, el arco repetido que la peluqueria comparte con el art
-   deco. Cada baldosa dibuja un arco al borde inferior; apiladas dan el abanico. */
-[data-patron="escamas"] {
-  --patron-imagen: radial-gradient(
-    circle at 50% 100%,
-    transparent 0 46%,
-    var(--patron-tinta) 46% 48%,
-    transparent 48%
-  );
-  --patron-tamano: 1.6rem 1.6rem;
+/* Belleza: tijera, brocha, espejo y flor. */
+[data-patron="cuidado"] {
+  --patron-mascara: url("/patrones/belleza.svg");
+  --patron-relleno: var(--patron-tinta);
 }
 
-/* Servicios: renglones, como la agenda donde se anotan los turnos. */
-[data-patron="renglones"] {
-  --patron-imagen: repeating-linear-gradient(
-    180deg,
-    var(--patron-tinta) 0 1px,
-    transparent 1px 1.6rem
-  );
+/* Servicios con turno: agenda, reloj, herramienta y oficio. */
+[data-patron="turnos"] {
+  --patron-mascara: url("/patrones/servicios.svg");
+  --patron-relleno: var(--patron-tinta);
 }
 
-/* Otro o sin rubro: celosia de rombos con un punto en uno de cada dos cruces.
-   Es el unico que no representa un oficio, asi que se elige por ser el mas
-   vestido de los siete. El paso del punto es 1,6 rem por raiz de dos, que es la
-   distancia real entre cruces de las dos diagonales: con cualquier otro numero
-   los puntos quedan flotando fuera de la celosia. */
-[data-patron="rombos"] {
-  --patron-imagen:
-    radial-gradient(var(--patron-tinta) 1.5px, transparent 1.5px),
-    repeating-linear-gradient(45deg, var(--patron-tinta) 0 1px, transparent 1px 1.6rem),
-    repeating-linear-gradient(-45deg, var(--patron-tinta) 0 1px, transparent 1px 1.6rem);
-  --patron-tamano: 2.263rem 2.263rem, auto, auto;
+/* Sin rubro: lo unico que todos comparten, la venta. */
+[data-patron="comercio"] {
+  --patron-mascara: url("/patrones/otro.svg");
+  --patron-relleno: var(--patron-tinta);
 }
 
 /* Una hoja de papel no lleva trama: gasta tinta y se ve sucia. */
 @media print {
   [data-patron] {
-    --patron-imagen: none;
     --patron-mascara: none;
     --patron-relleno: transparent;
   }
@@ -286,7 +253,6 @@ select,
    mueve. */
 @media (prefers-contrast: more) {
   [data-patron] {
-    --patron-imagen: none;
     --patron-mascara: none;
     --patron-relleno: transparent;
   }

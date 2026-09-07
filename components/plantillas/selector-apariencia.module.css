@@ -265,3 +265,49 @@
   gap: var(--spacing-3);
   padding: var(--spacing-4);
 }
+
+/* El interruptor del fondo. La casilla se deja a la vista y no se disfraza de
+   botón: es una preferencia que se enciende y se apaga, y así se lee sin
+   explicación. */
+.interruptor {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+  cursor: pointer;
+}
+
+.interruptor:has(input:checked) {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+}
+
+.interruptor:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-marca);
+  outline-offset: var(--foco-exterior);
+}
+
+.interruptor input {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  accent-color: var(--color-marca);
+}
+
+.interruptor > span {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.interruptor strong {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.interruptor span span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}

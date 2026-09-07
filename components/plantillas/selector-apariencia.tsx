@@ -9,6 +9,7 @@ import {
   type PaletaId,
   type PlantillaId,
 } from "../../lib/apariencia";
+import { patronDeRubro } from "../../lib/patrones-fondo";
 import type { DatosPlantilla, PropiedadesPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import { Boton, Esqueleto, useAvisos } from "../ui";
@@ -18,6 +19,7 @@ type PropiedadesSelector = {
   datos: DatosPlantilla;
   plantillaInicial: PlantillaId;
   paletaInicial: PaletaId;
+  patronInicial: boolean;
 };
 
 /* El chunk de cada plantilla baja al elegirla. Sin este relleno el area de la
@@ -60,17 +62,22 @@ export function SelectorApariencia({
   datos,
   plantillaInicial,
   paletaInicial,
+  patronInicial,
 }: PropiedadesSelector) {
   const [plantillaElegida, setPlantillaElegida] = useState(plantillaInicial);
   const [paletaElegida, setPaletaElegida] = useState(paletaInicial);
   const [plantillaGuardada, setPlantillaGuardada] = useState(plantillaInicial);
   const [paletaGuardada, setPaletaGuardada] = useState(paletaInicial);
+  const [patronElegido, setPatronElegido] = useState(patronInicial);
+  const [patronGuardado, setPatronGuardado] = useState(patronInicial);
   const [guardando, setGuardando] = useState(false);
   const { mostrarAviso } = useAvisos();
 
   const VistaPrevia = VISTAS[plantillaElegida];
   const hayCambioPendiente =
-    plantillaElegida !== plantillaGuardada || paletaElegida !== paletaGuardada;
+    plantillaElegida !== plantillaGuardada ||
+    paletaElegida !== paletaGuardada ||
+    patronElegido !== patronGuardado;
 
   async function guardarApariencia(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -82,12 +89,14 @@ export function SelectorApariencia({
         body: JSON.stringify({
           plantilla_id: plantillaElegida,
           paleta_id: paletaElegida,
+          patron_fondo: patronElegido,
         }),
       });
       const resultado = (await respuesta.json()) as {
         error?: string;
         plantilla_id?: PlantillaId;
         paleta_id?: PaletaId;
+        patron_fondo?: boolean;
       };
 
       if (!respuesta.ok || !resultado.plantilla_id || !resultado.paleta_id) {
@@ -96,6 +105,8 @@ export function SelectorApariencia({
 
       setPlantillaGuardada(resultado.plantilla_id);
       setPaletaGuardada(resultado.paleta_id);
+      setPatronGuardado(resultado.patron_fondo !== false);
+      setPatronElegido(resultado.patron_fondo !== false);
       mostrarAviso({ titulo: "Apariencia guardada", variante: "exito" });
     } catch (causa) {
       mostrarAviso({
@@ -187,15 +198,45 @@ export function SelectorApariencia({
         </div>
       </fieldset>
 
+      <fieldset className={styles.grupo} disabled={guardando}>
+        <legend className={styles.leyenda}>3. Elige el fondo</legend>
+        <p className={styles.ayuda}>
+          El catálogo lleva detrás un dibujo tenue con objetos de tu rubro. Apagalo si
+          preferís un fondo liso; tu panel de administración no cambia.
+        </p>
+        <label className={styles.interruptor} htmlFor="patron-fondo">
+          <input
+            checked={patronElegido}
+            id="patron-fondo"
+            name="patron_fondo"
+            onChange={(evento) => {
+              setPatronElegido(evento.target.checked);
+            }}
+            type="checkbox"
+          />
+          <span>
+            <strong>Mostrar el fondo con dibujos</strong>
+            <span>Se ve en el catálogo que abren tus clientes.</span>
+          </span>
+        </label>
+      </fieldset>
+
       <section className={styles.demostracion} aria-labelledby="titulo-demostracion">
         <header>
           <div>
-            <p>3. Revisa el resultado</p>
+            <p>4. Revisa el resultado</p>
             <h2 id="titulo-demostracion">Así se verá la experiencia de tus clientes</h2>
           </div>
           <span>Vista completa de demostración</span>
         </header>
-        <div className={styles.marcoVista}>
+        {/* El marco lleva `.tema` y las dos marcas porque el patrón se pinta con
+            `.tema[data-patron] > article`: sin el envoltorio, la vista previa
+            mostraría todo menos el fondo, que es justo lo que se está eligiendo. */}
+        <div
+          className={`${temaStyles.tema} ${styles.marcoVista}`}
+          data-paleta={paletaElegida}
+          data-patron={patronElegido ? patronDeRubro(datos.negocio.rubro) : undefined}
+        >
           <VistaPrevia datos={datos} paleta={paletaElegida} />
         </div>
       </section>

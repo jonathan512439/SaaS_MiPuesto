@@ -8,6 +8,10 @@ type DatosNegocioDemo = {
   descripcion: string | null;
   telefonoWhatsapp: string;
   tipoNegocio?: TipoNegocio;
+  /* La vista previa tiene que traer el rubro y la preferencia reales del
+     negocio: si no, muestra un fondo que no es el que va a quedar. */
+  rubro?: string | null;
+  patronFondo?: boolean;
 };
 
 export function crearDatosDemoPlantilla({
@@ -15,6 +19,8 @@ export function crearDatosDemoPlantilla({
   descripcion,
   telefonoWhatsapp,
   tipoNegocio = "tienda_virtual",
+  rubro = null,
+  patronFondo = true,
 }: DatosNegocioDemo): DatosPlantilla {
   const modalidad = obtenerComportamientoModalidad(tipoNegocio);
   return {
@@ -35,7 +41,8 @@ export function crearDatosDemoPlantilla({
       ubicacionUrl: null,
     pideNumeroMesa: false,
     resenasUrl: null,
-    rubro: null,
+    rubro,
+    patronFondo,
     redesSociales: [],
     },
     categorias: [

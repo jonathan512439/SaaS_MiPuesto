@@ -265,6 +265,7 @@ export type Database = {
           logo_url: string | null
           nombre: string
           paleta_id: string
+          patron_fondo: boolean
           pide_numero_mesa: boolean
           plantilla_id: string
           portada_url: string | null
@@ -298,6 +299,7 @@ export type Database = {
           logo_url?: string | null
           nombre: string
           paleta_id?: string
+          patron_fondo?: boolean
           pide_numero_mesa?: boolean
           plantilla_id?: string
           portada_url?: string | null
@@ -331,6 +333,7 @@ export type Database = {
           logo_url?: string | null
           nombre?: string
           paleta_id?: string
+          patron_fondo?: boolean
           pide_numero_mesa?: boolean
           plantilla_id?: string
           portada_url?: string | null

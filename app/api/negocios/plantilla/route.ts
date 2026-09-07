@@ -29,6 +29,18 @@ export async function PATCH(solicitud: NextRequest) {
       ? entrada.paleta_id
       : undefined;
 
+  const patronFondo =
+    typeof entrada === "object" && entrada !== null && "patron_fondo" in entrada
+      ? entrada.patron_fondo
+      : undefined;
+
+  if (typeof patronFondo !== "boolean") {
+    return NextResponse.json(
+      { error: "La preferencia de fondo no es válida." },
+      { status: 400 },
+    );
+  }
+
   if (!esPlantillaId(plantillaId) || !esPaletaId(paletaId)) {
     return NextResponse.json(
       { error: "La plantilla o la paleta seleccionada no es válida." },
@@ -38,9 +50,9 @@ export async function PATCH(solicitud: NextRequest) {
 
   const { data: negocio, error } = await supabase
     .from("negocios")
-    .update({ plantilla_id: plantillaId, paleta_id: paletaId })
+    .update({ plantilla_id: plantillaId, paleta_id: paletaId, patron_fondo: patronFondo })
     .eq("admin_user_id", idUsuario)
-    .select("slug,plantilla_id,paleta_id")
+    .select("slug,plantilla_id,paleta_id,patron_fondo")
     .maybeSingle();
 
   if (error) {
@@ -58,5 +70,6 @@ export async function PATCH(solicitud: NextRequest) {
   return NextResponse.json({
     plantilla_id: negocio.plantilla_id,
     paleta_id: negocio.paleta_id,
+    patron_fondo: negocio.patron_fondo,
   });
 }

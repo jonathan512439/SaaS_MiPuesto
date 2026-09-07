@@ -15,7 +15,7 @@ import { crearClienteSupabasePublico } from "../supabase/public";
  * paralelo con el resto en vez de esperar a las categorías.
  */
 const CAMPOS =
-  "id,slug,nombre,descripcion,tipo_negocio,telefono_whatsapp,horario,plantilla_id,paleta_id,logo_url,portada_url,qr_pago_url,redes_sociales,ubicacion_url,pide_numero_mesa,resenas_url,rubro,activo";
+  "id,slug,nombre,descripcion,tipo_negocio,telefono_whatsapp,horario,plantilla_id,paleta_id,logo_url,portada_url,qr_pago_url,redes_sociales,ubicacion_url,pide_numero_mesa,resenas_url,rubro,patron_fondo,activo";
 
 export async function obtenerNegocioPublico(slug: string) {
   const supabase = crearClienteSupabasePublico();

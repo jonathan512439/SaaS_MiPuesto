@@ -71,6 +71,7 @@ function negocio(
     pideNumeroMesa: false,
     resenasUrl: null,
     rubro: null,
+    patronFondo: true,
     redesSociales: [],
   };
 }

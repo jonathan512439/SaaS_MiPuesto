@@ -32,6 +32,7 @@ type NegocioPublico = {
   pide_numero_mesa?: boolean | null;
   resenas_url?: string | null;
   rubro?: string | null;
+  patron_fondo?: boolean | null;
   redes_sociales?: unknown;
 };
 
@@ -213,6 +214,9 @@ export function construirCatalogoPublico(
         pideNumeroMesa: negocio.pide_numero_mesa === true,
         resenasUrl: negocio.resenas_url?.trim() || null,
         rubro: negocio.rubro ?? null,
+        /* Solo `false` apaga. Un negocio anterior a la columna llega sin el dato
+           y no tendria sentido apagarle un fondo que nunca eligio apagar. */
+        patronFondo: negocio.patron_fondo !== false,
         redesSociales: [
           { nombre: "Facebook", url: redes.facebook },
           { nombre: "Instagram", url: redes.instagram },

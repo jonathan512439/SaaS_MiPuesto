@@ -65,6 +65,9 @@ export type DatosPlantilla = {
     resenasUrl: string | null;
     /* Decide el patrón del fondo. Vacío: el patrón neutro. */
     rubro: string | null;
+    /* El dueño puede apagar el fondo con dibujos. El panel lo lleva igual: la
+       preferencia es sobre lo que ve el comprador, no sobre lo que ve él. */
+    patronFondo: boolean;
   };
   categorias: CategoriaPlantilla[];
 };
