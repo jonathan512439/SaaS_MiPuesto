@@ -35,6 +35,7 @@ export function crearDatosDemoPlantilla({
       ubicacionUrl: null,
     pideNumeroMesa: false,
     resenasUrl: null,
+    rubro: null,
     redesSociales: [],
     },
     categorias: [

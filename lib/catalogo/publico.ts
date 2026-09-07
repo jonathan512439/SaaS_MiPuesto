@@ -31,6 +31,7 @@ type NegocioPublico = {
   ubicacion_url?: string | null;
   pide_numero_mesa?: boolean | null;
   resenas_url?: string | null;
+  rubro?: string | null;
   redes_sociales?: unknown;
 };
 
@@ -211,6 +212,7 @@ export function construirCatalogoPublico(
         ubicacionUrl: negocio.ubicacion_url?.trim() || null,
         pideNumeroMesa: negocio.pide_numero_mesa === true,
         resenasUrl: negocio.resenas_url?.trim() || null,
+        rubro: negocio.rubro ?? null,
         redesSociales: [
           { nombre: "Facebook", url: redes.facebook },
           { nombre: "Instagram", url: redes.instagram },

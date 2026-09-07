@@ -2,7 +2,9 @@
 
 .pagina {
   min-height: 100dvh;
-  background: var(--color-superficie);
+  background-color: var(--color-superficie);
+  background-image: var(--patron-imagen, none);
+  background-size: var(--patron-tamano, auto);
 }
 
 .barra {
@@ -122,7 +124,7 @@
 .enlace:hover,
 .enlaceActivo {
   border-color: var(--color-superficie);
-  background: var(--color-superficie);
+  background-color: var(--color-superficie);
   color: var(--color-marca-fuerte);
 }
 
@@ -138,7 +140,7 @@
   border-color: var(--color-marca-fuerte);
   padding-right: var(--spacing-5);
   padding-left: var(--spacing-5);
-  background: var(--color-superficie);
+  background-color: var(--color-superficie);
   color: var(--color-marca-fuerte);
   font-size: var(--text-base);
   font-weight: 900;
@@ -147,7 +149,7 @@
 
 .botonSalir:hover:not(:disabled) {
   border-color: var(--color-superficie);
-  background: var(--color-superficie);
+  background-color: var(--color-superficie);
   color: var(--color-marca);
   box-shadow: var(--sombra-suave);
 }

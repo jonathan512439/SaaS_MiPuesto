@@ -177,7 +177,11 @@
   border-top: var(--borde-fino) solid var(--color-borde-suave);
 }
 
+/* Panel flotante y no una expansión hacia abajo: al abrirse en el medio de la
+   lista, empujar el resto mueve de lugar los productos que la persona estaba
+   mirando. Flotando, el catálogo se queda quieto. */
 .masOpciones {
+  position: relative;
   margin-top: var(--spacing-1);
 }
 
@@ -217,6 +221,52 @@
 
 .masOpciones[open] > summary::after {
   transform: rotate(180deg);
+}
+
+.masOpciones[open] > summary {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+}
+
+.masOpciones > .accionesProducto {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + var(--spacing-1));
+  left: 0;
+  display: grid;
+  min-width: 13rem;
+  /* El borde completo pisa a propósito la línea divisoria que traen las
+     acciones cuando van dentro de la tarjeta: acá son un panel, no una fila
+     más. */
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-2);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-flotante);
+}
+
+/* Cada acción ocupa su propia fila y todas del mismo ancho: en un menú, los
+   botones sueltos en fila obligan a apuntar, y acá uno de ellos borra. */
+.masOpciones > .accionesProducto > * {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* Borrar se despega del resto: es la única de este menú que no tiene vuelta. */
+.masOpciones > .accionesProducto > *:last-child {
+  margin-top: var(--spacing-1);
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  padding-top: var(--spacing-2);
+}
+
+/* Cerca del borde derecho de la pantalla, el panel se abre hacia la izquierda
+   en vez de salirse. */
+@media (max-width: 30rem) {
+  .masOpciones > .accionesProducto {
+    right: 0;
+    left: auto;
+  }
 }
 
 .masOpciones > summary:focus-visible {

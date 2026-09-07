@@ -159,3 +159,83 @@ select,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Patrón del fondo.
+
+   Se dibuja con degradados, sin imágenes: cero bytes de descarga y cero
+   peticiones. La tinta sale de `--patron-tinta`, que cada contexto define con el
+   color de su propia paleta, así funciona en las siete y en la oscura la trama
+   sale más clara que el fondo en vez de más oscura.
+
+   Al 3 % es literalmente «apenas perceptible». Si se nota, compite con las
+   fotografías de los productos y el catálogo se ve recargado.
+
+   El atributo solo declara **qué dibujo**, en una variable. Quién lo pinta lo
+   decide cada pantalla, porque no siempre es el mismo elemento: en el panel es
+   la página, y en el catálogo la plantilla pinta su propio fondo encima, así
+   que le toca a ella. Separarlo evita el juego de especificidades que aparece
+   cuando dos hojas se disputan el mismo `background`.
+   --------------------------------------------------------------------------- */
+[data-patron] {
+  --patron-tinta: color-mix(in srgb, var(--color-texto) 3%, transparent);
+  --patron-paso: 1.5rem;
+  --patron-imagen: none;
+  --patron-tamano: auto;
+}
+
+[data-patron="puntos"] {
+  --patron-imagen: radial-gradient(var(--patron-tinta) 1px, transparent 1px);
+  --patron-tamano: var(--patron-paso) var(--patron-paso);
+}
+
+[data-patron="rejilla"] {
+  --patron-imagen:
+    linear-gradient(to right, var(--patron-tinta) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--patron-tinta) 1px, transparent 1px);
+  --patron-tamano: var(--patron-paso) var(--patron-paso);
+}
+
+[data-patron="diagonal"] {
+  --patron-imagen: repeating-linear-gradient(
+    45deg,
+    var(--patron-tinta) 0,
+    var(--patron-tinta) 1px,
+    transparent 1px,
+    transparent 0.75rem
+  );
+}
+
+[data-patron="trama"] {
+  --patron-imagen:
+    repeating-linear-gradient(
+      45deg,
+      var(--patron-tinta) 0,
+      var(--patron-tinta) 1px,
+      transparent 1px,
+      transparent 1.25rem
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      var(--patron-tinta) 0,
+      var(--patron-tinta) 1px,
+      transparent 1px,
+      transparent 1.25rem
+    );
+}
+
+/* Una hoja de papel no lleva trama: gasta tinta y se ve sucia. */
+@media print {
+  [data-patron] {
+    --patron-imagen: none;
+  }
+}
+
+/* Quien pidió más contraste recibe el fondo liso. Es la consulta correcta para
+   esto: `prefers-reduced-motion` habla de movimiento, y una trama quieta no se
+   mueve. */
+@media (prefers-contrast: more) {
+  [data-patron] {
+    --patron-imagen: none;
+  }
+}

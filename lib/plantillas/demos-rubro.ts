@@ -70,6 +70,7 @@ function negocio(
     ubicacionUrl: null,
     pideNumeroMesa: false,
     resenasUrl: null,
+    rubro: null,
     redesSociales: [],
   };
 }

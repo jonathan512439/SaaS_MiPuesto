@@ -63,6 +63,8 @@ export type DatosPlantilla = {
     /* Se ofrece recién después de pedir, que es cuando el cliente está contento
        y todavía tiene el teléfono en la mano. Vacío: no se muestra nada. */
     resenasUrl: string | null;
+    /* Decide el patrón del fondo. Vacío: el patrón neutro. */
+    rubro: string | null;
   };
   categorias: CategoriaPlantilla[];
 };

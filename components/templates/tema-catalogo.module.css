@@ -1,6 +1,10 @@
 .tema {
   /* Roles derivados: cada paleta define solo los ocho colores base y de aquí
      salen fondos, bordes, velos y sombras sin duplicar valores por paleta. */
+  /* La tinta del patrón de fondo sale del texto de la paleta del negocio: en la
+     paleta oscura eso deja una trama más clara que el fondo, que es lo correcto
+     y lo que un valor fijo no lograría. */
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 3%, transparent);
   --catalogo-fondo-suave: color-mix(in srgb, var(--catalogo-marca) 7%, var(--catalogo-superficie));
   --catalogo-fondo-hundido: color-mix(in srgb, var(--catalogo-texto) 5%, var(--catalogo-superficie));
   --catalogo-marca-tenue: color-mix(in srgb, var(--catalogo-marca) 14%, var(--catalogo-superficie));
@@ -18,8 +22,16 @@
     0 0.5rem 1.5rem -0.25rem color-mix(in srgb, var(--catalogo-texto) 32%, transparent),
     0 0.125rem 0.375rem color-mix(in srgb, var(--catalogo-texto) 16%, transparent);
 
-  background: var(--catalogo-superficie);
+  background-color: var(--catalogo-superficie);
   color: var(--catalogo-texto);
+}
+
+/* La plantilla pinta su propio fondo y taparía el patrón, así que lo pinta ella.
+   El selector con atributo gana en especificidad sobre la clase de la plantilla
+   sin que ninguna de las dos hojas tenga que conocer a la otra. */
+.tema[data-patron] > * {
+  background-image: var(--patron-imagen, none);
+  background-size: var(--patron-tamano, auto);
 }
 
 .tema[data-paleta="mercado"] {

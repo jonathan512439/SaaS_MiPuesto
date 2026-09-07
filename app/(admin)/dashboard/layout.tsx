@@ -16,6 +16,7 @@ import {
 } from "../../../lib/suscripcion";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import styles from "./dashboard.module.css";
+import { patronDeRubro } from "../../../lib/patrones-fondo";
 
 type PropiedadesLayoutPanel = Readonly<{
   children: ReactNode;
@@ -35,7 +36,7 @@ export default async function LayoutPanel({
      que entrar a buscarlo, se entera el día que su catálogo deja de verse. */
   const { data: negocioSuscripcion } = await supabase
     .from("negocios")
-    .select("activo,suspendido_en,suscripcion_vence_en")
+    .select("activo,suspendido_en,suscripcion_vence_en,rubro")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   const suscripcion = negocioSuscripcion
@@ -61,7 +62,7 @@ export default async function LayoutPanel({
     <ProveedorSupabaseNavegador clavePublica={clavePublica} url={url}>
       <ProveedorAvisos>
         <ProveedorConfirmacion>
-          <div className={styles.pagina}>
+          <div className={styles.pagina} data-patron={patronDeRubro(negocioSuscripcion?.rubro)}>
             <header className={styles.barra}>
               <div className={styles.barraContenido}>
                 <Link

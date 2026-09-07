@@ -34,6 +34,7 @@ import { HojaCatalogo } from "./hoja-catalogo";
 import { Esqueleto } from "../ui";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./catalogo-interactivo.module.css";
+import { patronDeRubro } from "../../lib/patrones-fondo";
 
 type PropiedadesCatalogoInteractivo = {
   datos: DatosPlantilla;
@@ -264,6 +265,7 @@ export function CatalogoInteractivo({
       className={`${temaStyles.tema} ${styles.contenedor}`}
       data-acceso-carrito={cantidadEnCarrito > 0 ? "si" : undefined}
       data-paleta={paleta}
+      data-patron={patronDeRubro(datos.negocio.rubro)}
     >
       <Vista
         alAgregarProducto={agregarProducto}
