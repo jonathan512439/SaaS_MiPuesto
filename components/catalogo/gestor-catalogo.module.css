@@ -169,6 +169,50 @@
   gap: var(--spacing-2);
 }
 
+/* Una línea separa lo de todos los días de lo ocasional. Sin ella los siete
+   botones se leían como una sola lista y había que reconocerlos por el texto,
+   uno por uno, cada vez. */
+.accionesProducto {
+  padding-top: var(--spacing-2);
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
+}
+
+.masOpciones {
+  margin-top: var(--spacing-1);
+}
+
+.masOpciones > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.masOpciones > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* La flecha gira al abrir: es la señal de que hay algo debajo, y sin ella el
+   rotulo parece un título más. */
+.masOpciones > summary::after {
+  content: "be";
+  transition: transform 120ms ease;
+}
+
+.masOpciones[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.masOpciones > summary:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
 .columnas {
   display: grid;
   gap: var(--spacing-5);

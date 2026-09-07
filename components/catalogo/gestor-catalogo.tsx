@@ -1151,7 +1151,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       </section>
 
       <div className={styles.columnas}>
-        <details className={styles.organizacion}>
+        {/* Abierto mientras no haya ninguna categoría: plegado, un recién
+            llegado no encuentra dónde crearlas y concluye que no se puede. Un
+            restaurante lo primero que quiere es separar entradas de bebidas. */}
+        <details className={styles.organizacion} open={categorias.length === 0}>
           <summary className={styles.resumenOrganizacion}>
             <span>Organizar categorías</span>
             <small>{categorias.length} de 40 creadas</small>
@@ -1384,10 +1387,15 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                         ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} disponible(s) de ${producto.cantidad_stock ?? 0}; ${producto.cantidad_reservada} reservada(s)`
                         : "Sin control de existencias"}
                     </small>
+                    {/* Dos grupos separados, y no siete botones en fila.
+                        Arriba lo que se toca todos los días; lo demás queda
+                        plegado, que además acorta cada tarjeta a la mitad y es
+                        lo que evita recorrer el catálogo entero para encontrar
+                        un producto. */}
                     <div className={styles.accionesProducto}>
-                      <Boton onClick={() => editarProducto(producto)} variante="secundario">Editar</Boton>
-                      <Boton onClick={() => void duplicarProducto(producto)} variante="discreto">Duplicar</Boton>
-                      <Boton onClick={() => void copiarEnlaceProducto(producto)} variante="discreto">Copiar enlace</Boton>
+                      <Boton onClick={() => editarProducto(producto)} variante="secundario">
+                        Editar
+                      </Boton>
                       {producto.estado !== "agotado" || !producto.controla_stock ? (
                         <Boton
                           onClick={() => void alternarAgotado(producto)}
@@ -1406,19 +1414,38 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                             : "Poner en hoy"}
                         </Boton>
                       ) : null}
-                      <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">{producto.visible ? "Ocultar" : "Mostrar"}</Boton>
-                      <label className={styles.botonFoto}>
-                        Agregar fotos
-                        <input
-                          accept="image/jpeg,image/png,image/webp"
-                          disabled={ocupado || producto.fotos.length >= 4}
-                          multiple
-                          onChange={(evento) => void subirImagenes(producto, evento)}
-                          type="file"
-                        />
-                      </label>
-                      <Boton onClick={() => void borrarProducto(producto)} variante="peligro">Borrar</Boton>
+                      <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">
+                        {producto.visible ? "Ocultar" : "Mostrar"}
+                      </Boton>
                     </div>
+
+                    <details className={styles.masOpciones}>
+                      <summary>Más opciones</summary>
+                      <div className={styles.accionesProducto}>
+                        <Boton onClick={() => void duplicarProducto(producto)} variante="discreto">
+                          Duplicar
+                        </Boton>
+                        <Boton
+                          onClick={() => void copiarEnlaceProducto(producto)}
+                          variante="discreto"
+                        >
+                          Copiar enlace
+                        </Boton>
+                        <label className={styles.botonFoto}>
+                          Agregar fotos
+                          <input
+                            accept="image/jpeg,image/png,image/webp"
+                            disabled={ocupado || producto.fotos.length >= 4}
+                            multiple
+                            onChange={(evento) => void subirImagenes(producto, evento)}
+                            type="file"
+                          />
+                        </label>
+                        <Boton onClick={() => void borrarProducto(producto)} variante="peligro">
+                          Borrar
+                        </Boton>
+                      </div>
+                    </details>
                     <small>{producto.fotos.length} de 4 fotografías</small>
                   </div>
                 </li>

@@ -145,9 +145,17 @@ export default function Inicio() {
               <a href="#precio">Precio</a>
               <a href="#preguntas">Preguntas</a>
             </nav>
-            <a className={styles.botonBarra} href={enlaceAlta} rel="noreferrer" target="_blank">
-              Quiero mi catálogo
-            </a>
+            <div className={styles.accionesBarra}>
+              {/* Las altas son por invitación, pero quien ya tiene su catálogo
+                  necesita volver a entrar, y no había por dónde: la única forma
+                  era saberse la dirección de memoria. */}
+              <Link className={styles.enlaceIngresar} href="/login">
+                Ingresar
+              </Link>
+              <a className={styles.botonBarra} href={enlaceAlta} rel="noreferrer" target="_blank">
+                Quiero mi catálogo
+              </a>
+            </div>
           </div>
         </header>
 

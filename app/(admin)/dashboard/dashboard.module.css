@@ -126,18 +126,24 @@
   color: var(--color-marca-fuerte);
 }
 
+/* Relleno y no delineado: sobre la barra de color, un botón con borde y letra
+   del mismo tono se lee como texto y no como algo que se toca. Salir es de las
+   pocas cosas que alguien busca con apuro. */
 .botonSalir {
-  min-height: var(--spacing-10);
+  min-height: var(--control-alto);
   border-color: var(--color-superficie);
-  padding-right: var(--spacing-3);
-  padding-left: var(--spacing-3);
-  color: var(--color-superficie);
+  padding-right: var(--spacing-4);
+  padding-left: var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
 }
 
 .botonSalir:hover:not(:disabled) {
   border-color: var(--color-superficie);
   background: var(--color-superficie);
   color: var(--color-marca);
+  box-shadow: var(--sombra-suave);
 }
 
 @media (min-width: 60rem) {

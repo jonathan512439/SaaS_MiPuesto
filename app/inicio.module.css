@@ -109,11 +109,39 @@
   text-underline-offset: 0.25rem;
 }
 
+/* Los dos van juntos a la derecha: quien vuelve busca «Ingresar» y quien llega
+   por primera vez busca el otro. Separarlos por toda la barra obliga a los dos a
+   recorrerla entera. */
+.accionesBarra {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0 0 0 auto;
+}
+
+/* Discreto contra el botón de alta: es la puerta de quien ya es cliente, no la
+   acción que la portada quiere provocar. */
+.enlaceIngresar {
+  display: inline-flex;
+  min-height: var(--spacing-10);
+  align-items: center;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.enlaceIngresar:hover {
+  background: var(--color-marca-tenue);
+}
+
 .botonBarra {
   display: inline-flex;
   min-height: var(--spacing-10);
   align-items: center;
-  margin: 0 0 0 auto;
   border-radius: var(--radius-status);
   padding: var(--spacing-2) var(--spacing-5);
   background: var(--color-accion);
