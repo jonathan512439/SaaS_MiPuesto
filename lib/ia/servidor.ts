@@ -1,22 +1,13 @@
 import { crearClienteSupabaseAdmin } from "../supabase/admin";
 import { obtenerContextoAdminCatalogo } from "../catalogo/servidor";
 import { hayGemini } from "./gemini";
+import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./limites";
 import { describirReinicio } from "./reinicio";
 
-/* Doscientas fotos al mes por negocio. Un catálogo de 300 productos se carga con
-   unas diez fotos de lista, y llenar campos producto por producto son 300 en el
-   peor caso del primer mes. Doscientas es holgado para el uso normal y acota el
-   accidente: un bucle mal escrito cuesta unos centavos, no una factura. */
-export const TOPE_FOTOS_POR_MES = 200;
-
-/* Sesenta por día y por negocio. El nivel gratuito da **quinientos pedidos
-   diarios en total**, así que sin un tope diario tres negocios cargando fuerte
-   el mismo día suman seiscientos y el primero que llega se lleva la cuota. Con
-   sesenta, siete negocios a tope dan cuatrocientos veinte.
-
-   En un solo negocio casi nunca se toca: el tope mensual de doscientas llega
-   antes. Es un freno contra la concentración, no contra el uso. */
-export const TOPE_FOTOS_POR_DIA = 60;
+/* Los dos topes se calculan en `limites.ts` a partir de la cuota real de Google
+   y de cuántos negocios pueden tener la herramienta encendida. Se reexportan
+   porque las rutas ya los importaban de acá. */
+export { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./limites";
 
 /* Un megabyte y medio en base64 son algo más de un megabyte de imagen. El
    navegador ya comprime a unos 150 KB antes de mandarla, así que este tope solo

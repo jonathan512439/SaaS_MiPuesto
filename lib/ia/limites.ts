@@ -39,15 +39,57 @@ export const LIMITES_GEMINI = {
  * el diario. */
 export const TOKENS_MEDIDOS_POR_LECTURA = 1_339;
 
+/* Cuántos negocios pueden tener la herramienta encendida a la vez. No es un
+ * límite técnico: es la cifra con la que se reparte la cuota diaria, y por eso
+ * está acá y no en la cabeza de nadie. Subirla sin subir la cuota baja el tope
+ * de cada uno, que es exactamente lo que tiene que pasar. */
+export const NEGOCIOS_CON_HERRAMIENTA = 10;
+
+/* Se reparte el 80 % del día y no el 100 %: el resto queda para los reintentos,
+ * para las pruebas del operador en AI Studio —que gastan la misma cuota sin
+ * pasar por acá— y para no quedar exactamente al borde. */
+const PARTE_REPARTIDA = 0.8;
+
+/* Cuarenta fotos por día y por negocio, calculadas y no elegidas: diez negocios
+ * por cuarenta son cuatrocientos, debajo de los quinientos del nivel gratuito.
+ * Si algún día cambia el límite de Google, este número cambia solo. */
+export const TOPE_FOTOS_POR_DIA = Math.floor(
+  (LIMITES_GEMINI.porDia * PARTE_REPARTIDA) / NEGOCIOS_CON_HERRAMIENTA,
+);
+
+/* El mensual es una promesa comercial, no una restricción técnica: diez negocios
+ * por doscientas son dos mil al mes contra las quince mil que da el nivel
+ * gratuito. Acota el accidente —un bucle mal escrito— y define qué se vende. */
+export const TOPE_FOTOS_POR_MES = 200;
+
 export type VentanaUso = { llamadas: number; tokens: number };
+
+export type UsoPorNegocio = {
+  negocio_id: string;
+  nombre: string;
+  hoy: number;
+  tokens_hoy: number;
+  mes: number;
+  tokens_mes: number;
+  cantidad_dia: number;
+};
 
 export type UsoIa = {
   minuto: VentanaUso;
   hora: VentanaUso;
   dia_cuota: VentanaUso;
   dia_bolivia: VentanaUso;
+  mes: VentanaUso;
+  treinta_dias: VentanaUso;
+  /* El día más cargado del último mes. Un promedio bajo con un pico alto sigue
+     siendo un problema, y el promedio solo no lo muestra. */
+  pico_diario: number;
+  tokens_por_llamada: number;
   fallidas_hoy: number;
+  fallidas_treinta_dias: number;
   por_herramienta: Record<string, number>;
+  por_negocio: UsoPorNegocio[];
+  negocios_habilitados: number;
   ultima: string | null;
   reinicio_dia_cuota: string;
   medido_en: string;
