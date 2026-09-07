@@ -88,7 +88,7 @@ export default async function PaginaCatalogo() {
         {negocio.foto_ia_habilitada ? (
           <section aria-labelledby="titulo-ia" className={styles.tarjetaIa}>
             <div className={styles.tarjetaIaCuerpo}>
-              <span className={styles.selloIa}>✨ Herramienta con IA</span>
+              <span className={styles.selloIa}>Herramienta con IA</span>
               <h2 id="titulo-ia">Cargá tu catálogo desde una foto de tu lista de precios</h2>
               <ol className={styles.pasosIa}>
                 <li>

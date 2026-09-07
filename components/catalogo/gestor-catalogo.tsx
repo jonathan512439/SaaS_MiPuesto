@@ -984,7 +984,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           {ofreceLecturaDeFotos ? (
             <section aria-labelledby="titulo-ia-producto" className={styles.tarjetaIa}>
               <div className={styles.tarjetaIaCuerpo}>
-                <span className={styles.selloIa}>✨ Herramienta con IA</span>
+                <span className={styles.selloIa}>Herramienta con IA</span>
                 <h3 id="titulo-ia-producto">Completá los campos con una foto del producto</h3>
                 <ol className={styles.pasosIa}>
                   <li>

@@ -1,12 +1,22 @@
 import { crearClienteSupabaseAdmin } from "../supabase/admin";
 import { obtenerContextoAdminCatalogo } from "../catalogo/servidor";
 import { hayGemini } from "./gemini";
+import { describirReinicio } from "./reinicio";
 
 /* Doscientas fotos al mes por negocio. Un catálogo de 300 productos se carga con
    unas diez fotos de lista, y llenar campos producto por producto son 300 en el
    peor caso del primer mes. Doscientas es holgado para el uso normal y acota el
    accidente: un bucle mal escrito cuesta unos centavos, no una factura. */
 export const TOPE_FOTOS_POR_MES = 200;
+
+/* Sesenta por día y por negocio. El nivel gratuito da **quinientos pedidos
+   diarios en total**, así que sin un tope diario tres negocios cargando fuerte
+   el mismo día suman seiscientos y el primero que llega se lleva la cuota. Con
+   sesenta, siete negocios a tope dan cuatrocientos veinte.
+
+   En un solo negocio casi nunca se toca: el tope mensual de doscientas llega
+   antes. Es un freno contra la concentración, no contra el uso. */
+export const TOPE_FOTOS_POR_DIA = 60;
 
 /* Un megabyte y medio en base64 son algo más de un megabyte de imagen. El
    navegador ya comprime a unos 150 KB antes de mandarla, así que este tope solo
@@ -16,6 +26,7 @@ const LARGO_MAXIMO_BASE64 = 1_500_000;
 const TIPOS_ACEPTADOS = new Set(["image/webp", "image/jpeg", "image/png"]);
 
 export type PeticionFoto = { base64: string; tipo: string };
+
 
 export function leerFotoDeLaPeticion(datos: unknown): PeticionFoto | null {
   if (typeof datos !== "object" || datos === null) return null;
@@ -62,12 +73,14 @@ export async function prepararLecturaDeFoto(): Promise<Preparacion> {
   const { data } = await admin.rpc("consumir_credito_ia", {
     p_negocio_id: contexto.negocio.id,
     p_tope: TOPE_FOTOS_POR_MES,
+    p_tope_diario: TOPE_FOTOS_POR_DIA,
   });
   const credito = (data ?? {}) as {
     autorizado?: boolean;
     motivo?: string;
     usadas?: number;
     tope?: number;
+    reinicio?: string;
   };
 
   if (!credito.autorizado) {
@@ -76,6 +89,16 @@ export async function prepararLecturaDeFoto(): Promise<Preparacion> {
         correcto: false,
         estado: 429,
         error: `Llegaste a las ${credito.tope} fotos de este mes. El contador vuelve a cero el día 1.`,
+      };
+    }
+    if (credito.motivo === "tope_diario") {
+      /* Se dice la hora de acá y no «mañana»: el contador de Google vuelve a
+         cero a la medianoche del Pacífico, que en Bolivia son las cuatro de la
+         madrugada. Decir «mañana» mandaría a esperar de más o de menos. */
+      return {
+        correcto: false,
+        estado: 429,
+        error: `Llegaste a las ${credito.tope} fotos de hoy. Podés seguir ${describirReinicio(credito.reinicio)}.`,
       };
     }
     return {

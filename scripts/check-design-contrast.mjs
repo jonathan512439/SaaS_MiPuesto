@@ -134,7 +134,7 @@ function leerColoresPaleta(paleta) {
 }
 
 const colores = Object.fromEntries(
-  ["marca", "superficie", "texto", "accion", "exito", "alerta"].map(
+  ["marca", "superficie", "texto", "accion", "exito", "alerta", "ia-inicio", "ia-fin", "ia-sobre"].map(
     (token) => [token, leerColor(token)],
   ),
 );
@@ -142,6 +142,11 @@ const colores = Object.fromEntries(
 const combinaciones = [
   ["texto", "superficie", 4.5],
   ["marca", "superficie", 4.5],
+  /* Los dos extremos del degradado de las herramientas con IA. Se comprueban los
+     dos porque el texto va encima de todo el recorrido: alcanza con que un
+     extremo falle para que media pastilla no se lea. */
+  ["ia-sobre", "ia-inicio", 4.5],
+  ["ia-sobre", "ia-fin", 4.5],
   ["accion", "superficie", 4.5],
   ["superficie", "marca", 4.5],
   ["superficie", "accion", 4.5],

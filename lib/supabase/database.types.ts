@@ -695,18 +695,24 @@ export type Database = {
       uso_ia_negocio: {
         Row: {
           cantidad: number
+          cantidad_dia: number
+          dia: string | null
           mes: string
           negocio_id: string
           tokens: number
         }
         Insert: {
           cantidad?: number
+          cantidad_dia?: number
+          dia?: string | null
           mes: string
           negocio_id: string
           tokens?: number
         }
         Update: {
           cantidad?: number
+          cantidad_dia?: number
+          dia?: string | null
           mes?: string
           negocio_id?: string
           tokens?: number
@@ -751,7 +757,12 @@ export type Database = {
         Returns: Json
       }
       consumir_credito_ia: {
-        Args: { p_negocio_id: string; p_tokens?: number; p_tope: number }
+        Args: {
+          p_negocio_id: string
+          p_tokens?: number
+          p_tope: number
+          p_tope_diario: number
+        }
         Returns: Json
       }
       crear_pedido_reservado: {
