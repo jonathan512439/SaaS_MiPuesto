@@ -8,6 +8,7 @@ import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, CampoClave } from "../../../components/ui";
 import { mensajeErrorActualizarClave } from "../../../lib/auth/mensajes";
+import { leerTokensDeUrl, limpiarUrl } from "../../../lib/auth/sesion-desde-url";
 
 export function FormularioActualizarClave() {
   const supabase = useClienteSupabaseNavegador();
@@ -16,16 +17,46 @@ export function FormularioActualizarClave() {
   const [haySesion, setHaySesion] = useState<boolean | null>(null);
   const router = useRouter();
 
-  /* Se comprueba antes de mostrar el formulario. Sin sesión, escribir dos veces
-     una contraseña para que después falle es hacerle perder el tiempo a alguien
-     que ya viene peleando con un enlace que no anduvo. */
+  /* La sesión del enlace se toma acá a mano. El cliente del navegador la
+     rechazaba solo: `createBrowserClient` fija `flowType: "pkce"`, y auth-js
+     descarta un enlace que llega como `#access_token=...` por no corresponder a
+     ese flujo. El enlace estaba bien; el cliente no lo miraba.
+
+     Después se comprueba que haya sesión antes de mostrar el formulario: sin
+     ella, escribir dos veces una contraseña para que falle es hacerle perder el
+     tiempo a alguien que ya viene peleando con esto. */
   useEffect(() => {
     let cancelado = false;
-    async function comprobar() {
+
+    async function tomarSesion() {
+      const tokens = leerTokensDeUrl(window.location.href);
+
+      if (tokens.tipo === "implicito") {
+        await supabase.auth.setSession({
+          access_token: tokens.accessToken,
+          refresh_token: tokens.refreshToken,
+        });
+      } else if (tokens.tipo === "codigo") {
+        await supabase.auth.exchangeCodeForSession(tokens.codigo);
+      } else if (tokens.tipo === "error") {
+        setError(
+          "El enlace ya no sirve: venció o ya se usó. Pedí uno nuevo desde Recuperar contraseña.",
+        );
+      }
+
+      if (tokens.tipo !== "ninguno") {
+        window.history.replaceState(
+          window.history.state,
+          "",
+          limpiarUrl(window.location.href),
+        );
+      }
+
       const { data } = await supabase.auth.getSession();
       if (!cancelado) setHaySesion(Boolean(data.session));
     }
-    void comprobar();
+
+    void tomarSesion();
     return () => {
       cancelado = true;
     };

@@ -8,6 +8,15 @@ describe("sesión abierta desde el enlace del correo", () => {
     expect(esSesionDeRecuperacion({ amr: [{ method: "recovery" }] })).toBe(true);
   });
 
+  /* Medido contra el token real de un enlace de recuperación: Supabase escribe
+     `otp`, no `recovery`. Exigir la palabra «recovery» dejaba el control apagado
+     justo en el caso para el que se escribió. */
+  it("reconoce el método que Supabase escribe de verdad", () => {
+    expect(esSesionDeRecuperacion({ amr: [{ method: "otp", timestamp: 1788765722 }] })).toBe(
+      true,
+    );
+  });
+
   it("no marca como recuperación a quien entró con su contraseña", () => {
     expect(esSesionDeRecuperacion({ amr: ["password"] })).toBe(false);
     expect(

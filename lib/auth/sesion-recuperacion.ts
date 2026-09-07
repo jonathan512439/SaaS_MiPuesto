@@ -24,10 +24,14 @@ export function esSesionDeRecuperacion(claims: unknown): boolean {
     .filter((metodo): metodo is string => typeof metodo === "string");
   if (metodos.length === 0) return false;
 
-  /* Basta con que haya iniciado sesión de cualquier otra forma para considerarla
-     completa: quien puso su contraseña ya demostró más que el correo. */
-  const soloRecuperacion = metodos.every(
-    (metodo) => metodo === "recovery" || metodo === "otp",
-  );
-  return soloRecuperacion && metodos.includes("recovery");
+  /* Medido contra el token real que devuelve Supabase al abrir un enlace de
+     recuperación: el método es `otp`, no `recovery`. Exigir la palabra
+     «recovery» dejaba el control apagado justo en el caso para el que se
+     escribió. Se contemplan las dos porque la invitación usa el mismo camino.
+
+     Basta con que haya iniciado sesión de cualquier otra forma para considerarla
+     completa: quien puso su contraseña ya demostró más que el correo. Y como el
+     ingreso normal de la aplicación es con contraseña, nadie llega acá con `otp`
+     salvo desde un enlace del correo. */
+  return metodos.every((metodo) => metodo === "recovery" || metodo === "otp");
 }

@@ -232,6 +232,44 @@ y que el usuario interpreta, con razón, como que algo está roto.
   contraseña para que después falle es hacerle perder el tiempo a alguien que ya
   viene peleando con un enlace que no anduvo.
 
+### La causa real del «enlace caducado» — corregida el 2026-09-07
+
+No era la configuración ni el enlace: **el cliente del navegador tiraba la sesión
+que el enlace traía.**
+
+`createBrowserClient` de `@supabase/ssr` fija `flowType: "pkce"` a mano, sin
+opción de cambiarlo. Y dentro de auth-js hay esta comprobación:
+
+```js
+case "implicit":
+  if (this.flowType === "pkce") throw new Error("Not a valid PKCE flow url");
+```
+
+El enlace de recuperación llega como `#access_token=...&type=recovery`, que es
+justamente un callback implícito. El cliente lo ve, decide que no corresponde a
+su flujo y lo descarta **sin decir nada**. Nunca se abre la sesión, `updateUser`
+falla por falta de sesión, y el mensaje culpaba al enlace —que estaba perfecto—.
+
+Comprobado contra la API: se generó un enlace, se siguió la redirección, y el
+`access_token` del fragmento devolvió 200 en `/auth/v1/user` con el correo
+correcto. El token siempre estuvo bien.
+
+**La corrección toma la sesión a mano** en `/actualizar-clave`, aceptando las dos
+formas en que Supabase puede mandarla —tokens en el fragmento o `code` en la
+consulta— sin depender de qué flujo cree el cliente que está usando. Después
+limpia la dirección: los tokens no deben quedar en el historial del teléfono.
+
+**Esto también arreglaba las invitaciones**, que usan la misma página de destino
+y fallaban por lo mismo.
+
+### Un supuesto equivocado, corregido con la medición
+
+El control de «sesión de recuperación» exigía que `amr` contuviera `recovery`.
+El token real de Supabase trae **`[{"method":"otp"}]`**, así que el control
+quedaba apagado justo en el caso para el que se escribió. Ahora se consideran las
+dos, y como el ingreso normal de la aplicación es con contraseña, nadie llega con
+`otp` salvo desde un enlace del correo.
+
 ### Lo que hay que verificar en la consola de Supabase
 
 La causa del «enlace no válido» original puede estar en la configuración, no en
