@@ -48,9 +48,11 @@ export const ESQUEMA_LISTA = {
         properties: {
           nombre: { type: "string" },
           precio: { type: "number" },
+          descripcion: { type: "string" },
+          categoria: { type: "string" },
           confianza: { type: "string", enum: ["alta", "media", "baja"] },
         },
-        required: ["nombre", "precio", "confianza"],
+        required: ["nombre", "precio", "descripcion", "categoria", "confianza"],
       },
     },
     es_lista_de_precios: { type: "boolean" },
@@ -59,7 +61,13 @@ export const ESQUEMA_LISTA = {
 } as const;
 
 export type ListaLeida = {
-  productos: Array<{ nombre: string; precio: number; confianza: "alta" | "media" | "baja" }>;
+  productos: Array<{
+    nombre: string;
+    precio: number;
+    descripcion: string;
+    categoria: string;
+    confianza: "alta" | "media" | "baja";
+  }>;
   es_lista_de_precios: boolean;
 };
 
@@ -80,6 +88,8 @@ Reglas que no se rompen:
 - Los precios son bolivianos. "10.-", "Bs 10", "10 Bs" y "10" son todos 10.
 - Si un renglón trae dos precios (por ejemplo "35/45" o dos tamaños), devolvé dos productos con el tamaño en el nombre.
 - Si dice "2x15", el precio del producto es 15 y aclarás "por 2" en el nombre.
-- Los títulos de sección no son productos: "BEBIDAS", "ALMUERZOS", "OFERTAS" se descartan.
+- Los títulos de sección NO son productos, pero tampoco se tiran: "BEBIDAS", "ALMUERZOS", "FERRETERÍA" son la categoría de todos los productos que vienen debajo, hasta el título siguiente. Poné ese título en el campo categoria de cada producto, escrito como nombre propio y no en mayúsculas: "Bebidas", "Almuerzos".
+- Si la lista no tiene títulos de sección, dejá categoria vacía en todos.
+- descripcion: solo si el renglón trae detalle además del nombre, por ejemplo "Silpancho — carne apanada, arroz, papa y huevo". Si no hay detalle, dejala vacía. No la inventes ni la deduzcas de lo que sabés del plato.
 - confianza: "alta" si el nombre y el precio se leen sin esfuerzo; "baja" si tuviste que adivinar alguna letra o número.
 - es_lista_de_precios: false si la foto no es una lista de precios, por ejemplo si es una estantería, una vitrina o un producto suelto. En ese caso devolvé la lista de productos vacía.`;

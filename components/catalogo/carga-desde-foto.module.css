@@ -191,3 +191,46 @@
     grid-template-columns: minmax(0, 1fr) auto;
   }
 }
+
+.enCategoria {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+/* Las secciones se deciden una sola vez, arriba de todo: si la elección viviera
+   en cada producto, una lista de cuarenta renglones serían cuarenta decisiones
+   iguales. */
+.titulos {
+  display: grid;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+  background: var(--color-fondo-suave);
+}
+
+.titulos h3 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.titulos p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.grupo {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.grupo h3 {
+  border-bottom: var(--borde-fino) solid var(--color-borde);
+  padding-bottom: var(--spacing-1);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.descripcion {
+  grid-column: 2 / -1;
+}

@@ -26,11 +26,14 @@ describe("aviso de función nueva", () => {
 describe("indicaciones para el dueño", () => {
   /* El ejemplo es la parte que más se mira y la que más fácil se rompe al
      editar: si la entrada y la salida dejan de corresponderse, enseña mal. */
-  it("el ejemplo de la lista descarta el título y desdobla los dos tamaños", () => {
-    const salida = AYUDA_LISTA.ejemplo.salida.map(({ nombre }) => nombre);
-    expect(salida).not.toContain("ALMUERZOS");
-    expect(salida.filter((nombre) => nombre.startsWith("Pique macho"))).toHaveLength(2);
+  it("el ejemplo convierte el título en categoría y desdobla los dos tamaños", () => {
+    const salida = AYUDA_LISTA.ejemplo.salida;
+    const nombres = salida.map(({ nombre }) => nombre);
+    expect(nombres).not.toContain("ALMUERZOS");
+    expect(nombres.filter((nombre) => nombre.startsWith("Pique macho"))).toHaveLength(2);
     expect(AYUDA_LISTA.ejemplo.entrada.some((linea) => linea.includes("ALMUERZOS"))).toBe(true);
+    /* El título de sección no se tira: es la categoría de lo que viene debajo. */
+    expect(salida.every(({ categoria }) => categoria === "Almuerzos")).toBe(true);
   });
 
   it("avisa que el precio no sale de la foto", () => {

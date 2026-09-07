@@ -242,6 +242,37 @@ lo evita antes de gastar un crédito. El ejemplo usa los casos raros de verdad
 dudar al comerciante de si va a funcionar con su lista, que nunca es la lista
 limpia del manual. Un test verifica que el ejemplo siga siendo coherente.
 
+### Descripción y categorías desde la propia lista
+
+La primera versión leía nombre y precio, y **tiraba los títulos de sección**. Era
+un desperdicio: esa lista ya trae la estructura de categorías escrita por el
+propio dueño, y después le pedíamos que la volviera a armar a mano.
+
+Ahora «BEBIDAS» no se descarta: se convierte en la categoría de todo lo que viene
+debajo hasta el título siguiente. En la pantalla de revisión los productos salen
+agrupados como en la hoja, y **cada sección se decide una sola vez**: crearla,
+mandarla a una categoría que ya existe, o dejar esos productos sin categoría. Si
+el título coincide con una categoría existente se propone la existente, porque
+crear una segunda «Bebidas» es el error más fácil de cometer ahí.
+
+La descripción se extrae **solo si el renglón la trae** —«Silpancho — carne
+apanada, arroz, papa y huevo»— y el campo aparece en la revisión solo cuando hay
+algo que revisar: un campo vacío por producto alarga la pantalla sin agregar
+nada. La instrucción prohíbe deducirla de lo que el modelo sepa del plato.
+
+**El stock queda fuera a propósito.** Una lista de precios dice cuánto cuestan
+las cosas, no cuántas hay. Si el modelo confundiera un código o un segundo precio
+con una cantidad, el catálogo diría «quedan 3» con 300 en depósito y el negocio
+**rechazaría clientes por una lectura mal hecha**. Un nombre mal leído se corrige
+mirando; un stock mal leído se descubre perdiendo una venta.
+
+### Un límite del nivel gratuito, encontrado al probar
+
+La generación de imágenes **no entra en el cupo gratuito**: al intentar fabricar
+una lista de prueba, la respuesta fue «exceeded your current quota». La lectura
+sigue funcionando sin problema. No afecta a estas herramientas —ninguna genera
+imágenes— pero conviene saberlo antes de planear algo que las use.
+
 ### Lo que falta antes de anunciarla
 
 El protocolo de validación del plan: **20 fotos de listas bolivianas reales**, con

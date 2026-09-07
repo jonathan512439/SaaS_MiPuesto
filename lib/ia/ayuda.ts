@@ -19,12 +19,15 @@ export const AYUDA_LISTA = {
     "Cartas de restaurante",
     "Listas escritas a mano, si la letra se entiende",
     "El nombre y el precio en el mismo renglón",
+    "Títulos de sección: los usamos como tus categorías",
+    "Detalles del plato, si están escritos al lado del nombre",
   ],
   noFunciona: [
     "Fotos de la estantería o de la vitrina",
     "Precios sueltos sin el nombre al lado",
     "Letra que ni vos podés leer en la foto",
-    "Categorías, descripciones o fotografías de cada producto",
+    "Fotografías de cada producto: esas las subís vos",
+    "Cantidades en stock: eso lo sabés vos, no la lista",
   ],
   /* El ejemplo va con los casos raros de verdad —«2x15», dos tamaños, el título
      de sección— porque son los que hacen dudar al comerciante de si va a
@@ -39,13 +42,13 @@ export const AYUDA_LISTA = {
       "Postre del día .......... Bs 10.-",
     ],
     salida: [
-      { nombre: "Silpancho", precio: "Bs 38" },
-      { nombre: "Pique macho grande", precio: "Bs 60" },
-      { nombre: "Pique macho chico", precio: "Bs 35" },
-      { nombre: "Refresco (por 2)", precio: "Bs 15" },
-      { nombre: "Postre del día", precio: "Bs 10" },
+      { nombre: "Silpancho", precio: "Bs 38", categoria: "Almuerzos" },
+      { nombre: "Pique macho grande", precio: "Bs 60", categoria: "Almuerzos" },
+      { nombre: "Pique macho chico", precio: "Bs 35", categoria: "Almuerzos" },
+      { nombre: "Refresco (por 2)", precio: "Bs 15", categoria: "Almuerzos" },
+      { nombre: "Postre del día", precio: "Bs 10", categoria: "Almuerzos" },
     ],
-    nota: "«ALMUERZOS» no aparece: es un título, no un producto.",
+    nota: "«ALMUERZOS» no se convierte en un producto: se convierte en la categoría de los que vienen debajo.",
   },
 };
 

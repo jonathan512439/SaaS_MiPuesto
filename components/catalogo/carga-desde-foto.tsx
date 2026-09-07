@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type ChangeEvent } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
 
 import { AYUDA_LISTA } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
@@ -12,9 +12,19 @@ import styles from "./carga-desde-foto.module.css";
 type Leido = {
   nombre: string;
   precio: number;
+  descripcion: string;
+  categoria: string;
   confianza: "alta" | "media" | "baja";
   elegido: boolean;
 };
+
+/* Qué hacer con cada título de sección que trajo la lista: crearlo como
+   categoría nueva, mandarlo a una que ya existe, o dejar esos productos sin
+   categoría. Se decide una vez por título y no producto por producto. */
+const CREAR = "crear";
+const SIN_CATEGORIA = "";
+
+const SIN_TITULO = "__sin_titulo__";
 
 export function CargaDesdeFoto({
   categorias,
@@ -31,9 +41,20 @@ export function CargaDesdeFoto({
   const [leyendo, setLeyendo] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [productos, setProductos] = useState<Leido[]>([]);
-  const [categoriaId, setCategoriaId] = useState("");
+  const [destinos, setDestinos] = useState<Record<string, string>>({});
 
   const elegidos = productos.filter(({ elegido }) => elegido);
+
+  /* Los títulos en el orden en que aparecieron en la lista, sin repetir. El
+     orden importa: es el de la hoja que el dueño tiene delante. */
+  const titulos = useMemo(() => {
+    const vistos: string[] = [];
+    for (const producto of productos) {
+      const titulo = producto.categoria || SIN_TITULO;
+      if (!vistos.includes(titulo)) vistos.push(titulo);
+    }
+    return vistos;
+  }, [productos]);
 
   async function leerFoto(evento: ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0];
@@ -42,6 +63,7 @@ export function CargaDesdeFoto({
 
     setLeyendo(true);
     setProductos([]);
+    setDestinos({});
     try {
       const foto = await prepararFotoParaLectura(archivo);
       setVistaPrevia(foto.vistaPrevia);
@@ -53,7 +75,7 @@ export function CargaDesdeFoto({
       });
       const datos = (await respuesta.json()) as {
         error?: string;
-        productos?: Array<{ nombre: string; precio: number; confianza: Leido["confianza"] }>;
+        productos?: Array<Omit<Leido, "elegido">>;
       };
       if (!respuesta.ok || !datos.productos) {
         throw new Error(datos.error ?? "No pudimos leer la fotografía.");
@@ -68,6 +90,24 @@ export function CargaDesdeFoto({
           elegido: producto.confianza !== "baja",
         })),
       );
+
+      /* Cada título encontrado arranca en «crear», salvo que ya exista una
+         categoría con ese nombre: entonces se propone la existente, porque
+         crear una segunda «Bebidas» es el error más fácil de cometer acá. */
+      const propuestas: Record<string, string> = {};
+      for (const producto of datos.productos) {
+        const titulo = producto.categoria || SIN_TITULO;
+        if (propuestas[titulo] !== undefined) continue;
+        if (titulo === SIN_TITULO) {
+          propuestas[titulo] = SIN_CATEGORIA;
+          continue;
+        }
+        const existente = categorias.find(
+          (categoria) => categoria.nombre.toLowerCase() === titulo.toLowerCase(),
+        );
+        propuestas[titulo] = existente ? existente.id : CREAR;
+      }
+      setDestinos(propuestas);
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo leer la lista",
@@ -92,18 +132,41 @@ export function CargaDesdeFoto({
     let creados = 0;
     const fallidos: string[] = [];
 
-    /* De a uno y en orden, reusando la misma ruta que el formulario normal: así
-       cada producto pasa por las mismas validaciones y el mismo límite del plan.
-       Una ruta nueva que insertara en lote sería una segunda puerta a la que
-       habría que enseñarle todas las reglas otra vez. */
+    /* Primero las categorías, porque los productos las necesitan. Si una falla,
+       sus productos van sin categoría en vez de perderse: es más fácil mover un
+       producto después que volver a leer la foto. */
+    const idPorTitulo = new Map<string, string>();
+    for (const titulo of titulos) {
+      const destino = destinos[titulo] ?? SIN_CATEGORIA;
+      if (titulo === SIN_TITULO || destino === SIN_CATEGORIA) continue;
+      if (destino !== CREAR) {
+        idPorTitulo.set(titulo, destino);
+        continue;
+      }
+      try {
+        const respuesta = await fetch("/api/catalogo/categorias", {
+          body: JSON.stringify({ nombre: titulo }),
+          headers: { "content-type": "application/json" },
+          method: "POST",
+        });
+        const datos = (await respuesta.json()) as { categoria?: { id: string } };
+        if (respuesta.ok && datos.categoria) idPorTitulo.set(titulo, datos.categoria.id);
+      } catch {
+        /* Sin categoría, pero con el producto. */
+      }
+    }
+
+    /* De a uno y reusando la misma ruta que el formulario normal: así cada
+       producto pasa por las mismas validaciones y el mismo límite del plan. */
     for (const producto of elegidos) {
+      const titulo = producto.categoria || SIN_TITULO;
       try {
         const respuesta = await fetch("/api/catalogo/productos", {
           body: JSON.stringify({
             nombre: producto.nombre,
-            descripcion: null,
+            descripcion: producto.descripcion.trim() || null,
             precio: producto.precio,
-            categoria_id: categoriaId || null,
+            categoria_id: idPorTitulo.get(titulo) ?? null,
             subcategoria_id: null,
             controla_stock: false,
             cantidad_stock: null,
@@ -168,6 +231,7 @@ export function CargaDesdeFoto({
               {AYUDA_LISTA.ejemplo.salida.map((fila) => (
                 <li key={fila.nombre}>
                   {fila.nombre} — <strong>{fila.precio}</strong>
+                  <span className={styles.enCategoria}> en {fila.categoria}</span>
                 </li>
               ))}
             </ul>
@@ -204,50 +268,86 @@ export function CargaDesdeFoto({
             </p>
           </header>
 
-          <ul className={styles.filas}>
-            {productos.map((producto, indice) => (
-              <li
-                className={producto.confianza === "baja" ? styles.dudosa : styles.fila}
-                key={`${producto.nombre}-${indice}`}
-              >
-                <input
-                  aria-label={`Incluir ${producto.nombre}`}
-                  checked={producto.elegido}
-                  onChange={(evento) => cambiar(indice, { elegido: evento.target.checked })}
-                  type="checkbox"
-                />
-                <input
-                  aria-label="Nombre del producto"
-                  onChange={(evento) => cambiar(indice, { nombre: evento.target.value })}
-                  value={producto.nombre}
-                />
-                <input
-                  aria-label="Precio"
-                  inputMode="decimal"
-                  onChange={(evento) => cambiar(indice, { precio: Number(evento.target.value) })}
-                  type="number"
-                  value={producto.precio}
-                />
-                {producto.confianza === "baja" ? <span>revisá</span> : null}
-              </li>
-            ))}
-          </ul>
+          {titulos.some((titulo) => titulo !== SIN_TITULO) ? (
+            <div className={styles.titulos}>
+              <h3>Las secciones de tu lista</h3>
+              <p>Las encontramos en la foto. Decidí qué hacer con cada una.</p>
+              {titulos
+                .filter((titulo) => titulo !== SIN_TITULO)
+                .map((titulo) => (
+                  <Selector
+                    etiqueta={titulo}
+                    id={`destino-${titulo}`}
+                    key={titulo}
+                    onChange={(evento) =>
+                      setDestinos((actuales) => ({ ...actuales, [titulo]: evento.target.value }))
+                    }
+                    value={destinos[titulo] ?? CREAR}
+                  >
+                    <option value={CREAR}>Crear la categoría «{titulo}»</option>
+                    {categorias.map((categoria) => (
+                      <option key={categoria.id} value={categoria.id}>
+                        Poner en {categoria.nombre}
+                      </option>
+                    ))}
+                    <option value={SIN_CATEGORIA}>Sin categoría</option>
+                  </Selector>
+                ))}
+            </div>
+          ) : null}
+
+          {titulos.map((titulo) => (
+            <div className={styles.grupo} key={titulo}>
+              {titulo === SIN_TITULO ? null : <h3>{titulo}</h3>}
+              <ul className={styles.filas}>
+                {productos.map((producto, indice) =>
+                  (producto.categoria || SIN_TITULO) !== titulo ? null : (
+                    <li
+                      className={producto.confianza === "baja" ? styles.dudosa : styles.fila}
+                      key={`${producto.nombre}-${indice}`}
+                    >
+                      <input
+                        aria-label={`Incluir ${producto.nombre}`}
+                        checked={producto.elegido}
+                        onChange={(evento) => cambiar(indice, { elegido: evento.target.checked })}
+                        type="checkbox"
+                      />
+                      <input
+                        aria-label="Nombre del producto"
+                        onChange={(evento) => cambiar(indice, { nombre: evento.target.value })}
+                        value={producto.nombre}
+                      />
+                      <input
+                        aria-label="Precio"
+                        inputMode="decimal"
+                        onChange={(evento) =>
+                          cambiar(indice, { precio: Number(evento.target.value) })
+                        }
+                        type="number"
+                        value={producto.precio}
+                      />
+                      {/* La descripción solo aparece si la lista la traía: un
+                          campo vacío por producto alarga la revisión sin
+                          agregar nada. */}
+                      {producto.descripcion ? (
+                        <input
+                          aria-label="Descripción"
+                          className={styles.descripcion}
+                          onChange={(evento) =>
+                            cambiar(indice, { descripcion: evento.target.value })
+                          }
+                          value={producto.descripcion}
+                        />
+                      ) : null}
+                      {producto.confianza === "baja" ? <span>revisá</span> : null}
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          ))}
 
           <div className={styles.confirmar}>
-            <Selector
-              ayuda="Podés cambiarla después en cada producto."
-              etiqueta="Crear todos en la categoría"
-              id="categoria-desde-foto"
-              onChange={(evento) => setCategoriaId(evento.target.value)}
-              value={categoriaId}
-            >
-              <option value="">Sin categoría</option>
-              {categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.id}>
-                  {categoria.nombre}
-                </option>
-              ))}
-            </Selector>
             <Boton
               cargando={guardando}
               disabled={guardando || elegidos.length === 0}
@@ -257,8 +357,8 @@ export function CargaDesdeFoto({
             </Boton>
           </div>
           <p className={styles.aviso}>
-            Se crean sin fotografía y sin descripción.{" "}
-            <strong>Revisá los precios antes de publicar.</strong>
+            Se crean sin fotografía y sin existencias. <strong>Revisá los precios antes de
+            publicar.</strong>
           </p>
         </section>
       ) : null}

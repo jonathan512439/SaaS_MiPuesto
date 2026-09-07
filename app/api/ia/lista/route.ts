@@ -67,6 +67,11 @@ export async function POST(solicitud: NextRequest) {
     .map((producto) => ({
       nombre: (producto.nombre ?? "").trim().slice(0, 80),
       precio: Number(producto.precio),
+      descripcion: (producto.descripcion ?? "").trim().slice(0, 300),
+      /* La categoría sale del título de sección de la propia lista. Antes se
+         descartaba, y era un desperdicio: esa lista ya trae la estructura del
+         catálogo escrita por el dueño, y le pedíamos que la volviera a armar. */
+      categoria: (producto.categoria ?? "").trim().slice(0, 60),
       confianza: producto.confianza ?? "baja",
     }))
     /* Se descarta acá lo que la base rechazaría igual, pero con la ventaja de
