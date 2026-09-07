@@ -566,3 +566,112 @@ Las muestras por rubro se pueden anunciar desde ya, porque no prometen nada que
 no exista. Los campos a medida **no van a la portada hasta haberlos hecho una
 vez**: una página que los anuncia crea expectativa de producto terminado, y una
 conversación permite acotar y cotizar cada caso.
+
+
+### Costeo del 2026-09-07 — los siete rubros, medido sobre el código
+
+Se midieron las superficies reales antes de estimar. Lo que sigue reemplaza a la
+cifra suelta de «~4 días el primero» de la tabla de arriba, que era una
+estimación sin medir.
+
+#### Los campos propuestos, rubro por rubro
+
+| Rubro | Campos | Tipos |
+|---|---|---|
+| Ferretería | Medida · **Unidad de venta** · Material · Marca | texto, lista, texto, texto |
+| Tienda de barrio | Contenido · Unidad de venta · Marca · Presentación | texto, lista, texto, lista |
+| Restaurante | Porciones · Picante · Vegetariano · Preparación | número, lista, sí/no, número |
+| Servicios | Duración · A domicilio · Garantía · Qué incluye | número, sí/no, texto, texto largo |
+| Belleza | Duración · A domicilio · Requiere reserva · Qué incluye | número, sí/no, sí/no, texto largo |
+| Ropa y calzado | Tallas · Colores · Material · Género | ⚠️ ver abajo |
+| Otro | Marca · Unidad · Medida | texto, lista, texto |
+
+**Belleza y servicios comparten tres de cuatro campos.** Se definen una vez y se
+reutilizan, así que el segundo de los dos cuesta casi nada.
+
+**Ropa y calzado es el rubro que no encaja en la capa 2.** Talla y color no son
+atributos: son variantes. Ponerlas como texto informativo —«viene en S, M y L»—
+es peor que no ponerlas, porque genera un pedido de una talla agotada que hay
+que cancelar a mano. Si el dueño quiere stock o precio por talla, eso es capa 3
+y se cotiza aparte. Es la aplicación directa de la línea que no se cruza.
+
+#### Lo que hay que tocar
+
+| Superficie | Dónde | Peso |
+|---|---|---|
+| Base | Una migración: `atributos jsonb` + grants | bajo |
+| Listas de columnas | `lib/catalogo/columnas.ts` — las tres | trivial, ya centralizado |
+| Rutas | `productos/route.ts` y `duplicar/route.ts` | bajo |
+| Validación | `lib/catalogo/validacion.ts` | medio |
+| Definiciones | archivo nuevo `lib/catalogo/atributos.ts` | medio |
+| Formulario | `gestor-catalogo.tsx`, 1.494 líneas | **alto** |
+| Render | 4 plantillas + `hoja-producto.tsx` = 5 superficies | **alto** |
+| Menú impreso | `[slug]/imprimir` | bajo |
+| Búsqueda | `texto_busqueda` | ver abajo |
+
+#### Tres cosas que no son obvias
+
+**`texto_busqueda` es una columna generada.** Si los atributos tienen que ser
+buscables —y «tornillo de ½"» es una búsqueda obvia en ferretería— hay que
+dropear y recrear la columna y su índice GIN. Con 300 productos por negocio es
+instantáneo, pero es una migración con bloqueo, no un `add column`.
+
+**El formulario ya es el punto débil.** Un cliente real reportó el 2026-09-06 que
+no encontraba cómo crear una categoría. Sumar cuatro campos por producto empeora
+exactamente el problema que se acaba de arreglar. Es riesgo de producto, no
+técnico, y no se resuelve programando mejor.
+
+**El costo operativo verdadero no es el desarrollo.** Son 300 productos por cuatro
+campos: 1.200 datos que alguien tiene que tipear, y ese alguien es el dueño del
+negocio. Un campo opcional que nadie llena es ruido en el formulario y nada en el
+catálogo.
+
+#### Costos
+
+| Trabajo | Días |
+|---|---|
+| Capa 2, primer rubro (toda la maquinaria) | 4,5 – 5 |
+| Cada rubro siguiente | 0,5 |
+| **Los siete rubros completos** | **7,5 – 8** |
+| Capa 3, solo ropa | ~2 semanas |
+
+**Bs 0 de infraestructura.** No cambia el plan de Supabase ni el de Cloudflare.
+El almacenamiento son unos 200 bytes por producto: 60 KB por negocio con el
+catálogo lleno. El único costo monetario aparecería al extender la lectura por
+foto a los atributos, que consume el nivel gratuito de Gemini y además baja la
+precisión de lo que hoy funciona. No se hace en la primera vuelta.
+
+#### Agregar rubros más adelante
+
+Hoy, sin atributos, un rubro nuevo toca cuatro lugares: `RUBROS`,
+`DEFINICIONES_RUBROS`, el `check` de la base y el patrón con su baldosa. **Dos
+horas.** Con atributos se suman sus campos, sus ayudas y sus pruebas: **medio
+día.**
+
+**No se degrada con el tiempo**, y eso es consecuencia de las dos decisiones ya
+tomadas: `jsonb` en vez de tabla por rubro, y definiciones en código en vez de en
+una tabla. Un rubro nuevo no obliga a migrar nada de lo existente.
+
+**Falta una guarda.** El control de contraste ya verifica que paletas y
+plantillas estén sincronizadas entre el CSS, el registro, el validador y la base.
+Los rubros no tienen ese control, y ahora viven en cinco sitios contando la
+baldosa del patrón. Media hora de trabajo, y evita que un rubro nuevo quede a
+medias en uno de ellos.
+
+#### Decisión del 2026-09-07: no se empieza ahora
+
+Con cero clientes pagando, ocho días de desarrollo son ocho días construyendo
+sobre una suposición. **Cuáles son los campos correctos no se sabe hasta que un
+negocio real lo diga**, y hay una forma de averiguarlo que cuesta cero días:
+
+**Las veinte fotos de listas de precios que ya se deben para validar la lectura
+por foto son, además, la investigación de campos.** La lista de precios de una
+ferretería muestra exactamente qué atributos ese negocio ya escribe a mano. Eso
+convierte «adivinar los campos» en «leerlos», sin escribir una línea.
+
+Orden cuando llegue el disparador —un cliente que pague la instalación—:
+
+1. **Ferretería y tienda de barrio primero.** «Unidad de venta» y «medida»
+   cambian de verdad la decisión de compra, y son atributos honestos.
+2. **Máximo tres campos por rubro.** El cuarto ya pesa en un formulario largo.
+3. **Ropa al final**, y con la conversación de capa 3 sobre la mesa.
