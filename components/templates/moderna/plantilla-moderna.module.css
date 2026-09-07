@@ -167,10 +167,13 @@
   text-decoration: none;
 }
 
+/* Marca y no texto: es el color del negocio, y las cuatro plantillas usan el
+   mismo par para que la señal se lea igual en todas. `sobre-marca` sobre
+   `marca` lo comprueba la guarda de contraste en las siete paletas. */
 .navegacion .categoriaActiva {
-  border-color: var(--catalogo-texto);
-  background: var(--catalogo-texto);
-  color: var(--catalogo-superficie);
+  border-color: var(--catalogo-marca);
+  background: var(--catalogo-marca);
+  color: var(--catalogo-sobre-marca);
 }
 
 .productos {

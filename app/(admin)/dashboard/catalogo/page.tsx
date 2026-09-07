@@ -86,9 +86,26 @@ export default async function PaginaCatalogo() {
         {/* Aparece recién cuando la plataforma se la habilitó: es la única
             función que cuesta dinero cada vez que se usa. */}
         {negocio.foto_ia_habilitada ? (
-          <Link className={styles.enlaceFoto} href="/dashboard/catalogo/desde-foto">
-            Cargar desde una foto
-          </Link>
+          <section aria-labelledby="titulo-ia" className={styles.tarjetaIa}>
+            <div className={styles.tarjetaIaCuerpo}>
+              <span className={styles.selloIa}>✨ Herramienta con IA</span>
+              <h2 id="titulo-ia">Cargá tu catálogo desde una foto de tu lista de precios</h2>
+              <ol className={styles.pasosIa}>
+                <li>
+                  <b>1</b> Sacale una foto a tu lista de precios
+                </li>
+                <li>
+                  <b>2</b> Revisás y corregís lo que leyó
+                </li>
+                <li>
+                  <b>3</b> Confirmás y se crean los productos
+                </li>
+              </ol>
+              <Link className={styles.abrirIa} href="/dashboard/catalogo/desde-foto">
+                Abrir la herramienta
+              </Link>
+            </div>
+          </section>
         ) : null}
         {/* Solo para los rubros a los que les sirve: un menú impreso en una
             boutique es un botón que nadie va a tocar nunca. */}

@@ -141,6 +141,17 @@
   list-style: none;
 }
 
+/* La miniatura ocupa lugar en la fila: ver la foto es lo que dice que ya esta
+   adjunta. El texto solo no alcanzo. */
+.miniatura {
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  flex: 0 0 var(--spacing-12);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-control);
+  object-fit: cover;
+}
+
 .archivosPendientes li {
   display: flex;
   min-height: var(--spacing-10);
@@ -915,29 +926,97 @@
   }
 }
 
-/* Encima de los campos y con su advertencia pegada: la única forma de que
-   alguien no espere que también le adivine el precio. */
-.completarConFoto {
-  display: grid;
-  gap: var(--spacing-1);
-  justify-items: start;
-  margin-bottom: var(--spacing-3);
+/* ---- tarjeta de la herramienta con IA ----
+   Encima de los campos y con su advertencia pegada: es la unica forma de que
+   alguien no espere que tambien le adivine el precio. Se separa del resto del
+   formulario con el degradado porque es la unica funcion que cuesta dinero cada
+   vez que se usa, y los tres pasos van a la vista porque lo que frena a alguien
+   no es «que hace» sino «que me va a pedir». */
+.tarjetaIa {
+  margin-bottom: var(--spacing-4);
+  border-radius: var(--radius-panel);
+  padding: var(--borde-marcado);
+  background: var(--ia-degradado);
+  box-shadow: var(--sombra-suave);
 }
 
-.completarConFoto label {
+.tarjetaIaCuerpo {
+  display: grid;
+  gap: var(--spacing-3);
+  justify-items: start;
+  border-radius: calc(var(--radius-panel) - var(--borde-marcado));
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.selloIa {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--ia-degradado);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tarjetaIa h3 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.pasosIa {
+  display: grid;
+  width: 100%;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pasosIa li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.pasosIa li b {
+  display: grid;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ia-degradado);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.abrirIa {
   display: inline-flex;
   min-height: var(--control-alto);
   align-items: center;
-  border: var(--borde-marcado) solid var(--color-marca);
+  justify-content: center;
   border-radius: var(--radius-control);
-  padding: var(--spacing-1) var(--spacing-4);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-sm);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--ia-degradado);
+  color: var(--color-superficie);
+  font-size: var(--text-base);
   font-weight: 800;
   cursor: pointer;
 }
 
-.completarConFoto input {
+.abrirIa:hover {
+  filter: brightness(0.94);
+}
+
+.abrirIa input {
   position: absolute;
   width: var(--borde-fino);
   height: var(--borde-fino);
@@ -945,14 +1024,25 @@
   clip-path: inset(50%);
 }
 
-.completarConFoto label:has(input:focus-visible) {
+.abrirIa:has(input:focus-visible) {
   outline: var(--foco-ancho) solid var(--color-superficie);
   box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
-.completarConFoto small {
+.abrirIa:has(input:disabled) {
+  cursor: progress;
+  filter: grayscale(0.4);
+}
+
+.tarjetaIa small {
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
+}
+
+@media (min-width: 40rem) {
+  .pasosIa {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 /* Debajo de la etiqueta y antes del campo: leída así evita el error, leída

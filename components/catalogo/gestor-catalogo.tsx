@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { ChangeEvent, FormEvent } from "react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { obtenerUrlPublicaImagenProducto } from "../../lib/catalogo/imagenes-publicas";
 import { estaEnLaCartaDeHoy } from "../../lib/catalogo/carta-del-dia";
@@ -40,6 +40,7 @@ import {
   IndicadorEstado,
   type EstadoProducto,
   Selector,
+  Trabajando,
   useAvisos,
   useConfirmacion,
 } from "../ui";
@@ -117,6 +118,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [paginaCategorias, setPaginaCategorias] = useState(1);
   const [paginaProductos, setPaginaProductos] = useState(1);
   const [nombreCategoria, setNombreCategoria] = useState("");
+  /* Solo la posición inicial sale de los datos; después manda la persona. */
+  const [organizacionAbierta, setOrganizacionAbierta] = useState(
+    datosIniciales.categorias.length === 0,
+  );
   const [nuevasSubcategorias, setNuevasSubcategorias] = useState<Record<string, string>>({});
   const [formularioAbierto, setFormularioAbierto] = useState(false);
   const { mostrarAviso } = useAvisos();
@@ -124,6 +129,20 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [productoEditando, setProductoEditando] = useState<string | null>(null);
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
   const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
+  /* Las miniaturas se crean en un efecto y no al dibujar: `createObjectURL`
+     reserva memoria del navegador y hay que devolverla. Sin el `revoke`, cada
+     foto elegida queda retenida hasta que se recarga la página. */
+  const previasPendientes = useMemo(
+    () => imagenesPendientes.map((archivo) => URL.createObjectURL(archivo)),
+    [imagenesPendientes],
+  );
+
+  useEffect(
+    () => () => {
+      for (const url of previasPendientes) URL.revokeObjectURL(url);
+    },
+    [previasPendientes],
+  );
   const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
   const [busquedaProductos, setBusquedaProductos] = useState("");
@@ -939,6 +958,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         </form>
       </HojaModal>
 
+      <Trabajando
+        abierto={leyendoFoto}
+        detalle="Estamos leyendo la foto para completar el nombre y la descripción. Suele tardar unos segundos."
+        titulo="Mirando la foto…"
+      />
+
       {formularioAbierto ? (
         <form
           className={styles.formularioProducto}
@@ -957,18 +982,35 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               corregir lo que ya se escribió. El precio se pide igual, porque
               ninguna foto sabe cuánto cobra este negocio. */}
           {ofreceLecturaDeFotos ? (
-            <div className={styles.completarConFoto}>
-              <label>
-                {leyendoFoto ? "Mirando la foto…" : "Completar con una foto"}
-                <input
-                  accept="image/jpeg,image/png,image/webp"
-                  disabled={leyendoFoto}
-                  onChange={(evento) => void completarConFoto(evento)}
-                  type="file"
-                />
-              </label>
-              <small>{AYUDA_PRODUCTO.advertencia}</small>
-            </div>
+            <section aria-labelledby="titulo-ia-producto" className={styles.tarjetaIa}>
+              <div className={styles.tarjetaIaCuerpo}>
+                <span className={styles.selloIa}>✨ Herramienta con IA</span>
+                <h3 id="titulo-ia-producto">Completá los campos con una foto del producto</h3>
+                <ol className={styles.pasosIa}>
+                  <li>
+                    <b>1</b> Elegís la foto del producto
+                  </li>
+                  <li>
+                    <b>2</b> Se completan el nombre y la descripción
+                  </li>
+                  {/* El tercer paso se dice porque no se ve: la foto queda
+                      adjunta sola y quien no lo sabe la vuelve a subir. */}
+                  <li>
+                    <b>3</b> Esa misma foto queda adjunta abajo
+                  </li>
+                </ol>
+                <label className={styles.abrirIa}>
+                  {leyendoFoto ? "Mirando la foto…" : "Elegir la foto"}
+                  <input
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={leyendoFoto}
+                    onChange={(evento) => void completarConFoto(evento)}
+                    type="file"
+                  />
+                </label>
+                <small>{AYUDA_PRODUCTO.advertencia}</small>
+              </div>
+            </section>
           ) : null}
           <div className={styles.camposProducto}>
             <Campo
@@ -1072,6 +1114,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                 <ul className={styles.archivosPendientes}>
                   {imagenesPendientes.map((archivo, indice) => (
                     <li key={`${archivo.name}-${archivo.lastModified}-${indice}`}>
+                      {/* La miniatura y no solo el texto «lista»: probándolo, una
+                          persona creyó que tenía que volver a subir la foto que
+                          la herramienta acababa de leer, porque no la veía. */}
+                      {previasPendientes[indice] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img alt="" className={styles.miniatura} src={previasPendientes[indice]} />
+                      ) : null}
                       <span>Fotografía {indice + 1} lista</span>
                       <button
                         aria-label={`Quitar fotografía ${indice + 1}`}
@@ -1162,10 +1211,20 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       </section>
 
       <div className={styles.columnas}>
-        {/* Abierto mientras no haya ninguna categoría: plegado, un recién
-            llegado no encuentra dónde crearlas y concluye que no se puede. Un
-            restaurante lo primero que quiere es separar entradas de bebidas. */}
-        <details className={styles.organizacion} open={categorias.length === 0}>
+        {/* Abierto cuando se entra sin ninguna categoría: plegado, un recién
+            llegado no encuentra dónde crearlas y concluye que no se puede.
+
+            El estado se guarda en vez de derivarse de `categorias.length`: `open`
+            es una propiedad controlada y React la reescribe en cada render, así
+            que al crear la primera categoría el panel se cerraba solo, con el
+            formulario de categorías y todas las subcategorías adentro. */}
+        <details
+          className={styles.organizacion}
+          onToggle={(evento) => {
+            setOrganizacionAbierta(evento.currentTarget.open);
+          }}
+          open={organizacionAbierta}
+        >
           <summary className={styles.resumenOrganizacion}>
             <span>Organizar categorías</span>
             <small>{categorias.length} de 40 creadas</small>

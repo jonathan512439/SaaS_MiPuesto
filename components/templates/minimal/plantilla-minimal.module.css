@@ -480,3 +480,32 @@
 .buscador input::placeholder {
   color: var(--catalogo-texto-tenue);
 }
+
+/* Los botones de sección no tenían estilo y salían con la apariencia por
+   defecto del navegador, que no se parece a nada del resto de la plantilla.
+   Toman el mismo trazo que los enlaces de al lado. */
+.navegacion button {
+  display: inline-flex;
+  min-height: var(--spacing-10);
+  align-items: center;
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-marca);
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* La categoría en la que estás. Va en color de marca y no en el de texto: es el
+   par sobre-marca/marca, que la guarda de contraste comprueba paleta por paleta
+   en las siete, y además es el color del negocio, que es lo que «resaltar»
+   significa acá. Las cuatro plantillas usan el mismo par para que la señal se
+   lea igual sin importar cuál eligió el dueño. */
+.navegacion .categoriaActiva {
+  border-color: var(--catalogo-marca);
+  background: var(--catalogo-marca);
+  color: var(--catalogo-sobre-marca);
+}

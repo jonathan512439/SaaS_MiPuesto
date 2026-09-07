@@ -65,18 +65,6 @@
   font-weight: 700;
 }
 
-/* Destacado y no discreto como el de la papelera: es una función nueva que el
-   dueño no sabe que tiene hasta que la ve. */
-.enlaceFoto {
-  justify-self: start;
-  border-radius: var(--radius-control);
-  padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-marca);
-  color: var(--color-superficie);
-  font-size: var(--text-sm);
-  font-weight: 800;
-}
-
 .avisoFoto {
   display: grid;
   gap: var(--spacing-2);
@@ -106,4 +94,106 @@
   background: var(--color-marca);
   color: var(--color-superficie);
   font-weight: 800;
+}
+
+/* ---- tarjeta de la herramienta con IA ----
+   Se distingue del resto del encabezado a propósito: es la única función que
+   cuesta dinero cada vez que se usa y la única que hace algo que el dueño no
+   podría hacer solo. Los tres pasos van a la vista y no detrás del clic, porque
+   la pregunta que frena a alguien no es «qué hace» sino «qué me va a pedir». */
+.tarjetaIa {
+  display: grid;
+  gap: var(--spacing-3);
+  grid-column: 1 / -1;
+  border-radius: var(--radius-panel);
+  padding: var(--borde-marcado);
+  background: var(--ia-degradado);
+  box-shadow: var(--sombra-suave);
+}
+
+.tarjetaIaCuerpo {
+  display: grid;
+  gap: var(--spacing-3);
+  border-radius: calc(var(--radius-panel) - var(--borde-marcado));
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.selloIa {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  justify-self: start;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--ia-degradado);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tarjetaIa h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.pasosIa {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pasosIa li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.pasosIa li b {
+  display: grid;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ia-degradado);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.abrirIa {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--ia-degradado);
+  color: var(--color-superficie);
+  font-size: var(--text-base);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.abrirIa:hover {
+  filter: brightness(0.94);
+}
+
+.abrirIa:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+@media (min-width: 40rem) {
+  .pasosIa {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }

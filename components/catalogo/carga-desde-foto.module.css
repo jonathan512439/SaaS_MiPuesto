@@ -77,6 +77,9 @@
   font-style: italic;
 }
 
+/* El degradado de las herramientas y no el color plano de un boton comun: es la
+   misma senal que la tarjeta desde la que se llego, asi se ve que una cosa es
+   continuacion de la otra. */
 .cargar {
   display: inline-flex;
   min-height: var(--control-alto);
@@ -85,11 +88,20 @@
   justify-self: start;
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-5);
-  background: var(--color-marca);
+  background: var(--ia-degradado);
   color: var(--color-superficie);
   font-size: var(--text-base);
   font-weight: 800;
   cursor: pointer;
+}
+
+.cargar:hover {
+  filter: brightness(0.94);
+}
+
+.cargar:has(input:disabled) {
+  cursor: progress;
+  filter: grayscale(0.4);
 }
 
 .cargar input {

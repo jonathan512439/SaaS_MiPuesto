@@ -79,6 +79,7 @@ export function PlantillaMinimal({
         {navegacion ? (
           <button
             aria-pressed={navegacion.activa === ""}
+            className={navegacion.activa === "" ? styles.categoriaActiva : undefined}
             onClick={() => navegacion.alElegir("")}
             type="button"
           >
@@ -90,6 +91,7 @@ export function PlantillaMinimal({
           return (
             <button
               aria-pressed={navegacion ? activa : undefined}
+              className={activa ? styles.categoriaActiva : undefined}
               key={categoria.id}
               onClick={() => navegacion?.alElegir(categoria.id)}
               type="button"

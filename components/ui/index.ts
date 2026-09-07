@@ -11,4 +11,5 @@ export { ProveedorAvisos, useAvisos } from "./proveedor-avisos";
 export { ProveedorConfirmacion, useConfirmacion } from "./proveedor-confirmacion";
 export { Selector } from "./selector";
 export { Toast } from "./toast";
+export { Trabajando } from "./trabajando";
 export type { VarianteToast } from "./toast";

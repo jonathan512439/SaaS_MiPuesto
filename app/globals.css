@@ -16,6 +16,18 @@
   --color-deshabilitado: color-mix(in srgb, var(--color-texto) 12%, var(--color-superficie));
   --color-borde-suave: color-mix(in srgb, var(--color-texto) 13%, transparent);
   --color-texto-suave: color-mix(in srgb, var(--color-texto) 74%, var(--color-superficie));
+
+  /* Las herramientas con IA. Van de marca a acción y no a un color nuevo: son
+     los dos extremos que la guarda de contraste ya comprueba contra la
+     superficie, así que el texto en superficie encima del degradado cumple AA en
+     los dos extremos y en todo lo que hay en medio. Un color elegido a ojo no
+     tendría esa garantía. */
+  --ia-degradado: linear-gradient(135deg, var(--color-marca), var(--color-accion));
+  --ia-degradado-tenue: linear-gradient(
+    135deg,
+    var(--color-marca-tenue),
+    var(--color-accion-tenue)
+  );
   --color-marca-tenue: color-mix(in srgb, var(--color-marca) 12%, var(--color-superficie));
   --color-marca-suave: color-mix(in srgb, var(--color-marca) 18%, var(--color-superficie));
   --color-accion-tenue: color-mix(in srgb, var(--color-accion) 10%, var(--color-superficie));

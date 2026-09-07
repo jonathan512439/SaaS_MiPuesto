@@ -1,0 +1,66 @@
+@reference "../../app/globals.css";
+
+.dialogo {
+  border: 0;
+  border-radius: var(--radius-panel);
+  padding: 0;
+  background: transparent;
+}
+
+.dialogo::backdrop {
+  background: color-mix(in srgb, var(--color-texto) 68%, transparent);
+}
+
+.contenido {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-2);
+  max-width: 22rem;
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-6) var(--spacing-5);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-flotante);
+  text-align: center;
+}
+
+.contenido strong {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.contenido p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.contenido small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+/* Anillo con un solo lado en color de marca: la vuelta se ve por el contraste
+   entre ese lado y el resto. Es un borde y no una máscara sobre el degradado,
+   que necesitaría un color opaco escrito a mano fuera de los tokens. */
+.rueda {
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  margin-bottom: var(--spacing-2);
+  border: var(--borde-marcado) solid var(--color-marca-tenue);
+  border-top-color: var(--color-marca);
+  border-radius: 50%;
+  animation: girar 900ms linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Quien pidió menos movimiento recibe el anillo quieto. El aviso sigue diciendo
+   lo mismo con palabras, que es lo que importa. */
+@media (prefers-reduced-motion: reduce) {
+  .rueda {
+    animation: none;
+  }
+}

@@ -6,7 +6,7 @@ import { useMemo, useState, type ChangeEvent } from "react";
 import { AYUDA_LISTA } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
-import { Boton, Selector, useAvisos } from "../ui";
+import { Boton, Selector, Trabajando, useAvisos } from "../ui";
 import styles from "./carga-desde-foto.module.css";
 
 type Leido = {
@@ -239,6 +239,12 @@ export function CargaDesdeFoto({
           <p>{AYUDA_LISTA.ejemplo.nota}</p>
         </div>
       </section>
+
+      <Trabajando
+        abierto={leyendo}
+        detalle="Estamos leyendo la lista y separando cada producto con su precio. Cuanto más larga, más tarda."
+        titulo="Leyendo tu lista…"
+      />
 
       <label className={styles.cargar}>
         {leyendo ? "Leyendo tu lista…" : "Elegir la foto de la lista"}

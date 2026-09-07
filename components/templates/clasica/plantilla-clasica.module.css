@@ -491,3 +491,21 @@
 .buscador input::placeholder {
   color: var(--catalogo-texto-tenue);
 }
+
+/* Forma de pastilla para que el resaltado tenga dónde apoyarse: sin fondo ni
+   radio, marcar la activa dejaría un bloque cuadrado pegado a sus vecinas. */
+.navegacion button {
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+}
+
+/* La categoría en la que estás. Va en color de marca y no en el de texto: es el
+   par sobre-marca/marca, que la guarda de contraste comprueba paleta por paleta
+   en las siete, y además es el color del negocio, que es lo que «resaltar»
+   significa acá. Las cuatro plantillas usan el mismo par para que la señal se
+   lea igual sin importar cuál eligió el dueño. */
+.navegacion .categoriaActiva {
+  border-color: var(--catalogo-marca);
+  background: var(--catalogo-marca);
+  color: var(--catalogo-sobre-marca);
+}
