@@ -680,6 +680,34 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   /* Llena el formulario, no guarda. Y respeta lo que el dueño ya haya escrito:
      pisar un nombre que alguien tecleó es la clase de ayuda que se termina
      apagando. */
+  /* Devuelve qué pasó con la fotografía para poder contárselo al dueño en el
+     mismo aviso. Si el producto todavía no existe queda en espera y se sube al
+     guardar; si ya existe, se sube en el momento. */
+  async function guardarFotoDelProducto(archivo: File): Promise<string> {
+    const producto = productos.find(({ id }) => id === productoEditando);
+
+    if (!productoEditando) {
+      if (imagenesPendientes.length >= 4) return "";
+      try {
+        const preparada = await prepararImagenParaSubir(archivo);
+        setImagenesPendientes((actuales) => [...actuales, preparada]);
+        return "La foto queda como imagen del producto.";
+      } catch {
+        return "";
+      }
+    }
+
+    if (!producto || producto.fotos.length >= 4) return "";
+    try {
+      await cargarArchivosProducto(producto, [archivo]);
+      return "La foto se agregó al producto.";
+    } catch {
+      /* Los campos ya se completaron: que la foto no suba no convierte la
+         lectura en un fracaso, y decirlo como error confundiría. */
+      return "";
+    }
+  }
+
   async function completarConFoto(evento: ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0];
     evento.target.value = "";
@@ -725,12 +753,22 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               ? "Conservamos la descripción que ya tenías."
               : "";
 
+      /* La misma foto se queda como fotografía del producto. Sacarla dos veces
+         —una para que la lea y otra para publicarla— era un paso que no le
+         servía a nadie, y el archivo ya está acá. */
+      const guardada = await guardarFotoDelProducto(archivo);
+
       informarExito(
         habiaNombre && habiaDescripcion ? "No había campos vacíos" : "Campos completados",
-        conservado ||
-          (propuesta.confianza === "alta"
-            ? "Revisá el texto y poné tu precio."
-            : "No estamos seguros de qué es. Revisá bien antes de guardar."),
+        [
+          conservado ||
+            (propuesta.confianza === "alta"
+              ? "Revisá el texto y poné tu precio."
+              : "No estamos seguros de qué es. Revisá bien antes de guardar."),
+          guardada,
+        ]
+          .filter(Boolean)
+          .join(" "),
       );
     } catch (error) {
       informarError("No se pudo leer la foto", error);
