@@ -187,3 +187,57 @@ conteo de límites por IP — y que sí pueda guardar lo suyo.
 | `'unsafe-inline'` en `script-src` | Quitarlo exige nonces y hay que ver si vinext los soporta. No renderizamos HTML de usuario |
 | Sin tope de almacenamiento por negocio | El techo existe —2 MB por foto, 4 por producto, 300 productos— pero nadie avisa al acercarse |
 | Invitaciones sin límite | Exige una cuenta con segundo factor ya comprometida |
+
+## Recuperación de contraseña — corregido el 2026-09-07
+
+Reportado en producción: se pide restablecer la contraseña, se abre el enlace del
+correo, al guardar la contraseña nueva aparece «enlace no válido», y **al tocar
+«Solicitar otro enlace» el sistema abre la aplicación**. Después, la contraseña
+nueva no funciona con ninguna de las dos.
+
+### Qué pasaba
+
+El enlace del correo **abre una sesión** —así funciona la recuperación en
+Supabase: probar que controlás el buzón es la prueba—. El error al guardar dejaba
+esa sesión abierta. Y el proxy tenía un atajo de comodidad:
+
+> si hay sesión y estás en `/login` o `/recuperar-clave`, te llevo al panel.
+
+Ese atajo convertía un clic en el correo en acceso a la aplicación **sin haber
+cambiado la contraseña**. El dueño quedaba adentro creyendo que ya la había
+cambiado, y después no podía entrar con ninguna.
+
+No es una elevación de privilegios —quien tiene el buzón puede restablecer la
+contraseña de todas formas— pero sí deja el sistema en un estado que nadie pidió
+y que el usuario interpreta, con razón, como que algo está roto.
+
+### Qué se hizo
+
+- **La sesión de recuperación queda confinada.** Se lee `amr` del token, que
+  viene firmado y no se puede falsear desde el navegador. Si la sesión se abrió
+  solo con el enlace del correo, cualquier ruta del panel devuelve a
+  `/actualizar-clave` explicando por qué. Si `amr` no viene, **se asume sesión
+  completa**: equivocarse para el otro lado dejaría gente afuera de su panel.
+- **El atajo de comodidad ya no aplica** a una sesión de recuperación.
+- **Cambiar la contraseña ahora cierra las demás sesiones** (`scope: "others"`).
+  Antes, alguien que hubiera entrado con la contraseña vieja se quedaba adentro:
+  un restablecimiento que no echa a nadie no sirve para recuperar una cuenta
+  comprometida.
+- **Los mensajes dejaron de mentir.** Cualquier fallo decía «el enlace no es
+  válido», incluso con el enlace perfecto: repetir la contraseña anterior, elegir
+  una débil o quedarse sin conexión daban el mismo texto, que mandaba a pedir
+  otro enlace y a fallar de nuevo. Ahora se distinguen, y solo se culpa al enlace
+  cuando de verdad no hay sesión.
+- **Si no hay sesión, no se muestra el formulario.** Escribir dos veces una
+  contraseña para que después falle es hacerle perder el tiempo a alguien que ya
+  viene peleando con un enlace que no anduvo.
+
+### Lo que hay que verificar en la consola de Supabase
+
+La causa del «enlace no válido» original puede estar en la configuración, no en
+el código: **Authentication → URL Configuration → Redirect URLs** tiene que
+incluir la dirección de `/actualizar-clave` del entorno que se está usando. Si no
+está en la lista, Supabase ignora el `redirectTo` y el token nunca llega a la
+página. Las otras dos causas habituales son abrir el correo en un navegador
+distinto del que pidió el enlace, y los antivirus de correo que visitan los
+enlaces antes que la persona y los consumen.

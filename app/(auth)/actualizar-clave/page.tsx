@@ -8,10 +8,23 @@ export const metadata: Metadata = {
   description: "Definición segura de contraseña para MiPuesto.",
 };
 
-export default function PaginaActualizarClave() {
+export default async function PaginaActualizarClave({
+  searchParams,
+}: {
+  searchParams: Promise<{ motivo?: string | string[] }>;
+}) {
+  const parametros = await searchParams;
+  const motivo = Array.isArray(parametros.motivo) ? parametros.motivo[0] : parametros.motivo;
+
   return (
     <MarcoAuth
-      descripcion="Usá al menos 10 caracteres y evitá contraseñas que ya uses en otros servicios."
+      descripcion={
+        /* Quien llegó acá rebotado desde el panel necesita saber por qué: si no,
+           parece que el sistema no lo deja entrar por capricho. */
+        motivo === "pendiente"
+          ? "Entraste con el enlace del correo, así que primero definí tu contraseña. Recién después se abre el panel."
+          : "Usá al menos 10 caracteres y evitá contraseñas que ya uses en otros servicios."
+      }
       paso="Contraseña de administrador"
       titulo="Definí tu contraseña"
     >
