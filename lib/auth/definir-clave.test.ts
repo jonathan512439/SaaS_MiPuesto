@@ -66,3 +66,18 @@ describe("cambio de contraseña", () => {
     vi.unstubAllGlobals();
   });
 });
+
+describe("cuentas con segundo factor", () => {
+  /* Que Supabase lo exija está bien: si bastara con el correo, quien tomara un
+     buzón se saltaría el segundo factor entero. Lo que faltaba era pedirlo. */
+  it("reconoce cuando hace falta el código", async () => {
+    const { exigeSegundoFactor } = await import("./definir-clave");
+    expect(
+      exigeSegundoFactor(
+        "AAL2 session is required to update email or password when MFA is enabled. (401)",
+      ),
+    ).toBe(true);
+    expect(exigeSegundoFactor("insufficient_aal (403)")).toBe(true);
+    expect(exigeSegundoFactor("Invalid token (401)")).toBe(false);
+  });
+});

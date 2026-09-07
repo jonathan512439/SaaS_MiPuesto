@@ -10,7 +10,13 @@ import {
   useCredencialesSupabaseNavegador,
 } from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, CampoClave } from "../../../components/ui";
-import { canjearEnlace, definirClaveConToken } from "../../../lib/auth/definir-clave";
+import {
+  canjearEnlace,
+  definirClaveConToken,
+  exigeSegundoFactor,
+  obtenerFactorVerificado,
+  verificarSegundoFactor,
+} from "../../../lib/auth/definir-clave";
 import { explicarFalloDeEnlace, type Diagnostico } from "../../../lib/auth/diagnostico-enlace";
 import { mensajeErrorActualizarClave } from "../../../lib/auth/mensajes";
 import {
@@ -42,6 +48,15 @@ export function FormularioActualizarClave() {
   const [tokens, setTokens] = useState<TokensDeUrl>({ tipo: "ninguno" });
   const [haySesion, setHaySesion] = useState(false);
   const [diagnostico, setDiagnostico] = useState<Diagnostico | null>(null);
+  /* Cuando la cuenta tiene segundo factor hay que pedir el código sin perder lo
+     que ya se hizo: el enlace ya se canjeó y solo sirve una vez. */
+  const [pendienteMfa, setPendienteMfa] = useState<{
+    accessToken: string;
+    refreshToken: string;
+    factorId: string;
+    clave: string;
+  } | null>(null);
+  const [codigo, setCodigo] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -122,6 +137,28 @@ export function FormularioActualizarClave() {
 
       const cambio = await definirClaveConToken(url, clavePublica, canje.accessToken, clave);
       if (!cambio.correcto) {
+        /* La cuenta tiene segundo factor. El enlace ya se canjeó y no se puede
+           volver a usar, así que se guarda todo y se pide el código acá mismo:
+           mandarlo a pedir otro enlace sería hacerle repetir todo para chocar
+           contra lo mismo. */
+        if (exigeSegundoFactor(cambio.motivo)) {
+          const factorId = await obtenerFactorVerificado(
+            url,
+            clavePublica,
+            canje.accessToken,
+          );
+          if (factorId) {
+            setPendienteMfa({
+              accessToken: canje.accessToken,
+              refreshToken: canje.refreshToken,
+              factorId,
+              clave,
+            });
+            setError("");
+            setEnviando(false);
+            return;
+          }
+        }
         setError(cambio.motivo);
         setEnviando(false);
         return;
@@ -182,7 +219,83 @@ export function FormularioActualizarClave() {
     router.refresh();
   }
 
+  async function confirmarSegundoFactor(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    if (!pendienteMfa) return;
+    setError("");
+    setEnviando(true);
+
+    const elevado = await verificarSegundoFactor(
+      url,
+      clavePublica,
+      pendienteMfa.accessToken,
+      pendienteMfa.factorId,
+      codigo,
+    );
+    if (!elevado.correcto) {
+      setError(elevado.motivo);
+      setCodigo("");
+      setEnviando(false);
+      return;
+    }
+
+    const cambio = await definirClaveConToken(
+      url,
+      clavePublica,
+      elevado.accessToken,
+      pendienteMfa.clave,
+    );
+    if (!cambio.correcto) {
+      setError(cambio.motivo);
+      setEnviando(false);
+      return;
+    }
+
+    await supabase.auth.setSession({
+      access_token: elevado.accessToken,
+      refresh_token: pendienteMfa.refreshToken,
+    });
+    await supabase.auth.signOut({ scope: "others" });
+    router.replace("/dashboard/configuracion");
+    router.refresh();
+  }
+
   if (!listo) return null;
+
+  if (pendienteMfa) {
+    return (
+      <form className={styles.formulario} onSubmit={confirmarSegundoFactor}>
+        <p>
+          Tu cuenta tiene segundo factor. Escribí el número de seis dígitos que
+          muestra tu aplicación de autenticación y guardamos la contraseña nueva.
+        </p>
+        <label htmlFor="codigo-mfa">Código de seis dígitos</label>
+        <input
+          autoComplete="one-time-code"
+          id="codigo-mfa"
+          inputMode="numeric"
+          maxLength={6}
+          onChange={(evento) => setCodigo(evento.target.value.replace(/\D/g, ""))}
+          pattern="\d{6}"
+          required
+          value={codigo}
+        />
+        {error ? (
+          <p className={styles.mensajeError} role="alert">
+            {error}
+          </p>
+        ) : null}
+        <Boton
+          anchoCompleto
+          cargando={enviando}
+          disabled={enviando || codigo.length !== 6}
+          type="submit"
+        >
+          Confirmar y guardar
+        </Boton>
+      </form>
+    );
+  }
 
   /* Se muestra el formulario si hay enlace o si hay sesión. Con las dos cosas,
      gana el enlace. */

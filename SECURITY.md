@@ -322,3 +322,31 @@ en la propia dirección y ese token se usa igual, sin pasar por el SDK.
 **Lección para el próximo:** el mensaje de error fue lo único que permitió
 ubicar esto, porque cada rama dice algo distinto. Mientras todas decían «el
 enlace venció», cada intento se veía igual y no había nada que deducir.
+
+### La causa de fondo, al descubierto — 2026-09-07
+
+Con cada rama diciendo algo distinto, el sistema finalmente dijo la verdad:
+
+> AAL2 session is required to update email or password when MFA is enabled. (401)
+
+**La cuenta del dueño tiene segundo factor**, porque administra la plataforma. Y
+Supabase exige una sesión `aal2` para cambiar la contraseña cuando hay MFA. El
+enlace del correo entrega `aal1`.
+
+**Que lo exija está bien, y no se toca.** Si bastara con el correo para cambiar
+la contraseña, quien tomara un buzón se saltaría el segundo factor entero, que es
+exactamente lo que el segundo factor viene a impedir. El agujero habría sido
+mucho peor que la molestia.
+
+Lo que faltaba era **pedir el código también acá**. Ahora, si la cuenta tiene
+segundo factor, después de escribir la contraseña se pide el número de seis
+dígitos y con eso se completa el cambio. El enlace ya canjeado se conserva en
+memoria: mandar a pedir otro sería hacer repetir todo para chocar contra lo
+mismo.
+
+**Por qué tardó tanto en aparecer.** Las cuentas de prueba con las que verifiqué
+el circuito no tenían MFA, así que funcionaban. Y los primeros mensajes de error
+inventaban tres motivos —enlace vencido, otro navegador, cookies bloqueadas— que
+no tenían nada que ver. **Cada intento se veía igual y no había nada que deducir.**
+Lo que finalmente lo resolvió fue dejar de traducir lo que no entendíamos y
+mostrar el error crudo del servidor.

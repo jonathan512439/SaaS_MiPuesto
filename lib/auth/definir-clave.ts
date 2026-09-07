@@ -91,3 +91,82 @@ export async function definirClaveConToken(
 
   return { correcto: false, motivo: motivoDe(datos, respuesta.status) };
 }
+
+/* Una cuenta con segundo factor no puede cambiar su contraseña con la sesión
+   que da el enlace del correo: Supabase exige `aal2` y el enlace entrega `aal1`.
+   Responde 401 con «AAL2 session is required to update email or password when
+   MFA is enabled».
+ *
+ * Es correcto que lo exija. Si bastara con el correo, quien tomara un buzón
+ * podría saltarse el segundo factor entero, que es justamente lo que el segundo
+ * factor viene a impedir. Lo que faltaba era pedir el código también acá.
+ */
+export function exigeSegundoFactor(motivo: string): boolean {
+  return motivo.includes("AAL2") || motivo.includes("insufficient_aal");
+}
+
+export async function obtenerFactorVerificado(
+  url: string,
+  clavePublica: string,
+  accessToken: string,
+): Promise<string> {
+  const respuesta = await fetch(`${url}/auth/v1/user`, {
+    headers: { apikey: clavePublica, authorization: `Bearer ${accessToken}` },
+  });
+  if (!respuesta.ok) return "";
+  const datos = (await respuesta.json().catch(() => ({}))) as {
+    factors?: Array<{ id?: string; status?: string; factor_type?: string }>;
+  };
+  const factor = (datos.factors ?? []).find(
+    (candidato) => candidato.factor_type === "totp" && candidato.status === "verified",
+  );
+  return factor?.id ?? "";
+}
+
+/* Devuelve el token elevado a `aal2`, o el motivo del fallo. */
+export async function verificarSegundoFactor(
+  url: string,
+  clavePublica: string,
+  accessToken: string,
+  factorId: string,
+  codigo: string,
+): Promise<{ correcto: true; accessToken: string } | { correcto: false; motivo: string }> {
+  const cabeceras = {
+    apikey: clavePublica,
+    authorization: `Bearer ${accessToken}`,
+    "content-type": "application/json",
+  };
+
+  const desafio = await fetch(`${url}/auth/v1/factors/${factorId}/challenge`, {
+    body: "{}",
+    headers: cabeceras,
+    method: "POST",
+  });
+  const datosDesafio = (await desafio.json().catch(() => ({}))) as RespuestaAuth & {
+    id?: string;
+  };
+  if (!desafio.ok || !datosDesafio.id) {
+    return { correcto: false, motivo: motivoDe(datosDesafio, desafio.status) };
+  }
+
+  const verificacion = await fetch(`${url}/auth/v1/factors/${factorId}/verify`, {
+    body: JSON.stringify({ challenge_id: datosDesafio.id, code: codigo }),
+    headers: cabeceras,
+    method: "POST",
+  });
+  const datos = (await verificacion.json().catch(() => ({}))) as RespuestaAuth;
+
+  if (!verificacion.ok || !datos.access_token) {
+    /* El código equivocado es el caso normal, no una falla del sistema: se dice
+       en palabras y se deja reintentar sin volver a empezar. */
+    return {
+      correcto: false,
+      motivo:
+        verificacion.status === 400 || verificacion.status === 422
+          ? "El código no coincide. Probá con el siguiente que muestre tu aplicación."
+          : motivoDe(datos, verificacion.status),
+    };
+  }
+
+  return { correcto: true, accessToken: datos.access_token };
+}
