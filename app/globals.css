@@ -168,8 +168,9 @@ select,
    color de su propia paleta, así funciona en las siete y en la oscura la trama
    sale más clara que el fondo en vez de más oscura.
 
-   Al 3 % es literalmente «apenas perceptible». Si se nota, compite con las
-   fotografías de los productos y el catálogo se ve recargado.
+   El 8 % es el piso medido para que se vea: por debajo, la diferencia contra el
+   fondo queda en unos siete niveles sobre 255 y en una pantalla sin calibrar no
+   se distingue de un fondo liso. Se busca una textura tenue, no invisible.
 
    El atributo solo declara **qué dibujo**, en una variable. Quién lo pinta lo
    decide cada pantalla, porque no siempre es el mismo elemento: en el panel es
@@ -178,14 +179,14 @@ select,
    cuando dos hojas se disputan el mismo `background`.
    --------------------------------------------------------------------------- */
 [data-patron] {
-  --patron-tinta: color-mix(in srgb, var(--color-texto) 3%, transparent);
+  --patron-tinta: color-mix(in srgb, var(--color-texto) 8%, transparent);
   --patron-paso: 1.5rem;
   --patron-imagen: none;
   --patron-tamano: auto;
 }
 
 [data-patron="puntos"] {
-  --patron-imagen: radial-gradient(var(--patron-tinta) 1px, transparent 1px);
+  --patron-imagen: radial-gradient(var(--patron-tinta) 1.5px, transparent 1.5px);
   --patron-tamano: var(--patron-paso) var(--patron-paso);
 }
 

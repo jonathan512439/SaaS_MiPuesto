@@ -180,8 +180,12 @@
 /* Panel flotante y no una expansión hacia abajo: al abrirse en el medio de la
    lista, empujar el resto mueve de lugar los productos que la persona estaba
    mirando. Flotando, el catálogo se queda quieto. */
+/* Se encoge al ancho del boton a proposito: es la caja desde la que se mide el
+   panel, y si ocupara la tarjeta entera el panel colgaria de un borde que no
+   tiene nada que ver con el boton que lo abre. */
 .masOpciones {
   position: relative;
+  width: fit-content;
   margin-top: var(--spacing-1);
 }
 
@@ -215,7 +219,7 @@
 /* La flecha gira al abrir: es la señal de que hay algo debajo, y sin ella el
    rotulo parece un título más. */
 .masOpciones > summary::after {
-  content: "be";
+  content: "\25BE";
   transition: transform 120ms ease;
 }
 
@@ -258,15 +262,6 @@
   margin-top: var(--spacing-1);
   border-top: var(--borde-fino) solid var(--color-borde-suave);
   padding-top: var(--spacing-2);
-}
-
-/* Cerca del borde derecho de la pantalla, el panel se abre hacia la izquierda
-   en vez de salirse. */
-@media (max-width: 30rem) {
-  .masOpciones > .accionesProducto {
-    right: 0;
-    left: auto;
-  }
 }
 
 .masOpciones > summary:focus-visible {
