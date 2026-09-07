@@ -5,8 +5,12 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 
 import styles from "../../../components/auth/marco-auth.module.css";
-import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
+import {
+  useClienteSupabaseNavegador,
+  useCredencialesSupabaseNavegador,
+} from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, CampoClave } from "../../../components/ui";
+import { canjearEnlace, definirClaveConToken } from "../../../lib/auth/definir-clave";
 import { explicarFalloDeEnlace, type Diagnostico } from "../../../lib/auth/diagnostico-enlace";
 import { mensajeErrorActualizarClave } from "../../../lib/auth/mensajes";
 import {
@@ -31,6 +35,7 @@ import {
  * así que un antivirus de correo que lo visite no lo quema. */
 export function FormularioActualizarClave() {
   const supabase = useClienteSupabaseNavegador();
+  const { clavePublica, url } = useCredencialesSupabaseNavegador();
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [listo, setListo] = useState(false);
@@ -77,36 +82,6 @@ export function FormularioActualizarClave() {
     };
   }, [supabase]);
 
-  /* Abre la sesión con lo que trajo la dirección, justo antes de usarla.
-     Devuelve el motivo si no pudo, para poder decirlo con precisión. */
-  async function abrirSesionDelEnlace(): Promise<string> {
-    if (tokens.tipo === "hash") {
-      const { error: errorAuth } = await supabase.auth.verifyOtp({
-        token_hash: tokens.tokenHash,
-        type: tokens.verificacion as "recovery" | "invite" | "email",
-      });
-      if (errorAuth) {
-        return `El enlace ya no sirve. Pedí uno nuevo desde Recuperar contraseña. (${errorAuth.code ?? errorAuth.message})`;
-      }
-      return "";
-    }
-
-    if (tokens.tipo === "implicito") {
-      const { error: errorAuth } = await supabase.auth.setSession({
-        access_token: tokens.accessToken,
-        refresh_token: tokens.refreshToken,
-      });
-      return errorAuth ? "El enlace ya no sirve. Pedí uno nuevo." : "";
-    }
-
-    if (tokens.tipo === "codigo") {
-      const { error: errorAuth } = await supabase.auth.exchangeCodeForSession(tokens.codigo);
-      return errorAuth ? "El enlace ya no sirve. Pedí uno nuevo." : "";
-    }
-
-    return "Esta página se abre desde el enlace que te llega por correo.";
-  }
-
   async function actualizarClave(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setError("");
@@ -127,15 +102,42 @@ export function FormularioActualizarClave() {
 
     setEnviando(true);
 
-    /* El canje va acá y no antes: entre abrir la sesión y usarla no queda
-       ningún hueco donde pueda perderse. */
+    /* Quien llegó con un enlace no pasa por el SDK. `verifyOtp` responde bien y
+       `updateUser` devuelve 401 inmediatamente después, mientras que la misma
+       secuencia contra la API —canjear y usar el token devuelto en la cabecera—
+       está probada de punta a punta y funciona. Se usa lo que anda. */
     if (!haySesion) {
-      const motivo = await abrirSesionDelEnlace();
-      if (motivo) {
-        setError(motivo);
+      if (tokens.tipo !== "hash") {
+        setError("Esta página se abre desde el enlace que te llega por correo.");
         setEnviando(false);
         return;
       }
+
+      const canje = await canjearEnlace(url, clavePublica, tokens.tokenHash, tokens.verificacion);
+      if (!canje.correcto) {
+        setError(`No pudimos confirmar el enlace: ${canje.motivo}`);
+        setEnviando(false);
+        return;
+      }
+
+      const cambio = await definirClaveConToken(url, clavePublica, canje.accessToken, clave);
+      if (!cambio.correcto) {
+        setError(cambio.motivo);
+        setEnviando(false);
+        return;
+      }
+
+      /* Recién con la contraseña ya escrita se deja la sesión abierta, para que
+         entre directo al panel. Si esto fallara, la contraseña ya está guardada
+         y puede ingresar normalmente. */
+      await supabase.auth.setSession({
+        access_token: canje.accessToken,
+        refresh_token: canje.refreshToken,
+      });
+      await supabase.auth.signOut({ scope: "others" });
+      router.replace("/dashboard/configuracion");
+      router.refresh();
+      return;
     }
 
     const { error: errorAuth } = await supabase.auth.updateUser({ password: clave });
