@@ -32,6 +32,7 @@
     "suscripcion:renovar": "node --env-file-if-exists=.env.local scripts/suscripciones.mjs renovar",
     "cloudflare:secret:pedidos": "node --env-file-if-exists=.env.local scripts/configurar-secreto-pedidos-cloudflare.mjs",
     "cloudflare:secret:gemini": "node --env-file-if-exists=.env.local scripts/configurar-secreto-gemini.mjs",
+    "auth:enlace": "node --env-file-if-exists=.env.local scripts/enlace-clave.mjs",
     "db:lint": "supabase db lint --local --schema public --fail-on error",
     "db:lint:linked": "supabase db lint --linked --schema public --fail-on error",
     "types:db:linked": "supabase gen types --linked --lang typescript --schema public > lib/supabase/database.types.ts",

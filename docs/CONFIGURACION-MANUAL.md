@@ -351,3 +351,42 @@ antivirus de correo:
 Con la forma anterior, el paso 1 quemaba el enlace y el paso 2 devolvía
 `otp_expired`. El `Site URL` del proyecto apunta correctamente a la dirección de
 producción, que es lo que `{{ .SiteURL }}` resuelve en las plantillas.
+
+## Cuando el correo no llega
+
+Comprobado el 2026-09-07: **Supabase acepta el pedido e intenta enviar.** El
+`POST /auth/v1/recover` devuelve 200, y pedirlo de nuevo devuelve 429 con
+«you can only request this after 22 seconds», que es el enfriamiento por
+dirección. O sea: el fallo no está en la aplicación ni en el pedido, está en el
+envío o en la plantilla.
+
+### Dónde mirar, en orden
+
+1. **Logs → Auth** en la consola de Supabase. Ahí aparece el error del servidor
+   de correo tal cual, y es lo único que lo dice sin adivinar.
+2. **Authentication → Emails → SMTP Settings.** Si es una clave de aplicación de
+   Gmail, comprobar que siga viva: Google las revoca al cambiar la contraseña de
+   la cuenta o al detectar actividad rara.
+3. **La plantilla.** Los correos dejaron de llegar justo después de editarlas. Un
+   error de sintaxis en el texto hace que el envío falle **después** de que el
+   pedido se aceptó, que es exactamente el síntoma. Para descartarlo en un paso:
+   volver una plantilla a su texto original y pedir un enlace. Si llega, el
+   problema era esa edición.
+4. **Correo no deseado**, incluida la pestaña de promociones de Gmail.
+
+### Mientras tanto, nadie se queda afuera
+
+```
+npm run auth:enlace -- correo@delcliente.com
+```
+
+Genera el enlace para definir la contraseña **sin pasar por el correo** y lo
+imprime en la terminal. Se le pasa a la persona por WhatsApp o como convenga.
+
+Existe porque el correo es la parte más frágil del sistema y no depende de
+nosotros: si el envío falla, el dueño de un negocio se queda afuera de su propio
+panel sin nada que pueda hacer solo.
+
+**Quien tenga ese enlace puede definir la contraseña de esa cuenta.** Vale lo
+mismo que el correo: no se comparte en un grupo ni se deja pegado en ningún lado.
+Sirve una vez, vence en una hora, e invalida cualquier enlace anterior.
