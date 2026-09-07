@@ -527,7 +527,7 @@ con costos muy distintos.
 | Capa | Qué es | Costo | Disparador |
 |---|---|---|---|
 | 1. Muestras por rubro en la portada | Datos de demostración y copia. Feria con tornillos **ya es** un catálogo de ferretería | ~1 día | **HECHA el 2026-09-05** |
-| 2. Campos propios por rubro | Una columna `atributos jsonb` en productos; el rubro decide qué campos pedir | ~4 días el primero, ~½ día cada rubro siguiente | **Un cliente pagó la instalación** |
+| 2. Campos propios **por categoría** | Una columna `atributos jsonb` en productos y una tabla de campos por categoría; los define el dueño | ~9 días, y cubre los siete rubros de una | **Un cliente pagó la instalación** |
 | 3. Variantes con stock propio | Talla M: 3, talla L: 7. Tabla nueva; toca carrito, pedido, reservas y analítica | ~2 semanas | Pagado por adelantado, y probablemente conviene decir que todavía no |
 
 ### Por qué `atributos jsonb` y no una tabla por rubro
@@ -544,6 +544,13 @@ el patrón que se lamenta a los dos años.
 **Las definiciones de campos van en código, no en una tabla.** Una tabla de
 definiciones es un constructor de formularios, que es un producto en sí mismo.
 En código va versionado, se revisa en el commit y el guardián puede vigilarlo.
+
+> **Revertido el 2026-09-07.** Las definiciones pasan a una tabla, pero con una
+> restricción que desactiva el argumento de arriba: **un solo tipo de campo,
+> nombre más lista cerrada de valores**. Sin números, sin fechas, sin sí/no, sin
+> campos obligatorios, sin reglas condicionales. Eso no es un constructor de
+> formularios; es una lista de listas. El motivo del cambio está en el costeo del
+> 2026-09-07, más abajo.
 
 **Una cuenta por rubro está descartada.** Serían $25 al mes por cada una contra
 $25 en total, migraciones que sincronizar a mano y el directorio partido. El
@@ -568,13 +575,18 @@ vez**: una página que los anuncia crea expectativa de producto terminado, y una
 conversación permite acotar y cotizar cada caso.
 
 
-### Costeo del 2026-09-07 — los siete rubros, medido sobre el código
+### Costeo del 2026-09-07 — medido sobre el código
 
 Se midieron las superficies reales antes de estimar. Lo que sigue reemplaza a la
 cifra suelta de «~4 días el primero» de la tabla de arriba, que era una
 estimación sin medir.
 
-#### Los campos propuestos, rubro por rubro
+Aviso de lectura: **el eje correcto resultó ser la categoría, no el rubro** (ver
+«El eje correcto», al final de esta sección). Lo que sigue se conserva porque la
+medición de superficies y de costos vale igual para las dos formas, y porque el
+razonamiento que llevó a descartar el eje del rubro es la parte útil.
+
+#### Los campos que se habrían puesto por rubro
 
 | Rubro | Campos | Tipos |
 |---|---|---|
@@ -643,14 +655,15 @@ precisión de lo que hoy funciona. No se hace en la primera vuelta.
 
 #### Agregar rubros más adelante
 
-Hoy, sin atributos, un rubro nuevo toca cuatro lugares: `RUBROS`,
-`DEFINICIONES_RUBROS`, el `check` de la base y el patrón con su baldosa. **Dos
-horas.** Con atributos se suman sus campos, sus ayudas y sus pruebas: **medio
-día.**
+Un rubro nuevo toca cuatro lugares: `RUBROS`, `DEFINICIONES_RUBROS`, el `check`
+de la base y el patrón con su baldosa. **Dos horas**, y sigue siendo dos horas
+después de la capa 2, porque con los campos por categoría **un rubro nuevo no
+tiene campos que definir**: los pone el dueño. Con el eje del rubro habrían sido
+dos horas más medio día, para siempre.
 
-**No se degrada con el tiempo**, y eso es consecuencia de las dos decisiones ya
-tomadas: `jsonb` en vez de tabla por rubro, y definiciones en código en vez de en
-una tabla. Un rubro nuevo no obliga a migrar nada de lo existente.
+**No se degrada con el tiempo**, y eso es consecuencia de `jsonb` en vez de una
+tabla de productos por rubro: un rubro nuevo no obliga a migrar nada de lo
+existente.
 
 **Falta una guarda.** El control de contraste ya verifica que paletas y
 plantillas estén sincronizadas entre el CSS, el registro, el validador y la base.
@@ -658,20 +671,89 @@ Los rubros no tienen ese control, y ahora viven en cinco sitios contando la
 baldosa del patrón. Media hora de trabajo, y evita que un rubro nuevo quede a
 medias en uno de ellos.
 
-#### Decisión del 2026-09-07: no se empieza ahora
+#### El eje correcto es la categoría, no el rubro — 2026-09-07
 
-Con cero clientes pagando, ocho días de desarrollo son ocho días construyendo
-sobre una suposición. **Cuáles son los campos correctos no se sabe hasta que un
-negocio real lo diga**, y hay una forma de averiguarlo que cuesta cero días:
+La propuesta de campos por rubro tiene un defecto que se ve al escribirla: **una
+ferretería vende focos, cemento, tubos y tornillos**. Los cuatro campos de la
+tabla de arriba —medida, unidad de venta, material, marca— le quedan mal a las
+cuatro categorías. Al foco le falta potencia y le sobra material; al cemento le
+falta peso; al tubo le faltan diámetro y largo, que no son «medida» a secas.
+
+**El rubro es demasiado grueso. La categoría es el nivel donde los productos de
+verdad se parecen entre sí**, y además ya existe, ya es del negocio y ya la crea
+el dueño.
+
+Los campos los define el dueño, por categoría. «Iluminación» lleva *Potencia:
+20 W, 50 W, 100 W*; «Cemento» lleva *Peso: 25 kg, 50 kg*.
+
+##### La restricción que evita construir un constructor de formularios
+
+| Restricción | Por qué |
+|---|---|
+| Un solo tipo de campo: nombre + lista cerrada de valores | Sin números, fechas, sí/no ni reglas. Es lo que el caso real pide y evita el 80 % del trabajo |
+| Máximo 4 campos por categoría | 40 categorías por 4 son 160 definiciones, tope manejable |
+| Máximo ~12 valores por campo | Un desplegable de 40 opciones no se usa |
+| El valor se elige, no se escribe | Si no, `20W`, `20 W` y `20w` terminan siendo tres cosas distintas |
+| Borrar un campo no borra el dato del producto | Misma regla que el rubro: oculta interfaz, nunca datos |
+
+La lista cerrada habilita, más adelante, **filtrar el catálogo por atributo**
+(«solo los de 100 W»). Con texto libre eso sería imposible, así que la
+restricción no solo abarata: agrega una función.
+
+##### La trampa, que es la misma de las tallas
+
+«Potencia: 20 W, 50 W, 100 W» ¿son tres valores de un producto o tres productos?
+En una ferretería cada potencia tiene su precio, así que son tres productos y el
+campo dice cuál es cuál. Pero el dueño va a esperar cargar **un** producto con
+tres potencias y tres precios, y eso es una variante: capa 3.
+
+**Cambiar de rubro a categoría no desactiva esta trampa.** Hay que decirla en la
+interfaz: «si cada potencia tiene su precio, cargá un producto por potencia».
+
+##### La API ya está preparada
+
+`pedirGemini` recibe el esquema como parámetro (`esquema: Record<string,
+unknown>`), no lo tiene incrustado. Armar el esquema al vuelo con los campos de
+la categoría es construir un objeto, no reescribir la integración.
+
+Lo que sí cuesta: **cada campo que se le pide a la foto sube los tokens por
+llamada y baja la precisión de lo que ya funciona.** Primero se valida la lectura
+actual con las veinte fotos; después se extiende.
+
+##### Comparación y el número que decide
+
+| | Por rubro | **Por categoría** |
+|---|---|---|
+| Trabajo | 7,5 – 8 días | **~9 días** |
+| Cubre los siete rubros | Uno por uno | **De una** |
+| Rubro nuevo después | +½ día cada uno | **0 días** |
+| Campos correctos por categoría | No | **Sí** |
+| Infraestructura | Bs 0 | Bs 0 |
+
+La diferencia es **día y medio**, y de ahí sale lo que importa: **si el destino es
+por categoría, hacer por rubro primero son ocho días tirados.** No es un paso
+previo; es otro camino que después habría que desarmar.
+
+#### Decisión del 2026-09-07: por categoría, y no ahora
+
+**Qué: por categoría.** Decidido hoy aunque la ejecución espere, porque es
+justamente la decisión que vuelve inútil el trabajo por rubro.
+
+**Cuándo: no ahora.** Con cero clientes pagando, nueve días de desarrollo son
+nueve días construyendo sobre una suposición. **Cuáles son los campos correctos
+no se sabe hasta que un negocio real lo diga**, y hay una forma de averiguarlo
+que cuesta cero días:
 
 **Las veinte fotos de listas de precios que ya se deben para validar la lectura
 por foto son, además, la investigación de campos.** La lista de precios de una
-ferretería muestra exactamente qué atributos ese negocio ya escribe a mano. Eso
-convierte «adivinar los campos» en «leerlos», sin escribir una línea.
+ferretería muestra qué categorías usa ese negocio y qué escribe al lado de cada
+producto. Eso convierte «adivinar los campos» en «leerlos», sin escribir una
+línea.
 
 Orden cuando llegue el disparador —un cliente que pague la instalación—:
 
-1. **Ferretería y tienda de barrio primero.** «Unidad de venta» y «medida»
-   cambian de verdad la decisión de compra, y son atributos honestos.
-2. **Máximo tres campos por rubro.** El cuarto ya pesa en un formulario largo.
+1. **Ferretería y tienda de barrio primero.** Unidad de venta y medida cambian de
+   verdad la decisión de compra, y son atributos honestos.
+2. **Máximo tres campos por categoría al principio.** El cuarto ya pesa en un
+   formulario que un cliente real ya encontró difícil.
 3. **Ropa al final**, y con la conversación de capa 3 sobre la mesa.
