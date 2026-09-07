@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../../../lib/contacto";
+/* Los topes se importan y no se escriben acá: son los mismos números que aplica
+   el sistema, así que la página no puede prometer una cifra distinta de la que
+   se cumple. Si mañana cambian, cambian en los dos lados a la vez. */
+import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
 import styles from "../legal.module.css";
 
 export const metadata: Metadata = {
@@ -8,7 +12,7 @@ export const metadata: Metadata = {
   description: "Condiciones de uso de MiPuesto: qué incluye, cuánto cuesta y qué pasa si dejás de pagar.",
 };
 
-const VIGENCIA = "5 de septiembre de 2026";
+const VIGENCIA = "7 de septiembre de 2026";
 
 export default function PaginaTerminos() {
   return (
@@ -62,6 +66,48 @@ export default function PaginaTerminos() {
       </section>
 
       <section className={styles.seccion}>
+        <h2>Las herramientas que leen fotos</h2>
+        <p>
+          Son dos: una completa el nombre y la descripción de un producto mirando su
+          fotografía, y la otra arma un borrador de catálogo a partir de la foto de una
+          lista de precios. <strong>No vienen incluidas</strong>: se habilitan negocio por
+          negocio y te avisamos cuando las tenés.
+        </p>
+        <p>
+          <strong>Son una ayuda para escribir, no una fuente de verdad.</strong> Lo que
+          proponen aparece siempre en una pantalla de revisión antes de guardarse, y nada
+          se publica hasta que vos lo aceptás. El precio no sale nunca de una fotografía:
+          ese lo ponés vos, siempre.
+        </p>
+        <p>
+          No garantizamos que lo que lea sea correcto. Puede confundir un producto,
+          escribir mal un nombre o inventar un detalle. Revisar antes de publicar es tu
+          responsabilidad, igual que con cualquier texto que cargues a mano.
+        </p>
+        <p>
+          Tienen un tope de uso, para que el servicio alcance para todos los negocios que
+          las tienen habilitadas: <strong>{TOPE_FOTOS_POR_DIA} fotografías por día</strong>{" "}
+          y <strong>{TOPE_FOTOS_POR_MES} por mes</strong>. Al llegar al tope, la
+          herramienta te dice cuándo podés seguir. El resto de tu panel no se ve afectado.
+        </p>
+        <p>
+          La lectura la hace un proveedor externo, Google, y eso trae dos consecuencias
+          que preferimos decir antes y no después. La primera: ese proveedor puede cambiar
+          sus condiciones o dejar de estar disponible, y en ese caso las herramientas
+          podrían quedar limitadas o desaparecer. La segunda: la fotografía que elijas
+          sale de nuestros servidores. Qué se envía exactamente, qué no se envía nunca y
+          qué hace ese proveedor con ella está detallado en la página de privacidad, y te
+          pedimos que lo leas antes de usarlas.
+        </p>
+        <p>
+          <strong>Estas herramientas no son el servicio.</strong> MiPuesto es tu catálogo,
+          tu dirección web y tu panel, y todo eso funciona igual sin ellas. Si algún día
+          no podemos seguir ofreciéndolas, te avisamos, no te cobramos por ellas y tu
+          catálogo sigue exactamente como está.
+        </p>
+      </section>
+
+      <section className={styles.seccion}>
         <h2>Tus responsabilidades</h2>
         <ul>
           <li>
@@ -79,6 +125,11 @@ export default function PaginaTerminos() {
           <li>
             Cuidá tu contraseña. Las acciones hechas desde tu cuenta se consideran
             tuyas.
+          </li>
+          <li>
+            Si usás las herramientas que leen fotos, revisá lo que proponen antes de
+            publicarlo. El contenido publicado sigue siendo tuyo y tu responsabilidad,
+            lo hayas escrito vos o lo hayas aceptado de una propuesta.
           </li>
         </ul>
       </section>

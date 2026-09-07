@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Qué datos guarda MiPuesto, para qué los usa y cómo pedir que se borren.",
 };
 
-const VIGENCIA = "5 de septiembre de 2026";
+const VIGENCIA = "7 de septiembre de 2026";
 
 export default function PaginaPrivacidad() {
   return (
@@ -59,6 +59,49 @@ export default function PaginaPrivacidad() {
       </section>
 
       <section className={styles.seccion}>
+        <h2>Las herramientas que leen fotos</h2>
+        <p>
+          Algunos negocios tienen habilitadas dos herramientas que leen una fotografía y
+          proponen texto: una completa el nombre y la descripción de un producto a partir
+          de su foto, y la otra arma un borrador de catálogo a partir de la foto de una
+          lista de precios. <strong>Solo funcionan si te las habilitamos</strong>; si no
+          las ves en tu panel, nada de lo que sigue te afecta.
+        </p>
+        <p>
+          Nunca se envía nada solo. Vos elegís cada fotografía, una por una, y hasta que
+          no la elegís no sale de tu dispositivo.
+        </p>
+        <p>Cuando la elegís, esa fotografía se envía a Google, que es quien la lee.</p>
+        <p><strong>Lo que se envía es únicamente esa fotografía.</strong> No se envía:</p>
+        <ul>
+          <li>El nombre, el teléfono ni los pedidos de quienes te compran.</li>
+          <li>El resto de tu catálogo, tus precios ni tus promociones.</li>
+          <li>Tu correo, tu contraseña ni tu teléfono.</li>
+        </ul>
+        <p>
+          Google devuelve un texto propuesto y ahí termina su participación: la foto no se
+          publica en ningún lado por su cuenta, y el texto no se guarda en tu catálogo
+          hasta que vos lo revisás y lo aceptás.
+        </p>
+        <p>
+          <strong>Algo que queremos que sepas y no está escondido acá abajo:</strong> hoy
+          usamos el nivel gratuito de ese servicio. Según los términos de Google, en ese
+          nivel el contenido que se le envía puede ser usado por Google para mejorar sus
+          propios servicios. Cuando pasemos al nivel de pago —donde eso no ocurre—
+          actualizamos esta página y te avisamos. Mientras tanto, si preferís que tus
+          listas de precios no salgan de acá, pedinos que te apaguemos las herramientas y
+          seguís cargando a mano, sin ningún cargo ni penalidad.
+        </p>
+        <p>
+          De cada lectura guardamos un registro para controlar el consumo: la fecha, cuál
+          de las dos herramientas fue y el tamaño del pedido.{" "}
+          <strong>No guardamos la fotografía en ese registro</strong>, y lo borramos a los
+          treinta días. La foto sí queda guardada como imagen de tu producto, igual que
+          cualquier otra que subas, si decidís usarla.
+        </p>
+      </section>
+
+      <section className={styles.seccion}>
         <h2>Estadísticas de visitas</h2>
         <p>
           Contamos cuántas personas abren tu catálogo, cuántas agregan productos y
@@ -71,10 +114,15 @@ export default function PaginaPrivacidad() {
       <section className={styles.seccion}>
         <h2>Dónde viven los datos</h2>
         <p>
-          La información se almacena en Supabase y el sitio se sirve desde Cloudflare,
-          ambos proveedores de infraestructura con servidores fuera de Bolivia. No
-          usamos servicios de publicidad ni de seguimiento de terceros, y las fuentes
-          tipográficas se sirven desde nuestro propio dominio.
+          La información se almacena en <strong>Supabase</strong> y el sitio se sirve
+          desde <strong>Cloudflare</strong>, ambos proveedores de infraestructura con
+          servidores fuera de Bolivia. Si tenés habilitadas las herramientas que leen
+          fotos, las fotografías que elijas para eso pasan además por{" "}
+          <strong>Google</strong>, también fuera de Bolivia, como se explica más arriba.
+        </p>
+        <p>
+          Esos tres son todos. No usamos servicios de publicidad ni de seguimiento de
+          terceros, y las fuentes tipográficas se sirven desde nuestro propio dominio.
         </p>
       </section>
 

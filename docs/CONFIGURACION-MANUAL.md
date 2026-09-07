@@ -409,3 +409,38 @@ panel sin nada que pueda hacer solo.
 **Quien tenga ese enlace puede definir la contraseña de esa cuenta.** Vale lo
 mismo que el correo: no se comparte en un grupo ni se deja pegado en ningún lado.
 Sirve una vez, vence en una hora, e invalida cualquier enlace anterior.
+
+---
+
+## Cuando se active la facturación de Gemini
+
+Hoy las herramientas que leen fotos corren sobre el **nivel gratuito**. Eso está
+dicho tal cual en la página de privacidad, con la consecuencia que trae: según
+los términos de Google, en ese nivel el contenido enviado puede usarse para
+mejorar sus servicios.
+
+**Activar la facturación no es solo poner la tarjeta. Son tres pasos, y el
+tercero es el que protege.**
+
+1. **Asociar la cuenta de facturación** en Google AI Studio, con una tarjeta
+   internacional. No hay depósito mínimo: se paga por uso.
+
+2. **Restringir la clave** a la API de Gemini y nada más, y dejar una alerta de
+   presupuesto en unos 5 dólares. Tener presente que **una alerta de Google
+   Cloud avisa pero no frena**: el freno real son los topes de
+   `lib/ia/limites.ts`, que ponen un techo duro de unas dos mil llamadas al mes
+   entre todos los negocios.
+
+3. **Actualizar la página de privacidad.** El párrafo que hoy dice que se usa el
+   nivel gratuito y qué implica pasa a decir que el contenido enviado no se usa
+   para entrenar modelos. Cambiar también la fecha de vigencia y avisar por
+   WhatsApp, como dice la propia página.
+
+   Una prueba —`lib/legal/proveedores.test.ts`— exige que mientras el texto hable
+   del nivel gratuito explique qué implica. Al reescribir ese párrafo hay que
+   actualizarla, y eso es a propósito: obliga a que alguien mire lo que dice la
+   página el día que cambia lo que hace el sistema.
+
+**El orden importa.** El paso 3 es el único que un cliente puede leer, y es el
+que convierte «pagamos la API» en algo que le sirve a él. Sin ese paso, pagar
+mejora la situación legal y no cambia nada de lo que el cliente sabe.
