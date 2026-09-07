@@ -349,14 +349,6 @@
 }
 
 .rotulo,
-.rotuloPlan {
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
 .encabezado h2 {
   font-size: var(--text-2xl);
   font-weight: 900;
@@ -544,105 +536,6 @@
   height: var(--borde-fino);
   overflow: hidden;
   clip-path: inset(50%);
-}
-
-/* ---- precio ---- */
-
-.panelPrecio {
-  display: grid;
-  overflow: hidden;
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-sheet);
-  background: var(--color-superficie);
-  box-shadow: var(--sombra-panel);
-}
-
-.montoPrecio {
-  display: grid;
-  justify-items: start;
-  gap: var(--spacing-4);
-  padding: var(--spacing-8) var(--spacing-6);
-  background: var(--color-marca);
-  color: var(--color-superficie);
-}
-
-.monto {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0 var(--spacing-2);
-  font-size: var(--text-3xl);
-  font-weight: 900;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.monto span {
-  font-size: var(--text-base);
-  font-weight: 700;
-  opacity: 0.85;
-}
-
-.gratis {
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-4);
-  background: color-mix(in srgb, var(--color-superficie) 20%, transparent);
-  font-size: var(--text-sm);
-  font-weight: 800;
-}
-
-.montoPrecio .botonPrincipal {
-  border-color: var(--color-superficie);
-  background: var(--color-superficie);
-  color: var(--color-accion-fuerte);
-}
-
-.aclaracion {
-  max-width: 32ch;
-  color: color-mix(in srgb, var(--color-superficie) 82%, transparent);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-}
-
-.incluye {
-  display: grid;
-  align-content: start;
-  gap: var(--spacing-4);
-  padding: var(--spacing-8) var(--spacing-6);
-}
-
-.incluye h2 {
-  font-size: var(--text-xl);
-  font-weight: 900;
-}
-
-.incluye ul {
-  display: grid;
-  gap: var(--spacing-3);
-  padding: 0;
-  list-style: none;
-}
-
-.incluye li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  gap: var(--spacing-3);
-  font-size: var(--text-sm);
-  line-height: 1.4;
-}
-
-.incluye li::before {
-  content: "✓";
-  display: grid;
-  width: var(--spacing-6);
-  height: var(--spacing-6);
-  place-items: center;
-  border-radius: 50%;
-  background: var(--color-exito-tenue);
-  color: var(--color-exito);
-  font-size: var(--text-xs);
-  font-weight: 900;
 }
 
 /* ---- preguntas ---- */
@@ -836,5 +729,368 @@
 
   .rubros {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ============ Herramientas con IA ============
+   Un fondo oscuro y el degradado violeta separan esta sección del resto de la
+   portada: es lo único que la competencia no tiene, y leída entre dos secciones
+   claras se pierde. El color no sale de la paleta del producto a propósito —es
+   de MiPuesto, no del catálogo de nadie— y son los dos tonos que la guarda de
+   contraste comprueba contra el blanco. */
+.seccionIa {
+  position: relative;
+  overflow: hidden;
+  padding: var(--spacing-16) var(--spacing-5);
+  background: var(--color-texto);
+  color: var(--color-superficie);
+}
+
+/* Dos resplandores muy abiertos, no un degradado plano: dan profundidad sin
+   dibujar nada que compita con el texto. */
+.seccionIa::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    radial-gradient(
+      60rem 30rem at 15% 0%,
+      color-mix(in srgb, var(--color-ia-inicio) 55%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      50rem 28rem at 90% 100%,
+      color-mix(in srgb, var(--color-ia-fin) 45%, transparent),
+      transparent
+    );
+  content: "";
+  pointer-events: none;
+}
+
+.seccionIa > * {
+  position: relative;
+  z-index: 1;
+}
+
+.encabezadoIa {
+  display: grid;
+  gap: var(--spacing-3);
+  max-width: 44rem;
+  margin-bottom: var(--spacing-8);
+}
+
+.encabezadoIa h2 {
+  font-size: var(--text-3xl);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.encabezadoIa p:not(.rotuloIa) {
+  color: color-mix(in srgb, var(--color-superficie) 82%, transparent);
+  font-size: var(--text-base);
+  line-height: 1.6;
+}
+
+.rotuloIa {
+  justify-self: start;
+  border: var(--borde-fino) solid color-mix(in srgb, var(--color-superficie) 40%, transparent);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-4);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tarjetasIa {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.tarjetaIa {
+  border-radius: var(--radius-panel);
+  padding: var(--borde-marcado);
+  background: var(--ia-degradado);
+}
+
+.tarjetaIaCuerpo {
+  display: grid;
+  gap: var(--spacing-3);
+  height: 100%;
+  border-radius: calc(var(--radius-panel) - var(--borde-marcado));
+  padding: var(--spacing-6);
+  background: var(--color-texto);
+}
+
+.numeroIa {
+  background: var(--ia-degradado);
+  background-clip: text;
+  color: transparent;
+  font-size: var(--text-3xl);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.tarjetaIa h3 {
+  font-size: var(--text-xl);
+  font-weight: 800;
+}
+
+.tarjetaIa p:not(.numeroIa):not(.datoIa) {
+  color: color-mix(in srgb, var(--color-superficie) 78%, transparent);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.datoIa {
+  margin-top: auto;
+  border-top: var(--borde-fino) solid color-mix(in srgb, var(--color-superficie) 22%, transparent);
+  padding-top: var(--spacing-3);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.remateIa {
+  margin-top: var(--spacing-6);
+  color: color-mix(in srgb, var(--color-superficie) 80%, transparent);
+  font-size: var(--text-sm);
+}
+
+.remateIa a {
+  color: var(--color-superficie);
+  font-weight: 700;
+}
+
+/* ============ Planes ============ */
+.planes {
+  display: grid;
+  gap: var(--spacing-4);
+  align-items: start;
+}
+
+.plan,
+.planDestacado,
+.planCarga {
+  display: grid;
+  gap: var(--spacing-3);
+  height: 100%;
+  align-content: start;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-6);
+  background: var(--color-superficie);
+}
+
+/* El destacado se marca con el borde y la sombra, no con otro color de fondo:
+   tres tarjetas de tres colores distintos se leen como tres productos sin
+   relación, y son variantes de lo mismo. */
+.planDestacado {
+  border: var(--borde-marcado) solid var(--color-marca);
+  box-shadow: var(--sombra-flotante);
+}
+
+.planCarga {
+  border-style: dashed;
+  background: var(--color-fondo-suave);
+}
+
+.selloPlan,
+.selloCarga {
+  justify-self: start;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.selloCarga {
+  background: var(--color-texto);
+}
+
+.plan h3,
+.planDestacado h3,
+.planCarga h3 {
+  font-size: var(--text-xl);
+  font-weight: 800;
+}
+
+.montoPlan {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  font-size: var(--text-4xl);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.montoPlan span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.paraQuien {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.plan ul,
+.planDestacado ul,
+.planCarga ul {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  list-style: none;
+}
+
+.plan li,
+.planDestacado li,
+.planCarga li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-2);
+  line-height: 1.5;
+}
+
+.plan li::before,
+.planDestacado li::before,
+.planCarga li::before {
+  color: var(--color-marca);
+  content: "\2713";
+  font-weight: 900;
+}
+
+.botonPlan,
+.botonPlanFuerte {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--spacing-2);
+  border: var(--borde-marcado) solid var(--color-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-base);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.botonPlanFuerte {
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.aclaracionPlanes {
+  margin-top: var(--spacing-5);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+/* ============ Directorio ============ */
+.seccionDirectorio {
+  padding: var(--spacing-16) var(--spacing-5);
+  background: var(--color-fondo-suave);
+}
+
+.beneficiosDirectorio {
+  display: grid;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-6);
+}
+
+.beneficiosDirectorio article {
+  display: grid;
+  gap: var(--spacing-2);
+  align-content: start;
+  border-left: var(--borde-marcado) solid var(--color-marca);
+  padding-left: var(--spacing-4);
+}
+
+.beneficiosDirectorio h3 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.beneficiosDirectorio p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.botonDirectorio {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  margin-top: var(--spacing-6);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3) var(--spacing-6);
+  background: var(--color-texto);
+  color: var(--color-superficie);
+  font-size: var(--text-base);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (min-width: 48rem) {
+  .tarjetasIa,
+  .beneficiosDirectorio {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .beneficiosDirectorio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .planes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ============ Aparición al desplazar ============
+   Con `animation-timeline: view()`, que es CSS puro: cero JavaScript, cero
+   observadores y cero salto de diseño. Va dentro de `@supports` porque el
+   navegador que no lo entiende **no aplica nada** y ve la página completa y
+   quieta, que es un resultado correcto y no una versión rota.
+
+   El estado inicial vive dentro del `@supports` a propósito: si estuviera
+   afuera, un navegador sin soporte dejaría el contenido invisible para siempre.
+   Es la forma clásica de esconder media portada sin darse cuenta. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .tarjetaIa,
+    .plan,
+    .planDestacado,
+    .planCarga,
+    .beneficiosDirectorio article,
+    .pasos li,
+    .rubros li {
+      animation: aparecer linear both;
+      animation-timeline: view();
+      /* Termina cuando la tarjeta lleva un cuarto de pantalla subida: si
+         terminara más tarde, se leería el texto todavía moviéndose. */
+      animation-range: entry 0% cover 25%;
+    }
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-6));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

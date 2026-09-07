@@ -7,6 +7,7 @@ import { MuestraPlantillas } from "../components/inicio/muestra-plantillas";
 import { VitrinaPortada } from "../components/inicio/vitrina-portada";
 import { PALETAS, PLANTILLAS } from "../lib/apariencia";
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
+import { CARGA_INICIAL, PLANES } from "../lib/planes";
 import styles from "./inicio.module.css";
 
 export const metadata: Metadata = {
@@ -74,14 +75,6 @@ const COMPARACION = [
   { que: "Pedido con carrito y total calculado", whatsapp: false },
 ];
 
-const INCLUYE = [
-  "Catálogo propio con tu dirección web",
-  "Código QR para imprimir y pegar en tu puesto",
-  "Pedidos y reservas que llegan por WhatsApp",
-  "Control de existencias y promociones",
-  "Cuántas personas te visitan cada semana",
-  "Ficha de cada producto para compartir suelta",
-];
 
 const PREGUNTAS = [
   {
@@ -290,6 +283,59 @@ export default function Inicio() {
           </div>
         </section>
 
+        <section aria-labelledby="herramientas-ia" className={styles.seccionIa}>
+          <div className={styles.seccionContenido}>
+            <div className={styles.encabezadoIa}>
+              <p className={styles.rotuloIa}>Herramientas con inteligencia artificial</p>
+              <h2 id="herramientas-ia">Sacale una foto. El catálogo se escribe solo.</h2>
+              <p>
+                Lo que más cuesta de un catálogo no es decidirse: es tipear doscientos
+                productos. Estas dos herramientas hacen ese trabajo y te dejan a vos lo
+                único que no puede hacer una máquina, que es revisar y poner el precio.
+              </p>
+            </div>
+
+            <div className={styles.tarjetasIa}>
+              <article className={styles.tarjetaIa}>
+                <div className={styles.tarjetaIaCuerpo}>
+                  <p className={styles.numeroIa}>01</p>
+                  <h3>De tu lista de precios al catálogo</h3>
+                  <p>
+                    Fotografiá la lista que ya usás, escrita a mano o impresa. Se separa
+                    producto por producto, con su precio y su categoría, y aparece en una
+                    pantalla para que corrijas antes de publicar.
+                  </p>
+                  <p className={styles.datoIa}>
+                    <strong>Un catálogo de 200 productos</strong> pasa de unas seis horas y
+                    media de tipeo a hora y media de revisión.
+                  </p>
+                </div>
+              </article>
+
+              <article className={styles.tarjetaIa}>
+                <div className={styles.tarjetaIaCuerpo}>
+                  <p className={styles.numeroIa}>02</p>
+                  <h3>De la foto del producto a su ficha</h3>
+                  <p>
+                    Elegí la foto de un producto y se completan solos el nombre y la
+                    descripción. Esa misma foto queda adjunta como imagen del producto, sin
+                    que tengas que subirla dos veces.
+                  </p>
+                  <p className={styles.datoIa}>
+                    <strong>El precio nunca sale de una foto.</strong> Ese lo ponés vos,
+                    siempre, porque ninguna máquina sabe cuánto cobrás.
+                  </p>
+                </div>
+              </article>
+            </div>
+
+            <p className={styles.remateIa}>
+              Nada se publica sin que lo apruebes, y nada se envía sin que elijas la foto.{" "}
+              <Link href="/privacidad">Cómo tratamos esas fotografías</Link>.
+            </p>
+          </div>
+        </section>
+
         <section aria-labelledby="comparacion" className={styles.seccionSuave}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
@@ -339,35 +385,128 @@ export default function Inicio() {
 
         <section aria-labelledby="precio" className={styles.seccion}>
           <div className={styles.seccionContenido}>
-            <div className={styles.panelPrecio}>
-              <div className={styles.montoPrecio}>
-                <p className={styles.rotuloPlan}>Plan único</p>
-                <p className={styles.monto}>
-                  Bs {PRECIO_MENSUAL_BS}
-                  <span>al mes</span>
+            <div className={styles.encabezado}>
+              <p className={styles.rotulo}>Precios en bolivianos, sin letra chica</p>
+              <h2 id="precio">Elegí cómo empezar</h2>
+              <p>
+                Sin comisión por venta, sin contrato de permanencia y el primer mes gratis
+                en los dos planes. Se paga mes a mes, y si dejás de pagar tus datos te
+                esperan noventa días.
+              </p>
+            </div>
+
+            <div className={styles.planes}>
+              {PLANES.map((plan) => (
+                <article
+                  className={plan.destacado ? styles.planDestacado : styles.plan}
+                  key={plan.id}
+                >
+                  {plan.destacado ? (
+                    <p className={styles.selloPlan}>El que más eligen</p>
+                  ) : null}
+                  <h3>{plan.nombre}</h3>
+                  <p className={styles.montoPlan}>
+                    Bs {plan.precioBs}
+                    <span>al mes</span>
+                  </p>
+                  <p className={styles.paraQuien}>{plan.para}</p>
+                  <ul>
+                    {plan.incluye.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                  <a
+                    className={plan.destacado ? styles.botonPlanFuerte : styles.botonPlan}
+                    href={construirEnlaceContacto(
+                      `Hola, me interesa el plan ${plan.nombre} de MiPuesto.`,
+                    )}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Quiero este
+                  </a>
+                </article>
+              ))}
+
+              {/* Se cobra una vez porque el trabajo se hace una vez. Va al lado de
+                  los planes y no escondido: es lo que resuelve el día uno. */}
+              <article className={styles.planCarga}>
+                <p className={styles.selloCarga}>Una sola vez</p>
+                <h3>Te lo dejamos cargado</h3>
+                <p className={styles.montoPlan}>
+                  Bs {CARGA_INICIAL.precioBs}
+                  <span>pago único</span>
                 </p>
-                <p className={styles.gratis}>El primer mes es gratis</p>
+                <p className={styles.paraQuien}>
+                  Mandanos tu lista de precios y te entregamos el catálogo cargado,
+                  ordenado por categorías y listo para compartir.
+                </p>
+                <ul>
+                  <li>Hasta {CARGA_INICIAL.productosMaximos} productos</li>
+                  <li>Lo hacemos nosotros, no vos</li>
+                  <li>Revisado producto por producto antes de publicar</li>
+                  <li>Se suma a cualquiera de los dos planes</li>
+                </ul>
                 <a
-                  className={styles.botonPrincipal}
-                  href={enlaceAlta}
+                  className={styles.botonPlan}
+                  href={construirEnlaceContacto(
+                    "Hola, quiero que me carguen el catálogo con mi lista de precios.",
+                  )}
                   rel="noreferrer"
                   target="_blank"
                 >
-                  Escribinos por WhatsApp
+                  Quiero que lo carguen
                 </a>
-                <p className={styles.aclaracion}>
-                  La cuenta se abre conversando. Te ayudamos a cargar los primeros productos.
-                </p>
-              </div>
-              <div className={styles.incluye}>
-                <h2 id="precio">Todo incluido</h2>
-                <ul>
-                  {INCLUYE.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
+              </article>
             </div>
+
+            <p className={styles.aclaracionPlanes}>
+              Las lecturas de foto no se acumulan de un mes al otro y el contador vuelve a
+              cero el día 1. Podés cambiar de plan cuando quieras, escribiendo.
+            </p>
+          </div>
+        </section>
+
+        {/* El directorio existe desde hace meses y estaba en un solo botón de la
+            portada. Es la prueba más barata de que el servicio es real: catálogos
+            de negocios que se pueden abrir ahora mismo. */}
+        <section aria-labelledby="directorio" className={styles.seccionDirectorio}>
+          <div className={styles.seccionContenido}>
+            <div className={styles.encabezado}>
+              <p className={styles.rotulo}>Negocios que ya lo usan</p>
+              <h2 id="directorio">Mirá catálogos de verdad, no capturas de pantalla</h2>
+              <p>
+                Todos los negocios activos aparecen en un directorio público, agrupado por
+                ciudad. Son catálogos reales, con sus productos y sus precios de hoy: los
+                abrís, los recorrés y ves exactamente lo que va a ver tu cliente.
+              </p>
+            </div>
+            <div className={styles.beneficiosDirectorio}>
+              <article>
+                <h3>Te encuentran sin buscarte</h3>
+                <p>
+                  Alguien que busca una barbería en tu zona llega a tu catálogo desde el
+                  directorio, sin conocerte y sin que le pases tu enlace.
+                </p>
+              </article>
+              <article>
+                <h3>Entrás el día que publicás</h3>
+                <p>
+                  No hay trámite ni espera. Tu negocio aparece en cuanto tu catálogo está
+                  activo, y sale el día que dejás de publicarlo.
+                </p>
+              </article>
+              <article>
+                <h3>Antes de decidir, comprobalo</h3>
+                <p>
+                  Abrí el catálogo de alguien de tu rubro y probá pedir algo. Es la forma
+                  más rápida de saber si esto le sirve a tu negocio.
+                </p>
+              </article>
+            </div>
+            <Link className={styles.botonDirectorio} href="/directorio">
+              Ver el directorio de negocios
+            </Link>
           </div>
         </section>
 
