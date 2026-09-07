@@ -699,7 +699,6 @@ export type Database = {
           dia: string | null
           mes: string
           negocio_id: string
-          tokens: number
         }
         Insert: {
           cantidad?: number
@@ -707,7 +706,6 @@ export type Database = {
           dia?: string | null
           mes: string
           negocio_id: string
-          tokens?: number
         }
         Update: {
           cantidad?: number
@@ -715,7 +713,6 @@ export type Database = {
           dia?: string | null
           mes?: string
           negocio_id?: string
-          tokens?: number
         }
         Relationships: [
           {
@@ -733,7 +730,7 @@ export type Database = {
     }
     Functions: {
       admin_cambiar_foto_ia: {
-        Args: { p_habilitada: boolean; p_negocio_id: string }
+        Args: { p_cupo?: number; p_habilitada: boolean; p_negocio_id: string }
         Returns: Json
       }
       admin_cambiar_publicacion: {
