@@ -279,3 +279,23 @@ está en la lista, Supabase ignora el `redirectTo` y el token nunca llega a la
 página. Las otras dos causas habituales son abrir el correo en un navegador
 distinto del que pidió el enlace, y los antivirus de correo que visitan los
 enlaces antes que la persona y los consumen.
+
+### El paso que sobraba — 2026-09-07
+
+Con la plantilla ya corregida, el circuito seguía fallando en el último paso: el
+enlace se verificaba bien, aparecía el formulario, y al guardar la sesión ya no
+estaba. Medido con el dueño, en Chrome normal y sin modo incógnito. Algo la
+borraba entre un clic y el siguiente.
+
+**En vez de seguir buscando qué, se quitó la dependencia.** El canje del enlace y
+el cambio de contraseña ocurren ahora **en el mismo gesto**: la persona escribe
+su contraseña, toca guardar, y recién ahí se canjea el enlace y se escribe la
+contraseña, seguidos, sin nada en el medio. La sesión solo tiene que vivir
+milisegundos y en memoria.
+
+Se conserva lo que se buscaba con la plantilla nueva: **el enlace no se consume
+al abrirse**, así que un antivirus de correo que lo visite no lo quema.
+
+Verificado de punta a punta sobre un usuario descartable: canje del enlace (200,
+sesión abierta), cambio de contraseña (200) e ingreso con la nueva (funciona).
+El usuario se borró al terminar.

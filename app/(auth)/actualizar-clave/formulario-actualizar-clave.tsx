@@ -7,58 +7,47 @@ import { type FormEvent, useEffect, useState } from "react";
 import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, CampoClave } from "../../../components/ui";
-import { mensajeErrorActualizarClave } from "../../../lib/auth/mensajes";
 import { explicarFalloDeEnlace, type Diagnostico } from "../../../lib/auth/diagnostico-enlace";
+import { mensajeErrorActualizarClave } from "../../../lib/auth/mensajes";
 import {
   leerTokensDeUrl,
   limpiarUrl,
   type TokensDeUrl,
 } from "../../../lib/auth/sesion-desde-url";
 
+/* El enlace del correo se canjea **en el mismo clic** que guarda la contraseña.
+ *
+ * Antes había dos pasos: uno abría la sesión y otro la usaba. Medido con el
+ * dueño: la sesión existía después del primero y ya no existía en el segundo,
+ * treinta segundos más tarde, en Chrome normal y sin modo incógnito. Algo la
+ * borraba en el medio.
+ *
+ * En vez de seguir buscando qué, se quita la dependencia: el canje y el cambio
+ * de contraseña ocurren seguidos, sin nada en el medio y sin necesidad de que la
+ * sesión sobreviva a nada. Lo que la persona escribe se guarda en el mismo
+ * gesto en que se prueba quién es.
+ *
+ * Se conserva la propiedad que buscábamos: el enlace no se consume al abrirse,
+ * así que un antivirus de correo que lo visite no lo quema. */
 export function FormularioActualizarClave() {
   const supabase = useClienteSupabaseNavegador();
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
-  const [haySesion, setHaySesion] = useState<boolean | null>(null);
+  const [listo, setListo] = useState(false);
+  const [tokens, setTokens] = useState<TokensDeUrl>({ tipo: "ninguno" });
+  const [haySesion, setHaySesion] = useState(false);
   const [diagnostico, setDiagnostico] = useState<Diagnostico | null>(null);
-  const [porConfirmar, setPorConfirmar] = useState<TokensDeUrl | null>(null);
   const router = useRouter();
 
-  /* La sesión del enlace se toma acá a mano. El cliente del navegador la
-     rechazaba solo: `createBrowserClient` fija `flowType: "pkce"`, y auth-js
-     descarta un enlace que llega como `#access_token=...` por no corresponder a
-     ese flujo. El enlace estaba bien; el cliente no lo miraba.
-
-     Después se comprueba que haya sesión antes de mostrar el formulario: sin
-     ella, escribir dos veces una contraseña para que falle es hacerle perder el
-     tiempo a alguien que ya viene peleando con esto. */
   useEffect(() => {
     let cancelado = false;
 
-    async function tomarSesion() {
-      const tokens = leerTokensDeUrl(window.location.href);
+    async function preparar() {
+      const leidos = leerTokensDeUrl(window.location.href);
 
-      if (tokens.tipo === "implicito") {
-        await supabase.auth.setSession({
-          access_token: tokens.accessToken,
-          refresh_token: tokens.refreshToken,
-        });
-      } else if (tokens.tipo === "codigo") {
-        await supabase.auth.exchangeCodeForSession(tokens.codigo);
-      } else if (tokens.tipo === "hash") {
-        /* Esta forma **no se verifica al abrir la página**: se espera a que la
-           persona toque el botón. Comprobado contra la API que el enlace es de
-           un solo uso —la segunda visita devuelve `otp_expired`—, así que
-           cualquier antivirus de correo o vista previa que lo visite antes lo
-           quema. Si nadie lo consume hasta el clic, eso no puede pasar. */
-        if (!cancelado) {
-          setPorConfirmar(tokens);
-          setHaySesion(false);
-        }
-        return;
-      }
-
-      if (tokens.tipo !== "ninguno") {
+      /* Los tokens se guardan en memoria y se borran de la barra de direcciones:
+         no deben quedar en el historial del teléfono. */
+      if (leidos.tipo !== "ninguno") {
         window.history.replaceState(
           window.history.state,
           "",
@@ -66,62 +55,56 @@ export function FormularioActualizarClave() {
         );
       }
 
+      /* Quien ya entró por su cuenta —desde el panel, por ejemplo— no necesita
+         ningún enlace: cambia su contraseña y ya. */
       const { data } = await supabase.auth.getSession();
       if (cancelado) return;
+
+      setTokens(leidos);
       setHaySesion(Boolean(data.session));
-      if (!data.session) setDiagnostico(explicarFalloDeEnlace(tokens));
+      if (!data.session && leidos.tipo === "error") {
+        setDiagnostico(explicarFalloDeEnlace(leidos));
+      }
+      if (!data.session && leidos.tipo === "ninguno") {
+        setDiagnostico(explicarFalloDeEnlace(leidos));
+      }
+      setListo(true);
     }
 
-    void tomarSesion();
+    void preparar();
     return () => {
       cancelado = true;
     };
   }, [supabase]);
 
-  async function confirmarEnlace() {
-    if (porConfirmar?.tipo !== "hash") return;
-    setEnviando(true);
-    const { data, error: errorAuth } = await supabase.auth.verifyOtp({
-      token_hash: porConfirmar.tokenHash,
-      type: porConfirmar.verificacion as "recovery" | "invite" | "email",
-    });
-    setEnviando(false);
-
-    if (errorAuth) {
-      setDiagnostico({
-        titulo: "El enlace ya no sirve",
-        detalle: `Pedí uno nuevo desde Recuperar contraseña. (${errorAuth.code ?? errorAuth.message})`,
+  /* Abre la sesión con lo que trajo la dirección, justo antes de usarla.
+     Devuelve el motivo si no pudo, para poder decirlo con precisión. */
+  async function abrirSesionDelEnlace(): Promise<string> {
+    if (tokens.tipo === "hash") {
+      const { error: errorAuth } = await supabase.auth.verifyOtp({
+        token_hash: tokens.tokenHash,
+        type: tokens.verificacion as "recovery" | "invite" | "email",
       });
-      setPorConfirmar(null);
-      return;
+      if (errorAuth) {
+        return `El enlace ya no sirve. Pedí uno nuevo desde Recuperar contraseña. (${errorAuth.code ?? errorAuth.message})`;
+      }
+      return "";
     }
 
-    /* Verificar el enlace y quedar con sesión abierta son dos cosas distintas, y
-       antes se daban por iguales: si Supabase respondía sin error pero sin
-       sesión, se mostraba el formulario igual y el fallo aparecía recién al
-       guardar, disfrazado de «enlace vencido». */
-    if (data.session?.access_token) {
-      await supabase.auth.setSession({
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
+    if (tokens.tipo === "implicito") {
+      const { error: errorAuth } = await supabase.auth.setSession({
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
       });
+      return errorAuth ? "El enlace ya no sirve. Pedí uno nuevo." : "";
     }
 
-    const { data: comprobacion } = await supabase.auth.getSession();
-    window.history.replaceState(window.history.state, "", limpiarUrl(window.location.href));
-    setPorConfirmar(null);
-
-    if (!comprobacion.session) {
-      setDiagnostico({
-        titulo: "Verificamos el enlace pero no se abrió la sesión",
-        detalle:
-          "Suele pasar cuando el navegador bloquea las cookies de este sitio. Probá sin modo incógnito, o con otro navegador, y avisanos.",
-      });
-      setHaySesion(false);
-      return;
+    if (tokens.tipo === "codigo") {
+      const { error: errorAuth } = await supabase.auth.exchangeCodeForSession(tokens.codigo);
+      return errorAuth ? "El enlace ya no sirve. Pedí uno nuevo." : "";
     }
 
-    setHaySesion(true);
+    return "Esta página se abre desde el enlace que te llega por correo.";
   }
 
   async function actualizarClave(evento: FormEvent<HTMLFormElement>) {
@@ -144,16 +127,15 @@ export function FormularioActualizarClave() {
 
     setEnviando(true);
 
-    /* Se comprueba justo antes de escribir. Si la sesión se cayó entre que se
-       abrió el formulario y este momento, decirlo así es distinto de culpar al
-       enlace, que es lo que se hacía y mandaba a pedir otro que fallaba igual. */
-    const { data: antesDeGuardar } = await supabase.auth.getSession();
-    if (!antesDeGuardar.session) {
-      setError(
-        "La sesión se cerró antes de guardar. Volvé a abrir el enlace del correo sin cerrar esta pestaña.",
-      );
-      setEnviando(false);
-      return;
+    /* El canje va acá y no antes: entre abrir la sesión y usarla no queda
+       ningún hueco donde pueda perderse. */
+    if (!haySesion) {
+      const motivo = await abrirSesionDelEnlace();
+      if (motivo) {
+        setError(motivo);
+        setEnviando(false);
+        return;
+      }
     }
 
     const { error: errorAuth } = await supabase.auth.updateUser({ password: clave });
@@ -165,29 +147,16 @@ export function FormularioActualizarClave() {
     }
 
     /* Cambiar la contraseña tiene que echar a quien estuviera adentro con la
-       anterior. Sin esto, alguien que hubiera entrado antes se queda con su
-       sesión abierta y el cambio no lo saca. */
+       anterior. Sin esto, un restablecimiento no recupera una cuenta tomada. */
     await supabase.auth.signOut({ scope: "others" });
 
     router.replace("/dashboard/configuracion");
     router.refresh();
   }
 
-  if (porConfirmar) {
-    return (
-      <div className={styles.formulario}>
-        <p>
-          Confirmá que sos vos y te dejamos definir tu contraseña. El enlace se usa
-          recién cuando tocás este botón.
-        </p>
-        <Boton anchoCompleto cargando={enviando} onClick={() => void confirmarEnlace()}>
-          Continuar
-        </Boton>
-      </div>
-    );
-  }
+  if (!listo) return null;
 
-  if (haySesion === false) {
+  if (!haySesion && (tokens.tipo === "ninguno" || tokens.tipo === "error")) {
     return (
       <div className={styles.formulario}>
         <p className={styles.mensajeError} role="alert">
@@ -203,6 +172,11 @@ export function FormularioActualizarClave() {
 
   return (
     <form className={styles.formulario} onSubmit={actualizarClave}>
+      {/* Se dice antes de escribir: el enlace sigue intacto hasta que toque
+          guardar, que es lo que impide que un antivirus de correo lo queme. */}
+      {!haySesion && tokens.tipo !== "ninguno" ? (
+        <p>Al guardar confirmamos el enlace del correo. Recién ahí se usa.</p>
+      ) : null}
       <CampoClave
         autoComplete="new-password"
         ayuda="Mínimo 10 caracteres. No reutilicés una contraseña personal."
