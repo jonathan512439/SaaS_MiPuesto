@@ -898,3 +898,13 @@
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
 }
+
+/* Debajo de la etiqueta y antes del campo: leída así evita el error, leída
+   después solo explica por qué salió mal. */
+.ayudaCampo {
+  display: block;
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1.45;
+}

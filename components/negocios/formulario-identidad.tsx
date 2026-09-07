@@ -11,6 +11,7 @@ import {
 import { obtenerUrlPublicaImagenNegocio } from "../../lib/negocios/imagenes-publicas";
 import { Boton, useAvisos, useConfirmacion } from "../ui";
 import styles from "./formulario-identidad.module.css";
+import { AYUDA_LOGO, AYUDA_PORTADA, AYUDA_QR } from "../../lib/ayudas-formularios";
 
 export type IdentidadNegocioInicial = {
   logo_url: string | null;
@@ -37,17 +38,17 @@ const TIPOS: Array<{
   {
     tipo: "portada",
     titulo: "Foto de portada",
-    ayuda: "Una imagen horizontal que presenta tu negocio al abrir el catálogo.",
+    ayuda: AYUDA_PORTADA,
   },
   {
     tipo: "logo",
     titulo: "Logo o foto de perfil",
-    ayuda: "Usa una imagen cuadrada y fácil de reconocer en tamaño pequeño.",
+    ayuda: AYUDA_LOGO,
   },
   {
     tipo: "qr",
     titulo: "QR de cobro",
-    ayuda: "Se mostrará antes de confirmar una reserva. La imagen debe poder escanearse con claridad.",
+    ayuda: AYUDA_QR,
   },
 ];
 

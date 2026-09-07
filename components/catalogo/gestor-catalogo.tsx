@@ -6,6 +6,13 @@ import { useMemo, useRef, useState } from "react";
 
 import { obtenerUrlPublicaImagenProducto } from "../../lib/catalogo/imagenes-publicas";
 import { estaEnLaCartaDeHoy } from "../../lib/catalogo/carta-del-dia";
+import {
+  AYUDA_CATEGORIA,
+  AYUDA_DESCRIPCION_PRODUCTO,
+  AYUDA_FOTO_PRODUCTO,
+  AYUDA_NOMBRE_PRODUCTO,
+  AYUDA_PRECIO,
+} from "../../lib/ayudas-formularios";
 import { AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
@@ -967,6 +974,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             <Campo
               error={erroresFormulario.nombre}
               id="producto-nombre"
+              ayuda={AYUDA_NOMBRE_PRODUCTO}
               etiqueta="Nombre del producto"
               maxLength={120}
               onChange={(evento) => actualizarCampo("nombre", evento.target.value)}
@@ -976,6 +984,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             <Campo
               error={erroresFormulario.precio}
               id="producto-precio"
+              ayuda={AYUDA_PRECIO}
               etiqueta="Precio en bolivianos"
               inputMode="decimal"
               min="0"
@@ -990,6 +999,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               className={styles.descripcion}
               error={erroresFormulario.descripcion}
               id="producto-descripcion"
+              ayuda={AYUDA_DESCRIPCION_PRODUCTO}
               etiqueta="Descripción"
               maxLength={1000}
               onChange={(evento) => actualizarCampo("descripcion", evento.target.value)}
@@ -1078,6 +1088,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                   ))}
                 </ul>
               ) : null}
+              <small className={styles.ayudaCampo}>{AYUDA_FOTO_PRODUCTO}</small>
               <small>{imagenesPendientes.length} de 4 fotografías seleccionadas</small>
             </section>
           ) : null}
@@ -1161,6 +1172,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           </summary>
           <form className={styles.nuevaCategoria} onSubmit={crearCategoria}>
             <label htmlFor="nueva-categoria">Nueva categoría</label>
+            <small className={styles.ayudaCampo}>{AYUDA_CATEGORIA}</small>
             <div>
               <input
                 id="nueva-categoria"
