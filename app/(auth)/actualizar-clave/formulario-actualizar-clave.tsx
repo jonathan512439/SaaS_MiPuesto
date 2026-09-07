@@ -8,6 +8,7 @@ import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, CampoClave } from "../../../components/ui";
 import { mensajeErrorActualizarClave } from "../../../lib/auth/mensajes";
+import { explicarFalloDeEnlace, type Diagnostico } from "../../../lib/auth/diagnostico-enlace";
 import { leerTokensDeUrl, limpiarUrl } from "../../../lib/auth/sesion-desde-url";
 
 export function FormularioActualizarClave() {
@@ -15,6 +16,7 @@ export function FormularioActualizarClave() {
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [haySesion, setHaySesion] = useState<boolean | null>(null);
+  const [diagnostico, setDiagnostico] = useState<Diagnostico | null>(null);
   const router = useRouter();
 
   /* La sesión del enlace se toma acá a mano. El cliente del navegador la
@@ -38,10 +40,13 @@ export function FormularioActualizarClave() {
         });
       } else if (tokens.tipo === "codigo") {
         await supabase.auth.exchangeCodeForSession(tokens.codigo);
-      } else if (tokens.tipo === "error") {
-        setError(
-          "El enlace ya no sirve: venció o ya se usó. Pedí uno nuevo desde Recuperar contraseña.",
-        );
+      } else if (tokens.tipo === "hash") {
+        /* Esta forma se verifica acá y no al abrirse, así que un antivirus de
+           correo que visite el enlace no lo quema antes que la persona. */
+        await supabase.auth.verifyOtp({
+          token_hash: tokens.tokenHash,
+          type: tokens.verificacion as "recovery" | "invite" | "email",
+        });
       }
 
       if (tokens.tipo !== "ninguno") {
@@ -53,7 +58,9 @@ export function FormularioActualizarClave() {
       }
 
       const { data } = await supabase.auth.getSession();
-      if (!cancelado) setHaySesion(Boolean(data.session));
+      if (cancelado) return;
+      setHaySesion(Boolean(data.session));
+      if (!data.session) setDiagnostico(explicarFalloDeEnlace(tokens));
     }
 
     void tomarSesion();
@@ -102,13 +109,9 @@ export function FormularioActualizarClave() {
     return (
       <div className={styles.formulario}>
         <p className={styles.mensajeError} role="alert">
-          El enlace ya no sirve: venció, ya se usó, o lo abriste en un navegador
-          distinto del que lo pidió.
+          {diagnostico?.titulo ?? "No pudimos abrir la sesión"}
         </p>
-        <p>
-          Pedí uno nuevo y abrilo en el mismo teléfono o computadora donde lo
-          solicitás. Los enlaces sirven una sola vez.
-        </p>
+        <p>{diagnostico?.detalle ?? "Pedí un enlace nuevo desde Recuperar contraseña."}</p>
         <Link className={styles.enlace} href="/recuperar-clave">
           Pedir un enlace nuevo
         </Link>

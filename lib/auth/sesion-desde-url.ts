@@ -18,7 +18,8 @@
 export type TokensDeUrl =
   | { tipo: "implicito"; accessToken: string; refreshToken: string }
   | { tipo: "codigo"; codigo: string }
-  | { tipo: "error"; mensaje: string }
+  | { tipo: "hash"; tokenHash: string; verificacion: string }
+  | { tipo: "error"; mensaje: string; codigo: string }
   | { tipo: "ninguno" };
 
 export function leerTokensDeUrl(href: string): TokensDeUrl {
@@ -40,7 +41,11 @@ export function leerTokensDeUrl(href: string): TokensDeUrl {
     desdeHash.get("error_description") ?? url.searchParams.get("error_description");
   const codigoError = desdeHash.get("error_code") ?? url.searchParams.get("error_code");
   if (descripcion || codigoError) {
-    return { tipo: "error", mensaje: descripcion ?? codigoError ?? "" };
+    return {
+      tipo: "error",
+      mensaje: descripcion ?? "",
+      codigo: codigoError ?? desdeHash.get("error") ?? url.searchParams.get("error") ?? "",
+    };
   }
 
   const accessToken = desdeHash.get("access_token");
@@ -52,6 +57,14 @@ export function leerTokensDeUrl(href: string): TokensDeUrl {
   const codigo = url.searchParams.get("code");
   if (codigo) return { tipo: "codigo", codigo };
 
+  /* La forma que usa la plantilla de correo cuando se la configura con
+     `{{ .TokenHash }}`. Es la única que **no se consume al abrirse**: se
+     verifica cuando la persona toca el botón, así que un antivirus de correo o
+     una vista previa que visiten el enlace no lo queman. */
+  const tokenHash = url.searchParams.get("token_hash");
+  const verificacion = url.searchParams.get("type");
+  if (tokenHash && verificacion) return { tipo: "hash", tokenHash, verificacion };
+
   return { tipo: "ninguno" };
 }
 
@@ -62,6 +75,8 @@ export function limpiarUrl(href: string): string {
     const url = new URL(href);
     url.hash = "";
     url.searchParams.delete("code");
+    url.searchParams.delete("token_hash");
+    url.searchParams.delete("type");
     return `${url.pathname}${url.search}`;
   } catch {
     return "/actualizar-clave";

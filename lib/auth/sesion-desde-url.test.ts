@@ -27,6 +27,21 @@ describe("sesión que llega en la dirección", () => {
     expect(resultado.tipo).toBe("error");
   });
 
+  /* La única forma que no se consume al abrirse: la verifica el botón, no la
+     visita. Así un antivirus de correo no quema el enlace antes que la persona. */
+  it("lee el token que no se consume al abrirlo", () => {
+    expect(leerTokensDeUrl(`${BASE}?token_hash=pepe&type=recovery`)).toEqual({
+      tipo: "hash",
+      tokenHash: "pepe",
+      verificacion: "recovery",
+    });
+  });
+
+  it("conserva el código del error para poder explicarlo", () => {
+    const resultado = leerTokensDeUrl(`${BASE}#error=access_denied&error_code=otp_expired`);
+    expect(resultado).toMatchObject({ tipo: "error", codigo: "otp_expired" });
+  });
+
   it("no inventa nada cuando la dirección viene limpia", () => {
     expect(leerTokensDeUrl(BASE)).toEqual({ tipo: "ninguno" });
     expect(leerTokensDeUrl("no es una direccion")).toEqual({ tipo: "ninguno" });
@@ -39,5 +54,6 @@ describe("sesión que llega en la dirección", () => {
     expect(limpiarUrl(`${BASE}?code=xyz&motivo=pendiente`)).toBe(
       "/actualizar-clave?motivo=pendiente",
     );
+    expect(limpiarUrl(`${BASE}?token_hash=abc&type=recovery`)).toBe("/actualizar-clave");
   });
 });
