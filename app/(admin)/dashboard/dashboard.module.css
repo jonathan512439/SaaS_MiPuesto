@@ -129,14 +129,20 @@
 /* Relleno y no delineado: sobre la barra de color, un botón con borde y letra
    del mismo tono se lee como texto y no como algo que se toca. Salir es de las
    pocas cosas que alguien busca con apuro. */
+/* Blanco sólido sobre la barra de color, con sombra y contorno propio: es lo
+   único de esa barra que no comparte fondo con nada, y por eso se encuentra sin
+   buscarlo. Se probó antes delineado y después relleno sin marco, y en las dos
+   se perdía contra el color de la barra. */
 .botonSalir {
   min-height: var(--control-alto);
-  border-color: var(--color-superficie);
-  padding-right: var(--spacing-4);
-  padding-left: var(--spacing-4);
+  border-color: var(--color-marca-fuerte);
+  padding-right: var(--spacing-5);
+  padding-left: var(--spacing-5);
   background: var(--color-superficie);
   color: var(--color-marca-fuerte);
-  font-weight: 800;
+  font-size: var(--text-base);
+  font-weight: 900;
+  box-shadow: var(--sombra-panel);
 }
 
 .botonSalir:hover:not(:disabled) {

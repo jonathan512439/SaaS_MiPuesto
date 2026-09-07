@@ -47,9 +47,12 @@
   background: var(--color-fondo-suave);
 }
 
+/* Con el borde transparente no se leía como botón: en la tarjeta de un producto,
+   cuatro acciones sin contorno parecen una línea de texto y hay que probarlas
+   para saber cuáles se tocan. Discreto no quiere decir invisible. */
 .botonDiscreto {
-  border-color: transparent;
-  background: transparent;
+  border-color: var(--color-borde);
+  background: var(--color-superficie);
   color: var(--color-texto);
 }
 

@@ -181,16 +181,27 @@
   margin-top: var(--spacing-1);
 }
 
+/* Con forma de botón y no de texto: sin contorno, «Más opciones» se lee como
+   un rótulo de la tarjeta y nadie lo toca. */
 .masOpciones > summary {
   display: inline-flex;
+  min-height: var(--control-alto);
   align-items: center;
-  gap: var(--spacing-1);
-  padding: var(--spacing-1) 0;
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
+  gap: var(--spacing-2);
+  border: var(--borde-marcado) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-4);
+  background: var(--color-fondo-suave);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
   font-weight: 800;
   cursor: pointer;
   list-style: none;
+}
+
+.masOpciones > summary:hover {
+  border-color: var(--color-marca);
+  color: var(--color-marca-fuerte);
 }
 
 .masOpciones > summary::-webkit-details-marker {
