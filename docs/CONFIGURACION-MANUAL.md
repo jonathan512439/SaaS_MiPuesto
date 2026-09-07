@@ -303,3 +303,37 @@ Estado: **completado manualmente el 2026-09-03**. El usuario confirmó el recorr
 9. Comprobá que el catálogo siga creando reservas y abriendo WhatsApp como antes; la analítica no debe bloquear una compra aunque falle su registro silencioso.
 
 La confirmación manual cerró la Fase 8 y habilitó la Fase 9. El commit final `da7b818` se publicó en la versión `8547dfdf-6501-4ad0-9902-eda8c8412d77` del Worker.
+
+## Plantillas de correo: el enlace de un solo uso
+
+**Comprobado el 2026-09-07 contra la API.** El enlace que Supabase manda por
+omisión se consume en la primera visita: la segunda devuelve
+`error_code=otp_expired`. Se reprodujo pidiendo el mismo enlace dos veces.
+
+El problema práctico es que **la primera visita no siempre es la de la persona**.
+Los antivirus de correo y las vistas previas de Gmail visitan los enlaces para
+comprobar que no son peligrosos, y al hacerlo lo queman. La persona toca el
+enlace, llega segunda, y recibe «venció» con un enlace de treinta segundos de
+antigüedad abierto en el mismo teléfono.
+
+### La corrección
+
+Cambiar las plantillas para que el enlace **no se verifique al abrirse**, sino al
+tocar un botón. La aplicación ya sabe recibir esta forma.
+
+En la consola de Supabase, **Authentication → Email Templates**, reemplazar
+`{{ .ConfirmationURL }}` por esta dirección en las plantillas **Reset Password**
+e **Invite user**:
+
+```
+{{ .SiteURL }}/actualizar-clave?token_hash={{ .TokenHash }}&type=recovery
+```
+
+En la de invitación, `type=invite` en lugar de `type=recovery`.
+
+Con eso, quien visite el enlace sin ser la persona no consume nada: la página
+muestra un botón «Continuar» y el enlace se usa recién ahí.
+
+**Mientras no se cambie**, la aplicación sigue aceptando la forma vieja y explica
+el motivo real cuando falla, nombrando al antivirus del correo como causa más
+probable.

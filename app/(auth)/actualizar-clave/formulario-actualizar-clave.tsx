@@ -9,7 +9,11 @@ import { useClienteSupabaseNavegador } from "../../../components/supabase/provee
 import { Boton, CampoClave } from "../../../components/ui";
 import { mensajeErrorActualizarClave } from "../../../lib/auth/mensajes";
 import { explicarFalloDeEnlace, type Diagnostico } from "../../../lib/auth/diagnostico-enlace";
-import { leerTokensDeUrl, limpiarUrl } from "../../../lib/auth/sesion-desde-url";
+import {
+  leerTokensDeUrl,
+  limpiarUrl,
+  type TokensDeUrl,
+} from "../../../lib/auth/sesion-desde-url";
 
 export function FormularioActualizarClave() {
   const supabase = useClienteSupabaseNavegador();
@@ -17,6 +21,7 @@ export function FormularioActualizarClave() {
   const [enviando, setEnviando] = useState(false);
   const [haySesion, setHaySesion] = useState<boolean | null>(null);
   const [diagnostico, setDiagnostico] = useState<Diagnostico | null>(null);
+  const [porConfirmar, setPorConfirmar] = useState<TokensDeUrl | null>(null);
   const router = useRouter();
 
   /* La sesión del enlace se toma acá a mano. El cliente del navegador la
@@ -41,12 +46,16 @@ export function FormularioActualizarClave() {
       } else if (tokens.tipo === "codigo") {
         await supabase.auth.exchangeCodeForSession(tokens.codigo);
       } else if (tokens.tipo === "hash") {
-        /* Esta forma se verifica acá y no al abrirse, así que un antivirus de
-           correo que visite el enlace no lo quema antes que la persona. */
-        await supabase.auth.verifyOtp({
-          token_hash: tokens.tokenHash,
-          type: tokens.verificacion as "recovery" | "invite" | "email",
-        });
+        /* Esta forma **no se verifica al abrir la página**: se espera a que la
+           persona toque el botón. Comprobado contra la API que el enlace es de
+           un solo uso —la segunda visita devuelve `otp_expired`—, así que
+           cualquier antivirus de correo o vista previa que lo visite antes lo
+           quema. Si nadie lo consume hasta el clic, eso no puede pasar. */
+        if (!cancelado) {
+          setPorConfirmar(tokens);
+          setHaySesion(false);
+        }
+        return;
       }
 
       if (tokens.tipo !== "ninguno") {
@@ -68,6 +77,27 @@ export function FormularioActualizarClave() {
       cancelado = true;
     };
   }, [supabase]);
+
+  async function confirmarEnlace() {
+    if (porConfirmar?.tipo !== "hash") return;
+    setEnviando(true);
+    const { error: errorAuth } = await supabase.auth.verifyOtp({
+      token_hash: porConfirmar.tokenHash,
+      type: porConfirmar.verificacion as "recovery" | "invite" | "email",
+    });
+    setEnviando(false);
+    if (errorAuth) {
+      setDiagnostico({
+        titulo: "El enlace ya no sirve",
+        detalle: "Pedí uno nuevo desde Recuperar contraseña.",
+      });
+      setPorConfirmar(null);
+      return;
+    }
+    window.history.replaceState(window.history.state, "", limpiarUrl(window.location.href));
+    setPorConfirmar(null);
+    setHaySesion(true);
+  }
 
   async function actualizarClave(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -103,6 +133,20 @@ export function FormularioActualizarClave() {
 
     router.replace("/dashboard/configuracion");
     router.refresh();
+  }
+
+  if (porConfirmar) {
+    return (
+      <div className={styles.formulario}>
+        <p>
+          Confirmá que sos vos y te dejamos definir tu contraseña. El enlace se usa
+          recién cuando tocás este botón.
+        </p>
+        <Boton anchoCompleto cargando={enviando} onClick={() => void confirmarEnlace()}>
+          Continuar
+        </Boton>
+      </div>
+    );
   }
 
   if (haySesion === false) {
