@@ -1,0 +1,193 @@
+@reference "../../app/globals.css";
+
+.pantalla {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+/* Las indicaciones van arriba y completas, no detrás de un «ver más»: cada foto
+   que se lee mal cuesta un crédito y una decepción, y leer cuatro renglones
+   antes es más barato que las dos cosas. */
+.ayuda {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.ayuda h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.ayuda h3 {
+  margin-bottom: var(--spacing-1);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.ayuda ol,
+.ayuda ul {
+  display: grid;
+  gap: var(--spacing-1);
+  padding-left: var(--spacing-4);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.ayuda ol {
+  list-style: decimal;
+}
+
+.ayuda ul {
+  list-style: disc;
+}
+
+.no {
+  color: var(--color-peligro);
+}
+
+.columnas {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.ejemplo {
+  display: grid;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+  background: var(--color-fondo-suave);
+}
+
+.ejemplo pre {
+  overflow-x: auto;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2);
+  background: var(--color-superficie);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+
+.ejemplo p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-style: italic;
+}
+
+.cargar {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-size: var(--text-base);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cargar input {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.cargar:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.cupo,
+.aviso {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+/* La foto se queda a la vista mientras se revisa: comparar de memoria es
+   justamente lo que hace que un precio equivocado se publique. */
+.previa {
+  max-height: 24rem;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  object-fit: contain;
+}
+
+.revision {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-marcado) solid var(--color-marca);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.revision h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.revision header p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.filas {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.fila,
+.dudosa {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 6rem;
+  align-items: center;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2);
+}
+
+.dudosa {
+  background: var(--color-peligro-tenue);
+}
+
+.dudosa span {
+  grid-column: 2 / -1;
+  color: var(--color-peligro);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.fila input:not([type="checkbox"]),
+.dudosa input:not([type="checkbox"]) {
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-2);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-size: var(--text-base);
+}
+
+.confirmar {
+  display: grid;
+  gap: var(--spacing-2);
+  align-items: end;
+}
+
+@media (min-width: 40rem) {
+  .columnas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .confirmar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}

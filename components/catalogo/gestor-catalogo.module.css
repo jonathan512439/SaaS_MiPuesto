@@ -814,3 +814,43 @@
     margin-left: 0;
   }
 }
+
+/* Encima de los campos y con su advertencia pegada: la única forma de que
+   alguien no espere que también le adivine el precio. */
+.completarConFoto {
+  display: grid;
+  gap: var(--spacing-1);
+  justify-items: start;
+  margin-bottom: var(--spacing-3);
+}
+
+.completarConFoto label {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border: var(--borde-marcado) solid var(--color-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-4);
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.completarConFoto input {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.completarConFoto label:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.completarConFoto small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}

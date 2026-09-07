@@ -174,6 +174,80 @@ decide la venta.
 nombran, porque la plantilla Moderna es la que más depende de la foto y no hay
 fotos de ropa. Queda pendiente para cuando existan.
 
+## Etapa 9 — lectura de fotos con Gemini
+
+Dos herramientas sobre la misma capacidad: un modelo que mira una imagen y
+devuelve datos estructurados.
+
+| Herramienta | Qué hace | Dónde vive |
+|---|---|---|
+| **Completar con una foto** | Llena nombre y descripción de un producto | Botón en el formulario del producto |
+| **Cargar desde una foto** | Lee una lista de precios y arma un borrador de varios productos | `/dashboard/catalogo/desde-foto` |
+
+**Ninguna de las dos guarda nada.** Devuelven una propuesta que el dueño revisa y
+confirma. Un catálogo con precios inventados es peor que un catálogo vacío,
+porque el dueño no se entera hasta que un cliente le reclama.
+
+### Lo que se midió al integrarla
+
+- **`gemini-2.5-flash` ya no está disponible para cuentas nuevas.** El modelo que
+  parecía la opción estable y obvia respondió «no longer available to new users».
+  Por eso el nombre del modelo vive en una constante: mudarse es una línea.
+- **La variante «lite» tarda 2,5 segundos donde la grande tarda 22**, con la
+  misma respuesta útil. Veintidós segundos mirando una pantalla que no dice nada
+  es tiempo en que el comerciante abandona.
+- **La primera llamada del día a veces se cuelga.** Medido: una foto agotó el
+  tiempo límite y las dos siguientes tardaron 4 y 2,3 segundos. Por eso el
+  reintento cubre también la espera, no solo el error.
+- Una foto de producto cuesta ~1.350 tokens.
+- **La herramienta de listas rechaza correctamente lo que no es una lista**:
+  contra la foto de una hamburguesa devolvió `es_lista_de_precios: false` y cero
+  productos. Esa es la garantía de «no inventa» funcionando.
+
+### Cómo se controla el gasto
+
+Es la primera función del sistema con **costo por uso**, así que:
+
+- **Arranca apagada para todos.** La habilita la plataforma negocio por negocio,
+  con el número de consumo delante y una confirmación que lo dice.
+- **Tope de 200 fotos por negocio y por mes.** Contar y autorizar ocurren en la
+  misma operación dentro de la base: comprobar el tope y después sumar deja una
+  ventana por la que se cuelan dos peticiones a la vez.
+- **Si la lectura falla, el crédito se devuelve.** Un cupo que se gasta en
+  errores ajenos se siente como una estafa aunque sean centavos.
+- El dueño ve su propio consumo. Un tope que se alcanza sin explicación es un
+  error inexplicable.
+- La clave va como secreto del Worker —`npm run cloudflare:secret:gemini`— y el
+  guardián de secretos ahora la vigila igual que la de Supabase.
+- **Sin clave configurada, las herramientas simplemente no aparecen** y el resto
+  del sistema funciona igual.
+
+### El aviso al dueño
+
+Cuando la plataforma habilita la función, el panel del negocio muestra un cartel
+durante **siete días** y después se apaga solo, sin columna de «visto» que
+mantener: un cartel que hay que cerrar termina cerrado sin leerse.
+
+**El correo de confirmación no está hecho, y no es un olvido.** El sistema no
+tiene todavía un enviador de correo transaccional: lo único que envía correo es
+el sistema de autenticación de Supabase, con sus propias plantillas. Un correo
+propio necesita Resend con dominio verificado, que es la etapa 4.
+
+### Las indicaciones
+
+Viven en `lib/ia/ayuda.ts` y no escritas en el JSX: si la herramienta falla, casi
+siempre es porque la foto no cumple alguna condición, y ese texto es lo único que
+lo evita antes de gastar un crédito. El ejemplo usa los casos raros de verdad
+—«2x15», dos tamaños en un renglón, un título de sección— porque son los que hacen
+dudar al comerciante de si va a funcionar con su lista, que nunca es la lista
+limpia del manual. Un test verifica que el ejemplo siga siendo coherente.
+
+### Lo que falta antes de anunciarla
+
+El protocolo de validación del plan: **20 fotos de listas bolivianas reales**, con
+cero productos inventados como umbral, y la prueba de cronometrar a un
+comerciante tipeando contra revisar. Nada de eso se puede hacer sin las fotos.
+
 ## Control de almacenamiento en la plataforma
 
 El techo del plan gratuito llega antes de lo que uno cree: mil megabytes se

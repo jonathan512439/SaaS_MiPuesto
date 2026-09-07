@@ -8,6 +8,7 @@ import type {
   ProductoCatalogo,
   SubcategoriaCatalogo,
 } from "../../../../lib/catalogo/tipos";
+import { esAvisoDeFotoReciente } from "../../../../lib/ia/ayuda";
 import { rubroOfrece } from "../../../../lib/negocios/rubros";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
@@ -27,7 +28,7 @@ export default async function PaginaCatalogo() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("id,nombre,slug,rubro")
+    .select("id,nombre,slug,rubro,foto_ia_habilitada,foto_ia_habilitada_en")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect("/dashboard/configuracion");
@@ -67,6 +68,9 @@ export default async function PaginaCatalogo() {
       .not("eliminado_en", "is", null),
   ]);
   const enPapelera = resultadoPapelera.count ?? 0;
+  const avisarFotoNueva =
+    negocio.foto_ia_habilitada === true &&
+    esAvisoDeFotoReciente(negocio.foto_ia_habilitada_en);
 
   const subcategorias = (resultadoSubcategorias.data ?? []).map(
     ({ id, categoria_id, nombre, orden }) => ({ id, categoria_id, nombre, orden }),
@@ -79,6 +83,13 @@ export default async function PaginaCatalogo() {
         <h1>Catálogo</h1>
         {/* El enlace aparece solo cuando hay algo que recuperar: una papelera
             vacía anunciada en cada visita es ruido. */}
+        {/* Aparece recién cuando la plataforma se la habilitó: es la única
+            función que cuesta dinero cada vez que se usa. */}
+        {negocio.foto_ia_habilitada ? (
+          <Link className={styles.enlaceFoto} href="/dashboard/catalogo/desde-foto">
+            Cargar desde una foto
+          </Link>
+        ) : null}
         {/* Solo para los rubros a los que les sirve: un menú impreso en una
             boutique es un botón que nadie va a tocar nunca. */}
         {rubroOfrece(negocio.rubro, "menu_imprimible") ? (
@@ -97,6 +108,18 @@ export default async function PaginaCatalogo() {
           </Link>
         ) : null}
       </header>
+
+      {avisarFotoNueva ? (
+        <aside className={styles.avisoFoto}>
+          <h2>Ya podés cargar tu catálogo con una foto</h2>
+          <p>
+            Habilitamos dos cosas en tu cuenta: fotografiar tu lista de precios para crear
+            varios productos de una vez, y completar el nombre y la descripción de un
+            producto con su fotografía. El precio lo ponés siempre vos.
+          </p>
+          <Link href="/dashboard/catalogo/desde-foto">Probar con mi lista de precios</Link>
+        </aside>
+      ) : null}
 
       <GestorCatalogo
         datosIniciales={{

@@ -223,6 +223,8 @@ export type Database = {
           ciudad: string | null
           creado_en: string
           descripcion: string | null
+          foto_ia_habilitada: boolean
+          foto_ia_habilitada_en: string | null
           horario: Json
           id: string
           logo_url: string | null
@@ -254,6 +256,8 @@ export type Database = {
           ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
+          foto_ia_habilitada?: boolean
+          foto_ia_habilitada_en?: string | null
           horario?: Json
           id?: string
           logo_url?: string | null
@@ -285,6 +289,8 @@ export type Database = {
           ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
+          foto_ia_habilitada?: boolean
+          foto_ia_habilitada_en?: string | null
           horario?: Json
           id?: string
           logo_url?: string | null
@@ -648,11 +654,44 @@ export type Database = {
           },
         ]
       }
+      uso_ia_negocio: {
+        Row: {
+          cantidad: number
+          mes: string
+          negocio_id: string
+          tokens: number
+        }
+        Insert: {
+          cantidad?: number
+          mes: string
+          negocio_id: string
+          tokens?: number
+        }
+        Update: {
+          cantidad?: number
+          mes?: string
+          negocio_id?: string
+          tokens?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uso_ia_negocio_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_cambiar_foto_ia: {
+        Args: { p_habilitada: boolean; p_negocio_id: string }
+        Returns: Json
+      }
       admin_cambiar_publicacion: {
         Args: { p_activo: boolean; p_motivo?: string; p_negocio_id: string }
         Returns: Json
@@ -673,6 +712,10 @@ export type Database = {
         }
         Returns: Json
       }
+      consumir_credito_ia: {
+        Args: { p_negocio_id: string; p_tokens?: number; p_tope: number }
+        Returns: Json
+      }
       crear_pedido_reservado: {
         Args: {
           p_cliente_nombre: string
@@ -684,6 +727,10 @@ export type Database = {
           p_slug: string
         }
         Returns: Json
+      }
+      devolver_credito_ia: {
+        Args: { p_negocio_id: string }
+        Returns: undefined
       }
       es_admin_plataforma: { Args: never; Returns: boolean }
       estado_tareas: {

@@ -10,6 +10,7 @@ export type NegocioPlataforma = {
   suspendido_en: string | null;
   suscripcion_vence_en: string;
   creado_en: string;
+  foto_ia_habilitada?: boolean;
 };
 
 export type EstadoCliente =

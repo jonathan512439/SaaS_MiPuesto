@@ -109,3 +109,51 @@ export async function prepararImagenParaSubir(archivo: File) {
     lastModified: Date.now(),
   });
 }
+
+/* La foto que se manda a leer no se guarda: viaja, se interpreta y se descarta.
+   Por eso va más grande y con más calidad que la que se publica —1600 px contra
+   1200—: en una lista escrita a mano, los píxeles que se pierden al reducir son
+   justo los que distinguen un 3 de un 8. Cuesta unos tokens más y evita una
+   lectura equivocada, que sale mucho más cara. */
+const LADO_MAXIMO_LECTURA = 1600;
+
+export async function prepararFotoParaLectura(archivo: File): Promise<{
+  base64: string;
+  tipo: "image/webp";
+  vistaPrevia: string;
+}> {
+  if (archivo.size > PESO_MAXIMO_ORIGINAL) {
+    throw new Error("La fotografía debe pesar como máximo 5 MB.");
+  }
+
+  const cabecera = new Uint8Array(await archivo.slice(0, 12).arrayBuffer());
+  if (!detectarTipoImagen(cabecera)) {
+    throw new Error("Seleccioná una imagen JPEG, PNG o WebP válida.");
+  }
+
+  const imagen = await createImageBitmap(archivo, { imageOrientation: "from-image" });
+  const escala = Math.min(1, LADO_MAXIMO_LECTURA / Math.max(imagen.width, imagen.height));
+  const ancho = Math.max(1, Math.round(imagen.width * escala));
+  const alto = Math.max(1, Math.round(imagen.height * escala));
+  const lienzo = document.createElement("canvas");
+  lienzo.width = ancho;
+  lienzo.height = alto;
+  const contexto = lienzo.getContext("2d", { alpha: false });
+  if (!contexto) {
+    imagen.close();
+    throw new Error("El navegador no pudo preparar la fotografía.");
+  }
+  contexto.drawImage(imagen, 0, 0, ancho, alto);
+  imagen.close();
+
+  const blob = await lienzoAWebp(lienzo, 0.9);
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let binario = "";
+  for (const byte of bytes) binario += String.fromCharCode(byte);
+
+  return {
+    base64: btoa(binario),
+    tipo: "image/webp",
+    vistaPrevia: lienzo.toDataURL("image/webp", 0.7),
+  };
+}

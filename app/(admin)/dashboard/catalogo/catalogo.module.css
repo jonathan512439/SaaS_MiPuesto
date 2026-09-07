@@ -64,3 +64,46 @@
   font-size: var(--text-sm);
   font-weight: 700;
 }
+
+/* Destacado y no discreto como el de la papelera: es una función nueva que el
+   dueño no sabe que tiene hasta que la ve. */
+.enlaceFoto {
+  justify-self: start;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.avisoFoto {
+  display: grid;
+  gap: var(--spacing-2);
+  justify-items: start;
+  border: var(--borde-marcado) solid var(--color-marca);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-marca-tenue);
+}
+
+.avisoFoto h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.avisoFoto p {
+  max-width: var(--ancho-lectura);
+  font-size: var(--text-sm);
+}
+
+.avisoFoto a {
+  min-height: var(--control-alto);
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-weight: 800;
+}

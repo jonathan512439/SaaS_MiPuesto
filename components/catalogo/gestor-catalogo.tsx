@@ -6,6 +6,8 @@ import { useMemo, useRef, useState } from "react";
 
 import { obtenerUrlPublicaImagenProducto } from "../../lib/catalogo/imagenes-publicas";
 import { estaEnLaCartaDeHoy } from "../../lib/catalogo/carta-del-dia";
+import { AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
+import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
 import { rubroOfrece } from "../../lib/negocios/rubros";
 import {
@@ -102,6 +104,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   /* El rubro apaga botones, nunca datos: quien no eligió rubro los ve todos, y
      cambiar de rubro no borra ninguna marca ya puesta. */
   const ofreceCartaDelDia = rubroOfrece(datosIniciales.negocio.rubro, "carta_del_dia");
+  const ofreceLecturaDeFotos = datosIniciales.negocio.foto_ia_habilitada === true;
+  const [leyendoFoto, setLeyendoFoto] = useState(false);
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [paginaCategorias, setPaginaCategorias] = useState(1);
   const [paginaProductos, setPaginaProductos] = useState(1);
@@ -673,6 +677,43 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     }
   }
 
+  /* Llena el formulario, no guarda. Y respeta lo que el dueño ya haya escrito:
+     pisar un nombre que alguien tecleó es la clase de ayuda que se termina
+     apagando. */
+  async function completarConFoto(evento: ChangeEvent<HTMLInputElement>) {
+    const archivo = evento.target.files?.[0];
+    evento.target.value = "";
+    if (!archivo) return;
+
+    setLeyendoFoto(true);
+    try {
+      const foto = await prepararFotoParaLectura(archivo);
+      const { propuesta } = await solicitarJson<{
+        propuesta: { nombre: string; descripcion: string; categoria: string; confianza: string };
+      }>("/api/ia/producto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imagen: foto.base64, tipo: foto.tipo }),
+      });
+
+      setFormulario((actual) => ({
+        ...actual,
+        nombre: actual.nombre.trim() || propuesta.nombre,
+        descripcion: actual.descripcion.trim() || propuesta.descripcion,
+      }));
+      informarExito(
+        "Campos completados",
+        propuesta.confianza === "alta"
+          ? "Revisá el texto y poné tu precio."
+          : "No estamos seguros de qué es. Revisá bien antes de guardar.",
+      );
+    } catch (error) {
+      informarError("No se pudo leer la foto", error);
+    } finally {
+      setLeyendoFoto(false);
+    }
+  }
+
   async function duplicarProducto(producto: ProductoCatalogo) {
     try {
       const { producto: copia, fotosCopiadas } = await solicitarJson<{
@@ -842,6 +883,23 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
             </div>
             <Boton onClick={cerrarFormulario} variante="discreto">Cerrar</Boton>
           </header>
+          {/* Antes de los campos y no después: sirve para empezar, no para
+              corregir lo que ya se escribió. El precio se pide igual, porque
+              ninguna foto sabe cuánto cobra este negocio. */}
+          {ofreceLecturaDeFotos ? (
+            <div className={styles.completarConFoto}>
+              <label>
+                {leyendoFoto ? "Mirando la foto…" : "Completar con una foto"}
+                <input
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={leyendoFoto}
+                  onChange={(evento) => void completarConFoto(evento)}
+                  type="file"
+                />
+              </label>
+              <small>{AYUDA_PRODUCTO.advertencia}</small>
+            </div>
+          ) : null}
           <div className={styles.camposProducto}>
             <Campo
               error={erroresFormulario.nombre}

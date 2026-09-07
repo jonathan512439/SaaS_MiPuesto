@@ -11,8 +11,19 @@ const directoriosClienteCompilado = [
 ];
 const extensiones = new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]);
 const extensionesCompiladas = new Set([".css", ".html", ".js", ".json"]);
-const clavePrivilegiada = "SUPABASE_" + "SERVICE_ROLE_KEY";
-const clavePublicaProhibida = "NEXT_PUBLIC_" + clavePrivilegiada;
+/* Se arman por partes para que el propio guardián no contenga el nombre
+   completo y se denuncie a sí mismo.
+
+   La clave de Gemini entra en la misma lista y no en una regla aparte: el plan
+   dice tratarla igual que la de Supabase, y una segunda regla parecida es una
+   que alguien va a olvidar de actualizar. */
+const clavesPrivilegiadas = [
+  "SUPABASE_" + "SERVICE_ROLE_KEY",
+  "GEMINI_" + "API_KEY",
+];
+const clavesPublicasProhibidas = clavesPrivilegiadas.map(
+  (clave) => "NEXT_PUBLIC_" + clave,
+);
 const infracciones = [];
 
 async function leerVariableLocal(nombre) {
@@ -52,14 +63,20 @@ async function recorrer(ruta) {
     const contenido = await readFile(ruta, "utf8");
     const esCliente = /^\s*["']use client["'];?/m.test(contenido);
 
-    if (contenido.includes(clavePublicaProhibida)) {
-      infracciones.push(`${relative(raiz, ruta)} usa ${clavePublicaProhibida}`);
+    for (const prohibida of clavesPublicasProhibidas) {
+      if (contenido.includes(prohibida)) {
+        infracciones.push(`${relative(raiz, ruta)} usa ${prohibida}`);
+      }
     }
 
-    if (esCliente && contenido.includes(clavePrivilegiada)) {
-      infracciones.push(
-        `${relative(raiz, ruta)} referencia una clave privilegiada desde código cliente`,
-      );
+    if (esCliente) {
+      for (const clave of clavesPrivilegiadas) {
+        if (contenido.includes(clave)) {
+          infracciones.push(
+            `${relative(raiz, ruta)} referencia ${clave} desde código cliente`,
+          );
+        }
+      }
     }
   } catch (error) {
     if (error?.code !== "ENOENT") throw error;
@@ -95,13 +112,17 @@ async function buscarSecretoCompilado(ruta, secreto) {
 
 await Promise.all(directoriosCodigo.map(recorrer));
 
-const secretoLocal = await leerVariableLocal(clavePrivilegiada);
-if (secretoLocal.length >= 20) {
-  await Promise.all(
-    directoriosClienteCompilado.map((ruta) =>
-      buscarSecretoCompilado(ruta, secretoLocal),
-    ),
-  );
+for (const clave of clavesPrivilegiadas) {
+  const secretoLocal = await leerVariableLocal(clave);
+  /* Si la variable no está configurada no hay nada que buscar, y buscar una
+     cadena corta daría falsos positivos en cualquier bundle. */
+  if (secretoLocal.length >= 20) {
+    await Promise.all(
+      directoriosClienteCompilado.map((ruta) =>
+        buscarSecretoCompilado(ruta, secretoLocal),
+      ),
+    );
+  }
 }
 
 if (infracciones.length > 0) {

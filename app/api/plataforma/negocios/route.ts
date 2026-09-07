@@ -9,7 +9,7 @@ import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
  * quedar desincronizada; dejarlo solo en la base garantiza que ni una petición
  * armada a mano lo salte.
  */
-const ACCIONES = ["renovar", "publicar", "despublicar"] as const;
+const ACCIONES = ["renovar", "publicar", "despublicar", "foto_ia"] as const;
 type Accion = (typeof ACCIONES)[number];
 
 function esAccion(valor: unknown): valor is Accion {
@@ -36,7 +36,12 @@ export async function POST(solicitud: NextRequest) {
   }
 
   const resultado =
-    datos.accion === "renovar"
+    datos.accion === "foto_ia"
+      ? await supabase.rpc("admin_cambiar_foto_ia", {
+          p_negocio_id: datos.negocio_id,
+          p_habilitada: datos.habilitada === true,
+        })
+      : datos.accion === "renovar"
       ? await supabase.rpc("admin_renovar_suscripcion", {
           p_negocio_id: datos.negocio_id,
           p_meses: Number(datos.meses ?? 1),

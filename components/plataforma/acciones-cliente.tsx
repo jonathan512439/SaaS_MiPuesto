@@ -11,9 +11,12 @@ type PropiedadesAcciones = {
   nombre: string;
   activo: boolean;
   suspendidoPorPago: boolean;
+  fotoIaHabilitada: boolean;
+  fotosUsadas: number;
+  topeFotos: number;
 };
 
-type Accion = "renovar" | "publicar" | "despublicar";
+type Accion = "renovar" | "publicar" | "despublicar" | "foto_ia";
 
 /* Usa los mismos avisos y confirmaciones que el panel del negocio: bajar un
    catálogo es destructivo para el comerciante, y esa confirmación tiene que
@@ -23,6 +26,9 @@ export function AccionesCliente({
   nombre,
   activo,
   suspendidoPorPago,
+  fotoIaHabilitada,
+  fotosUsadas,
+  topeFotos,
 }: PropiedadesAcciones) {
   const router = useRouter();
   const [meses, setMeses] = useState("1");
@@ -41,12 +47,30 @@ export function AccionesCliente({
       if (!aceptado) return;
     }
 
+    /* Encender la lectura de fotos es lo único de esta pantalla que empieza a
+       gastar dinero cada vez que el comerciante la use. Se confirma con el
+       número delante para que nadie la encienda de paso. */
+    if (accion === "foto_ia" && !fotoIaHabilitada) {
+      const aceptado = await confirmar({
+        titulo: `Habilitar lectura de fotos para ${nombre}`,
+        descripcion: `Cada foto que lea tiene costo. Su tope es de ${topeFotos} fotos por mes.`,
+        textoAccion: "Habilitar",
+        textoCancelar: "Dejar apagada",
+      });
+      if (!aceptado) return;
+    }
+
     setOcupado(accion);
     try {
       const respuesta = await fetch("/api/plataforma/negocios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ negocio_id: negocioId, accion, meses: Number(meses) }),
+        body: JSON.stringify({
+          negocio_id: negocioId,
+          accion,
+          meses: Number(meses),
+          habilitada: !fotoIaHabilitada,
+        }),
       });
       const datos = (await respuesta.json().catch(() => ({}))) as { error?: string };
       if (!respuesta.ok) throw new Error(datos.error || "No se pudo aplicar el cambio.");
@@ -86,6 +110,19 @@ export function AccionesCliente({
           {ocupado === "renovar" ? "Renovando…" : "Renovar"}
         </button>
       </div>
+
+      <button
+        className={fotoIaHabilitada ? styles.secundario : styles.principal}
+        disabled={ocupado !== null}
+        onClick={() => void ejecutar("foto_ia")}
+        type="button"
+      >
+        {ocupado === "foto_ia"
+          ? "Guardando…"
+          : fotoIaHabilitada
+            ? `Quitar lectura de fotos (${fotosUsadas}/${topeFotos} este mes)`
+            : "Habilitar lectura de fotos"}
+      </button>
 
       {activo ? (
         <button

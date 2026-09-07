@@ -48,6 +48,7 @@ export type DatosCatalogoAdmin = {
     nombre: string;
     slug: string;
     rubro: string | null;
+    foto_ia_habilitada?: boolean;
   };
   categorias: CategoriaCatalogo[];
   subcategorias: SubcategoriaCatalogo[];

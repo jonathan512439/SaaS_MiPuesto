@@ -9,6 +9,7 @@ import { UsoAlmacenamientoPanel } from "../../../components/plataforma/uso-almac
 import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
 import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
+import { TOPE_FOTOS_POR_MES } from "../../../lib/ia/servidor";
 import {
   ETIQUETAS_ESTADO,
   ordenarPorUrgencia,
@@ -45,10 +46,13 @@ export default async function PaginaPlataforma() {
     return <SegundoFactor />;
   }
 
-  const [{ data: negocios, error }, { data: etiquetas }, { data: uso }] = await Promise.all([
+  const [{ data: negocios, error }, { data: etiquetas }, { data: uso }, { data: usoIa }] =
+    await Promise.all([
     supabase
       .from("negocios")
-      .select("id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en")
+      .select(
+        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada",
+      )
       .order("nombre"),
     supabase
       .from("etiquetas")
@@ -59,7 +63,16 @@ export default async function PaginaPlataforma() {
        por la aplicación, y un número de ocupación equivocado es peor que no
        tenerlo, porque se decide con él. */
     supabase.rpc("uso_almacenamiento"),
+    /* El consumo del mes se lee junto con el resto: sin el número delante,
+       habilitar la lectura de fotos es firmar un gasto a ciegas. */
+    supabase
+      .from("uso_ia_negocio")
+      .select("negocio_id,cantidad")
+      .eq("mes", new Date().toISOString().slice(0, 8) + "01"),
   ]);
+  const fotosPorNegocio = new Map(
+    (usoIa ?? []).map(({ negocio_id, cantidad }) => [negocio_id, cantidad]),
+  );
   if (error) throw new Error("No se pudo leer la lista de negocios.");
 
   const clientes = ordenarPorUrgencia(
@@ -125,9 +138,12 @@ export default async function PaginaPlataforma() {
 
               <AccionesCliente
                 activo={negocio.activo}
+                fotoIaHabilitada={negocio.foto_ia_habilitada === true}
+                fotosUsadas={fotosPorNegocio.get(negocio.id) ?? 0}
                 negocioId={negocio.id}
                 nombre={negocio.nombre}
                 suspendidoPorPago={estado === "suspendido"}
+                topeFotos={TOPE_FOTOS_POR_MES}
               />
             </li>
           ))}
