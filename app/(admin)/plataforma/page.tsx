@@ -9,7 +9,9 @@ import { UsoAlmacenamientoPanel } from "../../../components/plataforma/uso-almac
 import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
 import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
+import type { UsoIa } from "../../../lib/ia/limites";
 import { TOPE_FOTOS_POR_MES } from "../../../lib/ia/servidor";
+import { UsoIaPanel } from "../../../components/plataforma/uso-ia";
 import {
   ETIQUETAS_ESTADO,
   ordenarPorUrgencia,
@@ -46,8 +48,13 @@ export default async function PaginaPlataforma() {
     return <SegundoFactor />;
   }
 
-  const [{ data: negocios, error }, { data: etiquetas }, { data: uso }, { data: usoIa }] =
-    await Promise.all([
+  const [
+    { data: negocios, error },
+    { data: etiquetas },
+    { data: uso },
+    { data: usoIa },
+    { data: consumoIa },
+  ] = await Promise.all([
     supabase
       .from("negocios")
       .select(
@@ -69,6 +76,9 @@ export default async function PaginaPlataforma() {
       .from("uso_ia_negocio")
       .select("negocio_id,cantidad")
       .eq("mes", new Date().toISOString().slice(0, 8) + "01"),
+    /* Las ventanas por minuto y por día que Google usa para limitar. Se cuentan
+       de este lado porque su API no dice cuánto queda. */
+    supabase.rpc("uso_ia"),
   ]);
   const fotosPorNegocio = new Map(
     (usoIa ?? []).map(({ negocio_id, cantidad }) => [negocio_id, cantidad]),
@@ -95,6 +105,8 @@ export default async function PaginaPlataforma() {
       </header>
 
       <InvitarNegocio />
+
+      <UsoIaPanel uso={(consumoIa as UsoIa | null) ?? null} />
 
       <UsoAlmacenamientoPanel uso={(uso as UsoAlmacenamiento | null) ?? null} />
 

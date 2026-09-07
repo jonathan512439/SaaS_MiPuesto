@@ -11,6 +11,7 @@ import {
   devolverCredito,
   leerFotoDeLaPeticion,
   prepararLecturaDeFoto,
+  registrarLlamada,
 } from "../../../../lib/ia/servidor";
 
 /* Devuelve una propuesta, nunca guarda nada. El dueño ve los campos llenos en
@@ -34,6 +35,14 @@ export async function POST(solicitud: NextRequest) {
     INSTRUCCION_PRODUCTO,
     ESQUEMA_PRODUCTO,
     { base64: foto.base64, tipo: foto.tipo },
+  );
+
+  await registrarLlamada(
+    preparacion.admin,
+    preparacion.negocioId,
+    "producto",
+    lectura.correcto ? lectura.tokens : 0,
+    lectura.correcto,
   );
 
   if (!lectura.correcto) {

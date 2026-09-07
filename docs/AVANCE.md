@@ -266,6 +266,39 @@ con una cantidad, el catálogo diría «quedan 3» con 300 en depósito y el neg
 **rechazaría clientes por una lectura mal hecha**. Un nombre mal leído se corrige
 mirando; un stock mal leído se descubre perdiendo una venta.
 
+### Medidor del consumo de la API
+
+**Google no dice cuánto queda.** Se comprobó contra la API: la respuesta no trae
+`x-ratelimit-remaining` ni ninguna cabecera de cuota, y no hay endpoint público
+que lo informe. Así que se mide de este lado.
+
+El número es exacto por un motivo concreto: **el Worker es el único que usa esa
+clave**. Lo único que el medidor no ve son las pruebas hechas directamente en AI
+Studio, que consumen la misma cuota del proyecto sin pasar por acá. Está dicho
+en la pantalla para que nadie lo descubra después.
+
+**Se guarda una fila por llamada, no un contador.** Los límites de Google son por
+ventana —pedidos por minuto, pedidos por día, tokens por minuto— y un acumulado
+no puede responder «cuántas van en el último minuto». Una fila con hora, sí.
+
+**Las fallidas también se cuentan.** Google descuenta el pedido aunque la
+respuesta no sirva, y un medidor que solo cuenta aciertos miente justo cuando más
+importa: cerca del límite, cuando las cosas empiezan a fallar.
+
+**El día de cuota se cuenta en hora del Pacífico**, que es donde Google reinicia
+el contador diario, y se muestra aparte del día boliviano. Confundirlos hace
+esperar la medianoche equivocada: son cuatro horas en las que el sistema sigue
+rechazando aunque acá ya sea otro día. La pantalla dice cuánto falta para el
+reinicio en palabras.
+
+Los tres límites viven escritos a mano en `lib/ia/limites.ts`, porque Google no
+los expone. **Poner cero en cualquiera significa «no sé cuánto es»** y el medidor
+muestra el número medido sin barra: un límite inventado sería peor que ninguno,
+porque se decide con él.
+
+El registro se purga a los treinta días, en la misma tarea que ya limpia la
+analítica vieja.
+
 ### Un límite del nivel gratuito, encontrado al probar
 
 La generación de imágenes **no entra en el cupo gratuito**: al intentar fabricar

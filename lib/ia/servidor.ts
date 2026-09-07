@@ -94,3 +94,26 @@ export async function devolverCredito(
 ): Promise<void> {
   await admin.rpc("devolver_credito_ia", { p_negocio_id: negocioId });
 }
+
+/* Se registra toda llamada, con o sin éxito. Google descuenta el pedido aunque
+   la respuesta no sirva, así que un medidor que solo cuenta los aciertos miente
+   justo cuando más importa: cuando se está cerca del límite y las cosas empiezan
+   a fallar. */
+export async function registrarLlamada(
+  admin: ReturnType<typeof crearClienteSupabaseAdmin>,
+  negocioId: string,
+  herramienta: "producto" | "lista",
+  tokens: number,
+  exito: boolean,
+): Promise<void> {
+  try {
+    await admin.rpc("registrar_llamada_ia", {
+      p_negocio_id: negocioId,
+      p_herramienta: herramienta,
+      p_tokens: tokens,
+      p_exito: exito,
+    });
+  } catch {
+    /* Medir no puede romper la función que mide. */
+  }
+}

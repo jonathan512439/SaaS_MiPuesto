@@ -213,6 +213,41 @@ export type Database = {
           },
         ]
       }
+      llamadas_ia: {
+        Row: {
+          creado_en: string
+          exito: boolean
+          herramienta: string
+          id: number
+          negocio_id: string | null
+          tokens: number
+        }
+        Insert: {
+          creado_en?: string
+          exito: boolean
+          herramienta: string
+          id?: never
+          negocio_id?: string | null
+          tokens?: number
+        }
+        Update: {
+          creado_en?: string
+          exito?: boolean
+          herramienta?: string
+          id?: never
+          negocio_id?: string | null
+          tokens?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "llamadas_ia_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       negocios: {
         Row: {
           activo: boolean
@@ -759,6 +794,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      registrar_llamada_ia: {
+        Args: {
+          p_exito: boolean
+          p_herramienta: string
+          p_negocio_id: string
+          p_tokens: number
+        }
+        Returns: undefined
+      }
       resolver_etiqueta: { Args: { p_codigo: string }; Returns: string }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
@@ -766,6 +810,8 @@ export type Database = {
       suspender_suscripciones_vencidas: { Args: never; Returns: number }
       uso_almacenamiento: { Args: never; Returns: Json }
       uso_almacenamiento_servicio: { Args: never; Returns: Json }
+      uso_ia: { Args: never; Returns: Json }
+      uso_ia_servicio: { Args: never; Returns: Json }
     }
     Enums: {
       [_ in never]: never

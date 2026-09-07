@@ -11,6 +11,7 @@ import {
   devolverCredito,
   leerFotoDeLaPeticion,
   prepararLecturaDeFoto,
+  registrarLlamada,
 } from "../../../../lib/ia/servidor";
 
 /* Tope por foto. Una lista con más de cien renglones legibles no existe en un
@@ -36,6 +37,14 @@ export async function POST(solicitud: NextRequest) {
     base64: foto.base64,
     tipo: foto.tipo,
   });
+
+  await registrarLlamada(
+    preparacion.admin,
+    preparacion.negocioId,
+    "lista",
+    lectura.correcto ? lectura.tokens : 0,
+    lectura.correcto,
+  );
 
   if (!lectura.correcto) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);

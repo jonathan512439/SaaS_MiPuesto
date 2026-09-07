@@ -1,0 +1,139 @@
+@reference "../../app/globals.css";
+
+.panel {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.panel h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.panel header p,
+.vacio,
+.nota,
+.medidor p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.medidores {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.medidor {
+  display: grid;
+  gap: var(--spacing-1);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+}
+
+.titulo {
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.medidor strong {
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.medidor strong span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.medidor p {
+  font-size: var(--text-xs);
+}
+
+.barra {
+  appearance: none;
+  inline-size: 100%;
+  overflow: hidden;
+  block-size: var(--spacing-2);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-suave);
+  color: var(--color-marca);
+}
+
+.barra::-webkit-progress-bar {
+  background: var(--color-fondo-suave);
+}
+
+.barra::-webkit-progress-value {
+  background: var(--color-marca);
+}
+
+.barra::-moz-progress-bar {
+  background: var(--color-marca);
+}
+
+/* El color cambia en el umbral y no de a poco: lo que hace falta saber es si
+   conviene esperar un minuto, no interpretar un tono. */
+.medidor[data-nivel="atencion"] .barra::-webkit-progress-value {
+  background: var(--color-accion);
+}
+
+.medidor[data-nivel="atencion"] .barra::-moz-progress-bar {
+  background: var(--color-accion);
+}
+
+.medidor[data-nivel="critico"] {
+  border-color: var(--color-peligro);
+}
+
+.medidor[data-nivel="critico"] .barra::-webkit-progress-value {
+  background: var(--color-peligro);
+}
+
+.medidor[data-nivel="critico"] .barra::-moz-progress-bar {
+  background: var(--color-peligro);
+}
+
+.detalles {
+  display: grid;
+  gap: var(--spacing-2);
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  padding-top: var(--spacing-3);
+}
+
+.detalles dt {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.detalles dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.nota {
+  font-size: var(--text-xs);
+}
+
+@media (min-width: 40rem) {
+  .medidores {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detalles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
