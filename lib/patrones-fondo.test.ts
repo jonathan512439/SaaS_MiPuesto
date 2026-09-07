@@ -12,13 +12,16 @@ describe("patrón del fondo", () => {
     }
   });
 
-  it("distingue una ferretería de una barbería", () => {
-    expect(patronDeRubro("ferreteria")).not.toBe(patronDeRubro("belleza"));
+  /* Repartir cuatro dibujos entre siete rubros dejaba pares con el mismo fondo,
+     que es justo lo que hacía que el patrón no dijera nada del negocio. */
+  it("no repite dibujo entre dos rubros", () => {
+    const dibujos = RUBROS.map((rubro) => patronDeRubro(rubro));
+    expect(new Set(dibujos).size).toBe(RUBROS.length);
   });
 
   it("tiene un patrón para quien no eligió rubro", () => {
-    expect(patronDeRubro(null)).toBe("trama");
-    expect(patronDeRubro("")).toBe("trama");
-    expect(patronDeRubro("panaderia")).toBe("trama");
+    expect(patronDeRubro(null)).toBe("rombos");
+    expect(patronDeRubro("")).toBe("rombos");
+    expect(patronDeRubro("panaderia")).toBe("rombos");
   });
 });

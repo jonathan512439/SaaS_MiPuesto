@@ -7,6 +7,7 @@
      Un poco más suave que en el panel (6 % contra 8 %) porque sobre fondo oscuro
      una trama clara se percibe más marcada con la misma proporción. */
   --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 6%, transparent);
+  --patron-tinta-suave: color-mix(in srgb, var(--catalogo-texto) 4%, transparent);
   --catalogo-fondo-suave: color-mix(in srgb, var(--catalogo-marca) 7%, var(--catalogo-superficie));
   --catalogo-fondo-hundido: color-mix(in srgb, var(--catalogo-texto) 5%, var(--catalogo-superficie));
   --catalogo-marca-tenue: color-mix(in srgb, var(--catalogo-marca) 14%, var(--catalogo-superficie));

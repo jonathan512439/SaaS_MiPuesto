@@ -163,6 +163,10 @@ select,
 /* ---------------------------------------------------------------------------
    Patrón del fondo.
 
+   Uno por rubro, y cada uno dibuja algo del oficio. Son texturas y no íconos a
+   propósito: un tenedor o una llave inglesa a esta opacidad y a este tamaño se
+   convierten en manchas, y lo que sobrevive al 6-8 % es la trama, no el objeto.
+
    Se dibuja con degradados, sin imágenes: cero bytes de descarga y cero
    peticiones. La tinta sale de `--patron-tinta`, que cada contexto define con el
    color de su propia paleta, así funciona en las siete y en la oscura la trama
@@ -180,49 +184,87 @@ select,
    --------------------------------------------------------------------------- */
 [data-patron] {
   --patron-tinta: color-mix(in srgb, var(--color-texto) 8%, transparent);
-  --patron-paso: 1.5rem;
+  /* Mas floja para los dibujos que rellenan superficie en vez de trazar lineas:
+     con la misma tinta, media pantalla pintada al 8 % deja de ser una textura y
+     pasa a ser otro color de fondo. */
+  --patron-tinta-suave: color-mix(in srgb, var(--color-texto) 5%, transparent);
   --patron-imagen: none;
   --patron-tamano: auto;
 }
 
-[data-patron="puntos"] {
-  --patron-imagen: radial-gradient(var(--patron-tinta) 1.5px, transparent 1.5px);
-  --patron-tamano: var(--patron-paso) var(--patron-paso);
+/* Restaurante: cuadros de mantel. Las dos bandas son translucidas, asi que
+   donde se cruzan queda un tercer tono: eso es lo que lo hace leer como tela y
+   no como una rejilla. Usa la tinta suave porque cubre media superficie, y con
+   la tinta de linea el fondo entero se ensuciaria. */
+[data-patron="mantel"] {
+  --patron-imagen:
+    linear-gradient(90deg, var(--patron-tinta-suave) 50%, transparent 50%),
+    linear-gradient(180deg, var(--patron-tinta-suave) 50%, transparent 50%);
+  --patron-tamano: 1.25rem 1.25rem;
 }
 
-[data-patron="rejilla"] {
+/* Ferreteria: papel milimetrado. Los dos pesos de linea son el patron; con uno
+   solo vuelve a ser una cuadricula cualquiera. */
+[data-patron="plano"] {
   --patron-imagen:
     linear-gradient(to right, var(--patron-tinta) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--patron-tinta) 1px, transparent 1px);
-  --patron-tamano: var(--patron-paso) var(--patron-paso);
+    linear-gradient(to bottom, var(--patron-tinta) 1px, transparent 1px),
+    linear-gradient(to right, var(--patron-tinta-suave) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--patron-tinta-suave) 1px, transparent 1px);
+  --patron-tamano: 2.5rem 2.5rem, 2.5rem 2.5rem, 0.5rem 0.5rem, 0.5rem 0.5rem;
 }
 
-[data-patron="diagonal"] {
+/* Tienda de barrio: las rayas del toldo de la esquina. */
+[data-patron="toldo"] {
   --patron-imagen: repeating-linear-gradient(
-    45deg,
-    var(--patron-tinta) 0,
-    var(--patron-tinta) 1px,
-    transparent 1px,
-    transparent 0.75rem
+    90deg,
+    var(--patron-tinta-suave) 0 0.9rem,
+    transparent 0.9rem 1.8rem
   );
 }
 
-[data-patron="trama"] {
+/* Ropa y calzado: sarga, la diagonal apretada del tejido de un pantalon. Va a
+   60 grados y no a 45 para que no se confunda con una diagonal decorativa. */
+[data-patron="sarga"] {
+  --patron-imagen: repeating-linear-gradient(
+    60deg,
+    var(--patron-tinta) 0 1px,
+    transparent 1px 0.4rem
+  );
+}
+
+/* Belleza: escamas, el arco repetido que la peluqueria comparte con el art
+   deco. Cada baldosa dibuja un arco al borde inferior; apiladas dan el abanico. */
+[data-patron="escamas"] {
+  --patron-imagen: radial-gradient(
+    circle at 50% 100%,
+    transparent 0 46%,
+    var(--patron-tinta) 46% 48%,
+    transparent 48%
+  );
+  --patron-tamano: 1.6rem 1.6rem;
+}
+
+/* Servicios: renglones, como la agenda donde se anotan los turnos. */
+[data-patron="renglones"] {
+  --patron-imagen: repeating-linear-gradient(
+    180deg,
+    var(--patron-tinta) 0 1px,
+    transparent 1px 1.6rem
+  );
+}
+
+/* Otro o sin rubro: celosia de rombos con un punto en uno de cada dos cruces.
+   Es el unico que no representa un oficio, asi que se elige por ser el mas
+   vestido de los siete. El paso del punto es 1,6 rem por raiz de dos, que es la
+   distancia real entre cruces de las dos diagonales: con cualquier otro numero
+   los puntos quedan flotando fuera de la celosia. */
+[data-patron="rombos"] {
   --patron-imagen:
-    repeating-linear-gradient(
-      45deg,
-      var(--patron-tinta) 0,
-      var(--patron-tinta) 1px,
-      transparent 1px,
-      transparent 1.25rem
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      var(--patron-tinta) 0,
-      var(--patron-tinta) 1px,
-      transparent 1px,
-      transparent 1.25rem
-    );
+    radial-gradient(var(--patron-tinta) 1.5px, transparent 1.5px),
+    repeating-linear-gradient(45deg, var(--patron-tinta) 0 1px, transparent 1px 1.6rem),
+    repeating-linear-gradient(-45deg, var(--patron-tinta) 0 1px, transparent 1px 1.6rem);
+  --patron-tamano: 2.263rem 2.263rem, auto, auto;
 }
 
 /* Una hoja de papel no lleva trama: gasta tinta y se ve sucia. */
