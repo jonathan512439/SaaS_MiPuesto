@@ -11,9 +11,13 @@ import { mensajeErrorInicioSesion } from "../../../lib/auth/mensajes";
 
 type PropiedadesFormularioLogin = {
   sesionRequerida?: boolean;
+  claveGuardada?: boolean;
 };
 
-export function FormularioLogin({ sesionRequerida = false }: PropiedadesFormularioLogin) {
+export function FormularioLogin({
+  claveGuardada = false,
+  sesionRequerida = false,
+}: PropiedadesFormularioLogin) {
   const supabase = useClienteSupabaseNavegador();
   const [error, setError] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -44,6 +48,14 @@ export function FormularioLogin({ sesionRequerida = false }: PropiedadesFormular
 
   return (
     <form className={styles.formulario} onSubmit={iniciarSesion}>
+      {/* Quien acaba de definir su contraseña necesita saber que se guardó. Sin
+          esto, llegar al ingreso se lee como que algo falló, y lo primero que
+          hace es pedir otro enlace. */}
+      {claveGuardada ? (
+        <p className={styles.nota} role="status">
+          Tu contraseña quedó guardada. Ingresá con ella para entrar a tu panel.
+        </p>
+      ) : null}
       {sesionRequerida ? (
         <p className={styles.nota} role="status">
           Iniciá sesión para continuar en tu panel.

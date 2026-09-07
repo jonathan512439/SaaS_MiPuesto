@@ -350,3 +350,27 @@ inventaban tres motivos —enlace vencido, otro navegador, cookies bloqueadas—
 no tenían nada que ver. **Cada intento se veía igual y no había nada que deducir.**
 Lo que finalmente lo resolvió fue dejar de traducir lo que no entendíamos y
 mostrar el error crudo del servidor.
+
+### La invitación que daba vueltas — 2026-09-07
+
+Al aceptar una invitación y definir la contraseña, el botón quedaba girando y no
+pasaba nada. La contraseña **sí se guardaba**: yendo al ingreso a mano y
+escribiéndola, entraba.
+
+Medido contra la API: la sesión que abre un enlace de invitación llega con
+`amr: [{"method":"otp"}]` —igual que la de recuperación—. Y el proxy rebota esas
+sesiones desde el panel de vuelta a definir la contraseña, con razón: quien solo
+abrió un correo todavía no definió nada. El recién invitado quedaba yendo y
+viniendo entre las dos páginas.
+
+**La corrección es entrar con la contraseña recién puesta**, no con la sesión del
+enlace. Eso produce una sesión marcada como `password`, que el panel deja pasar,
+y de paso comprueba en el acto que la contraseña elegida funciona.
+
+Con segundo factor se conserva la sesión elevada: volver a entrar obligaría a
+escribir el código otra vez, y esa sesión ya trae el factor cumplido.
+
+**Y ahora se confirma antes de navegar.** La navegación tarda, y ese hueco en
+silencio es lo que hace pensar que no pasó nada. Si el ingreso automático
+fallara, se llega al login con el aviso de que la contraseña quedó guardada, en
+vez de una pantalla muda que se lee como un fallo.

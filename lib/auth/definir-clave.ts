@@ -14,12 +14,13 @@
  * adelante aparecen sesiones que se caen solas en el panel, este es el hilo.
  */
 export type ResultadoCanje =
-  | { correcto: true; accessToken: string; refreshToken: string }
+  | { correcto: true; accessToken: string; refreshToken: string; correo: string }
   | { correcto: false; motivo: string };
 
 type RespuestaAuth = {
   access_token?: string;
   refresh_token?: string;
+  user?: { email?: string };
   error_code?: string;
   msg?: string;
   message?: string;
@@ -53,6 +54,10 @@ export async function canjearEnlace(
     correcto: true,
     accessToken: datos.access_token,
     refreshToken: datos.refresh_token,
+    /* El correo se rescata del canje para poder iniciar sesión con la contraseña
+       recién puesta. Ver el comentario del formulario: la sesión del enlace no
+       sirve para entrar al panel. */
+    correo: datos.user?.email ?? "",
   };
 }
 

@@ -21,7 +21,10 @@ export default async function PaginaLogin({ searchParams }: PropiedadesPaginaLog
       paso="Acceso de administradores"
       titulo="Ingresá a tu negocio"
     >
-      <FormularioLogin sesionRequerida={motivo === "sesion"} />
+      <FormularioLogin
+        claveGuardada={motivo === "clave-lista"}
+        sesionRequerida={motivo === "sesion"}
+      />
     </MarcoAuth>
   );
 }

@@ -13,15 +13,30 @@ function respuesta(estado: number, cuerpo: unknown) {
 }
 
 describe("canje del enlace", () => {
-  it("devuelve los dos tokens cuando el canje anda", async () => {
+  /* El correo viene en el canje y se conserva: con él se inicia sesión usando la
+     contraseña recién puesta, en vez de la sesión del enlace, que el panel
+     rebota por venir marcada como `otp`. */
+  it("devuelve los tokens y el correo cuando el canje anda", async () => {
     vi.stubGlobal("fetch", () =>
-      respuesta(200, { access_token: "a", refresh_token: "r" }),
+      respuesta(200, {
+        access_token: "a",
+        refresh_token: "r",
+        user: { email: "duena@negocio.com" },
+      }),
     );
     await expect(canjearEnlace(URL_BASE, "clave", "hash", "recovery")).resolves.toEqual({
       correcto: true,
       accessToken: "a",
       refreshToken: "r",
+      correo: "duena@negocio.com",
     });
+    vi.unstubAllGlobals();
+  });
+
+  it("no se rompe si el canje no trae el correo", async () => {
+    vi.stubGlobal("fetch", () => respuesta(200, { access_token: "a", refresh_token: "r" }));
+    const resultado = await canjearEnlace(URL_BASE, "clave", "hash", "invite");
+    expect(resultado.correcto === true && resultado.correo).toBe("");
     vi.unstubAllGlobals();
   });
 

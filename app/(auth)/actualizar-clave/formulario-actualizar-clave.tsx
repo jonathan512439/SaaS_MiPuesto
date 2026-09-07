@@ -57,6 +57,7 @@ export function FormularioActualizarClave() {
     clave: string;
   } | null>(null);
   const [codigo, setCodigo] = useState("");
+  const [guardada, setGuardada] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -96,6 +97,35 @@ export function FormularioActualizarClave() {
       cancelado = true;
     };
   }, [supabase]);
+
+  /* Nada de lo que pase acá puede dejar el botón girando para siempre: si algo
+     falla, la contraseña ya está guardada y alcanza con mandarlo a ingresar. */
+  async function entrarConLaClaveNueva(correo: string, clave: string) {
+    try {
+      /* Se confirma antes de navegar. La navegación tarda, y ese hueco en
+         silencio es lo que hace pensar que no pasó nada. */
+      setGuardada(true);
+
+      if (correo) {
+        const { error: errorEntrada } = await supabase.auth.signInWithPassword({
+          email: correo,
+          password: clave,
+        });
+        if (!errorEntrada) {
+          await supabase.auth.signOut({ scope: "others" });
+          router.replace("/dashboard/configuracion");
+          router.refresh();
+          return;
+        }
+      }
+    } catch {
+      /* Se cae al camino de abajo. */
+    }
+
+    setEnviando(false);
+    setError("");
+    router.replace("/login?motivo=clave-lista");
+  }
 
   async function actualizarClave(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -164,16 +194,15 @@ export function FormularioActualizarClave() {
         return;
       }
 
-      /* Recién con la contraseña ya escrita se deja la sesión abierta, para que
-         entre directo al panel. Si esto fallara, la contraseña ya está guardada
-         y puede ingresar normalmente. */
-      await supabase.auth.setSession({
-        access_token: canje.accessToken,
-        refresh_token: canje.refreshToken,
-      });
-      await supabase.auth.signOut({ scope: "others" });
-      router.replace("/dashboard/configuracion");
-      router.refresh();
+      /* Se entra con la contraseña recién puesta, no con la sesión del enlace.
+         La del enlace llega marcada como `otp`, y el panel rebota esas sesiones
+         de vuelta a esta misma página —con razón: quien solo abrió un correo
+         todavía no definió nada—. Al invitado eso lo dejaba dando vueltas entre
+         las dos páginas, con el botón girando y sin llegar nunca.
+
+         Iniciar sesión de verdad tiene además la ventaja de comprobar, en el
+         acto, que la contraseña que acaba de elegir funciona. */
+      await entrarConLaClaveNueva(canje.correo, clave);
       return;
     }
 
@@ -187,13 +216,8 @@ export function FormularioActualizarClave() {
         setEnviando(false);
         return;
       }
-      await supabase.auth.setSession({
-        access_token: tokens.accessToken,
-        refresh_token: tokens.refreshToken,
-      });
-      await supabase.auth.signOut({ scope: "others" });
-      router.replace("/dashboard/configuracion");
-      router.refresh();
+      const { data: quien } = await supabase.auth.getUser(tokens.accessToken);
+      await entrarConLaClaveNueva(quien.user?.email ?? "", clave);
       return;
     }
 
@@ -251,6 +275,9 @@ export function FormularioActualizarClave() {
       return;
     }
 
+    /* Con segundo factor se conserva la sesión elevada: volver a entrar con la
+       contraseña obligaría a escribir el código otra vez, y esa sesión ya trae el
+       factor cumplido, así que el panel la deja pasar. */
     await supabase.auth.setSession({
       access_token: elevado.accessToken,
       refresh_token: pendienteMfa.refreshToken,
@@ -258,6 +285,17 @@ export function FormularioActualizarClave() {
     await supabase.auth.signOut({ scope: "others" });
     router.replace("/dashboard/configuracion");
     router.refresh();
+  }
+
+  if (guardada) {
+    return (
+      <div className={styles.formulario}>
+        <p className={styles.mensajeExito} role="status">
+          Tu contraseña quedó guardada.
+        </p>
+        <p>Te estamos llevando a tu panel…</p>
+      </div>
+    );
   }
 
   if (!listo) return null;
