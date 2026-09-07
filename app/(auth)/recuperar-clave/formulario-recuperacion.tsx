@@ -6,6 +6,7 @@ import { type FormEvent, useState } from "react";
 import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, Campo } from "../../../components/ui";
+import { esLimiteDeCorreo, mensajeDeEspera } from "../../../lib/auth/espera-correo";
 
 const MENSAJE_GENERICO =
   "Si el correo corresponde a una cuenta habilitada, recibirás un enlace para cambiar tu contraseña.";
@@ -14,6 +15,7 @@ export function FormularioRecuperacion() {
   const supabase = useClienteSupabaseNavegador();
   const [enviando, setEnviando] = useState(false);
   const [solicitudTerminada, setSolicitudTerminada] = useState(false);
+  const [espera, setEspera] = useState("");
 
   async function solicitarRecuperacion(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -23,7 +25,20 @@ export function FormularioRecuperacion() {
     const correo = String(datos.get("correo") ?? "").trim().toLowerCase();
     const destino = new URL("/actualizar-clave", window.location.origin).toString();
 
-    await supabase.auth.resetPasswordForEmail(correo, { redirectTo: destino });
+    const { error } = await supabase.auth.resetPasswordForEmail(correo, {
+      redirectTo: destino,
+    });
+
+    /* El mensaje genérico se mantiene para no revelar si una dirección existe.
+       Pero un 429 no es privacidad: es que el sistema decidió no mandar nada.
+       Callarlo deja a la persona mirando una bandeja vacía sin saberlo. */
+    if (esLimiteDeCorreo(error)) {
+      setEspera(mensajeDeEspera(error));
+      setEnviando(false);
+      return;
+    }
+
+    setEspera("");
     setSolicitudTerminada(true);
     setEnviando(false);
   }
@@ -41,6 +56,11 @@ export function FormularioRecuperacion() {
         required
         type="email"
       />
+      {espera ? (
+        <p className={styles.mensajeError} role="alert">
+          {espera}
+        </p>
+      ) : null}
       {solicitudTerminada ? (
         <p className={styles.mensajeExito} role="status">
           {MENSAJE_GENERICO} Revisá también la carpeta de correo no deseado.

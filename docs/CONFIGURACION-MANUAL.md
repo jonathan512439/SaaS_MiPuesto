@@ -360,10 +360,29 @@ Comprobado el 2026-09-07: **Supabase acepta el pedido e intenta enviar.** El
 dirección. O sea: el fallo no está en la aplicación ni en el pedido, está en el
 envío o en la plantilla.
 
+### Lo primero: el sistema ya lo estaba diciendo
+
+Los registros del 2026-09-07 muestran cuatro `POST /auth/v1/recover`: dos con 200
+y tres con **429** seguidos. El 429 de Supabase significa que **no envió nada**.
+
+El formulario ignoraba esa respuesta y siempre decía «revisá tu correo». El
+mensaje genérico existe para no revelar si una dirección está registrada —esa
+decisión se mantiene—, pero **un 429 no es privacidad, es una espera**, y
+callarlo dejó a alguien mirando una bandeja vacía mientras el sistema ya había
+dicho por qué.
+
+Corregido: ahora se muestra cuántos segundos faltan, que es lo que permite
+decidir si conviene esperar.
+
+**Los límites viven en Authentication → Rate Limits.** Hay uno por dirección —de
+segundos— y otro por hora para todo el proyecto. El segundo se agota con una
+tarde de pruebas como la de hoy.
+
 ### Dónde mirar, en orden
 
-1. **Logs → Auth** en la consola de Supabase. Ahí aparece el error del servidor
-   de correo tal cual, y es lo único que lo dice sin adivinar.
+1. **Logs → Auth** en la consola de Supabase. Los de **Edge** solo muestran las
+   peticiones HTTP; el error del servidor de correo aparece en los de Auth, y es
+   lo único que lo dice sin adivinar.
 2. **Authentication → Emails → SMTP Settings.** Si es una clave de aplicación de
    Gmail, comprobar que siga viva: Google las revoca al cambiar la contraseña de
    la cuenta o al detectar actividad rara.
