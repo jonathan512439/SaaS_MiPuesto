@@ -190,17 +190,22 @@ select,
   --patron-tinta-suave: color-mix(in srgb, var(--color-texto) 5%, transparent);
   --patron-imagen: none;
   --patron-tamano: auto;
+  /* La baldosa de siluetas va como mascara, no como imagen: asi el color lo
+     sigue poniendo la paleta. `--patron-relleno` existe para que el velo quede
+     transparente cuando no hay mascara; sin el, el rubro sin baldosa recibiria
+     una capa lisa de tinta sobre toda la pantalla. */
+  --patron-mascara: none;
+  --patron-relleno: transparent;
 }
 
-/* Restaurante: cuadros de mantel. Las dos bandas son translucidas, asi que
-   donde se cruzan queda un tercer tono: eso es lo que lo hace leer como tela y
-   no como una rejilla. Usa la tinta suave porque cubre media superficie, y con
-   la tinta de linea el fondo entero se ensuciaria. */
-[data-patron="mantel"] {
-  --patron-imagen:
-    linear-gradient(90deg, var(--patron-tinta-suave) 50%, transparent 50%),
-    linear-gradient(180deg, var(--patron-tinta-suave) 50%, transparent 50%);
-  --patron-tamano: 1.25rem 1.25rem;
+/* Restaurante: objetos de cocina desparramados, sin repetir una figura. La
+   baldosa es de 360 px y trae dieciseis: mas chica, el ojo encuentra la grilla;
+   los objetos que tocan un borde estan dibujados tambien del otro lado, asi que
+   no queda una calle vacia donde una baldosa se junta con la siguiente. */
+[data-patron="comida"] {
+  --patron-mascara: url("/patrones/restaurante.svg");
+  --patron-relleno: var(--patron-tinta);
+  --patron-tamano: 22.5rem 22.5rem;
 }
 
 /* Ferreteria: papel milimetrado. Los dos pesos de linea son el patron; con uno
@@ -271,6 +276,8 @@ select,
 @media print {
   [data-patron] {
     --patron-imagen: none;
+    --patron-mascara: none;
+    --patron-relleno: transparent;
   }
 }
 
@@ -280,5 +287,7 @@ select,
 @media (prefers-contrast: more) {
   [data-patron] {
     --patron-imagen: none;
+    --patron-mascara: none;
+    --patron-relleno: transparent;
   }
 }

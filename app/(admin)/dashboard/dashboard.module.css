@@ -1,10 +1,27 @@
 @reference "../../globals.css";
 
 .pagina {
+  position: relative;
   min-height: 100dvh;
+  isolation: isolate;
   background-color: var(--color-superficie);
   background-image: var(--patron-imagen, none);
   background-size: var(--patron-tamano, auto);
+}
+
+/* La mascara no puede ir en `.pagina`: enmascarar un elemento tapa tambien su
+   contenido. Va en un velo aparte con `z-index: -1`, que dentro del contexto
+   que abre `isolation` queda encima del fondo de la pagina y debajo de todo lo
+   que se lee. */
+.pagina::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-color: var(--patron-relleno, transparent);
+  content: "";
+  mask-image: var(--patron-mascara, none);
+  mask-size: var(--patron-tamano, auto);
+  pointer-events: none;
 }
 
 .barra {

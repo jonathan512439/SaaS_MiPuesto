@@ -14,7 +14,7 @@
  * la oscura, donde la trama va más clara que el fondo en vez de más oscura.
  */
 export type PatronFondo =
-  | "mantel"
+  | "comida"
   | "plano"
   | "toldo"
   | "sarga"
@@ -23,8 +23,8 @@ export type PatronFondo =
   | "rombos";
 
 const POR_RUBRO: Record<string, PatronFondo> = {
-  /* Cuadros de mantel. */
-  restaurante: "mantel",
+  /* Objetos de cocina desparramados. */
+  restaurante: "comida",
   /* Papel milimetrado, con línea fina y línea gruesa como un plano. */
   ferreteria: "plano",
   /* Las rayas del toldo de la tienda de la esquina. */

@@ -31,10 +31,29 @@
 
 /* La plantilla pinta su propio fondo y taparía el patrón, así que lo pinta ella.
    El selector con atributo gana en especificidad sobre la clase de la plantilla
-   sin que ninguna de las dos hojas tenga que conocer a la otra. */
-.tema[data-patron] > * {
+   sin que ninguna de las dos hojas tenga que conocer a la otra.
+
+   `> article` y no `> *`: las cuatro plantillas tienen un `article` de raíz y
+   ninguno de los otros hijos del contenedor lo es. Con `> *` el patrón también
+   se pintaba detrás de la ficha del producto, que es un diálogo y no una
+   página. */
+.tema[data-patron] > article {
+  position: relative;
+  isolation: isolate;
   background-image: var(--patron-imagen, none);
   background-size: var(--patron-tamano, auto);
+}
+
+/* Velo aparte para la máscara: enmascarar la plantilla taparia su contenido. */
+.tema[data-patron] > article::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background-color: var(--patron-relleno, transparent);
+  content: "";
+  mask-image: var(--patron-mascara, none);
+  mask-size: var(--patron-tamano, auto);
+  pointer-events: none;
 }
 
 .tema[data-paleta="mercado"] {
