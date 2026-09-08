@@ -33,15 +33,20 @@ export default function ImagenPortada() {
           fontFamily: "Arial, sans-serif",
         }}
       >
-        {/* El toldo del isotipo, muy grande y cortado por el borde: se reconoce
-            la forma sin competir con el texto, y es lo único de la tarjeta que
-            no se puede copiar. */}
+        {/* El toldo, grande y cortado por el borde: se reconoce la forma sin
+            competir con el texto, y es lo único de la tarjeta que no se puede
+            copiar.
+
+            El color va escrito y no sale de una opacidad porque el generador de
+            esta imagen **ignora `stroke-opacity`**: se comprobó mirando el PNG,
+            donde salía blanco puro. Y no es tan tenue como sería en una pantalla:
+            en WhatsApp esta tarjeta se ve del tamaño de una miniatura, y ahí una
+            marca de agua sutil desaparece. */}
         <svg
           fill="none"
           height="620"
-          stroke={COLORES_MIPUESTO.superficie}
+          stroke="#84a5a9"
           strokeLinejoin="round"
-          strokeOpacity="0.16"
           strokeWidth="18"
           style={{ position: "absolute", top: "-40px", right: "-90px" }}
           viewBox="0 0 256 325"
