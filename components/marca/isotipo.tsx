@@ -24,10 +24,15 @@ export function Isotipo({ className, titulo }: { className?: string; titulo?: st
       aria-hidden={titulo ? undefined : true}
       className={className ? `${styles.isotipo} ${className}` : styles.isotipo}
       fill="none"
+      /* Tamaño de reserva, no el definitivo: cada pantalla le da su altura por
+         CSS y cualquier regla le gana a un atributo. Está para que un descuido
+         salga como un ícono chico y no como un logotipo de media pantalla. */
+      height="30"
       role={titulo ? "img" : undefined}
       stroke="currentColor"
       strokeLinejoin="round"
       viewBox="0 0 256 325"
+      width="24"
       xmlns="http://www.w3.org/2000/svg"
     >
       {titulo ? <title>{titulo}</title> : null}

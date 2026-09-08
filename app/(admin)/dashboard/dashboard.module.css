@@ -52,13 +52,12 @@
   text-decoration: none;
 }
 
-/* La marca es tinta negra con transparencia; el filtro la lleva a blanco sobre
-   la barra teal sin necesitar un segundo archivo. */
+/* Ya no hace falta ningún filtro: el isotipo es un vector que toma
+   `currentColor`, y la barra ya pinta su texto de blanco. */
 .isotipo {
   flex: 0 0 auto;
   width: auto;
   height: var(--spacing-8);
-  filter: brightness(0) invert(1);
 }
 
 .cuenta {

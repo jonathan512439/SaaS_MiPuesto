@@ -1,10 +1,18 @@
 @reference "../../app/globals.css";
 
-/* La altura la pone quien lo usa; el ancho sale de la proporción del original.
-   `display: block` evita el hueco que deja la línea base cuando un SVG se dibuja
-   como texto. */
+/* Solo `display: block`, para quitar el hueco que deja la línea base cuando un
+   SVG se dibuja como si fuera texto.
+
+   **Acá no se declara ningún tamaño, y es a propósito.** Antes había
+   `height: 100%`, y como cada pantalla trae su propia clase `.isotipo` con su
+   altura, quedaban dos reglas de un solo selector de clase compitiendo: gana la
+   que el paquete deja última, no la que el autor cree. En el panel ganó esta y
+   el logotipo salió del alto de media pantalla, empujando el nombre debajo del
+   botón «Salir».
+
+   El tamaño de reserva va como atributos `width` y `height` del propio SVG: si
+   alguna pantalla se olvida de darle una altura, sale un ícono chico en vez de
+   uno gigante, y cualquier regla CSS le gana sin pelear por el orden. */
 .isotipo {
   display: block;
-  width: auto;
-  height: 100%;
 }
