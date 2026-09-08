@@ -50,10 +50,11 @@
   display: grid;
   place-items: center;
   gap: var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-radius: var(--radius-tarjeta);
   padding: var(--spacing-4);
   background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
 }
 
 .vista img {

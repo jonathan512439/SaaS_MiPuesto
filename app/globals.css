@@ -15,6 +15,24 @@
   --color-peligro: color-mix(in srgb, var(--color-accion) 72%, var(--color-texto));
   --color-deshabilitado: color-mix(in srgb, var(--color-texto) 12%, var(--color-superficie));
   --color-borde-suave: color-mix(in srgb, var(--color-texto) 13%, transparent);
+  /* El borde de una tarjeta, más tenue que cualquier otro: con la sombra y el
+     lienzo tintado detrás, la tarjeta ya se distingue sola y este borde solo
+     define el filo. Un borde marcado convierte cualquier pantalla en un
+     formulario. */
+  --color-borde-tarjeta: color-mix(in srgb, var(--color-texto) 8%, transparent);
+
+  /* El fondo de la página, apenas tintado, contra la superficie casi blanca de
+     las tarjetas.
+
+     Antes los dos eran el mismo color, y de ahí venía media sensación de
+     «formulario»: si la tarjeta es del color de la página, lo único que la
+     dibuja es el borde, y hay que ponerle borde a todo. Con el lienzo un punto
+     más oscuro, la tarjeta se recorta sola y el borde pasa a ser un detalle.
+
+     Cinco por ciento y no siete —el de `fondo-suave`— para que los bloques
+     tintados que van **dentro** de una tarjeta sigan leyéndose como bloques y no
+     se confundan con el fondo de la página. */
+  --color-lienzo: color-mix(in srgb, var(--color-marca) 5%, var(--color-superficie));
   --color-texto-suave: color-mix(in srgb, var(--color-texto) 74%, var(--color-superficie));
 
   /* Las herramientas con IA no toman el color del negocio, y es a propósito:

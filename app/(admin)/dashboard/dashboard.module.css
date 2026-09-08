@@ -4,7 +4,7 @@
   position: relative;
   min-height: 100dvh;
   isolation: isolate;
-  background-color: var(--color-superficie);
+  background-color: var(--color-lienzo);
 }
 
 /* La mascara no puede ir en `.pagina`: enmascarar un elemento tapa tambien su
@@ -124,6 +124,7 @@
   min-height: var(--spacing-10);
   align-items: center;
   justify-content: center;
+  gap: var(--spacing-2);
   border: var(--borde-fino) solid color-mix(in srgb, var(--color-superficie) 45%, transparent);
   border-radius: var(--radius-status);
   padding: var(--spacing-2) var(--spacing-4);
@@ -140,6 +141,13 @@
   border-color: var(--color-superficie);
   background-color: var(--color-superficie);
   color: var(--color-marca-fuerte);
+}
+
+/* Un punto más grande que la palabra, y no del mismo cuerpo: a la par, un ícono
+   de trazo se ve más liviano que una letra maciza y queda flotando. */
+.iconoEnlace {
+  flex: 0 0 auto;
+  font-size: var(--text-base);
 }
 
 /* Relleno y no delineado: sobre la barra de color, un botón con borde y letra

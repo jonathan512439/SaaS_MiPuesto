@@ -10,10 +10,11 @@
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-radius: var(--radius-panel);
   padding: var(--spacing-3);
   background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
 }
 
 .miniatura,

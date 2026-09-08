@@ -84,16 +84,57 @@ function compararListas(nombre, esperado, actual, origen) {
   }
 }
 
-function leerColor(token) {
-  const coincidencia = css.match(
-    new RegExp(`--color-${token}:\\s*(#[0-9a-fA-F]{6})\\s*;`),
+function mezclar(colorA, colorB, proporcionA) {
+  const canales = (hexadecimal) =>
+    hexadecimal.slice(1).match(/.{2}/g).map((canal) => Number.parseInt(canal, 16));
+  const a = canales(colorA);
+  const b = canales(colorB);
+  const parte = proporcionA / 100;
+  return (
+    "#" +
+    a
+      .map((valor, indice) =>
+        Math.round(valor * parte + b[indice] * (1 - parte))
+          .toString(16)
+          .padStart(2, "0"),
+      )
+      .join("")
   );
+}
 
-  if (!coincidencia) {
-    throw new Error(`No se encontró el token --color-${token}.`);
-  }
+/* Resuelve un token de color a su hexadecimal, sea un valor escrito o una
+   mezcla de otros dos.
 
-  return coincidencia[1];
+   Antes solo leía hexadecimales, y eso dejaba **fuera de control a los colores
+   derivados**, que son la mayoría: el fondo de la página, los tonos tenues, el
+   texto suave. Justamente los que se ajustan a ojo y donde un contraste se
+   pierde sin que nadie lo note.
+
+   Una mezcla contra `transparent` devuelve `null`: sin saber qué hay detrás no
+   se puede calcular su contraste, y afirmar uno sería peor que no comprobarlo. */
+function leerColor(token, vistos = new Set()) {
+  if (vistos.has(token)) throw new Error(`El token --color-${token} se define en círculo.`);
+  vistos.add(token);
+
+  const declaracion = css.match(new RegExp(`--color-${token}:\\s*([^;]+);`));
+  if (!declaracion) throw new Error(`No se encontró el token --color-${token}.`);
+  const valor = declaracion[1].trim();
+
+  if (/^#[0-9a-fA-F]{6}$/.test(valor)) return valor;
+
+  const mezcla = valor.match(
+    /^color-mix\(\s*in srgb\s*,\s*var\(--color-([a-z-]+)\)\s*(\d+)%\s*,\s*(?:var\(--color-([a-z-]+)\)|(transparent))\s*\)$/,
+  );
+  if (!mezcla) return null;
+
+  const [, primero, proporcion, segundo, transparente] = mezcla;
+  if (transparente) return null;
+
+  const colorA = leerColor(primero, new Set(vistos));
+  const colorB = leerColor(segundo, new Set(vistos));
+  if (!colorA || !colorB) return null;
+
+  return mezclar(colorA, colorB, Number(proporcion));
 }
 
 function luminancia(hexadecimal) {
@@ -140,13 +181,32 @@ function leerColoresPaleta(paleta) {
 }
 
 const colores = Object.fromEntries(
-  ["marca", "superficie", "texto", "accion", "exito", "alerta", "ia-inicio", "ia-fin", "ia-sobre"].map(
-    (token) => [token, leerColor(token)],
-  ),
+  [
+    "marca",
+    "superficie",
+    "texto",
+    "accion",
+    "exito",
+    "alerta",
+    "ia-inicio",
+    "ia-fin",
+    "ia-sobre",
+    /* Derivados, y por eso mismo hay que comprobarlos: son el fondo y el texto
+       secundario de cada pantalla del panel, y hasta ahora nadie los miraba. */
+    "lienzo",
+    "texto-suave",
+  ].map((token) => [token, leerColor(token)]),
 );
 
 const combinaciones = [
   ["texto", "superficie", 4.5],
+  /* El panel dibuja sus títulos directamente sobre el lienzo, no sobre una
+     tarjeta. Si esta pareja no se comprueba, el día que alguien oscurezca el
+     lienzo un punto «para que se note más» nadie se entera. */
+  ["texto", "lienzo", 4.5],
+  ["marca", "lienzo", 4.5],
+  ["texto-suave", "lienzo", 4.5],
+  ["texto-suave", "superficie", 4.5],
   ["marca", "superficie", 4.5],
   /* Los dos extremos del degradado de las herramientas con IA. Se comprueban los
      dos porque el texto va encima de todo el recorrido: alcanza con que un

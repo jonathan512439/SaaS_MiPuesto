@@ -532,10 +532,11 @@
 .producto {
   display: grid;
   gap: var(--spacing-4);
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-radius: var(--radius-panel);
   padding: var(--spacing-4);
   background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
 }
 
 .fotos {

@@ -3,24 +3,29 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Icono, type NombreIcono } from "../iconos/icono";
 import styles from "../../app/(admin)/dashboard/dashboard.module.css";
 
-const ENLACES = [
-  { href: "/dashboard", etiqueta: "Resumen" },
-  { href: "/dashboard/configuracion", etiqueta: "Negocio" },
-  { href: "/dashboard/plantilla", etiqueta: "Diseño" },
-  { href: "/dashboard/catalogo", etiqueta: "Catálogo" },
-  { href: "/dashboard/promociones", etiqueta: "Promociones" },
-  { href: "/dashboard/pedidos", etiqueta: "Pedidos" },
-  { href: "/dashboard/cuenta", etiqueta: "Cuenta" },
-] as const;
+/* El ícono acompaña a la palabra, no la reemplaza. Con siete secciones que se
+   recorren de reojo, la forma se reconoce antes que el texto y se vuelve a la
+   sección de siempre sin leer; sin la palabra al lado, en cambio, habría que
+   aprenderse siete dibujos. */
+const ENLACES: ReadonlyArray<{ href: string; etiqueta: string; icono: NombreIcono }> = [
+  { href: "/dashboard", etiqueta: "Resumen", icono: "casa" },
+  { href: "/dashboard/configuracion", etiqueta: "Negocio", icono: "tienda" },
+  { href: "/dashboard/plantilla", etiqueta: "Diseño", icono: "paleta" },
+  { href: "/dashboard/catalogo", etiqueta: "Catálogo", icono: "caja" },
+  { href: "/dashboard/promociones", etiqueta: "Promociones", icono: "etiqueta" },
+  { href: "/dashboard/pedidos", etiqueta: "Pedidos", icono: "documento" },
+  { href: "/dashboard/cuenta", etiqueta: "Cuenta", icono: "persona" },
+];
 
 export function NavegacionDashboard() {
   const rutaActual = usePathname();
 
   return (
     <nav aria-label="Secciones del panel" className={styles.navegacion}>
-      {ENLACES.map(({ etiqueta, href }) => {
+      {ENLACES.map(({ etiqueta, href, icono }) => {
         const activo = rutaActual === href;
 
         return (
@@ -30,6 +35,7 @@ export function NavegacionDashboard() {
             href={href}
             key={href}
           >
+            <Icono className={styles.iconoEnlace} nombre={icono} />
             {etiqueta}
           </Link>
         );

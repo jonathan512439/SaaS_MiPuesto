@@ -8,10 +8,11 @@
 .ayuda {
   display: grid;
   gap: var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-radius: var(--radius-panel);
   padding: var(--spacing-4);
   background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
 }
 
 .ayuda h2 {
@@ -96,10 +97,11 @@
 .mapeo {
   display: grid;
   gap: var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-radius: var(--radius-panel);
   padding: var(--spacing-4);
   background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
 }
 
 .mapeo h2 {
