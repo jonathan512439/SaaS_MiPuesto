@@ -118,8 +118,7 @@
   box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
-.cupo,
-.aviso {
+.cupo {
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
 }
@@ -146,137 +145,13 @@
   overflow-wrap: anywhere;
 }
 
-.revision {
-  display: grid;
-  gap: var(--spacing-3);
-  border: var(--borde-marcado) solid var(--color-marca);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-4);
-  background: var(--color-superficie);
-}
-
-.revision h2 {
-  font-size: var(--text-lg);
-  font-weight: 800;
-}
-
-.revision header p {
+.enCategoria {
   color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-}
-
-.filas {
-  display: grid;
-  gap: var(--spacing-2);
-}
-
-.fila,
-.dudosa {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 6rem;
-  align-items: center;
-  gap: var(--spacing-2);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2);
-}
-
-.dudosa {
-  background: var(--color-peligro-tenue);
-}
-
-.dudosa span {
-  grid-column: 2 / -1;
-  color: var(--color-peligro);
   font-size: var(--text-xs);
-  font-weight: 800;
-}
-
-.fila input:not([type="checkbox"]),
-.dudosa input:not([type="checkbox"]) {
-  min-height: var(--control-alto);
-  border: var(--borde-fino) solid var(--color-borde);
-  border-radius: var(--radius-control);
-  padding: 0 var(--spacing-2);
-  background: var(--color-superficie);
-  color: var(--color-texto);
-  font-size: var(--text-base);
-}
-
-.confirmar {
-  display: grid;
-  gap: var(--spacing-2);
-  align-items: end;
 }
 
 @media (min-width: 40rem) {
   .columnas {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .confirmar {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-}
-
-.enCategoria {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-}
-
-/* Las secciones se deciden una sola vez, arriba de todo: si la elección viviera
-   en cada producto, una lista de cuarenta renglones serían cuarenta decisiones
-   iguales. */
-.titulos {
-  display: grid;
-  gap: var(--spacing-2);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-3);
-  background: var(--color-fondo-suave);
-}
-
-.titulos h3 {
-  font-size: var(--text-base);
-  font-weight: 800;
-}
-
-.titulos p {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-}
-
-.grupo {
-  display: grid;
-  gap: var(--spacing-2);
-}
-
-.grupo h3 {
-  border-bottom: var(--borde-fino) solid var(--color-borde);
-  padding-bottom: var(--spacing-1);
-  font-size: var(--text-sm);
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.descripcion {
-  grid-column: 2 / -1;
-}
-
-/* Alineadas con la misma rejilla que las filas: si se declararan aparte, el día
-   que cambie el ancho de la columna de precio dejarían de coincidir. */
-.cabeceras {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 6rem;
-  gap: var(--spacing-2);
-  padding: 0 var(--spacing-2);
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.cabeceras span:first-child {
-  /* Ocupa el ancho de la casilla para que las otras dos queden sobre su
-     columna, sin escribir un número suelto que después nadie mantiene. */
-  visibility: hidden;
 }

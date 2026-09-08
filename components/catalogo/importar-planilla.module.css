@@ -1,0 +1,126 @@
+@reference "../../app/globals.css";
+
+.pantalla {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.ayuda {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.ayuda h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.ayuda h3 {
+  margin-bottom: var(--spacing-1);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.ayuda ul {
+  display: grid;
+  gap: var(--spacing-1);
+  padding-left: var(--spacing-4);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  list-style: disc;
+}
+
+.ojo {
+  color: var(--color-texto);
+}
+
+/* Que no gasta cuota es la diferencia entre esta pantalla y la de fotos, y es
+   lo que hay que ver primero: mucha gente no la usaría por miedo a gastar algo
+   que no entiende. */
+.gratis {
+  border-left: var(--borde-marcado) solid var(--color-exito);
+  padding-left: var(--spacing-3);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+}
+
+.columnas {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+/* Sin el degradado de las herramientas con IA, y no por descuido: ese color es
+   la marca de lo que gasta cuota. Esta importación no gasta ninguna, y
+   pintarla igual borraría la única señal que las distingue. */
+.cargar {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--color-accion);
+  color: var(--color-superficie);
+  font-size: var(--text-base);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cargar:hover {
+  background: var(--color-accion-fuerte);
+}
+
+.cargar:has(input:disabled) {
+  cursor: progress;
+  filter: grayscale(0.4);
+}
+
+.cargar input {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.cargar:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.mapeo {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.mapeo h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.mapeo header p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.cuenta {
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+  background: var(--color-fondo-suave);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 40rem) {
+  .columnas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

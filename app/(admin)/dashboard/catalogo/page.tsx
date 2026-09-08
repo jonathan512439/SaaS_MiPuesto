@@ -89,10 +89,10 @@ export default async function PaginaCatalogo() {
           <section aria-labelledby="titulo-ia" className={styles.tarjetaIa}>
             <div className={styles.tarjetaIaCuerpo}>
               <span className={styles.selloIa}>Herramienta con IA</span>
-              <h2 id="titulo-ia">Cargá tu catálogo desde una foto de tu lista de precios</h2>
+              <h2 id="titulo-ia">Cargá tu catálogo desde la foto o el PDF de tu lista de precios</h2>
               <ol className={styles.pasosIa}>
                 <li>
-                  <b>1</b> Sacale una foto a tu lista de precios
+                  <b>1</b> Sacale una foto a tu lista, o subí el PDF del proveedor
                 </li>
                 <li>
                   <b>2</b> Revisás y corregís lo que leyó
@@ -119,6 +119,11 @@ export default async function PaginaCatalogo() {
             Menú para imprimir
           </Link>
         ) : null}
+        {/* Sin condición ninguna: importar una planilla no gasta la cuota de
+            Google, así que no hay nada que reservar para unos pocos negocios. */}
+        <Link className={styles.enlacePapelera} href="/dashboard/catalogo/importar">
+          Importar mi Excel o CSV
+        </Link>
         {enPapelera > 0 ? (
           <Link className={styles.enlacePapelera} href="/dashboard/catalogo/papelera">
             Papelera ({enPapelera})
