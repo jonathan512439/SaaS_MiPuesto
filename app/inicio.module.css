@@ -11,6 +11,31 @@
   background: var(--color-fondo-suave);
 }
 
+/* Los títulos de la portada van con la tipografía de MiPuesto.
+ *
+ * El `:not([data-paleta] *)` excluye lo que está dentro de la muestra de
+ * catálogo, que es un catálogo de verdad con la plantilla y la letra que elegiría
+ * el dueño. Sin esa exclusión, nuestra fuente se metía dentro del ejemplo y la
+ * demostración dejaba de mostrar lo que el cliente va a recibir. La raíz del
+ * tema siempre lleva `data-paleta`, así que sirve de frontera sin que esta hoja
+ * tenga que conocer las clases de la otra.
+ *
+ * Si un navegador viejo no entiende ese `:not`, descarta la regla entera y los
+ * títulos salen con la fuente del texto. Se pierde el matiz y no se rompe nada,
+ * que es la forma correcta de fallar. */
+.pagina h1:not([data-paleta] *),
+.pagina h2:not([data-paleta] *),
+.pagina h3:not([data-paleta] *) {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-titulo);
+}
+
+.nombreMarca strong,
+.marcaCierre span,
+.montoPlan {
+  font-family: var(--font-display);
+}
+
 .pagina h1,
 .pagina h2,
 .pagina h3,
@@ -935,6 +960,20 @@
   color: var(--color-texto-suave);
   font-size: var(--text-sm);
   font-weight: 700;
+}
+
+/* Pegado al monto mensual, sin recuadro ni color de aviso: es la misma oferta
+   con otra forma de pagarla, y destacarla la pondría a competir con el plan del
+   que cuelga. */
+.pagoAnual {
+  margin-top: calc(var(--spacing-1) * -1);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.pagoAnual strong {
+  color: var(--color-texto);
+  font-weight: 800;
 }
 
 .paraQuien {

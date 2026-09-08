@@ -7,7 +7,7 @@ import { MuestraPlantillas } from "../components/inicio/muestra-plantillas";
 import { VitrinaPortada } from "../components/inicio/vitrina-portada";
 import { PALETAS, PLANTILLAS } from "../lib/apariencia";
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
-import { CARGA_INICIAL, PLANES } from "../lib/planes";
+import { CARGA_INICIAL, PLANES, PLAN_ANUAL, ahorroAnualBs } from "../lib/planes";
 import styles from "./inicio.module.css";
 
 export const metadata: Metadata = {
@@ -389,6 +389,15 @@ export default function Inicio() {
                     Bs {plan.precioBs}
                     <span>al mes</span>
                   </p>
+                  {/* El pago por año va debajo del mensual y no como una tarjeta
+                      aparte: es la misma cosa con otra forma de pagarla, y una
+                      tarjeta más obligaría a comparar tres cuando hay dos. */}
+                  {plan.id === PLAN_ANUAL.planId ? (
+                    <p className={styles.pagoAnual}>
+                      o <strong>Bs {PLAN_ANUAL.precioBs} al año</strong> — te ahorrás Bs{" "}
+                      {ahorroAnualBs()}
+                    </p>
+                  ) : null}
                   <p className={styles.paraQuien}>{plan.para}</p>
                   <ul>
                     {plan.incluye.map((item) => (

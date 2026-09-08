@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { CARGA_INICIAL, PLANES, TOPE_TECNICO_MENSUAL } from "./planes";
+import {
+  CARGA_INICIAL,
+  PLANES,
+  PLAN_ANUAL,
+  TOPE_TECNICO_MENSUAL,
+  ahorroAnualBs,
+  precioAnualSuelto,
+} from "./planes";
 import { PRECIO_MENSUAL_BS } from "./contacto";
 
 /* Lo que la portada promete tiene que caber en lo que el sistema autoriza. Si un
@@ -36,5 +43,24 @@ describe("planes", () => {
   it("la carga inicial tiene precio y alcance", () => {
     expect(CARGA_INICIAL.precioBs).toBeGreaterThan(0);
     expect(CARGA_INICIAL.productosMaximos).toBeGreaterThan(0);
+  });
+});
+
+describe("el pago por año", () => {
+  /* Un anual más caro que doce meses sueltos es un error de tipeo que nadie
+     mira dos veces, y sale publicado en la portada hablando de plata. */
+  it("cuesta menos que pagar los doce meses", () => {
+    expect(PLAN_ANUAL.precioBs).toBeLessThan(precioAnualSuelto());
+    expect(ahorroAnualBs()).toBeGreaterThan(0);
+  });
+
+  /* El ahorro se calcula y no se escribe. Si el mensual sube y la frase de la
+     portada quedó escrita a mano, la portada miente. */
+  it("el ahorro sale de los precios y no de un número escrito", () => {
+    expect(ahorroAnualBs()).toBe(precioAnualSuelto() - PLAN_ANUAL.precioBs);
+  });
+
+  it("apunta a un plan que existe", () => {
+    expect(PLANES.some(({ id }) => id === PLAN_ANUAL.planId)).toBe(true);
   });
 });

@@ -56,6 +56,30 @@ export const PLANES: readonly Plan[] = [
   },
 ];
 
+/* El pago por año, para quien prefiere resolverlo de una vez.
+ *
+ * Vale solo para el plan Catálogo, que es el que se ofrece así. El Catálogo
+ * Activo no tiene precio anual **a propósito**: inventarle uno proporcional
+ * sería publicar un número que nadie decidió, y un precio publicado no se baja
+ * después sin quedar mal.
+ *
+ * El ahorro no se escribe: se calcula. Si mañana el mensual sube y alguien se
+ * olvida de tocar la frase de la portada, la portada miente sobre plata.
+ */
+export const PLAN_ANUAL = {
+  planId: "catalogo",
+  precioBs: 850,
+} as const;
+
+export function precioAnualSuelto(): number {
+  const plan = PLANES.find(({ id }) => id === PLAN_ANUAL.planId);
+  return (plan?.precioBs ?? 0) * 12;
+}
+
+export function ahorroAnualBs(): number {
+  return precioAnualSuelto() - PLAN_ANUAL.precioBs;
+}
+
 /* Se cobra una vez y no todos los meses porque el trabajo se hace una vez. Un
    restaurante carga su carta al principio y después suma tres platos al mes:
    cobrarle todos los meses por eso es la forma más rápida de perderlo en el

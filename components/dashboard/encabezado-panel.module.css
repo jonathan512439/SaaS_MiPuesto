@@ -25,6 +25,7 @@
    decir lo mismo. El aire separa mejor y no ensucia. */
 .encabezado h1 {
   margin: 0;
+  font-family: var(--font-display);
   overflow-wrap: anywhere;
   font-size: var(--text-2xl);
   font-weight: 800;

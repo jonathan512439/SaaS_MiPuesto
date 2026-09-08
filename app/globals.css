@@ -57,6 +57,9 @@
 
   --font-*: initial;
   --font-sans: var(--fuente-producto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* La de los títulos de MiPuesto. Cae en la del texto y después en la del
+     sistema: si la fuente no llega, el título sigue siendo un título. */
+  --font-display: var(--fuente-titulo), var(--fuente-producto), system-ui, sans-serif;
 
   --text-*: initial;
   --text-xs: 0.75rem;

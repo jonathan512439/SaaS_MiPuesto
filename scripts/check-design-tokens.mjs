@@ -17,6 +17,46 @@ function registrar(archivo, regla, coincidencia) {
   errores.push(`${relative(raiz, archivo)}: ${regla}: ${coincidencia.trim()}`);
 }
 
+/* Parte un valor en sus partes respetando los paréntesis.
+ *
+ * Cortar por espacios a secas rompe cualquier `calc()`: `calc(var(--spacing-1) *
+ * -1)` quedaba en tres pedazos —«calc(var(--spacing-1)», «*», «-1)»— y los dos
+ * últimos no empiezan por `var(` ni por `calc(`, así que un cálculo escrito
+ * enteramente con tokens se rechazaba igual. La guarda empujaba a escribir peor
+ * CSS para no pelearse con ella, que es lo contrario de lo que tiene que hacer.
+ */
+function partirValores(valor) {
+  const partes = [];
+  let actual = "";
+  let profundidad = 0;
+
+  for (const caracter of valor) {
+    if (caracter === "(") profundidad += 1;
+    if (caracter === ")") profundidad -= 1;
+    if (profundidad === 0 && /\s/.test(caracter)) {
+      if (actual) partes.push(actual);
+      actual = "";
+      continue;
+    }
+    actual += caracter;
+  }
+
+  if (actual) partes.push(actual);
+  return partes;
+}
+
+/* Un `calc()` se acepta solo si adentro no hay ninguna medida absoluta escrita a
+   mano. El porcentaje sí se admite: `calc(100% - var(--spacing-8))` no es un
+   valor suelto, es una proporción, y no existe token que la reemplace. */
+const MEDIDA_ABSOLUTA = /\d*\.?\d+\s*(?:px|rem|em|ch|vh|vw|pt)\b/;
+
+function valorDeEspaciadoValido(valor) {
+  if (valor === "0" || valor === "auto") return true;
+  if (valor.startsWith("var(")) return true;
+  if (valor.startsWith("calc(")) return !MEDIDA_ABSOLUTA.test(valor);
+  return false;
+}
+
 for (const carpeta of carpetas) {
   for (const archivo of listarArchivos(join(raiz, carpeta))) {
     const extension = extname(archivo);
@@ -45,10 +85,8 @@ for (const carpeta of carpetas) {
       const propiedadesEspaciado = /(?:^|\n)\s*(?:margin(?:-(?:block|inline|top|right|bottom|left))?|padding(?:-(?:block|inline|top|right|bottom|left))?|gap|row-gap|column-gap):\s*([^;]+);/g;
 
       for (const coincidencia of contenido.matchAll(propiedadesEspaciado)) {
-        const valores = coincidencia[1].trim().split(/\s+/);
-        const valido = valores.every(
-          (valor) => valor === "0" || valor === "auto" || valor.startsWith("var(") || valor.startsWith("calc("),
-        );
+        const valores = partirValores(coincidencia[1].trim());
+        const valido = valores.every(valorDeEspaciadoValido);
 
         if (!valido) registrar(archivo, "espaciado fuera de los tokens", coincidencia[0]);
       }
