@@ -42,6 +42,7 @@ const ICONOS = {
   rayo: "zap",
   codigoQr: "qr-code",
   carpeta: "folder",
+  telefono: "phone",
 };
 
 /* Lucide dibuja sobre un lienzo de 24 con el trazo en `currentColor`. Se guarda

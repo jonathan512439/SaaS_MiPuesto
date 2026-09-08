@@ -1,0 +1,25 @@
+@reference "../../app/globals.css";
+
+/* Solo maquetación, ningún color.
+ *
+ * El color, el cuerpo y el grosor los pone la clase que manda la plantilla —la
+ * misma de «Cómo llegar»—, así que el par de acciones del pie se ve igual en
+ * las cuatro sin que este archivo tenga que conocer ninguna paleta. Tampoco se
+ * toca el subrayado: si los enlaces vecinos lo llevan, este también, que es lo
+ * que hace que se lean como hermanos.
+ *
+ * El alto de control está para el pulgar: un enlace de texto de doce píxeles en
+ * un teléfono se falla más veces de las que se acierta. */
+.enlace {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+/* El ícono hereda el color del enlace, así que sirve tal cual sobre las siete
+   paletas sin decidir ningún color acá. */
+.icono {
+  flex: 0 0 auto;
+  font-size: var(--text-base);
+}

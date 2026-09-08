@@ -4,6 +4,7 @@ import Image from "next/image";
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
+import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
 import { FotoProducto } from "../foto-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
@@ -199,6 +200,9 @@ export function PlantillaFeria({
         {demostracion && datos.negocio.modalidad === "carrito" ? (
           <button type="button">Continuar por WhatsApp</button>
         ) : null}
+        {/* Llamar antes de «Cómo llegar»: quien mira el pie casi siempre quiere
+            preguntar algo, y muy pocos quieren la dirección. */}
+        <AccionLlamar className={styles.comoLlegar} telefono={datos.negocio.telefonoWhatsapp} />
         {datos.negocio.ubicacionUrl ? (
           <a
             className={styles.comoLlegar}
