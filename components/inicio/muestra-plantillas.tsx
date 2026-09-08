@@ -1,47 +1,13 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useState, type ComponentType } from "react";
+import { useState } from "react";
 
 import { DEFINICIONES_PALETAS, DEFINICIONES_PLANTILLAS } from "../../lib/apariencia";
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
 import { DEMOS_POR_RUBRO } from "../../lib/plantillas/demos-rubro";
-import type { PropiedadesPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
-import { Esqueleto } from "../ui";
+import { VISTAS_PLANTILLA } from "../templates/vistas";
 import styles from "./muestra-plantillas.module.css";
-
-function VistaCargando() {
-  return (
-    <div aria-hidden="true" className={styles.cargando}>
-      <Esqueleto variante="imagen" />
-      <Esqueleto variante="titulo" />
-      <Esqueleto />
-    </div>
-  );
-}
-
-const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
-  clasica: dynamic(
-    () =>
-      import("../templates/clasica/plantilla-clasica").then((m) => m.PlantillaClasica),
-    { loading: VistaCargando },
-  ),
-  moderna: dynamic(
-    () =>
-      import("../templates/moderna/plantilla-moderna").then((m) => m.PlantillaModerna),
-    { loading: VistaCargando },
-  ),
-  minimal: dynamic(
-    () =>
-      import("../templates/minimal/plantilla-minimal").then((m) => m.PlantillaMinimal),
-    { loading: VistaCargando },
-  ),
-  feria: dynamic(
-    () => import("../templates/feria/plantilla-feria").then((m) => m.PlantillaFeria),
-    { loading: VistaCargando },
-  ),
-};
 
 /* Se entra por rubro y no por «estructura»: un comerciante sabe a qué se dedica
    y no tiene por qué saber qué es una plantilla. Cada rubro llega con la
@@ -56,7 +22,7 @@ export function MuestraPlantillas() {
   const demo = DEMOS_POR_RUBRO.find(({ id }) => id === rubroId) ?? DEMOS_POR_RUBRO[0];
   const plantilla = plantillaElegida ?? demo.plantilla;
   const paleta = paletaElegida ?? demo.paleta;
-  const Vista = VISTAS[plantilla];
+  const Vista = VISTAS_PLANTILLA[plantilla];
 
   return (
     <div className={styles.muestra}>

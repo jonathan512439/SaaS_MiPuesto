@@ -155,15 +155,21 @@
   gap: var(--spacing-3);
 }
 
+/* **Esta es la única tarjeta sin sombra, y es a propósito.** Se dibuja sobre un
+   fondo hundido, y algo hundido no proyecta sombra hacia arriba: agregársela
+   para igualarla con las otras tres plantillas la dejaría contradiciéndose
+   sola. La plantilla se llama Mínima y su carácter es plano; lo que sí se
+   corrige es el borde, más tenue, y el aire, que era lo que la hacía ver
+   apretada. */
 .servicio {
   display: grid;
   align-content: start;
   justify-items: center;
   gap: var(--spacing-2);
   min-width: 0;
-  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
   border-radius: var(--radius-tarjeta);
-  padding: var(--spacing-4) var(--spacing-3);
+  padding: var(--spacing-5) var(--spacing-4);
   background: var(--catalogo-fondo-hundido);
   text-align: center;
 }

@@ -206,29 +206,36 @@
 .categoria ul {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-3);
+  gap: var(--spacing-4);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* Borde apenas insinuado más sombra, en vez de un borde marcado sin sombra. El
+   borde solo se lee como casilla de formulario; la sombra levanta la tarjeta
+   del fondo y es lo que se lee como vitrina. Los dos juntos porque en las
+   paletas oscuras la sombra no separa nada y el borde es lo único que queda. */
 .producto {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   min-width: 0;
   overflow: hidden;
-  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
   border-radius: var(--radius-tarjeta);
   background: var(--catalogo-superficie);
+  box-shadow: var(--catalogo-sombra-tarjeta);
 }
 
+/* Sin línea debajo de la fotografía: el recorte redondeado de la tarjeta ya
+   marca dónde termina la imagen, y una raya más adentro parte la tarjeta en dos
+   cajas en vez de dejarla como una sola pieza. */
 .producto img,
 .sinImagen {
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 3;
-  border-bottom: var(--borde-fino) solid var(--catalogo-borde-suave);
   object-fit: cover;
 }
 
@@ -246,7 +253,7 @@
   align-content: start;
   gap: var(--spacing-1);
   min-width: 0;
-  padding: var(--spacing-3) var(--spacing-3) var(--spacing-2);
+  padding: var(--spacing-4) var(--spacing-4) var(--spacing-3);
 }
 
 .agotado,
@@ -277,8 +284,8 @@
   display: -webkit-box;
   overflow: hidden;
   overflow-wrap: anywhere;
-  font-size: var(--text-base);
-  font-weight: 600;
+  font-size: var(--text-md);
+  font-weight: 700;
   line-height: 1.25;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -314,16 +321,17 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: var(--spacing-1) var(--spacing-2);
-  border-top: var(--borde-fino) dotted var(--catalogo-borde);
-  padding: var(--spacing-2) var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
   background: var(--catalogo-fondo-suave);
 }
 
+/* El precio es lo segundo que se mira después del nombre, y en una tarjeta de
+   catálogo suele ser lo primero. Grueso y en el color de la marca. */
 .producto strong {
   overflow-wrap: anywhere;
   color: var(--catalogo-marca);
   font-size: var(--text-lg);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .precio s,

@@ -15,14 +15,33 @@
   --catalogo-alerta-tenue: color-mix(in srgb, var(--catalogo-alerta) 14%, var(--catalogo-superficie));
   --catalogo-borde: color-mix(in srgb, var(--catalogo-texto) 22%, var(--catalogo-superficie));
   --catalogo-borde-suave: color-mix(in srgb, var(--catalogo-texto) 12%, var(--catalogo-superficie));
+  /* El borde de una tarjeta de producto, más tenue que cualquier otro.
+     Sobre fondo claro casi no se ve y el trabajo de separar lo hace la sombra,
+     que es lo que se lee como vitrina en vez de como formulario. Sobre las
+     paletas oscuras se invierte: una sombra sobre fondo oscuro no separa nada,
+     y esta línea es lo único que dibuja el borde de la tarjeta. Por eso no se
+     puede quitar el borde y quedarse solo con la sombra. */
+  --catalogo-borde-tarjeta: color-mix(in srgb, var(--catalogo-texto) 8%, var(--catalogo-superficie));
   --catalogo-borde-marca: color-mix(in srgb, var(--catalogo-marca) 32%, var(--catalogo-superficie));
   --catalogo-texto-suave: color-mix(in srgb, var(--catalogo-texto) 72%, var(--catalogo-superficie));
   --catalogo-texto-tenue: color-mix(in srgb, var(--catalogo-texto) 55%, var(--catalogo-superficie));
   --catalogo-velo: color-mix(in srgb, var(--catalogo-marca) 78%, transparent);
-  --catalogo-sombra: 0 0.125rem 0.5rem -0.25rem color-mix(in srgb, var(--catalogo-texto) 22%, transparent);
+  /* La misma física que la escala del panel: una sombra de contacto corta más
+     una ambiental ancha. Se repite acá y no se reusa la del panel porque estas
+     se tiñen con el color del negocio, no con el de MiPuesto: en la paleta
+     oscura una sombra calculada sobre un texto claro es lo único que separa una
+     tarjeta de su fondo. */
+  --catalogo-sombra: 0 0.0625rem 0.125rem color-mix(in srgb, var(--catalogo-texto) 8%, transparent),
+    0 0.1875rem 0.625rem -0.25rem color-mix(in srgb, var(--catalogo-texto) 14%, transparent);
+  /* El nivel que levanta una tarjeta de producto. Es el que más se ve en todo
+     el catálogo: hay uno por producto. */
+  --catalogo-sombra-tarjeta:
+    0 0.0625rem 0.125rem color-mix(in srgb, var(--catalogo-texto) 7%, transparent),
+    0 0.375rem 1rem -0.375rem color-mix(in srgb, var(--catalogo-texto) 16%, transparent),
+    0 0.75rem 2rem -1rem color-mix(in srgb, var(--catalogo-marca) 14%, transparent);
   --catalogo-sombra-flotante:
-    0 0.5rem 1.5rem -0.25rem color-mix(in srgb, var(--catalogo-texto) 32%, transparent),
-    0 0.125rem 0.375rem color-mix(in srgb, var(--catalogo-texto) 16%, transparent);
+    0 0.125rem 0.375rem color-mix(in srgb, var(--catalogo-texto) 16%, transparent),
+    0 0.5rem 1.5rem -0.25rem color-mix(in srgb, var(--catalogo-texto) 32%, transparent);
 
   background-color: var(--catalogo-superficie);
   color: var(--catalogo-texto);

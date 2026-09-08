@@ -47,6 +47,13 @@
   --text-sm--line-height: 1.25rem;
   --text-base: 1rem;
   --text-base--line-height: 1.5rem;
+  /* El escalón que faltaba. Entre el texto corriente y el título había un salto
+     del 25 %, y el nombre de un producto no es ninguna de las dos cosas: puesto
+     en `base` compite con su descripción, y puesto en `lg` compite con el
+     título de la sección. Sin este paso, la jerarquía de una tarjeta se apoya
+     solo en el grosor, y el grosor solo no alcanza. */
+  --text-md: 1.125rem;
+  --text-md--line-height: 1.5rem;
   --text-lg: 1.25rem;
   --text-lg--line-height: 1.625rem;
   --text-xl: 1.5rem;
@@ -77,11 +84,22 @@
   --spacing-24: 6rem;
   --spacing-32: 8rem;
 
+  /* El interletrado también es una decisión de diseño y estaba escrito a mano
+     en varias hojas. Los títulos grandes se cierran un poco —a tamaño grande el
+     espacio entre letras se percibe mayor— y las etiquetas en versalitas se
+     abren, que es lo que las vuelve legibles en mayúsculas. */
+  --tracking-titulo: -0.02em;
+  --tracking-etiqueta: 0.04em;
+
   --radius-*: initial;
-  --radius-control: 0.625rem;
-  --radius-tarjeta: 0.875rem;
-  --radius-panel: 1rem;
-  --radius-sheet: 1.5rem;
+  /* Subidos un escalón cada uno, manteniendo la proporción entre ellos. Diez
+     píxeles en una tarjeta se leen como una caja; dieciséis se leen como una
+     tarjeta. Es el cambio más barato que existe para que una pantalla deje de
+     parecer un formulario. */
+  --radius-control: 0.75rem;
+  --radius-tarjeta: 1rem;
+  --radius-panel: 1.25rem;
+  --radius-sheet: 1.75rem;
   --radius-status: 999px;
 }
 
@@ -96,16 +114,38 @@
   --foco-ancho: 0.1875rem;
   --foco-exterior: 0.375rem;
   --movimiento-rapido: 150ms;
-  --sombra-suave: 0 0.0625rem 0.125rem color-mix(in srgb, var(--color-texto) 7%, transparent);
-  --sombra-panel:
+  /* Una escala de cuatro niveles con la misma física en todos: una sombra de
+     contacto, corta y pegada al borde, más una sombra ambiental ancha y
+     desplazada hacia abajo. Los niveles se distinguen por cuánto se levanta el
+     objeto, no por tener recetas distintas, que es lo que hacía que una tarjeta
+     y un panel parecieran de dos sistemas.
+
+     **El tinte de marca bajó de 45 % a 12 %.** Con siete paletas, una sombra
+     teñida al 45 % sale roja en una y violeta en otra: el mismo componente se
+     ve de otro material según el color elegido. Queda un rastro de color, que
+     es lo que da calidez, sin que la sombra pinte. */
+  --sombra-suave:
     0 0.0625rem 0.125rem color-mix(in srgb, var(--color-texto) 6%, transparent),
-    0 1.25rem 2.5rem -1.5rem color-mix(in srgb, var(--color-marca) 45%, transparent);
+    0 0.125rem 0.5rem -0.25rem color-mix(in srgb, var(--color-texto) 6%, transparent);
+  /* El nivel que faltaba, y el que más se usa: es el que levanta una tarjeta de
+     producto del fondo. Antes ese trabajo lo hacía `suave`, que es una línea de
+     contacto de un píxel y no levanta nada, o lo hacía un borde, que se lee
+     como formulario. */
+  --sombra-tarjeta:
+    0 0.0625rem 0.125rem color-mix(in srgb, var(--color-texto) 5%, transparent),
+    0 0.375rem 1rem -0.375rem color-mix(in srgb, var(--color-texto) 12%, transparent),
+    0 0.75rem 2rem -1rem color-mix(in srgb, var(--color-marca) 12%, transparent);
+  --sombra-panel:
+    0 0.0625rem 0.125rem color-mix(in srgb, var(--color-texto) 5%, transparent),
+    0 0.625rem 1.75rem -0.75rem color-mix(in srgb, var(--color-texto) 12%, transparent),
+    0 1.25rem 2.5rem -1.5rem color-mix(in srgb, var(--color-marca) 12%, transparent);
   --sombra-elevada:
     0 0.125rem 0.25rem color-mix(in srgb, var(--color-texto) 6%, transparent),
-    0 0.75rem 1.5rem -0.75rem color-mix(in srgb, var(--color-marca) 40%, transparent);
+    0 0.75rem 1.5rem -0.5rem color-mix(in srgb, var(--color-texto) 14%, transparent),
+    0 1.5rem 3rem -1.25rem color-mix(in srgb, var(--color-marca) 12%, transparent);
   --sombra-flotante:
-    0 0.5rem 1.5rem -0.25rem color-mix(in srgb, var(--color-texto) 24%, transparent),
-    0 0.125rem 0.375rem color-mix(in srgb, var(--color-texto) 12%, transparent);
+    0 0.125rem 0.375rem color-mix(in srgb, var(--color-texto) 12%, transparent),
+    0 0.5rem 1.5rem -0.25rem color-mix(in srgb, var(--color-texto) 24%, transparent);
   --alto-barra-panel: 4rem;
   --ancho-panel: 76rem;
   --ancho-lectura: 65ch;

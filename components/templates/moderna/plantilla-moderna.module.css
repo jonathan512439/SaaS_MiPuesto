@@ -179,7 +179,7 @@
 .productos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-3);
+  gap: var(--spacing-4);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -190,19 +190,20 @@
   grid-template-rows: auto minmax(0, 1fr);
   min-width: 0;
   overflow: hidden;
-  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
   border-radius: var(--radius-tarjeta);
   background: var(--catalogo-superficie);
-  box-shadow: var(--catalogo-sombra);
+  box-shadow: var(--catalogo-sombra-tarjeta);
 }
 
+/* Sin línea debajo de la fotografía: el recorte redondeado ya marca dónde
+   termina, y la raya parte la tarjeta en dos cajas. */
 .imagen,
 .sinImagen {
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 1 / 1;
-  border-bottom: var(--borde-fino) solid var(--catalogo-borde-suave);
   object-fit: cover;
 }
 
