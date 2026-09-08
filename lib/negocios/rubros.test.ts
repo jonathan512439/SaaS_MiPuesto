@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -14,14 +15,28 @@ describe("rubros de negocio", () => {
 
   /* La lista de arriba y el `check` de la base tienen que decir lo mismo: si
      divergen, el panel ofrece un rubro que la base rechaza recién al guardar, y
-     el dueño ve un error que no puede entender ni evitar. */
-  it("coincide con el check de la migración", () => {
-    const sql = readFileSync(
-      "supabase/migrations/20260906200000_fase14_rubro_y_carta.sql",
-      "utf8",
-    );
-    const bloque = sql.slice(sql.indexOf("negocios_rubro_valido"), sql.indexOf("comment on"));
-    const enLaBase = [...bloque.matchAll(/'([a-z_]+)'/g)].map(([, valor]) => valor);
+     el dueño ve un error que no puede entender ni evitar.
+
+     Se recorren **todas** las migraciones y se toma la última restricción, no un
+     archivo escrito a mano. Antes esta prueba leía el nombre exacto de la
+     migración que creó la columna: el día que se agregue un rubro en una
+     migración nueva, seguiría comparando contra la versión vieja y pasaría en
+     verde mientras la base dice otra cosa. Eso es exactamente lo que esta prueba
+     existe para evitar. */
+  it("coincide con el check vigente de la base", () => {
+    const carpeta = join(import.meta.dirname, "..", "..", "supabase", "migrations");
+    let enLaBase = null;
+
+    for (const archivo of readdirSync(carpeta).filter((n) => n.endsWith(".sql")).sort()) {
+      const sql = readFileSync(join(carpeta, archivo), "utf8");
+      for (const coincidencia of sql.matchAll(/rubro in \(([^)]*)\)/g)) {
+        /* El guion bajo va en la clase: sin él, `tienda_barrio` no coincidiría
+           con nada y desaparecería de la lista sin que nada avise. */
+        enLaBase = [...coincidencia[1].matchAll(/'([a-z0-9_-]+)'/g)].map(([, valor]) => valor);
+      }
+    }
+
+    expect(enLaBase, "ninguna migración define la restricción de rubro").not.toBeNull();
     expect(enLaBase).toEqual([...RUBROS]);
   });
 

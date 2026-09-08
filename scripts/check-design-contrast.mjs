@@ -57,7 +57,13 @@ function leerRestriccionSql(columna) {
     for (const coincidencia of sql.matchAll(
       new RegExp(`${columna} in \\(([^)]*)\\)`, "g"),
     )) {
-      ultima = [...coincidencia[1].matchAll(/'([a-z0-9-]+)'/g)].map((c) => c[1]);
+      /* El guion bajo va en la clase a propósito. Sin él, un valor como
+         `tienda_barrio` no coincide con nada y **desaparece de la lista en
+         silencio**: la comparación seguiría corriendo y diría que la base tiene
+         menos valores de los que tiene. Hoy esto solo se usa con paletas y
+         plantillas, que no llevan guion bajo, así que funcionaba por casualidad;
+         el día que se apunte a otra columna, mentiría. */
+      ultima = [...coincidencia[1].matchAll(/'([a-z0-9_-]+)'/g)].map((c) => c[1]);
     }
   }
 
