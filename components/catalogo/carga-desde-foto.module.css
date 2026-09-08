@@ -133,6 +133,19 @@
   object-fit: contain;
 }
 
+/* El equivalente del recuadro de la foto cuando lo que se mandó fue un PDF.
+   Ocupa el mismo lugar y cumple la misma función más modesta: confirmar que el
+   archivo que se leyó es el que se quiso mandar. */
+.adjunto {
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-fondo-suave);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
 .revision {
   display: grid;
   gap: var(--spacing-3);

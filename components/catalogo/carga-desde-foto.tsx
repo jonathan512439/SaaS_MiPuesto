@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, type ChangeEvent } from "react";
 
 import { AYUDA_LISTA } from "../../lib/ia/ayuda";
-import { prepararFotoParaLectura } from "../../lib/imagenes";
+import { prepararArchivoParaLectura } from "../../lib/ia/adjunto";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { Boton, Selector, Trabajando, useAvisos } from "../ui";
 import styles from "./carga-desde-foto.module.css";
@@ -38,6 +38,7 @@ export function CargaDesdeFoto({
   const router = useRouter();
   const { mostrarAviso } = useAvisos();
   const [vistaPrevia, setVistaPrevia] = useState("");
+  const [nombreArchivo, setNombreArchivo] = useState("");
   const [leyendo, setLeyendo] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [productos, setProductos] = useState<Leido[]>([]);
@@ -56,7 +57,7 @@ export function CargaDesdeFoto({
     return vistos;
   }, [productos]);
 
-  async function leerFoto(evento: ChangeEvent<HTMLInputElement>) {
+  async function leerArchivo(evento: ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0];
     evento.target.value = "";
     if (!archivo) return;
@@ -65,11 +66,12 @@ export function CargaDesdeFoto({
     setProductos([]);
     setDestinos({});
     try {
-      const foto = await prepararFotoParaLectura(archivo);
-      setVistaPrevia(foto.vistaPrevia);
+      const adjunto = await prepararArchivoParaLectura(archivo);
+      setVistaPrevia(adjunto.vistaPrevia);
+      setNombreArchivo(adjunto.nombre);
 
       const respuesta = await fetch("/api/ia/lista", {
-        body: JSON.stringify({ imagen: foto.base64, tipo: foto.tipo }),
+        body: JSON.stringify({ imagen: adjunto.base64, tipo: adjunto.tipo }),
         headers: { "content-type": "application/json" },
         method: "POST",
       });
@@ -78,7 +80,7 @@ export function CargaDesdeFoto({
         productos?: Array<Omit<Leido, "elegido">>;
       };
       if (!respuesta.ok || !datos.productos) {
-        throw new Error(datos.error ?? "No pudimos leer la fotografía.");
+        throw new Error(datos.error ?? "No pudimos leer el archivo.");
       }
 
       /* Lo dudoso llega desmarcado. La carga mental tiene que estar en confirmar
@@ -184,6 +186,7 @@ export function CargaDesdeFoto({
     setGuardando(false);
     setProductos([]);
     setVistaPrevia("");
+    setNombreArchivo("");
     mostrarAviso({
       titulo: `${creados} producto(s) creado(s)`,
       mensaje:
@@ -247,11 +250,11 @@ export function CargaDesdeFoto({
       />
 
       <label className={styles.cargar}>
-        {leyendo ? "Leyendo tu lista…" : "Elegir la foto de la lista"}
+        {leyendo ? "Leyendo tu lista…" : "Elegir la foto o el PDF de la lista"}
         <input
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,application/pdf"
           disabled={leyendo || guardando}
-          onChange={(evento) => void leerFoto(evento)}
+          onChange={(evento) => void leerArchivo(evento)}
           type="file"
         />
       </label>
@@ -259,9 +262,15 @@ export function CargaDesdeFoto({
         Llevás {fotosUsadas} de {topeFotos} fotos este mes.
       </p>
 
+      {/* De una foto se muestra la foto, para poder comparar renglón por
+          renglón. De un PDF se muestra el nombre: dibujarlo pediría rasterizar
+          el archivo en el navegador, y quien lo eligió del teléfono necesita
+          sobre todo confirmar que mandó el que quería. */}
       {vistaPrevia ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img alt="La lista que mandaste a leer" className={styles.previa} src={vistaPrevia} />
+      ) : nombreArchivo ? (
+        <p className={styles.adjunto}>Leímos el PDF <strong>{nombreArchivo}</strong></p>
       ) : null}
 
       {productos.length > 0 ? (
@@ -270,14 +279,14 @@ export function CargaDesdeFoto({
             <h2>Revisá antes de crear</h2>
             <p>
               Encontramos {productos.length} producto(s). Lo que no leímos con seguridad viene
-              desmarcado. Compará con la foto antes de confirmar.
+              desmarcado. Compará con tu lista antes de confirmar.
             </p>
           </header>
 
           {titulos.some((titulo) => titulo !== SIN_TITULO) ? (
             <div className={styles.titulos}>
               <h3>Las secciones de tu lista</h3>
-              <p>Las encontramos en la foto. Decidí qué hacer con cada una.</p>
+              <p>Las encontramos en tu lista. Decidí qué hacer con cada una.</p>
               {titulos
                 .filter((titulo) => titulo !== SIN_TITULO)
                 .map((titulo) => (

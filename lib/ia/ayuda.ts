@@ -7,15 +7,20 @@
    qué es un modelo de visión. */
 
 export const AYUDA_LISTA = {
-  titulo: "Cómo sacar la foto de tu lista",
+  titulo: "Cómo mandar tu lista",
+  /* El PDF va primero y con su propio renglón porque es el mejor caso y casi
+     nadie lo supone: la lista que mandó el proveedor por WhatsApp se lee mejor
+     que cualquier fotografía, porque el texto ya está escrito adentro del
+     archivo y no hay sombra, ángulo ni enfoque que puedan salir mal. */
   pasos: [
-    "Apoyá la lista en una superficie plana y sacá la foto desde arriba, no de costado.",
-    "Que se vean los cuatro bordes de la hoja y que quede derecha.",
-    "Buena luz, sin sombra encima y sin flash que rebote en el papel.",
-    "Si tu lista es larga, fotografiala por partes: media hoja por vez se lee mejor que la hoja entera.",
+    "¿Tenés la lista en PDF, la que te mandó tu proveedor? Subila así: se lee mejor que una foto.",
+    "Si vas a fotografiarla, apoyá la hoja en una superficie plana y sacá la foto desde arriba, no de costado.",
+    "Que se vean los cuatro bordes de la hoja y que quede derecha, con buena luz y sin flash que rebote.",
+    "Si tu lista es larga, mandala por partes: media hoja por vez se lee mejor que la hoja entera.",
   ],
   funciona: [
-    "Listas de precios impresas o tipeadas",
+    "PDF de listas de precios, el del proveedor incluido",
+    "Fotos de listas impresas o tipeadas",
     "Cartas de restaurante",
     "Listas escritas a mano, si la letra se entiende",
     "El nombre y el precio en el mismo renglón",
@@ -28,6 +33,7 @@ export const AYUDA_LISTA = {
     "Letra que ni vos podés leer en la foto",
     "Fotografías de cada producto: esas las subís vos",
     "Cantidades en stock: eso lo sabés vos, no la lista",
+    "PDF de más de 4 MB: subí tu lista por páginas",
   ],
   /* El ejemplo va con los casos raros de verdad —«2x15», dos tamaños, el título
      de sección— porque son los que hacen dudar al comerciante de si va a

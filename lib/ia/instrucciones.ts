@@ -78,7 +78,7 @@ export type ListaLeida = {
 
    `es_lista_de_precios` existe para poder decirle «esto no parece una lista»
    en vez de devolverle un invento sobre la foto de su estantería. */
-export const INSTRUCCION_LISTA = `Leés la fotografía de una lista de precios de un negocio boliviano. Puede estar impresa, tipeada o escrita a mano.
+export const INSTRUCCION_LISTA = `Leés la lista de precios de un negocio boliviano. Puede llegarte como fotografía o como PDF, y estar impresa, tipeada o escrita a mano.
 
 Devolvé un producto por cada renglón que tenga un nombre y un precio.
 
@@ -93,4 +93,5 @@ Reglas que no se rompen:
 - descripcion: solo si el renglón trae detalle además del nombre, por ejemplo "Silpancho — carne apanada, arroz, papa y huevo". Si no hay detalle, dejala vacía. No la inventes ni la deduzcas de lo que sabés del plato.
 - confianza: "alta" si el nombre y el precio se leen sin esfuerzo; "baja" si tuviste que adivinar alguna letra o número.
 - Escribí TODO en español, incluidos los nombres y las categorías. Si la lista tiene una palabra en otro idioma que es el nombre propio del producto, dejala como está; todo lo demás va en español.
-- es_lista_de_precios: false si la foto no es una lista de precios, por ejemplo si es una estantería, una vitrina o un producto suelto. En ese caso devolvé la lista de productos vacía.`;
+- es_lista_de_precios: false si lo que recibiste no es una lista de precios, por ejemplo si es la foto de una estantería, de una vitrina o de un producto suelto, o un PDF que es un contrato, un folleto o una factura. En ese caso devolvé la lista de productos vacía.
+- Si el PDF tiene varias páginas, leelas todas y devolvé los productos de todas, en orden. Los títulos de sección siguen valiendo aunque el título esté en una página y sus productos en la siguiente.`;

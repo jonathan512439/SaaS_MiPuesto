@@ -1,15 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { leerJson } from "../../../../lib/catalogo/servidor";
-import { analizarImagen } from "../../../../lib/ia/gemini";
+import { analizarArchivo } from "../../../../lib/ia/gemini";
 import {
   ESQUEMA_PRODUCTO,
   INSTRUCCION_PRODUCTO,
   type ProductoLeido,
 } from "../../../../lib/ia/instrucciones";
+import { TIPOS_FOTO, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
 import {
   devolverCredito,
-  leerFotoDeLaPeticion,
   prepararLecturaDeFoto,
   registrarLlamada,
 } from "../../../../lib/ia/servidor";
@@ -25,13 +25,13 @@ export async function POST(solicitud: NextRequest) {
   }
 
   const entrada = await leerJson(solicitud);
-  const foto = entrada.correcto ? leerFotoDeLaPeticion(entrada.datos) : null;
+  const foto = entrada.correcto ? leerArchivoDeLaPeticion(entrada.datos, TIPOS_FOTO) : null;
   if (!foto) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);
     return NextResponse.json({ error: "La fotografía no es válida." }, { status: 400 });
   }
 
-  const lectura = await analizarImagen<ProductoLeido>(
+  const lectura = await analizarArchivo<ProductoLeido>(
     INSTRUCCION_PRODUCTO,
     ESQUEMA_PRODUCTO,
     { base64: foto.base64, tipo: foto.tipo },

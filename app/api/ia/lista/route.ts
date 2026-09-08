@@ -1,15 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { leerJson } from "../../../../lib/catalogo/servidor";
-import { analizarImagen } from "../../../../lib/ia/gemini";
+import { analizarArchivo } from "../../../../lib/ia/gemini";
 import {
   ESQUEMA_LISTA,
   INSTRUCCION_LISTA,
   type ListaLeida,
 } from "../../../../lib/ia/instrucciones";
+import { TIPOS_LISTA, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
 import {
   devolverCredito,
-  leerFotoDeLaPeticion,
   prepararLecturaDeFoto,
   registrarLlamada,
 } from "../../../../lib/ia/servidor";
@@ -27,15 +27,18 @@ export async function POST(solicitud: NextRequest) {
   }
 
   const entrada = await leerJson(solicitud);
-  const foto = entrada.correcto ? leerFotoDeLaPeticion(entrada.datos) : null;
-  if (!foto) {
+  const archivo = entrada.correcto ? leerArchivoDeLaPeticion(entrada.datos, TIPOS_LISTA) : null;
+  if (!archivo) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);
-    return NextResponse.json({ error: "La fotografía no es válida." }, { status: 400 });
+    return NextResponse.json(
+      { error: "El archivo no es válido. Aceptamos una foto o un PDF de hasta 4 MB." },
+      { status: 400 },
+    );
   }
 
-  const lectura = await analizarImagen<ListaLeida>(INSTRUCCION_LISTA, ESQUEMA_LISTA, {
-    base64: foto.base64,
-    tipo: foto.tipo,
+  const lectura = await analizarArchivo<ListaLeida>(INSTRUCCION_LISTA, ESQUEMA_LISTA, {
+    base64: archivo.base64,
+    tipo: archivo.tipo,
   });
 
   await registrarLlamada(
@@ -52,8 +55,8 @@ export async function POST(solicitud: NextRequest) {
       {
         error:
           lectura.motivo === "tardo_demasiado"
-            ? "La lectura tardó demasiado. Probá fotografiando la lista por partes."
-            : "No pudimos leer la fotografía. Probá de nuevo en un momento.",
+            ? "La lectura tardó demasiado. Si es un PDF largo, subilo por partes; si es una foto, fotografiá media hoja por vez."
+            : "No pudimos leer el archivo. Probá de nuevo en un momento.",
       },
       { status: 503 },
     );
@@ -66,7 +69,7 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Esa foto no parece una lista de precios. Necesitamos la lista escrita, con el nombre y el precio en el mismo renglón.",
+          "Eso no parece una lista de precios. Necesitamos la lista escrita, con el nombre y el precio en el mismo renglón.",
       },
       { status: 422 },
     );
@@ -99,7 +102,7 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "No pudimos leer ningún producto. Probá con más luz, más cerca, y que la lista quede derecha.",
+          "No pudimos leer ningún producto. Si es una foto, probá con más luz, más cerca y con la lista derecha.",
       },
       { status: 422 },
     );

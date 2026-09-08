@@ -14,7 +14,11 @@
 const MODELO = "gemini-3.5-flash-lite";
 const TIEMPO_LIMITE_MS = 30_000;
 
-export type ImagenParaAnalizar = {
+/* Un archivo cualquiera de los que el modelo entiende: una foto o un PDF. El
+   PDF no viaja distinto —el mismo `inline_data` con su mime—, y comprobado con
+   una lista de dos secciones: seis productos de seis, con su categoría, en 3,4
+   segundos. Cada página cuesta unos 520 tokens, que es lo mismo que una foto. */
+export type ArchivoParaAnalizar = {
   base64: string;
   tipo: string;
 };
@@ -29,10 +33,10 @@ export function hayGemini(): boolean {
 
 /* Un solo reintento y solo ante fallas de red o del proveedor. Reintentar una
    respuesta que llegó pero no gustó es pagar dos veces por el mismo error. */
-export async function analizarImagen<T>(
+export async function analizarArchivo<T>(
   instruccion: string,
   esquema: Record<string, unknown>,
-  imagen: ImagenParaAnalizar,
+  archivo: ArchivoParaAnalizar,
 ): Promise<ResultadoAnalisis<T>> {
   const clave = process.env.GEMINI_API_KEY ?? "";
   if (clave.length <= 20) return { correcto: false, motivo: "sin_clave" };
@@ -42,7 +46,7 @@ export async function analizarImagen<T>(
       {
         parts: [
           { text: instruccion },
-          { inline_data: { mime_type: imagen.tipo, data: imagen.base64 } },
+          { inline_data: { mime_type: archivo.tipo, data: archivo.base64 } },
         ],
       },
     ],

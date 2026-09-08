@@ -9,25 +9,6 @@ import { describirReinicio } from "./reinicio";
    porque las rutas ya los importaban de acá. */
 export { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./limites";
 
-/* Un megabyte y medio en base64 son algo más de un megabyte de imagen. El
-   navegador ya comprime a unos 150 KB antes de mandarla, así que este tope solo
-   se alcanza si alguien evita la pantalla y manda la foto a mano. */
-const LARGO_MAXIMO_BASE64 = 1_500_000;
-
-const TIPOS_ACEPTADOS = new Set(["image/webp", "image/jpeg", "image/png"]);
-
-export type PeticionFoto = { base64: string; tipo: string };
-
-
-export function leerFotoDeLaPeticion(datos: unknown): PeticionFoto | null {
-  if (typeof datos !== "object" || datos === null) return null;
-  const { imagen, tipo } = datos as { imagen?: unknown; tipo?: unknown };
-  if (typeof imagen !== "string" || typeof tipo !== "string") return null;
-  if (imagen.length === 0 || imagen.length > LARGO_MAXIMO_BASE64) return null;
-  if (!TIPOS_ACEPTADOS.has(tipo)) return null;
-  return { base64: imagen, tipo };
-}
-
 type Preparacion =
   | { correcto: true; negocioId: string; admin: ReturnType<typeof crearClienteSupabaseAdmin> }
   | { correcto: false; estado: number; error: string };
