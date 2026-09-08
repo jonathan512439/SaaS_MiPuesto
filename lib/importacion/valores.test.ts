@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { decodificarXml, leerPrecio } from "./valores";
+import { decodificarXml, leerCantidad, leerPrecio } from "./valores";
 
 describe("leer un precio escrito por una persona", () => {
   it("entiende las formas en que se escribe un precio boliviano", () => {
@@ -51,5 +51,34 @@ describe("texto que viene del XML", () => {
      el dueño. */
   it("no vuelve a interpretar lo que ya decodificó", () => {
     expect(decodificarXml("&amp;lt;")).toBe("&lt;");
+  });
+});
+
+describe("leer una cantidad en existencia", () => {
+  it("acepta enteros y trata los separadores como en el precio", () => {
+    expect(leerCantidad("20")).toBe(20);
+    expect(leerCantidad("1.250")).toBe(1250);
+    expect(leerCantidad("0")).toBe(0);
+  });
+
+  /* Hay planillas que llevan la existencia en kilos. Se redondea en vez de
+     rechazar: el número queda a la vista en un campo editable, y la base pide
+     un entero. */
+  it("redondea lo que no es entero", () => {
+    expect(leerCantidad("12,5")).toBe(13);
+    expect(leerCantidad("12,4")).toBe(12);
+  });
+
+  /* Vacío es «la planilla no dice», y no es cero: cero publica el producto
+     como agotado. */
+  it("distingue el vacío del cero", () => {
+    expect(leerCantidad("")).toBeNull();
+    expect(leerCantidad("s/d")).toBeNull();
+    expect(leerCantidad("0")).toBe(0);
+  });
+
+  it("rechaza una cantidad imposible", () => {
+    expect(leerCantidad("-5")).toBeNull();
+    expect(leerCantidad("9999999")).toBeNull();
   });
 });

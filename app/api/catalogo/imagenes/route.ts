@@ -4,13 +4,11 @@ import {
   extensionPorTipo,
   validarImagenBinaria,
 } from "../../../../lib/imagenes";
-import { esUuid } from "../../../../lib/catalogo/validacion";
+import { MAXIMO_FOTOS_POR_PRODUCTO, esUuid } from "../../../../lib/catalogo/validacion";
 import {
   leerJson,
   obtenerContextoAdminCatalogo,
 } from "../../../../lib/catalogo/servidor";
-
-const MAXIMO_FOTOS = 4;
 
 export async function POST(solicitud: NextRequest) {
   const contexto = await obtenerContextoAdminCatalogo();
@@ -40,9 +38,9 @@ export async function POST(solicitud: NextRequest) {
   if (errorProducto || !producto) {
     return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
   }
-  if (producto.fotos.length >= MAXIMO_FOTOS) {
+  if (producto.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO) {
     return NextResponse.json(
-      { error: `Cada producto admite hasta ${MAXIMO_FOTOS} imágenes.` },
+      { error: `Cada producto admite hasta ${MAXIMO_FOTOS_POR_PRODUCTO} imágenes.` },
       { status: 409 },
     );
   }

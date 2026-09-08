@@ -33,13 +33,24 @@ function nombreDeColumna(indice: number): string {
   return letras;
 }
 
-export function ImportarPlanilla({ categorias }: { categorias: CategoriaCatalogo[] }) {
+export function ImportarPlanilla({
+  categorias,
+  negocioLlevaStock,
+}: {
+  categorias: CategoriaCatalogo[];
+  /* Si el negocio ya lleva la cuenta en los productos que tiene. Sirve para
+     proponer lo mismo en los que va a importar: quien cuenta lo que le queda
+     lo cuenta para todo, y prenderlo veintiocho veces a mano no lo haría
+     nadie. */
+  negocioLlevaStock: boolean;
+}) {
   const { mostrarAviso } = useAvisos();
   const [leyendo, setLeyendo] = useState(false);
   const [lectura, setLectura] = useState<ResultadoLectura | null>(null);
   const [nombreArchivo, setNombreArchivo] = useState("");
   const [mapeo, setMapeo] = useState<Mapeo | null>(null);
   const [confirmado, setConfirmado] = useState(false);
+  const [conStock, setConStock] = useState(false);
 
   const columnas = useMemo(() => {
     if (!lectura) return [];
@@ -81,6 +92,11 @@ export function ImportarPlanilla({ categorias }: { categorias: CategoriaCatalogo
       setLectura(leido);
       setMapeo(leido.mapeo);
       setNombreArchivo(archivo.name);
+      /* Se prende solo si la planilla trae una columna de existencias o si el
+         negocio ya lleva la cuenta. Las dos son señales de lo mismo, y quedan a
+         la vista en un interruptor que se puede apagar: proponer no es
+         decidir. */
+      setConStock(leido.mapeo.cantidad !== null || negocioLlevaStock);
       if (leido.recortada) {
         mostrarAviso({
           titulo: "Tomamos las primeras filas",
@@ -217,6 +233,38 @@ export function ImportarPlanilla({ categorias }: { categorias: CategoriaCatalogo
             ))}
           </Selector>
 
+          {/* El control de cantidad es una decisión del negocio, no del
+              archivo: hay quien lleva una planilla con existencias y publica un
+              catálogo sin contar nada. Por eso se propone y se puede apagar. */}
+          <label className={styles.interruptor}>
+            <input
+              checked={conStock}
+              onChange={(evento) => setConStock(evento.target.checked)}
+              type="checkbox"
+            />
+            <span>
+              Estos productos llevan control de cantidad
+              {mapeo.cantidad !== null ? " (tu planilla trae una columna de existencias)" : ""}
+            </span>
+          </label>
+
+          {conStock ? (
+            <Selector
+              etiqueta="La cantidad en existencia está en (opcional)"
+              id="columna-cantidad"
+              onChange={(evento) => cambiarMapeo("cantidad", evento.target.value)}
+              value={String(mapeo.cantidad ?? -1)}
+            >
+              <option value={SIN_COLUMNA}>La escribo a mano en el paso siguiente</option>
+              {columnas.map(({ indice, etiqueta, ejemplo }) => (
+                <option key={indice} value={indice}>
+                  {etiqueta}
+                  {ejemplo ? ` — por ejemplo «${ejemplo}»` : ""}
+                </option>
+              ))}
+            </Selector>
+          ) : null}
+
           {/* La cuenta se muestra antes de confirmar y se actualiza al cambiar
               una columna: es la forma de darse cuenta de que se eligió mal sin
               tener que pasar a la pantalla siguiente. Si la columna del precio
@@ -240,7 +288,8 @@ export function ImportarPlanilla({ categorias }: { categorias: CategoriaCatalogo
       {confirmado && resultado ? (
         <RevisionDeProductos
           categorias={categorias}
-          introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Sacá los que no quieras publicar.`}
+          controlaStock={conStock}
+          introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agregales fotos si querés y sacá los que no vayas a publicar.`}
           key={nombreArchivo}
           onTerminado={() => setConfirmado(true)}
           productos={resultado.productos}

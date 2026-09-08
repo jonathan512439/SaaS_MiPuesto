@@ -44,6 +44,20 @@ export function leerPrecio(texto: string): number | null {
   return Number.isFinite(valor) ? valor : null;
 }
 
+/* La cantidad en existencia, cuando la planilla la trae. Reusa la lectura del
+   precio porque los separadores de miles son los mismos problemas: «1.250»
+   unidades se escribe igual que «1.250» bolivianos.
+
+   Se redondea en vez de rechazar un «12,5»: hay planillas donde la existencia
+   se lleva en kilos y el catálogo cuenta unidades. El número queda a la vista en
+   un campo que se puede editar, así que el dueño corrige lo que no le sirva; lo
+   que no se puede es guardar medio producto, porque la base pide un entero. */
+export function leerCantidad(texto: string): number | null {
+  const valor = leerPrecio(texto);
+  if (valor === null || valor < 0 || valor > 999_999) return null;
+  return Math.round(valor);
+}
+
 /* Las entidades que aparecen de verdad en el XML de un Excel. `&amp;` va al
    final: si se reemplazara primero, un «&amp;lt;» escrito literalmente en una
    celda se convertiría en «<» y rompería el texto del dueño. */

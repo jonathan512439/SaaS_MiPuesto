@@ -112,6 +112,17 @@
   font-size: var(--text-sm);
 }
 
+.interruptor {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
 .cuenta {
   border-radius: var(--radius-panel);
   padding: var(--spacing-3);

@@ -1,6 +1,6 @@
 import { analizarPlanilla, type Mapeo, type Planilla } from "./columnas";
 import { leerCsv } from "./csv";
-import { leerPrecio } from "./valores";
+import { leerCantidad, leerPrecio } from "./valores";
 import { leerXlsx } from "./xlsx";
 
 /* La puerta de entrada del importador: un archivo que eligió el dueño, y del
@@ -105,6 +105,11 @@ export type ProductoDePlanilla = {
   descripcion: string;
   categoria: string;
   confianza: "alta";
+  /* `null` significa «la planilla no dice». No es lo mismo que cero: cero es
+     «no queda ninguno» y se publica como agotado. Si se confundieran, importar
+     una planilla sin columna de existencias dejaría el catálogo entero
+     agotado. */
+  cantidad: number | null;
 };
 
 /* De la grilla a productos, con el mapeo que quedó en pantalla —el propuesto o
@@ -141,6 +146,7 @@ export function productosDeLaPlanilla(
       categoria:
         mapeo.categoria === null ? "" : (fila[mapeo.categoria] ?? "").trim().slice(0, 60),
       confianza: "alta",
+      cantidad: mapeo.cantidad === null ? null : leerCantidad(fila[mapeo.cantidad] ?? ""),
     });
   }
 

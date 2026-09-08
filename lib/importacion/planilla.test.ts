@@ -31,6 +31,7 @@ describe("abrir la planilla que trae el dueño", () => {
       descripcion: "",
       categoria: "Bebidas",
       confianza: "alta",
+      cantidad: null,
     });
   });
 
@@ -51,7 +52,13 @@ describe("abrir la planilla que trae el dueño", () => {
     const bytes = readFileSync(join(import.meta.dirname, "pruebas", "lista-de-precios.xlsx"));
     const lectura = await leerArchivoDePlanilla(archivoDeBytes(bytes, "lista.xlsx"));
 
-    expect(lectura.mapeo).toEqual({ nombre: 0, precio: 1, descripcion: 2, categoria: 3 });
+    expect(lectura.mapeo).toEqual({
+      nombre: 0,
+      precio: 1,
+      descripcion: 2,
+      categoria: 3,
+      cantidad: null,
+    });
 
     const { productos } = productosDeLaPlanilla(lectura.filas, lectura.mapeo);
     expect(productos).toHaveLength(5);
@@ -73,11 +80,26 @@ describe("abrir la planilla que trae el dueño", () => {
         ["", "5"],
         ["Regalo", "0"],
       ],
-      { nombre: 0, precio: 1, descripcion: null, categoria: null },
+      { nombre: 0, precio: 1, descripcion: null, categoria: null, cantidad: null },
     );
 
     expect(productos).toHaveLength(1);
     expect(descartadas).toBe(3);
+  });
+
+  /* «Sin columna» y «cero» no son lo mismo. Cero es «no queda ninguno» y sale
+     agotado; sin columna es «la planilla no dice». Confundirlos dejaría un
+     catálogo entero publicado como agotado. */
+  it("distingue una existencia en cero de una planilla que no la trae", async () => {
+    const conCantidad = await leerArchivoDePlanilla(
+      archivoDeTexto("Producto,Precio,Stock\nPan,3,0\nLeche,7,12"),
+    );
+    const { productos } = productosDeLaPlanilla(conCantidad.filas, conCantidad.mapeo);
+    expect(productos.map(({ cantidad }) => cantidad)).toEqual([0, 12]);
+
+    const sinCantidad = await leerArchivoDePlanilla(archivoDeTexto("Producto,Precio\nPan,3"));
+    const sueltos = productosDeLaPlanilla(sinCantidad.filas, sinCantidad.mapeo);
+    expect(sueltos.productos[0].cantidad).toBeNull();
   });
 
   it("explica qué hacer con un Excel del formato viejo", async () => {

@@ -6,6 +6,14 @@ export const LIMITE_SUBCATEGORIAS_POR_CATEGORIA = 20;
    descargaba la ficha de todos los productos para mostrar doce, así que subir
    el límite antes habría empeorado el catálogo en vez de mejorarlo. */
 export const LIMITE_PRODUCTOS = 300;
+
+/* Cuántas fotografías admite un producto. Vive acá porque la comprueban tres
+   lugares que no se hablan entre sí: el panel al elegir los archivos, la ruta
+   que las recibe, y ahora la pantalla de revisión de una importación. Estaba
+   escrito a mano en cada uno, y tres números sueltos que tienen que coincidir
+   terminan no coincidiendo: el día que suba a seis, el panel dejaría elegir
+   seis y la ruta rechazaría las dos últimas sin explicar por qué. */
+export const MAXIMO_FOTOS_POR_PRODUCTO = 4;
 export const LARGO_MAXIMO_NOMBRE_PRODUCTO = 120;
 
 const PATRON_UUID =

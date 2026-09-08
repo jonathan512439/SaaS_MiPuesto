@@ -11,7 +11,7 @@ describe("adivinar qué columna es cuál", () => {
 
     expect(cabeceras).not.toBeNull();
     expect(filas).toHaveLength(1);
-    expect(mapeo).toEqual({ nombre: 1, precio: 2, descripcion: 3, categoria: 4 });
+    expect(mapeo).toEqual({ nombre: 1, precio: 2, descripcion: 3, categoria: 4, cantidad: null });
   });
 
   /* Una columna no puede ser dos cosas. Sin reservarlas, «Producto» y
@@ -76,6 +76,40 @@ describe("adivinar qué columna es cuál", () => {
 
     expect(mapeo.nombre).toBe(0);
     expect(mapeo.precio).toBe(1);
+  });
+
+  /* La columna de existencias es la señal de que este negocio lleva la cuenta.
+     Encontrarla es lo que permite proponerle prender el control de cantidad en
+     vez de esperar a que se acuerde de pedirlo. */
+  it("reconoce la columna de existencias con sus varios nombres", () => {
+    for (const titulo of ["Cantidad", "Stock", "Existencias", "Inventario", "Unidades"]) {
+      const { mapeo } = analizarPlanilla([
+        ["Producto", "Precio", titulo],
+        ["Pan", "3", "20"],
+      ]);
+      expect(mapeo.cantidad, `no reconoció «${titulo}»`).toBe(2);
+    }
+  });
+
+  /* Precio y cantidad son las dos columnas de números de la planilla. Si la
+     reserva fallara, la misma caería en los dos campos y el catálogo saldría con
+     el precio puesto como existencia. */
+  it("no confunde la columna de precio con la de cantidad", () => {
+    const { mapeo } = analizarPlanilla([
+      ["Producto", "Stock", "Precio Bs"],
+      ["Pan", "20", "3"],
+    ]);
+
+    expect(mapeo.precio).toBe(2);
+    expect(mapeo.cantidad).toBe(1);
+  });
+
+  it("deja la cantidad en nada cuando la planilla no la trae", () => {
+    const { mapeo } = analizarPlanilla([
+      ["Producto", "Precio"],
+      ["Pan", "3"],
+    ]);
+    expect(mapeo.cantidad).toBeNull();
   });
 
   it("no se cae con una planilla vacía", () => {

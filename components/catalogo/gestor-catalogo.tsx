@@ -16,6 +16,7 @@ import {
 import { AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
+import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
 import { rubroOfrece } from "../../lib/negocios/rubros";
 import {
   AJUSTE_MAXIMO,
@@ -497,10 +498,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     const archivos = Array.from(evento.target.files ?? []);
     evento.target.value = "";
     if (!archivos.length) return;
-    if (imagenesPendientes.length + archivos.length > 4) {
+    if (imagenesPendientes.length + archivos.length > MAXIMO_FOTOS_POR_PRODUCTO) {
       informarError(
         "Demasiadas fotografías",
-        new Error(`Puedes seleccionar ${4 - imagenesPendientes.length} más.`),
+        new Error(`Puedes seleccionar ${MAXIMO_FOTOS_POR_PRODUCTO - imagenesPendientes.length} más.`),
       );
       return;
     }
@@ -713,7 +714,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     const producto = productos.find(({ id }) => id === productoEditando);
 
     if (!productoEditando) {
-      if (imagenesPendientes.length >= 4) return "";
+      if (imagenesPendientes.length >= MAXIMO_FOTOS_POR_PRODUCTO) return "";
       try {
         const preparada = await prepararImagenParaSubir(archivo);
         setImagenesPendientes((actuales) => [...actuales, preparada]);
@@ -723,7 +724,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       }
     }
 
-    if (!producto || producto.fotos.length >= 4) return "";
+    if (!producto || producto.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO) return "";
     try {
       await cargarArchivosProducto(producto, [archivo]);
       return "La foto se agregó al producto.";
@@ -889,7 +890,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     const archivos = Array.from(evento.target.files ?? []);
     evento.target.value = "";
     if (!archivos.length) return;
-    if (producto.fotos.length + archivos.length > 4) {
+    if (producto.fotos.length + archivos.length > MAXIMO_FOTOS_POR_PRODUCTO) {
       informarError("Demasiadas fotografías", new Error(`Este producto admite ${4 - producto.fotos.length} más.`));
       return;
     }
@@ -1104,7 +1105,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                 Seleccionar fotografías
                 <input
                   accept="image/jpeg,image/png,image/webp"
-                  disabled={ocupado || imagenesPendientes.length >= 4}
+                  disabled={ocupado || imagenesPendientes.length >= MAXIMO_FOTOS_POR_PRODUCTO}
                   multiple
                   onChange={(evento) => void prepararImagenesNuevas(evento)}
                   type="file"
@@ -1138,7 +1139,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                 </ul>
               ) : null}
               <small className={styles.ayudaCampo}>{AYUDA_FOTO_PRODUCTO}</small>
-              <small>{imagenesPendientes.length} de 4 fotografías seleccionadas</small>
+              <small>
+                {imagenesPendientes.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías seleccionadas
+              </small>
             </section>
           ) : null}
           <div className={styles.accionesFormulario}>
@@ -1506,7 +1509,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                           Agregar fotos
                           <input
                             accept="image/jpeg,image/png,image/webp"
-                            disabled={ocupado || producto.fotos.length >= 4}
+                            disabled={ocupado || producto.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO}
                             multiple
                             onChange={(evento) => void subirImagenes(producto, evento)}
                             type="file"
@@ -1517,7 +1520,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                         </Boton>
                       </div>
                     </details>
-                    <small>{producto.fotos.length} de 4 fotografías</small>
+                    <small>
+                      {producto.fotos.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías
+                    </small>
                   </div>
                 </li>
               ))}

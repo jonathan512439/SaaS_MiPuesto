@@ -16,6 +16,10 @@ export type Mapeo = {
   precio: number;
   descripcion: number | null;
   categoria: number | null;
+  /* Solo se usa si el negocio lleva control de existencias. Se busca siempre,
+     porque encontrarla es lo que permite proponerle al dueño que lo active en
+     vez de esperar a que se acuerde de decirlo. */
+  cantidad: number | null;
 };
 
 export type Planilla = {
@@ -42,6 +46,7 @@ const PALABRAS: Record<keyof Mapeo, string[]> = {
   nombre: ["producto", "nombre", "articulo", "item", "descripcion del producto", "denominacion"],
   descripcion: ["descripcion", "detalle", "observacion", "comentario", "caracteristicas"],
   categoria: ["categoria", "rubro", "seccion", "grupo", "familia", "linea", "tipo"],
+  cantidad: ["cantidad", "stock", "existencia", "existencias", "inventario", "unidades", "saldo"],
 };
 
 /* Se compara por palabra entera y no por pedazo de texto. Con `includes` a
@@ -110,7 +115,11 @@ function buscarPorContenido(filas: string[][]): { nombre: number; precio: number
 
 export function analizarPlanilla(filas: string[][]): Planilla {
   if (filas.length === 0) {
-    return { cabeceras: null, filas: [], mapeo: { nombre: 0, precio: 1, descripcion: null, categoria: null } };
+    return {
+      cabeceras: null,
+      filas: [],
+      mapeo: { nombre: 0, precio: 1, descripcion: null, categoria: null, cantidad: null },
+    };
   }
 
   const hayCabecera = pareceCabecera(filas);
@@ -119,7 +128,11 @@ export function analizarPlanilla(filas: string[][]): Planilla {
 
   if (!cabeceras) {
     const { nombre, precio } = buscarPorContenido(datos);
-    return { cabeceras: null, filas: datos, mapeo: { nombre, precio, descripcion: null, categoria: null } };
+    return {
+      cabeceras: null,
+      filas: datos,
+      mapeo: { nombre, precio, descripcion: null, categoria: null, cantidad: null },
+    };
   }
 
   /* Una columna no puede ser dos cosas. Sin esto, una planilla con «Producto» y
@@ -132,7 +145,11 @@ export function analizarPlanilla(filas: string[][]): Planilla {
     return indice;
   };
 
+  /* La cantidad se resuelve justo después del precio y antes que el nombre:
+     las dos son columnas de números y la reserva impide que la misma caiga en
+     los dos campos. */
   const precio = porTitulo("precio");
+  const cantidad = porTitulo("cantidad");
   const nombre = porTitulo("nombre");
   const descripcion = porTitulo("descripcion");
   const categoria = porTitulo("categoria");
@@ -150,6 +167,7 @@ export function analizarPlanilla(filas: string[][]): Planilla {
       precio: precio ?? respaldo!.precio,
       descripcion,
       categoria,
+      cantidad,
     },
   };
 }

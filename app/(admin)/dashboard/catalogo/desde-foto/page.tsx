@@ -48,6 +48,21 @@ export default async function PaginaCargaDesdeFoto() {
       .maybeSingle(),
   ]);
 
+  /* Si el negocio ya lleva la cuenta en algún producto. Es la señal más honesta
+     de «este catálogo cuenta existencias»: no hay un ajuste de negocio para
+     esto, el control es de cada producto, y preguntárselo al dueño otra vez
+     sería preguntarle algo que sus propios datos ya contestan. Se pide un solo
+     registro, no la lista entera. */
+  const { data: conStock } = await supabase
+    .from("productos")
+    .select("id")
+    .eq("negocio_id", negocio.id)
+    .eq("controla_stock", true)
+    .is("eliminado_en", null)
+    .limit(1)
+    .maybeSingle();
+  const negocioLlevaStock = conStock !== null;
+
   return (
     <main className={styles.contenido}>
       <header className={styles.encabezado}>
@@ -62,6 +77,7 @@ export default async function PaginaCargaDesdeFoto() {
       <CargaDesdeFoto
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
         fotosUsadas={uso?.cantidad ?? 0}
+        negocioLlevaStock={negocioLlevaStock}
         topeFotos={TOPE_FOTOS_POR_MES}
       />
     </main>

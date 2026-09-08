@@ -12,10 +12,16 @@ import styles from "./carga-desde-foto.module.css";
 export function CargaDesdeFoto({
   categorias,
   fotosUsadas,
+  negocioLlevaStock,
   topeFotos,
 }: {
   categorias: CategoriaCatalogo[];
   fotosUsadas: number;
+  /* Ninguna fotografía dice cuántas unidades quedan. El campo aparece igual si
+     el negocio lleva la cuenta, vacío: es el momento en que el dueño tiene el
+     producto en la cabeza, y volver después a cargarlo de a uno no lo hace
+     nadie. */
+  negocioLlevaStock: boolean;
   topeFotos: number;
 }) {
   const { mostrarAviso } = useAvisos();
@@ -146,6 +152,7 @@ export function CargaDesdeFoto({
       {productos.length > 0 ? (
         <RevisionDeProductos
           categorias={categorias}
+          controlaStock={negocioLlevaStock}
           introduccion={`Encontramos ${productos.length} producto(s). Lo que no leímos con seguridad viene desmarcado. Compará con tu lista antes de confirmar.`}
           key={lectura}
           /* No se vacía la lista de productos: eso desmontaría el panel y con

@@ -141,6 +141,115 @@
   text-transform: uppercase;
 }
 
+/* La cantidad y las fotos van en un renglón propio debajo del nombre y el
+   precio. En un teléfono, cinco columnas en una sola línea dejan cada campo del
+   ancho de un dedo y ninguno se puede usar. */
+.extras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  grid-column: 2 / -1;
+}
+
+.cantidad {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cantidad input {
+  width: 5rem;
+}
+
+/* Sin el degradado de las herramientas con IA: adjuntar una foto propia no gasta
+   ninguna cuota, y ese color es la señal de lo que sí. */
+.agregarFoto {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border: var(--borde-fino) solid var(--color-marca);
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-3);
+  color: var(--color-marca);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.agregarFoto:has(input:disabled) {
+  border-color: var(--color-borde);
+  color: var(--color-texto-suave);
+  cursor: not-allowed;
+}
+
+.agregarFoto input {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.agregarFoto:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+/* La miniatura es el botón para quitarla. Una foto que se agregó por error se
+   saca tocándola, que es lo que la mano intenta primero; la cruz está encima
+   para que se vea que hace eso y no abrirla. */
+.miniatura {
+  position: relative;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: 0;
+  cursor: pointer;
+}
+
+.miniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.miniatura span[aria-hidden="true"] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0 var(--spacing-1);
+  background: var(--color-peligro);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.soloLectores {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* Crear veintiocho productos con sus fotos lleva su tiempo. Sin decir en cuál
+   va, una pantalla quieta se lee como una pantalla colgada. */
+.progreso {
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-fondo-suave);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
 .confirmar {
   display: grid;
   gap: var(--spacing-2);
