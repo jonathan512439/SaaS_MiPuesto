@@ -12,6 +12,7 @@ import {
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./resumen.module.css";
+import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Reportes | MiPuesto",
@@ -119,11 +120,11 @@ export default async function PaginaDashboard() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <p>Últimos 7 días</p>
-        <h1>Reportes de {negocio.nombre}</h1>
-        <p>Sin nombres, teléfonos ni contenido de los pedidos.</p>
-      </header>
+      <EncabezadoPanel
+        descripcion="Sin nombres, teléfonos ni contenido de los pedidos."
+        rotulo="Últimos 7 días"
+        titulo={`Reportes de ${negocio.nombre}`}
+      />
 
       {!negocio.activo ? (
         <aside className={styles.inactivo} role="status">

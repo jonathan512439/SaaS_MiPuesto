@@ -9,6 +9,7 @@ import {
   formatearFechaVencimiento,
 } from "../../../../lib/suscripcion";
 import styles from "./cuenta.module.css";
+import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Tu cuenta | MiPuesto",
@@ -46,9 +47,10 @@ export default async function PaginaCuenta() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>Tu cuenta</h1>
-      </header>
+      <EncabezadoPanel
+        descripcion="Administrá tu suscripción y los datos de tu negocio."
+        titulo="Tu cuenta"
+      />
 
       <section aria-labelledby="estado-plan" className={styles.estado} data-estado={suscripcion.estado}>
         <p className={styles.etiqueta}>{describirDiasRestantes(suscripcion.diasRestantes)}</p>

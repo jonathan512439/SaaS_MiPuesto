@@ -14,6 +14,7 @@ import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import styles from "./catalogo.module.css";
 import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../lib/catalogo/columnas";
+import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Catálogo | MiPuesto",
@@ -79,8 +80,10 @@ export default async function PaginaCatalogo() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>Catálogo</h1>
+      <EncabezadoPanel
+        descripcion="Gestioná tus productos y mantené tu negocio siempre al día."
+        titulo="Catálogo"
+      >
         {/* El enlace aparece solo cuando hay algo que recuperar: una papelera
             vacía anunciada en cada visita es ruido. */}
         {/* Aparece recién cuando la plataforma se la habilitó: es la única
@@ -129,7 +132,7 @@ export default async function PaginaCatalogo() {
             Papelera ({enPapelera})
           </Link>
         ) : null}
-      </header>
+      </EncabezadoPanel>
 
       {avisarFotoNueva ? (
         <aside className={styles.avisoFoto}>

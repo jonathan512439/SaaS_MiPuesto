@@ -6,6 +6,7 @@ import { ImportarPlanilla } from "../../../../../components/catalogo/importar-pl
 import type { CategoriaCatalogo } from "../../../../../lib/catalogo/tipos";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import styles from "../catalogo.module.css";
+import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Importar tu Excel | MiPuesto",
@@ -55,14 +56,11 @@ export default async function PaginaImportarPlanilla() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>Importar tu Excel</h1>
-        <p>
-          Si ya llevás tu inventario en una planilla, no hace falta volver a escribirlo. Subí el
-          archivo, decinos qué columna es cuál y revisá antes de crear.
-        </p>
-        <Link href="/dashboard/catalogo">Volver al catálogo</Link>
-      </header>
+      <EncabezadoPanel
+        accion={<Link href="/dashboard/catalogo">Volver al catálogo</Link>}
+        descripcion="Si ya llevás tu inventario en una planilla, no hace falta volver a escribirlo. Subí el archivo, decinos qué columna es cuál y revisá antes de crear."
+        titulo="Importar tu Excel"
+      />
 
       <ImportarPlanilla
         categorias={(categorias ?? []) as CategoriaCatalogo[]}

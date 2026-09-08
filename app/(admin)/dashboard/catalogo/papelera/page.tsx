@@ -8,6 +8,7 @@ import type { ProductoEnPapelera } from "../../../../../lib/catalogo/papelera";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../../lib/supabase/variables";
 import styles from "../catalogo.module.css";
+import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Papelera | MiPuesto",
@@ -38,14 +39,11 @@ export default async function PaginaPapelera() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>Papelera</h1>
-        <p>
-          Lo que borrás se guarda {DIAS_PAPELERA} días y podés recuperarlo con sus
-          fotografías. Después se borra solo.
-        </p>
-        <Link href="/dashboard/catalogo">Volver al catálogo</Link>
-      </header>
+      <EncabezadoPanel
+        accion={<Link href="/dashboard/catalogo">Volver al catálogo</Link>}
+        descripcion={`Lo que borrás se guarda ${DIAS_PAPELERA} días y podés recuperarlo con sus fotografías. Después se borra solo.`}
+        titulo="Papelera"
+      />
 
       <PapeleraProductos
         productos={(productos ?? []) as ProductoEnPapelera[]}

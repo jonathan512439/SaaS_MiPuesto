@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { GestorPromociones } from "../../../../components/promociones/gestor-promociones";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./promociones.module.css";
+import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Promociones | MiPuesto",
@@ -49,10 +50,10 @@ export default async function PaginaPromociones() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>Promociones</h1>
-        <p>Si coinciden varias, se aplica la que deje el precio más bajo.</p>
-      </header>
+      <EncabezadoPanel
+        descripcion="Si coinciden varias, se aplica la que deje el precio más bajo."
+        titulo="Promociones"
+      />
       <GestorPromociones
         categorias={resultadoCategorias.data ?? []}
         negocioNombre={negocio.nombre}

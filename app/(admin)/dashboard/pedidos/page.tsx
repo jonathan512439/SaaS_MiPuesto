@@ -6,6 +6,7 @@ import {
 } from "../../../../components/pedidos/gestor-pedidos";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./pedidos.module.css";
+import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -39,9 +40,7 @@ export default async function PaginaPedidos() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>Pedidos</h1>
-      </header>
+      <EncabezadoPanel descripcion="Acá ves y resolvés todos tus pedidos." titulo="Pedidos" />
       <GestorPedidos pedidosIniciales={pedidos} />
     </main>
   );

@@ -7,6 +7,7 @@ import type { CategoriaCatalogo } from "../../../../../lib/catalogo/tipos";
 import { TOPE_FOTOS_POR_MES } from "../../../../../lib/ia/servidor";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import styles from "../catalogo.module.css";
+import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Cargar desde una foto | MiPuesto",
@@ -65,14 +66,11 @@ export default async function PaginaCargaDesdeFoto() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>Cargar desde una foto</h1>
-        <p>
-          Fotografiá tu lista de precios y te armamos el borrador. Vos revisás y confirmás:
-          nada se publica sin que lo mires.
-        </p>
-        <Link href="/dashboard/catalogo">Volver al catálogo</Link>
-      </header>
+      <EncabezadoPanel
+        accion={<Link href="/dashboard/catalogo">Volver al catálogo</Link>}
+        descripcion="Fotografiá tu lista de precios y te armamos el borrador. Vos revisás y confirmás: nada se publica sin que lo mires."
+        titulo="Cargar desde una foto"
+      />
 
       <CargaDesdeFoto
         categorias={(categorias ?? []) as CategoriaCatalogo[]}

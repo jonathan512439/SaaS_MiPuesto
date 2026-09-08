@@ -8,29 +8,6 @@
   padding: var(--spacing-8) 0;
 }
 
-.encabezado {
-  display: grid;
-  gap: var(--spacing-2);
-}
-
-.encabezado h1 {
-  margin: 0;
-  font-size: var(--text-2xl);
-  font-weight: 900;
-}
-
-.rotulo {
-  width: fit-content;
-  margin: 0;
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-marca-tenue);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
 .resumen,
 .vacio {
   margin: 0;

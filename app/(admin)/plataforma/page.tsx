@@ -20,6 +20,7 @@ import {
 import { formatearFechaVencimiento } from "../../../lib/suscripcion";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./plataforma.module.css";
+import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -95,14 +96,11 @@ export default async function PaginaPlataforma() {
 
   return (
     <main className={styles.pagina}>
-      <header className={styles.encabezado}>
-        <p className={styles.rotulo}>Administración</p>
-        <h1>Negocios</h1>
-        <p className={styles.resumen}>
-          {clientes.length} en total · {atencion} necesitan atención · Bs{" "}
-          {cobrables * PRECIO_MENSUAL_BS} al mes si todos pagan
-        </p>
-      </header>
+      <EncabezadoPanel
+        descripcion={`${clientes.length} en total · ${atencion} necesitan atención · Bs ${cobrables * PRECIO_MENSUAL_BS} al mes si todos pagan`}
+        rotulo="Administración"
+        titulo="Negocios"
+      />
 
       <InvitarNegocio />
 

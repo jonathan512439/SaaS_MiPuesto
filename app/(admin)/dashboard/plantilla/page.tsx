@@ -7,6 +7,7 @@ import { esTipoNegocio } from "../../../../lib/modalidades";
 import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./plantilla.module.css";
+import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Plantilla del catálogo | MiPuesto",
@@ -45,10 +46,10 @@ export default async function PaginaPlantilla() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>Apariencia</h1>
-        <p>Cambiarla no altera tus productos ni tus pedidos.</p>
-      </header>
+      <EncabezadoPanel
+        descripcion="Cambiala cuando quieras. No altera tus productos ni tus pedidos."
+        titulo="Apariencia"
+      />
 
       <SelectorApariencia
         datos={datos}

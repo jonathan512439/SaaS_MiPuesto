@@ -18,6 +18,7 @@ import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../../lib/url-sitio";
 import styles from "./configuracion.module.css";
+import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 
 export const metadata: Metadata = {
   title: "Configuración del negocio | MiPuesto",
@@ -41,9 +42,10 @@ export default async function PaginaConfiguracion() {
 
   return (
     <main className={styles.contenido}>
-      <header className={styles.encabezado}>
-        <h1>{negocio ? "Tu negocio" : "Crea el perfil de tu negocio"}</h1>
-      </header>
+      <EncabezadoPanel
+        descripcion="Configurá la información de tu negocio para que tus clientes te encuentren en el catálogo."
+        titulo={negocio ? "Tu negocio" : "Crea el perfil de tu negocio"}
+      />
 
       <div className={styles.rejilla}>
         <FormularioNegocio negocioInicial={negocio as PerfilNegocioInicial | null} />

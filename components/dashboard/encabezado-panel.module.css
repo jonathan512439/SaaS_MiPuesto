@@ -1,0 +1,67 @@
+@reference "../../app/globals.css";
+
+.encabezado {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.fila {
+  display: grid;
+  gap: var(--spacing-3);
+  align-items: end;
+}
+
+.texto {
+  display: grid;
+  gap: var(--spacing-2);
+  max-width: 52rem;
+}
+
+/* Sin línea debajo del título.
+
+   Antes había un borde inferior en siete de las ocho copias. Servía cuando la
+   página y las tarjetas eran del mismo color y hacía falta rayar para separar;
+   con el lienzo tintado y las tarjetas encima, la raya es una segunda forma de
+   decir lo mismo. El aire separa mejor y no ensucia. */
+.encabezado h1 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1.15;
+}
+
+/* El rótulo va arriba del título y en versalitas: dice de qué se está hablando
+   —«Últimos 7 días», «Administración»— antes de decir qué es. Puesto abajo se
+   leería como una aclaración del título y no como su contexto. */
+.rotulo {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+  text-transform: uppercase;
+}
+
+.descripcion {
+  max-width: var(--ancho-lectura);
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.accion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+/* En pantalla ancha la acción se va a la derecha del título. En el teléfono
+   baja, que es donde tiene que estar: apretada al lado del título quedaría del
+   ancho de un dedo. */
+@media (min-width: 48rem) {
+  .fila {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
