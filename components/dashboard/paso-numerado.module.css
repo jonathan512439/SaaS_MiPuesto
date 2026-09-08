@@ -1,0 +1,48 @@
+@reference "../../app/globals.css";
+
+.paso {
+  display: grid;
+  grid-template-columns: var(--spacing-10) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--spacing-3);
+}
+
+.disco,
+.discoIcono {
+  display: grid;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  place-items: center;
+  border-radius: 50%;
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+/* El número va en el color de la marca, relleno: es el que marca el orden y
+   tiene que verse de una pasada al buscar «en qué paso iba». */
+.disco {
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+/* El ícono no compite con el número porque nunca aparecen juntos, pero sí va más
+   suave: un apartado no reclama la atención que reclama un paso pendiente. El
+   par tenue/fuerte es el que la guarda ya comprueba en la paleta del panel. */
+.discoIcono {
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-lg);
+}
+
+.paso h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.paso p {
+  max-width: var(--ancho-lectura);
+  margin: var(--spacing-1) 0 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}

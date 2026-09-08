@@ -16,6 +16,7 @@ import {
 import { DEFINICIONES_RUBROS, rubroOfrece } from "../../lib/negocios/rubros";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "../../app/(admin)/dashboard/configuracion/configuracion.module.css";
+import { PasoNumerado } from "../dashboard/paso-numerado";
 
 export type PerfilNegocioInicial = {
   nombre: string;
@@ -206,13 +207,12 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   return (
     <form className={styles.formulario} onSubmit={guardar}>
       <section className={styles.bloqueFormulario} aria-labelledby="datos-principales">
-        <div className={styles.tituloBloque}>
-          <span aria-hidden="true">1</span>
-          <div>
-            <h2 id="datos-principales">Datos principales</h2>
-            <p>Así reconocerán tu negocio quienes abran el catálogo.</p>
-          </div>
-        </div>
+        <PasoNumerado
+          descripcion="Así reconocerán tu negocio quienes abran el catálogo."
+          idTitulo="datos-principales"
+          numero={1}
+          titulo="Datos principales"
+        />
         <Campo
           autoComplete="organization"
           error={errores.nombre}
@@ -237,13 +237,12 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       </section>
 
       <section className={styles.bloqueFormulario} aria-labelledby="direccion-catalogo">
-        <div className={styles.tituloBloque}>
-          <span aria-hidden="true">2</span>
-          <div>
-            <h2 id="direccion-catalogo">Dirección del catálogo</h2>
-            <p>Será el nombre corto que usarás para compartir tu catálogo.</p>
-          </div>
-        </div>
+        <PasoNumerado
+          descripcion="Será el nombre corto que usarás para compartir tu catálogo."
+          idTitulo="direccion-catalogo"
+          numero={2}
+          titulo="Dirección del catálogo"
+        />
         <Campo
           autoCapitalize="none"
           autoCorrect="off"
@@ -285,13 +284,12 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       </section>
 
       <section className={styles.bloqueFormulario} aria-labelledby="atencion-negocio">
-        <div className={styles.tituloBloque}>
-          <span aria-hidden="true">3</span>
-          <div>
-            <h2 id="atencion-negocio">Atención y modalidad</h2>
-            <p>Elige cómo usarás el catálogo y dónde recibirás consultas.</p>
-          </div>
-        </div>
+        <PasoNumerado
+          descripcion="Elige cómo usarás el catálogo y dónde recibirás consultas."
+          idTitulo="atencion-negocio"
+          numero={3}
+          titulo="Atención y modalidad"
+        />
         <Selector
           error={errores.tipo_negocio}
           etiqueta="Modalidad"

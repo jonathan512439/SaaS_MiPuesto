@@ -14,6 +14,7 @@ import type { DatosPlantilla, PropiedadesPlantilla } from "../../lib/plantillas/
 import temaStyles from "../templates/tema-catalogo.module.css";
 import { Boton, Esqueleto, useAvisos } from "../ui";
 import styles from "./selector-apariencia.module.css";
+import { PasoNumerado } from "../dashboard/paso-numerado";
 
 type PropiedadesSelector = {
   datos: DatosPlantilla;
@@ -122,7 +123,8 @@ export function SelectorApariencia({
   return (
     <form className={styles.formulario} onSubmit={guardarApariencia}>
       <fieldset className={styles.grupo} disabled={guardando}>
-        <legend className={styles.leyenda}>1. Elige la estructura</legend>
+        <legend className={styles.leyendaOculta}>Elige la estructura</legend>
+        <PasoNumerado numero={1} titulo="Elige la estructura" />
         <p className={styles.ayuda}>
           La plantilla cambia la tipografía, la navegación, los botones y la forma de presentar
           tus productos. No modifica la información de tu negocio.
@@ -157,7 +159,8 @@ export function SelectorApariencia({
       </fieldset>
 
       <fieldset className={styles.grupo} disabled={guardando}>
-        <legend className={styles.leyenda}>2. Elige la paleta de colores</legend>
+        <legend className={styles.leyendaOculta}>Elige la paleta de colores</legend>
+        <PasoNumerado numero={2} titulo="Elige la paleta de colores" />
         <p className={styles.ayuda}>
           Cualquiera de estas paletas funciona con las tres plantillas y cumple contraste AA.
         </p>
@@ -199,7 +202,8 @@ export function SelectorApariencia({
       </fieldset>
 
       <fieldset className={styles.grupo} disabled={guardando}>
-        <legend className={styles.leyenda}>3. Elige el fondo</legend>
+        <legend className={styles.leyendaOculta}>Elige el fondo</legend>
+        <PasoNumerado numero={3} titulo="Elige el fondo" />
         <p className={styles.ayuda}>
           El catálogo lleva detrás un dibujo tenue con objetos de tu rubro. Apagalo si
           preferís un fondo liso; tu panel de administración no cambia.

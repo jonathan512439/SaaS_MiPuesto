@@ -195,6 +195,10 @@ const colores = Object.fromEntries(
        secundario de cada pantalla del panel, y hasta ahora nadie los miraba. */
     "lienzo",
     "texto-suave",
+    /* El disco del ícono de un apartado: fondo tenue con texto fuerte. Es una
+       pareja de dos colores derivados, o sea de las que nadie miraba. */
+    "marca-tenue",
+    "marca-fuerte",
   ].map((token) => [token, leerColor(token)]),
 );
 
@@ -207,6 +211,7 @@ const combinaciones = [
   ["marca", "lienzo", 4.5],
   ["texto-suave", "lienzo", 4.5],
   ["texto-suave", "superficie", 4.5],
+  ["marca-fuerte", "marca-tenue", 4.5],
   ["marca", "superficie", 4.5],
   /* Los dos extremos del degradado de las herramientas con IA. Se comprueban los
      dos porque el texto va encima de todo el recorrido: alcanza con que un

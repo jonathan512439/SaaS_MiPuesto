@@ -12,10 +12,18 @@
   padding: 0;
 }
 
-.leyenda {
+/* El `fieldset` se conserva porque desactiva sus controles de una sola vez
+   mientras se guarda, y su `legend` es lo que le da nombre al grupo para quien
+   navega con lector de pantalla. Lo que se ve es el paso numerado, que dice lo
+   mismo con el disco de color; dibujar las dos sería escribir la frase dos
+   veces. */
+.leyendaOculta {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
   padding: 0;
-  font-size: var(--text-lg);
-  font-weight: 800;
+  clip-path: inset(50%);
 }
 
 .ayuda,

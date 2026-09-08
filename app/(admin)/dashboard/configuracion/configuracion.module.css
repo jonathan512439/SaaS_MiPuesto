@@ -1,7 +1,5 @@
 @reference "../../../globals.css";
 
-.tituloBloque h2,
-.tituloBloque p,
 .ayudaSlug,
 .slugDisponible,
 .slugNoDisponible,
@@ -45,36 +43,6 @@
 .bloqueFormulario:last-of-type {
   border-bottom: 0;
   padding-bottom: 0;
-}
-
-.tituloBloque {
-  display: grid;
-  grid-template-columns: var(--spacing-8) minmax(0, 1fr);
-  align-items: start;
-  gap: var(--spacing-3);
-}
-
-.tituloBloque > span {
-  display: grid;
-  width: var(--spacing-8);
-  height: var(--spacing-8);
-  place-items: center;
-  border-radius: 50%;
-  background: var(--color-marca);
-  color: var(--color-superficie);
-  font-size: var(--text-sm);
-  font-weight: 800;
-}
-
-.tituloBloque h2 {
-  font-size: var(--text-lg);
-  font-weight: 800;
-}
-
-.tituloBloque p {
-  margin-top: var(--spacing-1);
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
 }
 
 .ayudaSlug,
