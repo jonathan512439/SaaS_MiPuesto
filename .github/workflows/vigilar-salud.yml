@@ -1,0 +1,66 @@
+name: Vigilar la salud del sitio
+
+# Red de último recurso, una vez por día.
+#
+# El vigilante de verdad corre en Supabase cada cinco minutos: está en otro
+# proveedor que el sitio, así que si Cloudflare se cae, lo nota. Lo que ese
+# vigilante **no** puede notar es que Supabase se caiga, porque se cae con él.
+# Esta comprobación cubre esa mitad desde un tercer lugar.
+#
+# Una vez por día y no cada diez minutos porque el repositorio es privado: el
+# plan gratuito da dos mil minutos al mes, cada ejecución programada se cobra
+# como un minuto entero, y una cada diez minutos gastaría más de cuatro mil.
+#
+# El aviso no necesita configuración: cuando un trabajo falla, GitHub le escribe
+# al dueño del repositorio.
+
+on:
+  schedule:
+    - cron: "40 12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vigilar-salud
+  cancel-in-progress: false
+
+jobs:
+  comprobar-sitio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Preguntar por la salud del sitio
+        env:
+          # Se cambia sin tocar este archivo el día que se compre el dominio.
+          SITIO: ${{ vars.SITIO_URL || 'https://mipuesto-dev.mipuesto-app.workers.dev' }}
+        shell: bash
+        run: |
+          respuesta="$(mktemp)"
+          trap 'rm -f "$respuesta"' EXIT
+
+          # Tres intentos antes de dar la alarma. Un vigilante que grita por un
+          # tropiezo de red se termina ignorando, y uno ignorado es peor que
+          # ninguno porque además tranquiliza.
+          estado="$(curl --silent --show-error \
+            --retry 3 --retry-all-errors --retry-delay 5 \
+            --connect-timeout 10 --max-time 30 \
+            --output "$respuesta" --write-out "%{http_code}" \
+            "${SITIO}/api/salud")"
+
+          if [ "$estado" != "200" ]; then
+            echo "El sitio respondió HTTP ${estado}." >&2
+            cat "$respuesta" >&2
+            exit 1
+          fi
+
+          # Doscientos no alcanza: un intermediario puede devolver doscientos con
+          # una página de error. Lo que decide es lo que dice el cuerpo.
+          if ! grep -q '"estado":"ok"' "$respuesta"; then
+            echo "El sitio respondió 200 pero no se declara sano." >&2
+            cat "$respuesta" >&2
+            exit 1
+          fi
+
+          echo "El sitio responde y se declara sano."

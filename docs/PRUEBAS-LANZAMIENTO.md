@@ -180,5 +180,5 @@ Para que no gastes tiempo: esto lo comprobé contra producción.
 
 - **El ensayo de restauración del respaldo.** Hasta que no se haga, «tenemos respaldos» es una creencia.
 - **Las fotografías no se respaldan.** Va después del dominio.
-- **Nadie vigila `/api/salud`.** Cualquier servicio gratuito de monitoreo sirve; sin eso, una caída un domingo se descubre cuando escribe un cliente.
+- **El vigilante de `/api/salud` ya corre**, cada cinco minutos y desde Supabase. Falta decirle a dónde avisar: hasta entonces anota la caída y no la cuenta. Son tres minutos y están en `CONFIGURACION-MANUAL.md`.
 - **El correo sale por Gmail.** Hasta el dominio, puede caer en spam.

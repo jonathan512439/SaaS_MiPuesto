@@ -444,3 +444,62 @@ tercero es el que protege.**
 **El orden importa.** El paso 3 es el único que un cliente puede leer, y es el
 que convierte «pagamos la API» en algo que le sirve a él. Sin ese paso, pagar
 mejora la situación legal y no cambia nada de lo que el cliente sabe.
+
+## El aviso de que el sitio se cayó
+
+El vigilante ya corre. Cada cinco minutos, una tarea de Supabase le pregunta a
+`/api/salud` y anota la respuesta en `vigilancia_salud`. Está en otro proveedor
+que el sitio a propósito: si Cloudflare se cae, el reloj de la base sigue
+andando y lo nota.
+
+**Falta un solo paso, y sin él la mitad no sirve:** decirle a dónde avisar.
+Hasta que se haga, la caída queda anotada y nadie se entera hasta que alguien
+mira, que es justo lo que había que evitar.
+
+El camino más barato no necesita cuenta ni tarjeta:
+
+1. Instalá **ntfy** en el teléfono, desde la tienda de aplicaciones.
+2. Suscribite a un tema inventado y **largo**. Por ejemplo
+   `mipuesto-salud-7fk3p9qz`. El tema es la única llave: quien lo adivine puede
+   mandarte avisos falsos, así que no uses `mipuesto`.
+3. Desde la carpeta del proyecto:
+
+   ```
+   npm run vigilancia:configurar -- --aviso "https://ntfy.sh/mipuesto-salud-7fk3p9qz"
+   ```
+
+4. Comprobá que quedó puesto:
+
+   ```
+   npm run vigilancia:configurar -- --ver
+   ```
+
+Sirve cualquier dirección que acepte un POST con texto plano; ntfy es solo la
+que no pide registrarse. Si mañana preferís otra cosa, es el mismo comando con
+otra dirección.
+
+### Cuándo suena
+
+A la **segunda** comprobación fallida seguida, o sea entre cinco y diez minutos
+después de que el sitio deje de responder. No a la primera, y es a propósito: un
+vigilante que grita por un tropiezo de red se termina silenciando, y uno
+silenciado es peor que ninguno porque además tranquiliza. Cuando vuelve, avisa
+la vuelta, pero solo si antes avisó la caída.
+
+### El día que se compre el dominio
+
+```
+npm run vigilancia:configurar -- --sitio "https://mipuesto.com"
+```
+
+Y en GitHub, en **Settings → Secrets and variables → Actions → Variables**,
+crear `SITIO_URL` con la misma dirección: eso mueve también la comprobación
+diaria de respaldo.
+
+### Lo que este vigilante no puede ver
+
+Si **Supabase entero** se cae, el vigilante se cae con él y no avisa nada. Esa
+mitad la cubre el trabajo diario de GitHub (`vigilar-salud.yml`), que corre en un
+tercer lugar y le escribe al dueño del repositorio cuando falla. Es una vez por
+día porque el repositorio es privado: el plan gratuito da dos mil minutos al mes
+y una comprobación cada diez minutos gastaría más de cuatro mil.
