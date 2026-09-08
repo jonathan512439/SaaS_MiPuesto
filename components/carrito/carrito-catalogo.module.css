@@ -450,3 +450,14 @@
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
+
+/* Con borde de color y no como un párrafo más: es una instrucción que hay que
+   seguir después de irse de esta pantalla, y el comprador la lee una sola vez. */
+.avisoComprobante {
+  border-left: var(--borde-marcado) solid var(--catalogo-accion);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  background: var(--catalogo-accion-tenue);
+  color: var(--catalogo-texto);
+  font-size: var(--text-sm);
+}

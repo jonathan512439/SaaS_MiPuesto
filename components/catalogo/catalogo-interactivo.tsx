@@ -335,7 +335,18 @@ export function CatalogoInteractivo({
               cantidades={cantidades}
               datos={datos}
               onCambiarCantidad={cambiarCantidad}
-              onAbrirWhatsapp={() => registrar("clic_whatsapp")}
+              /* Acá se vacía el carrito, y no al reservar. Entre reservar y
+                 abrir WhatsApp el comprador todavía puede corregir algo; una vez
+                 que se fue con su código, lo que había en el carrito ya es un
+                 pedido y dejarlo lleno hace que al volver parezca que no pasó
+                 nada. El resumen con el código sigue en pantalla porque el
+                 carrito sabe distinguir «vacío» de «vacío porque ya pidió». */
+              onAbrirWhatsapp={() => {
+                registrar("clic_whatsapp");
+                setCantidades({});
+                setElegidos({});
+                setFirmaReservada("");
+              }}
               onPedidoReservado={(firma) => {
                 setFirmaReservada(firma);
                 router.refresh();

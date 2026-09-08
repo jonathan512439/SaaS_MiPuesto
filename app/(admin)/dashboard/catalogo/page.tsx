@@ -15,6 +15,7 @@ import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/varia
 import styles from "./catalogo.module.css";
 import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../lib/catalogo/columnas";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
+import { Icono } from "../../../../components/iconos/icono";
 
 export const metadata: Metadata = {
   title: "Catálogo | MiPuesto",
@@ -110,28 +111,36 @@ export default async function PaginaCatalogo() {
             </div>
           </section>
         ) : null}
-        {/* Solo para los rubros a los que les sirve: un menú impreso en una
-            boutique es un botón que nadie va a tocar nunca. */}
-        {rubroOfrece(negocio.rubro, "menu_imprimible") ? (
-          <Link
-            className={styles.enlacePapelera}
-            href={`/${negocio.slug}/imprimir`}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Menú para imprimir
+        {/* Los tres juntos en una fila, y no sueltos uno debajo del otro: son
+            accesos del mismo rango y agrupados se leen como una barra de
+            herramientas en vez de como tres renglones de texto. */}
+        <div className={styles.accesos}>
+          {/* Solo para los rubros a los que les sirve: un menú impreso en una
+              boutique es un botón que nadie va a tocar nunca. */}
+          {rubroOfrece(negocio.rubro, "menu_imprimible") ? (
+            <Link
+              className={styles.enlacePapelera}
+              href={`/${negocio.slug}/imprimir`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <Icono className={styles.iconoAcceso} nombre="documento" />
+              Menú para imprimir
+            </Link>
+          ) : null}
+          {/* Sin condición ninguna: importar una planilla no gasta la cuota de
+              Google, así que no hay nada que reservar para unos pocos negocios. */}
+          <Link className={styles.enlacePapelera} href="/dashboard/catalogo/importar">
+            <Icono className={styles.iconoAcceso} nombre="grafico" />
+            Importar mi Excel o CSV
           </Link>
-        ) : null}
-        {/* Sin condición ninguna: importar una planilla no gasta la cuota de
-            Google, así que no hay nada que reservar para unos pocos negocios. */}
-        <Link className={styles.enlacePapelera} href="/dashboard/catalogo/importar">
-          Importar mi Excel o CSV
-        </Link>
-        {enPapelera > 0 ? (
-          <Link className={styles.enlacePapelera} href="/dashboard/catalogo/papelera">
-            Papelera ({enPapelera})
-          </Link>
-        ) : null}
+          {enPapelera > 0 ? (
+            <Link className={styles.enlacePapelera} href="/dashboard/catalogo/papelera">
+              <Icono className={styles.iconoAcceso} nombre="carpeta" />
+              Papelera ({enPapelera})
+            </Link>
+          ) : null}
+        </div>
       </EncabezadoPanel>
 
       {avisarFotoNueva ? (

@@ -21,14 +21,53 @@
   }
 }
 
+/* Los accesos secundarios del catálogo —papelera, menú para imprimir, importar
+   una planilla—.
+ *
+ * Eran un fondo tenue con letra gris y cuatro píxeles de aire: se leían como un
+ * párrafo y no como algo que se toca. Ahora llevan contorno, alto de control y
+ * un ícono. El contorno es lo que dice «esto es un botón»; el alto es lo que
+ * hace que le llegue el pulgar en un teléfono.
+ *
+ * Quedan delineados y no rellenos a propósito: son secundarios frente a «Crear
+ * producto», que es la acción de la pantalla. Si se rellenaran, cuatro botones
+ * del mismo peso dejarían de indicar cuál es el importante. */
+.accesos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
 .enlacePapelera {
-  justify-self: start;
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde);
   border-radius: var(--radius-control);
-  padding: var(--spacing-1) var(--spacing-2);
-  background: var(--color-fondo-suave);
-  color: var(--color-texto-suave);
+  padding: 0 var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-marca-fuerte);
   font-size: var(--text-sm);
   font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--sombra-suave);
+}
+
+.enlacePapelera:hover {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+}
+
+.enlacePapelera:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.iconoAcceso {
+  flex: 0 0 auto;
+  color: var(--color-marca);
+  font-size: var(--text-base);
 }
 
 .avisoFoto {

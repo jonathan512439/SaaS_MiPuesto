@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState, type FormEvent } from "react";
 
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
+import { resumenSigueVigente } from "../../lib/pedidos/resumen-vigente";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
 import styles from "./carrito-catalogo.module.css";
@@ -57,12 +58,29 @@ export function CarritoCatalogo({
   const [error, setError] = useState("");
   const [errorDescarga, setErrorDescarga] = useState("");
   const [pedido, setPedido] = useState<PedidoMostrado | null>(null);
+  /* Se marca cuando el comprador ya se fue a WhatsApp con su código. A partir de
+     ahí el carrito se vacía —lo que había adentro ya es un pedido— pero el
+     resumen con el código tiene que seguir a la vista: es el único lugar donde
+     está el número de la reserva. */
+  const [entregado, setEntregado] = useState(false);
+  const [qrDescargado, setQrDescargado] = useState(false);
   const intento = useRef<{ firma: string; id: string } | null>(null);
   const items = productos
     .map((producto) => ({ producto, cantidad: cantidades[producto.id] ?? 0 }))
     .filter(({ cantidad }) => cantidad > 0);
   const firmaCarrito = construirFirmaCarrito(cantidades);
-  const pedidoVigente = pedido?.firmaCarrito === firmaCarrito ? pedido : null;
+  /* La decisión vive en `resumen-vigente.ts`: son tres estados que parecen dos
+     —carrito vacío porque no eligió nada, y carrito vacío porque ya pidió— y
+     confundirlos es exactamente lo que hacía desaparecer el código de la
+     reserva. Acá se consulta; allá se prueba. */
+  const pedidoVigente = resumenSigueVigente({
+    entregado,
+    firmaCarrito,
+    firmaPedido: pedido?.firmaCarrito ?? null,
+    hayItems: items.length > 0,
+  })
+    ? pedido
+    : null;
   const subtotal = calcularSubtotal(
     items.map(({ producto, cantidad }) => ({ precio: producto.precio, cantidad })),
   );
@@ -155,6 +173,7 @@ export function CarritoCatalogo({
       enlace.click();
       enlace.remove();
       window.setTimeout(() => URL.revokeObjectURL(urlTemporal), 0);
+      setQrDescargado(true);
     } catch {
       setErrorDescarga(
         "No se pudo descargar el QR de pago. Mantén presionada la imagen para guardarla.",
@@ -166,11 +185,14 @@ export function CarritoCatalogo({
 
   return (
     <section className={styles.carrito} id="resumen-pedido">
-      {items.length === 0 ? (
+      {/* «Todavía no agregaste productos» no se dice cuando acaba de hacer uno:
+          el carrito está vacío justamente porque se convirtió en el pedido que
+          se muestra abajo. */}
+      {items.length === 0 && !pedidoVigente ? (
         <p className={styles.vacio}>
           Todavía no agregaste productos. Elige una opción del catálogo para preparar tu pedido.
         </p>
-      ) : (
+      ) : items.length === 0 ? null : (
         <ul aria-live="polite">
           {items.map(({ producto, cantidad }) => (
             <li key={producto.id}>
@@ -318,7 +340,10 @@ export function CarritoCatalogo({
               {pedidoVigente.enlaceWhatsapp ? (
                 <a
                   href={pedidoVigente.enlaceWhatsapp}
-                  onClick={onAbrirWhatsapp}
+                  onClick={() => {
+                    setEntregado(true);
+                    onAbrirWhatsapp?.();
+                  }}
                   rel="noreferrer"
                   target="_blank"
                 >
@@ -339,6 +364,19 @@ export function CarritoCatalogo({
               ) : null}
             </div>
             {errorDescarga ? <p className={styles.errorDescarga}>{errorDescarga}</p> : null}
+            {/* Aparece recién al descargar el QR, que es el momento en que la
+                indicación sirve. Puesta antes sería una advertencia sobre algo
+                que todavía no pasó; puesta después, el comprador ya se fue.
+
+                Sin esto, el negocio recibe un pago que no puede relacionar con
+                ninguna reserva: el QR no dice quién pagó. */}
+            {qrDescargado ? (
+              <p className={styles.avisoComprobante}>
+                Ya tenés el QR. <strong>Cuando pagues, mandá la captura del comprobante por
+                WhatsApp junto con tu código {pedidoVigente.codigo}</strong>, así el negocio sabe
+                qué reserva pagaste.
+              </p>
+            ) : null}
             {/* Después del pedido y no antes: pedir una calificación mientras
                 alguien decide qué comprar es interrumpirlo; pedirla cuando ya
                 pidió es preguntarle a alguien contento. */}
