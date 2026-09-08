@@ -3,9 +3,9 @@ import { decodificarXml } from "./valores";
 /* Lector de Excel escrito a mano, sin dependencias.
 
    Un `.xlsx` es un ZIP con archivos XML adentro. Descomprimirlo lo sabe hacer
-   el navegador desde hace años con `DecompressionStream`, y leer las dos partes
-   que hacen falta —el texto compartido y la primera hoja— es recorrer un XML de
-   forma muy previsible.
+   el navegador desde hace años con `DecompressionStream`, y leer las partes que
+   hacen falta —el texto compartido y las hojas— es recorrer un XML muy
+   previsible.
 
    **Se descartó SheetJS a propósito.** Lo que hay publicado en npm quedó
    congelado en 2023 con una vulnerabilidad conocida —el proyecto se mudó a su
@@ -14,11 +14,43 @@ import { decodificarXml } from "./valores";
    grilla de celdas como texto.
 
    Lo que **no** hace, y no necesita: fórmulas sin resultado guardado, fechas
-   con formato, hojas que no sean la primera, gráficos, ni el formato viejo
-   `.xls`, que no es un ZIP y no se parece en nada. Cada uno de esos tiene su
-   mensaje en la pantalla en vez de un error críptico. */
+   con formato, gráficos, ni el formato viejo `.xls`, que no es un ZIP y no se
+   parece en nada. Cada uno de esos tiene su mensaje en la pantalla en vez de un
+   error críptico. */
 
 type EntradaZip = { nombre: string; comprimido: Uint8Array; metodo: number };
+
+export type LecturaXlsx = { filas: string[][]; hojasRevisadas: number };
+
+/* Las etiquetas del XML de un Excel pueden venir con prefijo de espacio de
+   nombres o sin él: `<row>` en unos generadores y `<x:row>` en otros. Las dos
+   formas son igual de válidas y describen el mismo archivo.
+
+   Buscar solo `<row` devolvía **cero filas** con los del segundo grupo, y el
+   dueño veía «la planilla no tiene ninguna fila» mirando una planilla llena.
+   Por eso el prefijo se contempla en cada etiqueta, en un solo lugar. */
+const PREFIJO = "(?:[A-Za-z0-9_]+:)?";
+
+/* Una etiqueta puede venir cerrada en sí misma. Excel escribe `<c r="B2" s="1"/>`
+   para una celda vacía que tiene formato —una celda pintada, o con borde—, y son
+   muy comunes.
+
+   Sin contemplarlo, la búsqueda del `</c>` se comía las celdas siguientes hasta
+   encontrar uno: la fila perdía columnas y **el precio se corría de lugar sin
+   que nada avisara**. Eso es peor que fallar. */
+function etiquetas(nombre: string): RegExp {
+  return new RegExp(
+    `<${PREFIJO}${nombre}\\b([^>]*?)(?:/>|>([\\s\\S]*?)</${PREFIJO}${nombre}>)`,
+    "g",
+  );
+}
+
+/* `<t>` y `<v>` se piden con un `>` o un espacio detrás del nombre. Sin eso,
+   `<t` también encontraría `<tableParts>`, que existe en las hojas con una
+   tabla con formato. */
+const TEXTOS = new RegExp(`<${PREFIJO}t(?:\\s[^>]*)?>([\\s\\S]*?)</${PREFIJO}t>`, "g");
+const VALOR = new RegExp(`<${PREFIJO}v(?:\\s[^>]*)?>([\\s\\S]*?)</${PREFIJO}v>`);
+const COMPARTIDO = new RegExp(`<${PREFIJO}si\\b[^>]*>([\\s\\S]*?)</${PREFIJO}si>`, "g");
 
 function leerNumero(datos: DataView, posicion: number, bytes: 2 | 4): number {
   return bytes === 2 ? datos.getUint16(posicion, true) : datos.getUint32(posicion, true);
@@ -88,10 +120,8 @@ async function descomprimir(entrada: EntradaZip): Promise<string> {
    parte el texto en tres—, y hay que pegarlos: si se tomara solo el primero,
    «Coca **Cola** 2 litros» se guardaría como «Coca ». */
 function leerTextosCompartidos(xml: string): string[] {
-  return [...xml.matchAll(/<si>([\s\S]*?)<\/si>/g)].map(([, contenido]) =>
-    decodificarXml(
-      [...contenido.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map(([, texto]) => texto).join(""),
-    ),
+  return [...xml.matchAll(COMPARTIDO)].map(([, contenido]) =>
+    decodificarXml([...contenido.matchAll(TEXTOS)].map(([, texto]) => texto).join("")),
   );
 }
 
@@ -108,25 +138,35 @@ function indiceDeColumna(referencia: string): number {
 function leerHoja(xml: string, compartidos: string[]): string[][] {
   const filas: string[][] = [];
 
-  for (const [, contenido] of xml.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)) {
+  for (const [, , contenido] of xml.matchAll(etiquetas("row"))) {
     const fila: string[] = [];
+    if (contenido === undefined) continue;
 
-    for (const [, atributos, celda] of contenido.matchAll(/<c([^>]*)>([\s\S]*?)<\/c>/g)) {
+    for (const [, atributos, celda] of contenido.matchAll(etiquetas("c"))) {
       const referencia = /r="([A-Z]+\d+)"/.exec(atributos)?.[1];
-      const tipo = /t="([a-zA-Z]+)"/.exec(atributos)?.[1] ?? "n";
+      /* El nombre del atributo se pide precedido de un espacio o del comienzo:
+         sin eso, `dyDescent="0.25"` —que Excel escribe en cada fila— aporta un
+         `t="` que se confundiría con el tipo de la celda. */
+      const tipo = /(?:^|\s)t="([a-zA-Z]+)"/.exec(atributos)?.[1] ?? "n";
       const columna = referencia ? indiceDeColumna(referencia) : fila.length;
       while (fila.length < columna) fila.push("");
 
+      /* Celda cerrada en sí misma: tiene formato pero no contenido. Se guarda
+         vacía, ocupando su lugar, que es lo que mantiene alineadas a las que
+         vienen después. */
+      if (celda === undefined) {
+        fila.push("");
+        continue;
+      }
+
       let valor = "";
       if (tipo === "s") {
-        const posicion = Number(/<v>([\s\S]*?)<\/v>/.exec(celda)?.[1] ?? "-1");
+        const posicion = Number(VALOR.exec(celda)?.[1] ?? "-1");
         valor = compartidos[posicion] ?? "";
       } else if (tipo === "inlineStr") {
-        valor = decodificarXml(
-          [...celda.matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map(([, texto]) => texto).join(""),
-        );
+        valor = decodificarXml([...celda.matchAll(TEXTOS)].map(([, texto]) => texto).join(""));
       } else {
-        valor = decodificarXml(/<v>([\s\S]*?)<\/v>/.exec(celda)?.[1] ?? "");
+        valor = decodificarXml(VALOR.exec(celda)?.[1] ?? "");
       }
 
       fila.push(valor.trim());
@@ -138,21 +178,72 @@ function leerHoja(xml: string, compartidos: string[]): string[][] {
   return filas;
 }
 
-export async function leerXlsx(archivo: ArrayBuffer): Promise<string[][]> {
-  const entradas = listarEntradas(new Uint8Array(archivo));
+/* Las hojas en el orden de las pestañas, que **no** es el orden de los nombres
+   de archivo. Excel numera `sheet1.xml`, `sheet2.xml`… por orden de creación:
+   quien armó su planilla en la segunda pestaña, o borró y rehízo la primera,
+   tiene sus datos en `sheet2.xml` mientras `sheet1.xml` está vacío.
 
-  /* La primera hoja por nombre de archivo, que es el orden en que Excel las
-     numera. Leer `workbook.xml` para respetar el orden de las pestañas sería lo
-     correcto en general, y acá no cambia nada: una lista de precios que ocupa
-     varias hojas no es el caso que este importador atiende, y la pantalla lo
-     dice antes de empezar. */
-  const hoja = entradas
-    .filter(({ nombre }) => /^xl\/worksheets\/sheet\d+\.xml$/.test(nombre))
-    .sort((una, otra) => una.nombre.localeCompare(otra.nombre, "en", { numeric: true }))[0];
-  if (!hoja) throw new Error("sin-hoja");
+   Leyendo por nombre de archivo, esa planilla daba cero filas y el dueño veía
+   «no tiene ninguna fila» con la planilla llena delante. El orden verdadero lo
+   dice `workbook.xml`, que apunta a cada hoja por un identificador que
+   `workbook.xml.rels` traduce a un archivo. */
+async function hojasEnOrdenDePestanas(entradas: EntradaZip[]): Promise<EntradaZip[]> {
+  const porNombre = entradas
+    .filter(({ nombre }) => /^xl\/worksheets\/sheet[^/]*\.xml$/.test(nombre))
+    .sort((una, otra) => una.nombre.localeCompare(otra.nombre, "en", { numeric: true }));
+
+  const libro = entradas.find(({ nombre }) => nombre === "xl/workbook.xml");
+  const enlaces = entradas.find(({ nombre }) => nombre === "xl/_rels/workbook.xml.rels");
+  if (!libro || !enlaces) return porNombre;
+
+  try {
+    const destinos = new Map<string, string>();
+    for (const [, atributos] of (await descomprimir(enlaces)).matchAll(
+      /<Relationship\b([^>]*)>/g,
+    )) {
+      const id = /Id="([^"]+)"/.exec(atributos)?.[1];
+      const destino = /Target="([^"]+)"/.exec(atributos)?.[1];
+      if (!id || !destino) continue;
+      /* El destino viene a veces absoluto —«/xl/worksheets/sheet1.xml»— y a
+         veces relativo a la carpeta `xl`. Se normalizan las dos formas. */
+      const limpio = destino.replace(/^\//, "");
+      destinos.set(id, limpio.startsWith("xl/") ? limpio : `xl/${limpio}`);
+    }
+
+    const ordenadas: EntradaZip[] = [];
+    for (const [, atributos] of (await descomprimir(libro)).matchAll(
+      new RegExp(`<${PREFIJO}sheet\\b([^>]*)>`, "g"),
+    )) {
+      const id = /r:id="([^"]+)"/.exec(atributos)?.[1];
+      const ruta = id ? destinos.get(id) : undefined;
+      const hoja = porNombre.find(({ nombre }) => nombre === ruta);
+      if (hoja && !ordenadas.includes(hoja)) ordenadas.push(hoja);
+    }
+
+    /* Las que el libro no nombró van al final igual. Perderlas por un
+       `workbook.xml` raro sería cambiar un problema por otro. */
+    for (const hoja of porNombre) if (!ordenadas.includes(hoja)) ordenadas.push(hoja);
+    return ordenadas;
+  } catch {
+    return porNombre;
+  }
+}
+
+export async function leerXlsx(archivo: ArrayBuffer): Promise<LecturaXlsx> {
+  const entradas = listarEntradas(new Uint8Array(archivo));
+  const hojas = await hojasEnOrdenDePestanas(entradas);
+  if (hojas.length === 0) throw new Error("sin-hoja");
 
   const tabla = entradas.find(({ nombre }) => nombre === "xl/sharedStrings.xml");
   const compartidos = tabla ? leerTextosCompartidos(await descomprimir(tabla)) : [];
 
-  return leerHoja(await descomprimir(hoja), compartidos);
+  /* Se devuelve la primera hoja que tenga datos, no la primera a secas. Una
+     portada vacía, una hoja de instrucciones o una que quedó de un borrador no
+     tienen por qué frenar la importación de la que sí tiene la lista. */
+  for (const hoja of hojas) {
+    const filas = leerHoja(await descomprimir(hoja), compartidos);
+    if (filas.length > 0) return { filas, hojasRevisadas: hojas.length };
+  }
+
+  return { filas: [], hojasRevisadas: hojas.length };
 }

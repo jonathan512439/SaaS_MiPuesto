@@ -121,6 +121,7 @@ export function ImportarPlanilla({ categorias }: { categorias: CategoriaCatalogo
             <h3>Funciona con</h3>
             <ul>
               <li>Archivos .xlsx de Excel, Google Sheets o LibreOffice</li>
+              <li>Tu lista en cualquier pestaña del libro, no solo la primera</li>
               <li>Archivos .csv, con coma o con punto y coma</li>
               <li>Con fila de títulos o sin ella</li>
               <li>Precios escritos «12», «12,50» o «Bs 12,50»</li>
@@ -130,7 +131,7 @@ export function ImportarPlanilla({ categorias }: { categorias: CategoriaCatalogo
           <div>
             <h3>Tener en cuenta</h3>
             <ul className={styles.ojo}>
-              <li>Leemos la primera hoja del libro, no todas</li>
+              <li>Leemos la primera hoja que tenga datos, no todas</li>
               <li>El formato viejo .xls hay que guardarlo antes como .xlsx</li>
               <li>Los renglones sin nombre o sin precio se descartan y te lo decimos</li>
               <li>Hasta {MAXIMO_FILAS} productos por vez</li>

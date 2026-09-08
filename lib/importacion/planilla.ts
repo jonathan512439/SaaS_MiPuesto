@@ -44,13 +44,16 @@ export async function leerArchivoDePlanilla(archivo: File): Promise<ResultadoLec
   const bytes = new Uint8Array(contenido);
 
   let filas: string[][];
+  let hojasRevisadas = 0;
 
   if (empiezaCon(bytes, [0x50, 0x4b, 0x03, 0x04])) {
     /* Un `.xlsx` es un ZIP. También lo son un `.docx` y un `.odt`, así que el
        lector puede no encontrar una hoja: ahí se traduce a algo que se entienda
        en vez de dejar salir el error técnico. */
     try {
-      filas = await leerXlsx(contenido);
+      const lectura = await leerXlsx(contenido);
+      filas = lectura.filas;
+      hojasRevisadas = lectura.hojasRevisadas;
     } catch (error) {
       if (error instanceof Error && error.message === "sin-hoja") {
         throw new Error("Ese archivo comprimido no es una planilla de Excel.");
@@ -74,7 +77,17 @@ export async function leerArchivoDePlanilla(archivo: File): Promise<ResultadoLec
     filas = leerCsv(decodificarTexto(bytes));
   }
 
-  if (filas.length === 0) throw new Error("La planilla no tiene ninguna fila con datos.");
+  /* El mensaje dice qué se miró y no solo que no se encontró nada. «No tiene
+     ninguna fila» delante de una planilla llena no le sirve a nadie: lo que hay
+     que saber es que se revisaron todas las hojas, para poder mirar si los
+     datos están en otro archivo o en otro libro. */
+  if (filas.length === 0) {
+    throw new Error(
+      hojasRevisadas > 0
+        ? `Abrimos tu Excel y revisamos sus ${hojasRevisadas} hoja(s), pero ninguna tiene filas con datos. Fijate que estés subiendo el archivo correcto.`
+        : "La planilla no tiene ninguna fila con datos.",
+    );
+  }
 
   const totalLeido = filas.length;
   const recortada = totalLeido > MAXIMO_FILAS + 1;
