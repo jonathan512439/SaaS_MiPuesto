@@ -456,23 +456,54 @@ andando y lo nota.
 Hasta que se haga, la caída queda anotada y nadie se entera hasta que alguien
 mira, que es justo lo que había que evitar.
 
-El camino más barato no necesita cuenta ni tarjeta:
+El camino más barato no necesita cuenta ni tarjeta.
 
-1. Instalá **ntfy** en el teléfono, desde la tienda de aplicaciones.
-2. Suscribite a un tema inventado y **largo**. Por ejemplo
-   `mipuesto-salud-7fk3p9qz`. El tema es la única llave: quien lo adivine puede
-   mandarte avisos falsos, así que no uses `mipuesto`.
-3. Desde la carpeta del proyecto:
+> **El tema de ntfy es una contraseña, no un nombre.** Quien lo conozca puede
+> mandarte avisos falsos **y leer los verdaderos**, o sea enterarse de cuándo se
+> te cae el sitio. Por eso este manual no trae ninguno escrito: la primera
+> versión traía uno de ejemplo, se usó tal cual, y un ejemplo escrito en un
+> archivo versionado no es un secreto. **No copies un tema de ningún lado, ni de
+> acá ni de un tutorial.**
+
+1. Pedile uno al azar al proyecto:
 
    ```
-   npm run vigilancia:configurar -- --aviso "https://ntfy.sh/mipuesto-salud-7fk3p9qz"
+   npm run vigilancia:configurar -- --inventar-tema
    ```
 
-4. Comprobá que quedó puesto:
+   Devuelve una dirección completa. No la pegues en un chat ni en un ticket.
+
+2. Instalá **ntfy** en el teléfono, desde la tienda de aplicaciones, y
+   suscribite a ese tema —la parte que va después de `ntfy.sh/`—.
+
+3. Guardalo:
+
+   ```
+   npm run vigilancia:configurar -- --aviso "LA DIRECCIÓN DEL PASO 1"
+   ```
+
+4. **Probá que suene.** Este paso no se saltea: un canal de aviso que nunca se
+   probó es exactamente como un respaldo que nunca se restauró, y se descubre
+   que no funcionaba el peor día.
+
+   ```
+   npm run vigilancia:configurar -- --probar
+   ```
+
+   El mensaje sale por el mismo camino que usaría una caída de verdad. Si el
+   teléfono suena, el aviso funciona.
+
+5. Y para ver cómo quedó, sin mostrar el tema entero:
 
    ```
    npm run vigilancia:configurar -- --ver
    ```
+
+### Si el tema se filtró
+
+Rehacé los pasos 1 a 4 con uno nuevo y borrá la suscripción vieja del teléfono.
+No hay nada que limpiar del lado del servidor: el tema anterior deja de usarse en
+cuanto se guarda el nuevo.
 
 Sirve cualquier dirección que acepte un POST con texto plano; ntfy es solo la
 que no pide registrarse. Si mañana preferís otra cosa, es el mismo comando con

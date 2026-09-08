@@ -20,6 +20,7 @@
  * alcance de una consulta.
  */
 import { spawn } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
@@ -30,11 +31,27 @@ function leerArgumento(nombre) {
 }
 
 const soloVer = process.argv.includes("--ver");
+const soloProbar = process.argv.includes("--probar");
+const inventarTema = process.argv.includes("--inventar-tema");
 const aviso = leerArgumento("aviso");
 const sitio = leerArgumento("sitio");
 
-if (!soloVer && aviso === undefined && sitio === undefined) {
-  console.error("Uso: npm run vigilancia:configurar -- [--sitio URL] [--aviso URL] [--ver]");
+if (inventarTema) {
+  /* Un tema inventado acá y no copiado de la documentación.
+   *
+   * El ejemplo que traía el manual terminó usado tal cual, y un ejemplo escrito
+   * en un archivo versionado no es un secreto: en ntfy el tema **es** la llave,
+   * y quien la tenga puede mandar avisos falsos y leer los verdaderos, o sea
+   * enterarse de cuándo se cae el sitio. Doce bytes al azar son suficientes para
+   * que no se adivine y cortos para poder escribirlos en el teléfono. */
+  console.log(`https://ntfy.sh/mipuesto-${randomBytes(9).toString("base64url")}`);
+  process.exit(0);
+}
+
+if (!soloVer && !soloProbar && aviso === undefined && sitio === undefined) {
+  console.error(
+    "Uso: npm run vigilancia:configurar -- [--sitio URL] [--aviso URL] [--ver] [--probar] [--inventar-tema]",
+  );
   process.exit(1);
 }
 
@@ -83,7 +100,24 @@ function ejecutarSql(archivo) {
 
 let sql;
 
-if (soloVer) {
+if (soloProbar) {
+  /* Un canal de aviso que nunca se probó es exactamente como un respaldo que
+     nunca se restauró: se cree que está y se descubre que no el peor día. Este
+     envío sale por el mismo camino que usaría una caída de verdad —la misma
+     función, desde la misma base— así que si el teléfono suena, el aviso
+     funciona. */
+  sql = `select
+  case
+    when a.url_aviso is null then 'No hay dirección de aviso configurada.'
+    else 'Enviado con código HTTP ' ||
+      (extensions.http_post(
+        a.url_aviso,
+        'Prueba de MiPuesto: si leés esto, el aviso de caída funciona.',
+        'text/plain'
+      )).status::text
+  end as resultado
+from private.ajustes_vigilancia a where a.id;`;
+} else if (soloVer) {
   /* La dirección de aviso se muestra recortada: sirve para saber si está puesta,
      y el final es la parte que funciona como llave. */
   sql = `select
