@@ -7,6 +7,7 @@ import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
 import { FotoProducto } from "../foto-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
+import { InsigniaProducto, insigniaDe } from "../insignias-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-clasica.module.css";
 
@@ -130,6 +131,7 @@ export function PlantillaClasica({
                   <FotoProducto
                     alVerProducto={alVerProducto}
                     ancho={800}
+                    insignias={<InsigniaProducto producto={producto} />}
                     producto={producto}
                     respaldo={<span className={styles.sinImagen}>Sin foto</span>}
                     sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
@@ -138,8 +140,12 @@ export function PlantillaClasica({
                     {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
                     <h5>{producto.nombre}</h5>
                     <p>{producto.descripcion}</p>
-                    {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
-                    <EstadoStockProducto className={styles.stock} producto={producto} />
+                    {/* Lo que ya dijo la pastilla sobre la foto no se repite
+                        debajo del nombre: en una tarjeta chica, la misma frase
+                        dos veces ocupa el lugar de la descripción. */}
+                    {insigniaDe(producto) === null ? (
+                      <EstadoStockProducto className={styles.stock} producto={producto} />
+                    ) : null}
                     <AccionProducto
                       alAgregarProducto={alAgregarProducto}
                       alAbrirWhatsapp={alAbrirWhatsapp}
@@ -155,7 +161,6 @@ export function PlantillaClasica({
                       <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
                     ) : null}
                     <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
-                    {producto.tienePromocion ? <small>Oferta</small> : null}
                   </div>
                 </li>
               ))}

@@ -1,5 +1,14 @@
 @reference "../../app/globals.css";
 
+/* El ancla de la pastilla. Es la fotografía la que la posiciona y no la
+   tarjeta: en la tarjeta vertical la foto ocupa la fila de arriba, pero si
+   mañana una plantilla la pone al costado, la pastilla la sigue sin tocar
+   nada. */
+.marco {
+  position: relative;
+  display: block;
+}
+
 /* El botón no dibuja nada propio: hereda el sitio que la plantilla le daba a la
    fotografía, para que agregar la galería no cambie cómo se ve la tarjeta en
    ninguna de las cuatro. */

@@ -6,6 +6,7 @@ import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AvisoHorario } from "../aviso-horario";
 import { FotoProducto } from "../foto-producto";
+import { InsigniaProducto, insigniaDe } from "../insignias-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-moderna.module.css";
@@ -135,6 +136,7 @@ export function PlantillaModerna({
               alVerProducto={alVerProducto}
               ancho={800}
               className={styles.imagen}
+              insignias={<InsigniaProducto producto={producto} />}
               producto={producto}
               respaldo={<span className={styles.sinImagen}>Sin foto</span>}
               sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
@@ -150,8 +152,12 @@ export function PlantillaModerna({
                 <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
                 {producto.tienePromocion ? <small>Precio promocional</small> : null}
               </div>
-              {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
-              <EstadoStockProducto className={styles.stock} producto={producto} />
+              {/* Lo que ya dijo la pastilla sobre la foto no se repite debajo
+                  del nombre: la misma frase dos veces en una tarjeta chica ocupa
+                  el lugar de la descripción. */}
+              {insigniaDe(producto) === null ? (
+                <EstadoStockProducto className={styles.stock} producto={producto} />
+              ) : null}
               <AccionProducto
                 alAgregarProducto={alAgregarProducto}
                 alAbrirWhatsapp={alAbrirWhatsapp}

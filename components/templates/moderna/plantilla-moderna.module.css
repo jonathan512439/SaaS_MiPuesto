@@ -260,7 +260,6 @@
   -webkit-line-clamp: 2;
 }
 
-.detalle .agotado,
 .detalle .stock {
   display: inline-flex;
   width: fit-content;
@@ -276,10 +275,6 @@
   -webkit-line-clamp: unset;
 }
 
-.detalle .agotado {
-  background: var(--catalogo-alerta-tenue);
-  color: var(--catalogo-alerta);
-}
 
 .detalle .stock {
   background: var(--catalogo-exito-tenue);

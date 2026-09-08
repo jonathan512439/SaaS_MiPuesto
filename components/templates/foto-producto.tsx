@@ -11,6 +11,11 @@ type PropiedadesFotoProducto = {
   className?: string;
   respaldo: ReactNode;
   alVerProducto?: (productoId: string) => void;
+  /* La pastilla que va sobre la esquina de la fotografía. Se recibe en vez de
+     calcularse acá porque no todas las plantillas la quieren: Feria y Mínima
+     dibujan miniaturas de 64 y 96 píxeles, y una pastilla encima de eso tapa la
+     foto y no se lee. */
+  insignias?: ReactNode;
 };
 
 /* La fotografía abre la ficha del producto, tenga una foto o cuatro: adentro
@@ -25,8 +30,11 @@ export function FotoProducto({
   className,
   respaldo,
   alVerProducto,
+  insignias,
 }: PropiedadesFotoProducto) {
-  if (!producto.imagen) return <>{respaldo}</>;
+  /* Un producto sin fotografía también lleva su pastilla: que esté agotado o de
+     oferta no depende de que alguien haya subido la imagen. */
+  if (!producto.imagen) return conInsignias(respaldo, insignias);
 
   const foto = (
     <Image
@@ -39,11 +47,11 @@ export function FotoProducto({
     />
   );
 
-  if (!alVerProducto) return foto;
+  if (!alVerProducto) return conInsignias(foto, insignias);
 
   const total = producto.imagenes.length;
 
-  return (
+  return conInsignias(
     <button
       aria-label={
         total > 1
@@ -58,6 +66,20 @@ export function FotoProducto({
       <span aria-hidden="true" className={styles.rotulo}>
         {total > 1 ? `Ver · ${total} fotos` : "Ver"}
       </span>
-    </button>
+    </button>,
+    insignias,
+  );
+}
+
+/* El marco solo aparece cuando hay una pastilla que colocar. Envolver siempre
+   agregaría un elemento a la rejilla de las cuatro plantillas para no dibujar
+   nada, y las dos que no usan pastillas no tienen por qué pagar ese cambio. */
+function conInsignias(contenido: ReactNode, insignias: ReactNode) {
+  if (!insignias) return <>{contenido}</>;
+  return (
+    <span className={styles.marco}>
+      {contenido}
+      {insignias}
+    </span>
   );
 }
