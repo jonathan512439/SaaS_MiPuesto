@@ -135,12 +135,13 @@ export default function Inicio() {
               {/* Las altas son por invitación, pero quien ya tiene su catálogo
                   necesita volver a entrar, y no había por dónde: la única forma
                   era saberse la dirección de memoria. */}
+              {/* «Quiero mi catálogo» no está acá a propósito: aparece cuatro
+                  veces en el cuerpo y una más fija al pie, que además viaja con
+                  la pantalla. Repetirlo en la barra le quitaba lugar al nombre
+                  sin agregar ninguna oportunidad de tocarlo. */}
               <Link className={styles.enlaceIngresar} href="/login">
                 Ingresar
               </Link>
-              <a className={styles.botonBarra} href={enlaceAlta} rel="noreferrer" target="_blank">
-                Quiero mi catálogo
-              </a>
             </div>
           </div>
         </header>

@@ -37,15 +37,15 @@ export default function ImagenPortada() {
             competir con el texto, y es lo único de la tarjeta que no se puede
             copiar.
 
-            El color va escrito y no sale de una opacidad porque el generador de
-            esta imagen **ignora `stroke-opacity`**: se comprobó mirando el PNG,
-            donde salía blanco puro. Y no es tan tenue como sería en una pantalla:
-            en WhatsApp esta tarjeta se ve del tamaño de una miniatura, y ahí una
-            marca de agua sutil desaparece. */}
+            El color sale de `identidad-visual.ts` y no de una opacidad porque el
+            generador de esta imagen **ignora `stroke-opacity`**: se comprobó
+            mirando el PNG, donde salía blanco puro. Y no queda tan tenue como
+            sería en una pantalla: en WhatsApp esta tarjeta se ve del tamaño de
+            una miniatura, y ahí una marca de agua sutil desaparece. */}
         <svg
           fill="none"
           height="620"
-          stroke="#84a5a9"
+          stroke={COLORES_MIPUESTO.marcaAgua}
           strokeLinejoin="round"
           strokeWidth="18"
           style={{ position: "absolute", top: "-40px", right: "-90px" }}
