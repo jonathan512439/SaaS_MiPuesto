@@ -45,7 +45,34 @@
 .barraContenido {
   display: flex;
   align-items: center;
-  gap: var(--spacing-4);
+  gap: var(--spacing-3);
+}
+
+/* En un teléfono no entran el logotipo, el nombre, «Ingresar» y el botón de
+   alta: los dos botones no se pueden encoger, así que el nombre se les montaba
+   encima. El botón de alta se va, porque **ya está fijo al pie de la pantalla**
+   —estaba dos veces en la misma vista— y con él sobra el espacio. */
+.botonBarra {
+  display: none;
+}
+
+/* El renglón de abajo del nombre también se va: a este ancho es lo primero que
+   se puede perder sin que nadie note nada. */
+.nombreMarca small {
+  display: none;
+}
+
+/* Red de seguridad: si algún día vuelve a faltar espacio, el nombre se recorta
+   en vez de pisar lo que tiene al lado. */
+.nombreMarca {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.nombreMarca strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .marca {
@@ -82,12 +109,22 @@
   text-transform: uppercase;
 }
 
-/* El logotipo es negro sobre transparente, así que sobre la franja oscura se
-   fuerza a blanco puro en vez de mantener una segunda copia del archivo. */
-.logotipoCierre {
-  width: auto;
-  height: var(--spacing-32);
-  filter: brightness(0) invert(1);
+/* El isotipo hereda el color de la sección, así que acá sale blanco sin filtros
+   y sin una segunda copia del archivo. */
+.marcaCierre {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-3);
+}
+
+.isotipoCierre {
+  height: var(--spacing-24);
+}
+
+.marcaCierre span {
+  font-size: var(--text-3xl);
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
 .enlaces {
@@ -674,6 +711,15 @@
 }
 
 @media (min-width: 48rem) {
+  /* Hay ancho de sobra: vuelven el botón de alta y el renglón del nombre. */
+  .botonBarra {
+    display: inline-flex;
+  }
+
+  .nombreMarca small {
+    display: block;
+  }
+
   .franjaContenido {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -693,15 +739,6 @@
 
   .encabezado h2 {
     font-size: var(--text-3xl);
-  }
-
-  .panelPrecio {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  }
-
-  .montoPrecio,
-  .incluye {
-    padding: var(--spacing-10) var(--spacing-8);
   }
 
   .cierre h2 {

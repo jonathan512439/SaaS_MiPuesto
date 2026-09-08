@@ -1,0 +1,10 @@
+@reference "../../app/globals.css";
+
+/* La altura la pone quien lo usa; el ancho sale de la proporción del original.
+   `display: block` evita el hueco que deja la línea base cuando un SVG se dibuja
+   como texto. */
+.isotipo {
+  display: block;
+  width: auto;
+  height: 100%;
+}

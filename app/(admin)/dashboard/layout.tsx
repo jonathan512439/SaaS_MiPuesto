@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { PieSitio } from "../../../components/sitio/pie-sitio";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -17,6 +16,7 @@ import {
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import styles from "./dashboard.module.css";
 import { patronDeRubro } from "../../../lib/patrones-fondo";
+import { Isotipo } from "../../../components/marca/isotipo";
 
 type PropiedadesLayoutPanel = Readonly<{
   children: ReactNode;
@@ -70,14 +70,7 @@ export default async function LayoutPanel({
                   href="/dashboard/catalogo"
                   aria-label="MiPuesto, ir al catálogo"
                 >
-                  <Image
-                    alt=""
-                    className={styles.isotipo}
-                    height={325}
-                    priority
-                    src="/marca/mipuesto-marca.png"
-                    width={256}
-                  />
+                  <Isotipo className={styles.isotipo} />
                   <span>MiPuesto</span>
                 </Link>
                 <div className={styles.cuenta}>

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { PieSitio } from "../components/sitio/pie-sitio";
-import Image from "next/image";
 import Link from "next/link";
 
+import { Isotipo } from "../components/marca/isotipo";
 import { MuestraPlantillas } from "../components/inicio/muestra-plantillas";
 import { VitrinaPortada } from "../components/inicio/vitrina-portada";
 import { PALETAS, PLANTILLAS } from "../lib/apariencia";
@@ -119,14 +119,7 @@ export default function Inicio() {
         <header className={styles.barra}>
           <div className={styles.barraContenido}>
             <Link className={styles.marca} href="/">
-              <Image
-                alt=""
-                className={styles.isotipo}
-                height={325}
-                priority
-                src="/marca/mipuesto-marca.png"
-                width={256}
-              />
+              <Isotipo className={styles.isotipo} />
               <span className={styles.nombreMarca}>
                 <strong>MiPuesto</strong>
                 <small>Bolivia</small>
@@ -156,14 +149,7 @@ export default function Inicio() {
           <div className={styles.portadaContenido}>
             <div className={styles.discurso}>
               <p className={styles.marcador}>
-                <Image
-                  alt=""
-                  className={styles.marcaMarcador}
-                  height={325}
-                  priority
-                  src="/marca/mipuesto-marca.png"
-                  width={256}
-                />
+                <Isotipo className={styles.marcaMarcador} />
                 Catálogos digitales para negocios de Bolivia
               </p>
               <h1>
@@ -197,14 +183,7 @@ export default function Inicio() {
         </section>
 
         <section aria-label="En resumen" className={styles.franja}>
-          <Image
-            alt=""
-            aria-hidden="true"
-            className={styles.filigrana}
-            height={325}
-            src="/marca/mipuesto-marca.png"
-            width={256}
-          />
+          <Isotipo className={styles.filigrana} />
           <div className={styles.franjaContenido}>
             <p>
               <strong>Bs {PRECIO_MENSUAL_BS}</strong>
@@ -529,13 +508,13 @@ export default function Inicio() {
 
         <section aria-labelledby="cierre" className={styles.cierre}>
           <div className={styles.cierreContenido}>
-            <Image
-              alt="MiPuesto"
-              className={styles.logotipoCierre}
-              height={390}
-              src="/marca/mipuesto-completo.png"
-              width={560}
-            />
+            {/* El isotipo grande y el nombre como texto, en vez del logotipo
+                completo en PNG: así el cierre hereda el color en vez de forzarlo
+                con un filtro, y se ve nítido en cualquier pantalla. */}
+            <p className={styles.marcaCierre}>
+              <Isotipo className={styles.isotipoCierre} titulo="MiPuesto" />
+              <span>MiPuesto</span>
+            </p>
             <h2 id="cierre">Tu catálogo puede estar listo hoy</h2>
             <p>
               Escribinos por WhatsApp y lo armamos juntos. Si no te convence, el primer mes

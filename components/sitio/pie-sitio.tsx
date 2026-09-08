@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Isotipo } from "../marca/isotipo";
 import Link from "next/link";
 
 import {
@@ -26,13 +26,7 @@ export function PieSitio({ variante = "sitio" }: PropiedadesPie) {
     return (
       <footer className={`${styles.pie} ${styles.pieCatalogo}`}>
         <Link className={styles.firma} href={ORIGEN_CATALOGO}>
-          <Image
-            alt=""
-            className={styles.isotipo}
-            height={325}
-            src="/marca/mipuesto-marca.png"
-            width={256}
-          />
+          <Isotipo className={styles.isotipo} />
           <span>
             Hecho con <strong>MiPuesto</strong>
           </span>
