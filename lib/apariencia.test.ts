@@ -75,7 +75,7 @@ describe("tarjetas por plantilla", () => {
     expect(tarjetaPredeterminada("clasica")).toBe("lista");
     expect(tarjetaPredeterminada("moderna")).toBe("cuadricula");
     expect(tarjetaPredeterminada("minimal")).toBe("servicio");
-    expect(tarjetaPredeterminada("feria")).toBe("lista");
+    expect(tarjetaPredeterminada("feria")).toBe("ficha");
   });
 });
 
@@ -88,7 +88,7 @@ describe("tarjetaValidaPara", () => {
      que no la dibuja. Corregirlo a la predeterminada es preferible a mostrarle
      una pantalla rota o a guardarle un valor que la plantilla ignora. */
   it("corrige a la predeterminada cuando la plantilla no la dibuja", () => {
-    expect(tarjetaValidaPara("feria", "retrato")).toBe("lista");
+    expect(tarjetaValidaPara("feria", "retrato")).toBe("ficha");
   });
 
   it("corrige un valor inventado, nulo o de otro tipo", () => {

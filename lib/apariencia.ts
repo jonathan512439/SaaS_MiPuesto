@@ -37,8 +37,10 @@ export const TARJETAS = [
   "cuadricula",
   /* Foto vertical 3:4, para ropa y calzado, donde la prenda manda. */
   "retrato",
-  /* Foto chica y datos a la derecha, con hasta dos atributos destacados y el
-     código. Para lo que se compra por especificación y no por foto. */
+  /* Fila compacta: foto chica, precio grande y sin descripción. Es la lista de
+     precios de un puesto de mercado, y es también donde caben los dos atributos
+     destacados de una ferretería. Se distingue de `lista` en que esa lleva
+     descripción y la acción adentro de la fila. */
   "ficha",
   /* Sin foto o con foto redonda, duración y botón de agendar. */
   "servicio",
@@ -72,7 +74,7 @@ export const TARJETAS_POR_PLANTILLA: Record<PlantillaId, ReadonlyArray<TarjetaId
   clasica: ["lista", "cuadricula", "ficha"],
   moderna: ["cuadricula", "retrato", "estadia"],
   minimal: ["servicio", "lista", "cuadricula"],
-  feria: ["lista", "ficha", "cuadricula"],
+  feria: ["ficha", "lista", "cuadricula"],
 };
 
 export function tarjetaPredeterminada(plantilla: PlantillaId): TarjetaId {
@@ -135,7 +137,7 @@ export const DEFINICIONES_TARJETAS: ReadonlyArray<{
   { id: "lista", nombre: "Lista", descripcion: "Fila con foto chica y precio a la derecha." },
   { id: "cuadricula", nombre: "Cuadrícula", descripcion: "Foto cuadrada arriba y datos debajo." },
   { id: "retrato", nombre: "Retrato", descripcion: "Foto vertical grande, para ropa y calzado." },
-  { id: "ficha", nombre: "Ficha", descripcion: "Datos técnicos y código junto a una foto chica." },
+  { id: "ficha", nombre: "Ficha", descripcion: "Fila compacta con el precio grande y lugar para dos datos." },
   { id: "servicio", nombre: "Servicio", descripcion: "Duración y botón de agendar, sin foto grande." },
   { id: "estadia", nombre: "Estadía", descripcion: "Foto ancha y precio por noche, hora o día." },
 ];
