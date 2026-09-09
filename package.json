@@ -56,7 +56,12 @@
     "planilla:diagnosticar": "node --experimental-strip-types --no-warnings scripts/diagnosticar-planilla.mjs",
     "iconos": "node scripts/armar-iconos.mjs",
     "vigilancia:configurar": "node scripts/configurar-vigilancia.mjs",
-    "test:fase19:linked": "supabase db query --linked --file supabase/tests/remote/fase19-vigilancia.sql"
+    "test:fase19:linked": "supabase db query --linked --file supabase/tests/remote/fase19-vigilancia.sql",
+    "ensayo:ver": "node --env-file-if-exists=.env.local scripts/ensayo.mjs ver",
+    "ensayo:push": "node --env-file-if-exists=.env.local scripts/ensayo.mjs push",
+    "ensayo:estructura": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura",
+    "ensayo:rls": "node --env-file-if-exists=.env.local scripts/ensayo.mjs rls",
+    "ensayo:verificar": "npm run ensayo:estructura && npm run ensayo:rls"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",

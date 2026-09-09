@@ -33,13 +33,37 @@ viejo se niega a volcar una base más nueva.
 Antes de subir comprueba que los archivos pesen algo: un volcado de cero bytes
 sube igual y da una falsa sensación de respaldo.
 
-Genera dos archivos y los sube a R2 bajo la fecha del día:
+Genera tres archivos y los sube a R2 bajo la fecha del día:
 
-- `respaldo-esquema.sql.gz` — la estructura
-- `respaldo-datos.sql.gz` — el contenido
+| Archivo | Qué trae |
+|---|---|
+| `respaldo-esquema.sql.gz` | La estructura de `public` **y de `private`** |
+| `respaldo-datos.sql.gz` | El contenido de los dos esquemas |
+| `respaldo-auth.sql.gz` | Las cuentas de los dueños. **Puede faltar**, ver abajo |
 
-Se guardan separados porque restaurar solo los datos sobre un esquema sano es lo
-que se necesita el 90 % de las veces.
+Los dos primeros se guardan separados porque restaurar solo los datos sobre un
+esquema sano es lo que se necesita el 90 % de las veces.
+
+### Por qué `private` va junto con `public`
+
+**Corregido el 2026-09-09, al preparar el ensayo.** El volcado original tomaba
+solo `public`, y eso lo hacía **imposible de restaurar**: en `private` viven
+siete funciones que los disparadores y las políticas de `public` invocan
+—cálculo de precios, auditoría de cambios de precio y de estado, validación de
+promociones, comprobación de administrador de plataforma— más la tabla con los
+ajustes del vigilante. Un volcado sin ellas pesa igual, sube igual y solo se
+descubre inservible el día que hay que usarlo.
+
+Ahora el flujo **verifica que `private` esté adentro** antes de subir, y falla si
+no. Un respaldo que aparenta estar bien es peor que uno que falla ruidosamente.
+
+### Las cuentas de los dueños, aparte
+
+El esquema `auth` lo administra Supabase y el volcado puede negarse por permisos.
+Si eso pasa, el respaldo **no falla**: la base queda respaldada y lo que se
+pierde es tener que volver a invitar a cada dueño, que es molesto pero no es
+pérdida de datos. Por eso va en su propio archivo y su ausencia solo deja un
+aviso en el registro del flujo.
 
 ## Lo que hay que configurar una sola vez
 
@@ -78,7 +102,18 @@ la automatización quedó andando.
 ensayo una vez ahora y repetirlo cada tanto.
 
 No se restaura sobre la base real. Se crea un proyecto Supabase aparte —el plan
-gratuito permite dos— y se prueba ahí:
+gratuito permite dos— y se prueba ahí.
+
+> **Ese segundo proyecto es también la base de ensayo del plan v3**, y no por
+> ahorro: el plan gratuito da dos proyectos, ya hay uno en producción, y queda
+> exactamente uno. Combinarlos no es una comodidad, es la única forma.
+>
+> Sale ganando: la base de ensayo queda con **datos de la forma real** —negocios,
+> catálogos, pedidos— en vez de un esquema vacío, que es justo lo que hace falta
+> para probar una migración antes de aplicarla a producción. Los comandos son
+> `npm run ensayo:*` y se niegan a correr si apuntan al proyecto real.
+
+Los pasos del ensayo:
 
 ```bash
 # 1. Bajar el respaldo del día desde R2

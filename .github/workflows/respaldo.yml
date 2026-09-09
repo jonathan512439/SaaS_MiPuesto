@@ -32,6 +32,12 @@ jobs:
       # pg_dump directo y no `supabase db dump`, que exige Docker. El cliente se
       # instala en la versión del servidor —Postgres 17— porque un pg_dump más
       # viejo se niega a volcar una base más nueva.
+      #
+      # **Se invoca por ruta absoluta y no por nombre.** El `/usr/bin/pg_dump` de
+      # estos servidores es el envoltorio de Debian, que elige la versión según el
+      # clúster configurado en la imagen —16— y no según la más nueva instalada.
+      # Con `pg_dump` a secas, instalar el 17 no cambiaba nada y el volcado moría
+      # con «server version mismatch» después de haberse conectado bien.
       - name: Instalar el cliente de Postgres 17
         run: |
           sudo install -d /usr/share/postgresql-common/pgdg
@@ -41,7 +47,15 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
           sudo apt-get update
           sudo apt-get install -y postgresql-client-17
-          pg_dump --version
+
+          # Que la instalación falle acá y no doce líneas más abajo, con la base
+          # ya conectada y el mensaje hablando de otra cosa.
+          if [ ! -x /usr/lib/postgresql/17/bin/pg_dump ]; then
+            echo "No quedó instalado /usr/lib/postgresql/17/bin/pg_dump." >&2
+            ls -la /usr/lib/postgresql/ >&2 || true
+            exit 1
+          fi
+          /usr/lib/postgresql/17/bin/pg_dump --version
 
       - name: Volcar la base
         env:
@@ -53,10 +67,34 @@ jobs:
           fi
           # El esquema y los datos por separado: restaurar solo los datos sobre
           # un esquema sano es lo que se necesita casi siempre.
-          pg_dump "$SUPABASE_DB_URL" --schema-only --schema=public \
+          #
+          # **`private` va junto con `public` y no es opcional.** Ahí viven siete
+          # funciones que los disparadores y las políticas de `public` invocan
+          # —cálculo de precios, auditoría de cambios, validación de promociones—
+          # y la tabla con los ajustes del vigilante. Un volcado de `public` a
+          # secas no se puede restaurar: las políticas referencian funciones que
+          # no estarían. Se descubrió al preparar el ensayo de restauración.
+          PG_DUMP=/usr/lib/postgresql/17/bin/pg_dump
+          "$PG_DUMP" "$SUPABASE_DB_URL" --schema-only \
+            --schema=public --schema=private \
             --no-owner --no-privileges -f respaldo-esquema.sql
-          pg_dump "$SUPABASE_DB_URL" --data-only --schema=public \
+          "$PG_DUMP" "$SUPABASE_DB_URL" --data-only \
+            --schema=public --schema=private \
             --no-owner --no-privileges -f respaldo-datos.sql
+
+          # Las cuentas de los dueños de negocio, aparte y sin poder fallar el
+          # respaldo. Supabase administra el esquema `auth` y el volcado puede
+          # negarse por permisos; si eso pasa, la base sigue respaldada y lo que
+          # se pierde es tener que volver a invitar a cada dueño, que es molesto
+          # pero no es pérdida de datos. Restaurarlo es un procedimiento aparte.
+          if "$PG_DUMP" "$SUPABASE_DB_URL" --data-only --schema=auth \
+               --no-owner --no-privileges -f respaldo-auth.sql; then
+            gzip respaldo-auth.sql
+          else
+            echo "::warning::No se pudo volcar el esquema auth. La base sí quedó respaldada."
+            rm -f respaldo-auth.sql
+          fi
+
           gzip respaldo-esquema.sql respaldo-datos.sql
           ls -lh respaldo-*.sql.gz
 
@@ -71,6 +109,20 @@ jobs:
             fi
           done
 
+          # Que el esquema `private` esté adentro, y no confiar en que la bandera
+          # esté puesta. Sin él, el volcado pesa igual, sube igual y solo se
+          # descubre inservible el día que hay que restaurar. Un respaldo que
+          # aparenta estar bien es peor que uno que falla ruidosamente.
+          # Se busca cualquier objeto calificado con `private.` —una función, la
+          # tabla de ajustes— y no la sentencia exacta que crea el esquema: el
+          # texto que emite pg_dump puede cambiar entre versiones y una guardia
+          # que se rompe sola termina desactivada.
+          if ! zgrep -q "private\." respaldo-esquema.sql.gz; then
+            echo "El volcado del esquema no incluye 'private': no se podría restaurar." >&2
+            exit 1
+          fi
+          echo "El volcado incluye public y private."
+
       - name: Subir a R2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -82,10 +134,12 @@ jobs:
             exit 1
           fi
           FECHA=$(date -u +%Y-%m-%d)
-          for archivo in respaldo-esquema respaldo-datos; do
+          # El de auth puede no existir: se sube lo que haya, y por eso el bucle
+          # recorre los archivos presentes en vez de una lista fija.
+          for archivo in respaldo-*.sql.gz; do
             npx --yes wrangler@4 r2 object put \
-              "${BALDE}/${FECHA}/${archivo}.sql.gz" \
-              --file "${archivo}.sql.gz" \
+              "${BALDE}/${FECHA}/${archivo}" \
+              --file "${archivo}" \
               --remote
           done
           echo "Respaldo del $FECHA subido a $BALDE."
