@@ -1,74 +1,77 @@
 # Registro de avance y auditorías — MiPuesto
 
-Este archivo conserva el estado verificable del proyecto. Se actualiza al iniciar y cerrar cada fase.
+Este archivo conserva el estado verificable del proyecto. Se actualiza al iniciar y al
+cerrar cada fase. **Todo lo que está debajo de «Historial» es registro histórico y no se
+edita**: es la evidencia de lo que se hizo y con qué se comprobó.
 
-## Estado actual
+## Estado actual — 2026-09-09
 
-- Fases completadas: **Fase 0 — Setup e infraestructura**, **Fase 1 — Sistema de diseño**, **Fase 2 — Autenticación y perfil de negocio**, **Fase 3 — Sistema de plantillas**, **Fase 4 — Catálogo**, **Fase 5 — Las tres modalidades de tienda**, **Fase 6 — Carrito, reserva temporal y pedido por WhatsApp**, **Fase 7 — Panel de administración completo** y **Fase 8 — Funciones de plataforma**.
-- Fase en curso: **Fase 9 — Testing y cierre operativo**, con el dominio aplazado hasta después de las etiquetas NFC.
-- Inicio de Fase 2: 2026-09-01.
-- Cierre de Fase 2: 2026-09-02.
-- Cierre de Fase 3: 2026-09-02.
-- Cierre de Fase 4: 2026-09-02.
-- Inicio de Fase 4: 2026-09-02.
-- Inicio de Fase 5: 2026-09-02.
-- Cierre de Fase 5: 2026-09-02.
-- Inicio de Fase 6: 2026-09-02.
-- Cierre de Fase 6: 2026-09-03.
-- Inicio de Fase 7: 2026-09-03.
-- Cierre de Fase 7: 2026-09-03.
-- Inicio de Fase 8: 2026-09-03.
-- Cierre de Fase 8: 2026-09-03.
-- Inicio de Fase 9: 2026-09-03.
-- Inicio de Fase 10: 2026-09-04.
-- Cierre del bloque 10.1 (sistema de diseño vivo): 2026-09-04.
-- Estado al **2026-09-06**: el plan de crecimiento (`docs/PLAN-CRECIMIENTO.md`)
-  tiene **siete de sus diez etapas cerradas** —0–1, 2, 3, 3½, 6, 7 y 8— más la
-  capa 1 de catálogos por rubro. Todo está en `main` y desplegado.
+**El proyecto empieza un ciclo nuevo.** El plan v2 (nueve fases) y el plan de crecimiento
+(diez etapas) se cerraron y sus archivos se borraron. Lo vigente es `docs/plan/`.
 
-| Etapa | Estado |
-|---|---|
-| 0–1 El contrato y el mecanismo | Cerrada |
-| 2 Que aguante 300 productos | Cerrada |
-| 3 Peso y uso diario | Cerrada |
-| 3½ Ubicación | Cerrada |
-| 4 Dominio y correo | **Espera la compra del dominio** |
-| 5 Que se pueda dormir tranquilo | Código listo; **falta el ensayo de restauración**, que solo puede hacer el dueño |
-| 6 Panel de superadministrador | Cerrada |
-| 7 NFC, mesa y Google | Cerrada |
-| 8 Paquete de restaurantes | Cerrada |
-| 9 Carga desde foto | No iniciada, y va última a propósito |
+### Por qué cambió el plan
 
-- Fuera del plan y ya hechos: papelera de productos, control de almacenamiento en
-  la plataforma, recorrido de seguridad con cinco correcciones, y pantallas de
-  error para cuando algo falla del lado del servidor.
-- **La Fase 9 sigue abierta**, y su puerta de salida no cambió: un negocio piloto
-  tiene que operar una semana completa sin que nadie toque la base a mano. Nada
-  de lo construido reemplaza eso.
-- Lo anterior a probar a mano está en `docs/PRUEBAS-LANZAMIENTO.md`. **Ninguna de
-  las pantallas construidas desde el 5 de septiembre la abrió una persona.**
+Las 44 fichas de `Catalogos_Ejemplo/` resultaron ser un documento de requisitos, no una
+referencia visual. Al compararlas con lo construido salió que **ninguno de los 44 rubros
+queda cubierto al 100 %** con el modelo actual de producto, y que los rubros de servicio
+—barbería, dental, veterinaria, canchas, hotel— quedan cerca de cero porque todos
+dependen de una agenda que no existe.
+
+El hallazgo que hace viable el cambio: las 44 fichas convergen en **ocho mecanismos** y
+**siete familias de comportamiento**. No son 44 desarrollos.
+
+### El plan nuevo
+
+Diez fases, **62 días de trabajo efectivo**. Está en `docs/plan/04-FASES.md`.
+
+| Fase | Nombre | Días | Estado |
+|---|---|---|---|
+| 0 | Red de seguridad | 2 | **No iniciada — bloquea todo lo demás** |
+| 1 | El armazón visual nuevo | 6 | No iniciada |
+| 2 | Atributos por categoría | 8 | No iniciada |
+| 3 | Variantes con existencias propias | 9 | No iniciada |
+| 4 | Descubrimiento | 5 | No iniciada |
+| 5 | Precio real | 6 | No iniciada |
+| 6 | Agenda | 10 | No iniciada |
+| 7 | Presets por rubro y alta guiada | 6 | No iniciada |
+| 8 | Logística y confianza | 5 | No iniciada |
+| 9 | Rendimiento, endurecimiento y piloto | 5 | No iniciada |
+
+### Lo que quedó cerrado del ciclo anterior y sigue en producción
+
+Autenticación y perfil de negocio, catálogo con categorías y subcategorías, las tres
+modalidades, carrito con reserva temporal y pedido por WhatsApp, panel de administración,
+panel de plataforma con segundo factor, promociones con ventana horaria, horarios y
+feriados, corte automático por vencimiento, papelera de productos, analítica por sesión
+con límites por IP, etiquetas NFC y directorio por zona, carta del día y menú imprimible,
+lectura de listas de precios con IA, importación desde Excel y CSV, botón de llamar, y el
+vigilante de salud con aviso por ntfy.
+
+Todo eso **no se rehace**. El plan nuevo construye encima.
+
+### Lo que sigue sin cumplirse, y es lo más grave
+
+- **No hay ningún respaldo.** El código está, el flujo nunca corrió porque falta el
+  secreto `SUPABASE_DB_URL`. Es la fase 0 y bloquea todo lo demás.
+- **No hay ensayo de restauración.** Hasta que exista, el respaldo es código, no una
+  garantía.
+- **No hubo semana de piloto.** Sigue siendo el criterio de salida del proyecto entero.
 
 ## Cómo continuar este proyecto
-
-Escrito el 2026-09-05 para que otra persona —o otro agente— pueda retomar sin
-reconstruir el contexto.
 
 ### Qué leer, y en qué orden
 
 1. `AGENTS.md` — reglas de trabajo del repositorio. Son obligatorias.
-2. `SECURITY.md` — sobre todo la sección final, «Cosas que NO hay que hacer
-   todavía». Se respeta salvo excepción escrita y justificada.
-3. `docs/PLAN-CRECIMIENTO.md` — **el plan vigente.** Trae el filtro con el que se
-   decide qué entra, los números medidos, las decisiones tomadas con su motivo y
-   las diez etapas con criterio de cierre. Se lee antes de empezar cada etapa.
+2. `SECURITY.md` — sobre todo la sección final, «Cosas que NO hay que hacer todavía».
+3. `docs/plan/` — **el plan vigente**, en el orden de su `README.md`.
 4. Este archivo, para saber qué quedó cerrado y con qué evidencia.
 
 ### Dónde está el trabajo
 
-- Rama de trabajo: `main`. El despliegue sale solo al empujar (Cloudflare
-  Workers Builds); no hay archivo de flujo en el repositorio.
-- Producción: `https://mipuesto-dev.mipuesto-app.workers.dev`. **No hay dominio
-  propio todavía**, y por eso no se imprime ningún QR: cambiarían todos.
+- Rama de trabajo: `main`. El despliegue sale solo al empujar (Cloudflare Workers Builds);
+  no hay archivo de flujo en el repositorio.
+- Producción: `https://mipuesto-dev.mipuesto-app.workers.dev`. **No hay dominio propio
+  todavía**, y por eso no se imprime ningún QR: cambiarían todos.
 
 ### Comandos que se corren siempre antes de dar algo por terminado
 
@@ -77,23 +80,25 @@ npm run typecheck
 npm run lint
 npm test                 # incluye contraste y tokens de diseño
 npm run build:vinext
-npm run test:rls:linked  # al cierre de cada etapa, sin excepción
+npm run test:rls:linked  # al cierre de cada fase, sin excepción
 ```
 
 ### Trampas conocidas
 
-- **`npm run supabase:push`** aplica migraciones a la base real. `supabase:seed:local`
-  es lo único que lleva `--include-seed`, y solo apunta a la base local. Nunca
-  correr el seed contra la enlazada: reescribiría los negocios reales.
-- Antes de `npm run build:vinext`, cerrar cualquier `wrangler dev`: mantiene
-  tomado `dist/client` y el build falla con `EBUSY`.
-- Después de cualquier migración, regenerar tipos con `npm run types:db:linked`
-  o TypeScript seguirá viendo el esquema viejo.
-- El guardián `scripts/check-design-contrast.mjs` exige que cada plantilla y cada
-  paleta estén en **cuatro** sitios: CSS del tema, `DEFINICIONES_*`, la constante
-  y la restricción de la base. Falla el build si falta una.
-- El control de tokens rechaza cualquier color, tamaño tipográfico o espaciado
-  escrito a mano fuera de `app/globals.css`.
+- **`npm run supabase:push`** aplica migraciones a la base real. `supabase:seed:local` es
+  lo único que lleva `--include-seed`, y solo apunta a la base local. Nunca correr el seed
+  contra la enlazada: reescribiría los negocios reales.
+- Antes de `npm run build:vinext`, cerrar cualquier `wrangler dev`: mantiene tomado
+  `dist/client` y el build falla con `EBUSY`.
+- Después de cualquier migración, regenerar tipos con `npm run types:db:linked` o
+  TypeScript seguirá viendo el esquema viejo.
+- El guardián `scripts/check-design-contrast.mjs` exige que cada plantilla y cada paleta
+  estén en **cuatro** sitios: CSS del tema, `DEFINICIONES_*`, la constante y la restricción
+  de la base. Falla el build si falta una.
+- El control de tokens rechaza cualquier color, tamaño tipográfico o espaciado escrito a
+  mano fuera de `app/globals.css`.
+- Las herramientas automáticas de limpieza de CSS han destruido directivas `@reference`.
+  Después de reorganizar hojas, verificar que las ocho la conserven.
 
 ### Lo que espera una acción del dueño
 
@@ -101,47 +106,24 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 
 | | Dónde |
 |---|---|
+| **Configurar y correr el respaldo** | `docs/RESPALDOS.md`. **Fase 0, bloquea el plan entero** |
+| **Hacer el ensayo de restauración** | `docs/RESPALDOS.md`, sección «El ensayo» |
+| Crear la base de ensayo en Supabase | Proyecto gratuito nuevo, fase 0 |
+| Suscribirse al tema de ntfy y probar el aviso | `npm run vigilancia:configurar -- --probar` |
 | Comprar y conectar el dominio | Bloquea correo propio, QR, NFC y el reporte por correo |
-| Cargar tres secretos del respaldo | `docs/RESPALDOS.md`, sección «Lo que hay que configurar» |
-| Hacer el ensayo de restauración | `docs/RESPALDOS.md`, sección «El ensayo» |
-| Poner un vigilante externo sobre `/api/salud` | Cualquier servicio gratuito de monitoreo |
-| La semana de piloto | Puerta de salida definida en la Fase 9 |
-| Darse de alta como administrador de plataforma | `docs/AVANCE.md`, «Cómo darse de alta». Al entrar la primera vez se pide inscribir el segundo factor |
+| La semana de piloto | Criterio de salida de la fase 9 |
+| Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
 
-### Estado de la Fase 12 (etapa 0–1 del plan de crecimiento)
+---
 
-| | Estado |
-|---|---|
-| Corte automático por vencimiento | **cerrado y verificado en producción** |
-| Textos legales alineados | **cerrado** |
-| `supabase:push:dev` desactivado | **cerrado** |
-| Horarios especiales y feriados | **cerrado y verificado en producción** |
-| Etapa 2: paginación en la consulta | **cerrada y verificada en producción** |
-| Etapa 2: duplicar y precios en lote | **cerrado** |
-| Correcciones de la revisión del dueño | **cerradas y verificadas** |
-| Etapa 3: peso y uso diario | **cerrada y medida en producción** |
-| Etapa 3½: ubicación | **cerrada**; rubro y place id diferidos a sus etapas |
-| Etapa 5: respaldos y vigilancia | **código listo**; espera secretos y el ensayo de restauración |
-| Etapa 6: panel de plataforma | **cerrada**, con segundo factor obligatorio |
+# Historial
 
-**Las etapas 0–1, 2, 3 y 3½ están cerradas y la 5 tiene su código listo.** Lo
-que sigue es la etapa 6 —el panel de superadministrador—, que no depende de
-nada. La etapa 4 sigue bloqueada hasta comprar el dominio.
+Lo que sigue es el registro del ciclo anterior. Se conserva como evidencia y no se edita.
 
-Antes de eso, el dueño tiene que cargar los tres secretos del respaldo y hacer el
-ensayo de restauración: hasta entonces el respaldo es código, no una garantía.
-Los pasos están en `docs/RESPALDOS.md`.
-
-### Decisiones que conviene no deshacer sin leer el motivo
-
-- El corte usa **un solo interruptor** (`activo`) y una columna de motivo
-  (`suspendido_en`). Está explicado en la migración
-  `20260905090000_fase12_corte_por_vencimiento.sql`.
-- El borrado a los 90 días **no está automatizado a propósito**: los términos
-  prometen aviso previo y el aviso por correo llega en la etapa 4.
-- En el catálogo de un cliente firma solo MiPuesto; el crédito a JC-DEV vive en
-  las páginas propias. Está en el plan, sección «Marca en el catálogo del
-  cliente».
+> Varias entradas citan archivos que ya no existen —`planning-mipuesto-v2.md`,
+> `docs/PLAN-CRECIMIENTO.md` y los `docs/PLAN-DISENO-FASE*.md`—. Se borraron el
+> 2026-09-09 al abrir el ciclo nuevo. Siguen en el historial de git; las citas se dejan
+> tal cual porque reescribirlas falsearía el registro.
 
 ## Portada: la demostración se elige por rubro
 

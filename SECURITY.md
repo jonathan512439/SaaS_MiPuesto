@@ -87,6 +87,72 @@ Herramienta sugerida: Vitest para la lógica pura (`lib/`), y un script de prueb
 - Probar el flujo completo en un celular real con datos móviles, no en el navegador de escritorio.
 - **Auditoría final:** recorrer este documento entero y marcar cada control como cumplido o justificadamente omitido.
 
+## Controles del plan v3 (docs/plan/)
+
+Los controles de arriba corresponden al ciclo cerrado y se conservan como referencia. Lo
+que sigue son los controles de las diez fases nuevas.
+
+### Fase 0 — Red de seguridad
+- El respaldo corre y deja archivo verificable en R2.
+- Hay un **ensayo de restauración** hecho, con fecha y duración anotadas.
+- La base de ensayo no comparte credenciales con producción.
+- El aviso de caída llegó a un teléfono real.
+
+### Fase 1 — Armazón visual
+- Ninguna tarjeta nueva expone datos que la consulta pública no traía antes.
+- El control de contraste cubre las 19 combinaciones válidas por las 7 paletas.
+
+### Fase 2 — Atributos por categoría
+- **Clave foránea compuesta `(id, negocio_id)`** en toda tabla hija: una fila con el
+  negocio equivocado no se puede insertar ni con la clave privilegiada.
+- Los topes —8 campos, 2 destacados, 12 valores, 2 KB— están en la base, no solo en la
+  ruta. La ruta se puede saltar con la clave privilegiada; un disparador no.
+- Borrar un campo **no borra** el valor guardado. Probado en producción.
+- `check-columnas.mjs` impide que la consulta pública traiga columnas de más: con
+  atributos en juego, una columna de más es un dato del negocio servido a cualquiera.
+
+### Fase 3 — Variantes
+- `crear_pedido_reservado()` conserva el `for update` sobre la fila de la que descuenta.
+- Un ítem sobre un producto con variantes **debe** traer variante, verificado dentro de la
+  función y no en la ruta.
+- **Prueba de concurrencia** en la base de ensayo: dos pedidos por la última unidad, gana
+  uno. Anotada en el registro de avance.
+- Un producto con variantes no puede tener existencias propias, por restricción de la base.
+
+### Fase 4 — Descubrimiento
+- Las facetas no cuentan productos ocultos ni en la papelera.
+- Los parámetros de filtro se validan y se acotan a seis: la consulta pública es una
+  superficie anónima y sin techo es una forma barata de castigar la base.
+
+### Fase 5 — Precio real
+- **El total del navegador nunca se usa.** Se recalcula en el servidor y la diferencia
+  queda en la bitácora.
+- Una opción de modificador de otro producto o de otro negocio se rechaza.
+- Un pedido que mezcla dos monedas se rechaza.
+
+### Fase 6 — Agenda
+- **`anon` no puede leer `turnos` de ninguna forma.** Llevan nombre y teléfono de una
+  persona: es la misma regla que ya se aplicó a `pedidos`.
+- `disponibilidad_recurso()` devuelve franjas libres y **nunca** quién ocupa las otras.
+- Límite de turnos por IP, con el patrón de `limites_pedidos_ip`.
+- Prueba de concurrencia por el último lugar de un cupo, anotada.
+
+### Fase 7 — Presets
+- Aplicar un preset es **idempotente y no destructivo**: crea lo que falta, nunca borra.
+- `check-rubros.mjs` impide que un rubro quede a medias en alguno de sus cinco sitios.
+
+### Fase 8 — Logística
+- El costo de entrega se lee de la base, nunca del navegador.
+- Borrar un producto borra su ficha en PDF y sus fotos de Storage.
+- Una zona o una relación de otro negocio no se puede referenciar.
+
+### Fase 9 — Cierre
+- Recorrido de aislamiento sobre **las once tablas nuevas**.
+- La API pública no expone `turnos`, `pedidos`, `limites_*` ni el esquema `private`.
+- Los topes de la base resisten a la clave privilegiada.
+- Auditoría final: recorrer este documento entero y marcar cada control como cumplido o
+  justificadamente omitido.
+
 ## Privacidad de datos de clientes finales
 
 Los negocios afiliados van a tener nombres y teléfonos de sus clientes en tu base de datos. Eso implica:
