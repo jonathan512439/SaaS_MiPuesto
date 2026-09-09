@@ -1,0 +1,112 @@
+@reference "../../app/globals.css";
+
+.seccion {
+  display: grid;
+  gap: var(--spacing-5);
+  padding: var(--spacing-5);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.cabecera {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.cabecera h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-titulo);
+}
+
+.cabecera p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.banner {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-lienzo);
+}
+
+.banner legend {
+  padding: 0 var(--spacing-2);
+  color: var(--color-marca);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+  text-transform: uppercase;
+}
+
+/* La vista previa mantiene la proporción del catálogo aunque no haya imagen: sin
+   eso, el bloque salta de alto al subir la primera y el formulario se mueve
+   debajo del dedo. */
+.previa {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 4 / 1;
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+}
+
+.previa img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sinImagen {
+  color: var(--color-texto-tenue);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.campo {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.campo > span {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.campo input[type="text"],
+.campo input[type="url"] {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-family: inherit;
+  font-size: var(--text-base);
+}
+
+.campo input[type="file"] {
+  font-size: var(--text-sm);
+}
+
+.campo small {
+  color: var(--color-texto-tenue);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
+.error {
+  color: var(--color-alerta);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}

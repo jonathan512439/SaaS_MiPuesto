@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { FormularioBanners } from "../../../../components/negocios/formulario-banners";
 import { SelectorApariencia } from "../../../../components/plantillas/selector-apariencia";
 import { crearDatosDemoPlantilla } from "../../../../lib/plantillas/datos-demo";
 import { esTipoNegocio } from "../../../../lib/modalidades";
 import { tarjetaValidaPara } from "../../../../lib/apariencia";
+import { leerBanners } from "../../../../lib/negocios/banners";
+import { obtenerUrlPublicaImagenNegocio } from "../../../../lib/negocios/imagenes-publicas";
+import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./plantilla.module.css";
@@ -24,7 +28,7 @@ export default async function PaginaPlantilla() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,tarjeta_id,paleta_id,rubro,patron_fondo")
+    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,tarjeta_id,paleta_id,rubro,patron_fondo,banners")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -38,6 +42,18 @@ export default async function PaginaPlantilla() {
      columna llega con la predeterminada, y uno que cambió de plantilla por SQL
      podría llegar con una forma que su plantilla no dibuja. */
   const tarjetaInicial = tarjetaValidaPara(plantillaInicial, negocio.tarjeta_id);
+
+  /* La dirección de cada imagen se arma acá, en el servidor, que es quien conoce
+     la del proyecto. Pasarle la regla al navegador sería repetirla en un segundo
+     lugar y dejarla lista para desincronizarse. */
+  const bannersGuardados = leerBanners(negocio.banners);
+  const { url: urlSupabase } = obtenerVariablesPublicasSupabase();
+  const urlPorRuta = Object.fromEntries(
+    bannersGuardados.map((banner) => [
+      banner.imagen,
+      obtenerUrlPublicaImagenNegocio(urlSupabase, banner.imagen, "banner") ?? "",
+    ]),
+  );
   const datos = crearDatosDemoPlantilla({
     nombre: negocio.nombre,
     descripcion: negocio.descripcion,
@@ -63,6 +79,8 @@ export default async function PaginaPlantilla() {
         patronInicial={negocio.patron_fondo !== false}
         plantillaInicial={plantillaInicial}
       />
+
+      <FormularioBanners bannersIniciales={bannersGuardados} urlPorRuta={urlPorRuta} />
     </main>
   );
 }
