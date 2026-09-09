@@ -1,15 +1,11 @@
 import { Archivo } from "next/font/google";
 import Image from "next/image";
 
-import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
-import { AccionProducto } from "../accion-producto";
 import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
 import { BannerCatalogo } from "../banner-catalogo";
-import { FotoProducto } from "../foto-producto";
-import { InsigniaProducto, insigniaDe } from "../insignias-producto";
-import { EstadoStockProducto } from "../estado-stock-producto";
+import { TarjetaProducto } from "../tarjetas";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-moderna.module.css";
 
@@ -135,44 +131,18 @@ export function PlantillaModerna({
 
       <ul className={styles.productos}>
         {productos.map((producto) => (
-          <li className={styles.producto} id={producto.anclaCategoria} key={producto.id}>
-            <FotoProducto
-              alVerProducto={alVerProducto}
-              ancho={800}
-              className={styles.imagen}
-              insignias={<InsigniaProducto producto={producto} />}
-              producto={producto}
-              respaldo={<span className={styles.sinImagen}>Sin foto</span>}
-              sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
-            />
-            <div className={styles.detalle}>
-              <p>{producto.subcategoria ? `${producto.categoria} / ${producto.subcategoria}` : producto.categoria}</p>
-              <h4>{producto.nombre}</h4>
-              <span>{producto.descripcion}</span>
-              <div className={styles.precio}>
-                {producto.tienePromocion ? (
-                  <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
-                ) : null}
-                <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
-                {producto.tienePromocion ? <small>Precio promocional</small> : null}
-              </div>
-              {/* Lo que ya dijo la pastilla sobre la foto no se repite debajo
-                  del nombre: la misma frase dos veces en una tarjeta chica ocupa
-                  el lugar de la descripción. */}
-              {insigniaDe(producto) === null ? (
-                <EstadoStockProducto className={styles.stock} producto={producto} />
-              ) : null}
-              <AccionProducto
-                alAgregarProducto={alAgregarProducto}
-                alAbrirWhatsapp={alAbrirWhatsapp}
-                cantidad={cantidadesCarrito[producto.id]}
-                demostracion={demostracion}
-                modalidad={datos.negocio.modalidad}
-                permiteAcciones={datos.negocio.atencion.permiteAcciones}
-                producto={producto}
-              />
-            </div>
-          </li>
+          <TarjetaProducto
+            alAgregarProducto={alAgregarProducto}
+            alAbrirWhatsapp={alAbrirWhatsapp}
+            alVerProducto={alVerProducto}
+            cantidadEnCarrito={cantidadesCarrito[producto.id]}
+            demostracion={demostracion}
+            key={producto.id}
+            modalidad={datos.negocio.modalidad}
+            permiteAcciones={datos.negocio.atencion.permiteAcciones}
+            producto={producto}
+            tarjeta={datos.negocio.tarjeta}
+          />
         ))}
       </ul>
 

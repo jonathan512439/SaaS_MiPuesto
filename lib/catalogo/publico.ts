@@ -1,4 +1,4 @@
-import type { PaletaId, PlantillaId } from "../apariencia";
+import { tarjetaValidaPara, type PaletaId, type PlantillaId } from "../apariencia";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import { leerBanners } from "../negocios/banners";
@@ -33,6 +33,7 @@ type NegocioPublico = {
   pide_numero_mesa?: boolean | null;
   resenas_url?: string | null;
   rubro?: string | null;
+  tarjeta_id?: string | null;
   patron_fondo?: boolean | null;
   redes_sociales?: unknown;
   /* Opcional y sin tipar por dentro, igual que `redes_sociales` y `horario`: lo
@@ -191,12 +192,18 @@ export function construirCatalogoPublico(
     });
   }
 
+  /* Se resuelve con el validador y no con una lista escrita a mano: la lista
+     anterior se quedó en tres plantillas y cuatro paletas, de modo que un
+     negocio que elegía Feria o Altiplano recibía Clásica y Mercado sin que nada
+     avisara. El validador sale del mismo registro que el resto.
+     Se calcula antes del `return` porque la tarjeta depende de ella: qué formas
+     son válidas lo decide la plantilla. */
+  const plantilla: PlantillaId = esPlantillaId(negocio.plantilla_id)
+    ? negocio.plantilla_id
+    : "clasica";
+
   return {
-    /* Se resuelve con el validador y no con una lista escrita a mano: la lista
-       anterior se quedó en tres plantillas y cuatro paletas, de modo que un
-       negocio que elegía Feria o Altiplano recibía Clásica y Mercado sin que
-       nada avisara. El validador sale del mismo registro que el resto. */
-    plantilla: esPlantillaId(negocio.plantilla_id) ? negocio.plantilla_id : "clasica",
+    plantilla,
     paleta: esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado",
     datos: {
       negocio: {
@@ -233,6 +240,11 @@ export function construirCatalogoPublico(
            puede venir de una restauración o de un script, y un banner mal
            formado no tiene por qué dejar el catálogo entero sin cargar. */
         banners: leerBanners(negocio.banners),
+        /* Se corrige acá y no en la plantilla: una plantilla que tiene que
+           defenderse de un valor imposible es una plantilla que sabe demasiado.
+           Y el caso es real: el dueño elige «retrato» en Moderna y después se
+           cambia a Feria, que no la dibuja. */
+        tarjeta: tarjetaValidaPara(plantilla, negocio.tarjeta_id),
       },
       categorias: agrupadas,
     },

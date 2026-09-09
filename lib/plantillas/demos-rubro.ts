@@ -74,6 +74,7 @@ function negocio(
     patronFondo: true,
     redesSociales: [],
     banners: [],
+    tarjeta: "cuadricula" as const,
   };
 }
 
