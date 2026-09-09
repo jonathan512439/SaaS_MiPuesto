@@ -83,12 +83,37 @@ jobs:
               "${BALDE}/${FECHA}/$1" --file "$1" --remote
           }
 
-          bajar respaldo-completo.dump
-          # Obligatorio: sin las cuentas no se pueden crear las claves foráneas.
-          bajar respaldo-auth-users.sql.gz
+          # Los dos archivos obligatorios. Si falta alguno, el respaldo de esa
+          # fecha **no se puede restaurar**, y conviene decirlo con esas palabras:
+          # «The specified key does not exist» manda a buscar un problema de
+          # permisos que no existe.
+          #
+          # El caso realista no es un error de tipeo: es un respaldo anterior al
+          # 2026-09-09, cuando el flujo todavía no generaba estos archivos. Esos
+          # respaldos viejos no sirven, y es mejor saberlo acá que a mitad de una
+          # restauración de verdad.
+          for obligatorio in respaldo-completo.dump respaldo-auth-users.sql.gz; do
+            if ! bajar "$obligatorio"; then
+              echo "::error::El respaldo del $FECHA no tiene $obligatorio."
+              echo "" >&2
+              echo "Sin ese archivo no hay restauración posible." >&2
+              echo "Si el respaldo es anterior al 2026-09-09, es esperable: el flujo" >&2
+              echo "todavía no lo generaba. Corré «Respaldo diario de la base» y" >&2
+              echo "volvé a intentar con la fecha de hoy." >&2
+              exit 1
+            fi
+          done
+
           # Mejor esfuerzo: sin esto la base restaura y falla iniciar sesión.
-          bajar respaldo-auth-identities.sql.gz || \
-            echo "::warning::Ese respaldo no trae auth.identities."
+          #
+          # Una descarga fallida puede dejar el archivo creado y vacío, y un
+          # `gunzip` sobre eso cortaría el paso entero por algo opcional. Se
+          # comprueba que sea un gzip válido y, si no lo es, se borra.
+          if ! bajar respaldo-auth-identities.sql.gz \
+               || ! gzip -t respaldo-auth-identities.sql.gz 2>/dev/null; then
+            echo "::warning::Ese respaldo no trae auth.identities. La base restaura igual."
+            rm -f respaldo-auth-identities.sql.gz
+          fi
 
           gunzip -f respaldo-auth-users.sql.gz
           # Con `if` y no con `[ -f ] && ...`: bajo `set -e`, una prueba que da
