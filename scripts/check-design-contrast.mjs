@@ -269,8 +269,40 @@ const plantillas = leerListaTs(apariencia, "DEFINICIONES_PLANTILLAS");
 compararListas("Plantillas", plantillas, leerConstanteTs(apariencia, "PLANTILLAS"), "la constante PLANTILLAS");
 compararListas("Plantillas", plantillas, leerRestriccionSql("plantilla_id"), "la restricción de la base");
 
+/* La tarjeta es el tercer eje y vive en los mismos cuatro sitios que los otros
+   dos. Se comprueba igual y por el mismo motivo: que el panel no ofrezca una
+   forma que la base rechaza, ni la base admita una que nadie sabe dibujar. */
+const tarjetas = leerListaTs(apariencia, "DEFINICIONES_TARJETAS");
+compararListas("Tarjetas", tarjetas, leerConstanteTs(apariencia, "TARJETAS"), "la constante TARJETAS");
+compararListas("Tarjetas", tarjetas, leerRestriccionSql("tarjeta_id"), "la restricción de la base");
+
+/* Y que cada plantilla declare qué tarjetas sabe dibujar. Sin esto, agregar una
+   plantilla y olvidarse de su lista la dejaría sin ninguna forma admitida: el
+   catálogo quedaría en blanco y el error aparecería recién en producción. */
+const bloqueTarjetasPorPlantilla = apariencia.slice(
+  apariencia.indexOf("TARJETAS_POR_PLANTILLA"),
+  apariencia.indexOf("};", apariencia.indexOf("TARJETAS_POR_PLANTILLA")),
+);
+for (const plantilla of plantillas) {
+  const declaradas = new RegExp(`${plantilla}:\\s*\\[([^\\]]*)\\]`).exec(bloqueTarjetasPorPlantilla);
+  if (!declaradas) {
+    throw new Error(`La plantilla «${plantilla}» no declara qué tarjetas sabe dibujar.`);
+  }
+  const suyas = [...declaradas[1].matchAll(/"([a-z]+)"/g)].map((c) => c[1]);
+  if (suyas.length === 0) {
+    throw new Error(`La plantilla «${plantilla}» no admite ninguna tarjeta.`);
+  }
+  const inventadas = suyas.filter((tarjeta) => !tarjetas.includes(tarjeta));
+  if (inventadas.length > 0) {
+    throw new Error(
+      `La plantilla «${plantilla}» admite tarjetas que no existen: ${inventadas.join(", ")}.`,
+    );
+  }
+}
+
 console.log(
-  `Registro sincronizado: ${plantillas.length} plantillas x ${paletas.length} paletas = ${plantillas.length * paletas.length} combinaciones.`,
+  `Registro sincronizado: ${plantillas.length} plantillas, ${tarjetas.length} tarjetas y ` +
+    `${paletas.length} paletas.`,
 );
 
 /* Una plantilla o una paleta se comprueba con su validador, nunca con una
@@ -301,8 +333,21 @@ function buscarComparacionesALaMano(identificadores) {
 
       const contenido = readFileSync(completa, "utf8");
       for (const identificador of identificadores) {
-        if (contenido.includes(`=== "${identificador}"`)) {
-          hallazgos.push(`${relativa}: === "${identificador}"`);
+        /* Se exige que lo comparado **se llame** como el eje. Buscar el valor
+           suelto encontraba `nombre === "lista"` en el panel de uso de la IA y
+           `variante === "catalogo"` en el pie del sitio: ninguno de los dos
+           tiene que ver con la apariencia, pero «lista» y «catálogo» son
+           palabras corrientes en español.
+           Y una guardia a la que hay que irle agregando excepciones termina
+           desactivada. Con el nombre de la variable adentro del patrón, lo que
+           de verdad busca —`plantilla === "feria"`, `tarjeta === "ficha"`— sigue
+           cayendo, y lo demás deja de molestar. */
+        const aMano = new RegExp(
+          `(plantilla|tarjeta|paleta)[A-Za-z]*\\s*===\\s*"${identificador}"`,
+          "i",
+        );
+        if (aMano.test(contenido)) {
+          hallazgos.push(`${relativa}: comparación a mano con "${identificador}"`);
         }
       }
     }
@@ -312,7 +357,7 @@ function buscarComparacionesALaMano(identificadores) {
   return hallazgos;
 }
 
-const comparaciones = buscarComparacionesALaMano([...plantillas, ...paletas]);
+const comparaciones = buscarComparacionesALaMano([...plantillas, ...tarjetas, ...paletas]);
 if (comparaciones.length > 0) {
   throw new Error(
     "Apariencia comparada a mano en vez de con su validador:\n" +

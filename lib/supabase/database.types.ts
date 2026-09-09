@@ -277,6 +277,7 @@ export type Database = {
           slug: string
           suscripcion_vence_en: string
           suspendido_en: string | null
+          tarjeta_id: string
           telefono_whatsapp: string
           tipo_negocio: string
           ubicacion_url: string | null
@@ -311,6 +312,7 @@ export type Database = {
           slug: string
           suscripcion_vence_en?: string
           suspendido_en?: string | null
+          tarjeta_id?: string
           telefono_whatsapp: string
           tipo_negocio: string
           ubicacion_url?: string | null
@@ -345,6 +347,7 @@ export type Database = {
           slug?: string
           suscripcion_vence_en?: string
           suspendido_en?: string | null
+          tarjeta_id?: string
           telefono_whatsapp?: string
           tipo_negocio?: string
           ubicacion_url?: string | null
@@ -724,6 +727,33 @@ export type Database = {
           },
         ]
       }
+      vigilancia_salud: {
+        Row: {
+          estado: string
+          http: number | null
+          id: number
+          latencia_ms: number | null
+          medido_en: string
+          sano: boolean
+        }
+        Insert: {
+          estado: string
+          http?: number | null
+          id?: never
+          latencia_ms?: number | null
+          medido_en?: string
+          sano: boolean
+        }
+        Update: {
+          estado?: string
+          http?: number | null
+          id?: never
+          latencia_ms?: number | null
+          medido_en?: string
+          sano?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -790,11 +820,13 @@ export type Database = {
           ultima_corrida: string
         }[]
       }
+      estado_vigilancia: { Args: never; Returns: Json }
       expirar_reservas_vencidas: {
         Args: { p_limite?: number }
         Returns: number
       }
       purgar_analitica_vieja: { Args: { p_dias?: number }; Returns: number }
+      purgar_vigilancia_salud: { Args: never; Returns: number }
       registrar_evento_analitica: {
         Args: {
           p_huella_ip: string
@@ -814,6 +846,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      registrar_medicion_salud: {
+        Args: {
+          p_estado: string
+          p_http?: number
+          p_latencia_ms?: number
+          p_sano: boolean
+        }
+        Returns: string
+      }
       resolver_etiqueta: { Args: { p_codigo: string }; Returns: string }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
@@ -823,6 +864,7 @@ export type Database = {
       uso_almacenamiento_servicio: { Args: never; Returns: Json }
       uso_ia: { Args: never; Returns: Json }
       uso_ia_servicio: { Args: never; Returns: Json }
+      vigilar_salud: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

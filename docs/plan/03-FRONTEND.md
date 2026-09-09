@@ -69,9 +69,15 @@ export const TARJETAS  = ["lista","cuadricula","retrato","ficha","servicio","est
 export const TARJETAS_POR_ARMAZON: Record<ArmazonId, readonly TarjetaId[]>;
 ```
 
-**6 × 6 no son 36 combinaciones: son 19.** La tabla `TARJETAS_POR_ARMAZON` las declara, y
-una prueba verifica que cada armazón tenga al menos una tarjeta y que la primera sea la
-predeterminada.
+**6 × 6 no son 36 combinaciones: son 18.** La tabla `TARJETAS_POR_PLANTILLA` las declara,
+y una prueba verifica que cada armazón tenga al menos una tarjeta, que la primera sea la
+predeterminada y que ninguna tarjeta quede sin que nadie la dibuje.
+
+> Corregido de 19 a 18 el 2026-09-09, al definirlas en concreto. El número lo fija
+> `lib/apariencia.test.ts`, no este documento. Y mientras las dos plantillas nuevas no
+> existan son **doce**: el registro no declara una plantilla antes de que su componente
+> exista, porque una plantilla declarada y no dibujada es una que el dueño puede elegir
+> para quedarse con el catálogo en blanco. Lo protegen dos pruebas que ya existían.
 
 ## 3. Qué pasa con las cuatro plantillas de hoy
 
