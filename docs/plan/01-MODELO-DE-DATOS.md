@@ -716,10 +716,18 @@ validador.
 `posicion`, que sería un dato más que puede quedar en dos estados que se
 contradicen.
 
-Cada banner es `{ imagen, alt, enlace }`. El texto alternativo es **obligatorio**:
-un banner puede ser el aviso de que el negocio cierra por feriado, y sin él esa
-información se pierde para quien usa lector de pantalla. La imagen y el enlace
-solo aceptan `https`.
+Cada banner es `{ imagen, alt, enlace }`.
+
+**`imagen` es una ruta del depósito, no una dirección.** Guardar la dirección
+completa hornea el proyecto de Supabase adentro del dato: una base restaurada en
+otro proyecto seguiría apuntando a las imágenes del anterior, que además puede no
+existir. Es la misma forma que ya usan el logo, la portada y el QR, y la dirección
+la arma `obtenerUrlPublicaImagenNegocio` al servirla. Corregido el 2026-09-09, al
+notar la inconsistencia con el resto de las imágenes del negocio.
+
+El **texto alternativo es obligatorio**: un banner puede ser el aviso de que el
+negocio cierra por feriado, y sin él esa información se pierde para quien usa
+lector de pantalla. El enlace, cuando lo hay, solo acepta `https`.
 
 ## 8. RLS — el patrón único
 

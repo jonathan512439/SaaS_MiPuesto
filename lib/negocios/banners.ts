@@ -17,6 +17,9 @@
  * La posición es la del arreglo: el primero va arriba y el segundo abajo. Sin
  * campo `posicion`, que sería un dato más que puede quedar en dos estados
  * contradictorios.
+ *
+ * `imagen` es una ruta dentro del depósito de negocios, no una dirección: ver el
+ * comentario de `imagenValida`.
  */
 
 export const MAXIMO_BANNERS = 2;
@@ -50,14 +53,21 @@ function enlaceValido(valor: unknown): string | null {
   }
 }
 
+/* La imagen es una **ruta dentro del depósito**, no una dirección completa.
+ *
+ * Guardar la URL entera hornea el proyecto de Supabase adentro del dato: una
+ * base restaurada en otro proyecto seguiría apuntando a las imágenes del
+ * anterior, que además puede no existir. Es la misma forma que ya usan el logo,
+ * la portada y el QR, y la dirección la arma `obtenerUrlPublicaImagenNegocio` al
+ * momento de servirla.
+ *
+ * Se descarta lo que podría salirse del depósito. Que la ruta sea de este
+ * negocio lo comprueba el servidor al guardarla, que es donde se sabe cuál es. */
 function imagenValida(valor: unknown): string | null {
   const texto = textoDe(valor);
-  if (texto === "") return null;
-  try {
-    return new URL(texto).protocol === "https:" ? texto : null;
-  } catch {
-    return null;
-  }
+  if (texto === "" || texto.length > 300) return null;
+  if (texto.includes("..") || texto.includes("\\") || texto.startsWith("/")) return null;
+  return texto;
 }
 
 /* Lee lo que haya en la columna sin confiar en nada.

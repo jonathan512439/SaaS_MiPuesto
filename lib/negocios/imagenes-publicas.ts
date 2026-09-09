@@ -18,14 +18,18 @@
 export const ANCHO_PORTADA = 800;
 export const ANCHO_LOGO = 192;
 export const ANCHO_QR = 640;
+/* El banner ocupa el ancho del catálogo, igual que la portada, así que se sirve
+   con la misma medida y por el mismo motivo: es lo que declara su `sizes`. */
+export const ANCHO_BANNER = 800;
 const CALIDAD = 70;
 
-export type RolImagenNegocio = "portada" | "logo" | "qr" | "original";
+export type RolImagenNegocio = "portada" | "logo" | "qr" | "banner" | "original";
 
 const ANCHOS: Record<Exclude<RolImagenNegocio, "original">, number> = {
   portada: ANCHO_PORTADA,
   logo: ANCHO_LOGO,
   qr: ANCHO_QR,
+  banner: ANCHO_BANNER,
 };
 
 function rutaSegura(ruta: string) {

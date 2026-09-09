@@ -239,7 +239,13 @@ export function construirCatalogoPublico(
         /* Se lee con el validador y no se pasa crudo: lo que hay en esa columna
            puede venir de una restauración o de un script, y un banner mal
            formado no tiene por qué dejar el catálogo entero sin cargar. */
-        banners: leerBanners(negocio.banners),
+        /* La ruta se convierte en dirección acá, como el logo y la portada: lo
+           guardado es una ruta del depósito, no una dirección con el proyecto
+           adentro. */
+        banners: leerBanners(negocio.banners).map((banner) => ({
+          ...banner,
+          imagen: obtenerUrlPublicaImagenNegocio(urlSupabase, banner.imagen, "banner") ?? "",
+        })),
         /* Se corrige acá y no en la plantilla: una plantilla que tiene que
            defenderse de un valor imposible es una plantilla que sabe demasiado.
            Y el caso es real: el dueño elige «retrato» en Moderna y después se

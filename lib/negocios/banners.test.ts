@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import { MAXIMO_BANNERS, leerBanners, validarBanners } from "./banners";
 
 const bueno = {
-  imagen: "https://cdn.mipuesto.com/negocios/promo.webp",
+  /* Una ruta del depósito, no una dirección: guardar la dirección completa
+     hornearía el proyecto de Supabase adentro del dato. */
+  imagen: "11111111-1111-4111-8111-111111111111/banner/promo.webp",
   alt: "20 % de descuento toda la semana",
   enlace: "https://mipuesto.com/promo",
 };
@@ -27,8 +29,16 @@ describe("leerBanners", () => {
     expect(leerBanners([{ imagen: bueno.imagen, alt: "   " }])).toEqual([]);
   });
 
-  it("descarta imágenes y enlaces que no son https", () => {
-    expect(leerBanners([{ ...bueno, imagen: "http://cdn.mipuesto.com/p.webp" }])).toEqual([]);
+  /* La ruta se descarta si podría salirse del depósito. Que además sea de este
+     negocio lo comprueba el servidor, que es donde se sabe cuál es. */
+  it("descarta rutas que podrían salirse del depósito", () => {
+    expect(leerBanners([{ ...bueno, imagen: "../otro-negocio/banner/x.webp" }])).toEqual([]);
+    expect(leerBanners([{ ...bueno, imagen: "/etc/passwd" }])).toEqual([]);
+    expect(leerBanners([{ ...bueno, imagen: "carpeta\\archivo.webp" }])).toEqual([]);
+    expect(leerBanners([{ ...bueno, imagen: "x".repeat(400) }])).toEqual([]);
+  });
+
+  it("descarta enlaces que no son https", () => {
     expect(leerBanners([{ ...bueno, enlace: "javascript:alert(1)" }])[0].enlace).toBeNull();
     expect(leerBanners([{ ...bueno, enlace: "http://ejemplo.com" }])[0].enlace).toBeNull();
   });
