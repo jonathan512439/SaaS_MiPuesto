@@ -103,7 +103,23 @@ truncate table auth.users cascade;
 -- Sin esto, el segundo ensayo choca contra las filas del primero y la base queda
 -- con un historial duplicado, que es peor que no tenerlo: `supabase db push`
 -- creería que hay migraciones aplicadas dos veces.
-truncate table supabase_migrations.schema_migrations;
+--
+-- Se borra la tabla entera y no se vacía, porque **el volcado la trae con su
+-- estructura**. Esa decisión evita tener que escribir acá las columnas de una
+-- tabla que administra el CLI de Supabase y que puede cambiar entre versiones.
+--
+-- Y va dentro de un bloque porque el esquema puede no existir: en un proyecto
+-- recién creado lo crea el CLI en su primer `db push`, y este todavía no lo tuvo.
+do $$
+begin
+  if exists (select 1 from pg_namespace where nspname = 'supabase_migrations') then
+    drop table if exists supabase_migrations.schema_migrations;
+  end if;
+end;
+$$;
+
+-- El esquema sí se crea acá: es un contenedor vacío, sin estructura que adivinar.
+create schema if not exists supabase_migrations;
 
 -- Que quede en el registro que quedó vacío de verdad.
 select

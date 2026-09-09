@@ -149,7 +149,14 @@ jobs:
           # `supabase db push` intentaría aplicar las 47 desde cero y chocaría
           # contra objetos que ya existen. Una base a la que no se le puede
           # aplicar la próxima migración no está del todo restaurada.
-          "$PG_DUMP" "$SUPABASE_DB_URL" --data-only \
+          # **Con estructura y no solo datos**, al revés que los volcados de
+          # `auth`. El proyecto donde se restaura puede no tener el esquema
+          # `supabase_migrations`: lo crea el CLI de Supabase en su primer
+          # `db push`, no viene con el proyecto. Si el volcado llevara solo los
+          # datos, habría que escribir a mano las columnas de esa tabla en el
+          # preámbulo, y el día que el CLI le agregue una, el respaldo dejaría de
+          # cargar. Que el volcado se describa a sí mismo evita esa adivinanza.
+          "$PG_DUMP" "$SUPABASE_DB_URL" \
             --table=supabase_migrations.schema_migrations \
             --no-owner --no-privileges -f respaldo-migraciones.sql
           gzip respaldo-migraciones.sql
