@@ -33,7 +33,12 @@
 -- permisos» sino «los de fábrica» —que en una función son `execute` para todos—.
 -- Sin ese `coalesce`, esas quedarían fuera del guion y se perderían al restaurar.
 
-set search_path = '';
+-- El camino de búsqueda vacío lo fija quien invoca este guion, con `PGOPTIONS`,
+-- y **no se pone acá**. Con un `set search_path = ''` en este archivo, psql
+-- escribe la etiqueta de estado «SET» en su salida, y como esa salida es el
+-- archivo de respaldo, quedaba una línea suelta arriba de todo que Postgres leía
+-- pegada a la sentencia siguiente. Pasó dos veces el 2026-09-09, de dos formas
+-- distintas: la segunda fue esta.
 
 select linea from (
   select 0 as orden, 'set search_path = public, private, extensions;' as linea
@@ -43,10 +48,15 @@ select linea from (
   union all
   select 2, 'revoke all on all functions in schema public, private from public, anon, authenticated, service_role;'
 
+  -- Los nombres se arman con el esquema y el objeto por separado, y **no** con
+  -- `::regclass` ni `::regprocedure`. Esos dos omiten el esquema de lo que ya
+  -- está visible en el camino de búsqueda, así que el guion salía calificado o
+  -- sin calificar según quién lo invocara. Un archivo de respaldo no puede
+  -- depender de eso: escrito así, dice lo mismo desde cualquier sesión.
   union all
-  select 3, format('grant %s on table %s to %s;',
+  select 3, format('grant %s on table %I.%I to %s;',
                    a.privilege_type,
-                   c.oid::regclass,
+                   n.nspname, c.relname,
                    case when a.grantee = 0 then 'public' else quote_ident(g.rolname) end)
   from pg_class c
   join pg_namespace n on n.oid = c.relnamespace and n.nspname in ('public', 'private')
@@ -56,8 +66,9 @@ select linea from (
     and (a.grantee = 0 or g.rolname in ('anon', 'authenticated', 'service_role'))
 
   union all
-  select 4, format('grant execute on function %s to %s;',
-                   p.oid::regprocedure,
+  select 4, format('grant execute on function %I.%I(%s) to %s;',
+                   n.nspname, p.proname,
+                   pg_get_function_identity_arguments(p.oid),
                    case when a.grantee = 0 then 'public' else quote_ident(g.rolname) end)
   from pg_proc p
   join pg_namespace n on n.oid = p.pronamespace and n.nspname in ('public', 'private')

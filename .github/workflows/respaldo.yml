@@ -317,11 +317,18 @@ jobs:
           # Que no se haya colado una etiqueta de estado de psql —«SET», «INSERT
           # 0 1»— entre las sentencias. Una sola línea así pega dos sentencias en
           # una y el archivo deja de ser SQL válido, aunque tenga todo lo demás.
-          if [ "$(contar '^\(SET\|INSERT [0-9]\|SELECT [0-9]\|DROP\|CREATE\)$' respaldo-storage.sql.gz)" -gt 0 ]; then
-            echo "El respaldo de Storage tiene una etiqueta de estado de psql suelta:" >&2
-            echo "no es SQL válido y no se podría aplicar." >&2
-            exit 1
-          fi
+          #
+          # Se recorren **los dos archivos generados**. La primera versión miraba
+          # solo el de Storage, y el mismo error apareció después en el de
+          # permisos por otro camino: una guardia que cubre un caso y no su
+          # gemelo es media guardia.
+          for generado in respaldo-storage.sql.gz respaldo-permisos.sql.gz; do
+            if [ "$(contar '^\(SET\|INSERT [0-9]\|SELECT [0-9]\|GRANT\|REVOKE\|DROP\|CREATE\)$' "$generado")" -gt 0 ]; then
+              echo "$generado tiene una etiqueta de estado de psql suelta:" >&2
+              echo "no es SQL válido y no se podría aplicar." >&2
+              exit 1
+            fi
+          done
 
           # Y que las políticas estén calificadas con su esquema: sin eso el
           # archivo solo sirve donde se generó, que es lo contrario de un respaldo.
@@ -350,6 +357,18 @@ jobs:
           if [ "$(contar 'grant UPDATE on table public.pedidos to authenticated' respaldo-permisos.sql.gz)" -gt 0 ]; then
             echo "El respaldo otorga UPDATE sobre pedidos a authenticated, que en" >&2
             echo "producción está revocado. Algo cambió y hay que revisarlo." >&2
+            exit 1
+          fi
+
+          # Y que todo venga calificado con su esquema. Sin esto el guion solo
+          # sirve donde el camino de búsqueda coincida con el de quien lo generó,
+          # y un permiso que no se aplica no avisa: deja la copia abierta.
+          # Las funciones necesitan su propio patrón: los paréntesis de los
+          # argumentos cortan el nombre antes del « to », así que buscarlas igual
+          # que a las tablas dejaba pasar la mitad de los casos.
+          if [ "$(contar 'on \(table [a-z_]* to \|function [a-z_]*(\)' respaldo-permisos.sql.gz)" -gt 0 ]; then
+            echo "El respaldo de permisos tiene nombres sin calificar con su esquema." >&2
+            echo "Al aplicarlo, esos permisos irían a la tabla equivocada o a ninguna." >&2
             exit 1
           fi
 
