@@ -29,6 +29,41 @@ jobs:
         with:
           node-version: 22
 
+      # Que el permiso a R2 se compruebe ANTES de volcar y no después.
+      #
+      # Con la comprobación al final, un token sin permiso de escritura costaba
+      # tres minutos de instalar Postgres y volcar la base para recién entonces
+      # avisar. Y avisaba con un 403 de la API, que no dice cuál de los diez
+      # permisos falta.
+      #
+      # Escribe un objeto de prueba y lo borra: es la única forma de comprobar el
+      # permiso que de verdad importa. Listar los baldes lo pasaría un token de
+      # solo lectura, que es justo el caso que hay que atrapar.
+      - name: Comprobar el acceso de escritura a R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BALDE: ${{ vars.R2_BUCKET_RESPALDOS }}
+        run: |
+          if [ -z "$BALDE" ]; then
+            echo "Falta la variable R2_BUCKET_RESPALDOS." >&2
+            exit 1
+          fi
+
+          echo "prueba de acceso" > prueba-de-acceso.txt
+          if ! npx --yes wrangler@4 r2 object put \
+                 "${BALDE}/.acceso/prueba.txt" \
+                 --file prueba-de-acceso.txt --remote; then
+            echo "::error::El token de Cloudflare no puede escribir en el balde ${BALDE}."
+            echo "Necesita el permiso de CUENTA «Workers R2 Storage» en modo «Edit»." >&2
+            echo "Se edita en https://dash.cloudflare.com/profile/api-tokens" >&2
+            exit 1
+          fi
+
+          npx --yes wrangler@4 r2 object delete "${BALDE}/.acceso/prueba.txt" --remote || true
+          rm -f prueba-de-acceso.txt
+          echo "El token puede escribir en ${BALDE}."
+
       # pg_dump directo y no `supabase db dump`, que exige Docker. El cliente se
       # instala en la versión del servidor —Postgres 17— porque un pg_dump más
       # viejo se niega a volcar una base más nueva.

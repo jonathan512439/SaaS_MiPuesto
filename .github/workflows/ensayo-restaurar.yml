@@ -68,20 +68,6 @@ jobs:
           fi
           echo "Destino verificado: es un proyecto distinto del de producción."
 
-      - name: Instalar el cliente de Postgres 17
-        run: |
-          sudo install -d /usr/share/postgresql-common/pgdg
-          sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
-            --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
-          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
-            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client-17
-          if [ ! -x /usr/lib/postgresql/17/bin/pg_restore ]; then
-            echo "No quedó instalado el cliente 17." >&2
-            exit 1
-          fi
-
       - name: Bajar el respaldo de R2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -96,6 +82,20 @@ jobs:
             --file respaldo-completo.dump --remote
           ls -lh respaldo-completo.dump
           echo "FECHA_RESPALDO=$FECHA" >> "$GITHUB_ENV"
+
+      - name: Instalar el cliente de Postgres 17
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          if [ ! -x /usr/lib/postgresql/17/bin/pg_restore ]; then
+            echo "No quedó instalado el cliente 17." >&2
+            exit 1
+          fi
 
       # Las extensiones no están en el volcado: no pertenecen a `public` ni a
       # `private`. Sin esto, pg_restore muere en el índice de búsqueda.
