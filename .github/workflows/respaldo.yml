@@ -182,8 +182,13 @@ jobs:
           #
           # La primera línea del archivo fija igual un `search_path` razonable:
           # cuesta nada y cubre cualquier expresión que se resista a calificarse.
-          /usr/lib/postgresql/17/bin/psql "$SUPABASE_DB_URL" -tA -o respaldo-storage.sql \
-            -c "set search_path = ''" \
+          # El camino vacío se fija en la conexión con PGOPTIONS y **no** con un
+          # `-c "set search_path = ''"`: psql escribe la etiqueta de estado de
+          # cada orden en su salida, y `-o` la manda al archivo. Así quedaba una
+          # línea suelta con «SET» arriba de todo, que Postgres leía pegada a la
+          # sentencia siguiente y hacía fallar la restauración en la línea 2.
+          PGOPTIONS='-c search_path=' /usr/lib/postgresql/17/bin/psql "$SUPABASE_DB_URL" \
+            -tA -o respaldo-storage.sql \
             -c "
             select linea from (
               select 0 as orden, 'set search_path = public, storage, extensions;' as linea
@@ -294,6 +299,23 @@ jobs:
           if [ "$depositos" -lt 1 ] || [ "$politicas" -lt 1 ]; then
             echo "El respaldo de Storage salió vacío: la base restaurada no serviría" >&2
             echo "imágenes y no tendría aislamiento en las subidas." >&2
+            exit 1
+          fi
+
+          # Que no se haya colado una etiqueta de estado de psql —«SET», «INSERT
+          # 0 1»— entre las sentencias. Una sola línea así pega dos sentencias en
+          # una y el archivo deja de ser SQL válido, aunque tenga todo lo demás.
+          if [ "$(contar '^\(SET\|INSERT [0-9]\|SELECT [0-9]\|DROP\|CREATE\)$' respaldo-storage.sql.gz)" -gt 0 ]; then
+            echo "El respaldo de Storage tiene una etiqueta de estado de psql suelta:" >&2
+            echo "no es SQL válido y no se podría aplicar." >&2
+            exit 1
+          fi
+
+          # Y que las políticas estén calificadas con su esquema: sin eso el
+          # archivo solo sirve donde se generó, que es lo contrario de un respaldo.
+          if [ "$(contar 'public\.negocios' respaldo-storage.sql.gz)" -lt 1 ]; then
+            echo "Las políticas de Storage no salieron calificadas con su esquema." >&2
+            echo "Al restaurarlas fallarían con «relation negocios does not exist»." >&2
             exit 1
           fi
 
