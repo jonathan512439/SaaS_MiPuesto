@@ -109,6 +109,14 @@ Ese historial vive en `supabase_migrations.schema_migrations`, que no es de
 `public` ni de `private`, así que no entraba en el volcado. Ahora va en su propio
 archivo y es obligatorio.
 
+Ese archivo lleva **la estructura de la tabla además de sus filas**, al revés que
+los volcados de `auth`. El motivo: un proyecto de Supabase recién creado no tiene
+el esquema `supabase_migrations` —lo crea el CLI en su primer `db push`—, y si el
+volcado trajera solo los datos habría que escribir las columnas de esa tabla a
+mano en el preámbulo. Es una tabla que administra el CLI y que puede cambiar entre
+versiones: el día que le agreguen una columna, el respaldo dejaría de cargar en
+silencio. Que el volcado se describa a sí mismo evita esa adivinanza.
+
 Importa para dos cosas distintas: en una recuperación de verdad, permite seguir
 desplegando sobre la base restaurada; y para el plan v3, es lo que convierte la
 base de ensayo en una copia de producción **a la que se le pueden probar las
