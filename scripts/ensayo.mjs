@@ -63,19 +63,59 @@ function describirClave(valor) {
   const limpio = valor.trim();
   const sobra = limpio !== valor;
 
-  if (limpio.startsWith("sb_publishable_")) return { rol: "anon", ref: null, sobra };
-  if (limpio.startsWith("sb_secret_")) return { rol: "service_role", ref: null, sobra };
+  if (limpio.startsWith("sb_publishable_")) {
+    return { rol: "anon", ref: null, sistema: "nuevo", sobra };
+  }
+  if (limpio.startsWith("sb_secret_")) {
+    return { rol: "service_role", ref: null, sistema: "nuevo", sobra };
+  }
 
   if (limpio.startsWith("eyJ")) {
     try {
       const carga = JSON.parse(Buffer.from(limpio.split(".")[1], "base64url").toString());
-      return { rol: carga.role ?? "desconocido", ref: carga.ref ?? null, sobra };
+      return { rol: carga.role ?? "desconocido", ref: carga.ref ?? null, sistema: "heredado", sobra };
     } catch {
-      return { rol: "ilegible", ref: null, sobra };
+      return { rol: "ilegible", ref: null, sistema: "heredado", sobra };
     }
   }
 
-  return { rol: "no parece una clave de Supabase", ref: null, sobra };
+  return { rol: "no parece una clave de Supabase", ref: null, sistema: null, sobra };
+}
+
+/* Dos avisos que no son errores pero explican fallos que parecen otra cosa.
+   No cortan la ejecución: puede que en algún proyecto funcionen igual, y
+   negarse por una sospecha bloquearía trabajo legítimo. */
+function avisosDeConfiguracion(cadena, publica, servicio) {
+  const avisos = [];
+
+  /* El pooler de Supabase da dos puertos: 5432 es modo sesión y 6543 es modo
+     transacción. Las migraciones necesitan sesión, y en transacción fallan con
+     errores que hablan de sentencias preparadas y no del puerto. */
+  const puerto = new URL(cadena).port;
+  if (puerto === "6543") {
+    avisos.push(
+      "ENSAYO_DB_URL usa el puerto 6543, que es el pooler en modo transacción.\n" +
+        "  Para `npm run ensayo:push` hace falta el modo sesión: mismo anfitrión,\n" +
+        "  puerto 5432. En Supabase es la pestaña «Session pooler».",
+    );
+  }
+
+  /* Supabase tiene dos sistemas de claves conviviendo. En un proyecto creado
+     con el nuevo, **las claves heredadas pueden estar desactivadas**, y usar una
+     da «Invalid API key» aunque sea la clave correcta del proyecto correcto. */
+  const sistemas = new Set(
+    [publica, servicio].filter(Boolean).map((clave) => describirClave(clave).sistema),
+  );
+  if (sistemas.has("nuevo") && sistemas.has("heredado")) {
+    avisos.push(
+      "Las dos claves son de sistemas distintos: una nueva (sb_...) y una\n" +
+        "  heredada (eyJ...). En un proyecto creado con el sistema nuevo, las\n" +
+        "  heredadas pueden estar **desactivadas**, y entonces dan «Invalid API key»\n" +
+        "  aunque sean del proyecto correcto. Usá las dos del mismo sistema.",
+    );
+  }
+
+  return avisos;
 }
 
 function comprobarClave(nombre, valor, rolEsperado, refEsperado) {
@@ -199,16 +239,36 @@ if (accion === "ver") {
       console.log(`${nombre}: sin cargar`);
       continue;
     }
-    const { rol, ref, sobra } = describirClave(valor);
+    const { rol, ref, sistema, sobra } = describirClave(valor);
     const notas = [
       rol === esperado ? "rol correcto" : `ROL EQUIVOCADO: dice «${rol}»`,
+      sistema === "nuevo" ? "sistema nuevo" : "sistema heredado",
       ref === null ? "proyecto no declarado" : `proyecto ${ref}`,
       sobra ? "TIENE ESPACIOS ALREDEDOR" : null,
     ].filter(Boolean);
     console.log(`${nombre}: ${notas.join(", ")}`);
   }
+
+  for (const aviso of avisosDeConfiguracion(
+    url,
+    process.env.ENSAYO_PUBLISHABLE_KEY,
+    process.env.ENSAYO_SERVICE_ROLE_KEY,
+  )) {
+    console.log(`
+Aviso: ${aviso}`);
+  }
 } else if (accion === "push") {
-  await correr(process.execPath, [CLI, "db", "push", "--db-url", urlDeEnsayo()]);
+  const cadena = urlDeEnsayo();
+  for (const aviso of avisosDeConfiguracion(
+    cadena,
+    process.env.ENSAYO_PUBLISHABLE_KEY,
+    process.env.ENSAYO_SERVICE_ROLE_KEY,
+  )) {
+    console.warn(`
+Aviso: ${aviso}
+`);
+  }
+  await correr(process.execPath, [CLI, "db", "push", "--db-url", cadena]);
 } else if (accion === "estructura") {
   const archivo = process.argv[3] ?? "supabase/tests/remote/fase2-audit.sql";
   await correr(process.execPath, [CLI, "db", "query", "--db-url", urlDeEnsayo(), "--file", archivo]);
@@ -254,6 +314,12 @@ if (accion === "ver") {
         `  La cadena de conexión apunta a:  ${refEnsayo}\n\n` +
         "Las cuatro variables ENSAYO_* tienen que salir del mismo proyecto.",
     );
+  }
+
+  for (const aviso of avisosDeConfiguracion(process.env.ENSAYO_DB_URL, publica, servicio)) {
+    console.warn(`
+Aviso: ${aviso}
+`);
   }
 
   comprobarClave("ENSAYO_PUBLISHABLE_KEY", publica, "anon", refEnsayo);
