@@ -33,7 +33,7 @@ viejo se niega a volcar una base más nueva.
 Antes de subir comprueba que los archivos pesen algo: un volcado de cero bytes
 sube igual y da una falsa sensación de respaldo.
 
-Genera siete archivos y los sube a R2 bajo la fecha del día:
+Genera ocho archivos y los sube a R2 bajo la fecha del día:
 
 | Archivo | Qué trae |
 |---|---|
@@ -44,6 +44,7 @@ Genera siete archivos y los sube a R2 bajo la fecha del día:
 | `respaldo-auth-identities.sql.gz` | Para poder iniciar sesión. Puede faltar |
 | `respaldo-migraciones.sql.gz` | El historial de migraciones. **Obligatorio**, ver abajo |
 | `respaldo-storage.sql.gz` | Los depósitos y sus políticas. **Obligatorio**, ver abajo |
+| `respaldo-permisos.sql.gz` | Los permisos de cada tabla y función. **Obligatorio**, ver abajo |
 
 ### Por qué el que vale es el `.dump` y no los dos de texto
 
@@ -137,6 +138,41 @@ En vez de copiar esas políticas de las migraciones a un archivo aparte —que s
 desincronizaría en silencio— el respaldo las **genera leyendo la base viva**, con
 una consulta sobre `pg_policies`. Lo que se respalda es lo que hay, no lo que
 alguien recuerda que había, y por eso no necesita una guardia que lo vigile.
+
+### Los permisos, o el respaldo que restauraba un sistema menos seguro
+
+**El defecto más grave de los ocho**, encontrado el 2026-09-09 cuando el recorrido
+de aislamiento falló con «pedidos: la actualización sin permiso no fue rechazada
+como se esperaba».
+
+`pg_dump --no-privileges` descarta los permisos, y este sistema depende de que
+estén **recortados**:
+
+| Tabla | `authenticated` tiene | Y no tiene |
+|---|---|---|
+| `pedidos` | `select` | `update`, `insert`, `delete` |
+| `pedido_items` | `select` | `update`, `insert`, `delete` |
+| `negocios` | `select`, `insert`, `delete` | **`update`** — los cambios pasan por funciones que auditan |
+
+Varias migraciones revocan eso a propósito. Al restaurar sin permisos, Supabase
+repone los suyos por defecto y **la copia queda más permisiva que el original**.
+Es la peor forma de fallar que tiene un respaldo: no se pierde nada visible, se
+gana algo invisible.
+
+La corrección sigue el mismo camino que Storage: `supabase/restauracion/`
+`generar-permisos.sql` lee los catálogos de la base viva y emite el guion que
+reproduce ese estado. Primero revoca todo para los cuatro destinatarios que
+importan —`public`, `anon`, `authenticated`, `service_role`— y después otorga
+exactamente lo que hay, tablas y funciones.
+
+La pieza no obvia de ese guion es `acldefault`. Cuando un objeto nunca tuvo un
+`grant` explícito su columna de permisos es nula, y **nula no significa «sin
+permisos» sino «los de fábrica»** —que en una función son `execute` para todos—.
+Sin resolver eso, esos objetos quedarían fuera del guion y se perderían.
+
+Y el ensayo ahora comprueba **lo que la copia no tiene que poder**, no solo lo que
+puede. Esa era la falta de fondo: todas las comprobaciones preguntaban qué se
+podía hacer, ninguna qué no.
 
 ## Lo que hay que configurar una sola vez
 

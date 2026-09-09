@@ -93,7 +93,7 @@ jobs:
           # respaldos viejos no sirven, y es mejor saberlo acá que a mitad de una
           # restauración de verdad.
           for obligatorio in respaldo-completo.dump respaldo-auth-users.sql.gz \
-                             respaldo-migraciones.sql.gz respaldo-storage.sql.gz; do
+                             respaldo-migraciones.sql.gz respaldo-storage.sql.gz respaldo-permisos.sql.gz; do
             if ! bajar "$obligatorio"; then
               echo "::error::El respaldo del $FECHA no tiene $obligatorio."
               echo "" >&2
@@ -116,7 +116,7 @@ jobs:
             rm -f respaldo-auth-identities.sql.gz
           fi
 
-          gunzip -f respaldo-auth-users.sql.gz respaldo-migraciones.sql.gz respaldo-storage.sql.gz
+          gunzip -f respaldo-auth-users.sql.gz respaldo-migraciones.sql.gz respaldo-storage.sql.gz respaldo-permisos.sql.gz
           # Con `if` y no con `[ -f ] && ...`: bajo `set -e`, una prueba que da
           # falso al final de una tubería corta el paso entero, y este archivo
           # puede legítimamente no estar.
@@ -246,6 +246,20 @@ jobs:
             echo "migración es esperable; si no, hay que revisarlo." >&2
           fi
 
+      # Los permisos, que el volcado descarta con --no-privileges.
+      #
+      # Va DESPUÉS de pg_restore, porque otorga sobre tablas que tienen que
+      # existir, y es lo que devuelve a la base restaurada el modelo de permisos
+      # del original: `authenticated` con solo `select` sobre `pedidos`, sin
+      # `update` sobre `negocios`. Sin este paso la copia queda más permisiva que
+      # producción, que es la peor forma de fallar de un respaldo.
+      - name: Restaurar los permisos
+        env:
+          ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
+        run: |
+          /usr/lib/postgresql/17/bin/psql "$ENSAYO_DB_URL"             -v ON_ERROR_STOP=1 -q -f respaldo-permisos.sql
+          echo "Permisos restaurados."
+
       # Los depósitos de Storage y sus políticas, que viven en el esquema
       # `storage` y por eso no vienen en el volcado. Sin esto la base restaurada
       # no sirve ninguna imagen y, peor, acepta subidas sin comprobar de quién es
@@ -339,6 +353,31 @@ jobs:
             exit 1
           fi
           echo "anon puede leer negocios, productos y categorías."
+
+          # Y lo que NO tiene que poder.
+          #
+          # Es la comprobación que faltaba. El recorrido de aislamiento falló el
+          # 2026-09-09 con «pedidos: la actualización sin permiso no fue rechazada»,
+          # porque la copia restaurada le daba `update` sobre `pedidos` a cualquier
+          # dueño, y **ninguna comprobación de este flujo lo miraba**: todas
+          # preguntaban qué se podía hacer, ninguna qué no.
+          demasiado=$("$PSQL" "$ENSAYO_DB_URL" -tAc \
+            "select string_agg(t.descripcion, ', ')
+               from (values
+                 ('UPDATE sobre pedidos',
+                  has_table_privilege('authenticated', 'public.pedidos', 'UPDATE')),
+                 ('UPDATE sobre negocios',
+                  has_table_privilege('authenticated', 'public.negocios', 'UPDATE')),
+                 ('UPDATE sobre pedido_items',
+                  has_table_privilege('authenticated', 'public.pedido_items', 'UPDATE'))
+               ) as t(descripcion, lo_tiene)
+              where t.lo_tiene;")
+          if [ -n "$demasiado" ]; then
+            echo "::error::La copia restaurada es MÁS permisiva que producción: $demasiado."
+            echo "Los permisos recortados no se restauraron." >&2
+            exit 1
+          fi
+          echo "authenticated no puede escribir donde no debe."
 
           echo "La base restaurada tiene aislamiento y es alcanzable por la API."
 

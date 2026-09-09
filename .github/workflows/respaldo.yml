@@ -215,6 +215,18 @@ jobs:
             ) generado order by orden;"
           gzip respaldo-storage.sql
 
+          # Los permisos, que `pg_dump --no-privileges` descarta.
+          #
+          # Este sistema depende de permisos **recortados**: `authenticated` solo
+          # tiene `select` sobre `pedidos`, y sobre `negocios` no tiene `update`.
+          # Sin esto, la base restaurada queda más permisiva que el original — un
+          # respaldo que restaura un sistema menos seguro que el que respaldó.
+          # El motivo completo está en el encabezado del guion que se corre acá.
+          PGOPTIONS='-c search_path=' /usr/lib/postgresql/17/bin/psql "$SUPABASE_DB_URL" \
+            -tA -o respaldo-permisos.sql \
+            -f supabase/restauracion/generar-permisos.sql
+          gzip respaldo-permisos.sql
+
           # Las identidades sí son mejor esfuerzo: sin ellas la base restaura
           # entera y lo que falla es iniciar sesión, que se resuelve con un
           # enlace de acceso. Sin `users` no restaura nada.
@@ -316,6 +328,28 @@ jobs:
           if [ "$(contar 'public\.negocios' respaldo-storage.sql.gz)" -lt 1 ]; then
             echo "Las políticas de Storage no salieron calificadas con su esquema." >&2
             echo "Al restaurarlas fallarían con «relation negocios does not exist»." >&2
+            exit 1
+          fi
+
+          # Los permisos: que estén, que empiecen revocando y que conserven el
+          # recorte que hace segura a esta base. Se comprueba una condición
+          # concreta y no un conteo: que `authenticated` **no** reciba `update`
+          # sobre `pedidos`. Es exactamente lo que se perdía.
+          permisos=$(contar '^grant ' respaldo-permisos.sql.gz)
+          echo "Permisos respaldados: $permisos."
+          if [ "$permisos" -lt 50 ]; then
+            echo "El respaldo de permisos salió corto: la base restaurada no" >&2
+            echo "reproduciría el modelo de permisos del original." >&2
+            exit 1
+          fi
+          if [ "$(contar '^revoke all on all tables' respaldo-permisos.sql.gz)" -lt 1 ]; then
+            echo "El respaldo de permisos no revoca antes de otorgar: los permisos" >&2
+            echo "por defecto de Supabase quedarían sumados a los reales." >&2
+            exit 1
+          fi
+          if [ "$(contar 'grant UPDATE on table public.pedidos to authenticated' respaldo-permisos.sql.gz)" -gt 0 ]; then
+            echo "El respaldo otorga UPDATE sobre pedidos a authenticated, que en" >&2
+            echo "producción está revocado. Algo cambió y hay que revisarlo." >&2
             exit 1
           fi
 
