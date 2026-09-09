@@ -126,12 +126,34 @@ workflow*. Se le puede dar una fecha; vacío toma el respaldo de hoy.
 | Paso | Qué pasa si falla |
 |---|---|
 | 1. Comprueba que el destino **no es producción** | Se niega en diez segundos, sin tocar nada |
-| 2. Instala el cliente de Postgres 17 | Falla ahí, no doce líneas después |
-| 3. Baja `respaldo-completo.dump` de R2 | No hay respaldo de esa fecha |
-| 4. Aplica `01-preambulo.sql` (extensiones) | — |
-| 5. `pg_restore --clean --if-exists --exit-on-error` | **Acá se ve si el respaldo sirve** |
-| 6. Aplica `02-postambulo.sql` (tareas programadas) | — |
-| 7. Cuenta filas por tabla y políticas RLS | Se lee en el registro |
+| 2. Baja `respaldo-completo.dump` de R2 | No hay respaldo de esa fecha, o falta permiso |
+| 3. Instala el cliente de Postgres 17 | Falla ahí, no doce líneas después |
+| 4. Aplica `00-vaciar.sql` | Deja la base vacía de lo nuestro: es lo que hace el ensayo repetible |
+| 5. Aplica `01-preambulo.sql` (extensiones) | — |
+| 6. `pg_restore --exit-on-error` | **Acá se ve si el respaldo sirve** |
+| 7. Aplica `02-postambulo.sql` (tareas programadas) | — |
+| 8. Cuenta filas por tabla | Se lee en el registro |
+| 9. **Comprueba que la base es usable** | Menos de 20 políticas RLS, o cero permisos de `anon`, y falla |
+
+### Por qué vaciar es un paso aparte y no `--clean`
+
+El primer intento usaba `pg_restore --clean --if-exists`. No sirve: el
+`if exists` de `drop policy` protege contra que falte **la política**, no contra
+que falte **la tabla**, así que sobre una base recién creada muere en la primera
+sentencia con «relation public.vigilancia_salud does not exist». Lo que prometía
+hacer el ensayo repetible lo hacía imposible la primera vez.
+
+La salida evidente —`drop schema public cascade`— es peor y de una forma que no
+se ve. Supabase configura **privilegios por defecto sobre el esquema** para que
+las tablas nuevas queden alcanzables por `anon` y `authenticated`; esa
+configuración vive atada al esquema, así que borrarlo la borra. Como el volcado
+va con `--no-privileges`, la base restaurada quedaría con todas las tablas y sin
+permisos, y la API devolvería «permission denied» a todo — que se confunde con
+RLS funcionando bien. Por eso `00-vaciar.sql` **vacía los esquemas y los deja en
+pie**, y saltea los objetos que pertenecen a una extensión.
+
+Y por eso el paso 9 comprueba los permisos de `anon` además de las políticas: son
+las dos cosas que se pueden perder sin que nada falle.
 
 ### El seguro
 
