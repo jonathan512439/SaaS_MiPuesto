@@ -19,11 +19,13 @@ export const PLANTILLAS = [
   "moderna",
   "minimal",
   "feria",
-  /* `catalogo` y `reserva` llegan con sus componentes, en el paso 1.3 de esta
-     fase. No se declaran antes: dos pruebas del proyecto exigen que cada
-     plantilla del registro tenga su archivo, y tienen razón — una plantilla
-     declarada y no dibujada es una que el dueño puede elegir para quedarse con
-     el catálogo en blanco. */
+  /* Buscador arriba de todo y categorías como filtro. Para ferretería,
+     repuestos y electropartes: rubros donde la primera pregunta del comprador es
+     «¿tenés esto?» y no «¿qué tenés?». */
+  "catalogo",
+  /* `reserva` llega con la agenda, en la fase 6. Construirla antes sería un
+     armazón cuyo rasgo distintivo —el calendario primero— no existe todavía, o
+     sea Moderna con otra portada. */
 ] as const;
 
 /* Cómo se presenta un producto. Es el eje que faltaba.
@@ -82,6 +84,7 @@ export const TARJETAS_POR_PLANTILLA: Record<PlantillaId, ReadonlyArray<TarjetaId
      para listar servicios, y esa es la forma de listarlos. */
   minimal: ["servicio"],
   feria: ["ficha", "lista", "cuadricula"],
+  catalogo: ["ficha", "cuadricula", "lista"],
 };
 
 export function tarjetaPredeterminada(plantilla: PlantillaId): TarjetaId {
@@ -133,6 +136,12 @@ export const DEFINICIONES_PLANTILLAS: ReadonlyArray<{
     nombre: "Feria",
     enfoque: "Lista de precios",
     recomendacion: "Para puestos de mercado y catálogos largos donde el precio decide la compra.",
+  },
+  {
+    id: "catalogo",
+    nombre: "Catálogo técnico",
+    enfoque: "Se busca antes de mirar",
+    recomendacion: "Para ferretería, repuestos y electrónica, donde se llega buscando algo concreto.",
   },
 ];
 

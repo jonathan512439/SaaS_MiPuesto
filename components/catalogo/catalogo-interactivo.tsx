@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -10,7 +9,6 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type ComponentType,
 } from "react";
 
 import type { PaletaId, PlantillaId } from "../../lib/apariencia";
@@ -22,16 +20,12 @@ import {
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
 import { guardarPedido, leerPedidoGuardado } from "../../lib/pedidos/pedido-guardado";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
-import type {
-  DatosPlantilla,
-  ProductoPlantilla,
-  PropiedadesPlantilla,
-} from "../../lib/plantillas/tipos";
+import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
 import { HojaProducto } from "./hoja-producto";
 import { HojaCatalogo } from "./hoja-catalogo";
-import { Esqueleto } from "../ui";
+import { VISTAS_PLANTILLA } from "../templates/vistas";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./catalogo-interactivo.module.css";
 import { patronDeRubro } from "../../lib/patrones-fondo";
@@ -51,49 +45,16 @@ type PropiedadesCatalogoInteractivo = {
    cada tecla sería un viaje al servidor. */
 const ESPERA_BUSQUEDA = 350;
 
-/* La plantilla llega en su propio chunk. En una conexion lenta ese hueco es
-   justo lo primero que ve el cliente, asi que reservamos su alto. */
-function CatalogoCargando() {
-  return (
-    <div aria-hidden="true" className={styles.cargando}>
-      <Esqueleto variante="imagen" />
-      <Esqueleto variante="titulo" />
-      <Esqueleto />
-      <Esqueleto />
-    </div>
-  );
-}
-
-const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
-  clasica: dynamic(
-    () =>
-      import("../templates/clasica/plantilla-clasica").then(
-        (modulo) => modulo.PlantillaClasica,
-      ),
-    { loading: CatalogoCargando },
-  ),
-  moderna: dynamic(
-    () =>
-      import("../templates/moderna/plantilla-moderna").then(
-        (modulo) => modulo.PlantillaModerna,
-      ),
-    { loading: CatalogoCargando },
-  ),
-  minimal: dynamic(
-    () =>
-      import("../templates/minimal/plantilla-minimal").then(
-        (modulo) => modulo.PlantillaMinimal,
-      ),
-    { loading: CatalogoCargando },
-  ),
-  feria: dynamic(
-    () =>
-      import("../templates/feria/plantilla-feria").then(
-        (modulo) => modulo.PlantillaFeria,
-      ),
-    { loading: CatalogoCargando },
-  ),
-};
+/* El registro compartido, no una copia.
+ *
+ * Acá había un cuarto mapa de plantillas, con su propio `dynamic` por cada una.
+ * `vistas.tsx` existe justamente para que haya uno solo, y aun así se habían
+ * juntado tres: agregar una plantilla obligaba a acordarse de tres archivos, que
+ * es la falla más común de este proyecto.
+ *
+ * Lo que se pierde es el esqueleto propio mientras baja el módulo. Lo que se
+ * gana es que una plantilla nueva aparezca en los tres lugares o en ninguno. */
+const VISTAS = VISTAS_PLANTILLA;
 
 function suscribirInmutable() {
   return () => {};

@@ -45,4 +45,8 @@ export const VISTAS_PLANTILLA: Record<PlantillaId, ComponentType<PropiedadesPlan
     () => import("./feria/plantilla-feria").then((m) => m.PlantillaFeria),
     { loading: VistaCargando },
   ),
+  catalogo: dynamic(
+    () => import("./catalogo/plantilla-catalogo").then((m) => m.PlantillaCatalogo),
+    { loading: VistaCargando },
+  ),
 };

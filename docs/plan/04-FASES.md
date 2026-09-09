@@ -93,8 +93,11 @@ existen**. Es la fase que se puede mostrar a un prospecto la semana que viene.
 - Seis tarjetas: `lista`, `cuadricula`, `retrato`, `ficha`, `servicio`, `estadia`.
   Las de la fase 1 dibujan lo que hay hoy; `ficha` deja el hueco de los atributos
   destacados listo y vacío.
-- Dos armazones nuevos: `catalogo` y `reserva`. El de `reserva` muestra por ahora el
-  bloque de contacto donde después irá el calendario.
+- Un armazón nuevo: `catalogo`. Buscador arriba de todo, identidad reducida a una
+  franja y categorías como filtro.
+- **`reserva` se aplaza a la fase 6, con la agenda.** Se define por poner el
+  calendario primero, y construirlo antes daría un armazón cuyo rasgo distintivo
+  no existe: Moderna con otra portada. Decidido el 2026-09-09, al llegar a él.
 - Selector de tarjeta en `dashboard/plantilla`, con vista previa.
 - Extender `hoja-de-contactos.tsx` a las combinaciones válidas.
 - **Los dos banners del catálogo**, pedidos el 2026-09-09. Son del armazón
@@ -131,7 +134,7 @@ update public.negocios set tarjeta_id = case plantilla_id
 |---|---|
 | Cada armazón declara al menos una tarjeta, y la primera es la predeterminada | `lib/apariencia.test.ts` |
 | Los seis armazones y las seis tarjetas están en el CSS, el registro, el validador y la base | `scripts/check-design-contrast.mjs`, extendido |
-| Las 19 combinaciones válidas pasan el contraste con las 7 paletas | `npm run test:contraste` |
+| Las combinaciones válidas pasan el contraste con las 7 paletas | `npm run test:contraste` |
 | Cada negocio existente conserva su aspecto: la migración asigna la tarjeta equivalente | `supabase/tests/remote/fase1-tarjetas.sql` |
 | Ninguna tarjeta introduce color, tamaño ni espaciado fuera de los tokens | `npm run test:tokens` |
 
@@ -139,9 +142,9 @@ update public.negocios set tarjeta_id = case plantilla_id
 
 - [ ] Los tres negocios de prueba se ven **igual que antes de la fase** en producción.
 - [ ] Se puede cambiar la tarjeta desde el panel y el cambio se ve en el catálogo público.
-- [ ] `/estilos/combinaciones` muestra las 19 combinaciones y ninguna está rota.
-- [ ] El armazón `catalogo` tiene el buscador arriba y el `reserva` el bloque de contacto
-      primero, comprobado en un teléfono real.
+- [ ] `/estilos/combinaciones` muestra las combinaciones declaradas y ninguna está rota.
+- [ ] El armazón `catalogo` tiene el buscador arriba de todo, comprobado en un teléfono
+      real.
 - [ ] El paquete de JavaScript del catálogo público **no creció** respecto de la medición
       previa a la fase.
 

@@ -1,7 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useState, type ComponentType, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import {
   DEFINICIONES_PALETAS,
@@ -10,9 +9,10 @@ import {
   type PlantillaId,
 } from "../../lib/apariencia";
 import { patronDeRubro } from "../../lib/patrones-fondo";
-import type { DatosPlantilla, PropiedadesPlantilla } from "../../lib/plantillas/tipos";
+import type { DatosPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
-import { Boton, Esqueleto, useAvisos } from "../ui";
+import { VISTAS_PLANTILLA } from "../templates/vistas";
+import { Boton, useAvisos } from "../ui";
 import styles from "./selector-apariencia.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
 
@@ -23,41 +23,9 @@ type PropiedadesSelector = {
   patronInicial: boolean;
 };
 
-/* El chunk de cada plantilla baja al elegirla. Sin este relleno el area de la
-   vista previa queda en blanco y el alto salta cuando llega el modulo. */
-function VistaPreviaCargando() {
-  return (
-    <div aria-hidden="true" className={styles.cargandoVista}>
-      <Esqueleto variante="imagen" />
-      <Esqueleto variante="titulo" />
-      <Esqueleto />
-      <Esqueleto />
-    </div>
-  );
-}
-
-const VISTAS: Record<PlantillaId, ComponentType<PropiedadesPlantilla>> = {
-  clasica: dynamic(
-    () =>
-      import("../templates/clasica/plantilla-clasica").then((modulo) => modulo.PlantillaClasica),
-    { loading: VistaPreviaCargando },
-  ),
-  moderna: dynamic(
-    () =>
-      import("../templates/moderna/plantilla-moderna").then((modulo) => modulo.PlantillaModerna),
-    { loading: VistaPreviaCargando },
-  ),
-  minimal: dynamic(
-    () =>
-      import("../templates/minimal/plantilla-minimal").then((modulo) => modulo.PlantillaMinimal),
-    { loading: VistaPreviaCargando },
-  ),
-  feria: dynamic(
-    () =>
-      import("../templates/feria/plantilla-feria").then((modulo) => modulo.PlantillaFeria),
-    { loading: VistaPreviaCargando },
-  ),
-};
+/* El mismo registro compartido que usa el catálogo público. Ver el comentario en
+   `catalogo-interactivo.tsx`: había tres copias de este mapa. */
+const VISTAS = VISTAS_PLANTILLA;
 
 export function SelectorApariencia({
   datos,
