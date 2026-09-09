@@ -167,31 +167,24 @@ begin
     raise exception 'Auditoría de Storage: se esperaban 4 políticas y se encontraron %', cantidad;
   end if;
 
-  select count(*)
-  into cantidad
-  from public.negocios
-  where id in (
-    '20000000-0000-4000-8000-000000000001'::uuid,
-    '20000000-0000-4000-8000-000000000002'::uuid,
-    '20000000-0000-4000-8000-000000000003'::uuid
-  );
+  /* Acá había dos comprobaciones más: que los tres negocios de ejemplo del seed
+     existieran y que cubrieran las tres modalidades.
 
-  if cantidad <> 3 then
-    raise exception 'Auditoría seed: faltan negocios base; se encontraron % de 3', cantidad;
-  end if;
+     Se quitaron el 2026-09-09 porque **afirmaban sobre datos, no sobre
+     estructura**, y este archivo corre contra producción. Nacieron en la fase 2,
+     cuando esos tres negocios eran una semilla recién sembrada; hoy son negocios
+     reales que el dueño usa para probar. Al cambiarle la modalidad a uno de
+     ellos —«Sabor Camba» pasó de catálogo estático a tienda virtual— la
+     auditoría empezó a fallar por un uso perfectamente legítimo.
 
-  select count(distinct tipo_negocio)
-  into cantidad
-  from public.negocios
-  where id in (
-    '20000000-0000-4000-8000-000000000001'::uuid,
-    '20000000-0000-4000-8000-000000000002'::uuid,
-    '20000000-0000-4000-8000-000000000003'::uuid
-  );
+     Una auditoría de seguridad que falla por algo que no es un problema de
+     seguridad se termina ignorando, y una ignorada es peor que ninguna: además
+     tranquiliza. Todo lo que este archivo comprueba de verdad —RLS, políticas,
+     permisos de `anon`, restricciones, Storage— sigue igual, y es lo que
+     corresponde preguntarle a producción.
 
-  if cantidad <> 3 then
-    raise exception 'Auditoría seed: los negocios base no representan las 3 modalidades';
-  end if;
+     Lo que se perdió es una comprobación del seed, y el seed se prueba donde
+     vive: en la base local, con `npm run test:rls`. */
 end;
 $$;
 
@@ -199,7 +192,5 @@ select
   9 as tablas_con_rls,
   8 as tablas_con_politicas,
   2 as usuarios_prueba_requeridos,
-  3 as negocios_seed,
-  3 as modalidades_seed,
   4 as politicas_storage,
   'ok' as resultado;
