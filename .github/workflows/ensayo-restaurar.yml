@@ -160,10 +160,6 @@ jobs:
           /usr/lib/postgresql/17/bin/psql "$ENSAYO_DB_URL" \
             -v ON_ERROR_STOP=1 -f supabase/restauracion/01-preambulo.sql
 
-      # Sin `--clean`: la base ya se vació en el paso anterior. Con
-      # `--exit-on-error`, que es lo que convierte esto en una comprobación: un
-      # pg_restore que sigue después de un error termina en verde con la mitad de
-      # la base, y eso es peor que fallar.
       # Las cuentas van ANTES del volcado, y ese orden no es preferencia.
       #
       # Siete claves foráneas de `public` apuntan a `auth.users`, incluida
@@ -192,6 +188,10 @@ jobs:
             exit 1
           fi
 
+      # Sin `--clean`: la base ya se vació en el paso correspondiente. Con
+      # `--exit-on-error`, que es lo que convierte esto en una comprobación: un
+      # pg_restore que sigue después de un error termina en verde con la mitad de
+      # la base, y eso es peor que fallar.
       - name: Restaurar
         env:
           ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
@@ -257,11 +257,23 @@ jobs:
 
           # Una base con datos y sin políticas es una base abierta: cualquiera
           # leería los pedidos de cualquier negocio.
+          #
+          # Se compara contra **lo que el volcado dice que trae**, no contra un
+          # número escrito acá. La primera versión exigía veinte y había
+          # dieciocho: un umbral inventado que fallaba con una restauración
+          # correcta, y que además habría que recordar subir cada vez que una
+          # fase agregue tablas. El índice del volcado ya sabe la respuesta.
+          esperadas=$(( $(grep -cE '^[0-9]+; [0-9]+ [0-9]+ POLICY public ' indice-completo.txt || true) ))
           politicas=$("$PSQL" "$ENSAYO_DB_URL" -tAc \
             "select count(*) from pg_policies where schemaname = 'public';")
-          echo "Políticas RLS en public: $politicas"
-          if [ "$politicas" -lt 20 ]; then
-            echo "::error::Solo $politicas políticas RLS. El volcado no trajo el aislamiento."
+          echo "Políticas RLS en public: $politicas (el volcado trae $esperadas)"
+
+          if [ "$esperadas" -lt 1 ]; then
+            echo "::error::El volcado no trae ninguna política RLS. El respaldo está mal hecho."
+            exit 1
+          fi
+          if [ "$politicas" -ne "$esperadas" ]; then
+            echo "::error::Se restauraron $politicas de $esperadas políticas: falta aislamiento."
             exit 1
           fi
 
@@ -270,15 +282,21 @@ jobs:
           # sobre el esquema. Si esa reposición no ocurre, la base queda completa
           # y la API contesta «permission denied» a todo, que se confunde con RLS
           # funcionando. Comprobarlo es la diferencia entre las dos cosas.
-          permisos=$("$PSQL" "$ENSAYO_DB_URL" -tAc \
-            "select count(*) from information_schema.role_table_grants
-              where grantee = 'anon' and table_schema = 'public';")
-          echo "Permisos de anon sobre public: $permisos"
-          if [ "$permisos" -lt 1 ]; then
-            echo "::error::anon no tiene ningún permiso: la API no podría leer el catálogo."
-            echo "Hay que reponer los grants a mano antes de dar el ensayo por bueno." >&2
+          # Se preguntan las tres tablas que el catálogo público necesita de
+          # verdad, y no un conteo: «anon tiene algún permiso en algún lado» no
+          # dice que pueda leer un catálogo.
+          faltan=$("$PSQL" "$ENSAYO_DB_URL" -tAc \
+            "select string_agg(t.tabla, ', ')
+               from (values ('negocios'), ('productos'), ('categorias')) as t(tabla)
+              where not has_table_privilege('anon', 'public.' || t.tabla, 'SELECT');")
+          if [ -n "$faltan" ]; then
+            echo "::error::anon no puede leer: $faltan. La API no serviría el catálogo."
+            echo "Los permisos no viajan en el volcado (--no-privileges): los repone" >&2
+            echo "Supabase con sus privilegios por defecto sobre el esquema. Si no lo" >&2
+            echo "hizo, hay que otorgarlos a mano antes de dar el ensayo por bueno." >&2
             exit 1
           fi
+          echo "anon puede leer negocios, productos y categorías."
 
           echo "La base restaurada tiene aislamiento y es alcanzable por la API."
 
