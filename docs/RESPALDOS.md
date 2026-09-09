@@ -178,7 +178,7 @@ debía ser, y fallaron dos veces con una restauración **correcta**:
 | Afirmación escrita a mano | Por qué era falsa |
 |---|---|
 | «tiene que haber al menos veinte políticas RLS» | Hay dieciocho |
-| «`anon` tiene que poder leer `negocios`» | En producción tampoco puede: el catálogo llega por otro camino |
+| «`anon` tiene que poder leer la tabla `negocios`» | No la lee entera: la lee **por columnas** |
 
 Las dos son el mismo error. Un hecho sobre el esquema escrito dentro de una
 comprobación es una suposición que envejece, y que además hay que acordarse de
@@ -192,6 +192,33 @@ cerrada— **sin que nadie tenga que saber cuál es**.
 
 Cuando no coinciden, el error muestra el diff: cada línea con `-` es un permiso
 que producción tiene y la copia no; cada `+`, uno que la copia tiene de más.
+
+**Lo que esa comparación no puede ver.** Compara la salida del generador contra sí
+misma, así que **solo cubre lo que el generador sabe mirar**. Cuando al guion le
+faltaban los permisos por columna, los dos lados estaban igual de ciegos y el diff
+daba verde sobre una copia incompleta; lo descubrió el recorrido de aislamiento,
+que prueba el comportamiento en vez de comparar descripciones. Las dos capas hacen
+falta y ninguna reemplaza a la otra.
+
+### Los permisos por columna
+
+Son la mitad del modelo y la que menos se ve. Al 2026-09-09 son **31 columnas**:
+
+```
+negocios.slug          anon=r | authenticated=w
+negocios.plantilla_id  anon=r | authenticated=w
+negocios.activo        anon=r
+negocios.verificado    anon=r
+```
+
+Así lee el catálogo público la tabla de negocios —por columnas, no entera, y por
+eso `has_table_privilege('anon', 'public.negocios', 'select')` da falso— y así el
+dueño puede cambiar el nombre o la plantilla de su negocio pero **no** su fecha de
+vencimiento ni su marca de verificado.
+
+Copiar solo los permisos de tabla las perdía todas: la copia quedaba a la vez más
+cerrada —el catálogo no se podía leer— y con el modelo de escritura del dueño
+desdibujado.
 
 ## Lo que hay que configurar una sola vez
 

@@ -363,6 +363,21 @@ jobs:
           # Y que todo venga calificado con su esquema. Sin esto el guion solo
           # sirve donde el camino de búsqueda coincida con el de quien lo generó,
           # y un permiso que no se aplica no avisa: deja la copia abierta.
+          # Los permisos por columna, que son la mitad del modelo y la que menos
+          # se ve: `anon` lee el catálogo por columnas y el dueño escribe solo
+          # algunas de las suyas. La primera versión del guion no los miraba y la
+          # copia quedaba con el modelo de escritura desdibujado.
+          #
+          # Es un control estructural y no un hecho escrito a mano: no dice
+          # cuántos ni cuáles, solo que la sección no desapareció.
+          columnas=$(contar 'grant [A-Z]* (' respaldo-permisos.sql.gz)
+          echo "Permisos por columna: $columnas."
+          if [ "$columnas" -lt 1 ]; then
+            echo "El respaldo no trae ningún permiso por columna. El catálogo público" >&2
+            echo "lee la tabla de negocios por columnas: sin esto no se vería." >&2
+            exit 1
+          fi
+
           # Las funciones necesitan su propio patrón: los paréntesis de los
           # argumentos cortan el nombre antes del « to », así que buscarlas igual
           # que a las tablas dejaba pasar la mitad de los casos.

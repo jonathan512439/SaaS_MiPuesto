@@ -65,6 +65,36 @@ select linea from (
   where c.relkind in ('r', 'v', 'm')
     and (a.grantee = 0 or g.rolname in ('anon', 'authenticated', 'service_role'))
 
+  -- Los permisos POR COLUMNA, que son la mitad del modelo y la que menos se ve.
+  --
+  -- `has_table_privilege('anon', 'public.negocios', 'select')` da falso, y sin
+  -- embargo el catálogo público lee esa tabla: lo hace por columnas. Y el dueño
+  -- puede cambiar el nombre o la plantilla de su negocio pero **no** su fecha de
+  -- vencimiento ni su marca de verificado, porque el permiso de escritura se
+  -- otorgó columna por columna.
+  --
+  -- Son 31 columnas al 2026-09-09. Copiar solo los permisos de tabla las perdía
+  -- todas, y la copia restaurada quedaba a la vez más cerrada —el catálogo no se
+  -- podía leer— y con el modelo de escritura del dueño desdibujado.
+  --
+  -- Solo se emiten las columnas con permisos propios: una columna sin nada
+  -- explícito hereda los de su tabla y no hay nada que decir de ella.
+  union all
+  select 5, format('grant %s (%I) on table %I.%I to %s;',
+                   a.privilege_type,
+                   att.attname,
+                   n.nspname, c.relname,
+                   case when a.grantee = 0 then 'public' else quote_ident(g.rolname) end)
+  from pg_attribute att
+  join pg_class c on c.oid = att.attrelid
+  join pg_namespace n on n.oid = c.relnamespace and n.nspname in ('public', 'private')
+  cross join lateral aclexplode(att.attacl) a
+  left join pg_roles g on g.oid = a.grantee
+  where att.attacl is not null
+    and att.attnum > 0
+    and not att.attisdropped
+    and (a.grantee = 0 or g.rolname in ('anon', 'authenticated', 'service_role'))
+
   union all
   select 4, format('grant execute on function %I.%I(%s) to %s;',
                    n.nspname, p.proname,
