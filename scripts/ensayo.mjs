@@ -44,20 +44,63 @@ function refDelProyectoReal() {
   return [...refs].filter(Boolean);
 }
 
+/* El identificador del proyecto que trae una cadena del pooler: el `<ref>` de
+   `postgres.<ref>`. Es lo que permite comparar dos cadenas sin mirar la
+   contraseña que llevan adentro. */
+function refDeCadena(cadena) {
+  return /postgres\.([a-z0-9]{16,})/i.exec(cadena)?.[1] ?? null;
+}
+
+function fallar(mensaje) {
+  /* Sin volcado de pila: quien lee esto tiene que arreglar una variable, no
+     depurar este archivo. La primera versión dejaba que `new URL` reventara con
+     un ERR_INVALID_URL y veinte líneas de Node, que no dicen qué hacer. */
+  console.error(`\n${mensaje}\n`);
+  process.exit(1);
+}
+
 function urlDeEnsayo() {
   const url = process.env.ENSAYO_DB_URL;
   if (!url) {
-    throw new Error(
+    fallar(
       "Falta ENSAYO_DB_URL en .env.local.\n" +
-        "Es la cadena de conexión del proyecto de ensayo, en modo session,\n" +
-        "desde Supabase → Project Settings → Database.",
+        "Es la cadena de conexión del proyecto de ensayo, en modo session pooler,\n" +
+        "desde Supabase → Project Settings → Database → Connection string.",
     );
   }
 
-  const prohibidos = refDelProyectoReal();
-  const apuntaAlReal = prohibidos.find((ref) => url.includes(ref));
+  /* Que sea una cadena de conexión y no cualquier cosa. Un identificador suelto
+     pasaba las dos comprobaciones de abajo —no está vacío y no contiene el ref
+     del proyecto real— y llegaba entero hasta el CLI. */
+  let analizada;
+  try {
+    analizada = new URL(url);
+  } catch {
+    analizada = null;
+  }
+  if (!analizada || !/^postgresql?:$/.test(analizada.protocol)) {
+    fallar(
+      `ENSAYO_DB_URL no es una cadena de conexión: «${url.slice(0, 24)}…»\n\n` +
+        "Tiene que empezar con postgresql:// y verse así:\n" +
+        "  postgresql://postgres.<ref>:<contraseña>@aws-0-...pooler.supabase.com:5432/postgres\n\n" +
+        "Sale de Supabase → mipuesto-ensayo → Project Settings → Database →\n" +
+        "Connection string, pestaña «Session pooler», reemplazando [YOUR-PASSWORD].",
+    );
+  }
+
+  const refEnsayo = refDeCadena(url);
+  if (!refEnsayo) {
+    fallar(
+      "No se puede identificar el proyecto en ENSAYO_DB_URL.\n" +
+        "Hace falta la cadena del pooler, que lleva el usuario postgres.<ref>.\n" +
+        "Sin poder identificarlo no hay forma de comprobar que no sea producción,\n" +
+        "y ante la duda esto no hace nada.",
+    );
+  }
+
+  const apuntaAlReal = refDelProyectoReal().find((ref) => ref === refEnsayo);
   if (apuntaAlReal) {
-    throw new Error(
+    fallar(
       `ENSAYO_DB_URL apunta al proyecto REAL (${apuntaAlReal}). No se hace nada.\n` +
         "La base de ensayo tiene que ser un proyecto de Supabase distinto.",
     );
@@ -83,9 +126,10 @@ const accion = process.argv[2];
 
 if (accion === "ver") {
   const url = urlDeEnsayo();
-  /* Se muestra el anfitrión y nunca la contraseña: la cadena de conexión trae
-     la clave de la base adentro. */
+  /* Se muestra el anfitrión y el identificador, nunca la contraseña: la cadena
+     de conexión la lleva adentro. */
   console.log(`Base de ensayo: ${new URL(url).host}`);
+  console.log(`Proyecto de ensayo: ${refDeCadena(url)}`);
   console.log(`Proyectos protegidos: ${refDelProyectoReal().join(", ") || "ninguno detectado"}`);
 } else if (accion === "push") {
   await correr(process.execPath, [CLI, "db", "push", "--db-url", urlDeEnsayo()]);
@@ -96,14 +140,43 @@ if (accion === "ver") {
   /* El recorrido de aislamiento habla por la API de datos, no por SQL, así que
      necesita las claves del proyecto de ensayo. Se le pasan con los nombres que
      ya espera, en vez de cambiar el script probado. */
-  urlDeEnsayo();
+  const refEnsayo = refDeCadena(urlDeEnsayo());
   const url = process.env.ENSAYO_URL;
   const publica = process.env.ENSAYO_PUBLISHABLE_KEY;
   const servicio = process.env.ENSAYO_SERVICE_ROLE_KEY;
 
-  if (!url || !publica || !servicio) {
-    throw new Error(
-      "Faltan ENSAYO_URL, ENSAYO_PUBLISHABLE_KEY y ENSAYO_SERVICE_ROLE_KEY en .env.local.",
+  const faltantes = [
+    ["ENSAYO_URL", url],
+    ["ENSAYO_PUBLISHABLE_KEY", publica],
+    ["ENSAYO_SERVICE_ROLE_KEY", servicio],
+  ]
+    .filter(([, valor]) => !valor)
+    .map(([nombre]) => nombre);
+
+  if (faltantes.length > 0) {
+    fallar(
+      `Faltan en .env.local: ${faltantes.join(", ")}.\n` +
+        "Salen de Supabase → mipuesto-ensayo → Project Settings → API.",
+    );
+  }
+
+  /* Que las claves sean del mismo proyecto que la base.
+     Mezclar el proyecto de una con el de otras da «Invalid API key», que suena
+     a clave mal copiada y en realidad es una clave correcta del proyecto
+     equivocado. */
+  const refDeLaApi = /^https:\/\/([a-z0-9]+)\.supabase\.(co|in)\/?$/i.exec(url.trim())?.[1];
+  if (!refDeLaApi) {
+    fallar(
+      `ENSAYO_URL no es la dirección de un proyecto de Supabase: «${url}»\n` +
+        "Tiene que verse así:  https://<ref>.supabase.co",
+    );
+  }
+  if (refDeLaApi !== refEnsayo) {
+    fallar(
+      "ENSAYO_URL y ENSAYO_DB_URL son de proyectos distintos.\n" +
+        `  La dirección de la API apunta a: ${refDeLaApi}\n` +
+        `  La cadena de conexión apunta a:  ${refEnsayo}\n\n` +
+        "Las cuatro variables ENSAYO_* tienen que salir del mismo proyecto.",
     );
   }
 
