@@ -33,14 +33,15 @@ viejo se niega a volcar una base más nueva.
 Antes de subir comprueba que los archivos pesen algo: un volcado de cero bytes
 sube igual y da una falsa sensación de respaldo.
 
-Genera cuatro archivos y los sube a R2 bajo la fecha del día:
+Genera cinco archivos y los sube a R2 bajo la fecha del día:
 
 | Archivo | Qué trae |
 |---|---|
 | `respaldo-completo.dump` | **El que se restaura.** Formato personalizado, `public` y `private`, estructura y datos |
 | `respaldo-esquema.sql.gz` | Solo la estructura, en texto. Para leer o comparar |
 | `respaldo-datos.sql.gz` | Solo el contenido, en texto. Para rescatar una tabla suelta |
-| `respaldo-auth.sql.gz` | Las cuentas de los dueños. **Puede faltar**, ver abajo |
+| `respaldo-auth-users.sql.gz` | Las cuentas de los dueños. **Obligatorio**, ver abajo |
+| `respaldo-auth-identities.sql.gz` | Para poder iniciar sesión. Puede faltar |
 
 ### Por qué el que vale es el `.dump` y no los dos de texto
 
@@ -69,13 +70,32 @@ descubre inservible el día que hay que usarlo.
 Ahora el flujo **verifica que `private` esté adentro** antes de subir, y falla si
 no. Un respaldo que aparenta estar bien es peor que uno que falla ruidosamente.
 
-### Las cuentas de los dueños, aparte
+### Las cuentas de los dueños no son un extra
 
-El esquema `auth` lo administra Supabase y el volcado puede negarse por permisos.
-Si eso pasa, el respaldo **no falla**: la base queda respaldada y lo que se
-pierde es tener que volver a invitar a cada dueño, que es molesto pero no es
-pérdida de datos. Por eso va en su propio archivo y su ausencia solo deja un
-aviso en el registro del flujo.
+**Corregido el 2026-09-09.** Acá decía que si el volcado de `auth` fallaba la
+base seguía respaldada y solo había que reinvitar a los dueños. **Era falso**, y
+lo demostró el ensayo con este error:
+
+```
+ERROR: insert or update on table "bitacora_plataforma"
+       violates foreign key constraint "bitacora_plataforma_actor_fkey"
+DETAIL: Key (actor)=(...) is not present in table "users".
+```
+
+Siete claves foráneas de `public` apuntan a `auth.users`, y una es
+`negocios.admin_user_id`, que es **`not null`**. `pg_restore` crea las
+restricciones al final, y con la tabla de cuentas vacía fallan todas: no hay
+restauración parcial, no hay restauración de ningún tipo.
+
+Por eso `respaldo-auth-users.sql.gz` es **obligatorio** y el flujo falla si no lo
+puede generar. Se carga **antes** del volcado, y ese orden no es preferencia.
+
+`respaldo-auth-identities.sql.gz` sí es mejor esfuerzo: sin él la base restaura
+entera y lo que falla es iniciar sesión, que se resuelve con un enlace de acceso.
+
+Van en dos archivos y no en uno porque `identities` referencia a `users`, y un
+volcado del esquema entero sale ordenado alfabéticamente — o sea, al revés del
+orden que hace falta para cargarlo.
 
 ## Lo que hay que configurar una sola vez
 
@@ -129,11 +149,12 @@ workflow*. Se le puede dar una fecha; vacío toma el respaldo de hoy.
 | 2. Baja `respaldo-completo.dump` de R2 | No hay respaldo de esa fecha, o falta permiso |
 | 3. Instala el cliente de Postgres 17 | Falla ahí, no doce líneas después |
 | 4. Aplica `00-vaciar.sql` | Deja la base vacía de lo nuestro: es lo que hace el ensayo repetible |
-| 5. Aplica `01-preambulo.sql` (extensiones) | — |
-| 6. `pg_restore --exit-on-error` | **Acá se ve si el respaldo sirve** |
-| 7. Aplica `02-postambulo.sql` (tareas programadas) | — |
-| 8. Cuenta filas por tabla | Se lee en el registro |
-| 9. **Comprueba que la base es usable** | Menos de 20 políticas RLS, o cero permisos de `anon`, y falla |
+| 5. Aplica `01-preambulo.sql` (esquemas y extensiones) | — |
+| 6. **Carga las cuentas** (`auth.users`) | Sin cuentas fallan las siete claves foráneas |
+| 7. `pg_restore --exit-on-error` | **Acá se ve si el respaldo sirve** |
+| 8. Aplica `02-postambulo.sql` (tareas programadas) | — |
+| 9. Cuenta filas por tabla | Se lee en el registro |
+| 10. **Comprueba que la base es usable** | Menos de 20 políticas RLS, o cero permisos de `anon`, y falla |
 
 ### Por qué vaciar es un paso aparte y no `--clean`
 

@@ -128,17 +128,31 @@ jobs:
             --schema=public --schema=private \
             --no-owner --no-privileges -f respaldo-datos.sql
 
-          # Las cuentas de los dueños de negocio, aparte y sin poder fallar el
-          # respaldo. Supabase administra el esquema `auth` y el volcado puede
-          # negarse por permisos; si eso pasa, la base sigue respaldada y lo que
-          # se pierde es tener que volver a invitar a cada dueño, que es molesto
-          # pero no es pérdida de datos. Restaurarlo es un procedimiento aparte.
-          if "$PG_DUMP" "$SUPABASE_DB_URL" --data-only --schema=auth \
-               --no-owner --no-privileges -f respaldo-auth.sql; then
-            gzip respaldo-auth.sql
+          # **Las cuentas son obligatorias, no un extra.**
+          #
+          # Acá decía que si el volcado de `auth` fallaba, la base seguía
+          # respaldada y solo había que reinvitar a los dueños. Era falso, y lo
+          # demostró el ensayo: siete claves foráneas apuntan a `auth.users`, y
+          # una de ellas es `negocios.admin_user_id`, que es `not null`. Sin las
+          # cuentas, `pg_restore` no puede crear las restricciones y **no hay
+          # restauración**, ni parcial ni de ningún tipo.
+          #
+          # Van en dos archivos y no en uno para poder cargarlos en orden:
+          # `identities` referencia a `users`, y un volcado del esquema entero
+          # sale ordenado alfabéticamente, o sea al revés del que hace falta.
+          "$PG_DUMP" "$SUPABASE_DB_URL" --data-only --table=auth.users \
+            --no-owner --no-privileges -f respaldo-auth-users.sql
+          gzip respaldo-auth-users.sql
+
+          # Las identidades sí son mejor esfuerzo: sin ellas la base restaura
+          # entera y lo que falla es iniciar sesión, que se resuelve con un
+          # enlace de acceso. Sin `users` no restaura nada.
+          if "$PG_DUMP" "$SUPABASE_DB_URL" --data-only --table=auth.identities \
+               --no-owner --no-privileges -f respaldo-auth-identities.sql; then
+            gzip respaldo-auth-identities.sql
           else
-            echo "::warning::No se pudo volcar el esquema auth. La base sí quedó respaldada."
-            rm -f respaldo-auth.sql
+            echo "::warning::No se pudo volcar auth.identities. La base restaura igual."
+            rm -f respaldo-auth-identities.sql
           fi
 
           gzip respaldo-esquema.sql respaldo-datos.sql
@@ -172,7 +186,14 @@ jobs:
             echo "El volcado del esquema no incluye 'private': no se podría restaurar." >&2
             exit 1
           fi
-          echo "El volcado incluye public y private."
+
+          # Las cuentas, por contenido y no por peso: con pocos dueños el archivo
+          # comprimido puede pesar menos de un kilobyte y ser correcto.
+          if ! zgrep -q "COPY auth\.users" respaldo-auth-users.sql.gz; then
+            echo "El volcado de cuentas no trae auth.users: la base no se podría restaurar." >&2
+            exit 1
+          fi
+          echo "El volcado incluye public, private y las cuentas."
 
       - name: Subir a R2
         env:

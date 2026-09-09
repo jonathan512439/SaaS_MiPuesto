@@ -85,9 +85,22 @@ begin
 end;
 $$;
 
+-- Las cuentas también, porque también se restauran.
+--
+-- Siete claves foráneas de `public` apuntan a `auth.users`, y una es
+-- `negocios.admin_user_id`, que es `not null`: sin las cuentas no hay
+-- restauración. Se cargan antes del volcado, así que hay que dejar la tabla
+-- vacía o el segundo ensayo choca contra las filas del primero.
+--
+-- Va **después** de vaciar `public`: con nuestras tablas ya borradas, el cascada
+-- solo alcanza a las tablas internas de `auth` —sesiones, identidades, factores—
+-- y no a datos del negocio.
+--
+-- Sobre un proyecto recién creado esto no hace nada: la tabla ya está vacía.
+truncate table auth.users cascade;
+
 -- Que quede en el registro que quedó vacío de verdad.
 select
-  coalesce(count(*) filter (where schemaname = 'public'), 0) as tablas_en_public,
-  coalesce(count(*) filter (where schemaname = 'private'), 0) as tablas_en_private
-from pg_tables
-where schemaname in ('public', 'private');
+  (select count(*) from pg_tables where schemaname = 'public') as tablas_en_public,
+  (select count(*) from pg_tables where schemaname = 'private') as tablas_en_private,
+  (select count(*) from auth.users) as cuentas;

@@ -77,10 +77,28 @@ jobs:
         run: |
           FECHA="${FECHA_PEDIDA:-$(date -u +%Y-%m-%d)}"
           echo "Restaurando el respaldo del $FECHA."
-          npx --yes wrangler@4 r2 object get \
-            "${BALDE}/${FECHA}/respaldo-completo.dump" \
-            --file respaldo-completo.dump --remote
-          ls -lh respaldo-completo.dump
+
+          bajar() {
+            npx --yes wrangler@4 r2 object get \
+              "${BALDE}/${FECHA}/$1" --file "$1" --remote
+          }
+
+          bajar respaldo-completo.dump
+          # Obligatorio: sin las cuentas no se pueden crear las claves foráneas.
+          bajar respaldo-auth-users.sql.gz
+          # Mejor esfuerzo: sin esto la base restaura y falla iniciar sesión.
+          bajar respaldo-auth-identities.sql.gz || \
+            echo "::warning::Ese respaldo no trae auth.identities."
+
+          gunzip -f respaldo-auth-users.sql.gz
+          # Con `if` y no con `[ -f ] && ...`: bajo `set -e`, una prueba que da
+          # falso al final de una tubería corta el paso entero, y este archivo
+          # puede legítimamente no estar.
+          if [ -f respaldo-auth-identities.sql.gz ]; then
+            gunzip -f respaldo-auth-identities.sql.gz
+          fi
+
+          ls -lh respaldo-*
           echo "FECHA_RESPALDO=$FECHA" >> "$GITHUB_ENV"
 
       - name: Instalar el cliente de Postgres 17
@@ -121,6 +139,34 @@ jobs:
       # `--exit-on-error`, que es lo que convierte esto en una comprobación: un
       # pg_restore que sigue después de un error termina en verde con la mitad de
       # la base, y eso es peor que fallar.
+      # Las cuentas van ANTES del volcado, y ese orden no es preferencia.
+      #
+      # Siete claves foráneas de `public` apuntan a `auth.users`, incluida
+      # `negocios.admin_user_id`, que es `not null`. `pg_restore` crea las
+      # restricciones al final, y si en ese momento la tabla de cuentas está
+      # vacía, todas fallan y no queda nada restaurado.
+      - name: Cargar las cuentas
+        env:
+          ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
+        run: |
+          PSQL=/usr/lib/postgresql/17/bin/psql
+
+          "$PSQL" "$ENSAYO_DB_URL" -v ON_ERROR_STOP=1 -f respaldo-auth-users.sql
+
+          # Después de las cuentas, porque las referencia.
+          if [ -f respaldo-auth-identities.sql ]; then
+            if ! "$PSQL" "$ENSAYO_DB_URL" -v ON_ERROR_STOP=1 -f respaldo-auth-identities.sql; then
+              echo "::warning::No se cargaron las identidades. La base restaura; iniciar sesión no."
+            fi
+          fi
+
+          cuentas=$("$PSQL" "$ENSAYO_DB_URL" -tAc "select count(*) from auth.users;")
+          echo "Cuentas cargadas: $cuentas"
+          if [ "$cuentas" -lt 1 ]; then
+            echo "::error::Ninguna cuenta cargada: las claves foráneas van a fallar."
+            exit 1
+          fi
+
       - name: Restaurar
         env:
           ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
