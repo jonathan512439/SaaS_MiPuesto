@@ -33,7 +33,7 @@ viejo se niega a volcar una base más nueva.
 Antes de subir comprueba que los archivos pesen algo: un volcado de cero bytes
 sube igual y da una falsa sensación de respaldo.
 
-Genera seis archivos y los sube a R2 bajo la fecha del día:
+Genera siete archivos y los sube a R2 bajo la fecha del día:
 
 | Archivo | Qué trae |
 |---|---|
@@ -43,6 +43,7 @@ Genera seis archivos y los sube a R2 bajo la fecha del día:
 | `respaldo-auth-users.sql.gz` | Las cuentas de los dueños. **Obligatorio**, ver abajo |
 | `respaldo-auth-identities.sql.gz` | Para poder iniciar sesión. Puede faltar |
 | `respaldo-migraciones.sql.gz` | El historial de migraciones. **Obligatorio**, ver abajo |
+| `respaldo-storage.sql.gz` | Los depósitos y sus políticas. **Obligatorio**, ver abajo |
 
 ### Por qué el que vale es el `.dump` y no los dos de texto
 
@@ -113,6 +114,22 @@ desplegando sobre la base restaurada; y para el plan v3, es lo que convierte la
 base de ensayo en una copia de producción **a la que se le pueden probar las
 migraciones de cada fase** en vez de una copia de adorno.
 
+### Los depósitos de Storage
+
+Las fotografías no se respaldan —eso está dicho arriba y sigue pendiente—, pero
+**los depósitos y sus políticas sí**, y son otra cosa. Viven en el esquema
+`storage`, que administra Supabase y no se puede volcar entero sin pisarle sus
+propias tablas.
+
+Sin ellos, una base restaurada no sirve ninguna imagen y, peor, **acepta subidas
+sin comprobar de quién es la carpeta**: son ocho políticas las que impiden que un
+negocio escriba en el directorio de otro.
+
+En vez de copiar esas políticas de las migraciones a un archivo aparte —que se
+desincronizaría en silencio— el respaldo las **genera leyendo la base viva**, con
+una consulta sobre `pg_policies`. Lo que se respalda es lo que hay, no lo que
+alguien recuerda que había, y por eso no necesita una guardia que lo vigile.
+
 ## Lo que hay que configurar una sola vez
 
 Nada de esto se puede hacer desde el repositorio; son pasos en las consolas.
@@ -169,9 +186,10 @@ workflow*. Se le puede dar una fecha; vacío toma el respaldo de hoy.
 | 6. **Carga las cuentas** (`auth.users`) | Sin cuentas fallan las siete claves foráneas |
 | 7. `pg_restore --exit-on-error` | **Acá se ve si el respaldo sirve** |
 | 8. Restaura el historial de migraciones | Sin él la base no acepta la próxima migración |
-| 9. Aplica `02-postambulo.sql` (tareas programadas) | — |
-| 10. Cuenta filas por tabla | Se lee en el registro |
-| 11. **Comprueba que la base es usable** | Faltan políticas RLS, o `anon` no puede leer el catálogo, y falla |
+| 9. Restaura los depósitos de Storage | Sin ellos no hay imágenes ni aislamiento en las subidas |
+| 10. Aplica `02-postambulo.sql` (tareas programadas) | — |
+| 11. Cuenta filas por tabla | Se lee en el registro |
+| 12. **Comprueba que la base es usable** | Faltan políticas RLS, o `anon` no puede leer el catálogo, y falla |
 
 La comprobación final no usa números escritos a mano: cuenta las políticas que el
 **índice del volcado** dice que trae y exige que estén todas. La primera versión

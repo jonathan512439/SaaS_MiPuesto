@@ -154,6 +154,38 @@ jobs:
             --no-owner --no-privileges -f respaldo-migraciones.sql
           gzip respaldo-migraciones.sql
 
+          # Los depósitos de Storage y sus políticas.
+          #
+          # Viven en el esquema `storage`, que administra Supabase y no se puede
+          # volcar entero sin pisarle sus propias tablas. Pero sin ellos la base
+          # restaurada no sirve ninguna imagen **y no tiene aislamiento en las
+          # subidas**: cualquiera podría escribir en la carpeta de otro negocio.
+          #
+          # En vez de copiar las políticas de las migraciones a un archivo aparte
+          # —que se desincronizaría—, se **generan desde la base viva**. Lo que se
+          # respalda es lo que hay, no lo que alguien recuerda que había.
+          /usr/lib/postgresql/17/bin/psql "$SUPABASE_DB_URL" -tA -o respaldo-storage.sql -c "
+            select format(
+              'insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+                 values (%L, %L, %L, %L, %L::text[])
+                 on conflict (id) do update set
+                   public = excluded.public,
+                   file_size_limit = excluded.file_size_limit,
+                   allowed_mime_types = excluded.allowed_mime_types;',
+              id, name, public, file_size_limit, allowed_mime_types)
+            from storage.buckets
+            union all
+            select
+              format('drop policy if exists %I on %I.%I;', policyname, schemaname, tablename)
+              || format(' create policy %I on %I.%I as %s for %s to %s',
+                   policyname, schemaname, tablename, permissive, cmd,
+                   array_to_string(roles, ', '))
+              || coalesce(' using (' || qual || ')', '')
+              || coalesce(' with check (' || with_check || ')', '')
+              || ';'
+            from pg_policies where schemaname = 'storage';"
+          gzip respaldo-storage.sql
+
           # Las identidades sí son mejor esfuerzo: sin ellas la base restaura
           # entera y lo que falla es iniciar sesión, que se resuelve con un
           # enlace de acceso. Sin `users` no restaura nada.
@@ -209,7 +241,18 @@ jobs:
             echo "no podría recibir la próxima migración." >&2
             exit 1
           fi
-          echo "El volcado incluye public, private, las cuentas y el historial de migraciones."
+          # Los depósitos sin sus políticas serían peor que nada: una base
+          # restaurada que acepta subidas sin comprobar de quién es la carpeta.
+          politicas=$(zgrep -c "create policy" respaldo-storage.sql.gz || true)
+          depositos=$(zgrep -c "insert into storage.buckets" respaldo-storage.sql.gz || true)
+          echo "Storage: $depositos depósitos y $politicas políticas."
+          if [ "$depositos" -lt 1 ] || [ "$politicas" -lt 1 ]; then
+            echo "El respaldo de Storage salió vacío: la base restaurada no serviría" >&2
+            echo "imágenes y no tendría aislamiento en las subidas." >&2
+            exit 1
+          fi
+
+          echo "El volcado incluye public, private, las cuentas, las migraciones y Storage."
 
       - name: Subir a R2
         env:

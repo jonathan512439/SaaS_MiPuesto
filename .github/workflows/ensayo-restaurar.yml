@@ -93,7 +93,7 @@ jobs:
           # respaldos viejos no sirven, y es mejor saberlo acá que a mitad de una
           # restauración de verdad.
           for obligatorio in respaldo-completo.dump respaldo-auth-users.sql.gz \
-                             respaldo-migraciones.sql.gz; do
+                             respaldo-migraciones.sql.gz respaldo-storage.sql.gz; do
             if ! bajar "$obligatorio"; then
               echo "::error::El respaldo del $FECHA no tiene $obligatorio."
               echo "" >&2
@@ -116,7 +116,7 @@ jobs:
             rm -f respaldo-auth-identities.sql.gz
           fi
 
-          gunzip -f respaldo-auth-users.sql.gz respaldo-migraciones.sql.gz
+          gunzip -f respaldo-auth-users.sql.gz respaldo-migraciones.sql.gz respaldo-storage.sql.gz
           # Con `if` y no con `[ -f ] && ...`: bajo `set -e`, una prueba que da
           # falso al final de una tubería corta el paso entero, y este archivo
           # puede legítimamente no estar.
@@ -245,6 +245,23 @@ jobs:
             echo "::warning::No coinciden. Si el respaldo es de antes de la última"
             echo "migración es esperable; si no, hay que revisarlo." >&2
           fi
+
+      # Los depósitos de Storage y sus políticas, que viven en el esquema
+      # `storage` y por eso no vienen en el volcado. Sin esto la base restaurada
+      # no sirve ninguna imagen y, peor, acepta subidas sin comprobar de quién es
+      # la carpeta. El archivo lo generó el respaldo leyendo la base viva, así que
+      # dice lo que había y no lo que alguien recuerda que había.
+      - name: Restaurar los depósitos de Storage
+        env:
+          ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
+        run: |
+          PSQL=/usr/lib/postgresql/17/bin/psql
+          "$PSQL" "$ENSAYO_DB_URL" -v ON_ERROR_STOP=1 -f respaldo-storage.sql
+
+          "$PSQL" "$ENSAYO_DB_URL" -v ON_ERROR_STOP=1 -c "
+            select
+              (select count(*) from storage.buckets) as depositos,
+              (select count(*) from pg_policies where schemaname = 'storage') as politicas;"
 
       # Los datos sin las tareas programadas son una base que no hace nada sola.
       - name: Postámbulo — tareas programadas
