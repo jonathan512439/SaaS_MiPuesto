@@ -1,28 +1,28 @@
 import type { TarjetaId } from "../../../lib/apariencia";
 import { TarjetaCuadricula } from "./cuadricula";
+import { TarjetaFicha } from "./ficha";
+import { TarjetaLista } from "./lista";
+import { TarjetaServicio } from "./servicio";
 import { TarjetaEstadia, TarjetaRetrato } from "./formas-nuevas";
 import type { PropiedadesTarjeta } from "./tipos";
 
 export type { ProductoEnTarjeta, PropiedadesTarjeta } from "./tipos";
 
-/* Qué componente dibuja cada forma.
+/* Qué componente dibuja cada forma. Están las seis.
  *
- * **El mapa es parcial a propósito.** Las tarjetas se extraen de a una, junto
- * con la plantilla que las usa, y declarar acá una que todavía vive incrustada
- * en su plantilla no la haría existir: la dejaría prometida y vacía.
- *
- * Tres están: la de Moderna, ya extraída, y las dos formas nuevas, que no salen
- * de ninguna plantilla. Faltan `lista` (Clásica), `ficha` (Feria) y `servicio`
- * (Mínima), que llegan cuando se conecte su plantilla.
- *
- * Que falten no expone a nadie: una plantilla que todavía dibuja sus productos
- * adentro no pasa por acá, y el panel donde el dueño elige la forma llega
- * después. Lo verifica una prueba, que compara este mapa contra las tarjetas que
- * declaran las plantillas ya conectadas. */
+ * **Cuidado al declarar una forma nueva en una plantilla:** no todas devuelven
+ * el mismo elemento. Cinco devuelven un `li`, para plantillas que listan con
+ * `ul`; `servicio` devuelve un `div` con `dt` y `dd`, porque Mínima lista con
+ * `dl`. Meter una en el contenedor de la otra da HTML inválido, y por eso
+ * `TARJETAS_POR_PLANTILLA` no es una tabla libre: cada plantilla declara las
+ * que su contenedor admite. Lo verifica una prueba. */
 const TARJETAS_DISPONIBLES: Partial<
   Record<TarjetaId, (propiedades: PropiedadesTarjeta) => React.ReactElement>
 > = {
   cuadricula: TarjetaCuadricula,
+  ficha: TarjetaFicha,
+  lista: TarjetaLista,
+  servicio: TarjetaServicio,
   retrato: TarjetaRetrato,
   estadia: TarjetaEstadia,
 };

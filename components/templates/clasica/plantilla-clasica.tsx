@@ -1,15 +1,11 @@
 import { Fraunces } from "next/font/google";
 import Image from "next/image";
 
-import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
-import { AccionProducto } from "../accion-producto";
 import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
 import { BannerCatalogo } from "../banner-catalogo";
-import { FotoProducto } from "../foto-producto";
-import { EstadoStockProducto } from "../estado-stock-producto";
-import { InsigniaProducto, insigniaDe } from "../insignias-producto";
+import { TarjetaProducto } from "../tarjetas";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-clasica.module.css";
 
@@ -114,11 +110,19 @@ export function PlantillaClasica({
 
       <div className={styles.categorias}>
         {datos.categorias.map((categoria) => {
+          /* La categoría se suma acá aunque esta plantilla no la dibuje en la
+             tarjeta —la pone el encabezado de la sección—: una tarjeta de otra
+             forma sí la muestra, y sin este dato quedaría vacía. */
           const productos = [
-            ...categoria.productos.map((producto) => ({ ...producto, subcategoria: null })),
+            ...categoria.productos.map((producto) => ({
+              ...producto,
+              categoria: categoria.nombre,
+              subcategoria: null,
+            })),
             ...(categoria.subcategorias ?? []).flatMap((subcategoria) =>
               subcategoria.productos.map((producto) => ({
                 ...producto,
+                categoria: categoria.nombre,
                 subcategoria: subcategoria.nombre,
               })),
             ),
@@ -131,42 +135,18 @@ export function PlantillaClasica({
             </div>
             <ul>
               {productos.map((producto) => (
-                <li className={styles.producto} key={producto.id}>
-                  <FotoProducto
-                    alVerProducto={alVerProducto}
-                    ancho={800}
-                    insignias={<InsigniaProducto producto={producto} />}
-                    producto={producto}
-                    respaldo={<span className={styles.sinImagen}>Sin foto</span>}
-                    sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 50vw"
-                  />
-                  <div>
-                    {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
-                    <h5>{producto.nombre}</h5>
-                    <p>{producto.descripcion}</p>
-                    {/* Lo que ya dijo la pastilla sobre la foto no se repite
-                        debajo del nombre: en una tarjeta chica, la misma frase
-                        dos veces ocupa el lugar de la descripción. */}
-                    {insigniaDe(producto) === null ? (
-                      <EstadoStockProducto className={styles.stock} producto={producto} />
-                    ) : null}
-                    <AccionProducto
-                      alAgregarProducto={alAgregarProducto}
-                      alAbrirWhatsapp={alAbrirWhatsapp}
-                      cantidad={cantidadesCarrito[producto.id]}
-                      demostracion={demostracion}
-                      modalidad={datos.negocio.modalidad}
-                      permiteAcciones={datos.negocio.atencion.permiteAcciones}
-                      producto={producto}
-                    />
-                  </div>
-                  <div className={styles.precio}>
-                    {producto.tienePromocion ? (
-                      <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
-                    ) : null}
-                    <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
-                  </div>
-                </li>
+                <TarjetaProducto
+                  alAgregarProducto={alAgregarProducto}
+                  alAbrirWhatsapp={alAbrirWhatsapp}
+                  alVerProducto={alVerProducto}
+                  cantidadEnCarrito={cantidadesCarrito[producto.id]}
+                  demostracion={demostracion}
+                  key={producto.id}
+                  modalidad={datos.negocio.modalidad}
+                  permiteAcciones={datos.negocio.atencion.permiteAcciones}
+                  producto={producto}
+                  tarjeta={datos.negocio.tarjeta}
+                />
               ))}
             </ul>
           </section>;

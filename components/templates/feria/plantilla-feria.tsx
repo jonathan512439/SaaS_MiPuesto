@@ -1,14 +1,11 @@
 import { Roboto_Condensed } from "next/font/google";
 import Image from "next/image";
 
-import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
-import { AccionProducto } from "../accion-producto";
 import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
 import { BannerCatalogo } from "../banner-catalogo";
-import { FotoProducto } from "../foto-producto";
-import { EstadoStockProducto } from "../estado-stock-producto";
+import { TarjetaProducto } from "../tarjetas";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-feria.module.css";
 
@@ -142,55 +139,18 @@ export function PlantillaFeria({
 
       <ul className={styles.productos}>
         {productos.map((producto) => (
-          <li className={styles.producto} id={producto.anclaCategoria} key={producto.id}>
-            <div className={styles.foto}>
-              <FotoProducto
-                alVerProducto={alVerProducto}
-                ancho={240}
-                className={styles.imagen}
-                producto={producto}
-                respaldo={
-                  <span className={styles.sinImagen} aria-hidden="true">
-                    ·
-                  </span>
-                }
-                sizes="96px"
-              />
-            </div>
-
-            <div className={styles.info}>
-              <h4>{producto.nombre}</h4>
-              <p className={styles.rubro}>
-                {producto.subcategoria
-                  ? `${producto.categoria} / ${producto.subcategoria}`
-                  : producto.categoria}
-              </p>
-              {producto.estado === "agotado" ? (
-                <span className={styles.agotado}>Agotado</span>
-              ) : null}
-              <EstadoStockProducto className={styles.stock} producto={producto} />
-            </div>
-
-            <div className={styles.precio}>
-              {producto.tienePromocion ? (
-                <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
-              ) : null}
-              <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
-              {producto.tienePromocion ? <small>Oferta</small> : null}
-            </div>
-
-            <div className={styles.accion}>
-              <AccionProducto
-                alAgregarProducto={alAgregarProducto}
-                alAbrirWhatsapp={alAbrirWhatsapp}
-                cantidad={cantidadesCarrito[producto.id]}
-                demostracion={demostracion}
-                modalidad={datos.negocio.modalidad}
-                permiteAcciones={datos.negocio.atencion.permiteAcciones}
-                producto={producto}
-              />
-            </div>
-          </li>
+          <TarjetaProducto
+            alAgregarProducto={alAgregarProducto}
+            alAbrirWhatsapp={alAbrirWhatsapp}
+            alVerProducto={alVerProducto}
+            cantidadEnCarrito={cantidadesCarrito[producto.id]}
+            demostracion={demostracion}
+            key={producto.id}
+            modalidad={datos.negocio.modalidad}
+            permiteAcciones={datos.negocio.atencion.permiteAcciones}
+            producto={producto}
+            tarjeta={datos.negocio.tarjeta}
+          />
         ))}
       </ul>
 

@@ -73,7 +73,14 @@ export type PaletaId = (typeof PALETAS)[number];
 export const TARJETAS_POR_PLANTILLA: Record<PlantillaId, ReadonlyArray<TarjetaId>> = {
   clasica: ["lista", "cuadricula", "ficha"],
   moderna: ["cuadricula", "retrato", "estadia"],
-  minimal: ["servicio", "lista", "cuadricula"],
+  /* Mínima admite una sola forma, y no por diseño sino por estructura: dibuja
+     sus servicios con `dl`, `dt` y `dd`, y nueve reglas de su hoja dependen de
+     esas etiquetas. Las demás tarjetas devuelven un `li`, que dentro de un `dl`
+     es HTML inválido.
+     Ofrecerle más obliga a reescribir su hoja entera, que es un trabajo real y
+     no un olvido. Una plantilla con una sola forma es legítima: Mínima existe
+     para listar servicios, y esa es la forma de listarlos. */
+  minimal: ["servicio"],
   feria: ["ficha", "lista", "cuadricula"],
 };
 

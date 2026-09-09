@@ -121,10 +121,10 @@ describe("combinaciones de forma", () => {
 
   /* El número está escrito en `docs/plan/03-FRONTEND.md`. Que una prueba lo fije
      obliga a corregir el texto el día que cambie, en vez de dejar la
-     documentación mintiendo. Serán dieciocho cuando lleguen `catalogo` y
-     `reserva` con sus componentes, en el paso 1.3. */
-  it("son doce con las cuatro plantillas de hoy", () => {
-    expect(COMBINACIONES_DE_FORMA).toHaveLength(12);
+     documentación mintiendo. Crecen cuando lleguen `catalogo` y `reserva` con
+     sus componentes, en el paso 1.3. */
+  it("son diez con las cuatro plantillas de hoy", () => {
+    expect(COMBINACIONES_DE_FORMA).toHaveLength(10);
   });
 });
 

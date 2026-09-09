@@ -1,14 +1,11 @@
 import { Karla } from "next/font/google";
 import Image from "next/image";
 
-import { formatearPrecioBolivianos } from "../../../lib/precios";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
-import { AccionProducto } from "../accion-producto";
 import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
 import { BannerCatalogo } from "../banner-catalogo";
-import { FotoProducto } from "../foto-producto";
-import { EstadoStockProducto } from "../estado-stock-producto";
+import { TarjetaProducto } from "../tarjetas";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-minimal.module.css";
 
@@ -115,11 +112,19 @@ export function PlantillaMinimal({
 
       <div className={styles.servicios}>
         {datos.categorias.map((categoria) => {
+          /* La categoría se suma aunque esta plantilla no la dibuje dentro del
+             servicio —la pone el encabezado de la sección—: la tarjeta la
+             necesita para no quedar con el dato vacío. */
           const productos = [
-            ...categoria.productos.map((producto) => ({ ...producto, subcategoria: null })),
+            ...categoria.productos.map((producto) => ({
+              ...producto,
+              categoria: categoria.nombre,
+              subcategoria: null,
+            })),
             ...(categoria.subcategorias ?? []).flatMap((subcategoria) =>
               subcategoria.productos.map((producto) => ({
                 ...producto,
+                categoria: categoria.nombre,
                 subcategoria: subcategoria.nombre,
               })),
             ),
@@ -128,44 +133,18 @@ export function PlantillaMinimal({
             <h4>{categoria.nombre}</h4>
             <dl>
               {productos.map((producto) => (
-                <div className={styles.servicio} key={producto.id}>
-                  <FotoProducto
-                    alVerProducto={alVerProducto}
-                    ancho={800}
-                    producto={producto}
-                    respaldo={<span className={styles.sinImagen}>Sin foto</span>}
-                    sizes="64px"
-                  />
-                  <dt>
-                    {producto.subcategoria ? <span className={styles.subcategoria}>{producto.subcategoria}</span> : null}
-                    {producto.nombre}
-                  </dt>
-                  <dd>{producto.descripcion}</dd>
-                  <dd className={styles.precio}>
-                    {producto.tienePromocion ? (
-                      <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
-                    ) : null}
-                    <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
-                    {producto.tienePromocion ? <small>Oferta vigente</small> : null}
-                  </dd>
-                  {producto.estado === "agotado" ? <dd><span className={styles.agotado}>Agotado</span></dd> : null}
-                  {producto.controlaStock ? (
-                    <dd><EstadoStockProducto className={styles.stock} producto={producto} /></dd>
-                  ) : null}
-                  {datos.negocio.modalidad !== "solo_lectura" ? (
-                    <dd>
-                      <AccionProducto
-                        alAgregarProducto={alAgregarProducto}
-                        alAbrirWhatsapp={alAbrirWhatsapp}
-                        cantidad={cantidadesCarrito[producto.id]}
-                        demostracion={demostracion}
-                        modalidad={datos.negocio.modalidad}
-                        permiteAcciones={datos.negocio.atencion.permiteAcciones}
-                        producto={producto}
-                      />
-                    </dd>
-                  ) : null}
-                </div>
+                <TarjetaProducto
+                  alAgregarProducto={alAgregarProducto}
+                  alAbrirWhatsapp={alAbrirWhatsapp}
+                  alVerProducto={alVerProducto}
+                  cantidadEnCarrito={cantidadesCarrito[producto.id]}
+                  demostracion={demostracion}
+                  key={producto.id}
+                  modalidad={datos.negocio.modalidad}
+                  permiteAcciones={datos.negocio.atencion.permiteAcciones}
+                  producto={producto}
+                  tarjeta={datos.negocio.tarjeta}
+                />
               ))}
             </dl>
           </section>;

@@ -81,3 +81,51 @@ describe("las plantillas conectadas", () => {
     }
   });
 });
+
+/* La invariante que el sistema de tipos no puede expresar.
+ *
+ * No todas las tarjetas devuelven el mismo elemento: cinco devuelven `li`, para
+ * plantillas que listan con `ul`, y `servicio` devuelve un `div` con `dt` y `dd`
+ * porque Mínima lista con `dl`. Meter una en el contenedor de la otra da HTML
+ * inválido, y TypeScript no tiene forma de notarlo: los dos son
+ * `React.ReactElement`.
+ *
+ * Se descubren los dos lados leyendo el código, no manteniendo listas. */
+describe("el contenedor y la tarjeta tienen que ser compatibles", () => {
+  const CONTENEDOR = { ul: "li", dl: "div" } as const;
+
+  function elementoDeLaTarjeta(tarjeta: string): string | null {
+    const archivos = ["cuadricula", "ficha", "lista", "servicio"].includes(tarjeta)
+      ? [`${tarjeta}.tsx`]
+      : ["formas-nuevas.tsx"];
+    for (const archivo of archivos) {
+      const fuente = readFileSync(join(import.meta.dirname, archivo), "utf8");
+      const raiz = /return \(\s*<(li|div)[\s>]/.exec(fuente);
+      if (raiz) return raiz[1];
+    }
+    return null;
+  }
+
+  function contenedorDeLaPlantilla(plantilla: string): "ul" | "dl" | null {
+    const fuente = readFileSync(join(RAIZ, plantilla, `plantilla-${plantilla}.tsx`), "utf8");
+    const antes = fuente.slice(0, fuente.indexOf("<TarjetaProducto"));
+    const abiertos = [...antes.matchAll(/<(ul|dl)[\s>]/g)].map((c) => c[1]);
+    const ultimo = abiertos.at(-1);
+    return ultimo === "ul" || ultimo === "dl" ? ultimo : null;
+  }
+
+  it("cada plantilla conectada solo ofrece tarjetas que su contenedor admite", () => {
+    for (const plantilla of plantillasConectadas()) {
+      const contenedor = contenedorDeLaPlantilla(plantilla);
+      expect(contenedor, `no se pudo leer el contenedor de ${plantilla}`).not.toBeNull();
+      const admitido = CONTENEDOR[contenedor as keyof typeof CONTENEDOR];
+
+      for (const tarjeta of TARJETAS_POR_PLANTILLA[plantilla as (typeof PLANTILLAS)[number]]) {
+        expect(
+          elementoDeLaTarjeta(tarjeta),
+          `${plantilla} lista con <${contenedor}> y ofrece «${tarjeta}», que no devuelve <${admitido}>`,
+        ).toBe(admitido);
+      }
+    }
+  });
+});
