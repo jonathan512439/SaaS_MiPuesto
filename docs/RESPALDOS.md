@@ -33,7 +33,7 @@ viejo se niega a volcar una base más nueva.
 Antes de subir comprueba que los archivos pesen algo: un volcado de cero bytes
 sube igual y da una falsa sensación de respaldo.
 
-Genera cinco archivos y los sube a R2 bajo la fecha del día:
+Genera seis archivos y los sube a R2 bajo la fecha del día:
 
 | Archivo | Qué trae |
 |---|---|
@@ -42,6 +42,7 @@ Genera cinco archivos y los sube a R2 bajo la fecha del día:
 | `respaldo-datos.sql.gz` | Solo el contenido, en texto. Para rescatar una tabla suelta |
 | `respaldo-auth-users.sql.gz` | Las cuentas de los dueños. **Obligatorio**, ver abajo |
 | `respaldo-auth-identities.sql.gz` | Para poder iniciar sesión. Puede faltar |
+| `respaldo-migraciones.sql.gz` | El historial de migraciones. **Obligatorio**, ver abajo |
 
 ### Por qué el que vale es el `.dump` y no los dos de texto
 
@@ -96,6 +97,21 @@ entera y lo que falla es iniciar sesión, que se resuelve con un enlace de acces
 Van en dos archivos y no en uno porque `identities` referencia a `users`, y un
 volcado del esquema entero sale ordenado alfabéticamente — o sea, al revés del
 orden que hace falta para cargarlo.
+
+### El historial de migraciones
+
+Una base restaurada con la estructura correcta que **no sabe cómo llegó a
+tenerla** no acepta la próxima migración: `supabase db push` intentaría aplicar
+las 47 desde cero y chocaría contra objetos que ya existen.
+
+Ese historial vive en `supabase_migrations.schema_migrations`, que no es de
+`public` ni de `private`, así que no entraba en el volcado. Ahora va en su propio
+archivo y es obligatorio.
+
+Importa para dos cosas distintas: en una recuperación de verdad, permite seguir
+desplegando sobre la base restaurada; y para el plan v3, es lo que convierte la
+base de ensayo en una copia de producción **a la que se le pueden probar las
+migraciones de cada fase** en vez de una copia de adorno.
 
 ## Lo que hay que configurar una sola vez
 
@@ -152,9 +168,15 @@ workflow*. Se le puede dar una fecha; vacío toma el respaldo de hoy.
 | 5. Aplica `01-preambulo.sql` (esquemas y extensiones) | — |
 | 6. **Carga las cuentas** (`auth.users`) | Sin cuentas fallan las siete claves foráneas |
 | 7. `pg_restore --exit-on-error` | **Acá se ve si el respaldo sirve** |
-| 8. Aplica `02-postambulo.sql` (tareas programadas) | — |
-| 9. Cuenta filas por tabla | Se lee en el registro |
-| 10. **Comprueba que la base es usable** | Menos de 20 políticas RLS, o cero permisos de `anon`, y falla |
+| 8. Restaura el historial de migraciones | Sin él la base no acepta la próxima migración |
+| 9. Aplica `02-postambulo.sql` (tareas programadas) | — |
+| 10. Cuenta filas por tabla | Se lee en el registro |
+| 11. **Comprueba que la base es usable** | Faltan políticas RLS, o `anon` no puede leer el catálogo, y falla |
+
+La comprobación final no usa números escritos a mano: cuenta las políticas que el
+**índice del volcado** dice que trae y exige que estén todas. La primera versión
+exigía veinte y había dieciocho, así que rechazaba una restauración correcta — y
+además habría que acordarse de subir ese número en cada fase que agregue tablas.
 
 ### Por qué vaciar es un paso aparte y no `--clean`
 
@@ -246,7 +268,7 @@ una promesa, no una garantía.
 
 | Fecha del ensayo | Resultado |
 |---|---|
-| — | pendiente |
+| 2026-09-09 | **Correcto.** Seis defectos encontrados y corregidos en el camino; el ensayo termina en verde y es repetible |
 
 ## Qué hacer si hay que restaurar de verdad
 

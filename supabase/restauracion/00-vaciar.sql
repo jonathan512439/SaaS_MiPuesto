@@ -99,6 +99,12 @@ $$;
 -- Sobre un proyecto recién creado esto no hace nada: la tabla ya está vacía.
 truncate table auth.users cascade;
 
+-- El historial de migraciones también se restaura, así que también se vacía.
+-- Sin esto, el segundo ensayo choca contra las filas del primero y la base queda
+-- con un historial duplicado, que es peor que no tenerlo: `supabase db push`
+-- creería que hay migraciones aplicadas dos veces.
+truncate table supabase_migrations.schema_migrations;
+
 -- Que quede en el registro que quedó vacío de verdad.
 select
   (select count(*) from pg_tables where schemaname = 'public') as tablas_en_public,

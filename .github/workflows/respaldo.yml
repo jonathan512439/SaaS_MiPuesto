@@ -144,6 +144,16 @@ jobs:
             --no-owner --no-privileges -f respaldo-auth-users.sql
           gzip respaldo-auth-users.sql
 
+          # El historial de migraciones. Sin él, la base restaurada tiene la
+          # estructura correcta y **no sabe cómo llegó a tenerla**: el siguiente
+          # `supabase db push` intentaría aplicar las 47 desde cero y chocaría
+          # contra objetos que ya existen. Una base a la que no se le puede
+          # aplicar la próxima migración no está del todo restaurada.
+          "$PG_DUMP" "$SUPABASE_DB_URL" --data-only \
+            --table=supabase_migrations.schema_migrations \
+            --no-owner --no-privileges -f respaldo-migraciones.sql
+          gzip respaldo-migraciones.sql
+
           # Las identidades sí son mejor esfuerzo: sin ellas la base restaura
           # entera y lo que falla es iniciar sesión, que se resuelve con un
           # enlace de acceso. Sin `users` no restaura nada.
@@ -193,7 +203,13 @@ jobs:
             echo "El volcado de cuentas no trae auth.users: la base no se podría restaurar." >&2
             exit 1
           fi
-          echo "El volcado incluye public, private y las cuentas."
+
+          if ! zgrep -q "COPY supabase_migrations\.schema_migrations" respaldo-migraciones.sql.gz; then
+            echo "El volcado no trae el historial de migraciones: la base restaurada" >&2
+            echo "no podría recibir la próxima migración." >&2
+            exit 1
+          fi
+          echo "El volcado incluye public, private, las cuentas y el historial de migraciones."
 
       - name: Subir a R2
         env:
