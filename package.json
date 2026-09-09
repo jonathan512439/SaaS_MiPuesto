@@ -13,7 +13,7 @@
     "prelint": "npm run security:client-secrets",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "next typegen && tsc --noEmit",
-    "test": "npm run test:contraste && npm run test:tokens && vitest run --passWithNoTests",
+    "test": "npm run test:contraste && npm run test:tokens && npm run test:tareas && vitest run --passWithNoTests",
     "test:watch": "vitest",
     "test:contraste": "node scripts/check-design-contrast.mjs",
     "patrones": "node scripts/armar-patrones.mjs",
@@ -61,7 +61,8 @@
     "ensayo:push": "node --env-file-if-exists=.env.local scripts/ensayo.mjs push",
     "ensayo:estructura": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura",
     "ensayo:rls": "node --env-file-if-exists=.env.local scripts/ensayo.mjs rls",
-    "ensayo:verificar": "npm run ensayo:estructura && npm run ensayo:rls"
+    "ensayo:verificar": "npm run ensayo:estructura && npm run ensayo:rls",
+    "test:tareas": "node scripts/check-tareas-programadas.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",

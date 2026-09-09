@@ -1,0 +1,161 @@
+name: Ensayo de restauración
+
+# Restaura un respaldo en la base de ensayo y cuenta lo que llegó.
+#
+# Existe como flujo y no como lista de pasos por dos razones. La primera: un
+# ensayo que exige instalar el cliente de Postgres en Windows, bajar tres
+# archivos y acordarse del orden **se hace una vez y no se repite**, y un
+# respaldo sin ensayo reciente es una promesa, no una garantía. La segunda: el
+# día que haya que restaurar de verdad, el procedimiento va a estar probado en
+# vez de improvisado.
+#
+# Solo se dispara a mano. No tiene horario a propósito: escribe sobre una base.
+
+on:
+  workflow_dispatch:
+    inputs:
+      fecha:
+        description: "Fecha del respaldo a restaurar (AAAA-MM-DD). Vacío = hoy."
+        required: false
+        type: string
+
+concurrency:
+  group: ensayo-restaurar
+  cancel-in-progress: false
+
+jobs:
+  restaurar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # El seguro va primero y antes de instalar nada: si el destino está mal,
+      # que falle en diez segundos y sin haber tocado una base.
+      #
+      # Se compara el identificador del proyecto que trae la cadena de conexión
+      # —`postgres.<ref>` en el pooler— contra el del respaldo, que es el de
+      # producción. Si coinciden, o si no se puede leer ninguno de los dos, el
+      # flujo se niega. **Negarse ante la duda es la postura correcta acá**: el
+      # peor error posible de este flujo es escribir sobre los datos reales.
+      - name: Comprobar que el destino no es producción
+        env:
+          ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$ENSAYO_DB_URL" ]; then
+            echo "Falta el secreto ENSAYO_DB_URL." >&2
+            exit 1
+          fi
+
+          ref_de() { printf '%s' "$1" | grep -oE 'postgres\.[a-z0-9]{16,}' | head -1; }
+          ensayo=$(ref_de "$ENSAYO_DB_URL")
+          real=$(ref_de "$SUPABASE_DB_URL")
+
+          if [ -z "$ensayo" ] || [ -z "$real" ]; then
+            echo "No se pudo identificar el proyecto en una de las dos cadenas." >&2
+            echo "Se necesita la cadena del pooler, en modo session." >&2
+            exit 1
+          fi
+          if [ "$ensayo" = "$real" ]; then
+            echo "ENSAYO_DB_URL apunta al proyecto REAL. No se hace nada." >&2
+            exit 1
+          fi
+          echo "Destino verificado: es un proyecto distinto del de producción."
+
+      - name: Instalar el cliente de Postgres 17
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
+          if [ ! -x /usr/lib/postgresql/17/bin/pg_restore ]; then
+            echo "No quedó instalado el cliente 17." >&2
+            exit 1
+          fi
+
+      - name: Bajar el respaldo de R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BALDE: ${{ vars.R2_BUCKET_RESPALDOS }}
+          FECHA_PEDIDA: ${{ inputs.fecha }}
+        run: |
+          FECHA="${FECHA_PEDIDA:-$(date -u +%Y-%m-%d)}"
+          echo "Restaurando el respaldo del $FECHA."
+          npx --yes wrangler@4 r2 object get \
+            "${BALDE}/${FECHA}/respaldo-completo.dump" \
+            --file respaldo-completo.dump --remote
+          ls -lh respaldo-completo.dump
+          echo "FECHA_RESPALDO=$FECHA" >> "$GITHUB_ENV"
+
+      # Las extensiones no están en el volcado: no pertenecen a `public` ni a
+      # `private`. Sin esto, pg_restore muere en el índice de búsqueda.
+      - name: Preámbulo — extensiones
+        env:
+          ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
+        run: |
+          /usr/lib/postgresql/17/bin/psql "$ENSAYO_DB_URL" \
+            -v ON_ERROR_STOP=1 -f supabase/restauracion/01-preambulo.sql
+
+      # `--clean --if-exists` deja la base de ensayo utilizable más de una vez.
+      # Sin eso, el segundo ensayo choca contra lo que dejó el primero y el
+      # procedimiento vuelve a ser de un solo uso.
+      - name: Restaurar
+        env:
+          ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
+        run: |
+          /usr/lib/postgresql/17/bin/pg_restore \
+            --dbname "$ENSAYO_DB_URL" \
+            --clean --if-exists \
+            --no-owner --no-privileges \
+            --exit-on-error \
+            respaldo-completo.dump
+          echo "Restauración terminada sin errores."
+
+      # Los datos sin las tareas programadas son una base que no hace nada sola.
+      - name: Postámbulo — tareas programadas
+        env:
+          ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
+        run: |
+          /usr/lib/postgresql/17/bin/psql "$ENSAYO_DB_URL" \
+            -v ON_ERROR_STOP=1 -f supabase/restauracion/02-postambulo.sql
+
+      # Que el comando haya terminado sin error no dice que no falte nada. Lo
+      # que decide es el conteo, y por eso se imprime.
+      - name: Contar lo que llegó
+        env:
+          ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
+        run: |
+          /usr/lib/postgresql/17/bin/psql "$ENSAYO_DB_URL" -v ON_ERROR_STOP=1 -c "
+            select 'negocios' as tabla, count(*) from public.negocios
+            union all select 'categorias', count(*) from public.categorias
+            union all select 'subcategorias', count(*) from public.subcategorias
+            union all select 'productos', count(*) from public.productos
+            union all select 'promociones', count(*) from public.promociones
+            union all select 'pedidos', count(*) from public.pedidos
+            union all select 'pedido_items', count(*) from public.pedido_items
+            union all select 'ajustes_vigilancia', count(*) from private.ajustes_vigilancia
+            order by 1;"
+
+          # Una base restaurada sin políticas es una base abierta. Se cuenta que
+          # existan, no se confía en que el volcado las haya traído.
+          /usr/lib/postgresql/17/bin/psql "$ENSAYO_DB_URL" -v ON_ERROR_STOP=1 -t -c "
+            select 'Politicas RLS restauradas: ' || count(*) from pg_policies
+            where schemaname = 'public';"
+
+      - name: Resumen
+        run: |
+          echo "### Ensayo de restauración" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Respaldo del **$FECHA_RESPALDO** restaurado en la base de ensayo." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Anotá la fecha en la tabla de \`docs/RESPALDOS.md\`." >> "$GITHUB_STEP_SUMMARY"

@@ -33,16 +33,28 @@ viejo se niega a volcar una base más nueva.
 Antes de subir comprueba que los archivos pesen algo: un volcado de cero bytes
 sube igual y da una falsa sensación de respaldo.
 
-Genera tres archivos y los sube a R2 bajo la fecha del día:
+Genera cuatro archivos y los sube a R2 bajo la fecha del día:
 
 | Archivo | Qué trae |
 |---|---|
-| `respaldo-esquema.sql.gz` | La estructura de `public` **y de `private`** |
-| `respaldo-datos.sql.gz` | El contenido de los dos esquemas |
+| `respaldo-completo.dump` | **El que se restaura.** Formato personalizado, `public` y `private`, estructura y datos |
+| `respaldo-esquema.sql.gz` | Solo la estructura, en texto. Para leer o comparar |
+| `respaldo-datos.sql.gz` | Solo el contenido, en texto. Para rescatar una tabla suelta |
 | `respaldo-auth.sql.gz` | Las cuentas de los dueños. **Puede faltar**, ver abajo |
 
-Los dos primeros se guardan separados porque restaurar solo los datos sobre un
-esquema sano es lo que se necesita el 90 % de las veces.
+### Por qué el que vale es el `.dump` y no los dos de texto
+
+Los dos volcados de texto están partidos en estructura y datos, y **esa partición
+rompe la garantía de orden de `pg_dump`**: en un volcado entero las claves
+foráneas se agregan después de cargar los datos, y al partirlo quedan antes, así
+que la carga puede fallar por un orden que nadie eligió.
+
+El formato personalizado no tiene ese problema: `pg_restore` lee el índice del
+archivo y decide el orden él. Por eso el ensayo usa ese y los otros dos quedan
+para leer, comparar o rescatar una tabla puntual.
+
+Se descubrió el 2026-09-09, preparando el ensayo. El respaldo de texto llevaba
+días subiendo sin que nadie hubiera intentado usarlo.
 
 ### Por qué `private` va junto con `public`
 
@@ -81,9 +93,14 @@ En **Settings → Secrets and variables → Actions**:
 
 | Secreto | De dónde sale |
 |---|---|
-| `SUPABASE_DB_URL` | Supabase → Project Settings → Database → Connection string (modo *session*) |
+| `SUPABASE_DB_URL` | Supabase → Project Settings → Database → Connection string, **modo *session pooler*** |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens, con permiso de edición sobre R2 |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare → Workers → Overview, a la derecha |
+| `ENSAYO_DB_URL` | Lo mismo, pero del **segundo** proyecto. Solo lo usa el ensayo |
+
+> **Session pooler y no *direct connection*.** La conexión directa de Supabase
+> hoy es solo IPv6 y los servidores de GitHub Actions son IPv4: con la directa el
+> respaldo falla con «network unreachable» y el error no dice por qué.
 
 Y como **variable** (no secreto):
 
@@ -98,40 +115,61 @@ la automatización quedó andando.
 
 ## El ensayo de restauración
 
-**Un respaldo que nunca se restauró no es un respaldo.** Conviene hacer este
-ensayo una vez ahora y repetirlo cada tanto.
+**Un respaldo que nunca se restauró no es un respaldo.** Y uno cuyo ensayo es una
+lista de pasos manuales se hace una vez y no se repite, que es casi lo mismo.
 
-No se restaura sobre la base real. Se crea un proyecto Supabase aparte —el plan
-gratuito permite dos— y se prueba ahí.
+Por eso el ensayo **es un botón**: Actions → *Ensayo de restauración* → *Run
+workflow*. Se le puede dar una fecha; vacío toma el respaldo de hoy.
 
-> **Ese segundo proyecto es también la base de ensayo del plan v3**, y no por
-> ahorro: el plan gratuito da dos proyectos, ya hay uno en producción, y queda
-> exactamente uno. Combinarlos no es una comodidad, es la única forma.
->
-> Sale ganando: la base de ensayo queda con **datos de la forma real** —negocios,
-> catálogos, pedidos— en vez de un esquema vacío, que es justo lo que hace falta
-> para probar una migración antes de aplicarla a producción. Los comandos son
-> `npm run ensayo:*` y se niegan a correr si apuntan al proyecto real.
+### Qué hace, en orden
 
-Los pasos del ensayo:
+| Paso | Qué pasa si falla |
+|---|---|
+| 1. Comprueba que el destino **no es producción** | Se niega en diez segundos, sin tocar nada |
+| 2. Instala el cliente de Postgres 17 | Falla ahí, no doce líneas después |
+| 3. Baja `respaldo-completo.dump` de R2 | No hay respaldo de esa fecha |
+| 4. Aplica `01-preambulo.sql` (extensiones) | — |
+| 5. `pg_restore --clean --if-exists --exit-on-error` | **Acá se ve si el respaldo sirve** |
+| 6. Aplica `02-postambulo.sql` (tareas programadas) | — |
+| 7. Cuenta filas por tabla y políticas RLS | Se lee en el registro |
+
+### El seguro
+
+El paso 1 compara el identificador del proyecto de `ENSAYO_DB_URL` contra el de
+`SUPABASE_DB_URL`. Si coinciden —o si no puede leer alguno de los dos— **se
+niega**. Negarse ante la duda es la postura correcta: el peor error posible de
+este flujo es escribir sobre los datos reales.
+
+Los comandos locales `npm run ensayo:*` llevan el mismo seguro, comprobado
+rompiéndolo a propósito.
+
+### Por qué hacen falta un preámbulo y un postámbulo
+
+Son las dos cosas que el volcado **no puede traer**, y las dos se descubrieron el
+2026-09-09 preparando este ensayo:
+
+- **Las extensiones no están en `public` ni en `private`**, así que `pg_dump` no
+  las emite. Sin `pg_trgm` el índice de búsqueda no se crea; sin `http` las
+  funciones del vigilante no compilan.
+- **Las cinco tareas programadas viven en el esquema `cron`**, que no se
+  respalda: es de la extensión, no de la aplicación. Una base restaurada sin
+  ellas queda con todos los datos y sin nada que corra sola —las reservas no
+  expiran, los vencidos no se suspenden, el vigilante no vigila— y se ve bien
+  hasta que alguien pregunta por qué una reserva de anteayer sigue tomada.
+
+`scripts/check-tareas-programadas.mjs` verifica que la lista del postámbulo
+coincida con las tareas que programan las migraciones y con las que vigila
+`estado_tareas()`. Falla el build si se desincronizan. Ya hubo una vez un
+vigilante que nadie vigilaba; esto es para que no vuelva a pasar en silencio.
+
+### Después del flujo, la comparación
+
+El conteo del paso 7 dice qué llegó. Para compararlo con la base real:
 
 ```bash
-# 1. Bajar el respaldo del día desde R2
-npx wrangler r2 object get mipuesto-respaldos/2026-09-05/respaldo-esquema.sql.gz \
-  --file esquema.sql.gz --remote
-npx wrangler r2 object get mipuesto-respaldos/2026-09-05/respaldo-datos.sql.gz \
-  --file datos.sql.gz --remote
-gunzip esquema.sql.gz datos.sql.gz
-
-# 2. Restaurar en el proyecto de prueba, en este orden
-psql "<URL_DEL_PROYECTO_DE_PRUEBA>" -f esquema.sql
-psql "<URL_DEL_PROYECTO_DE_PRUEBA>" -f datos.sql
-```
-
-Y se compara con la base real de un comando:
-
-```bash
-RESTAURADO_URL=https://<proyecto-de-prueba>.supabase.co RESTAURADO_KEY=<clave de servicio de ese proyecto> npm run respaldo:verificar
+RESTAURADO_URL=https://<proyecto-de-ensayo>.supabase.co \
+RESTAURADO_KEY=<clave de servicio de ese proyecto> \
+npm run respaldo:verificar
 ```
 
 Imprime tabla por tabla cuántas filas hay en cada lado. Se admite que el
@@ -141,8 +179,8 @@ contenido, y eso el comando lo marca y termina con error.
 
 Se da por bueno cuando, además:
 
-- Un catálogo se ve completo apuntando la aplicación a ese proyecto.
-- Las políticas de RLS siguen en pie: `npm run test:rls:linked` pasa.
+- El paso 7 muestra políticas de RLS restauradas, no cero.
+- `npm run ensayo:rls` pasa contra ese proyecto.
 
 Anotá la fecha del último ensayo acá abajo. Un respaldo sin ensayo reciente es
 una promesa, no una garantía.

@@ -75,6 +75,17 @@ jobs:
           # secas no se puede restaurar: las políticas referencian funciones que
           # no estarían. Se descubrió al preparar el ensayo de restauración.
           PG_DUMP=/usr/lib/postgresql/17/bin/pg_dump
+
+          # **El archivo que de verdad se restaura.** Formato personalizado, que
+          # `pg_restore` sabe ordenar: crea las tablas, carga los datos y recién
+          # entonces agrega las claves foráneas. Los dos volcados de texto de
+          # abajo, partidos en esquema y datos, pierden esa garantía de orden y
+          # sirven para leer o para restaurar una tabla suelta, no para levantar
+          # la base entera. Se descubrió preparando el ensayo.
+          "$PG_DUMP" "$SUPABASE_DB_URL" --format=custom --compress=9 \
+            --schema=public --schema=private \
+            --no-owner --no-privileges -f respaldo-completo.dump
+
           "$PG_DUMP" "$SUPABASE_DB_URL" --schema-only \
             --schema=public --schema=private \
             --no-owner --no-privileges -f respaldo-esquema.sql
@@ -101,7 +112,12 @@ jobs:
       # Un volcado de cero bytes sube igual y da una falsa sensación de respaldo.
       - name: Comprobar que el volcado tiene contenido
         run: |
-          for archivo in respaldo-esquema.sql.gz respaldo-datos.sql.gz; do
+          # El archivo del que depende una restauración de verdad: que exista y
+          # que pg_restore lo pueda leer. Un archivo corrupto pesa igual.
+          /usr/lib/postgresql/17/bin/pg_restore --list respaldo-completo.dump > /dev/null
+          echo "respaldo-completo.dump es legible por pg_restore."
+
+          for archivo in respaldo-completo.dump respaldo-esquema.sql.gz respaldo-datos.sql.gz; do
             tamano=$(stat -c%s "$archivo")
             if [ "$tamano" -lt 1024 ]; then
               echo "$archivo pesa $tamano bytes: el volcado falló." >&2
@@ -135,8 +151,10 @@ jobs:
           fi
           FECHA=$(date -u +%Y-%m-%d)
           # El de auth puede no existir: se sube lo que haya, y por eso el bucle
-          # recorre los archivos presentes en vez de una lista fija.
-          for archivo in respaldo-*.sql.gz; do
+          # recorre los archivos presentes en vez de una lista fija. El patrón
+          # toma `.dump` además de `.sql.gz`; con el patrón viejo el archivo más
+          # importante se quedaba en el servidor.
+          for archivo in respaldo-completo.dump respaldo-*.sql.gz; do
             npx --yes wrangler@4 r2 object put \
               "${BALDE}/${FECHA}/${archivo}" \
               --file "${archivo}" \

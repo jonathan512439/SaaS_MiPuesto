@@ -28,3 +28,8 @@ Thumbs.db
 # Generado por Next. next build y vinext build lo escriben distinto,
 # asi que versionarlo ensucia el arbol en cada cambio de pipeline.
 next-env.d.ts
+
+# Las fichas de rubro son la base de requisitos y de datos para desarrollo local.
+# No van al repositorio: son 15 MB de imagenes que el historial de git guardaria
+# para siempre, y no hacen falta para construir ni desplegar.
+/Catalogos_Ejemplo/
