@@ -1,6 +1,7 @@
 import type { PaletaId, PlantillaId } from "../apariencia";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
+import { leerBanners } from "../negocios/banners";
 import type { DatosPlantilla } from "../plantillas/tipos";
 import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
 import { calcularCantidadDisponible } from "../reservas";
@@ -34,6 +35,11 @@ type NegocioPublico = {
   rubro?: string | null;
   patron_fondo?: boolean | null;
   redes_sociales?: unknown;
+  /* Opcional y sin tipar por dentro, igual que `redes_sociales` y `horario`: lo
+     que hay en esa columna lo interpreta su propio lector, que no confía en
+     nada. Declararla `Banner[]` acá sería afirmar sobre datos que todavía no se
+     validaron. */
+  banners?: unknown;
 };
 
 type CategoriaPublica = { id: string; nombre: string; orden: number };
@@ -223,6 +229,10 @@ export function construirCatalogoPublico(
           { nombre: "TikTok", url: redes.tiktok },
           { nombre: "Sitio web", url: redes.sitio_web },
         ].flatMap(({ nombre, url }) => (url ? [{ nombre, url }] : [])),
+        /* Se lee con el validador y no se pasa crudo: lo que hay en esa columna
+           puede venir de una restauración o de un script, y un banner mal
+           formado no tiene por qué dejar el catálogo entero sin cargar. */
+        banners: leerBanners(negocio.banners),
       },
       categorias: agrupadas,
     },

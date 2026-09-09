@@ -73,6 +73,7 @@ function negocio(
     rubro: null,
     patronFondo: true,
     redesSociales: [],
+    banners: [],
   };
 }
 

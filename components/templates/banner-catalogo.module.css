@@ -1,0 +1,31 @@
+@reference "../../app/globals.css";
+
+/* La franja del banner.
+ *
+ * Ancho completo del catálogo y **proporción fija**: sin una proporción
+ * declarada, cada negocio sube una imagen de un alto distinto y el catálogo
+ * cambia de forma según quién lo mire. 4:1 es la de las maquetas y la que deja
+ * una franja que se lee sin tapar el catálogo en un teléfono.
+ *
+ * No define foco ni transición: el foco lo pone la regla global de
+ * `app/globals.css`, que es la misma en todo el sitio, y una transición propia
+ * acá sería el único sitio del catálogo que tiene una.
+ */
+.banner {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
+  border-radius: var(--radius-tarjeta);
+  /* Se ve mientras la imagen baja, y en un banner ancho eso es medio segundo de
+     hueco blanco si no hay nada detrás. */
+  background: var(--catalogo-fondo-suave);
+}
+
+.imagen {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 1;
+  object-fit: cover;
+}

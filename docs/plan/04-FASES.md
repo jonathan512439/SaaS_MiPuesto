@@ -96,7 +96,12 @@ existen**. Es la fase que se puede mostrar a un prospecto la semana que viene.
 - Dos armazones nuevos: `catalogo` y `reserva`. El de `reserva` muestra por ahora el
   bloque de contacto donde después irá el calendario.
 - Selector de tarjeta en `dashboard/plantilla`, con vista previa.
-- Extender `hoja-de-contactos.tsx` a las 19 combinaciones válidas.
+- Extender `hoja-de-contactos.tsx` a las combinaciones válidas.
+- **Los dos banners del catálogo**, pedidos el 2026-09-09. Son del armazón
+  —portada, navegación, pie— y por eso entran acá y no en la fase 8: uno debajo
+  de la portada y otro antes del pie, opcionales, para promoción o aviso. El
+  modelo está en `01-MODELO-DE-DATOS.md` sección 7 bis; el formulario que los
+  carga va con el resto del panel, en el paso 1.4.
 
 ## Lo que no entra
 

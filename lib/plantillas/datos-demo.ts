@@ -44,6 +44,7 @@ export function crearDatosDemoPlantilla({
     rubro,
     patronFondo,
     redesSociales: [],
+    banners: [],
     },
     categorias: [
       {

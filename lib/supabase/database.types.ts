@@ -255,6 +255,7 @@ export type Database = {
           activo_actualizado_por: string | null
           activo_anterior: boolean | null
           admin_user_id: string
+          banners: Json
           ciudad: string | null
           creado_en: string
           descripcion: string | null
@@ -290,6 +291,7 @@ export type Database = {
           activo_actualizado_por?: string | null
           activo_anterior?: boolean | null
           admin_user_id: string
+          banners?: Json
           ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
@@ -325,6 +327,7 @@ export type Database = {
           activo_actualizado_por?: string | null
           activo_anterior?: boolean | null
           admin_user_id?: string
+          banners?: Json
           ciudad?: string | null
           creado_en?: string
           descripcion?: string | null

@@ -685,6 +685,42 @@ alter table public.productos
 > **`relaciones_producto` es la única tabla del plan sin `id` propio.** La clave es el
 > par, y no hace falta más: no hay nada que referencie una relación.
 
+## 7 bis. Los dos banners del catálogo
+
+Pedido el 2026-09-09, mirando las maquetas: casi todas tienen una franja ancha
+debajo de la portada y otra antes del pie, para una promoción, un aviso o
+publicidad propia del negocio.
+
+```sql
+alter table public.negocios
+  add column banners jsonb not null default '[]'::jsonb;
+
+alter table public.negocios
+  add constraint negocios_banners_es_lista_corta check (
+    jsonb_typeof(banners) = 'array' and jsonb_array_length(banners) <= 2
+  );
+```
+
+**Van en `jsonb` y no en una tabla, contra la regla general de este documento**,
+y el motivo es que siguen a `redes_sociales`, que ya existe y es la misma clase
+de cosa: una lista corta, acotada, propia del negocio, que se lee siempre junto
+con él y nunca se consulta por su cuenta. Una tabla sumaría una política de RLS,
+una ida más a la base en el camino público y un `join` en la consulta que más
+importa, a cambio de nada.
+
+**Son dos y no una lista libre.** Tres franjas de publicidad en un catálogo de
+barrio es un catálogo que no se lee. El techo va en la base y no solo en el
+validador.
+
+**La posición es la del arreglo:** el primero arriba, el segundo abajo. Sin campo
+`posicion`, que sería un dato más que puede quedar en dos estados que se
+contradicen.
+
+Cada banner es `{ imagen, alt, enlace }`. El texto alternativo es **obligatorio**:
+un banner puede ser el aviso de que el negocio cierra por feriado, y sin él esa
+información se pierde para quien usa lector de pantalla. La imagen y el enlace
+solo aceptan `https`.
+
 ## 8. RLS — el patrón único
 
 Todas las tablas nuevas siguen la misma forma, que se apoya en el principio 1.

@@ -6,6 +6,7 @@ import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
+import { BannerCatalogo } from "../banner-catalogo";
 import { FotoProducto } from "../foto-producto";
 import { InsigniaProducto, insigniaDe } from "../insignias-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
@@ -80,6 +81,8 @@ export function PlantillaModerna({
       </header>
 
       <AvisoHorario estado={datos.negocio.atencion} />
+
+      <BannerCatalogo banner={datos.negocio.banners[0]} />
 
         {navegacion ? (
           <search className={styles.buscador}>
@@ -172,6 +175,8 @@ export function PlantillaModerna({
           </li>
         ))}
       </ul>
+
+      <BannerCatalogo banner={datos.negocio.banners[1]} />
 
       <footer className={styles.pie}>
         <span>

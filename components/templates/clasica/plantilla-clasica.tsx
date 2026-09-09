@@ -6,6 +6,7 @@ import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { AccionProducto } from "../accion-producto";
 import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
+import { BannerCatalogo } from "../banner-catalogo";
 import { FotoProducto } from "../foto-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import { InsigniaProducto, insigniaDe } from "../insignias-producto";
@@ -59,6 +60,8 @@ export function PlantillaClasica({
       </header>
 
       <AvisoHorario estado={datos.negocio.atencion} />
+
+      <BannerCatalogo banner={datos.negocio.banners[0]} />
 
         {navegacion ? (
           <search className={styles.buscador}>
@@ -169,6 +172,8 @@ export function PlantillaClasica({
           </section>;
         })}
       </div>
+
+      <BannerCatalogo banner={datos.negocio.banners[1]} />
 
       <footer className={styles.pie}>
         <p>¿Necesitas ayuda para elegir?</p>
