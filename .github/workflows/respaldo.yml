@@ -216,35 +216,56 @@ jobs:
             fi
           done
 
-          # Que el esquema `private` esté adentro, y no confiar en que la bandera
-          # esté puesta. Sin él, el volcado pesa igual, sube igual y solo se
-          # descubre inservible el día que hay que restaurar. Un respaldo que
-          # aparenta estar bien es peor que uno que falla ruidosamente.
-          # Se busca cualquier objeto calificado con `private.` —una función, la
-          # tabla de ajustes— y no la sentencia exacta que crea el esquema: el
-          # texto que emite pg_dump puede cambiar entre versiones y una guardia
-          # que se rompe sola termina desactivada.
-          if ! zgrep -q "private\." respaldo-esquema.sql.gz; then
+          # Estas comprobaciones miran el CONTENIDO y no el peso, porque los seis
+          # defectos que se encontraron el 2026-09-09 producían todos un archivo
+          # de buen tamaño. Un respaldo que aparenta estar bien es peor que uno
+          # que falla ruidosamente.
+          #
+          # **Se cuenta con `zgrep -c` y nunca con `zgrep -q`.** Con `-q`, zgrep
+          # corta la lectura apenas encuentra la coincidencia, gzip se queda
+          # escribiendo en una tubería cerrada y el estado de salida termina
+          # reflejando ese fallo en vez del resultado de la búsqueda: a veces
+          # devuelve cero y a veces uno, con el mismo archivo. Una guardia
+          # intermitente es peor que una equivocada, porque enseña a ignorarla.
+          # `-c` lee el archivo entero y no cierra nada antes de tiempo.
+          # Y encaja con lo que pasó: en el archivo de migraciones la coincidencia
+          # está en la primera línea y detrás vienen los 47 textos completos de
+          # las migraciones, así que el corte es seguro. En los demás la
+          # coincidencia llega tarde o el archivo es chico, y por eso pasaban.
+          contar() {
+            n=$(zgrep -c "$1" "$2" 2>/dev/null || true)
+            # Vacío significa que el archivo no existe: cuenta como cero y el
+            # llamador falla con su propio mensaje, no con «integer expression
+            # expected».
+            echo "${n:-0}"
+          }
+
+          # Cualquier objeto calificado con `private.` —una función, la tabla de
+          # ajustes— y no la sentencia exacta que crea el esquema: el texto que
+          # emite pg_dump puede cambiar entre versiones y una guardia que se
+          # rompe sola termina desactivada.
+          if [ "$(contar 'private\.' respaldo-esquema.sql.gz)" -lt 1 ]; then
             echo "El volcado del esquema no incluye 'private': no se podría restaurar." >&2
             exit 1
           fi
 
           # Las cuentas, por contenido y no por peso: con pocos dueños el archivo
           # comprimido puede pesar menos de un kilobyte y ser correcto.
-          if ! zgrep -q "COPY auth\.users" respaldo-auth-users.sql.gz; then
+          if [ "$(contar 'COPY auth\.users' respaldo-auth-users.sql.gz)" -lt 1 ]; then
             echo "El volcado de cuentas no trae auth.users: la base no se podría restaurar." >&2
             exit 1
           fi
 
-          if ! zgrep -q "COPY supabase_migrations\.schema_migrations" respaldo-migraciones.sql.gz; then
+          if [ "$(contar 'COPY supabase_migrations\.schema_migrations' respaldo-migraciones.sql.gz)" -lt 1 ]; then
             echo "El volcado no trae el historial de migraciones: la base restaurada" >&2
             echo "no podría recibir la próxima migración." >&2
             exit 1
           fi
+
           # Los depósitos sin sus políticas serían peor que nada: una base
           # restaurada que acepta subidas sin comprobar de quién es la carpeta.
-          politicas=$(zgrep -c "create policy" respaldo-storage.sql.gz || true)
-          depositos=$(zgrep -c "insert into storage.buckets" respaldo-storage.sql.gz || true)
+          politicas=$(contar 'create policy' respaldo-storage.sql.gz)
+          depositos=$(contar 'insert into storage.buckets' respaldo-storage.sql.gz)
           echo "Storage: $depositos depósitos y $politicas políticas."
           if [ "$depositos" -lt 1 ] || [ "$politicas" -lt 1 ]; then
             echo "El respaldo de Storage salió vacío: la base restaurada no serviría" >&2
