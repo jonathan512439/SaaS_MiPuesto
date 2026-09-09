@@ -305,81 +305,57 @@ jobs:
       # Que los datos estén no alcanza. Estas dos cosas deciden si la base
       # restaurada **se puede usar**, y las dos se pueden perder sin que nada
       # falle: por eso se comprueban y no se miran.
-      - name: Comprobar que la base restaurada es usable
+      # La comprobacion definitiva, y la unica que no envejece.
+      #
+      # Las versiones anteriores de este paso afirmaban a mano lo que el sistema
+      # deberia ser —«veinte politicas», «anon puede leer negocios»— y fallaron
+      # las dos veces con una restauracion CORRECTA: la primera porque habia
+      # dieciocho politicas, la segunda porque en produccion anon **no** puede
+      # leer negocios. Cada hecho escrito a mano acá es una suposicion que
+      # envejece y que ademas hay que recordar actualizar en cada fase.
+      #
+      # Entonces no se afirma nada: se **compara la copia contra el respaldo**.
+      # El mismo guion que genero el archivo de permisos se corre ahora contra la
+      # base restaurada, y las dos salidas tienen que ser identicas. Si lo son,
+      # la copia tiene exactamente el modelo de permisos del original — ni mas
+      # abierta ni mas cerrada— sin que nadie tenga que saber cual es.
+      - name: Comprobar que la copia es igual al original
         env:
           ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
         run: |
           PSQL=/usr/lib/postgresql/17/bin/psql
 
-          # Una base con datos y sin políticas es una base abierta: cualquiera
-          # leería los pedidos de cualquier negocio.
-          #
-          # Se compara contra **lo que el volcado dice que trae**, no contra un
-          # número escrito acá. La primera versión exigía veinte y había
-          # dieciocho: un umbral inventado que fallaba con una restauración
-          # correcta, y que además habría que recordar subir cada vez que una
-          # fase agregue tablas. El índice del volcado ya sabe la respuesta.
+          # Las politicas, contra lo que el indice del volcado dice que trae.
           esperadas=$(( $(grep -cE '^[0-9]+; [0-9]+ [0-9]+ POLICY public ' indice-completo.txt || true) ))
-          politicas=$("$PSQL" "$ENSAYO_DB_URL" -tAc \
-            "select count(*) from pg_policies where schemaname = 'public';")
-          echo "Políticas RLS en public: $politicas (el volcado trae $esperadas)"
-
+          politicas=$("$PSQL" "$ENSAYO_DB_URL" -tAc             "select count(*) from pg_policies where schemaname = 'public';")
+          echo "Politicas RLS en public: $politicas (el volcado trae $esperadas)"
           if [ "$esperadas" -lt 1 ]; then
-            echo "::error::El volcado no trae ninguna política RLS. El respaldo está mal hecho."
+            echo "::error::El volcado no trae ninguna politica RLS. El respaldo esta mal hecho."
             exit 1
           fi
           if [ "$politicas" -ne "$esperadas" ]; then
-            echo "::error::Se restauraron $politicas de $esperadas políticas: falta aislamiento."
+            echo "::error::Se restauraron $politicas de $esperadas politicas: falta aislamiento."
             exit 1
           fi
 
-          # El volcado va con --no-privileges, así que los permisos de la API no
-          # viajan en él: los repone Supabase con sus privilegios por defecto
-          # sobre el esquema. Si esa reposición no ocurre, la base queda completa
-          # y la API contesta «permission denied» a todo, que se confunde con RLS
-          # funcionando. Comprobarlo es la diferencia entre las dos cosas.
-          # Se preguntan las tres tablas que el catálogo público necesita de
-          # verdad, y no un conteo: «anon tiene algún permiso en algún lado» no
-          # dice que pueda leer un catálogo.
-          faltan=$("$PSQL" "$ENSAYO_DB_URL" -tAc \
-            "select string_agg(t.tabla, ', ')
-               from (values ('negocios'), ('productos'), ('categorias')) as t(tabla)
-              where not has_table_privilege('anon', 'public.' || t.tabla, 'SELECT');")
-          if [ -n "$faltan" ]; then
-            echo "::error::anon no puede leer: $faltan. La API no serviría el catálogo."
-            echo "Los permisos no viajan en el volcado (--no-privileges): los repone" >&2
-            echo "Supabase con sus privilegios por defecto sobre el esquema. Si no lo" >&2
-            echo "hizo, hay que otorgarlos a mano antes de dar el ensayo por bueno." >&2
+          # Los permisos, contra el archivo del respaldo.
+          PGOPTIONS='-c search_path=' "$PSQL" "$ENSAYO_DB_URL"             -tA -o permisos-restaurados.sql             -f supabase/restauracion/generar-permisos.sql
+
+          sort respaldo-permisos.sql > esperado.txt
+          sort permisos-restaurados.sql > obtenido.txt
+
+          if ! diff -u esperado.txt obtenido.txt > diferencias.txt; then
+            echo "::error::Los permisos de la copia NO coinciden con los del original."
+            echo "" >&2
+            echo "Cada linea con - es un permiso que produccion tiene y la copia no." >&2
+            echo "Cada linea con + es uno que la copia tiene de mas." >&2
+            echo "" >&2
+            head -60 diferencias.txt >&2
             exit 1
           fi
-          echo "anon puede leer negocios, productos y categorías."
 
-          # Y lo que NO tiene que poder.
-          #
-          # Es la comprobación que faltaba. El recorrido de aislamiento falló el
-          # 2026-09-09 con «pedidos: la actualización sin permiso no fue rechazada»,
-          # porque la copia restaurada le daba `update` sobre `pedidos` a cualquier
-          # dueño, y **ninguna comprobación de este flujo lo miraba**: todas
-          # preguntaban qué se podía hacer, ninguna qué no.
-          demasiado=$("$PSQL" "$ENSAYO_DB_URL" -tAc \
-            "select string_agg(t.descripcion, ', ')
-               from (values
-                 ('UPDATE sobre pedidos',
-                  has_table_privilege('authenticated', 'public.pedidos', 'UPDATE')),
-                 ('UPDATE sobre negocios',
-                  has_table_privilege('authenticated', 'public.negocios', 'UPDATE')),
-                 ('UPDATE sobre pedido_items',
-                  has_table_privilege('authenticated', 'public.pedido_items', 'UPDATE'))
-               ) as t(descripcion, lo_tiene)
-              where t.lo_tiene;")
-          if [ -n "$demasiado" ]; then
-            echo "::error::La copia restaurada es MÁS permisiva que producción: $demasiado."
-            echo "Los permisos recortados no se restauraron." >&2
-            exit 1
-          fi
-          echo "authenticated no puede escribir donde no debe."
-
-          echo "La base restaurada tiene aislamiento y es alcanzable por la API."
+          echo "Los permisos de la copia son identicos a los del original:"
+          echo "  $(grep -c '^grant ' esperado.txt) otorgamientos, comparados uno por uno."
 
       - name: Resumen
         run: |

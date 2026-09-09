@@ -170,9 +170,28 @@ La pieza no obvia de ese guion es `acldefault`. Cuando un objeto nunca tuvo un
 permisos» sino «los de fábrica»** —que en una función son `execute` para todos—.
 Sin resolver eso, esos objetos quedarían fuera del guion y se perderían.
 
-Y el ensayo ahora comprueba **lo que la copia no tiene que poder**, no solo lo que
-puede. Esa era la falta de fondo: todas las comprobaciones preguntaban qué se
-podía hacer, ninguna qué no.
+### La comprobación que no envejece
+
+Las primeras versiones del paso final **afirmaban a mano** lo que el sistema
+debía ser, y fallaron dos veces con una restauración **correcta**:
+
+| Afirmación escrita a mano | Por qué era falsa |
+|---|---|
+| «tiene que haber al menos veinte políticas RLS» | Hay dieciocho |
+| «`anon` tiene que poder leer `negocios`» | En producción tampoco puede: el catálogo llega por otro camino |
+
+Las dos son el mismo error. Un hecho sobre el esquema escrito dentro de una
+comprobación es una suposición que envejece, y que además hay que acordarse de
+actualizar en cada fase que agregue una tabla.
+
+**Entonces el ensayo ya no afirma nada: compara.** Corre el mismo
+`generar-permisos.sql` contra la copia restaurada y exige que su salida sea
+idéntica, línea por línea, a la del archivo del respaldo. Si lo son, la copia
+tiene exactamente el modelo de permisos del original —ni más abierta ni más
+cerrada— **sin que nadie tenga que saber cuál es**.
+
+Cuando no coinciden, el error muestra el diff: cada línea con `-` es un permiso
+que producción tiene y la copia no; cada `+`, uno que la copia tiene de más.
 
 ## Lo que hay que configurar una sola vez
 
@@ -233,7 +252,7 @@ workflow*. Se le puede dar una fecha; vacío toma el respaldo de hoy.
 | 9. Restaura los depósitos de Storage | Sin ellos no hay imágenes ni aislamiento en las subidas |
 | 10. Aplica `02-postambulo.sql` (tareas programadas) | — |
 | 11. Cuenta filas por tabla | Se lee en el registro |
-| 12. **Comprueba que la base es usable** | Faltan políticas RLS, o `anon` no puede leer el catálogo, y falla |
+| 12. **Compara la copia con el original** | Faltan políticas, o los permisos difieren del respaldo, y falla con el diff |
 
 La comprobación final no usa números escritos a mano: cuenta las políticas que el
 **índice del volcado** dice que trae y exige que estén todas. La primera versión
