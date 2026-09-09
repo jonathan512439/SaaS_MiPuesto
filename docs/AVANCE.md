@@ -26,7 +26,7 @@ Diez fases, **62 días de trabajo efectivo**. Está en `docs/plan/04-FASES.md`.
 
 | Fase | Nombre | Días | Estado |
 |---|---|---|---|
-| 0 | Red de seguridad | 2 | **Casi cerrada** — ver abajo |
+| 0 | Red de seguridad | 2 | **CERRADA el 2026-09-09** |
 | 1 | El armazón visual nuevo | 6 | No iniciada |
 | 2 | Atributos por categoría | 8 | No iniciada |
 | 3 | Variantes con existencias propias | 9 | No iniciada |
@@ -49,12 +49,12 @@ vigilante de salud con aviso por ntfy.
 
 Todo eso **no se rehace**. El plan nuevo construye encima.
 
-### Fase 0 — lo hecho el 2026-09-09
+### Fase 0 — CERRADA el 2026-09-09
 
 **El respaldo corre y la restauración está probada.** El ensayo termina en verde y es
 repetible con un botón.
 
-En el camino aparecieron **seis defectos**, todos en un respaldo que llevaba desde el
+En el camino aparecieron **nueve defectos**, todos en un respaldo que llevaba desde el
 5 de septiembre en verde. Ninguno se veía desde afuera: los seis producen un archivo
 con buen peso que sube sin quejarse.
 
@@ -66,6 +66,9 @@ con buen peso que sube sin quejarse.
 | 4 | El volcado partido en esquema y datos rompía el orden de las claves foráneas | Carga fallida por un orden que nadie eligió |
 | 5 | Las cuentas se respaldaban y **no se restauraban** | Siete claves foráneas contra `auth.users`: no restaura nada |
 | 6 | No se respaldaba el historial de migraciones | La base restaurada no acepta la próxima migración |
+| 7 | No se respaldaban los depósitos de Storage ni sus políticas | Ninguna imagen, y subidas sin comprobar de quién es la carpeta |
+| 8 | **Los permisos se descartaban con `--no-privileges`** | La copia quedaba **más permisiva que el original** |
+| 9 | Faltaban los 31 permisos **por columna** | El catálogo no se podía leer y el dueño podía escribir de más |
 
 Lo construido para eso: el volcado en formato personalizado, los tres archivos de
 preparación en `supabase/restauracion/`, el flujo `ensayo-restaurar.yml`, la guardia
@@ -76,11 +79,18 @@ correr si apuntan al proyecto real.
 migraciones**, o sea el lugar donde se prueban las migraciones de cada fase antes de
 tocar los datos reales. Ese es el activo que deja la fase 0, además del respaldo.
 
+### El criterio de aceptación de la fase 0, verificado
+
+- [x] Existe un respaldo en R2 con la fecha de hoy, con sus ocho archivos.
+- [x] El ensayo de restauración corre con un botón y termina en verde, en 17 pasos.
+- [x] La copia restaurada **pasa el recorrido de aislamiento**: `npm run ensayo:rls`.
+- [x] La copia **acepta la próxima migración**: `npm run ensayo:push` responde
+      «Remote database is up to date», con las 47 reconocidas.
+- [x] El aviso de caída llega al teléfono del dueño.
+
 ### Lo que sigue sin cumplirse
 
 - **No hubo semana de piloto.** Sigue siendo el criterio de salida del proyecto entero.
-- Falta que el dueño pruebe el aviso de ntfy y cargue las variables `ENSAYO_*` en su
-  `.env.local`.
 
 ## Cómo continuar este proyecto
 
@@ -134,8 +144,8 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | ~~Configurar y correr el respaldo~~ | **Hecho el 2026-09-09** |
 | ~~Hacer el ensayo de restauración~~ | **Hecho el 2026-09-09**, en verde y repetible |
 | ~~Crear la base de ensayo en Supabase~~ | **Hecha el 2026-09-09** |
-| Suscribirse al tema de ntfy y probar el aviso | `npm run vigilancia:configurar -- --probar` |
-| Cargar las variables `ENSAYO_*` en `.env.local` | `.env.example`, sección «Base de ensayo» |
+| ~~Suscribirse al tema de ntfy y probar el aviso~~ | **Hecho el 2026-09-09**: suena en el teléfono |
+| ~~Cargar las variables `ENSAYO_*` en `.env.local`~~ | **Hecho el 2026-09-09** |
 | Comprar y conectar el dominio | Bloquea correo propio, QR, NFC y el reporte por correo |
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |

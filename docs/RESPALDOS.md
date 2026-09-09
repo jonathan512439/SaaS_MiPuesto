@@ -376,7 +376,7 @@ una promesa, no una garantía.
 
 | Fecha del ensayo | Resultado |
 |---|---|
-| 2026-09-09 | **Correcto.** Seis defectos encontrados y corregidos en el camino; el ensayo termina en verde y es repetible |
+| 2026-09-09 | **Correcto.** Nueve defectos encontrados y corregidos en el camino. El ensayo termina en verde, es repetible con un botón, y la copia pasa el recorrido de aislamiento y acepta la próxima migración |
 
 ## Qué hacer si hay que restaurar de verdad
 
