@@ -155,6 +155,22 @@ pie**, y saltea los objetos que pertenecen a una extensión.
 Y por eso el paso 9 comprueba los permisos de `anon` además de las políticas: son
 las dos cosas que se pueden perder sin que nada falle.
 
+### Y por qué la restauración saltea las entradas de tipo SCHEMA
+
+Mismo problema, un escalón más abajo. El volcado trae `create schema public`
+—`pg_dump` lo incluye porque en Supabase ese esquema no está en su estado por
+defecto— y sobre el proyecto de ensayo eso falla con «schema public already
+exists».
+
+Las dos salidas fáciles ya estaban descartadas: `--clean` rompe antes, en el
+`drop policy`, y borrar el esquema se lleva los privilegios por defecto.
+
+Entonces la restauración usa el mecanismo que el propio `pg_restore` tiene para
+esto: `--list` saca el índice del volcado, se le quitan las entradas de tipo
+`SCHEMA`, y `-L` restaura con el índice recortado. **Se edita el índice, no el
+archivo**, y los dos esquemas los crea `01-preambulo.sql`, que es código
+versionado y revisable en un commit.
+
 ### El seguro
 
 El paso 1 compara el identificador del proyecto de `ENSAYO_DB_URL` contra el de

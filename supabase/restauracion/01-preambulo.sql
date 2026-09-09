@@ -12,6 +12,17 @@
 --
 -- Se aplica sobre el proyecto nuevo, antes de `pg_restore`.
 
+-- Los esquemas se crean acá y no se dejan al volcado.
+--
+-- El volcado trae `create schema public`, y en un proyecto de Supabase ese
+-- esquema ya existe: `pg_restore` muere con «schema public already exists».
+-- Dejarlo pasar borrando el esquema antes es peor —se van con él los privilegios
+-- por defecto que hacen que la API alcance las tablas—, así que la restauración
+-- saltea del volcado **todas** las entradas de tipo SCHEMA y los crea acá.
+--
+-- `private` hace falta de verdad la primera vez: el proyecto nuevo no lo tiene.
+create schema if not exists private;
+
 -- Búsqueda por similitud. La usa el índice de `productos.texto_busqueda`.
 create extension if not exists pg_trgm;
 

@@ -125,10 +125,28 @@ jobs:
         env:
           ENSAYO_DB_URL: ${{ secrets.ENSAYO_DB_URL }}
         run: |
-          /usr/lib/postgresql/17/bin/pg_restore \
+          PG_RESTORE=/usr/lib/postgresql/17/bin/pg_restore
+
+          # El volcado trae `create schema public`, y en Supabase ese esquema ya
+          # existe: pg_restore muere con «schema public already exists». Las dos
+          # salidas fáciles están descartadas —`--clean` rompe en el drop policy,
+          # y borrar el esquema se lleva los privilegios por defecto de la API—,
+          # así que se saltean las entradas de tipo SCHEMA del índice del volcado
+          # y los crea el preámbulo, que es código versionado y revisable.
+          #
+          # `--list` y `-L` son el mecanismo del propio pg_restore para esto: se
+          # edita el índice, no el archivo.
+          "$PG_RESTORE" --list respaldo-completo.dump > indice-completo.txt
+          grep -vE '^[0-9]+; [0-9]+ [0-9]+ (SCHEMA |COMMENT - SCHEMA )' indice-completo.txt > indice.txt
+
+          salteadas=$(( $(grep -cE '^[0-9]+; [0-9]+ [0-9]+ (SCHEMA |COMMENT - SCHEMA )' indice-completo.txt || true) ))
+          echo "Entradas de tipo SCHEMA salteadas: $salteadas (las crea el preámbulo)."
+
+          "$PG_RESTORE" \
             --dbname "$ENSAYO_DB_URL" \
             --no-owner --no-privileges \
             --exit-on-error \
+            -L indice.txt \
             respaldo-completo.dump
           echo "Restauración terminada sin errores."
 
