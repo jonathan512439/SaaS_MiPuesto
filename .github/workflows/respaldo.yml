@@ -171,26 +171,43 @@ jobs:
           # En vez de copiar las políticas de las migraciones a un archivo aparte
           # —que se desincronizaría—, se **generan desde la base viva**. Lo que se
           # respalda es lo que hay, no lo que alguien recuerda que había.
-          /usr/lib/postgresql/17/bin/psql "$SUPABASE_DB_URL" -tA -o respaldo-storage.sql -c "
-            select format(
-              'insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-                 values (%L, %L, %L, %L, %L::text[])
-                 on conflict (id) do update set
-                   public = excluded.public,
-                   file_size_limit = excluded.file_size_limit,
-                   allowed_mime_types = excluded.allowed_mime_types;',
-              id, name, public, file_size_limit, allowed_mime_types)
-            from storage.buckets
-            union all
-            select
-              format('drop policy if exists %I on %I.%I;', policyname, schemaname, tablename)
-              || format(' create policy %I on %I.%I as %s for %s to %s',
-                   policyname, schemaname, tablename, permissive, cmd,
-                   array_to_string(roles, ', '))
-              || coalesce(' using (' || qual || ')', '')
-              || coalesce(' with check (' || with_check || ')', '')
-              || ';'
-            from pg_policies where schemaname = 'storage';"
+          #
+          # **Se genera con `search_path` vacío**, y eso no es un detalle. Postgres
+          # escribe las expresiones de una política omitiendo el esquema de todo lo
+          # que ya está visible: con el camino por defecto, una política que mira
+          # `public.negocios` sale escrita como `negocios` a secas. Al restaurarla
+          # en otra sesión ese contexto no es el mismo y falla con «relation
+          # negocios does not exist». Con el camino vacío, Postgres califica todo,
+          # y el archivo deja de depender de dónde se lo aplique.
+          #
+          # La primera línea del archivo fija igual un `search_path` razonable:
+          # cuesta nada y cubre cualquier expresión que se resista a calificarse.
+          /usr/lib/postgresql/17/bin/psql "$SUPABASE_DB_URL" -tA -o respaldo-storage.sql \
+            -c "set search_path = ''" \
+            -c "
+            select linea from (
+              select 0 as orden, 'set search_path = public, storage, extensions;' as linea
+              union all
+              select 1, format(
+                'insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+                   values (%L, %L, %L, %L, %L::text[])
+                   on conflict (id) do update set
+                     public = excluded.public,
+                     file_size_limit = excluded.file_size_limit,
+                     allowed_mime_types = excluded.allowed_mime_types;',
+                id, name, public, file_size_limit, allowed_mime_types)
+              from storage.buckets
+              union all
+              select 2,
+                format('drop policy if exists %I on %I.%I;', policyname, schemaname, tablename)
+                || format(' create policy %I on %I.%I as %s for %s to %s',
+                     policyname, schemaname, tablename, permissive, cmd,
+                     array_to_string(roles, ', '))
+                || coalesce(' using (' || qual || ')', '')
+                || coalesce(' with check (' || with_check || ')', '')
+                || ';'
+              from pg_policies where schemaname = 'storage'
+            ) generado order by orden;"
           gzip respaldo-storage.sql
 
           # Las identidades sí son mejor esfuerzo: sin ellas la base restaura
