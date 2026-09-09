@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { SelectorApariencia } from "../../../../components/plantillas/selector-apariencia";
 import { crearDatosDemoPlantilla } from "../../../../lib/plantillas/datos-demo";
 import { esTipoNegocio } from "../../../../lib/modalidades";
+import { tarjetaValidaPara } from "../../../../lib/apariencia";
 import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./plantilla.module.css";
@@ -23,7 +24,7 @@ export default async function PaginaPlantilla() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,paleta_id,rubro,patron_fondo")
+    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,tarjeta_id,paleta_id,rubro,patron_fondo")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -33,6 +34,10 @@ export default async function PaginaPlantilla() {
     ? negocio.plantilla_id
     : "clasica";
   const paletaInicial = esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado";
+  /* Se corrige acá también, y no solo al guardar: un negocio anterior a esta
+     columna llega con la predeterminada, y uno que cambió de plantilla por SQL
+     podría llegar con una forma que su plantilla no dibuja. */
+  const tarjetaInicial = tarjetaValidaPara(plantillaInicial, negocio.tarjeta_id);
   const datos = crearDatosDemoPlantilla({
     nombre: negocio.nombre,
     descripcion: negocio.descripcion,
@@ -54,6 +59,7 @@ export default async function PaginaPlantilla() {
       <SelectorApariencia
         datos={datos}
         paletaInicial={paletaInicial}
+        tarjetaInicial={tarjetaInicial}
         patronInicial={negocio.patron_fondo !== false}
         plantillaInicial={plantillaInicial}
       />

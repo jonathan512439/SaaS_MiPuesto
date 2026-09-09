@@ -129,3 +129,28 @@ describe("el contenedor y la tarjeta tienen que ser compatibles", () => {
     }
   });
 });
+
+/* El panel y el catálogo público tienen que corregir igual.
+ *
+ * Si la ruta rechazara lo que el catálogo corrige, el dueño se quedaría trabado
+ * al cambiar de estructura; si corrigiera distinto, vería una forma en la vista
+ * previa y otra en su catálogo. Las dos usan la misma función, y esto lo fija. */
+describe("guardar la forma desde el panel", () => {
+  const ruta = readFileSync(
+    join(import.meta.dirname, "..", "..", "..", "app", "api", "negocios", "plantilla", "route.ts"),
+    "utf8",
+  );
+
+  it("corrige con la misma función que el catálogo público, en vez de rechazar", () => {
+    expect(ruta).toContain("tarjetaValidaPara");
+    expect(ruta, "la ruta rechaza la tarjeta en vez de corregirla").not.toContain(
+      "La tarjeta seleccionada no es válida",
+    );
+  });
+
+  /* Se devuelve la guardada y no la recibida: si se corrigió, el panel tiene que
+     enterarse y mostrar la que de verdad quedó. */
+  it("devuelve la tarjeta que quedó guardada", () => {
+    expect(ruta).toContain("tarjeta_id: negocio.tarjeta_id");
+  });
+});
