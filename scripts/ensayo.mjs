@@ -51,6 +51,62 @@ function refDeCadena(cadena) {
   return /postgres\.([a-z0-9]{16,})/i.exec(cadena)?.[1] ?? null;
 }
 
+/* Qué es una clave de Supabase, sin mostrarla.
+ *
+ * «Invalid API key» es opaco a propósito y tapa tres errores distintos: la
+ * clave está mal copiada, es del proyecto equivocado, o están cruzadas entre sí.
+ * Los tres se distinguen desde afuera, porque las claves lo dicen: las viejas
+ * son JWT y llevan el rol y el proyecto en su carga, y las nuevas lo llevan en
+ * el prefijo. **Nada de esto imprime la clave**, solo lo que declara ser.
+ */
+function describirClave(valor) {
+  const limpio = valor.trim();
+  const sobra = limpio !== valor;
+
+  if (limpio.startsWith("sb_publishable_")) return { rol: "anon", ref: null, sobra };
+  if (limpio.startsWith("sb_secret_")) return { rol: "service_role", ref: null, sobra };
+
+  if (limpio.startsWith("eyJ")) {
+    try {
+      const carga = JSON.parse(Buffer.from(limpio.split(".")[1], "base64url").toString());
+      return { rol: carga.role ?? "desconocido", ref: carga.ref ?? null, sobra };
+    } catch {
+      return { rol: "ilegible", ref: null, sobra };
+    }
+  }
+
+  return { rol: "no parece una clave de Supabase", ref: null, sobra };
+}
+
+function comprobarClave(nombre, valor, rolEsperado, refEsperado) {
+  const { rol, ref, sobra } = describirClave(valor);
+
+  if (sobra) {
+    fallar(
+      `${nombre} tiene espacios o un salto de línea alrededor.\n` +
+        "Eso solo da «Invalid API key». Pegala en una sola línea, sin comillas.",
+    );
+  }
+  if (rol !== rolEsperado) {
+    fallar(
+      `${nombre} no es la clave que corresponde.\n` +
+        `  Se esperaba una clave de rol «${rolEsperado}» y esta declara «${rol}».\n\n` +
+        (rol === "anon" || rol === "service_role"
+          ? "Parece que están cruzadas: revisá cuál va en cada variable."
+          : "Sale de Supabase → mipuesto-ensayo → Project Settings → API."),
+    );
+  }
+  if (ref && refEsperado && ref !== refEsperado) {
+    fallar(
+      `${nombre} es de otro proyecto.\n` +
+        `  La clave declara pertenecer a: ${ref}\n` +
+        `  La base de ensayo es:          ${refEsperado}\n\n` +
+        "Es una clave válida, del proyecto equivocado: por eso el error decía\n" +
+        "«Invalid API key» y no «clave incorrecta».",
+    );
+  }
+}
+
 function fallar(mensaje) {
   /* Sin volcado de pila: quien lee esto tiene que arreglar una variable, no
      depurar este archivo. La primera versión dejaba que `new URL` reventara con
@@ -131,6 +187,26 @@ if (accion === "ver") {
   console.log(`Base de ensayo: ${new URL(url).host}`);
   console.log(`Proyecto de ensayo: ${refDeCadena(url)}`);
   console.log(`Proyectos protegidos: ${refDelProyectoReal().join(", ") || "ninguno detectado"}`);
+
+  /* Qué dice cada clave ser, sin mostrarla. Es lo que convierte un «Invalid API
+     key» en un diagnóstico. */
+  for (const [nombre, esperado] of [
+    ["ENSAYO_PUBLISHABLE_KEY", "anon"],
+    ["ENSAYO_SERVICE_ROLE_KEY", "service_role"],
+  ]) {
+    const valor = process.env[nombre];
+    if (!valor) {
+      console.log(`${nombre}: sin cargar`);
+      continue;
+    }
+    const { rol, ref, sobra } = describirClave(valor);
+    const notas = [
+      rol === esperado ? "rol correcto" : `ROL EQUIVOCADO: dice «${rol}»`,
+      ref === null ? "proyecto no declarado" : `proyecto ${ref}`,
+      sobra ? "TIENE ESPACIOS ALREDEDOR" : null,
+    ].filter(Boolean);
+    console.log(`${nombre}: ${notas.join(", ")}`);
+  }
 } else if (accion === "push") {
   await correr(process.execPath, [CLI, "db", "push", "--db-url", urlDeEnsayo()]);
 } else if (accion === "estructura") {
@@ -180,11 +256,17 @@ if (accion === "ver") {
     );
   }
 
+  comprobarClave("ENSAYO_PUBLISHABLE_KEY", publica, "anon", refEnsayo);
+  comprobarClave("ENSAYO_SERVICE_ROLE_KEY", servicio, "service_role", refEnsayo);
+
+  /* Se recortan al pasarlas: un salto de línea invisible al final de una clave
+     pegada desde el navegador da el mismo «Invalid API key» que una clave mal
+     copiada, y encontrarlo mirando el archivo es casi imposible. */
   await correr(process.execPath, ["scripts/test-rls-multitenant.mjs"], {
-    NEXT_PUBLIC_SUPABASE_URL: url,
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: publica,
+    NEXT_PUBLIC_SUPABASE_URL: url.trim(),
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: publica.trim(),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
-    SUPABASE_SERVICE_ROLE_KEY: servicio,
+    SUPABASE_SERVICE_ROLE_KEY: servicio.trim(),
   });
 } else {
   console.error("Uso: node scripts/ensayo.mjs <ver|push|estructura|rls>");
