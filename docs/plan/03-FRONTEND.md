@@ -1,246 +1,263 @@
-# 03 — Frontend: armazones, tarjetas y rendimiento
+# 03 · Frontend
 
-`DESIGN.md` sigue siendo la dirección visual y manda sobre este archivo. Acá va la
-**arquitectura de render**: cómo se construye un catálogo que sirva para 44 rubros sin
-escribir 44 catálogos.
+Un solo diseño de catálogo. Lo que cambia entre una veterinaria y una
+distribuidora no es la estructura de la página: son sus categorías, sus campos y
+sus acciones.
 
-## 1. El problema, dicho sin rodeos
+## 1. La portada, bloque por bloque
 
-Hoy hay **4 plantillas × 7 paletas**, y la plantilla decide todo: el armazón, la tarjeta,
-la ficha y el pie. Eso alcanza para 7 rubros y no alcanza para 44.
+Este es el orden del diseño de referencia, con lo que cada bloque toma del
+sistema y quién lo controla.
 
-Pero la salida **no es dibujar 44 plantillas**. Al mirar las 44 fichas de
-`Catalogos_Ejemplo/`, las maquetas de teléfono se repiten: hay unas seis formas de
-tarjeta y unas seis formas de portada, combinadas distinto. Una ficha de repuesto con
-compatibilidad, una de hotel con calendario y una de cerámica con calculadora no son la
-misma pantalla con otro color — pero **sí son las mismas seis piezas ordenadas
-distinto**.
-
-## 2. La descomposición: tres ejes en vez de uno
-
-```
-            Armazón (6)        ×    Tarjeta (6)       ×   Paleta (7)
-         cómo se recorre           cómo se decide         cómo se ve
-```
-
-### Armazón — cómo se recorre el catálogo
-
-| Id | Nombre | Forma | Rubros típicos |
+| # | Bloque | De dónde sale | Lo controla |
 |---|---|---|---|
-| `clasica` | Clásica | Carta editorial por categorías | Restaurante, pastelería |
-| `moderna` | Moderna | Vitrina visual con acción rápida | Moda, juguetería, regalos |
-| `minimal` | Mínima | Servicios y contacto directo | Consultoría, servicios del hogar |
-| `feria` | Feria | Lista de precios densa | Minimarket, mayorista, librería |
-| `catalogo` | **Catálogo técnico** *(nuevo)* | Buscador arriba, filtros laterales, resultados en cuadrícula | Ferretería, repuestos, electropartes, electrónica |
-| `reserva` | **Reserva** *(nuevo)* | Calendario primero, catálogo después | Barbería, dental, canchas, hotel, tours |
+| 1 | Patrón de fondo | Iconos de las categorías | Dueño: visible y opacidad |
+| 2 | Cabecera | Logo, nombre, subnombre, carrito | Dueño: los tres primeros |
+| 3 | Botón de Google | `maps_*` | Dueño: aparece o no |
+| 4 | Buscador | Nombre, código y atributos | Siempre |
+| 5 | Esferas de categoría | `categorias` con `visible` | Dueño: cuáles muestra |
+| 6 | Portada | Imagen, título, bajada, botón | Dueño |
+| 7 | Franja de horario | `horario` del negocio | Automático |
+| 8 | Productos | `productos` | Dueño: orden y visibilidad |
+| 9 | Banner inferior | `banners[1]` | Dueño: **opcional** |
+| 10 | Franja de confianza | Frase del rubro | Automático |
+| 11 | Barra inferior | Según modalidad | Automático |
 
-Los dos nuevos existen porque **cambian la primera decisión del comprador**. En
-`catalogo` la primera pregunta es «¿tenés esto?» y por eso el buscador va arriba de todo.
-En `reserva` la primera pregunta es «¿hay lugar el jueves?» y por eso el calendario
-precede al catálogo. Eso no se resuelve con estilos.
+### 1.1 Lo que se retira del diseño de referencia
 
-### Tarjeta — cómo se decide un producto
-
-| Id | Forma | Qué muestra además del nombre y el precio |
-|---|---|---|
-| `lista` | Fila, foto chica a la izquierda | Descripción corta |
-| `cuadricula` | Foto cuadrada arriba | Insignia, marca |
-| `retrato` | Foto vertical 3:4 | Variantes disponibles como puntos de color o tallas |
-| `ficha` | Foto chica, datos a la derecha | **Hasta 2 atributos destacados**, código |
-| `servicio` | Sin foto o con foto redonda | Duración, botón *Agendar* |
-| `estadia` | Foto ancha 16:9 | Precio con su unidad («Bs 590 / noche»), disponibilidad |
-
-**Los dos atributos destacados de `ficha`** son la razón por la que `campos_categoria`
-tiene la columna `destacado` con techo de 2. Tres datos técnicos en una tarjeta de
-teléfono de 360 px no entran, y el techo está en la base para que la interfaz no tenga
-que decidirlo en tiempo de dibujo.
-
-### Cómo se combinan
-
-```ts
-// lib/apariencia.ts
-export const ARMAZONES = ["clasica","moderna","minimal","feria","catalogo","reserva"] as const;
-export const TARJETAS  = ["lista","cuadricula","retrato","ficha","servicio","estadia"] as const;
-
-/* Cada armazón trae su tarjeta por defecto; el dueño puede cambiarla dentro de
-   las que ese armazón sabe dibujar. No toda combinación existe: `feria` con
-   `estadia` sería una lista de precios con fotos panorámicas, que no es un
-   diseño, es un accidente. */
-export const TARJETAS_POR_ARMAZON: Record<ArmazonId, readonly TarjetaId[]>;
-```
-
-**6 × 6 no son 36 combinaciones: son 18.** La tabla `TARJETAS_POR_PLANTILLA` las declara,
-y una prueba verifica que cada armazón tenga al menos una tarjeta, que la primera sea la
-predeterminada y que ninguna tarjeta quede sin que nadie la dibuje.
-
-> Corregido de 19 a 18 el 2026-09-09, al definirlas en concreto. El número lo fija
-> `lib/apariencia.test.ts`, no este documento. Y mientras las dos plantillas nuevas no
-> existan son **doce**: el registro no declara una plantilla antes de que su componente
-> exista, porque una plantilla declarada y no dibujada es una que el dueño puede elegir
-> para quedarse con el catálogo en blanco. Lo protegen dos pruebas que ya existían.
-
-## 3. Qué pasa con las cuatro plantillas de hoy
-
-No se tiran. `clasica`, `moderna`, `minimal` y `feria` **son** cuatro de los seis
-armazones, y su forma actual pasa a ser su tarjeta predeterminada:
-
-| Plantilla hoy | Armazón | Tarjeta predeterminada |
-|---|---|---|
-| Clásica | `clasica` | `lista` |
-| Moderna | `moderna` | `cuadricula` |
-| Mínima | `minimal` | `servicio` |
-| Feria | `feria` | `lista` |
-
-Un negocio que hoy tiene `plantilla_id = 'moderna'` queda con armazón `moderna` y tarjeta
-`cuadricula`, **y se ve exactamente igual que antes de la migración**. Ese es el criterio
-de compatibilidad: la fase 1 no puede cambiarle el catálogo a nadie sin que lo pida.
-
-```sql
-alter table public.negocios
-  add column tarjeta_id text not null default 'cuadricula' check (tarjeta_id in (
-    'lista','cuadricula','retrato','ficha','servicio','estadia'
-  ));
-
--- Se asigna la equivalente a lo que cada negocio ya tenía.
-update public.negocios set tarjeta_id = case plantilla_id
-  when 'clasica' then 'lista'
-  when 'moderna' then 'cuadricula'
-  when 'minimal' then 'servicio'
-  when 'feria'   then 'lista'
-end;
-```
-
-## 4. La estructura de archivos
-
-```
-components/templates/
-  armazones/
-    clasica/  moderna/  minimal/  feria/  catalogo/  reserva/
-      armazon.tsx          ← portada, encabezado, navegación, pie
-      armazon.module.css
-  tarjetas/
-    lista.tsx  cuadricula.tsx  retrato.tsx  ficha.tsx  servicio.tsx  estadia.tsx
-    tarjetas.module.css        ← las seis comparten hoja: la mitad del CSS es común
-  piezas/                      ← lo que usan todos, y por eso no vive en ninguno
-    foto-producto.tsx          (ya existe)
-    insignias-producto.tsx     (ya existe)
-    accion-producto.tsx        (ya existe)
-    accion-llamar.tsx          (ya existe)
-    aviso-horario.tsx          (ya existe)
-    precio.tsx                 ← precio + unidad + moneda + tachado   [fase 5]
-    atributos-destacados.tsx   ← los 2 de la tarjeta                  [fase 2]
-    selector-variante.tsx      ← tallas, colores                      [fase 3]
-    filtros.tsx                ← facetas y rangos                     [fase 4]
-    calendario.tsx             ← franjas libres                       [fase 6]
-    tema-catalogo.module.css   (ya existe)
-```
-
-**La regla que sostiene esto:** una pieza de `piezas/` no sabe en qué armazón está. Recibe
-datos y clases por props, igual que hace hoy `AccionLlamar`, que trae su disposición y
-toma el color de la plantilla. Si una pieza necesita saber el armazón, es que son dos
-piezas.
-
-## 5. Estado: dónde vive cada cosa
-
-Esta es la sección que decide si la interfaz «se rompe a la primera».
-
-| Estado | Dónde vive | Por qué |
-|---|---|---|
-| Filtros, orden, página, categoría | **URL** (`?talla=40&orden=precio`) | Se comparte, vuelve con el botón atrás, sobrevive a recargar y se renderiza en el servidor |
-| Variante elegida en la ficha | `useState` del componente | Muere con la pantalla, y así tiene que ser |
-| Carrito | `localStorage` + contexto | Ya existe. No se toca su forma; se le suman `varianteId` y `modificadores` a cada ítem |
-| Favoritos y comparador | `localStorage`, cada uno con su clave | Sin base de datos, decisión de `00-VISION.md` |
-| Fecha elegida en la agenda | **URL** | Un enlace a «el jueves a las 10» tiene que poder mandarse por WhatsApp |
-| Datos del catálogo | Servidor, sin caché en el cliente | Ver sección 7 |
-
-**Nada de librerías de estado.** El proyecto tiene contexto de React para el carrito y con
-eso alcanza. Sumar una es una dependencia nueva y hay que justificarla por escrito.
-
-### El carrito con variantes: la trampa de la identidad
-
-Hoy un ítem del carrito se identifica por `productoId`. Con variantes y modificadores eso
-deja de alcanzar: una hamburguesa con queso extra y una sin queso son dos líneas del
-mismo producto.
-
-```ts
-/* La identidad de una línea del carrito. Dos líneas se funden solo si su firma
-   coincide entera. Sin esto, agregar la talla 40 sumaría a la línea de la 39. */
-export function firmaLinea(item: ItemCarrito): string {
-  return [
-    item.productoId,
-    item.varianteId ?? "",
-    [...item.modificadores].sort().join(","),
-  ].join("|");
-}
-```
-
-Esa función se prueba con casos antes de que exista la pantalla. Es la misma clase de
-error que la firma del carrito que ya resolvió `lib/pedidos/resumen-vigente.ts`.
-
-## 6. Accesibilidad, que acá no es opcional
-
-El comprador típico está en la calle, con una mano, con sol, en un teléfono de gama baja.
-
-- **Objetivo táctil mínimo 44 px**, incluidos los puntos de color de las variantes. Un
-  selector de talla con círculos de 24 px es inusable con el pulgar.
-- **El color nunca es el único indicador.** Una variante agotada se tacha y dice
-  «Agotado»; no se pone gris y ya. Lo mismo el selector de color: lleva su nombre.
-- **Todo control es un botón o un enlace de verdad.** Nada de `div` con `onClick`.
-- **Foco visible** con el token de contorno, sin `outline: none` en ningún lado.
-- **Los filtros son un formulario** que funciona sin JavaScript: `method="get"`, y el
-  botón envía. Con JavaScript se aplican al tocar; sin él, al enviar.
-- El control de contraste (`npm run test:contraste`) se extiende a las combinaciones
-  nuevas: **6 armazones × 7 paletas**, y falla el build si una queda sin verificar.
-
-## 7. Rendimiento, con números y no con intenciones
-
-Objetivos, medidos en un teléfono de gama baja con red 3G simulada:
-
-| Medida | Techo |
+| Se va | Motivo |
 |---|---|
-| Primera pintura con contenido | 1,5 s |
-| Interactivo | 2,5 s |
-| JavaScript del catálogo público | **90 KB comprimido** |
-| Consulta `catalogo_publico()` | 400 ms al percentil 95 |
-| Salto de diseño acumulado | 0,05 |
+| Calificación por producto y «(128 reseñas)» | Están inventados en la maqueta. El sistema no tiene reseñas y no muestra números falsos |
+| «5.0 ★★★★★» escrito a mano | Idem. El número, si aparece, viene de Google |
+| Pestañas «Pedidos» y «Perfil» | Necesitan cuenta de comprador. El sistema no la tiene por decisión |
+| Corte en 6 esferas (`slice(1, 7)`) | Las esferas son las categorías reales. Si hay 12, hay 12 |
+| Corte en 4 productos | La portada muestra los destacados; el resto vive en su categoría |
 
-Cómo se sostienen:
+### 1.2 La barra inferior, corregida
 
-- **El catálogo público se arma en el servidor.** Los componentes de `armazones/` y
-  `tarjetas/` son de servidor salvo los que necesitan interacción; esos son los únicos que
-  llevan `"use client"`, y son cinco: carrito, filtros, selector de variante, galería y
-  calendario.
-- **Las fotos llevan `width` y `height` siempre.** El salto de diseño en una cuadrícula de
-  24 productos es la diferencia entre un catálogo y una pantalla que salta.
-- **Carga diferida por debajo del pliegue**: `loading="lazy"` desde la sexta tarjeta.
-- **24 productos por página.** Ya es el valor de hoy y se conserva.
-- **Nada de fuentes nuevas.** La tipografía de display ya está y es la única.
-- **Presupuesto de JavaScript verificado**: una guardia nueva, `check-peso-cliente.mjs`,
-  falla el build si el paquete del catálogo público pasa el techo. Sin la guardia, el
-  techo es una intención.
+Muestra solo lo que la modalidad tiene:
 
-## 8. La demostración por rubro
-
-Hoy existe `lib/plantillas/demos-rubro.ts` con datos de muestra. Se extiende a **siete
-demostraciones, una por familia de comportamiento** (`06-RUBROS.md`), cada una con:
-
-- Categorías con sus campos ya definidos
-- Productos con atributos llenos y creíbles, precios en bolivianos de verdad
-- Variantes con existencias distintas, incluida una agotada
-- Al menos un producto con promoción y uno con escala por volumen
-- En las familias de servicio, una agenda con franjas ocupadas y libres
-
-**Esa es la herramienta de venta.** Se abre desde la portada, se comparte por WhatsApp y
-es lo que el prospecto ve antes de decidir. Tiene la misma exigencia de calidad que la
-producción, y una prueba verifica que ninguna demostración tenga precios en cero, textos
-de relleno ni fotos faltantes.
-
-## 9. Lo que no se va a hacer, para que no vuelva a discutirse
-
-| Idea | Por qué no |
+| Modalidad | Barra |
 |---|---|
-| Un constructor visual de plantillas | Es otro producto. La combinación armazón + tarjeta + paleta da 133 catálogos distintos y eso es suficiente |
-| CSS-in-JS | El proyecto usa módulos de CSS con tokens y una guardia que lo verifica. Cambiarlo tira esa guardia |
-| Una plantilla por rubro | Es el error que este documento evita. 44 hojas de estilo son 44 lugares donde arreglar el mismo error |
-| Animaciones de entrada | Cuestan JavaScript y batería, y `DESIGN.md` sección 3 ya las prohíbe |
-| Desplazamiento infinito | Rompe el botón atrás y la posición al volver de una ficha. Paginación con números |
+| Solo mostrar | Inicio · Categorías · Ubicación |
+| Pedidos y reservas por WhatsApp | Inicio · Categorías · Ofertas · WhatsApp |
+| Tienda con carrito | Inicio · Categorías · Ofertas · Carrito |
+
+**Ofertas aparece solo si hay promociones activas.** Una pestaña que lleva a una
+lista vacía le enseña al comprador que los botones no sirven, y eso le quita
+confianza a los que sí sirven.
+
+### 1.3 Sobre la saturación de la portada
+
+Queda anotado desde ahora, aunque se refine al final: **la portada de referencia
+muestra demasiado a la vez**. Once bloques antes del primer producto es mucho
+para un teléfono con datos móviles.
+
+El plan lo prepara así, sin resolverlo todavía:
+
+- Cada bloque opcional **de verdad se puede apagar**, y apagado no deja hueco ni
+  margen. Nada de bloques vacíos con altura.
+- El orden de los bloques vive en una lista, no repartido por el JSX. Reordenar
+  o recortar en la Fase 9 es cambiar una lista, no rehacer la página.
+- La franja de confianza y la de horario son candidatas a fundirse en una sola.
+- La portada carga los primeros productos y **el resto al desplazar**.
+
+## 2. La tarjeta de producto
+
+Una sola forma, y lo que varía es qué datos trae:
+
+```
+┌──────────────────────┐
+│      foto        ♥   │   insignia arriba a la izquierda si hay promoción
+├──────────────────────┤
+│ Nombre               │
+│ Subtítulo            │
+│ 9 W · E27 · Cálida   │   hasta 6 atributos con en_tarjeta
+│ Bs 45   [ + ]        │
+└──────────────────────┘
+```
+
+La línea de atributos es lo que hace que la ferretería se vea como una
+ferretería y la veterinaria como una veterinaria, sin cambiar una sola regla de
+estilo. Es lo que reemplaza a las seis formas de tarjeta que se retiran.
+
+El botón de la esquina cambia con la modalidad y con `vende`:
+
+| | Solo mostrar | WhatsApp | Carrito |
+|---|---|---|---|
+| `vende = cosas` | sin botón | Pedir | Agregar |
+| `vende = tiempo` | sin botón | Agendar | Agendar |
+
+## 3. La ficha de producto
+
+| Bloque | Qué muestra |
+|---|---|
+| Galería | Hasta 4 fotos con miniaturas |
+| Nombre, subtítulo, precio | Con precio anterior tachado si hay promoción |
+| Disponibilidad | Stock si lo controla, «Consultar» si no |
+| Variantes | Si la categoría vende cosas y el producto tiene |
+| **Calendario** | Si la categoría vende tiempo. Días con horarios libres |
+| Especificaciones | Los atributos, en dos columnas, de 1 a 10 |
+| Cantidad | Solo si vende cosas |
+| Acciones | La primaria según modalidad, más WhatsApp |
+| Ubicación | «Ver mapa» con el enlace del negocio |
+
+**El bloque de especificaciones no tiene número fijo.** El diseño de referencia
+trae exactamente seis pares; acá muestra los que la categoría definió, y la
+rejilla se acomoda de uno a diez.
+
+## 4. El resumen que llega por WhatsApp
+
+Es donde el trabajo del dueño se vuelve visible, y el motivo por el que los
+campos valen la pena:
+
+```
+Pedido PED-A1B2C3D4 — Ferretería El Sol
+
+2 × Foco LED 9 W
+    Potencia: 9 W · Casquillo: E27 · Color: Cálida
+    Bs 45 c/u
+
+1 × Cinta aislante negra
+    Bs 12
+
+Total: Bs 102
+```
+
+Y para una cita:
+
+```
+Cita CITA-9F8E7D6C — Veterinaria Patitas
+
+Consulta general
+Sábado 15 de septiembre, 10:00
+Bs 80
+
+A nombre de: Ana Rojas
+```
+
+Van los atributos marcados con `en_resumen`. La pantalla de confirmación de
+reserva que ya existe **no se reemplaza**: se le suman estos datos.
+
+## 5. Iconos
+
+Iconos de trazo en todo el sistema. Ningún emoji.
+
+El proyecto ya tiene resuelto esto y **la convención se respeta**:
+`scripts/armar-iconos.mjs` genera `components/iconos/trazos.ts` a partir de
+Lucide (ISC), con **nombre en español** y solo los que se usan. El archivo se
+versiona, así que en producción no se depende de la librería.
+
+Pero ese juego es de interfaz: tiene los pocos iconos que las pantallas usan.
+Un selector de categoría necesita cientos, y meterlos ahí rompería su regla —que
+solo contenga lo usado—.
+
+Por eso se genera un **segundo archivo**, `components/iconos/catalogo.ts`, con el
+mismo script y la misma disciplina: nombres en español, versionado, y unos 150
+iconos de oficio agrupados por rubro. Son dos juegos con propósitos distintos, no
+una excepción a la regla:
+
+| Archivo | Para qué | Cuántos |
+|---|---|---|
+| `trazos.ts` | Interfaz: guardar, borrar, volver | Los que se usan |
+| `catalogo.ts` | Categorías del negocio | ~150, curados por rubro |
+
+| Dónde | Cuál |
+|---|---|
+| Esferas de categoría | El que eligió el dueño al crear la categoría |
+| Patrón de fondo | Los de sus categorías |
+| Opciones del panel | Uno por opción, fijo |
+| Junto al nombre del negocio | **Ninguno: va el logo que sube el dueño** |
+
+El selector es un buscador: se escribe «martillo» y aparece el martillo. Se
+ofrece un subconjunto curado por rubro primero —la ferretería ve herramientas—
+con acceso al juego completo.
+
+**Por qué iconos y no emoji:** los emoji no se pueden pintar ni cambiar de
+opacidad, y el dueño controla la opacidad del patrón. Además cada teléfono los
+dibuja distinto, así que el mismo catálogo se vería diferente en Android y en
+iPhone.
+
+## 6. El patrón de fondo
+
+Ya existe: `patronDeRubro()`, la columna `patron_fondo`, las baldosas en
+`public/patrones/` y la máscara CSS que las pinta con el color de la paleta.
+
+Cambia el origen de los dibujos: **dejan de ser fijos por rubro y pasan a
+armarse con los iconos de las categorías del negocio**. Dos ferreterías con
+categorías distintas tienen fondos distintos.
+
+Se agrega `patron_opacidad`, de 0 a 30 por ciento, como variable CSS. El tope de
+30 no es arbitrario: por encima, el patrón compite con el texto y el catálogo
+deja de pasar la guardia de contraste.
+
+Si el negocio no tiene categorías todavía, cae al patrón del rubro. El dueño
+recién dado de alta no ve un fondo vacío.
+
+## 7. Paletas
+
+Cerradas y verificadas. **No hay elección libre de color**: es la única forma de
+garantizar el contraste, porque un dueño en algún momento va a elegir gris sobre
+gris y no hay guardia que lo salve.
+
+Las siete que ya existen se mantienen —Mercado, Tierra, Océano, Noche,
+Altiplano, Jazmín, Grafito— y se suman tres populares:
+
+| Nueva | Descripción |
+|---|---|
+| Índigo | Azul profundo con acento ámbar. El más neutro, sirve a casi todo rubro |
+| Bosque | Verde oscuro con acento lima. Veterinaria, vivero, orgánico |
+| Coral | Blanco cálido con acento coral. Ropa, belleza, pastelería |
+
+Diez paletas. Cada una alcanza:
+
+- El fondo de la cabecera, donde van el logo y el nombre.
+- El fondo del catálogo.
+- Las tarjetas de producto y sus bordes.
+
+**No alcanza a los banners ni a las fotos.** El banner es la publicidad del
+dueño y su imagen manda; teñirla sería arruinarla.
+
+Cada paleta pasa por `check-design-contrast.mjs` **en los tres lugares** antes de
+publicarse. La guardia ya existe; lo que se agrega es que corra sobre las diez
+paletas en sus tres superficies, no solo sobre los tokens sueltos.
+
+Nota heredada del análisis: de los 45 pares de color de `Catalogos_Ejemplo/`,
+cuatro no pasan AA (`calzado` 4,07:1 con texto blanco; `consultoria` 3,74:1,
+`streaming` 4,35:1 y `educacion` 4,40:1 sobre el acento). Con paletas cerradas
+el problema no llega a existir.
+
+## 8. Componentes
+
+| Componente | Reemplaza a |
+|---|---|
+| `CabeceraCatalogo` | Las cuatro cabeceras de plantilla |
+| `EsferasCategoria` | — |
+| `BotonGoogle` | — |
+| `TarjetaProducto` | **Las seis formas de tarjeta** |
+| `LineaAtributos` | — |
+| `FichaProducto` | Las fichas de cada plantilla |
+| `Especificaciones` | — |
+| `SelectorDeFecha` | — |
+| `BannerCatalogo` | El banner simple actual |
+| `BarraInferior` | — |
+| `SelectorDeIcono` | — |
+
+Se borran, con sus hojas de estilo: `components/templates/tarjetas/` completo,
+las cinco plantillas, `VISTAS_PLANTILLA`, y de `lib/apariencia.ts` las constantes
+`PLANTILLAS`, `TARJETAS`, `TARJETAS_POR_PLANTILLA`, `DEFINICIONES_TARJETAS`,
+`COMBINACIONES_DE_FORMA`, `tarjetaPredeterminada`, `tarjetaValidaPara` y
+`esTarjetaId`.
+
+Queda `PALETAS`, `DEFINICIONES_PALETAS` y `esPaletaId`.
+
+## 9. Reglas de estilo que no cambian
+
+Las que ya rigen el proyecto y siguen rigiendo:
+
+- CSS Modules con `@reference "globals.css"`. Nada de estilos en línea.
+- **Solo tokens de diseño.** `check-design-tokens.mjs` rechaza cualquier color
+  literal.
+- Contraste AA verificado por `check-design-contrast.mjs`.
+- Todo funciona desde 320 píxeles de ancho.
+- Ninguna imagen sin `alt`.

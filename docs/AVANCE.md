@@ -11,31 +11,51 @@ edita**: es la evidencia de lo que se hizo y con qué se comprobó.
 
 ### Por qué cambió el plan
 
-Las 44 fichas de `Catalogos_Ejemplo/` resultaron ser un documento de requisitos, no una
-referencia visual. Al compararlas con lo construido salió que **ninguno de los 44 rubros
-queda cubierto al 100 %** con el modelo actual de producto, y que los rubros de servicio
-—barbería, dental, veterinaria, canchas, hotel— quedan cerca de cero porque todos
-dependen de una agenda que no existe.
+`Catalogos_Ejemplo/` dejó de ser 45 imágenes y pasó a ser **un frontend real y
+funcional**: Next sobre Workers, con Tailwind, shadcn y Lucide. Al leerlo se
+decidió adoptar ese diseño tal cual, adaptado al sistema.
 
-El hallazgo que hace viable el cambio: las 44 fichas convergen en **ocho mecanismos** y
-**siete familias de comportamiento**. No son 44 desarrollos.
+Eso trajo dos cambios de fondo:
+
+1. **Un solo diseño de catálogo.** Se retiran las cinco plantillas y las seis
+   formas de tarjeta. Lo que varía entre rubros no es la estructura de la
+   página: son las categorías, los campos y las acciones.
+2. **La categoría declara sus campos.** Una ferretería necesita potencia y
+   casquillo; una veterinaria, especie y etapa. El modelo actual de producto
+   —nombre, precio, foto, categoría, cantidad— no alcanza para ninguno de los
+   dos.
 
 ### El plan nuevo
 
-Diez fases, **62 días de trabajo efectivo**. Está en `docs/plan/04-FASES.md`.
+Nueve fases, **40 días de trabajo efectivo**, para **seis rubros**:
+restaurante, ferretería, ropa, distribuidora, repuestos y veterinaria. Está en
+`docs/plan/06-FASES.md`.
 
 | Fase | Nombre | Días | Estado |
 |---|---|---|---|
-| 0 | Red de seguridad | 2 | **CERRADA el 2026-09-09** |
-| 1 | El armazón visual nuevo | 6 | No iniciada |
-| 2 | Atributos por categoría | 8 | No iniciada |
-| 3 | Variantes con existencias propias | 9 | No iniciada |
-| 4 | Descubrimiento | 5 | No iniciada |
-| 5 | Precio real | 6 | No iniciada |
-| 6 | Agenda | 10 | No iniciada |
-| 7 | Presets por rubro y alta guiada | 6 | No iniciada |
-| 8 | Logística y confianza | 5 | No iniciada |
-| 9 | Rendimiento, endurecimiento y piloto | 5 | No iniciada |
+| 1 | La categoría toma identidad | 3 | No iniciada |
+| 2 | Los campos de la categoría | 4 | No iniciada |
+| 3 | Los campos en el producto | 4 | No iniciada |
+| 4 | Variantes | 3 | No iniciada |
+| 5 | Agenda y citas | 6 | No iniciada |
+| 6 | El catálogo nuevo | 7 | No iniciada |
+| 7 | Identidad y apariencia | 4 | No iniciada |
+| 8 | Alta guiada y siembra | 5 | No iniciada |
+| 9 | Refinamiento y salida | 4 | No iniciada |
+
+### Lo que se retiró, y por qué queda escrito
+
+La **Fase 1 del plan anterior** —eje de formas de tarjeta, cinco plantillas,
+extracción de tarjetas, selector en el panel— se construyó y se desplegó entre
+el 9 y el 10 de septiembre de 2026, y **este plan la retira**. La decisión la
+tomó el dueño del proyecto con la información completa y con copia local.
+
+Queda escrito acá para que dentro de seis meses nadie se pregunte por qué
+desapareció código que estaba en producción y funcionando.
+
+Lo que **sobrevive** de esa fase: los dos banners del catálogo (que este plan
+amplía con título y botón), la corrección de `feria` y la consolidación de los
+tres mapas de plantilla en uno.
 
 ### Lo que quedó cerrado del ciclo anterior y sigue en producción
 

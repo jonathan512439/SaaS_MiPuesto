@@ -119,10 +119,11 @@ describe("combinaciones de forma", () => {
     );
   });
 
-  /* El número está escrito en `docs/plan/03-FRONTEND.md`. Que una prueba lo fije
-     obliga a corregir el texto el día que cambie, en vez de dejar la
-     documentación mintiendo. Crecen cuando llegue `reserva` con la agenda, en
-     la fase 6. */
+  /* El eje de formas se retira en la fase 6 del plan vigente
+     (`docs/plan/06-FASES.md`): un solo diseño de catálogo, sin plantillas ni
+     tarjetas elegibles. Esta prueba y lo que verifica se borran con él. Hasta
+     entonces sigue fijando el número, que es lo que evita que el panel ofrezca
+     una combinación que la base rechaza. */
   it("son trece con las cinco plantillas de hoy", () => {
     expect(COMBINACIONES_DE_FORMA).toHaveLength(13);
   });

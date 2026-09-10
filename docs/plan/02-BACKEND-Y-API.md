@@ -1,317 +1,275 @@
-# 02 — Backend, API y el camino del dinero
+# 02 · Backend y API
 
-## 1. La arquitectura que ya existe y no cambia
+## 1. La forma que ya tiene el sistema
 
-```
-Navegador
-   │  fetch a /api/... con la sesión en cookie
-   ▼
-Ruta de Next (Cloudflare Worker)
-   │  1. obtenerContextoAdminCatalogo()  → sesión + negocio + suspensión
-   │  2. validar<Entidad>(cuerpo)        → forma, tipos y techos
-   │  3. validaciones cruzadas contra la base
-   │  4. escritura, o llamada a función security definer
-   ▼
-Supabase (Postgres 17)
-   │  RLS decide si la fila es del negocio
-   ▼
-Respuesta JSON
-```
+No se inventa un estilo nuevo. Toda ruta nueva sigue el que ya existe:
 
-Tres reglas heredadas que se mantienen tal cual:
+1. `obtenerContextoAdminCatalogo()` resuelve sesión, negocio y cliente.
+2. `leerJson()` parsea y devuelve un error legible si no es JSON.
+3. Un **validador puro** de `lib/` decide si los datos sirven. No sabe de
+   sesiones, y por eso se puede probar sin base.
+4. La comprobación de pertenencia va en la ruta, no en el validador: el
+   validador no sabe de quién es la sesión.
+5. Los errores vuelven con clave por campo (`atributos.3.opciones`) para que el
+   formulario marque el campo exacto.
 
-1. **Todo acceso a datos pasa por `lib/supabase/`.** Nunca `fetch` directo a PostgREST.
-2. **Todo dato del cliente se valida en el servidor.** La validación del navegador es
-   comodidad, no control.
-3. **Las listas de columnas viven en `lib/catalogo/columnas.ts`.** Nunca `select *`. Con
-   variantes y atributos entrando en juego, esto pasa de conveniencia a necesidad: una
-   columna de más en la consulta pública es un dato del negocio en el HTML servido.
+## 2. Rutas nuevas
 
-## 2. Lo que sí cambia: la consulta pública deja de ser una consulta
+### 2.1 Alta guiada
 
-Hoy el catálogo público sale de un `select` con paginación. Con atributos, variantes,
-escalas, modificadores y relaciones serían **seis consultas por página**, y en un Worker
-cada ida y vuelta a Supabase cuesta latencia real.
-
-La solución no es un ORM ni un join gigante: es **una función `security definer` que
-devuelve el catálogo armado en un `jsonb`**.
-
-```sql
-create or replace function public.catalogo_publico(
-  p_slug text,
-  p_pagina integer default 1,
-  p_por_pagina integer default 24,
-  p_categoria uuid default null,
-  p_busqueda text default null,
-  p_filtros jsonb default '{}'::jsonb,
-  p_orden text default 'orden'
-) returns jsonb
-language sql stable security definer set search_path = ''
-as $$ ... $$;
-```
-
-Ventajas medibles:
-
-| | Consultas encadenadas | Una función |
+| Método | Ruta | Qué hace |
 |---|---|---|
-| Idas y vueltas por página | 6 | **1** |
-| Filtrado por atributo | En el Worker, sobre datos ya traídos | **En el índice GIN** |
-| Riesgo de traer columnas de más | Alto, seis listas que mantener | **Una lista, dentro de la función** |
-| Auditable | Seis lugares | **Un archivo de migración** |
+| `POST` | `/api/alta/nombre` | Guarda el nombre del dueño y el del negocio. **Devuelve el slug propuesto y si está libre** |
+| `POST` | `/api/alta/rubro` | Fija el rubro, siembra categorías y campos, marca `rubro_bloqueado_en` |
+| `GET` | `/api/alta/estado` | Qué pasos faltan. Alimenta la lista de «lo que falta para publicar» |
 
-**El riesgo de esta decisión** es que la lógica de presentación migre a SQL, que es
-donde peor se prueba y peor se lee. La contención es explícita: la función **devuelve
-datos, no decide qué se dibuja**. Ordena, filtra, pagina y arma; no calcula precios
-finales, no aplica promociones y no decide qué insignia va. Eso queda en TypeScript,
-donde ya está probado.
+El slug se calcula en `lib/negocios/slug.ts`: minúsculas, sin tildes, guiones,
+sin palabras reservadas (`admin`, `api`, `panel`, `plataforma`, `www`). Si está
+ocupado se propone con sufijo numérico y **el dueño lo aprueba antes de seguir**.
 
-### El contrato de salida
+**El slug se genera una vez y después no cambia solo.** Si el dueño corrige el
+nombre del negocio a los tres meses, la dirección sigue igual: cambiarla rompe
+todo QR impreso y todo enlace ya compartido. Cambiarlo es potestad del
+SuperAdmin.
+
+### 2.2 Campos por categoría
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `GET` | `/api/catalogo/categorias/[id]/atributos` | Las definiciones, ordenadas |
+| `PUT` | `/api/catalogo/categorias/[id]/atributos` | Reemplaza el conjunto entero |
+
+Reemplaza el conjunto y no parchea de a uno por la misma razón que los banners:
+**el orden es la posición**, y mandar «el campo 3» cuando el 2 no existe deja un
+hueco. Además evita el problema de renombrar una `clave`: al llegar el conjunto
+entero, el servidor ve qué claves desaparecieron y puede decidir qué hacer con
+los valores que las usaban.
+
+Qué pasa al borrar un campo que tenía valores cargados:
+
+```
+El campo «Casquillo» tiene valor en 23 productos.
+Si lo borrás, ese dato se pierde.
+[ Cancelar ]  [ Borrar el campo y su dato ]
+```
+
+No se borra en silencio y no se conserva escondido. Un valor sin definición no
+se puede mostrar ni editar: sería basura invisible que aparece años después.
+
+### 2.3 Variantes
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `PUT` | `/api/catalogo/productos/[id]/variantes` | Reemplaza el conjunto |
+
+Rechaza si la categoría del producto tiene `vende = 'tiempo'`. Un servicio no
+tiene presentaciones: tiene horarios, y esos los da la agenda.
+
+### 2.4 Agenda y citas
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `PUT` | `/api/catalogo/categorias/[id]/agenda` | Días, horas, duración, cupo |
+| `GET` | `/api/publico/[slug]/horarios?producto=…&desde=…` | **Horarios libres calculados** |
+| `POST` | `/api/publico/[slug]/citas` | Toma una franja |
+
+El endpoint de horarios es el que sustituye al `variants: ['10:00', …]` del
+diseño de referencia. Devuelve, por día:
+
+```json
+{ "fecha": "2026-09-15",
+  "franjas": [{ "hora": "08:30", "libres": 2 }, { "hora": "09:00", "libres": 0 }] }
+```
+
+`libres: 0` se devuelve igual, no se omite: el cliente ve que las 9:00 existen y
+están tomadas, que es información. Omitirlas haría parecer que el negocio no
+atiende a esa hora.
+
+**El `POST` de citas confía en la restricción de exclusión, no en una consulta
+previa.** Intenta insertar; si Postgres rechaza por solapamiento, responde 409
+con «ese horario se acaba de ocupar» y los horarios actualizados. Preguntar
+antes y escribir después deja una ventana donde dos personas ganan.
+
+Es idempotente por `idempotencia uuid`, igual que los pedidos: un doble toque en
+un teléfono lento no genera dos citas.
+
+### 2.5 Google Maps
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `POST` | `/api/negocios/maps/resolver` | Del enlace pegado a la ficha confirmada |
+| `PATCH` | `/api/negocios/maps` | Activa o desactiva el botón |
+
+El flujo completo está en la sección 4.
+
+### 2.6 Exportar el catálogo
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `GET` | `/api/catalogo/exportar` | El catálogo entero en un Excel de una hoja |
+
+Sirve para tres cosas distintas y por eso vale la pena: respaldo del dueño,
+edición en masa fuera de línea, y rescate antes de un cambio de rubro.
+
+Una hoja, una fila por producto. Las columnas fijas primero —categoría, nombre,
+descripción, precio, stock— y después **una columna por cada campo definido**,
+con el nombre visible como encabezado. Es el mismo formato que acepta la
+importación, así que **lo que se baja se puede volver a subir**. Si no fuera el
+mismo formato, la exportación sería un callejón sin salida.
+
+### 2.7 Cambio de rubro (SuperAdmin)
+
+| Método | Ruta | Qué hace |
+|---|---|---|
+| `POST` | `/api/plataforma/negocios/[id]/rubro` | Cambia el rubro y reinicia el catálogo |
+
+En orden, y el orden importa:
+
+1. Genera el Excel del catálogo actual y lo guarda en el depósito.
+2. Borra categorías, atributos, productos, variantes, agenda y citas.
+3. Fija el rubro nuevo y siembra sus categorías y campos.
+4. Anota en la bitácora de plataforma quién lo hizo y cuándo.
+
+El paso 1 va antes que el 2 y **si falla, nada se borra**. El dueño recibe el
+enlace de descarga en el mismo aviso que le dice que su catálogo se reinició.
+
+## 3. La importación con IA
+
+Es lo que más cambia, y para mejor.
+
+### 3.1 La categoría es el esquema
+
+Hoy se le pide a Gemini «extraé los productos de esta imagen» y se ve qué
+devuelve. Ahora se le pasa **la definición de la categoría como esquema de
+salida**: los campos, sus tipos, sus unidades y sus opciones válidas.
+
+Un modelo que sabe que «Casquillo» solo admite E27, E14, GU10 o B22 acierta
+mucho más que uno que inventa el formato. Y lo que devuelva fuera de esas
+opciones se puede rechazar antes de escribir, no después.
+
+### 3.2 El informe de cobertura
+
+Esto es requisito, no adorno. Al terminar, la respuesta dice **campo por campo
+qué pudo llenar y qué no**:
+
+```
+27 productos leídos.
+
+Completos ......... 12
+Con faltantes ..... 15
+
+No encontré:
+  Existencias ..... 27 productos    [ Completar ahora ]
+  Potencia ........ 12 productos    [ Completar ahora ]
+  Casquillo ........ 4 productos    [ Completar ahora ]
+```
+
+El motivo es concreto: una foto de lista de precios casi nunca trae el stock.
+Sin el informe, el dueño se queda con 27 productos a medias y lo descubre cuando
+un cliente le pregunta. Con el informe, toca «Completar ahora» y llena esa
+columna sola, para los 27, en una pantalla.
+
+La estructura de la respuesta:
 
 ```ts
-export type CatalogoPublico = {
-  negocio: { /* … lo de hoy … */ sucursales: Sucursal[]; zonas: ZonaEntrega[] };
-  categorias: Array<{
-    id: string; nombre: string;
-    campos: CampoCategoria[];   // las definiciones, para armar los filtros
-  }>;
-  productos: ProductoPublico[];
-  total: number;                // para la paginación
-  facetas: Record<string, Array<{ valor: string; cuantos: number }>>;
-};
-
-export type ProductoPublico = {
-  /* … lo de hoy … */
-  marca: string | null;
-  atributos: Record<string, string | number | boolean | string[]>;
-  unidadPrecio: UnidadPrecio;
-  moneda: "BOB" | "USD";
-  cantidadMinima: number;
-  pasoCantidad: number;
-  variantes: VariantePublica[];      // vacío si tiene_variantes = false
-  ejesVariante: EjeVariante[];
-  escalas: Array<{ desde: number; precio: number }>;
-  modificadores: GrupoModificador[];
-  duracionMinutos: number | null;
-  requiereTurno: boolean;
-  fichaUrl: string | null;
+type ResultadoImportacion = {
+  productos: ProductoImportado[];
+  cobertura: { clave: string; nombre: string; faltan: number }[];
+  descartados: { fila: number; motivo: string }[];
 };
 ```
 
-### Las facetas, y por qué van en la misma llamada
+`descartados` ya existe en el importador de Excel y se mantiene igual.
 
-Un filtro que no dice cuántos resultados tiene cada opción obliga al comprador a probar
-una por una y encontrarse con listas vacías. `facetas` son los conteos por valor, y salen
-de la misma pasada: pedirlos aparte duplicaría el trabajo del motor.
+### 3.3 Lo que no cambia
 
-**Techo declarado:** las facetas se calculan sobre el catálogo del negocio filtrado por
-categoría, no sobre los 300 productos sin filtrar. Con más de 500 productos visibles la
-función devuelve `facetas: {}` y la interfaz muestra los filtros sin conteo. Es
-degradación explícita, no un cuelgue.
+El registro de llamadas, el tope diario, el crédito por negocio y la devolución
+del crédito cuando la llamada se rechaza siguen exactamente como están. La
+importación nueva **usa** ese sistema, no lo reemplaza.
 
-## 3. El camino del dinero
+## 4. Google Places, en detalle
 
-Este es el único lugar del sistema donde un error cuesta plata real, así que se describe
-entero.
+### 4.1 La clave es una sola y es nuestra
 
-### Un solo resolvedor
+`GOOGLE_PLACES_API_KEY` vive como secreto del Worker y en `.env.local`. **Nunca
+la ve el dueño del negocio, nunca lleva prefijo `NEXT_PUBLIC_`, nunca aparece en
+código de cliente.** Vale la misma regla que para `GEMINI_API_KEY`, y la misma
+guardia (`scripts/check-client-secrets.mjs`) la vigila.
 
-```ts
-// lib/precios.ts — el archivo crece, no se multiplica.
-export type EntradaPrecio = {
-  producto: { precio: number; unidadPrecio: UnidadPrecio; moneda: Moneda;
-              cantidadMinima: number; pasoCantidad: number };
-  variante: { precio: number | null } | null;
-  escalas: Array<{ desde: number; precio: number }>;
-  modificadores: Array<{ delta: number }>;
-  promocion: Promocion | null;
-  cantidad: number;
-};
+Pedirle al dueño de una ferretería que cree un proyecto en Google Cloud mataría
+la función. Y guardar la clave de cada dueño sería guardar credenciales ajenas
+que cobran a su tarjeta.
 
-export type PrecioResuelto = {
-  precioUnitario: number;     // ya con variante, escala y promoción
-  extras: number;             // suma de modificadores, por unidad
-  cantidadEfectiva: number;   // redondeada al paso y al mínimo
-  subtotal: number;
-  moneda: Moneda;
-  motivo: "base" | "variante" | "escala" | "promocion";
-};
+### 4.2 Resolver el enlace, una vez por negocio
 
-export function resolverPrecio(entrada: EntradaPrecio): PrecioResuelto;
-```
-
-### El orden de resolución, que es una decisión y no un detalle
+El enlace que comparte Maps (`maps.app.goo.gl/…`) no trae identificador de
+lugar. El servidor lo sigue, extrae nombre y coordenadas, y busca la ficha. El
+dueño confirma:
 
 ```
-1. Cantidad efectiva  = max(cantidadMinima, ceil(cantidad / paso) * paso)
-2. Precio base        = variante.precio ?? producto.precio
-3. Escala             = si hay escala aplicable, REEMPLAZA el precio base
-4. Promoción          = se aplica sobre el resultado de 3
-5. Extras             = suma de modificadores, por unidad
-6. Subtotal           = (precio + extras) * cantidadEfectiva
+¿Es este tu negocio?
+
+  Ferretería El Sol
+  Av. Banzer 2200, Santa Cruz
+  4,7 ★ · 128 opiniones
+
+[ No es este ]  [ Sí, es mi negocio ]
 ```
 
-Tres decisiones que hay que poder defender:
+Se guarda el `place_id`. **Esa resolución ocurre una sola vez en la vida del
+negocio.**
 
-- **La escala reemplaza, no descuenta.** Un mayorista publica «20+ a Bs 168»; ese es el
-  precio, no un porcentaje sobre otro.
-- **La promoción se aplica después de la escala.** Si no, una promoción del 20 % sobre el
-  precio de lista terminaría más barata que el precio mayorista, y el negocio pierde en
-  su venta más grande.
-- **Los extras no entran en la promoción.** «2×1 en pizzas» no regala el queso extra.
+### 4.3 Una consulta por semana
 
-Cada una de las tres tiene un caso de prueba con ese nombre.
+Un trabajo de `pg_cron` refresca calificación y cantidad de opiniones **una vez
+por semana por negocio**.
 
-### Lo que el navegador manda y lo que el servidor cree
-
-| Dato | ¿Se cree? |
+| | Consultas al mes |
 |---|---|
-| `producto_id`, `variante_id` | Sí, y se verifica que existan y sean del negocio |
-| `cantidad` | Sí, y se acota al máximo y al paso |
-| Ids de opciones de modificador | Sí, y se verifica que pertenezcan a un grupo del producto |
-| **Precios, deltas, subtotales, total** | **Nunca.** Se recalculan |
-| `zona_entrega_id` | Sí, y su costo se lee de la base |
+| Una por visitante | 6 negocios por 500 visitas = 3.000 |
+| Una por negocio por día | 6 por 30 = 180 |
+| **Una por negocio por semana** | **6 por 4 = 24** |
 
-Si el total recalculado difiere del que mandó el navegador, **el pedido se crea igual con
-el total del servidor** y se anota la diferencia en la bitácora. Fallar acá castiga al
-comprador por un precio que cambió mientras miraba.
+Con 500 negocios serían 2.000 consultas al mes, todavía dentro del tramo
+gratuito. La calificación de un negocio de barrio no se mueve en una semana.
 
-## 4. Rutas nuevas
+Se agrega a `tareas_programadas` y queda cubierto por la guardia
+`check-tareas-programadas.mjs`, que ya exige que toda tarea de `pg_cron` esté
+declarada.
 
-Convención vigente: una carpeta por recurso, `route.ts` con los verbos.
+### 4.4 Tope duro y degradación
 
-| Ruta | Verbos | Fase | Notas |
-|---|---|---|---|
-| `/api/catalogo/campos` | GET POST PATCH DELETE | 2 | Campos de una categoría. `DELETE` **no** borra los valores de los productos |
-| `/api/catalogo/variantes` | GET POST PATCH DELETE | 3 | `POST` con `{ generar: true }` arma la matriz desde los ejes |
-| `/api/catalogo/variantes/stock` | PATCH | 3 | Carga en lote de existencias por variante |
-| `/api/catalogo/escalas` | PUT | 5 | Reemplaza el juego completo de escalas de un producto |
-| `/api/catalogo/modificadores` | GET POST PATCH DELETE | 5 | |
-| `/api/catalogo/relaciones` | PUT | 8 | Reemplaza el juego completo |
-| `/api/agenda/recursos` | GET POST PATCH DELETE | 6 | |
-| `/api/agenda/disponibilidad` | GET | 6 | **Pública.** Solo franjas libres, nunca quién ocupa las demás |
-| `/api/agenda/turnos` | POST | 6 | **Pública**, con límite por IP |
-| `/api/agenda/turnos/[id]/estado` | PATCH | 6 | Solo el dueño |
-| `/api/negocios/sucursales` | GET POST PATCH DELETE | 8 | |
-| `/api/negocios/zonas` | PUT | 8 | |
-| `/api/negocios/preset` | POST | 7 | Aplica el preset del rubro. **Idempotente y no destructivo** |
+Un contador mensual en la base. Al llegar al tope configurado, **deja de
+consultar y sigue mostrando el último valor guardado**. Igual que el tope diario
+de IA. Nunca puede haber una factura sorpresa.
 
-### Verbos, con criterio
+Y si la clave no está configurada, el botón aparece igual y lleva a la ficha de
+Google, sin número. Es el mismo componente y la misma pantalla:
 
-- `PUT` donde el recurso es **un juego completo** —escalas, zonas, relaciones—: reemplazar
-  el conjunto evita el baile de altas y bajas y hace la operación idempotente.
-- `PATCH` donde se corrige **una fila**.
-- `DELETE` nunca borra datos del comprador ni valores ya cargados: quita definiciones.
+| Estado | Qué muestra |
+|---|---|
+| Sin clave en la plataforma | «Mirá nuestras opiniones en Google» |
+| Con clave, ficha resuelta | «4,7 ★ · 128 opiniones» |
+| Dirección manual | El botón no se ofrece |
 
-## 5. Validación
+Nunca se muestra un número que no vino de Google. El «5.0 ★★★★★» escrito a mano
+del diseño de referencia no se copia.
 
-### Dónde vive
+## 5. Validadores nuevos en `lib/`
 
-```
-lib/catalogo/validacion.ts       ← productos, categorías (ya existe, crece)
-lib/catalogo/campos.ts           ← definiciones y valores de atributos   [fase 2]
-lib/catalogo/variantes.ts        ← ejes, matriz, opciones                [fase 3]
-lib/precios.ts                   ← escalas y modificadores               [fase 5]
-lib/agenda/validacion.ts         ← recursos, franjas, turnos             [fase 6]
-```
+| Archivo | Qué valida |
+|---|---|
+| `lib/catalogo/atributos.ts` | Definiciones: tipo, unidad, opciones, topes, claves |
+| `lib/catalogo/valores.ts` | Valores contra su definición. Se usa en formulario, importación e IA |
+| `lib/catalogo/variantes.ts` | Nombre único, precio, stock coherente |
+| `lib/agenda/franjas.ts` | Semana válida, sin franjas solapadas |
+| `lib/agenda/horarios.ts` | **De la semana a los horarios concretos.** Función pura |
+| `lib/negocios/slug.ts` | Slug desde el nombre, palabras reservadas |
+| `lib/negocios/maps.ts` | Enlace válido, forma de la ficha |
+| `lib/iconos.ts` | Que el nombre de icono exista en el juego permitido |
 
-Cada uno exporta funciones puras `validarX(entrada: unknown): Resultado<X>`, sin tocar la
-base. Eso es lo que las hace probables con `vitest` sin levantar nada.
-
-### El validador de atributos, que es el más delicado
-
-```ts
-export function validarAtributos(
-  campos: CampoCategoria[],
-  entrada: unknown,
-): Resultado<Record<string, ValorAtributo>>;
-```
-
-Lo que comprueba, en orden:
-
-1. Que la entrada sea un objeto plano. Nada de anidamiento.
-2. Que **toda clave presente tenga definición hoy**. Las que no, se descartan de la
-   escritura pero **no se borran de lo ya guardado**: la ruta hace `atributos_viejos ||
-   atributos_nuevos_validados`, no un reemplazo.
-3. Por tipo:
-   - `lista`: el valor está en `valores`. Si `multiple`, es un arreglo sin repetidos y de
-     hasta 12 elementos.
-   - `numero`: es finito, no es `NaN`, cabe en `numeric(12,3)`.
-   - `texto`: hasta 120 caracteres, recortado.
-   - `booleano`: es `true` o `false`, nunca `"true"`.
-4. Que los `obligatorio` estén presentes.
-5. Que el objeto resultante no supere **2 KB serializado**. Ese es el techo que impide
-   que alguien use `atributos` como depósito.
-
-### Errores, con forma estable
-
-```jsonc
-{ "error": "Revisa los datos del producto.",
-  "errores": { "atributos.potencia": "Elegí un valor de la lista." } }
-```
-
-La clave con punto permite que el formulario marque el campo exacto. Es la forma que ya
-usan las rutas de hoy, extendida con notación de camino.
-
-## 6. Límites y abuso
-
-Lo que ya existe: límite de eventos de analítica por IP, límite de pedidos por IP, tope
-diario de llamadas a la IA, tope de productos por negocio.
-
-Lo que suma este plan:
-
-| Superficie | Límite | Dónde se aplica |
-|---|---|---|
-| Turnos por IP | 5 por hora, 15 por día | Tabla `limites_turnos_ip`, mismo patrón que `limites_pedidos_ip` |
-| Campos por categoría | 8, y 2 destacados | Disparador en la base |
-| Variantes por producto | 50 | Disparador en la base |
-| Escalas por producto | 5 | Disparador en la base |
-| Grupos de modificador por producto | 5, con 15 opciones cada uno | Disparador en la base |
-| Recursos por negocio | 20 | Ruta, y `check` contra el conteo |
-| Tamaño de `atributos` | 2 KB serializado | Validador y `check` en la base |
-| Filtros simultáneos en la consulta pública | 6 | Ruta pública; el séptimo se ignora |
-
-**Por qué los techos van en la base y no solo en la ruta:** la ruta se puede saltar con la
-clave privilegiada, y esa clave la usan los scripts de operación. Un tope en disparador
-protege también de un script mal escrito, que es el escenario realista acá.
-
-## 7. Cómo consume el frontend
-
-### Público: servidor, sin excepción
-
-El catálogo público se arma **en el servidor** con una sola llamada a
-`catalogo_publico()`. No hay `fetch` desde el navegador para pintar el catálogo. Motivos:
-la primera pintura llega con datos, el HTML es indexable, y el comprador con red lenta no
-ve un esqueleto girando.
-
-Lo único que va por `fetch` desde el público:
-
-- Filtros y paginación → **navegación con parámetros de búsqueda**, que recarga en el
-  servidor. Ver `03-FRONTEND.md`, sección de estado.
-- Disponibilidad de la agenda → `GET /api/agenda/disponibilidad`, porque depende de la
-  fecha que el comprador elige.
-- Analítica → `POST /api/analitica`, como hoy.
-
-### Panel: mutaciones por ruta, lecturas por servidor
-
-Las pantallas del panel se sirven con sus datos ya cargados. Las mutaciones van por
-`fetch` a las rutas y, al volver, **se revalida la ruta del servidor** en vez de parchear
-el estado local. Es más lento en apariencia y elimina de raíz la clase de error donde la
-pantalla dice una cosa y la base otra.
-
-Excepción declarada: la carga de existencias por variante, que es una tabla de hasta 50
-filas. Ahí sí hay estado local con guardado en lote y un indicador de «sin guardar», o el
-dueño hace cincuenta idas y vueltas.
-
-## 8. Compatibilidad
-
-**Regla:** ninguna respuesta de API cambia de forma sin que las pantallas viejas sigan
-funcionando durante la fase.
-
-- Los campos nuevos se agregan **opcionales** al tipo público.
-- `variantes: []` y `atributos: {}` son estados válidos y significan «este producto no
-  usa el mecanismo», no «faltan datos».
-- Las plantillas viejas ignoran lo que no conocen. Ninguna hace `Object.keys` sobre la
-  respuesta.
-
-Esto es lo que permite desplegar cada fase a producción para validarla, que es la
-restricción de trabajo del proyecto.
+`lib/agenda/horarios.ts` es el más importante de la lista y el más fácil de
+probar: entra una semana, una duración, un cupo y las citas ya tomadas; sale una
+lista de horarios con sus lugares libres. Sin base de datos, sin red, sin reloj
+—la fecha entra como parámetro— y por eso se puede probar el cambio de horario,
+el feriado y el turno que cruza el mediodía sin montar nada.

@@ -29,14 +29,17 @@ previsto: `mipuesto.com`.
 
 ## En qué está el proyecto
 
-El plan v2 —nueve fases— y el plan de crecimiento —diez etapas— **están cerrados y
-borrados**. Lo vigente es `docs/plan/`, que arranca de un hallazgo concreto: las 44 fichas
-de `Catalogos_Ejemplo/` son un documento de requisitos, y el modelo de producto actual
-—nombre, precio, foto, categoría, cantidad— no cubre al 100 % a ninguno de esos 44 rubros.
+Los planes anteriores **están cerrados y borrados**. Lo vigente es `docs/plan/`, que
+adopta el frontend de `Catalogos_Ejemplo/` —un sitio real, no un juego de imágenes— como
+el único diseño de catálogo del sistema.
 
-El plan nuevo tiene **diez fases y 62 días de trabajo efectivo**. La fase 0 es una red de
-seguridad que bloquea a todas las demás, porque este plan aplica más de veinte migraciones
-sobre una base que **nunca tuvo un respaldo verificado**.
+Dos decisiones lo ordenan todo: **un solo diseño**, sin plantillas ni formas de tarjeta
+elegibles, y **la categoría declara sus campos**, porque el modelo actual de producto no
+alcanza para una ferretería ni para una veterinaria.
+
+El plan tiene **nueve fases y 40 días de trabajo efectivo**, para seis rubros. La red de
+seguridad de respaldos ya está cerrada y verificada desde el 2026-09-09, que es lo que
+permite aplicar diez migraciones sobre la base de producción.
 
 ## Con quién estás trabajando
 
@@ -75,7 +78,7 @@ fases cuesta mucho más que una pregunta.
 
 1. El código compila y la app corre sin errores en consola.
 2. La funcionalidad se probó **en un teléfono real, en producción**, no solo se escribió.
-3. Las pruebas que corresponden a esa tarea pasan (`docs/plan/05-PRUEBAS.md`).
+3. Las pruebas que corresponden a esa tarea pasan (`docs/plan/07-PRUEBAS.md`).
 4. Los controles de seguridad de la fase se cumplieron.
 5. La interfaz respeta los tokens de `DESIGN.md`: sin colores, tamaños ni espaciados fuera
    del sistema.
