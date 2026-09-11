@@ -71,6 +71,16 @@ export type AtributoPublico = {
   orden: number;
 };
 
+export type VariantePublica = {
+  id: string;
+  producto_id: string;
+  nombre: string;
+  precio: number | null;
+  cantidad_stock: number | null;
+  visible: boolean;
+  orden: number;
+};
+
 type SubcategoriaPublica = { id: string; categoria_id: string; nombre: string; orden: number };
 
 type ProductoPublico = {
@@ -108,7 +118,17 @@ export function construirCatalogoPublico(
   fecha: Date = new Date(),
   promociones: PromocionPrecio[] = [],
   atributos: AtributoPublico[] = [],
+  variantes: VariantePublica[] = [],
 ): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
+  /* Agrupadas por producto una sola vez, por lo mismo que los campos: filtrar la
+     lista entera por cada producto sería recorrerla cuarenta veces. */
+  const variantesPorProducto = new Map<string, VariantePublica[]>();
+  for (const fila of [...variantes].sort((a, b) => a.orden - b.orden)) {
+    if (fila.visible === false) continue;
+    const lista = variantesPorProducto.get(fila.producto_id) ?? [];
+    lista.push(fila);
+    variantesPorProducto.set(fila.producto_id, lista);
+  }
   /* Agrupados por categoría una sola vez, antes de recorrer los productos: con
      cuarenta productos, filtrar la lista entera por cada uno sería cuarenta
      recorridas de lo mismo. */
@@ -194,6 +214,33 @@ export function construirCatalogoPublico(
          tipos, las unidades ni qué campo va en qué lugar. */
       lineaAtributos: lineaDeTarjeta(definiciones, producto.atributos),
       especificaciones: valoresParaMostrar(definiciones, producto.atributos, "ficha"),
+      /* El precio se resuelve acá: el propio de la presentación, o el del
+         producto si no tiene. Nótese que se parte del precio **ya calculado con
+         promociones**, así que un descuento del catálogo alcanza a las
+         presentaciones que no fijaron precio propio, y no a las que sí. Es lo
+         esperable: quien puso un precio fijo para «7,5 kg» puso ese precio. */
+      variantes: (variantesPorProducto.get(producto.id) ?? []).map((variante) => {
+        const precioVariante = variante.precio === null ? precio : Number(variante.precio);
+        return {
+          id: variante.id,
+          nombre: variante.nombre,
+          precio: precioVariante,
+          accionWhatsapp:
+            modalidad.accion === "accion_individual"
+              ? construirEnlaceWhatsapp(
+                  negocio.telefono_whatsapp,
+                  construirMensajeProducto(negocio.nombre, {
+                    /* El nombre lleva la presentación pegada: quien recibe el
+                       mensaje tiene que leer «Remera lisa (M)» y no adivinar
+                       cuál de las tres tallas le pidieron. */
+                    nombre: `${producto.nombre} (${variante.nombre})`,
+                    precio: precioVariante,
+                    datos: valoresParaMostrar(definiciones, producto.atributos, "resumen"),
+                  }),
+                )
+              : null,
+        };
+      }),
     };
   };
   const agrupadas = categoriasOrdenadas

@@ -35,8 +35,8 @@ restaurante, ferretería, ropa, distribuidora, repuestos y veterinaria. Está en
 |---|---|---|---|
 | 1 | La categoría toma identidad | 3 | **CERRADA el 2026-09-10** |
 | 2 | Los campos de la categoría | 4 | **CERRADA el 2026-09-10** |
-| 3 | Los campos en el producto | 4 | **Desplegada el 2026-09-10.** Falta la prueba a mano |
-| 4 | Variantes | 3 | No iniciada |
+| 3 | Los campos en el producto | 4 | **CERRADA el 2026-09-11** |
+| 4 | Variantes | 3 | **Desplegada el 2026-09-11.** Falta la reserva por presentación |
 | 5 | Agenda y citas | 6 | No iniciada |
 | 6 | El catálogo nuevo | 7 | No iniciada |
 | 7 | Identidad y apariencia | 4 | No iniciada |

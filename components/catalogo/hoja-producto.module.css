@@ -312,3 +312,56 @@
   font-size: var(--text-sm);
   font-weight: 700;
 }
+
+/* El selector de presentación: talla, color o tamaño.
+ *
+ * Botones de opción y no un desplegable: son pocos —doce como mucho— y hay que
+ * verlos todos de una para comparar precios. Un desplegable esconde justamente
+ * la comparación que la persona vino a hacer. */
+.variantes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+}
+
+.variantes legend {
+  padding: 0 var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+  text-transform: uppercase;
+}
+
+.variantes label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.variantes label:has(input:checked) {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+}
+
+.variantes input {
+  accent-color: var(--color-marca);
+}
+
+.variantes small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}

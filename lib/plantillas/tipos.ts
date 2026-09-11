@@ -35,6 +35,20 @@ export type ProductoPlantilla = {
      unidades: eso vive en `lib/catalogo/valores.ts` y se dice una sola vez. */
   lineaAtributos: string | null;
   especificaciones: Array<{ clave: string; nombre: string; texto: string }>;
+  /* Las presentaciones: talla, color, tamaño. `precio` ya viene resuelto —el
+     propio, o el del producto si no tiene— para que ninguna pantalla tenga que
+     acordarse de esa regla. Vacío es lo normal: la mayoría de los productos se
+     venden de una sola forma. */
+  variantes: Array<{
+    id: string;
+    nombre: string;
+    precio: number;
+    /* Su propio enlace, armado en el servidor con su nombre y su precio. Se
+       manda resuelto en vez de rearmar el mensaje en el navegador: el texto lo
+       escribe `construirMensajeProducto` y tenerlo en dos lugares haría que un
+       día digan cosas distintas. */
+    accionWhatsapp: string | null;
+  }>;
 };
 
 export type CategoriaPlantilla = {

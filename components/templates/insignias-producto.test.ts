@@ -7,6 +7,7 @@ function producto(cambios: Partial<ProductoPlantilla> = {}): ProductoPlantilla {
   return {
     id: "p1",
     lineaAtributos: null,
+  variantes: [],
   especificaciones: [],
   codigo: "PRD-1",
     nombre: "Coca Cola 2 L",

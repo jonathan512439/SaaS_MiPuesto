@@ -139,8 +139,21 @@ esta.
 - Una categoría con `vende = tiempo` no admite variantes.
 - Agotar una variante no agota el producto.
 
-**Criterio de salida:** en producción, una remera en tres tallas con stock
-distinto, y el pedido dice cuál.
+**Criterio de salida:** en producción, una remera en tres tallas, y el pedido
+por WhatsApp dice cuál.
+
+**Lo que quedó fuera, y por qué está dicho en pantalla:** el carrito **todavía
+reserva sobre el total del producto**, no por presentación. Reservar por
+presentación toca cinco funciones de la base —la que crea el pedido y reserva,
+más las tres que devuelven lo reservado al confirmar, cancelar y expirar, más
+`pedido_items`—, que es el motor de compra completo. Eso es una fase en sí misma
+y no entra en tres días.
+
+Mientras tanto **no se le miente a nadie**: las existencias por presentación son
+del panel, para que el dueño lleve su cuenta, y el editor lo dice donde se cargan.
+El catálogo público muestra los nombres y los precios de cada presentación, que
+sí son ciertos, y la disponibilidad que muestra sigue siendo la del producto,
+igual que antes de esta fase.
 
 ---
 

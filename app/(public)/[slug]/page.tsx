@@ -128,6 +128,7 @@ export default async function PaginaCatalogoPublico({
 
   const [
     resultadoCategorias,
+    resultadoVariantes,
     resultadoAtributos,
     resultadoSubcategorias,
     resultadoPromociones,
@@ -143,6 +144,14 @@ export default async function PaginaCatalogoPublico({
          consulta. Son diez filas por categoría como mucho, y el catálogo las
          necesita todas: pedirlas por categoría serían cuarenta viajes para
          dibujar una página. */
+      /* Las presentaciones de todos los productos del negocio, en una consulta.
+         Se filtran las ocultas al agrupar, no acá, para que el conteo del
+         catálogo no dependa de dos lugares. */
+      supabase
+        .from("variantes_producto")
+        .select("id,producto_id,nombre,precio,cantidad_stock,visible,orden")
+        .eq("negocio_id", negocio.id)
+        .order("orden"),
       supabase
         .from("atributos_categoria")
         .select(
@@ -225,6 +234,7 @@ export default async function PaginaCatalogoPublico({
       valor: Number(promocion.valor),
     })),
     resultadoAtributos.data ?? [],
+    resultadoVariantes.data ?? [],
   );
   return (
     <main className={styles.pagina}>

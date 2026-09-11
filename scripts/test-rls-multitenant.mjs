@@ -158,6 +158,19 @@ try {
     nombre: "Producto B",
     precio: 20,
   });
+  /* Las presentaciones entran a la comprobación como cualquier otra tabla con
+     dueño: la clave foránea compuesta es la forma, y acá se prueba que el
+     negocio A no pueda leer ni escribir la del B. */
+  await insertarUno(clienteA, "variantes_producto", {
+    negocio_id: negocios[0].id,
+    producto_id: productoA.id,
+    nombre: "M",
+  });
+  const varianteB = await insertarUno(clienteB, "variantes_producto", {
+    negocio_id: negocios[1].id,
+    producto_id: productoB.id,
+    nombre: "M",
+  });
   await insertarUno(clienteA, "promociones", {
     negocio_id: negocios[0].id,
     categoria_id: categoriaA.id,
@@ -217,6 +230,7 @@ try {
     categorias: categoriaB.id,
     subcategorias: subcategoriaB.id,
     atributos_categoria: atributoB.id,
+    variantes_producto: varianteB.id,
     productos: productoB.id,
     promociones: promocionB.id,
     pedidos: pedidoB.id,
@@ -228,6 +242,7 @@ try {
     categorias: { nombre: "Intento ajeno" },
     subcategorias: { nombre: "Intento ajeno" },
     atributos_categoria: { nombre: "Intento ajeno" },
+    variantes_producto: { nombre: "Intento ajeno" },
     productos: { nombre: "Intento ajeno" },
     promociones: { activo: false },
     pedidos: { estado: "cancelado" },
@@ -485,7 +500,7 @@ try {
   );
 
   console.log(
-    "RLS multi-tenant: 2 usuarios, 9 tablas de negocio, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 10 tablas de negocio, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([

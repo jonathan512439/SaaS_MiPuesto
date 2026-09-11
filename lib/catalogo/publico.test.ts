@@ -455,3 +455,83 @@ describe("los datos propios del producto en el catálogo público", () => {
     expect(producto.nombre).toBe("Foco LED");
   });
 });
+
+describe("las presentaciones en el catálogo público", () => {
+  function construir(variantes: unknown[], tipoNegocio = "catalogo_cta") {
+    return construirCatalogoPublico(
+      { ...NEGOCIO, tipo_negocio: tipoNegocio },
+      [{ id: "cat-1", nombre: "Ropa", orden: 1 }],
+      [],
+      [
+        {
+          id: "p-1",
+          categoria_id: "cat-1",
+          subcategoria_id: null,
+          nombre: "Remera lisa",
+          descripcion: null,
+          precio: 80,
+          fotos: [],
+          estado: "disponible",
+          controla_stock: false,
+          visible: true,
+          orden: 1,
+        },
+      ],
+      "https://proyecto.supabase.co",
+      new Date(),
+      [],
+      [],
+      variantes as never,
+    ).datos.categorias[0].productos[0];
+  }
+
+  const talla = (nombre: string, precio: number | null, orden: number, visible = true) => ({
+    id: `v-${nombre}`,
+    producto_id: "p-1",
+    nombre,
+    precio,
+    cantidad_stock: null,
+    visible,
+    orden,
+  });
+
+  /* El caso común: tres tallas al mismo precio. Cada una tiene que salir con el
+     precio del producto sin que nadie lo repita al cargarlas. */
+  it("sin precio propio heredan el del producto", () => {
+    const producto = construir([talla("S", null, 0), talla("M", null, 1)]);
+    expect(producto.variantes.map(({ precio }) => precio)).toEqual([80, 80]);
+  });
+
+  it("con precio propio lo conservan", () => {
+    expect(construir([talla("7,5 kg", 190, 0)]).variantes[0].precio).toBe(190);
+  });
+
+  it("respetan el orden y dejan fuera las ocultas", () => {
+    const producto = construir([talla("L", null, 2), talla("S", null, 0), talla("M", null, 1, false)]);
+    expect(producto.variantes.map(({ nombre }) => nombre)).toEqual(["S", "L"]);
+  });
+
+  /* El nombre lleva la presentación pegada: quien recibe el mensaje tiene que
+     leer «Remera lisa (M)» y no adivinar cuál de las tres le pidieron. */
+  it("cada una arma su propio mensaje de WhatsApp", () => {
+    const producto = construir([talla("M", null, 0)]);
+    const enlace = producto.variantes[0].accionWhatsapp;
+    /* `URLSearchParams` codifica el espacio como «+» y los paréntesis como
+       «%28» y «%29». Se compara sobre el texto ya decodificado en vez de
+       escribir esa codificación a mano: así la prueba sigue valiendo el día que
+       cambie la forma de armar el enlace. */
+    const texto = new URL(enlace ?? "").searchParams.get("text") ?? "";
+    expect(texto).toContain("Remera lisa (M)");
+  });
+
+  /* Sin acción individual no hay enlace que armar, y devolver uno igual haría
+     que la hoja dibujara un botón que la modalidad no ofrece. */
+  it("sin modalidad de WhatsApp no traen enlace", () => {
+    expect(construir([talla("M", null, 0)], "catalogo_estatico").variantes[0].accionWhatsapp)
+      .toBeNull();
+  });
+
+  it("un producto sin presentaciones no arrastra nada", () => {
+    expect(construir([]).variantes).toEqual([]);
+  });
+});

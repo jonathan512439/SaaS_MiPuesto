@@ -56,6 +56,7 @@ export function crearDatosDemoPlantilla({
           {
             id: "demo-1",
             lineaAtributos: null,
+            variantes: [],
             especificaciones: [],
             codigo: "PRD-DEMO01",
             nombre: "Hamburguesa de la casa",
@@ -76,6 +77,7 @@ export function crearDatosDemoPlantilla({
           {
             id: "demo-2",
             lineaAtributos: null,
+            variantes: [],
             especificaciones: [],
             codigo: "PRD-DEMO02",
             nombre: "Papas con salsa",
@@ -103,6 +105,7 @@ export function crearDatosDemoPlantilla({
           {
             id: "demo-3",
             lineaAtributos: null,
+            variantes: [],
             especificaciones: [],
             codigo: "PRD-DEMO03",
             nombre: "Limonada artesanal",

@@ -805,6 +805,57 @@ export type Database = {
           },
         ]
       }
+      variantes_producto: {
+        Row: {
+          cantidad_stock: number | null
+          creado_en: string
+          id: string
+          negocio_id: string
+          nombre: string
+          orden: number
+          precio: number | null
+          producto_id: string
+          visible: boolean
+        }
+        Insert: {
+          cantidad_stock?: number | null
+          creado_en?: string
+          id?: string
+          negocio_id: string
+          nombre: string
+          orden?: number
+          precio?: number | null
+          producto_id: string
+          visible?: boolean
+        }
+        Update: {
+          cantidad_stock?: number | null
+          creado_en?: string
+          id?: string
+          negocio_id?: string
+          nombre?: string
+          orden?: number
+          precio?: number | null
+          producto_id?: string
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variantes_padre"
+            columns: ["producto_id", "negocio_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id", "negocio_id"]
+          },
+          {
+            foreignKeyName: "variantes_producto_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vigilancia_salud: {
         Row: {
           estado: string

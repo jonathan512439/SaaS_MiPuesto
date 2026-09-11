@@ -16,6 +16,7 @@ import {
 import { leerAtributos, type Atributo } from "../../lib/catalogo/atributos";
 import { leerValores, type ValorAtributo } from "../../lib/catalogo/valores";
 import { CamposDeProducto } from "./campos-de-producto";
+import { EditorDeVariantes } from "./editor-de-variantes";
 import { AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
@@ -1124,6 +1125,19 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               {subcategoriasFormulario.map((subcategoria) => <option key={subcategoria.id} value={subcategoria.id}>{subcategoria.nombre}</option>)}
             </Selector>
           </div>
+          {/* Solo con el producto ya creado: las presentaciones necesitan su
+              identificador para guardarse, y pedirlas antes obligaría a
+              mantener dos caminos de guardado para lo mismo. */}
+          {productoEditando ? (
+            <EditorDeVariantes
+              controlaStock={formulario.controla_stock}
+              precioProducto={Number(formulario.precio) || 0}
+              productoId={productoEditando}
+              vendeTiempo={
+                categorias.find(({ id }) => id === formulario.categoria_id)?.vende === "tiempo"
+              }
+            />
+          ) : null}
           <CamposDeProducto
             alCambiar={(clave, valor) =>
               setValoresAtributos((actuales) => {

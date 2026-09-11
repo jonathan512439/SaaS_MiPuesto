@@ -39,6 +39,9 @@ export function HojaProducto({
 }: PropiedadesHojaProducto) {
   const referencia = useRef<HTMLDialogElement>(null);
   const [actual, setActual] = useState(0);
+  /* Ninguna elegida al abrir, y no la primera. Preseleccionar una talla haría
+     que quien no mira el selector pida la S sin saberlo. */
+  const [varianteElegida, setVarianteElegida] = useState<string | null>(null);
   const [productoAnterior, setProductoAnterior] = useState(producto?.id ?? null);
   const idTitulo = useId();
   const abierta = producto !== null;
@@ -49,6 +52,7 @@ export function HojaProducto({
   if ((producto?.id ?? null) !== productoAnterior) {
     setProductoAnterior(producto?.id ?? null);
     setActual(0);
+    setVarianteElegida(null);
   }
 
   useEffect(() => {
@@ -68,6 +72,12 @@ export function HojaProducto({
   }, [abierta]);
 
   if (!producto) return null;
+
+  /* El precio que se muestra: el de la presentación elegida, o el del producto
+     mientras no haya ninguna. Se calcula acá y no en el JSX para que el botón de
+     WhatsApp y el número de arriba no puedan decir cosas distintas. */
+  const variante = producto.variantes.find(({ id }) => id === varianteElegida) ?? null;
+  const precioMostrado = variante ? variante.precio : producto.precio;
 
   const imagenes = producto.imagenes;
   const total = imagenes.length;
@@ -168,9 +178,33 @@ export function HojaProducto({
           {producto.tienePromocion ? (
             <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
           ) : null}
-          <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
+          {/* El precio sigue a la presentación elegida: si «7,5 kg» cuesta otra
+              cosa, el número de arriba tiene que decirlo antes de que la persona
+              toque el botón, no después. */}
+          <strong>{formatearPrecioBolivianos(precioMostrado)}</strong>
           {producto.tienePromocion ? <small>Precio promocional</small> : null}
         </div>
+
+        {producto.variantes.length > 0 ? (
+          <fieldset className={styles.variantes}>
+            <legend>Presentación</legend>
+            {producto.variantes.map((variante) => (
+              <label key={variante.id}>
+                <input
+                  checked={varianteElegida === variante.id}
+                  name="presentacion"
+                  onChange={() => setVarianteElegida(variante.id)}
+                  type="radio"
+                  value={variante.id}
+                />
+                <span>{variante.nombre}</span>
+                {variante.precio !== producto.precio ? (
+                  <small>{formatearPrecioBolivianos(variante.precio)}</small>
+                ) : null}
+              </label>
+            ))}
+          </fieldset>
+        ) : null}
 
         <div className={styles.estados}>
           {producto.estado === "agotado" ? (
@@ -209,7 +243,15 @@ export function HojaProducto({
             demostracion={false}
             modalidad={modalidad}
             permiteAcciones={permiteAcciones}
-            producto={producto}
+            /* Con una presentación elegida, la acción es la suya: su precio y su
+               nombre. Sin ninguna, la del producto. Se reemplazan los dos campos
+               juntos para que el botón no pueda quedar con el precio de una y el
+               mensaje de otra. */
+            producto={
+              variante
+                ? { ...producto, precio: variante.precio, accionWhatsapp: variante.accionWhatsapp }
+                : producto
+            }
           />
         </div>
       </div>
