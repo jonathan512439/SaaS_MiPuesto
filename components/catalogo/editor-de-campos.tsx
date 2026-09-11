@@ -205,6 +205,7 @@ export function EditorDeCampos({
   }
 
   const enTarjeta = campos.filter((campo) => campo.enTarjeta).length;
+  const tarjetaLlena = enTarjeta >= MAXIMO_EN_TARJETA;
 
   return (
     <section className={styles.seccion}>
@@ -301,13 +302,24 @@ export function EditorDeCampos({
           ) : null}
 
           <div className={styles.interruptores}>
-            <label>
+            {/* Se apaga al llegar a seis en vez de dejar marcar el séptimo y
+                fallar al guardar. El error aparecía recién al guardar y se leía
+                como si el sistema no dejara crear más campos, que es otra cosa:
+                el tope de campos es diez, y este es solo de cuántos se ven en la
+                tarjeta. */}
+            <label className={tarjetaLlena && !campo.enTarjeta ? styles.apagado : undefined}>
               <input
                 checked={campo.enTarjeta}
+                disabled={tarjetaLlena && !campo.enTarjeta}
                 onChange={(evento) => cambiar(indice, { enTarjeta: evento.target.checked })}
                 type="checkbox"
               />
-              <span>Mostrarlo en la tarjeta</span>
+              <span>
+                Mostrarlo en la tarjeta
+                {tarjetaLlena && !campo.enTarjeta ? (
+                  <small> · ya hay {MAXIMO_EN_TARJETA}. Destildá otro para poner este.</small>
+                ) : null}
+              </span>
             </label>
             <label>
               <input
@@ -353,9 +365,15 @@ export function EditorDeCampos({
 
       {errores.atributos ? <strong className={styles.error}>{errores.atributos}</strong> : null}
 
+      {/* Los dos topes juntos y con palabras distintas: son cosas separadas y
+          decir «6 campos» de los dos lados hacía creer que el segundo limitaba al
+          primero. */}
       <p className={styles.cuenta}>
-        {campos.length} de {MAXIMO_ATRIBUTOS} campos · {enTarjeta} de {MAXIMO_EN_TARJETA} en la
-        tarjeta
+        {campos.length} de {MAXIMO_ATRIBUTOS} campos creados · {enTarjeta} de{" "}
+        {MAXIMO_EN_TARJETA} se ven en la tarjeta
+        {campos.length >= MAXIMO_ATRIBUTOS ? (
+          <span> · llegaste al máximo de campos</span>
+        ) : null}
       </p>
 
       <div className={styles.pie}>

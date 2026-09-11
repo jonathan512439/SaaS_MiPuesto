@@ -232,7 +232,9 @@ export function validarAtributos(
   });
 
   if (enTarjeta > MAXIMO_EN_TARJETA) {
-    errores.atributos = `Hasta ${MAXIMO_EN_TARJETA} campos pueden mostrarse en la tarjeta.`;
+    errores.atributos =
+      `Hasta ${MAXIMO_EN_TARJETA} campos se ven en la tarjeta. Los demás se siguen mostrando ` +
+      "en la ficha del producto.";
   }
 
   return Object.keys(errores).length > 0

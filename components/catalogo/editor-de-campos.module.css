@@ -171,3 +171,17 @@
   font-size: var(--text-xs);
   font-weight: 800;
 }
+
+/* El interruptor que no se puede marcar, atenuado pero legible: sigue diciendo
+   qué es y por qué no se puede, en vez de desaparecer. */
+.apagado span {
+  color: var(--color-texto-suave);
+}
+
+.interruptores label small {
+  display: block;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: 1.4;
+}
