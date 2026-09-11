@@ -33,8 +33,8 @@ restaurante, ferretería, ropa, distribuidora, repuestos y veterinaria. Está en
 
 | Fase | Nombre | Días | Estado |
 |---|---|---|---|
-| 1 | La categoría toma identidad | 3 | **Desplegada el 2026-09-10.** Falta que el dueño cree una categoría eligiendo ícono |
-| 2 | Los campos de la categoría | 4 | No iniciada |
+| 1 | La categoría toma identidad | 3 | **CERRADA el 2026-09-10** |
+| 2 | Los campos de la categoría | 4 | **Desplegada el 2026-09-10.** Falta la prueba a mano |
 | 3 | Los campos en el producto | 4 | No iniciada |
 | 4 | Variantes | 3 | No iniciada |
 | 5 | Agenda y citas | 6 | No iniciada |

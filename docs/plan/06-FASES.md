@@ -80,6 +80,11 @@ fase 5, junto con lo que enciende.
 **Criterio de salida:** en producción, una categoría real tiene cinco campos
 definidos y el intento de agregar el once falla con mensaje claro.
 
+**Se adelantó de la fase 3:** la columna `productos.atributos` con su índice.
+Sin ella, el aviso al borrar un campo no podría decir en cuántos productos se
+pierde el dato y diría siempre «cero», que es un aviso que miente. La pantalla
+para cargar valores sigue en la fase 3.
+
 ---
 
 ## Fase 3 — Los campos en el producto

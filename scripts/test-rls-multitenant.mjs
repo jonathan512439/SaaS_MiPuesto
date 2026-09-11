@@ -127,6 +127,24 @@ try {
     categoria_id: categoriaB.id,
     nombre: "Subcategoría B",
   });
+  /* Los campos de categoría entran a la comprobación como cualquier otra tabla
+     con dueño. El aislamiento lo sostiene la clave foránea compuesta, pero eso es
+     forma: acá se comprueba comportamiento, que es que el negocio A no pueda leer
+     ni escribir el campo del B. */
+  await insertarUno(clienteA, "atributos_categoria", {
+    negocio_id: negocios[0].id,
+    categoria_id: categoriaA.id,
+    clave: "material",
+    nombre: "Material",
+    tipo: "texto",
+  });
+  const atributoB = await insertarUno(clienteB, "atributos_categoria", {
+    negocio_id: negocios[1].id,
+    categoria_id: categoriaB.id,
+    clave: "material",
+    nombre: "Material",
+    tipo: "texto",
+  });
   const productoA = await insertarUno(clienteA, "productos", {
     negocio_id: negocios[0].id,
     categoria_id: categoriaA.id,
@@ -198,6 +216,7 @@ try {
     negocios: negocios[1].id,
     categorias: categoriaB.id,
     subcategorias: subcategoriaB.id,
+    atributos_categoria: atributoB.id,
     productos: productoB.id,
     promociones: promocionB.id,
     pedidos: pedidoB.id,
@@ -208,6 +227,7 @@ try {
     negocios: { plantilla_id: "moderna", paleta_id: "noche" },
     categorias: { nombre: "Intento ajeno" },
     subcategorias: { nombre: "Intento ajeno" },
+    atributos_categoria: { nombre: "Intento ajeno" },
     productos: { nombre: "Intento ajeno" },
     promociones: { activo: false },
     pedidos: { estado: "cancelado" },
@@ -465,7 +485,7 @@ try {
   );
 
   console.log(
-    "RLS multi-tenant: 2 usuarios, 8 tablas de negocio, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 9 tablas de negocio, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([

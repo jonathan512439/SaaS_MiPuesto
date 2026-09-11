@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      atributos_categoria: {
+        Row: {
+          categoria_id: string
+          clave: string
+          creado_en: string
+          en_resumen: boolean
+          en_tarjeta: boolean
+          id: string
+          negocio_id: string
+          nombre: string
+          obligatorio: boolean
+          opciones: string[]
+          orden: number
+          tipo: string
+          unidad: string | null
+        }
+        Insert: {
+          categoria_id: string
+          clave: string
+          creado_en?: string
+          en_resumen?: boolean
+          en_tarjeta?: boolean
+          id?: string
+          negocio_id: string
+          nombre: string
+          obligatorio?: boolean
+          opciones?: string[]
+          orden?: number
+          tipo: string
+          unidad?: string | null
+        }
+        Update: {
+          categoria_id?: string
+          clave?: string
+          creado_en?: string
+          en_resumen?: boolean
+          en_tarjeta?: boolean
+          id?: string
+          negocio_id?: string
+          nombre?: string
+          obligatorio?: boolean
+          opciones?: string[]
+          orden?: number
+          tipo?: string
+          unidad?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atributos_categoria_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atributos_categoria_padre"
+            columns: ["categoria_id", "negocio_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id", "negocio_id"]
+          },
+        ]
+      }
       bitacora_plataforma: {
         Row: {
           accion: string
@@ -513,6 +576,7 @@ export type Database = {
       }
       productos: {
         Row: {
+          atributos: Json
           cantidad_reservada: number
           cantidad_stock: number | null
           categoria_id: string | null
@@ -538,6 +602,7 @@ export type Database = {
           visible: boolean
         }
         Insert: {
+          atributos?: Json
           cantidad_reservada?: number
           cantidad_stock?: number | null
           categoria_id?: string | null
@@ -563,6 +628,7 @@ export type Database = {
           visible?: boolean
         }
         Update: {
+          atributos?: Json
           cantidad_reservada?: number
           cantidad_stock?: number | null
           categoria_id?: string | null

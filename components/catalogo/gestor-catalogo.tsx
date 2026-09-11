@@ -20,6 +20,7 @@ import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
 import { rubroOfrece } from "../../lib/negocios/rubros";
 import { IconoCatalogo } from "../iconos/icono-catalogo";
 import { ICONO_PREDETERMINADO } from "../../lib/catalogo/categorias";
+import { EditorDeCampos } from "./editor-de-campos";
 import { SelectorDeIcono } from "./selector-de-icono";
 import {
   AJUSTE_MAXIMO,
@@ -1321,6 +1322,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                         <small>Apagarla no esconde sus productos.</small>
                       </label>
                     </div>
+                  ) : null}
+                  {categoriaActiva === categoria.id ? (
+                    <EditorDeCampos
+                      categoriaId={categoria.id}
+                      categoriaNombre={categoria.nombre}
+                    />
                   ) : null}
                   {categoriaActiva === categoria.id ? <div className={styles.subcategorias}>
                     {subcategoriasDeCategoria.map((subcategoria, subindice) => (
