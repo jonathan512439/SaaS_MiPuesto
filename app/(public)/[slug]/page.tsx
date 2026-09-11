@@ -11,13 +11,17 @@ import {
   leerFiltrosCatalogo,
 } from "../../../lib/catalogo/consulta-publica";
 import { obtenerNegocioPublico as consultarNegocioPublico } from "../../../lib/catalogo/negocio-publico";
-import { construirCatalogoPublico } from "../../../lib/catalogo/publico";
+import {
+  categoriasParaNavegar,
+  construirCatalogoPublico,
+} from "../../../lib/catalogo/publico";
 import { esUuid } from "../../../lib/catalogo/validacion";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../lib/url-sitio";
 import styles from "./catalogo-publico.module.css";
 import { COLUMNAS_PRODUCTO_PUBLICO } from "../../../lib/catalogo/columnas";
+import { COLUMNAS_CATEGORIA } from "../../../lib/catalogo/columnas";
 
 type PropiedadesPagina = {
   params: Promise<{ slug: string }>;
@@ -130,7 +134,7 @@ export default async function PaginaCatalogoPublico({
   ] = await Promise.all([
       supabase
         .from("categorias")
-        .select("id,nombre,orden")
+        .select(COLUMNAS_CATEGORIA)
         .eq("negocio_id", negocio.id)
         .order("orden")
         .order("nombre"),
@@ -213,7 +217,7 @@ export default async function PaginaCatalogoPublico({
     <main className={styles.pagina}>
       <div className={styles.catalogo}>
         <CatalogoInteractivo
-          categoriasNavegacion={categorias.map(({ id, nombre }) => ({ id, nombre }))}
+          categoriasNavegacion={categoriasParaNavegar(categorias)}
           datos={catalogo.datos}
           filtros={filtros}
           paleta={catalogo.paleta}

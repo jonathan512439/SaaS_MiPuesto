@@ -8,6 +8,7 @@ import { BannerCatalogo } from "../banner-catalogo";
 import { TarjetaProducto } from "../tarjetas";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-feria.module.css";
+import { IconoCatalogo } from "../../iconos/icono-catalogo";
 
 /* Condensada: en un puesto el precio se escribe grande y el ancho de la
    pizarra no crece. La misma restricción vale acá, donde el precio tiene que
@@ -124,6 +125,10 @@ export function PlantillaFeria({
               onClick={() => navegacion?.alElegir(categoria.id)}
               type="button"
             >
+              {/* El ícono va antes del nombre y es decorativo: al lado está la
+                  palabra que dice lo mismo, y anunciarlo obligaría a escucharlo
+                  dos veces. */}
+              <IconoCatalogo nombre={categoria.icono} />
               {categoria.nombre}
             </button>
           );

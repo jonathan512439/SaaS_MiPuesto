@@ -16,6 +16,7 @@ import styles from "./catalogo.module.css";
 import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../lib/catalogo/columnas";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { Icono } from "../../../../components/iconos/icono";
+import { COLUMNAS_CATEGORIA } from "../../../../lib/catalogo/columnas";
 
 export const metadata: Metadata = {
   title: "Catálogo | MiPuesto",
@@ -43,7 +44,7 @@ export default async function PaginaCatalogo() {
   ] = await Promise.all([
     supabase
       .from("categorias")
-      .select("id,nombre,orden")
+      .select(COLUMNAS_CATEGORIA)
       .eq("negocio_id", negocio.id)
       .order("orden")
       .order("nombre"),

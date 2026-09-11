@@ -7,6 +7,7 @@ import type { CategoriaCatalogo } from "../../../../../lib/catalogo/tipos";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import styles from "../catalogo.module.css";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
+import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
 
 export const metadata: Metadata = {
   title: "Importar tu Excel | MiPuesto",
@@ -34,7 +35,7 @@ export default async function PaginaImportarPlanilla() {
 
   const { data: categorias } = await supabase
     .from("categorias")
-    .select("id,nombre,orden")
+    .select(COLUMNAS_CATEGORIA)
     .eq("negocio_id", negocio.id)
     .order("orden")
     .order("nombre");

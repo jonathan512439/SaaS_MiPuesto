@@ -7,6 +7,11 @@ import {
   validarNombreOrganizacion,
 } from "../../../../lib/catalogo/validacion";
 import {
+  ICONO_PREDETERMINADO,
+  validarIdentidadCategoria,
+} from "../../../../lib/catalogo/categorias";
+import { COLUMNAS_CATEGORIA } from "../../../../lib/catalogo/columnas";
+import {
   leerJson,
   obtenerContextoAdminCatalogo,
 } from "../../../../lib/catalogo/servidor";
@@ -19,12 +24,24 @@ export async function POST(solicitud: NextRequest) {
 
   const entrada = await leerJson(solicitud);
   if (!entrada.correcto) return NextResponse.json({ error: entrada.error }, { status: 400 });
-  const nombre =
-    typeof entrada.datos === "object" && entrada.datos !== null && "nombre" in entrada.datos
-      ? entrada.datos.nombre
-      : undefined;
-  const errorNombre = validarNombreOrganizacion(nombre);
+  const cuerpo =
+    typeof entrada.datos === "object" && entrada.datos !== null
+      ? (entrada.datos as Record<string, unknown>)
+      : {};
+  const errorNombre = validarNombreOrganizacion(cuerpo.nombre);
   if (errorNombre) return NextResponse.json({ error: errorNombre }, { status: 400 });
+
+  /* El ícono y qué vende se eligen al crearla, no después: elegirlos acá es lo
+     que hace que la categoría nazca con su esfera dibujada. Los dos son
+     opcionales y tienen valor por omisión, así que quien no los mande —la
+     importación, la carga por foto— sigue funcionando igual. */
+  const identidad = validarIdentidadCategoria({ icono: cuerpo.icono, vende: cuerpo.vende });
+  if (!identidad.correcto) {
+    return NextResponse.json(
+      { error: "Revisá los datos de la categoría.", errores: identidad.errores },
+      { status: 400 },
+    );
+  }
 
   const { count } = await contexto.supabase
     .from("categorias")
@@ -48,10 +65,12 @@ export async function POST(solicitud: NextRequest) {
     .from("categorias")
     .insert({
       negocio_id: contexto.negocio.id,
-      nombre: normalizarNombreOrganizacion(nombre as string),
+      nombre: normalizarNombreOrganizacion(cuerpo.nombre as string),
       orden: (ultima?.orden ?? 0) + 1,
+      icono: (cuerpo.icono as string | undefined) ?? ICONO_PREDETERMINADO,
+      vende: (cuerpo.vende as string | undefined) ?? "cosas",
     })
-    .select("id,nombre,orden")
+    .select(COLUMNAS_CATEGORIA)
     .single();
 
   if (error) {
@@ -74,15 +93,51 @@ export async function PATCH(solicitud: NextRequest) {
     return NextResponse.json({ error: "La categoría no es válida." }, { status: 400 });
   }
 
-  if (typeof datos.nombre === "string") {
-    const errorNombre = validarNombreOrganizacion(datos.nombre);
-    if (errorNombre) return NextResponse.json({ error: errorNombre }, { status: 400 });
+  /* Reordenar va aparte y se comprueba primero: mueve **dos** filas y no cambia
+     ninguna columna de la que se pide, así que mezclarla con el resto obligaría
+     a que una misma petición hiciera dos cosas distintas. */
+  if (datos.direccion === undefined) {
+    /* Escrito con las columnas exactas y no como `Record<string, unknown>`: el
+       cliente de la base rechaza lo segundo, y con razón. Un objeto abierto
+       dejaría pasar cualquier nombre de columna que llegara del navegador. */
+    const cambios: {
+      nombre?: string;
+      icono?: string;
+      visible?: boolean;
+      vende?: string;
+    } = {};
+
+    if (datos.nombre !== undefined) {
+      const errorNombre = validarNombreOrganizacion(datos.nombre);
+      if (errorNombre) return NextResponse.json({ error: errorNombre }, { status: 400 });
+      cambios.nombre = normalizarNombreOrganizacion(datos.nombre as string);
+    }
+
+    const identidad = validarIdentidadCategoria(datos);
+    if (!identidad.correcto) {
+      return NextResponse.json(
+        { error: "Revisá los datos de la categoría.", errores: identidad.errores },
+        { status: 400 },
+      );
+    }
+    /* Se copia campo por campo y no con un `...datos`: el cuerpo viene del
+       navegador y podría traer `negocio_id`, que le entregaría la categoría a
+       otro negocio. El `as` va después del validador, que es quien comprobó que
+       cada uno es lo que dice ser. */
+    if (datos.icono !== undefined) cambios.icono = datos.icono as string;
+    if (datos.visible !== undefined) cambios.visible = datos.visible as boolean;
+    if (datos.vende !== undefined) cambios.vende = datos.vende as string;
+
+    if (Object.keys(cambios).length === 0) {
+      return NextResponse.json({ error: "No hay nada que cambiar." }, { status: 400 });
+    }
+
     const { data, error } = await contexto.supabase
       .from("categorias")
-      .update({ nombre: normalizarNombreOrganizacion(datos.nombre) })
+      .update(cambios)
       .eq("id", datos.id)
       .eq("negocio_id", contexto.negocio.id)
-      .select("id,nombre,orden")
+      .select(COLUMNAS_CATEGORIA)
       .maybeSingle();
     if (error || !data) {
       return NextResponse.json({ error: "No se pudo actualizar la categoría." }, { status: 404 });
@@ -95,7 +150,7 @@ export async function PATCH(solicitud: NextRequest) {
   }
   const { data: categorias, error: errorLista } = await contexto.supabase
     .from("categorias")
-    .select("id,nombre,orden")
+    .select(COLUMNAS_CATEGORIA)
     .eq("negocio_id", contexto.negocio.id)
     .order("orden")
     .order("nombre");

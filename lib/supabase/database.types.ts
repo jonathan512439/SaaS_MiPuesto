@@ -51,22 +51,31 @@ export type Database = {
       }
       categorias: {
         Row: {
+          icono: string
           id: string
           negocio_id: string
           nombre: string
           orden: number
+          vende: string
+          visible: boolean
         }
         Insert: {
+          icono?: string
           id?: string
           negocio_id: string
           nombre: string
           orden?: number
+          vende?: string
+          visible?: boolean
         }
         Update: {
+          icono?: string
           id?: string
           negocio_id?: string
           nombre?: string
           orden?: number
+          vende?: string
+          visible?: boolean
         }
         Relationships: [
           {

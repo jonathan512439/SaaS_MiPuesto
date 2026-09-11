@@ -17,3 +17,10 @@ export const COLUMNAS_PRODUCTO_PUBLICO =
 /* El menú impreso no muestra existencias ni reservas: es una hoja de papel. */
 export const COLUMNAS_PRODUCTO_IMPRESO =
   "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,estado,visible,orden,en_carta_hasta" as const;
+
+/* La categoría dejó de ser un nombre con un orden: ahora lleva su ícono, si su
+   esfera se muestra y qué vende. Escrita acá por el mismo motivo que las de
+   producto —estaba repetida en cinco lugares y al agregar una columna se olvidó
+   uno—, y con la misma forma de literal, para que el cliente de la base pueda
+   inferir el tipo del resultado. */
+export const COLUMNAS_CATEGORIA = "id,nombre,orden,icono,visible,vende" as const;

@@ -1059,3 +1059,54 @@
   font-size: var(--text-xs);
   line-height: 1.45;
 }
+
+/* La identidad de la categoría: su ícono y si su esfera se muestra.
+ *
+ * En superficie propia con borde y sombra, y no suelta entre las acciones: son
+ * dos controles que cambian cómo se ve el catálogo, mientras que las de arriba
+ * cambian la categoría en sí. Sin esa separación, «Eliminar categoría» y
+ * «Mostrar su esfera» parecen la misma clase de cosa. */
+.identidadCategoria {
+  display: grid;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.interruptor {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-1) var(--spacing-3);
+}
+
+.interruptor input {
+  grid-row: span 2;
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  accent-color: var(--color-marca);
+}
+
+.interruptor span {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.interruptor small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
+/* El ícono dentro del botón que filtra por categoría. Mismo criterio que en las
+   plantillas: el botón alinea, el ícono no cambia de tamaño. */
+.filtro svg,
+.filtroActivo svg {
+  flex-shrink: 0;
+  margin-right: var(--spacing-2);
+  vertical-align: -0.15em;
+}

@@ -1,0 +1,115 @@
+@reference "../../app/globals.css";
+
+.campo {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.etiqueta {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+/* Lo que se ve en el formulario: el dibujo elegido y la palabra que invita a
+   cambiarlo. El dibujo grande y no un nombre escrito, porque lo que el dueño
+   quiere confirmar es cómo se va a ver su esfera. */
+.elegido {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  justify-self: start;
+  padding: var(--spacing-2) var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-family: inherit;
+  font-size: var(--text-2xl);
+  cursor: pointer;
+}
+
+.elegido span {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.contenido {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.buscador input {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-family: inherit;
+  font-size: var(--text-base);
+}
+
+.grupo {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.grupo h3 {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+  text-transform: uppercase;
+}
+
+/* Se acomodan solos: con ciento y pico de dibujos, un número fijo de columnas
+   deja huecos en pantalla ancha y obliga a desplazar de costado en el teléfono.
+   El mínimo es lo que hace falta para que el dedo acierte. */
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--spacing-12), 1fr));
+  gap: var(--spacing-2);
+}
+
+.rejilla button {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-size: var(--text-xl);
+  cursor: pointer;
+}
+
+.rejilla button:hover {
+  border-color: var(--color-marca);
+}
+
+/* El elegido con el color de marca de fondo y no con un borde de un píxel:
+   entre ciento y pico de casillas iguales, un borde fino no se encuentra. */
+.activo {
+  border-color: var(--color-marca) !important;
+  background: var(--color-marca) !important;
+  color: var(--color-superficie) !important;
+}
+
+.vacio {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+/* Para el lector de pantalla y no para la vista. El proyecto no tiene una clase
+   global para esto y se repite el patrón que ya usa `carga-desde-foto`: sacarlo
+   con `display: none` lo quitaría también del lector, que es lo contrario de lo
+   que se busca. */
+.soloLectores {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
+  clip-path: inset(50%);
+}

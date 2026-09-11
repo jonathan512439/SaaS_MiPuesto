@@ -14,6 +14,7 @@ import {
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 import { obtenerRedesSociales } from "../negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
+import { ICONO_PREDETERMINADO, normalizarIcono } from "./categorias";
 import { esPaletaId, esPlantillaId } from "../plantillas/validacion";
 
 type NegocioPublico = {
@@ -43,7 +44,16 @@ type NegocioPublico = {
   banners?: unknown;
 };
 
-type CategoriaPublica = { id: string; nombre: string; orden: number };
+type CategoriaPublica = {
+  id: string;
+  nombre: string;
+  orden: number;
+  /* Los dos nacen con valor por omisión en la base, pero se leen opcionales: una
+     consulta vieja que no los pida no tiene por qué dejar de compilar, y la
+     esfera sin ícono cae al predeterminado igual que cualquier otra. */
+  icono?: string;
+  visible?: boolean;
+};
 type SubcategoriaPublica = { id: string; categoria_id: string; nombre: string; orden: number };
 
 type ProductoPublico = {
@@ -147,6 +157,7 @@ export function construirCatalogoPublico(
     .map((categoria) => ({
       id: categoria.id,
       nombre: categoria.nombre,
+      icono: normalizarIcono(categoria.icono),
       productos: delResto
         .filter(
           (producto) =>
@@ -175,6 +186,10 @@ export function construirCatalogoPublico(
     agrupadas.push({
       id: "otros",
       nombre: "Otros",
+      /* La inventa el sistema para los productos sin categoría, así que no tiene
+         ícono elegido por nadie: lleva el mismo predeterminado que cualquier
+         categoría a la que le falte el suyo. */
+      icono: ICONO_PREDETERMINADO,
       productos: sinCategoria,
       subcategorias: [],
     });
@@ -187,6 +202,9 @@ export function construirCatalogoPublico(
     agrupadas.unshift({
       id: CATEGORIA_CARTA_DEL_DIA,
       nombre: NOMBRE_CARTA_DEL_DIA,
+      /* La carta del día es del rubro gastronómico y el dueño no la crea: su
+         ícono lo pone el sistema. */
+      icono: "gorro-chef",
       productos: delDia,
       subcategorias: [],
     });
@@ -255,4 +273,27 @@ export function construirCatalogoPublico(
       categorias: agrupadas,
     },
   };
+}
+
+/* Las categorías que van en la barra de navegación del catálogo.
+ *
+ * Se filtran las apagadas y **nada más**: sus productos siguen en el catálogo,
+ * en su sección y en la búsqueda. Apagar una esfera es decir «no la pongas entre
+ * los accesos rápidos de arriba», que es lo que necesita el negocio con doce
+ * categorías y espacio para seis; no es esconder mercadería.
+ *
+ * Va acá, con las demás funciones puras del catálogo público, para que se pueda
+ * probar sin montar una página: el orden y el filtrado son justamente lo que se
+ * rompe en silencio.
+ */
+export function categoriasParaNavegar(
+  categorias: ReadonlyArray<CategoriaPublica>,
+): Array<{ id: string; nombre: string; icono: string }> {
+  return categorias
+    .filter((categoria) => categoria.visible !== false)
+    .map((categoria) => ({
+      id: categoria.id,
+      nombre: categoria.nombre,
+      icono: normalizarIcono(categoria.icono),
+    }));
 }

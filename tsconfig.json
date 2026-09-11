@@ -25,6 +25,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "//exclude": "Catalogos_Ejemplo es el frontend de referencia: tiene su propio proyecto, su propio React y sus propias dependencias. Está fuera de git y no se compila acá; sin esta exclusión, `tsc` lo recorre y reporta cientos de errores de un código que no es nuestro.",
+  "exclude": ["node_modules", "Catalogos_Ejemplo"]
 }
 

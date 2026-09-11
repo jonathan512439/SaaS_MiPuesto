@@ -33,6 +33,11 @@ export type ProductoPlantilla = {
 export type CategoriaPlantilla = {
   id: string;
   nombre: string;
+  /* El dibujo de la categoría. Ya viene resuelto contra el juego generado, así
+     que la plantilla lo dibuja sin comprobarlo. Las dos categorías que el
+     sistema inventa —«Otros» y la carta del día— también traen el suyo: si
+     fuera opcional, cada plantilla tendría que decidir qué poner cuando falta. */
+  icono: string;
   productos: ProductoPlantilla[];
   subcategorias?: Array<{
     id: string;
@@ -82,7 +87,11 @@ export type DatosPlantilla = {
 };
 
 export type NavegacionCatalogo = {
-  categorias: { id: string; nombre: string }[];
+  /* Cada una con su ícono: es lo que convierte la barra de categorías en las
+     esferas del diseño nuevo. Llega ya normalizado —`categoriasParaNavegar` lo
+     resolvió contra el juego generado—, así que la plantilla lo dibuja sin
+     volver a comprobarlo. */
+  categorias: { id: string; nombre: string; icono: string }[];
   activa: string;
   totalProductos: number;
   alElegir: (categoriaId: string) => void;

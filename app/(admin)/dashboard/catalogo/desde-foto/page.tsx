@@ -8,6 +8,7 @@ import { TOPE_FOTOS_POR_MES } from "../../../../../lib/ia/servidor";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import styles from "../catalogo.module.css";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
+import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
 
 export const metadata: Metadata = {
   title: "Cargar desde una foto | MiPuesto",
@@ -37,7 +38,7 @@ export default async function PaginaCargaDesdeFoto() {
   const [{ data: categorias }, { data: uso }] = await Promise.all([
     supabase
       .from("categorias")
-      .select("id,nombre,orden")
+      .select(COLUMNAS_CATEGORIA)
       .eq("negocio_id", negocio.id)
       .order("orden")
       .order("nombre"),

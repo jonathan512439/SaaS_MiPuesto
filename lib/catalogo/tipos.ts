@@ -2,6 +2,17 @@ export type CategoriaCatalogo = {
   id: string;
   nombre: string;
   orden: number;
+  /* El dibujo de su esfera. Se lee como texto y no como el tipo estricto del
+     juego de íconos: viene de la base, donde pudo guardarse uno que después se
+     quitó, y `normalizarIcono` es quien decide qué se dibuja. */
+  icono: string;
+  /* Si su esfera aparece en la navegación del catálogo. No oculta los
+     productos: es para el negocio con doce categorías que quiere seis accesos
+     rápidos arriba. */
+  visible: boolean;
+  /* `cosas` o `tiempo`. Decide si la categoría tendrá variantes y existencias o
+     agenda y citas. */
+  vende: string;
 };
 
 export type SubcategoriaCatalogo = {

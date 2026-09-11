@@ -51,6 +51,7 @@ export function crearDatosDemoPlantilla({
       {
         id: "demo-destacados",
         nombre: "Más pedidos",
+        icono: "estrella",
         productos: [
           {
             id: "demo-1",
@@ -93,6 +94,7 @@ export function crearDatosDemoPlantilla({
       {
         id: "demo-bebidas",
         nombre: "Bebidas",
+        icono: "vaso",
         productos: [
           {
             id: "demo-3",

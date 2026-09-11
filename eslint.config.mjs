@@ -13,5 +13,10 @@ export default defineConfig([
     "out/**",
     "coverage/**",
     "next-env.d.ts",
+    /* El frontend de referencia: tiene su propio proyecto, sus dependencias y su
+       propio estilo. Está fuera de git y no se compila acá. Sin esto, `lint`
+       recorre sus 5.000 archivos —incluido lo ya empaquetado— y reporta miles de
+       problemas de un código que no es nuestro y que no vamos a corregir. */
+    "Catalogos_Ejemplo/**",
   ]),
 ]);

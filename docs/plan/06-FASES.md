@@ -47,6 +47,13 @@ compuesto `(id, negocio_id)`.
 **Criterio de salida:** en producción, un negocio real muestra sus esferas con
 icono, y ocultar una la saca del catálogo sin perder productos.
 
+**Lo que quedó fuera a propósito:** `vende` se agrega a la base, a la API y al
+validador, pero **no tiene control en el panel todavía**. Elegir «tiempo» no
+haría nada hasta que exista la agenda, en la fase 5, y un interruptor que no
+cambia nada le enseña al dueño que los controles no sirven — el mismo motivo por
+el que se descartaron las pestañas «Pedidos» y «Perfil». El control aparece en la
+fase 5, junto con lo que enciende.
+
 ---
 
 ## Fase 2 — Los campos de la categoría

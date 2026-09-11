@@ -18,6 +18,9 @@ import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
 import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
 import { rubroOfrece } from "../../lib/negocios/rubros";
+import { IconoCatalogo } from "../iconos/icono-catalogo";
+import { ICONO_PREDETERMINADO } from "../../lib/catalogo/categorias";
+import { SelectorDeIcono } from "./selector-de-icono";
 import {
   AJUSTE_MAXIMO,
   AJUSTE_MINIMO,
@@ -119,6 +122,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [paginaCategorias, setPaginaCategorias] = useState(1);
   const [paginaProductos, setPaginaProductos] = useState(1);
   const [nombreCategoria, setNombreCategoria] = useState("");
+  /* El ícono de la que se está creando. Arranca en el predeterminado y no en
+     vacío: obligar a elegirlo antes de escribir el nombre pondría una decisión
+     de aspecto delante de la única que importa acá, que es cómo se llama. */
+  const [iconoCategoria, setIconoCategoria] = useState<string>(ICONO_PREDETERMINADO);
   /* Solo la posición inicial sale de los datos; después manda la persona. */
   const [organizacionAbierta, setOrganizacionAbierta] = useState(
     datosIniciales.categorias.length === 0,
@@ -223,7 +230,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nombre: nombreCategoria }),
+          body: JSON.stringify({ nombre: nombreCategoria, icono: iconoCategoria }),
         },
       );
       setCategorias((actuales) => [...actuales, categoria]);
@@ -231,6 +238,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       setCategoriaActiva(categoria.id);
       setPaginaProductos(1);
       setNombreCategoria("");
+      setIconoCategoria(ICONO_PREDETERMINADO);
       informarExito("Categoría creada");
     } catch (error) {
       informarError("No se pudo crear la categoría", error);
@@ -241,7 +249,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
 
   async function cambiarCategoria(
     id: string,
-    cambio: { nombre: string } | { direccion: "subir" | "bajar" },
+    cambio:
+      | { nombre: string }
+      | { direccion: "subir" | "bajar" }
+      | { icono: string }
+      | { visible: boolean }
+      | { vende: string },
   ) {
     try {
       const respuesta = await solicitarJson<{
@@ -1246,6 +1259,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               />
               <Boton cargando={ocupado} type="submit">Crear categoría</Boton>
             </div>
+            <SelectorDeIcono
+              alElegir={setIconoCategoria}
+              etiqueta="Su ícono"
+              rubro={datosIniciales.negocio.rubro}
+              valor={iconoCategoria}
+            />
           </form>
           <button
             className={!categoriaActiva ? styles.filtroActivo : styles.filtro}
@@ -1269,12 +1288,40 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                     onClick={() => seleccionarCategoria(categoria.id)}
                     type="button"
                   >
+                    <IconoCatalogo nombre={categoria.icono} />
                     {categoria.nombre} <span>{cantidadProductos}</span>
                   </button>
                   <div className={styles.accionesPequenas} aria-label={`Acciones para ${categoria.nombre}`}>
                     <button onClick={() => pedirNuevoNombreCategoria(categoria)} type="button">Cambiar nombre</button>
                     <button onClick={() => void borrarCategoria(categoria)} type="button">Eliminar categoría</button>
                   </div>
+                  {/* La identidad se edita con la categoría abierta y no en una
+                      pantalla aparte: el ícono y la esfera son de esta categoría
+                      y se entienden mirándola, no en una lista de ajustes. */}
+                  {categoriaActiva === categoria.id ? (
+                    <div className={styles.identidadCategoria}>
+                      <SelectorDeIcono
+                        alElegir={(icono) => void cambiarCategoria(categoria.id, { icono })}
+                        rubro={datosIniciales.negocio.rubro}
+                        valor={categoria.icono}
+                      />
+                      <label className={styles.interruptor}>
+                        <input
+                          checked={categoria.visible}
+                          onChange={(evento) =>
+                            void cambiarCategoria(categoria.id, {
+                              visible: evento.target.checked,
+                            })
+                          }
+                          type="checkbox"
+                        />
+                        <span>Mostrar su esfera en el catálogo</span>
+                        {/* Se aclara qué **no** hace, porque «ocultar» se lee
+                            como «esconder la mercadería» y no es eso. */}
+                        <small>Apagarla no esconde sus productos.</small>
+                      </label>
+                    </div>
+                  ) : null}
                   {categoriaActiva === categoria.id ? <div className={styles.subcategorias}>
                     {subcategoriasDeCategoria.map((subcategoria, subindice) => (
                       <div className={styles.subcategoria} key={subcategoria.id}>

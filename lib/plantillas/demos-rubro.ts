@@ -95,6 +95,7 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
         {
           id: "demo-platos",
           nombre: "Platos del día",
+          icono: "gorro-chef",
           productos: [
             producto(1, {
               nombre: "Majadito de charque",
@@ -121,6 +122,7 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
         {
           id: "demo-bebidas",
           nombre: "Bebidas",
+          icono: "vaso",
           productos: [
             producto(3, {
               nombre: "Limonada de la casa",
@@ -153,6 +155,7 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
         {
           id: "demo-electrico",
           nombre: "Eléctrico",
+          icono: "foco",
           productos: [
             producto(1, {
               nombre: "Cable THW 12 AWG",
@@ -175,6 +178,7 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
         {
           id: "demo-fijacion",
           nombre: "Fijación",
+          icono: "tornillo",
           productos: [
             producto(4, {
               nombre: "Tornillo autoperforante 8x1",
@@ -208,6 +212,7 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
         {
           id: "demo-cortes",
           nombre: "Cortes",
+          icono: "tijeras",
           productos: [
             producto(1, {
               nombre: "Corte clásico",
@@ -224,6 +229,7 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
         {
           id: "demo-cuidado",
           nombre: "Cuidado",
+          icono: "brocha",
           productos: [
             producto(3, {
               nombre: "Arreglo de barba",
@@ -251,6 +257,7 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
         {
           id: "demo-abarrotes",
           nombre: "Abarrotes",
+          icono: "canasta",
           productos: [
             producto(1, {
               nombre: "Arroz grano de oro 1 kg",
@@ -274,6 +281,7 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
         {
           id: "demo-limpieza",
           nombre: "Limpieza",
+          icono: "aerosol",
           productos: [
             producto(4, {
               nombre: "Detergente 1 kg",

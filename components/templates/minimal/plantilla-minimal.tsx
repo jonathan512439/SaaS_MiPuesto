@@ -8,6 +8,7 @@ import { BannerCatalogo } from "../banner-catalogo";
 import { TarjetaProducto } from "../tarjetas";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-minimal.module.css";
+import { IconoCatalogo } from "../../iconos/icono-catalogo";
 
 /* Humanista de terminaciones abiertas y aire generoso: la plantilla de
    servicios se lee de corrido, no se escanea. Reemplaza a Arial. */
@@ -97,6 +98,10 @@ export function PlantillaMinimal({
               onClick={() => navegacion?.alElegir(categoria.id)}
               type="button"
             >
+              {/* El ícono va antes del nombre y es decorativo: al lado está la
+                  palabra que dice lo mismo, y anunciarlo obligaría a escucharlo
+                  dos veces. */}
+              <IconoCatalogo nombre={categoria.icono} />
               {categoria.nombre}
             </button>
           );

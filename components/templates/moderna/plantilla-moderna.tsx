@@ -8,6 +8,7 @@ import { BannerCatalogo } from "../banner-catalogo";
 import { TarjetaProducto } from "../tarjetas";
 import temaStyles from "../tema-catalogo.module.css";
 import styles from "./plantilla-moderna.module.css";
+import { IconoCatalogo } from "../../iconos/icono-catalogo";
 
 /* Grotesca de asta ancha, pensada para titulares densos. Reemplaza a
    Trebuchet MS, que no sostenia el escaparate de alto contraste que esta
@@ -116,6 +117,10 @@ export function PlantillaModerna({
               onClick={() => navegacion?.alElegir(categoria.id)}
               type="button"
             >
+              {/* El ícono va antes del nombre y es decorativo: al lado está la
+                  palabra que dice lo mismo, y anunciarlo obligaría a escucharlo
+                  dos veces. */}
+              <IconoCatalogo nombre={categoria.icono} />
               {categoria.nombre}
             </button>
           );

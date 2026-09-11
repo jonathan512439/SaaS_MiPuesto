@@ -35,7 +35,7 @@ type PropiedadesCatalogoInteractivo = {
   plantilla: PlantillaId;
   paleta: PaletaId;
   slug: string;
-  categoriasNavegacion: Array<{ id: string; nombre: string }>;
+  categoriasNavegacion: Array<{ id: string; nombre: string; icono: string }>;
   filtros: FiltrosCatalogo;
   totalProductos: number;
   totalPaginas: number;

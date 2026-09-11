@@ -8,6 +8,7 @@ import { crearClienteSupabasePublico } from "../../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import styles from "./menu-imprimible.module.css";
 import { COLUMNAS_PRODUCTO_IMPRESO } from "../../../../lib/catalogo/columnas";
+import { COLUMNAS_CATEGORIA } from "../../../../lib/catalogo/columnas";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export default async function PaginaMenuImprimible({ params }: PropiedadesPagina
   const [resultadoCategorias, resultadoSubcategorias, resultadoProductos] = await Promise.all([
     supabase
       .from("categorias")
-      .select("id,nombre,orden")
+      .select(COLUMNAS_CATEGORIA)
       .eq("negocio_id", negocio.id)
       .order("orden")
       .order("nombre"),

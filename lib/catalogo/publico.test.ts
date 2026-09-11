@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { PALETAS, PLANTILLAS } from "../apariencia";
-import { construirCatalogoPublico, obtenerTextoHorario } from "./publico";
+import {
+  categoriasParaNavegar,
+  construirCatalogoPublico,
+  obtenerTextoHorario,
+} from "./publico";
 
 const NEGOCIO = {
   nombre: "Mercado Uno",
@@ -288,5 +292,64 @@ describe("carta del día", () => {
     expect(datos.categorias.map(({ nombre }) => nombre)).toEqual(["Platos"]);
     const platos = datos.categorias[0];
     expect(platos.productos.map(({ nombre }) => nombre)).toEqual(["Silpancho", "Milanesa"]);
+  });
+});
+
+describe("categoriasParaNavegar", () => {
+  const comida = { id: "cat-1", nombre: "Comida", orden: 1, icono: "cubiertos", visible: true };
+  const bebidas = { id: "cat-2", nombre: "Bebidas", orden: 2, icono: "vaso", visible: false };
+
+  it("deja fuera las apagadas y conserva el orden de las demás", () => {
+    expect(categoriasParaNavegar([comida, bebidas])).toEqual([
+      { id: "cat-1", nombre: "Comida", icono: "cubiertos" },
+    ]);
+  });
+
+  /* La regla que define qué significa apagar una esfera: saca el acceso rápido
+     de arriba, **no** la mercadería. Si esta prueba falla, un negocio va a
+     esconder productos sin querer. */
+  it("apagar una categoría no toca sus productos", () => {
+    const resultado = construirCatalogoPublico(
+      NEGOCIO,
+      [comida, bebidas],
+      [],
+      [
+        {
+          id: "p-1",
+          categoria_id: "cat-2",
+          subcategoria_id: null,
+          nombre: "Limonada",
+          descripcion: null,
+          precio: 10,
+          fotos: [],
+          estado: "disponible",
+          controla_stock: false,
+          visible: true,
+          orden: 1,
+        },
+      ],
+      "https://proyecto.supabase.co",
+    );
+    const bebidasEnCatalogo = resultado.datos.categorias.find(({ id }) => id === "cat-2");
+    expect(bebidasEnCatalogo?.productos).toHaveLength(1);
+    expect(categoriasParaNavegar([comida, bebidas]).map(({ id }) => id)).not.toContain("cat-2");
+  });
+
+  /* Las consultas viejas no piden las columnas nuevas. Sin este valor por
+     omisión, un despliegue a medias dejaría el catálogo sin ninguna esfera. */
+  it("sin las columnas nuevas, la categoría se muestra igual", () => {
+    expect(categoriasParaNavegar([{ id: "cat-1", nombre: "Comida", orden: 1 }])).toEqual([
+      { id: "cat-1", nombre: "Comida", icono: "caja" },
+    ]);
+  });
+
+  /* El ícono se resuelve acá y no en la plantilla: es lo que permite que la
+     plantilla lo dibuje sin comprobarlo, y lo que impide que algo escrito en esa
+     columna llegue al `dangerouslySetInnerHTML`. */
+  it("un ícono que ya no existe cae al predeterminado", () => {
+    const resultado = categoriasParaNavegar([
+      { id: "cat-1", nombre: "Comida", orden: 1, icono: "<script>", visible: true },
+    ]);
+    expect(resultado[0].icono).toBe("caja");
   });
 });

@@ -477,3 +477,24 @@
 .buscador input::placeholder {
   color: var(--catalogo-texto-tenue);
 }
+
+/* El ícono de la categoría, dentro de su botón.
+ *
+ * Va acá y no en el componente del ícono porque lo que se acomoda es el botón:
+ * el ícono sale en `1em` y toma el color del texto, así que lo único que hace
+ * falta es que el botón deje de ser una caja de texto suelto y alinee las dos
+ * piezas. `inline-flex` y no `grid` para que el botón siga midiendo lo que mide
+ * su contenido, como cuando era solo la palabra. */
+.navegacion button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+}
+
+/* Solo que no se achique cuando el nombre es largo. El tamaño no se toca: el
+   ícono sale en `1em` por diseño y crece con el texto que tiene al lado, que es
+   justamente lo que evita tener que ajustarlo en cada pantalla. */
+.navegacion button svg {
+  flex-shrink: 0;
+}
