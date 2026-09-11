@@ -34,6 +34,8 @@ const NEGOCIO = "negocio-1";
 
 const PRODUCTO: ProductoPlantilla = {
   id: "prod-1",
+  lineaAtributos: null,
+  especificaciones: [],
   codigo: "PRD-1",
   nombre: "Polera",
   descripcion: "Algodón",

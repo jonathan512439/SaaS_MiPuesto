@@ -5,6 +5,7 @@ import { EstadoStockProducto } from "../estado-stock-producto";
 import styles from "../feria/plantilla-feria.module.css";
 import { FotoProducto } from "../foto-producto";
 import type { PropiedadesTarjeta } from "./tipos";
+import { LineaAtributos } from "../linea-atributos";
 
 /* La fila compacta: foto chica, nombre, precio grande y la acción en su propia
  * columna. Sin descripción, a propósito — en una lista de precios larga, dos
@@ -48,6 +49,7 @@ export function TarjetaFicha({
             ? `${producto.categoria} / ${producto.subcategoria}`
             : producto.categoria}
         </p>
+        <LineaAtributos linea={producto.lineaAtributos} />
         {producto.estado === "agotado" ? (
           <span className={styles.agotado}>Agotado</span>
         ) : null}

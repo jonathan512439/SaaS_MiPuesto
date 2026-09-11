@@ -4,7 +4,24 @@ type ProductoParaWhatsapp = {
   codigo?: string;
   nombre: string;
   precio: number;
+  /* Los datos propios del producto, ya formateados: «Potencia: 9 W». Son los
+     que el dueño marcó para que viajen en el pedido, y son la diferencia entre
+     que le llegue «2 × Foco LED» y que le llegue con la potencia y el casquillo.
+     Sin esto, quien recibe el pedido tiene que volver a preguntar. */
+  datos?: ReadonlyArray<{ nombre: string; texto: string }>;
 };
+
+/* Los datos de un producto en una línea aparte, sangrada bajo su renglón.
+ *
+ * Sangrada y no pegada al nombre porque en WhatsApp el renglón se corta solo: un
+ * nombre largo más cuatro datos daría tres renglones sin principio claro. Con la
+ * sangría se ve de un vistazo qué pertenece a qué. */
+function lineaDeDatos(producto: ProductoParaWhatsapp) {
+  const partes = (producto.datos ?? [])
+    .filter(({ nombre, texto }) => nombre.trim() !== "" && texto.trim() !== "")
+    .map(({ nombre, texto }) => `${nombre}: ${texto}`);
+  return partes.length > 0 ? [`  ${partes.join(" · ")}`] : [];
+}
 
 export type ItemPedidoWhatsapp = ProductoParaWhatsapp & {
   cantidad: number;
@@ -30,6 +47,7 @@ export function construirMensajeProducto(
 ) {
   return [
     `Hola, vi ${producto.nombre} en el catálogo de ${negocio}.`,
+    ...lineaDeDatos(producto),
     `Precio publicado: ${formatearPrecioBolivianos(producto.precio)}.`,
     "Quisiera pedirlo o agendarlo por WhatsApp.",
   ].join("\n");
@@ -58,12 +76,12 @@ export function construirMensajePedido(
     /* Antes del detalle: el mozo que lee el mensaje en el celular necesita
        saber a dónde llevarlo antes que qué lleva. */
     ...(numeroMesa?.trim() ? [`Mesa: ${numeroMesa.trim()}.`] : []),
-    ...validos.map(
-      (item) =>
-        `- ${item.cantidad} × ${item.nombre}${item.codigo ? ` (${item.codigo})` : ""}: ${formatearPrecioBolivianos(
-          calcularSubtotal([item]),
-        )}`,
-    ),
+    ...validos.flatMap((item) => [
+      `- ${item.cantidad} × ${item.nombre}${item.codigo ? ` (${item.codigo})` : ""}: ${formatearPrecioBolivianos(
+        calcularSubtotal([item]),
+      )}`,
+      ...lineaDeDatos(item),
+    ]),
     `Total reservado: ${formatearPrecioBolivianos(total)}.`,
     "Quisiera coordinar la entrega y el pago.",
   ].join("\n");

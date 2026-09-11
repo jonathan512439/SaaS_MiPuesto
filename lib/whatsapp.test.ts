@@ -66,3 +66,52 @@ describe("mesa en el mensaje de pedido", () => {
     expect(mensaje).not.toContain("Mesa");
   });
 });
+
+describe("los datos propios del producto en el mensaje", () => {
+  const datos = [
+    { nombre: "Potencia", texto: "9 W" },
+    { nombre: "Casquillo", texto: "E27" },
+  ];
+
+  it("viajan en el mensaje de un producto suelto", () => {
+    const mensaje = construirMensajeProducto("Ferretería El Sol", {
+      nombre: "Foco LED",
+      precio: 45,
+      datos,
+    });
+    expect(mensaje).toContain("Potencia: 9 W · Casquillo: E27");
+  });
+
+  /* Es lo que convierte el pedido en algo que se puede preparar sin volver a
+     preguntar. Sin esto llega «2 × Foco LED» y el dueño no sabe cuál de los
+     ocho focos que vende. */
+  it("viajan debajo de su renglón en el pedido", () => {
+    const mensaje = construirMensajePedido("Ferretería El Sol", [
+      { nombre: "Foco LED", precio: 45, cantidad: 2, datos },
+      { nombre: "Cinta aislante", precio: 12, cantidad: 1 },
+    ]);
+    const lineas = mensaje.split("\n");
+    const renglonFoco = lineas.findIndex((linea) => linea.includes("Foco LED"));
+    expect(lineas[renglonFoco + 1]).toContain("Potencia: 9 W");
+    /* El que no tiene datos no deja una línea vacía detrás. */
+    expect(mensaje).not.toContain("\n  \n");
+  });
+
+  it("un producto sin datos se ve igual que antes", () => {
+    const mensaje = construirMensajePedido("Ferretería El Sol", [
+      { nombre: "Cinta aislante", precio: 12, cantidad: 1 },
+    ]);
+    expect(mensaje).toContain("- 1 × Cinta aislante");
+    expect(mensaje.split("\n").filter((linea) => linea.startsWith("  "))).toHaveLength(0);
+  });
+
+  it("descarta un dato a medias en vez de escribir «: »", () => {
+    const mensaje = construirMensajeProducto("Ferretería El Sol", {
+      nombre: "Foco LED",
+      precio: 45,
+      datos: [{ nombre: "Potencia", texto: "  " }, { nombre: "", texto: "E27" }],
+    });
+    expect(mensaje).not.toContain(":  ");
+    expect(mensaje).not.toContain(": E27");
+  });
+});

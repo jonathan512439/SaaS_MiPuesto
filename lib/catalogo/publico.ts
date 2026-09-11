@@ -14,7 +14,9 @@ import {
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 import { obtenerRedesSociales } from "../negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
+import { leerAtributos, type Atributo } from "./atributos";
 import { ICONO_PREDETERMINADO, normalizarIcono } from "./categorias";
+import { lineaDeTarjeta, valoresParaMostrar } from "./valores";
 import { esPaletaId, esPlantillaId } from "../plantillas/validacion";
 
 type NegocioPublico = {
@@ -54,11 +56,30 @@ type CategoriaPublica = {
   icono?: string;
   visible?: boolean;
 };
+/* Las definiciones de campos de todas las categorías del negocio, juntas. Se
+   pasan enteras y se agrupan acá en vez de pedir una consulta por categoría: son
+   diez filas por categoría y el catálogo las necesita todas para dibujar. */
+export type AtributoPublico = {
+  categoria_id: string;
+  clave: string;
+  nombre: string;
+  tipo: string;
+  unidad: string | null;
+  opciones: string[];
+  en_tarjeta: boolean;
+  en_resumen: boolean;
+  orden: number;
+};
+
 type SubcategoriaPublica = { id: string; categoria_id: string; nombre: string; orden: number };
 
 type ProductoPublico = {
   id: string;
   codigo?: string;
+  /* Los valores de los campos de su categoría, tal como vienen de la base. Se
+     leen con las definiciones al lado: sin ellas un valor suelto no se puede ni
+     formatear ni saber si todavía corresponde. */
+  atributos?: unknown;
   categoria_id: string | null;
   subcategoria_id: string | null;
   nombre: string;
@@ -86,7 +107,17 @@ export function construirCatalogoPublico(
   urlSupabase: string,
   fecha: Date = new Date(),
   promociones: PromocionPrecio[] = [],
+  atributos: AtributoPublico[] = [],
 ): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
+  /* Agrupados por categoría una sola vez, antes de recorrer los productos: con
+     cuarenta productos, filtrar la lista entera por cada uno sería cuarenta
+     recorridas de lo mismo. */
+  const atributosPorCategoria = new Map<string, Atributo[]>();
+  for (const fila of [...atributos].sort((a, b) => a.orden - b.orden)) {
+    const lista = atributosPorCategoria.get(fila.categoria_id) ?? [];
+    lista.push(...leerAtributos([fila]));
+    atributosPorCategoria.set(fila.categoria_id, lista);
+  }
   const modalidad = obtenerComportamientoModalidad(negocio.tipo_negocio);
   const atencion = evaluarHorario(negocio.horario, fecha);
   const redes = obtenerRedesSociales(negocio.redes_sociales);
@@ -106,6 +137,7 @@ export function construirCatalogoPublico(
     (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
   );
   const convertirProducto = (producto: ProductoPublico) => {
+    const definiciones = atributosPorCategoria.get(producto.categoria_id ?? "") ?? [];
     const precioCalculado = calcularPrecioProducto(
       Number(producto.precio),
       { productoId: producto.id, categoriaId: producto.categoria_id },
@@ -138,7 +170,14 @@ export function construirCatalogoPublico(
         modalidad.accion === "accion_individual"
           ? construirEnlaceWhatsapp(
               negocio.telefono_whatsapp,
-              construirMensajeProducto(negocio.nombre, { nombre: producto.nombre, precio }),
+              construirMensajeProducto(negocio.nombre, {
+                nombre: producto.nombre,
+                precio,
+                /* Los que el dueño marcó para el resumen, no los de la tarjeta:
+                   en la tarjeta manda el espacio y acá manda que quien prepara
+                   el pedido no tenga que volver a preguntar. */
+                datos: valoresParaMostrar(definiciones, producto.atributos, "resumen"),
+              }),
             )
           : null,
       imagen: producto.fotos[0]
@@ -151,6 +190,10 @@ export function construirCatalogoPublico(
         src: obtenerUrlPublicaImagenProducto(urlSupabase, ruta),
         alt: indice === 0 ? producto.nombre : `${producto.nombre}, fotografía ${indice + 1}`,
       })),
+      /* Resueltos acá y no en la plantilla: así ninguna necesita conocer los
+         tipos, las unidades ni qué campo va en qué lugar. */
+      lineaAtributos: lineaDeTarjeta(definiciones, producto.atributos),
+      especificaciones: valoresParaMostrar(definiciones, producto.atributos, "ficha"),
     };
   };
   const agrupadas = categoriasOrdenadas

@@ -38,6 +38,7 @@ export default async function PaginaCatalogo() {
 
   const [
     resultadoCategorias,
+    resultadoAtributos,
     resultadoSubcategorias,
     resultadoProductos,
     resultadoPapelera,
@@ -48,6 +49,17 @@ export default async function PaginaCatalogo() {
       .eq("negocio_id", negocio.id)
       .order("orden")
       .order("nombre"),
+    /* Las definiciones de campos de todas las categorías, juntas. El formulario
+       de producto tiene que dibujar los de la categoría elegida al instante en
+       que se elige: pedirlas recién ahí dejaría el bloque vacío un momento cada
+       vez que el dueño cambia el desplegable. */
+    supabase
+      .from("atributos_categoria")
+      .select(
+        "categoria_id,clave,nombre,tipo,unidad,opciones,obligatorio,en_tarjeta,en_resumen,orden",
+      )
+      .eq("negocio_id", negocio.id)
+      .order("orden"),
     supabase
       .from("subcategorias")
       .select("id,categoria_id,nombre,orden,categorias!inner(negocio_id)")
@@ -162,6 +174,7 @@ export default async function PaginaCatalogo() {
           categorias: (resultadoCategorias.data ?? []) as CategoriaCatalogo[],
           subcategorias: subcategorias as SubcategoriaCatalogo[],
           productos: (resultadoProductos.data ?? []) as ProductoCatalogo[],
+          atributos: resultadoAtributos.data ?? [],
         }}
         urlSupabase={url}
       />

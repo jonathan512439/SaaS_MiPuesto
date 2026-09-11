@@ -9,6 +9,8 @@ import {
 import { validarSolicitudPedido } from "../../../lib/pedidos/validacion";
 import { construirEnlaceWhatsapp, construirMensajePedido } from "../../../lib/whatsapp";
 import { crearClienteSupabaseAdmin } from "../../../lib/supabase/admin";
+import { leerAtributos, type Atributo } from "../../../lib/catalogo/atributos";
+import { valoresParaMostrar } from "../../../lib/catalogo/valores";
 
 type ItemPedidoGuardado = {
   codigo: string;
@@ -61,6 +63,56 @@ const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }> = {
   },
 };
 
+/* Los datos propios de cada producto, listos para el mensaje, indexados por su
+   código —que es lo que el pedido guarda de vuelta—.
+
+   Dos consultas y no una por producto: una trae los productos y otra las
+   definiciones de sus categorías. Sin las definiciones, un valor suelto no se
+   puede formatear ni saber si todavía corresponde a un campo que existe. */
+async function obtenerDatosDeProductos(
+  supabase: ReturnType<typeof crearClienteSupabaseAdmin>,
+  negocioId: string,
+  productoIds: string[],
+): Promise<Map<string, Array<{ nombre: string; texto: string }>>> {
+  const porCodigo = new Map<string, Array<{ nombre: string; texto: string }>>();
+  if (productoIds.length === 0) return porCodigo;
+
+  const { data: productos } = await supabase
+    .from("productos")
+    .select("codigo,categoria_id,atributos")
+    .eq("negocio_id", negocioId)
+    .in("id", productoIds);
+  if (!productos || productos.length === 0) return porCodigo;
+
+  const categorias = [
+    ...new Set(productos.map((producto) => producto.categoria_id).filter(Boolean)),
+  ] as string[];
+  if (categorias.length === 0) return porCodigo;
+
+  const { data: definiciones } = await supabase
+    .from("atributos_categoria")
+    .select("categoria_id,clave,nombre,tipo,unidad,opciones,obligatorio,en_tarjeta,en_resumen")
+    .eq("negocio_id", negocioId)
+    .in("categoria_id", categorias)
+    .order("orden");
+
+  const porCategoria = new Map<string, Atributo[]>();
+  for (const fila of definiciones ?? []) {
+    const lista = porCategoria.get(fila.categoria_id) ?? [];
+    lista.push(...leerAtributos([fila]));
+    porCategoria.set(fila.categoria_id, lista);
+  }
+
+  for (const producto of productos) {
+    const lista = porCategoria.get(producto.categoria_id ?? "") ?? [];
+    const datos = valoresParaMostrar(lista, producto.atributos, "resumen").map(
+      ({ nombre, texto }) => ({ nombre, texto }),
+    );
+    if (datos.length > 0) porCodigo.set(producto.codigo, datos);
+  }
+  return porCodigo;
+}
+
 function esPedidoGuardado(valor: unknown): valor is PedidoGuardado {
   if (typeof valor !== "object" || valor === null || Array.isArray(valor)) return false;
   const pedido = valor as Record<string, unknown>;
@@ -110,7 +162,7 @@ export async function POST(solicitud: NextRequest) {
 
   const { data: negocio, error: errorNegocio } = await supabase
     .from("negocios")
-    .select("nombre,telefono_whatsapp,tipo_negocio,horario,activo")
+    .select("id,nombre,telefono_whatsapp,tipo_negocio,horario,activo")
     .eq("slug", validacion.datos.slug)
     .eq("activo", true)
     .maybeSingle();
@@ -159,11 +211,25 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
+  /* Los datos propios de cada producto, para que el pedido llegue listo para
+     preparar. Se consultan acá y **no se guardan en el pedido**: el pedido
+     conserva su copia de nombre y precio porque son los que se cobran, mientras
+     que estos son descripción. Guardarlos también obligaría a rehacer
+     `crear_pedido_reservado`, que es la función que reserva existencias, y no
+     vale ese riesgo por un renglón de un mensaje que se manda al instante.
+     Si fallan, el pedido sale igual sin ellos: ya está creado y cobrado. */
+  const datosPorCodigo = await obtenerDatosDeProductos(
+    supabase,
+    negocio.id,
+    validacion.datos.items.map((item) => item.productoId),
+  );
+
   const items = data.items.map((item) => ({
     codigo: item.codigo,
     nombre: item.nombre,
     precio: Number(item.precio_unitario),
     cantidad: Number(item.cantidad),
+    datos: datosPorCodigo.get(item.codigo),
   }));
   const mensaje = construirMensajePedido(
     negocio.nombre,

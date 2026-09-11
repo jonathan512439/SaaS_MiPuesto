@@ -28,6 +28,10 @@ type ProductoDemo = {
   precio: number;
   disponibles?: number | null;
   imagen?: { src: string; alt: string };
+  /* Los datos propios del rubro, ya escritos como se ven. La demostración es
+     para que el dueño reconozca su negocio, y una ferretería sin «9 W · E27» no
+     se parece a una ferretería. */
+  datosPropios?: Array<{ nombre: string; texto: string }>;
 };
 
 function producto(indice: number, datos: ProductoDemo): ProductoPlantilla {
@@ -35,6 +39,14 @@ function producto(indice: number, datos: ProductoDemo): ProductoPlantilla {
   return {
     id: `demo-${indice}`,
     codigo: `PRD-DEMO${String(indice).padStart(2, "0")}`,
+    lineaAtributos:
+      datos.datosPropios && datos.datosPropios.length > 0
+        ? datos.datosPropios.map(({ texto }) => texto).join(" · ")
+        : null,
+    especificaciones: (datos.datosPropios ?? []).map((dato, posicion) => ({
+      clave: `demo-${posicion}`,
+      ...dato,
+    })),
     nombre: datos.nombre,
     descripcion: datos.descripcion,
     precio: datos.precio,

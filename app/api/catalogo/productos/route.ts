@@ -7,6 +7,8 @@ import {
   validarProducto,
 } from "../../../../lib/catalogo/validacion";
 import { fechaHoyBolivia } from "../../../../lib/catalogo/carta-del-dia";
+import { leerAtributos } from "../../../../lib/catalogo/atributos";
+import { validarValores, type ValorAtributo } from "../../../../lib/catalogo/valores";
 import {
   leerJson,
   obtenerContextoAdminCatalogo,
@@ -53,6 +55,18 @@ export async function POST(solicitud: NextRequest) {
   );
   if (errorJerarquia) return NextResponse.json({ error: errorJerarquia }, { status: 400 });
 
+  const atributos = await validarAtributosDelProducto(
+    contexto,
+    validacion.datos.categoria_id,
+    (entrada.datos as Record<string, unknown>).atributos,
+  );
+  if (!atributos.correcto) {
+    return NextResponse.json(
+      { error: "Revisa los datos del producto.", errores: atributos.errores },
+      { status: 400 },
+    );
+  }
+
   const { data: ultimo } = await contexto.supabase
     .from("productos")
     .select("orden")
@@ -65,6 +79,7 @@ export async function POST(solicitud: NextRequest) {
     .from("productos")
     .insert({
       ...validacion.datos,
+      atributos: atributos.valores,
       negocio_id: contexto.negocio.id,
       estado: estadoPorStock(
         validacion.datos.controla_stock,
@@ -80,6 +95,35 @@ export async function POST(solicitud: NextRequest) {
   }
 
   return NextResponse.json({ producto: data }, { status: 201 });
+}
+
+/* Los valores de los campos propios, comprobados contra las definiciones de su
+   categoría.
+ *
+ * Se valida en el servidor y no solo en el formulario porque el formulario no es
+ * el único que escribe: la importación desde Excel y lo que devuelve la IA pasan
+ * por acá también. Y porque una petición armada a mano podría guardar un
+ * casquillo que no existe, que después la ficha no sabría dibujar.
+ *
+ * Sin categoría no hay campos, así que lo que venga se descarta: los campos son
+ * de la categoría, no del producto. */
+async function validarAtributosDelProducto(
+  contexto: Awaited<ReturnType<typeof obtenerContextoAdminCatalogo>> & { correcto: true },
+  categoriaId: string | null,
+  crudos: unknown,
+): Promise<
+  { correcto: true; valores: Record<string, ValorAtributo> } | { correcto: false; errores: Record<string, string> }
+> {
+  if (!categoriaId) return { correcto: true, valores: {} };
+
+  const { data } = await contexto.supabase
+    .from("atributos_categoria")
+    .select("clave,nombre,tipo,unidad,opciones,obligatorio,en_tarjeta,en_resumen")
+    .eq("categoria_id", categoriaId)
+    .eq("negocio_id", contexto.negocio.id)
+    .order("orden");
+
+  return validarValores(leerAtributos(data ?? []), crudos);
 }
 
 export async function PATCH(solicitud: NextRequest) {
@@ -190,6 +234,18 @@ export async function PATCH(solicitud: NextRequest) {
   );
   if (errorJerarquia) return NextResponse.json({ error: errorJerarquia }, { status: 400 });
 
+  const atributos = await validarAtributosDelProducto(
+    contexto,
+    validacion.datos.categoria_id,
+    datos.atributos,
+  );
+  if (!atributos.correcto) {
+    return NextResponse.json(
+      { error: "Revisa los datos del producto.", errores: atributos.errores },
+      { status: 400 },
+    );
+  }
+
   const { data: productoActual, error: errorProductoActual } = await contexto.supabase
     .from("productos")
     .select("cantidad_reservada")
@@ -217,6 +273,10 @@ export async function PATCH(solicitud: NextRequest) {
     .from("productos")
     .update({
       ...validacion.datos,
+      /* Se reemplaza el conjunto entero, no se mezcla con lo que había: si el
+         producto cambió de categoría, los valores viejos no corresponden a
+         ningún campo y quedarían escondidos adentro de la columna. */
+      atributos: atributos.valores,
       estado: estadoPorStock(
         validacion.datos.controla_stock,
         validacion.datos.cantidad_stock,

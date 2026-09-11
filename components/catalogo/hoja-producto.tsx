@@ -183,6 +183,24 @@ export function HojaProducto({
           <p className={styles.descripcion}>{producto.descripcion}</p>
         ) : null}
 
+        {/* Las especificaciones, con su nombre al lado. Acá sí van los nombres
+            —a diferencia de la línea de la tarjeta— porque este es el lugar
+            adonde se viene a mirar el detalle, y «E27» sin decir «Casquillo» no
+            le sirve a quien no conoce el rubro.
+
+            Se dibuja con `dl` y no con una tabla: es una lista de pares nombre y
+            valor, que es exactamente lo que `dl` describe. */}
+        {producto.especificaciones.length > 0 ? (
+          <dl className={styles.especificaciones}>
+            {producto.especificaciones.map((dato) => (
+              <div key={dato.clave}>
+                <dt>{dato.nombre}</dt>
+                <dd>{dato.texto}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+
         <div className={styles.accion}>
           <AccionProducto
             alAgregarProducto={alAgregarProducto}

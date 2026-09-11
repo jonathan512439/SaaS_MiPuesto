@@ -5,6 +5,7 @@ import { FotoProducto } from "../foto-producto";
 /* La hoja sigue siendo la de Mínima. Mismo motivo que en `cuadricula.tsx`. */
 import styles from "../minimal/plantilla-minimal.module.css";
 import type { PropiedadesTarjeta } from "./tipos";
+import { LineaAtributos } from "../linea-atributos";
 
 /* El servicio: foto chica, nombre, qué incluye y el precio, sin vitrina.
  *
@@ -43,6 +44,9 @@ export function TarjetaServicio({
         {producto.nombre}
       </dt>
       <dd>{producto.descripcion}</dd>
+      <dd>
+        <LineaAtributos linea={producto.lineaAtributos} />
+      </dd>
       <dd className={styles.precio}>
         {producto.tienePromocion ? (
           <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>

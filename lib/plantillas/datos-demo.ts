@@ -55,6 +55,8 @@ export function crearDatosDemoPlantilla({
         productos: [
           {
             id: "demo-1",
+            lineaAtributos: null,
+            especificaciones: [],
             codigo: "PRD-DEMO01",
             nombre: "Hamburguesa de la casa",
             descripcion: "Doble carne, queso, vegetales frescos y nuestra salsa especial.",
@@ -73,6 +75,8 @@ export function crearDatosDemoPlantilla({
           },
           {
             id: "demo-2",
+            lineaAtributos: null,
+            especificaciones: [],
             codigo: "PRD-DEMO02",
             nombre: "Papas con salsa",
             descripcion: "Papas rústicas doradas acompañadas con salsa de la casa.",
@@ -98,6 +102,8 @@ export function crearDatosDemoPlantilla({
         productos: [
           {
             id: "demo-3",
+            lineaAtributos: null,
+            especificaciones: [],
             codigo: "PRD-DEMO03",
             nombre: "Limonada artesanal",
             descripcion: "Preparada al momento con limón, hielo y hojas de menta.",

@@ -353,3 +353,105 @@ describe("categoriasParaNavegar", () => {
     expect(resultado[0].icono).toBe("caja");
   });
 });
+
+describe("los datos propios del producto en el catálogo público", () => {
+  const definiciones = [
+    {
+      categoria_id: "cat-1",
+      clave: "potencia",
+      nombre: "Potencia",
+      tipo: "numero",
+      unidad: "W",
+      opciones: [],
+      en_tarjeta: true,
+      en_resumen: true,
+      orden: 0,
+    },
+    {
+      categoria_id: "cat-1",
+      clave: "material",
+      nombre: "Material",
+      tipo: "texto",
+      unidad: null,
+      opciones: [],
+      en_tarjeta: false,
+      en_resumen: false,
+      orden: 1,
+    },
+  ];
+
+  function construir(atributos: unknown) {
+    return construirCatalogoPublico(
+      NEGOCIO,
+      [{ id: "cat-1", nombre: "Luces", orden: 1, icono: "foco", visible: true }],
+      [],
+      [
+        {
+          id: "p-1",
+          categoria_id: "cat-1",
+          subcategoria_id: null,
+          nombre: "Foco LED",
+          descripcion: null,
+          precio: 45,
+          fotos: [],
+          estado: "disponible",
+          controla_stock: false,
+          visible: true,
+          orden: 1,
+          atributos,
+        },
+      ],
+      "https://proyecto.supabase.co",
+      new Date(),
+      [],
+      definiciones,
+    ).datos.categorias[0].productos[0];
+  }
+
+  it("la tarjeta lleva solo los marcados, con su unidad", () => {
+    expect(construir({ potencia: 9, material: "Aluminio" }).lineaAtributos).toBe("9 W");
+  });
+
+  /* La ficha lleva todos, con su nombre: es adonde se viene a mirar el detalle,
+     y «Aluminio» sin decir «Material» no le sirve a quien no conoce el rubro. */
+  it("la ficha lleva todos, con su nombre", () => {
+    expect(construir({ potencia: 9, material: "Aluminio" }).especificaciones).toEqual([
+      { clave: "potencia", nombre: "Potencia", texto: "9 W" },
+      { clave: "material", nombre: "Material", texto: "Aluminio" },
+    ]);
+  });
+
+  it("un producto sin valores no arrastra nada", () => {
+    expect(construir({}).lineaAtributos).toBeNull();
+    expect(construir({}).especificaciones).toEqual([]);
+  });
+
+  /* El caso del negocio que todavía no definió campos: el catálogo tiene que
+     dibujarse igual, con los productos como estaban antes de esta fase. */
+  it("sin definiciones, el producto se dibuja igual que siempre", () => {
+    const producto = construirCatalogoPublico(
+      NEGOCIO,
+      [{ id: "cat-1", nombre: "Luces", orden: 1 }],
+      [],
+      [
+        {
+          id: "p-1",
+          categoria_id: "cat-1",
+          subcategoria_id: null,
+          nombre: "Foco LED",
+          descripcion: null,
+          precio: 45,
+          fotos: [],
+          estado: "disponible",
+          controla_stock: false,
+          visible: true,
+          orden: 1,
+          atributos: { potencia: 9 },
+        },
+      ],
+      "https://proyecto.supabase.co",
+    ).datos.categorias[0].productos[0];
+    expect(producto.lineaAtributos).toBeNull();
+    expect(producto.nombre).toBe("Foco LED");
+  });
+});

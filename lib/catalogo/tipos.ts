@@ -41,6 +41,11 @@ export type ProductoCatalogo = {
   estado: string;
   orden: number;
   en_carta_hasta: string | null;
+  /* Los valores de los campos de su categoría, por clave. Se lee como `unknown`
+     y no con un tipo cerrado: lo que hay en esa columna lo interpreta
+     `lib/catalogo/valores.ts` con las definiciones al lado, y declararlo acá
+     sería afirmar sobre datos que todavía no se validaron. */
+  atributos: unknown;
 };
 
 export type DatosProductoEntrada = {
@@ -64,4 +69,19 @@ export type DatosCatalogoAdmin = {
   categorias: CategoriaCatalogo[];
   subcategorias: SubcategoriaCatalogo[];
   productos: ProductoCatalogo[];
+  /* Las definiciones de campos de todas las categorías, tal como vienen de la
+     base. Se agrupan en el cliente: son diez filas por categoría y el formulario
+     necesita cambiar de conjunto en cuanto el dueño elige otra categoría. */
+  atributos: Array<{
+    categoria_id: string;
+    clave: string;
+    nombre: string;
+    tipo: string;
+    unidad: string | null;
+    opciones: string[];
+    obligatorio: boolean;
+    en_tarjeta: boolean;
+    en_resumen: boolean;
+    orden: number;
+  }>;
 };

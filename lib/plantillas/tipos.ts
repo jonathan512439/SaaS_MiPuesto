@@ -28,6 +28,13 @@ export type ProductoPlantilla = {
   cantidadDisponible: number | null;
   maximoCantidad: number;
   accionWhatsapp: string | null;
+  /* Los datos propios de su categoría, ya formateados y filtrados.
+     `lineaAtributos` es lo que va en la tarjeta —«9 W · E27 · Cálida»— y
+     `especificaciones` lo que va en la ficha, con su nombre al lado. Llegan
+     resueltos para que ninguna plantilla tenga que conocer los tipos ni las
+     unidades: eso vive en `lib/catalogo/valores.ts` y se dice una sola vez. */
+  lineaAtributos: string | null;
+  especificaciones: Array<{ clave: string; nombre: string; texto: string }>;
 };
 
 export type CategoriaPlantilla = {

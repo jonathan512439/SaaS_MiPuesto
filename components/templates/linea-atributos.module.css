@@ -1,0 +1,20 @@
+@reference "../../app/globals.css";
+
+/* Una sola línea, y si no entra se corta con puntos suspensivos.
+ *
+ * No se parte en dos renglones a propósito: la tarjeta tiene una altura y seis
+ * datos largos la estirarían hasta descolocar la rejilla entera. El detalle
+ * completo está en la ficha del producto, que es adonde se va a mirar.
+ *
+ * El color es el suave y no el del texto: es información de apoyo, y compitiendo
+ * en peso con el nombre haría que el nombre deje de leerse primero. */
+.linea {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-etiqueta);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

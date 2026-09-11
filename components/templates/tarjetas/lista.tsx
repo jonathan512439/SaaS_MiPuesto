@@ -8,6 +8,7 @@ import { EstadoStockProducto } from "../estado-stock-producto";
 import { FotoProducto } from "../foto-producto";
 import { InsigniaProducto, insigniaDe } from "../insignias-producto";
 import type { PropiedadesTarjeta } from "./tipos";
+import { LineaAtributos } from "../linea-atributos";
 
 /* La fila editorial: foto, texto con la acción adentro, y el precio al costado.
  *
@@ -41,6 +42,7 @@ export function TarjetaLista({
         ) : null}
         <h5>{producto.nombre}</h5>
         <p>{producto.descripcion}</p>
+        <LineaAtributos linea={producto.lineaAtributos} />
         {/* Lo que ya dijo la pastilla sobre la foto no se repite debajo del
             nombre: en una tarjeta chica, la misma frase dos veces ocupa el lugar
             de la descripción. */}

@@ -5,6 +5,7 @@ import { FotoProducto } from "../foto-producto";
 import { InsigniaProducto, insigniaDe } from "../insignias-producto";
 import styles from "./formas-nuevas.module.css";
 import type { PropiedadesTarjeta } from "./tipos";
+import { LineaAtributos } from "../linea-atributos";
 
 /* Retrato y estadía: las dos formas que no salen de ninguna plantilla.
  *
@@ -46,6 +47,7 @@ function TarjetaConFoto({
         </p>
         <h4 className={styles.nombre}>{producto.nombre}</h4>
         <p className={styles.descripcion}>{producto.descripcion}</p>
+        <LineaAtributos linea={producto.lineaAtributos} />
         <div className={styles.precio}>
           {producto.tienePromocion ? (
             <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>

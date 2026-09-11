@@ -18,6 +18,7 @@ import type { PropiedadesTarjeta } from "./tipos";
  * porque son literalmente las mismas clases. La hoja se puede independizar
  * después, cuando haya un motivo mejor que la prolijidad. */
 import styles from "../moderna/plantilla-moderna.module.css";
+import { LineaAtributos } from "../linea-atributos";
 
 export function TarjetaCuadricula({
   producto,
@@ -48,6 +49,7 @@ export function TarjetaCuadricula({
         </p>
         <h4>{producto.nombre}</h4>
         <span>{producto.descripcion}</span>
+        <LineaAtributos linea={producto.lineaAtributos} />
         <div className={styles.precio}>
           {producto.tienePromocion ? (
             <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>

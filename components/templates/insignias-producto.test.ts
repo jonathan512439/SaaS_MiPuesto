@@ -6,7 +6,9 @@ import { insigniaDe } from "./insignias-producto";
 function producto(cambios: Partial<ProductoPlantilla> = {}): ProductoPlantilla {
   return {
     id: "p1",
-    codigo: "PRD-1",
+    lineaAtributos: null,
+  especificaciones: [],
+  codigo: "PRD-1",
     nombre: "Coca Cola 2 L",
     descripcion: "Bien fría",
     precio: 12,

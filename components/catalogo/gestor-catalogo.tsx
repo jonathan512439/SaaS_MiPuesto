@@ -13,6 +13,9 @@ import {
   AYUDA_NOMBRE_PRODUCTO,
   AYUDA_PRECIO,
 } from "../../lib/ayudas-formularios";
+import { leerAtributos, type Atributo } from "../../lib/catalogo/atributos";
+import { leerValores, type ValorAtributo } from "../../lib/catalogo/valores";
+import { CamposDeProducto } from "./campos-de-producto";
 import { AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
@@ -122,6 +125,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [paginaCategorias, setPaginaCategorias] = useState(1);
   const [paginaProductos, setPaginaProductos] = useState(1);
+  /* Los valores de los campos propios del producto en edición. Van aparte del
+     resto del formulario porque **su forma cambia con la categoría**: no son
+     campos fijos con nombre conocido, son los que la categoría declaró. */
+  const [valoresAtributos, setValoresAtributos] = useState<Record<string, ValorAtributo>>({});
   const [nombreCategoria, setNombreCategoria] = useState("");
   /* El ícono de la que se está creando. Arranca en el predeterminado y no en
      vacío: obligar a elegirlo antes de escribir el nombre pondría una decisión
@@ -187,6 +194,21 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     () => productos.filter((producto) => !producto.visible).length,
     [productos],
   );
+  /* Agrupadas una sola vez y no en cada dibujo: el formulario se vuelve a
+     dibujar con cada tecla, y filtrar la lista entera ahí sería recorrerla
+     cientos de veces mientras alguien escribe un nombre. */
+  const atributosPorCategoria = useMemo(() => {
+    const mapa = new Map<string, Atributo[]>();
+    for (const fila of datosIniciales.atributos) {
+      const lista = mapa.get(fila.categoria_id) ?? [];
+      lista.push(...leerAtributos([fila]));
+      mapa.set(fila.categoria_id, lista);
+    }
+    return mapa;
+  }, [datosIniciales.atributos]);
+
+  const atributosDelFormulario = atributosPorCategoria.get(formulario.categoria_id) ?? [];
+
   const subcategoriasFormulario = subcategorias.filter(
     (subcategoria) => subcategoria.categoria_id === formulario.categoria_id,
   );
@@ -433,6 +455,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
   function abrirProductoNuevo() {
     setProductoEditando(null);
     setFormulario({ ...FORMULARIO_VACIO, categoria_id: categoriaActiva });
+    setValoresAtributos({});
     setErroresFormulario({});
     setImagenesPendientes([]);
     setFormularioAbierto(true);
@@ -450,6 +473,16 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       controla_stock: producto.controla_stock,
       cantidad_stock: producto.cantidad_stock === null ? "" : String(producto.cantidad_stock),
     });
+    /* Se leen con las definiciones de **su** categoría: un valor que dejó de
+       corresponder —porque el campo se borró o cambió de tipo— se descarta acá y
+       no llega al formulario, que si no dibujaría un dato que ya no se puede
+       guardar. */
+    setValoresAtributos(
+      leerValores(
+        atributosPorCategoria.get(producto.categoria_id ?? "") ?? [],
+        producto.atributos,
+      ),
+    );
     setErroresFormulario({});
     setImagenesPendientes([]);
     setFormularioAbierto(true);
@@ -472,6 +505,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       [campo]: valor,
       ...(campo === "categoria_id" ? { subcategoria_id: "" } : {}),
     }));
+    /* Cambiar de categoría cambia qué campos existen, así que los valores de la
+       anterior se sueltan. No se conservan «por las dudas»: quedarían invisibles
+       en el formulario y se guardarían igual, y el dueño terminaría con un foco
+       que arrastra la talla de una remera. */
+    if (campo === "categoria_id") setValoresAtributos({});
   }
 
   function seleccionarCategoria(id: string) {
@@ -546,6 +584,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         ...formulario,
         categoria_id: formulario.categoria_id || null,
         subcategoria_id: formulario.subcategoria_id || null,
+        atributos: valoresAtributos,
       };
       const { producto } = await solicitarJson<{ producto: ProductoCatalogo }>(
         "/api/catalogo/productos",
@@ -1085,6 +1124,22 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               {subcategoriasFormulario.map((subcategoria) => <option key={subcategoria.id} value={subcategoria.id}>{subcategoria.nombre}</option>)}
             </Selector>
           </div>
+          <CamposDeProducto
+            alCambiar={(clave, valor) =>
+              setValoresAtributos((actuales) => {
+                const siguientes = { ...actuales };
+                /* Se borra la llave en vez de guardar vacío: así lo que está en
+                   el objeto es lo que de verdad está cargado, que es lo que
+                   cuenta el aviso al borrar un campo. */
+                if (valor === null || valor === "") delete siguientes[clave];
+                else siguientes[clave] = valor;
+                return siguientes;
+              })
+            }
+            atributos={atributosDelFormulario}
+            errores={erroresFormulario}
+            valores={valoresAtributos}
+          />
           <label className={styles.opcionStock}>
             <input
               checked={formulario.controla_stock}

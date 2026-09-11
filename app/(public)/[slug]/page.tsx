@@ -128,6 +128,7 @@ export default async function PaginaCatalogoPublico({
 
   const [
     resultadoCategorias,
+    resultadoAtributos,
     resultadoSubcategorias,
     resultadoPromociones,
     resultadoOptimista,
@@ -138,6 +139,17 @@ export default async function PaginaCatalogoPublico({
         .eq("negocio_id", negocio.id)
         .order("orden")
         .order("nombre"),
+      /* Las definiciones de campos de todas las categorías, en una sola
+         consulta. Son diez filas por categoría como mucho, y el catálogo las
+         necesita todas: pedirlas por categoría serían cuarenta viajes para
+         dibujar una página. */
+      supabase
+        .from("atributos_categoria")
+        .select(
+          "categoria_id,clave,nombre,tipo,unidad,opciones,en_tarjeta,en_resumen,orden",
+        )
+        .eq("negocio_id", negocio.id)
+        .order("orden"),
       supabase
         .from("subcategorias")
         .select("id,categoria_id,nombre,orden,categorias!inner(negocio_id)")
@@ -212,6 +224,7 @@ export default async function PaginaCatalogoPublico({
       ...promocion,
       valor: Number(promocion.valor),
     })),
+    resultadoAtributos.data ?? [],
   );
   return (
     <main className={styles.pagina}>
