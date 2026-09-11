@@ -4,10 +4,44 @@ Este archivo conserva el estado verificable del proyecto. Se actualiza al inicia
 cerrar cada fase. **Todo lo que está debajo de «Historial» es registro histórico y no se
 edita**: es la evidencia de lo que se hizo y con qué se comprobó.
 
-## Estado actual — 2026-09-09
+## Estado actual — 2026-09-11
 
 **El proyecto empieza un ciclo nuevo.** El plan v2 (nueve fases) y el plan de crecimiento
 (diez etapas) se cerraron y sus archivos se borraron. Lo vigente es `docs/plan/`.
+
+### Lo hecho hasta hoy, en una pantalla
+
+Cuatro fases desplegadas a producción entre el 10 y el 11 de septiembre de 2026.
+**Todo está empujado a `main`; no hay trabajo sin commitear.**
+
+| Fase | Qué dejó andando | Commit |
+|---|---|---|
+| 1 | La categoría tiene ícono, se puede ocultar y declara si vende cosas o tiempo. 152 íconos generados en 8 grupos | `6e96c15` |
+| 2 | La categoría declara sus campos: cuatro tipos, hasta 10, hasta 6 en la tarjeta | `a7fe08f` |
+| 3 | Los campos se cargan y se ven: tarjeta, ficha, mensaje de WhatsApp y buscador | `2141b1e` |
+| 4 | Presentaciones con nombre y precio propio, con su selector en la ficha | `da07919` |
+
+Estado de las comprobaciones al cerrar: **578 pruebas**, 10 tablas en el control
+de aislamiento entre negocios, cuatro auditorías estructurales contra el proyecto
+real (`test:fase1:linked`, `fase2`, `fase4`, más `test:rls:linked`), y las seis
+guardias del build en verde.
+
+### Lo que quedó pendiente, y hay que decidir al volver
+
+**La reserva por presentación.** La fase 4 dejó las existencias por presentación
+como información del panel: el carrito todavía reserva sobre el total del
+producto, y el editor lo dice donde se cargan. Hacerlo de verdad toca **cinco
+funciones de la base** —crear el pedido, confirmar, cancelar, expirar, y
+`pedido_items`—, que es el motor de compra completo.
+
+La fase 5, la agenda, toca **esas mismas cinco funciones**. Conviene hacer las
+dos cosas juntas en vez de entrar dos veces al mismo código. Está anotado al
+final de la fase 4 en `docs/plan/06-FASES.md`.
+
+### Si esto se lee en una máquina recién formateada
+
+`docs/REINSTALAR.md` tiene qué instalar, qué copiar antes de formatear, de dónde
+sale cada valor de `.env.local` y cómo comprobar que todo quedó andando.
 
 ### Por qué cambió el plan
 

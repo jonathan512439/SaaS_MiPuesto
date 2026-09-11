@@ -12,6 +12,8 @@
 4. Leé **`SECURITY.md`** — controles de seguridad, sobre todo la sección final «Cosas que
    NO hay que hacer todavía».
 5. Leé **`docs/plan/`** en el orden que dice su `README.md`. Es el plan vigente.
+6. Si la máquina es nueva o recién formateada, **`docs/REINSTALAR.md`** tiene qué instalar,
+   qué copiar y cómo comprobar que quedó todo andando.
 6. Leé **`docs/AVANCE.md`** para saber qué está cerrado y con qué evidencia.
 7. **No escribas código todavía.** Devolvé primero un resumen de lo que entendiste:
    producto, stack, en qué fase está el proyecto y qué vas a hacer en la que sigue.
@@ -40,6 +42,15 @@ alcanza para una ferretería ni para una veterinaria.
 El plan tiene **nueve fases y 40 días de trabajo efectivo**, para seis rubros. La red de
 seguridad de respaldos ya está cerrada y verificada desde el 2026-09-09, que es lo que
 permite aplicar diez migraciones sobre la base de producción.
+
+**Al 2026-09-11 hay cuatro fases desplegadas**: la categoría con identidad, sus campos,
+los campos cargados y visibles en el producto, y las presentaciones. 578 pruebas en verde
+y todo empujado a `main`. El detalle, fase por fase, está en `docs/AVANCE.md`.
+
+**Lo primero que hay que decidir al retomar**: la fase 4 dejó pendiente la reserva por
+presentación y la fase 5 es la agenda. Las dos tocan **las mismas cinco funciones** de la
+base —crear el pedido, confirmar, cancelar, expirar, y `pedido_items`—, así que conviene
+hacerlas juntas en vez de entrar dos veces al motor de compra.
 
 ## Con quién estás trabajando
 

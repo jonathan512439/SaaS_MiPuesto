@@ -35,6 +35,7 @@ npm run test:rls:linked   # al cierre de cada fase
 | Archivo | Para qué |
 |---|---|
 | [`docs/plan/`](docs/plan/README.md) | El plan de proyecto: visión, datos, backend, frontend, fases y pruebas |
+| [`docs/REINSTALAR.md`](docs/REINSTALAR.md) | Poner el proyecto a andar en una máquina nueva, y qué copiar antes de formatear |
 | [`AGENTS.md`](AGENTS.md) | Convenciones de código |
 | [`DESIGN.md`](DESIGN.md) | Dirección visual |
 | [`SECURITY.md`](SECURITY.md) | Controles de seguridad y auditorías |
