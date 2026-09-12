@@ -37,6 +37,7 @@ const PRODUCTO: ProductoPlantilla = {
   lineaAtributos: null,
   variantes: [],
   vendeTiempo: false,
+  proximoTurno: null,
   especificaciones: [],
   codigo: "PRD-1",
   nombre: "Polera",

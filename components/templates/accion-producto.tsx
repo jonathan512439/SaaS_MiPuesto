@@ -8,6 +8,9 @@ type PropiedadesAccionProducto = {
   cantidad?: number;
   alAgregarProducto?: (productoId: string) => void;
   alAbrirWhatsapp?: (productoId: string | null) => void;
+  /* Para los servicios: la acción es abrir la ficha, que es donde vive el
+     calendario. Las tarjetas ya reciben esta función para la foto. */
+  alVerProducto?: (productoId: string) => void;
 };
 
 export function AccionProducto({
@@ -18,8 +21,30 @@ export function AccionProducto({
   cantidad = 0,
   alAgregarProducto,
   alAbrirWhatsapp,
+  alVerProducto,
 }: PropiedadesAccionProducto) {
   if (modalidad === "solo_lectura") return null;
+
+  /* Un servicio no se agrega al carrito: se agenda. La tarjeta lleva a la ficha,
+     que es donde está el calendario, en vez de meter «1 consulta» en el carrito
+     sin día ni hora.
+
+     El botón dice cuándo es el próximo turno cuando se sabe. Ese es el punto de
+     tener un calendario: que la disponibilidad se vea **antes** de entrar, no
+     después. */
+  if (producto.vendeTiempo) {
+    const proximo = producto.proximoTurno;
+    return (
+      <button
+        aria-label={`Ver horarios de ${producto.nombre}`}
+        disabled={demostracion}
+        onClick={() => alVerProducto?.(producto.id)}
+        type="button"
+      >
+        {proximo ? `Agendar · ${proximo}` : "Ver horarios"}
+      </button>
+    );
+  }
 
   const noDisponible = producto.estado !== undefined && producto.estado !== "disponible";
   const sinCantidad = modalidad === "carrito" && cantidad >= producto.maximoCantidad;

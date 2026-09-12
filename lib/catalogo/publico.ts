@@ -14,6 +14,8 @@ import {
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 import { obtenerRedesSociales } from "../negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
+import { leerFranjas } from "../agenda/franjas";
+import { proximosDias, type Agenda } from "../agenda/horarios";
 import { leerAtributos, type Atributo } from "./atributos";
 import { ICONO_PREDETERMINADO, normalizarIcono } from "./categorias";
 import { lineaDeTarjeta, valoresParaMostrar } from "./valores";
@@ -72,6 +74,21 @@ export type AtributoPublico = {
   orden: number;
 };
 
+export type AgendaPublica = {
+  categoria_id: string;
+  duracion_minutos: number;
+  cupo_por_franja: number;
+  anticipacion_minima_horas: number;
+  dias_maximos: number;
+  franjas: unknown;
+};
+
+export type CupoTomadoPublico = {
+  producto_id: string;
+  inicio: string;
+  tomados: number;
+};
+
 export type VariantePublica = {
   id: string;
   producto_id: string;
@@ -106,6 +123,17 @@ type ProductoPublico = {
   en_carta_hasta?: string | null;
 };
 
+/* «Sáb 19» para la tarjeta. Se arma desde el texto de la fecha y no con
+   `toLocaleDateString` porque esa lo interpretaría en la zona de quien mira: el
+   servidor corre en UTC y mostraría el día anterior toda la tarde. */
+const DIAS_CORTOS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+function rotuloCorto(fecha: string): string {
+  const [, , dia] = fecha.split("-");
+  const diaSemana = new Date(`${fecha}T00:00:00Z`).getUTCDay();
+  return `${DIAS_CORTOS[diaSemana]} ${Number(dia)}`;
+}
+
 export function obtenerTextoHorario(horario: unknown) {
   return evaluarHorario(horario).texto;
 }
@@ -120,6 +148,8 @@ export function construirCatalogoPublico(
   promociones: PromocionPrecio[] = [],
   atributos: AtributoPublico[] = [],
   variantes: VariantePublica[] = [],
+  agendas: AgendaPublica[] = [],
+  cuposTomados: CupoTomadoPublico[] = [],
 ): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
   /* Agrupadas por producto una sola vez, por lo mismo que los campos: filtrar la
      lista entera por cada producto sería recorrerla cuarenta veces. */
@@ -139,6 +169,32 @@ export function construirCatalogoPublico(
   const vendenTiempo = new Set(
     categorias.filter((categoria) => categoria.vende === "tiempo").map(({ id }) => id),
   );
+
+  /* Las agendas por categoría y los cupos ya tomados por producto. Con los dos
+     se calcula el próximo turno libre de cada servicio sin una consulta por
+     tarjeta: el trabajo de armarlos se hace una vez para todo el catálogo. */
+  const agendaPorCategoria = new Map<string, Agenda>();
+  for (const fila of agendas) {
+    const franjas = leerFranjas(fila.franjas);
+    if (franjas.length === 0) continue;
+    agendaPorCategoria.set(fila.categoria_id, {
+      duracionMinutos: Number(fila.duracion_minutos),
+      cupoPorFranja: Number(fila.cupo_por_franja),
+      anticipacionMinimaHoras: Number(fila.anticipacion_minima_horas),
+      diasMaximos: Number(fila.dias_maximos),
+      franjas,
+    });
+  }
+
+  const tomadosPorProducto = new Map<string, Record<string, number>>();
+  for (const fila of cuposTomados) {
+    const cuenta = tomadosPorProducto.get(fila.producto_id) ?? {};
+    /* El instante se normaliza: Postgres devuelve «+00:00» y el cálculo de
+       horarios genera «Z». Sin esto las llaves no coinciden y todo se vería
+       libre. */
+    cuenta[new Date(fila.inicio).toISOString()] = Number(fila.tomados);
+    tomadosPorProducto.set(fila.producto_id, cuenta);
+  }
 
   const atributosPorCategoria = new Map<string, Atributo[]>();
   for (const fila of [...atributos].sort((a, b) => a.orden - b.orden)) {
@@ -164,6 +220,20 @@ export function construirCatalogoPublico(
   const subcategoriasOrdenadas = [...subcategorias].sort(
     (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
   );
+  /* El primer horario con lugar, de los próximos días. Se corta en el primero:
+     la tarjeta muestra uno, y recorrer el mes entero por cada producto sería
+     trabajo para una respuesta que no se usa. */
+  const proximoTurnoDe = (producto: ProductoPublico): string | null => {
+    const agenda = agendaPorCategoria.get(producto.categoria_id ?? "");
+    if (!agenda) return null;
+    const dias = proximosDias(agenda, tomadosPorProducto.get(producto.id) ?? {}, fecha, 7);
+    for (const dia of dias) {
+      const libre = dia.horarios.find((horario) => horario.libres > 0);
+      if (libre) return `${rotuloCorto(dia.fecha)}, ${libre.hora}`;
+    }
+    return null;
+  };
+
   const convertirProducto = (producto: ProductoPublico) => {
     const definiciones = atributosPorCategoria.get(producto.categoria_id ?? "") ?? [];
     const precioCalculado = calcularPrecioProducto(
@@ -221,6 +291,7 @@ export function construirCatalogoPublico(
       /* Resueltos acá y no en la plantilla: así ninguna necesita conocer los
          tipos, las unidades ni qué campo va en qué lugar. */
       vendeTiempo: vendenTiempo.has(producto.categoria_id ?? ""),
+      proximoTurno: proximoTurnoDe(producto),
       lineaAtributos: lineaDeTarjeta(definiciones, producto.atributos),
       especificaciones: valoresParaMostrar(definiciones, producto.atributos, "ficha"),
       /* El precio se resuelve acá: el propio de la presentación, o el del

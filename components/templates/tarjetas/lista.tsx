@@ -52,6 +52,7 @@ export function TarjetaLista({
         <AccionProducto
           alAgregarProducto={alAgregarProducto}
           alAbrirWhatsapp={alAbrirWhatsapp}
+          alVerProducto={alVerProducto}
           cantidad={cantidadEnCarrito}
           demostracion={demostracion}
           modalidad={modalidad}

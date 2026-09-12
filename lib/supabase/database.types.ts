@@ -1051,6 +1051,14 @@ export type Database = {
           tomados: number
         }[]
       }
+      cupos_tomados_negocio: {
+        Args: { p_desde: string; p_hasta: string; p_negocio_id: string }
+        Returns: {
+          inicio: string
+          producto_id: string
+          tomados: number
+        }[]
+      }
       devolver_credito_ia: {
         Args: { p_negocio_id: string }
         Returns: undefined

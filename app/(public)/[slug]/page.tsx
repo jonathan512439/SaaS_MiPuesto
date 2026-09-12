@@ -126,8 +126,15 @@ export default async function PaginaCatalogoPublico({
   const parametros = await searchParams;
   const categoriaPedida = leerCategoriaPedida(parametros);
 
+  /* Un solo reloj para toda la página. Además de contentar a la regla de pureza,
+     evita que la ventana de cupos y la fecha con la que se arma el catálogo
+     difieran por unos milisegundos y muestren cosas distintas. */
+  const ahora = new Date();
+
   const [
     resultadoCategorias,
+    resultadoAgendas,
+    resultadoCupos,
     resultadoVariantes,
     resultadoAtributos,
     resultadoSubcategorias,
@@ -144,6 +151,21 @@ export default async function PaginaCatalogoPublico({
          consulta. Son diez filas por categoría como mucho, y el catálogo las
          necesita todas: pedirlas por categoría serían cuarenta viajes para
          dibujar una página. */
+      /* Las agendas del negocio y los cupos ya tomados. Con las dos, el catálogo
+         calcula el próximo turno libre de cada servicio y lo muestra en su
+         tarjeta: sin esto la disponibilidad solo se ve entrando a la ficha, que
+         es lo contrario de para qué sirve un calendario. */
+      supabase
+        .from("agenda_categoria")
+        .select(
+          "categoria_id,duracion_minutos,cupo_por_franja,anticipacion_minima_horas,dias_maximos,franjas",
+        )
+        .eq("negocio_id", negocio.id),
+      supabase.rpc("cupos_tomados_negocio", {
+        p_negocio_id: negocio.id,
+        p_desde: ahora.toISOString(),
+        p_hasta: new Date(ahora.getTime() + 31 * 86_400_000).toISOString(),
+      }),
       /* Las presentaciones de todos los productos del negocio, en una consulta.
          Se filtran las ocultas al agrupar, no acá, para que el conteo del
          catálogo no dependa de dos lugares. */
@@ -228,13 +250,15 @@ export default async function PaginaCatalogoPublico({
     subcategorias,
     resultadoProductos.data ?? [],
     url,
-    new Date(),
+    ahora,
     (resultadoPromociones.data ?? []).map((promocion) => ({
       ...promocion,
       valor: Number(promocion.valor),
     })),
     resultadoAtributos.data ?? [],
     resultadoVariantes.data ?? [],
+    resultadoAgendas.data ?? [],
+    resultadoCupos.data ?? [],
   );
   return (
     <main className={styles.pagina}>
