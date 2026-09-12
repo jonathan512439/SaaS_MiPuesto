@@ -201,6 +201,7 @@ export type Database = {
       citas: {
         Row: {
           cancelado_en: string | null
+          categoria_id: string
           codigo: string
           creado_en: string
           cupo: number
@@ -216,6 +217,7 @@ export type Database = {
         }
         Insert: {
           cancelado_en?: string | null
+          categoria_id: string
           codigo?: string
           creado_en?: string
           cupo?: number
@@ -231,6 +233,7 @@ export type Database = {
         }
         Update: {
           cancelado_en?: string | null
+          categoria_id?: string
           codigo?: string
           creado_en?: string
           cupo?: number
@@ -245,6 +248,13 @@ export type Database = {
           telefono_cliente?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "citas_categoria_padre"
+            columns: ["categoria_id", "negocio_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id", "negocio_id"]
+          },
           {
             foreignKeyName: "citas_negocio_id_fkey"
             columns: ["negocio_id"]
@@ -695,6 +705,7 @@ export type Database = {
           controla_stock: boolean
           creado_en: string
           descripcion: string | null
+          duracion_minutos: number | null
           eliminado_en: string | null
           en_carta_hasta: string | null
           estado: string
@@ -721,6 +732,7 @@ export type Database = {
           controla_stock?: boolean
           creado_en?: string
           descripcion?: string | null
+          duracion_minutos?: number | null
           eliminado_en?: string | null
           en_carta_hasta?: string | null
           estado?: string
@@ -747,6 +759,7 @@ export type Database = {
           controla_stock?: boolean
           creado_en?: string
           descripcion?: string | null
+          duracion_minutos?: number | null
           eliminado_en?: string | null
           en_carta_hasta?: string | null
           estado?: string
@@ -1044,21 +1057,6 @@ export type Database = {
         }
         Returns: Json
       }
-      cupos_tomados: {
-        Args: { p_desde: string; p_hasta: string; p_producto_id: string }
-        Returns: {
-          inicio: string
-          tomados: number
-        }[]
-      }
-      cupos_tomados_negocio: {
-        Args: { p_desde: string; p_hasta: string; p_negocio_id: string }
-        Returns: {
-          inicio: string
-          producto_id: string
-          tomados: number
-        }[]
-      }
       devolver_credito_ia: {
         Args: { p_negocio_id: string }
         Returns: undefined
@@ -1079,6 +1077,23 @@ export type Database = {
       expirar_reservas_vencidas: {
         Args: { p_limite?: number }
         Returns: number
+      }
+      ocupacion_categoria: {
+        Args: { p_categoria_id: string; p_desde: string; p_hasta: string }
+        Returns: {
+          cupo: number
+          fin: string
+          inicio: string
+        }[]
+      }
+      ocupacion_negocio: {
+        Args: { p_desde: string; p_hasta: string; p_negocio_id: string }
+        Returns: {
+          categoria_id: string
+          cupo: number
+          fin: string
+          inicio: string
+        }[]
       }
       purgar_analitica_vieja: { Args: { p_dias?: number }; Returns: number }
       purgar_vigilancia_salud: { Args: never; Returns: number }

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { contarCuposTomados, obtenerProductoAgendable } from "../../../../../lib/agenda/servidor";
+import { obtenerOcupacion, obtenerProductoAgendable } from "../../../../../lib/agenda/servidor";
 import { proximosDias } from "../../../../../lib/agenda/horarios";
 import { esUuid } from "../../../../../lib/catalogo/validacion";
 import { crearClienteSupabaseAdmin } from "../../../../../lib/supabase/admin";
@@ -44,10 +44,10 @@ export async function GET(
 
   const ahora = new Date();
   const hasta = new Date(ahora.getTime() + (producto.agenda.diasMaximos + 1) * 86_400_000);
-  const tomados = await contarCuposTomados(supabase, producto.id, ahora, hasta);
+  const ocupados = await obtenerOcupacion(supabase, producto.categoriaId, ahora, hasta);
 
   return NextResponse.json({
-    dias: proximosDias(producto.agenda, tomados, ahora),
+    dias: proximosDias(producto.agenda, ocupados, ahora),
     duracionMinutos: producto.agenda.duracionMinutos,
   });
 }

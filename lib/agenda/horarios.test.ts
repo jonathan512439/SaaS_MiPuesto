@@ -37,24 +37,24 @@ function agenda(parcial: Partial<Agenda> = {}): Agenda {
 
 describe("horariosDelDia", () => {
   it("parte el tramo en turnos de la duración pedida", () => {
-    const horarios = horariosDelDia(agenda(), LUNES, {}, ANTES);
+    const horarios = horariosDelDia(agenda(), LUNES, [], ANTES);
     expect(horarios.map(({ hora }) => hora)).toEqual(["08:30", "09:00", "09:30"]);
   });
 
   /* Bolivia está cuatro horas detrás de UTC. Las 08:30 de allá son las 12:30 de
      acá, y si esto se rompe los horarios saltan de día. */
   it("el instante lleva la zona del negocio", () => {
-    expect(horariosDelDia(agenda(), LUNES, {}, ANTES)[0].inicio).toBe("2026-09-14T12:30:00.000Z");
+    expect(horariosDelDia(agenda(), LUNES, [], ANTES)[0].inicio).toBe("2026-09-14T12:30:00.000Z");
   });
 
   it("un día sin tramos no tiene horarios", () => {
-    expect(horariosDelDia(agenda(), DOMINGO, {}, ANTES)).toEqual([]);
+    expect(horariosDelDia(agenda(), DOMINGO, [], ANTES)).toEqual([]);
   });
 
   /* Con un tramo de 8:30 a 10:00 y turnos de 50 minutos entra uno solo: el
      segundo terminaría a las 10:10, con el negocio ya cerrado. */
   it("no genera un turno que se pasa del cierre", () => {
-    const horarios = horariosDelDia(agenda({ duracionMinutos: 50 }), LUNES, {}, ANTES);
+    const horarios = horariosDelDia(agenda({ duracionMinutos: 50 }), LUNES, [], ANTES);
     expect(horarios.map(({ hora }) => hora)).toEqual(["08:30"]);
   });
 
@@ -65,7 +65,7 @@ describe("horariosDelDia", () => {
         { dia: 1, desde: "08:30", hasta: "09:30" },
       ],
     });
-    expect(horariosDelDia(conDos, LUNES, {}, ANTES).map(({ hora }) => hora)).toEqual([
+    expect(horariosDelDia(conDos, LUNES, [], ANTES).map(({ hora }) => hora)).toEqual([
       "08:30",
       "09:00",
       "14:30",
@@ -74,9 +74,20 @@ describe("horariosDelDia", () => {
   });
 
   describe("los lugares libres", () => {
-    it("descuenta los cupos tomados", () => {
-      const tomados = { "2026-09-14T12:30:00.000Z": 1 };
-      const horarios = horariosDelDia(agenda({ cupoPorFranja: 2 }), LUNES, tomados, ANTES);
+    /* Una cita de 08:30 a 09:00, en el cupo 1. */
+    const ocupa = (desde: string, hasta: string, cupo = 1) => ({
+      inicio: `2026-09-14T${desde}:00.000Z`,
+      fin: `2026-09-14T${hasta}:00.000Z`,
+      cupo,
+    });
+
+    it("descuenta el cupo ocupado y deja libres los demás", () => {
+      const horarios = horariosDelDia(
+        agenda({ cupoPorFranja: 2 }),
+        LUNES,
+        [ocupa("12:30", "13:00")],
+        ANTES,
+      );
       expect(horarios[0].libres).toBe(1);
       expect(horarios[1].libres).toBe(2);
     });
@@ -85,15 +96,56 @@ describe("horariosDelDia", () => {
        negocio no atiende a esa hora, cuando lo que pasa es que ya la tomaron.
        Son dos cosas distintas y el cliente merece saber cuál es. */
     it("la franja llena sale igual, con cero", () => {
-      const tomados = { "2026-09-14T12:30:00.000Z": 1 };
-      const horarios = horariosDelDia(agenda(), LUNES, tomados, ANTES);
+      const horarios = horariosDelDia(agenda(), LUNES, [ocupa("12:30", "13:00")], ANTES);
       expect(horarios[0]).toMatchObject({ hora: "08:30", libres: 0 });
       expect(horarios).toHaveLength(3);
     });
 
-    it("nunca devuelve libres negativos aunque la cuenta venga mal", () => {
-      const tomados = { "2026-09-14T12:30:00.000Z": 9 };
-      expect(horariosDelDia(agenda(), LUNES, tomados, ANTES)[0].libres).toBe(0);
+    /* **El caso que originó este cambio.** Un consultorio con un solo
+       profesional y cinco servicios: alguien toma una valoración de 10:00 a
+       11:00, y la vacunación de quince minutos no puede ofrecer 10:00, 10:15,
+       10:30 ni 10:45. Antes las ofrecía, porque el choque se medía por producto
+       y eran productos distintos. */
+    it("una cita larga de otro servicio tapa todos los turnos que pisa", () => {
+      const vacunacion = agenda({
+        duracionMinutos: 15,
+        franjas: [{ dia: 1, desde: "10:00", hasta: "11:30" }],
+      });
+      const valoracion = [
+        { inicio: "2026-09-14T14:00:00.000Z", fin: "2026-09-14T15:00:00.000Z", cupo: 1 },
+      ];
+      const horarios = horariosDelDia(vacunacion, LUNES, valoracion, ANTES);
+      const libres = horarios.filter((horario) => horario.libres > 0).map(({ hora }) => hora);
+      expect(libres).toEqual(["11:00", "11:15"]);
+    });
+
+    /* Dos citas del mismo cupo que pisan el mismo turno ocupan **un** lugar, no
+       dos: la misma persona no puede estar en dos citas a la vez. */
+    it("no cuenta dos veces el mismo cupo", () => {
+      const horarios = horariosDelDia(
+        agenda({ cupoPorFranja: 2, duracionMinutos: 60, franjas: [{ dia: 1, desde: "08:00", hasta: "09:00" }] }),
+        LUNES,
+        [ocupa("12:00", "12:30"), ocupa("12:30", "13:00")],
+        ANTES,
+      );
+      expect(horarios[0].libres).toBe(1);
+    });
+
+    /* Tocarse no es pisarse: una cita que termina a las 09:00 no ocupa el turno
+       que empieza a las 09:00. Sin esto se perdería un turno por cada cita. */
+    it("una cita que termina justo cuando empieza el turno no lo ocupa", () => {
+      const horarios = horariosDelDia(agenda(), LUNES, [ocupa("12:30", "13:00")], ANTES);
+      expect(horarios[1]).toMatchObject({ hora: "09:00", libres: 1 });
+    });
+
+    it("nunca devuelve libres negativos aunque la ocupación venga de más", () => {
+      const horarios = horariosDelDia(
+        agenda(),
+        LUNES,
+        [ocupa("12:30", "13:00", 1), ocupa("12:30", "13:00", 2)],
+        ANTES,
+      );
+      expect(horarios[0].libres).toBe(0);
     });
   });
 
@@ -105,26 +157,26 @@ describe("horariosDelDia", () => {
          las 09:30, así que el de 08:30 y el de 09:00 ya no se ofrecen y el de
          09:30 entra justo. */
       const ahora = new Date("2026-09-14T11:30:00Z");
-      const horarios = horariosDelDia(agenda({ anticipacionMinimaHoras: 2 }), LUNES, {}, ahora);
+      const horarios = horariosDelDia(agenda({ anticipacionMinimaHoras: 2 }), LUNES, [], ahora);
       expect(horarios.map(({ hora }) => hora)).toEqual(["09:30"]);
     });
 
     it("en cero se ofrece todo lo que todavía no pasó", () => {
       const ahora = new Date("2026-09-14T12:45:00Z"); // 08:45 en Bolivia
-      const horarios = horariosDelDia(agenda(), LUNES, {}, ahora);
+      const horarios = horariosDelDia(agenda(), LUNES, [], ahora);
       expect(horarios.map(({ hora }) => hora)).toEqual(["09:00", "09:30"]);
     });
   });
 
   it("una duración imposible no rompe, devuelve nada", () => {
-    expect(horariosDelDia(agenda({ duracionMinutos: 0 }), LUNES, {}, ANTES)).toEqual([]);
+    expect(horariosDelDia(agenda({ duracionMinutos: 0 }), LUNES, [], ANTES)).toEqual([]);
   });
 
   /* El turno de la noche: un tramo que llega hasta las 23:30 tiene que caer en
      el mismo día, no en el siguiente. Es el caso donde un error de zona se ve. */
   it("un turno de la noche no se pasa al día siguiente", () => {
     const nocturna = agenda({ franjas: [{ dia: 1, desde: "23:00", hasta: "23:30" }] });
-    const horarios = horariosDelDia(nocturna, LUNES, {}, ANTES);
+    const horarios = horariosDelDia(nocturna, LUNES, [], ANTES);
     expect(horarios).toHaveLength(1);
     expect(horarios[0].inicio).toBe("2026-09-15T03:00:00.000Z");
     expect(describirCita(horarios[0].inicio)).toContain("Lunes 14");
@@ -133,7 +185,7 @@ describe("horariosDelDia", () => {
 
 describe("proximosDias", () => {
   it("devuelve solo los días que tienen turnos", () => {
-    const dias = proximosDias(agenda(), {}, ANTES, 5);
+    const dias = proximosDias(agenda(), [], ANTES, 5);
     expect(dias.map(({ fecha }) => fecha)).toEqual([
       "2026-09-14",
       "2026-09-19",
@@ -145,11 +197,11 @@ describe("proximosDias", () => {
 
   it("no mira más allá de los días máximos", () => {
     const corta = agenda({ diasMaximos: 3 });
-    expect(proximosDias(corta, {}, ANTES).map(({ fecha }) => fecha)).toEqual(["2026-09-14"]);
+    expect(proximosDias(corta, [], ANTES).map(({ fecha }) => fecha)).toEqual(["2026-09-14"]);
   });
 
   it("una agenda sin tramos no ofrece nada", () => {
-    expect(proximosDias(agenda({ franjas: [] }), {}, ANTES)).toEqual([]);
+    expect(proximosDias(agenda({ franjas: [] }), [], ANTES)).toEqual([]);
   });
 });
 

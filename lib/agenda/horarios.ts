@@ -42,9 +42,16 @@ export type DiaConHorarios = {
   horarios: Horario[];
 };
 
-/* Cuántos cupos hay tomados en cada comienzo. La llave es el ISO del comienzo,
-   que es lo que devuelve `cupos_tomados` en la base. */
-export type CuposTomados = Record<string, number>;
+/* Lo que ya está ocupado en la agenda de la categoría.
+ *
+ * Son **rangos**, no cuentas por hora de comienzo. Con duraciones distintas
+ * conviviendo —una valoración de una hora y una vacunación de quince minutos en
+ * el mismo calendario— una cita de 10:00 a 11:00 no «ocupa las 10:00»: ocupa un
+ * tramo, y hay que saber cuál para decidir si un turno de las 10:30 entra.
+ *
+ * Vienen de la categoría entera y no del producto: el recurso escaso es el
+ * profesional, y el profesional atiende todos los servicios de su categoría. */
+export type Ocupado = { inicio: string; fin: string; cupo: number };
 
 function fechaEnBolivia(instante: Date): string {
   return new Date(instante.getTime() - HORAS_DETRAS_DE_UTC * 3600_000)
@@ -80,7 +87,7 @@ function diaDeSemana(fecha: string): number {
 export function horariosDelDia(
   agenda: Agenda,
   fecha: string,
-  tomados: CuposTomados = {},
+  ocupados: ReadonlyArray<Ocupado> = [],
   ahora: Date = new Date(),
 ): Horario[] {
   const { duracionMinutos, cupoPorFranja, anticipacionMinimaHoras } = agenda;
@@ -110,12 +117,24 @@ export function horariosDelDia(
          la persona está en la puerta. */
       if (inicio.getTime() < desdeCuando) continue;
 
-      const clave = inicio.toISOString();
-      const ocupados = tomados[clave] ?? 0;
+      const fin = new Date(inicio.getTime() + duracionMinutos * 60_000);
+      /* Cuántos cupos están tomados **durante este tramo**, no en este instante.
+         Se cuentan cupos distintos: la misma persona no puede estar en dos
+         citas, así que dos tramos que pisan este con el mismo número de cupo
+         ocupan uno solo. */
+      const cuposTomados = new Set(
+        ocupados
+          .filter(
+            (ocupado) =>
+              new Date(ocupado.inicio).getTime() < fin.getTime() &&
+              inicio.getTime() < new Date(ocupado.fin).getTime(),
+          )
+          .map((ocupado) => ocupado.cupo),
+      );
       horarios.push({
-        inicio: clave,
+        inicio: inicio.toISOString(),
         hora: horaDe(minuto),
-        libres: Math.max(0, cupoPorFranja - ocupados),
+        libres: Math.max(0, cupoPorFranja - cuposTomados.size),
       });
     }
   }
@@ -137,7 +156,7 @@ function horaDe(minutos: number): string {
  */
 export function proximosDias(
   agenda: Agenda,
-  tomados: CuposTomados = {},
+  ocupados: ReadonlyArray<Ocupado> = [],
   ahora: Date = new Date(),
   tope = 14,
 ): DiaConHorarios[] {
@@ -146,7 +165,7 @@ export function proximosDias(
 
   for (let salto = 0; salto <= agenda.diasMaximos && dias.length < tope; salto += 1) {
     const fecha = sumarDias(hoy, salto);
-    const horarios = horariosDelDia(agenda, fecha, tomados, ahora);
+    const horarios = horariosDelDia(agenda, fecha, ocupados, ahora);
     if (horarios.length > 0) dias.push({ fecha, horarios });
   }
 
@@ -172,7 +191,7 @@ export function horarioValido(
   );
   if (salto < 0 || salto > agenda.diasMaximos) return false;
 
-  return horariosDelDia(agenda, fecha, {}, ahora).some(
+  return horariosDelDia(agenda, fecha, [], ahora).some(
     (horario) => horario.inicio === inicio.toISOString(),
   );
 }

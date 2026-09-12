@@ -41,6 +41,7 @@ describe("validación del catálogo", () => {
         subcategoria_id: null,
         controla_stock: false,
         cantidad_stock: null,
+      duracion_minutos: null,
       },
     });
   });

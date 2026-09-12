@@ -15,7 +15,7 @@ import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 import { obtenerRedesSociales } from "../negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
 import { leerFranjas } from "../agenda/franjas";
-import { proximosDias, type Agenda } from "../agenda/horarios";
+import { proximosDias, type Agenda, type Ocupado } from "../agenda/horarios";
 import { leerAtributos, type Atributo } from "./atributos";
 import { ICONO_PREDETERMINADO, normalizarIcono } from "./categorias";
 import { lineaDeTarjeta, valoresParaMostrar } from "./valores";
@@ -83,10 +83,13 @@ export type AgendaPublica = {
   franjas: unknown;
 };
 
-export type CupoTomadoPublico = {
-  producto_id: string;
+/* Lo ocupado en el calendario de cada categoría. Rangos y número de cupo, nunca
+   de quién son: las citas guardan datos de personas y `anon` no las lee. */
+export type OcupacionPublica = {
+  categoria_id: string;
   inicio: string;
-  tomados: number;
+  fin: string;
+  cupo: number;
 };
 
 export type VariantePublica = {
@@ -121,6 +124,8 @@ type ProductoPublico = {
   visible: boolean;
   orden: number;
   en_carta_hasta?: string | null;
+  /* Cuánto dura este servicio. Nulo: la de su categoría. */
+  duracion_minutos?: number | null;
 };
 
 /* «Sáb 19» para la tarjeta. Se arma desde el texto de la fecha y no con
@@ -149,7 +154,7 @@ export function construirCatalogoPublico(
   atributos: AtributoPublico[] = [],
   variantes: VariantePublica[] = [],
   agendas: AgendaPublica[] = [],
-  cuposTomados: CupoTomadoPublico[] = [],
+  ocupacion: OcupacionPublica[] = [],
 ): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
   /* Agrupadas por producto una sola vez, por lo mismo que los campos: filtrar la
      lista entera por cada producto sería recorrerla cuarenta veces. */
@@ -186,14 +191,20 @@ export function construirCatalogoPublico(
     });
   }
 
-  const tomadosPorProducto = new Map<string, Record<string, number>>();
-  for (const fila of cuposTomados) {
-    const cuenta = tomadosPorProducto.get(fila.producto_id) ?? {};
-    /* El instante se normaliza: Postgres devuelve «+00:00» y el cálculo de
-       horarios genera «Z». Sin esto las llaves no coinciden y todo se vería
-       libre. */
-    cuenta[new Date(fila.inicio).toISOString()] = Number(fila.tomados);
-    tomadosPorProducto.set(fila.producto_id, cuenta);
+  /* Lo ocupado se agrupa **por categoría**, no por producto: el calendario es del
+     profesional, y el profesional atiende todos los servicios de su categoría.
+     Agruparlo por producto era el defecto que dejaba dos citas a la misma hora. */
+  const ocupadoPorCategoria = new Map<string, Ocupado[]>();
+  for (const fila of ocupacion) {
+    const lista = ocupadoPorCategoria.get(fila.categoria_id) ?? [];
+    lista.push({
+      /* Se normalizan los instantes: Postgres devuelve «+00:00» y el cálculo
+         trabaja con «Z». */
+      inicio: new Date(fila.inicio).toISOString(),
+      fin: new Date(fila.fin).toISOString(),
+      cupo: Number(fila.cupo),
+    });
+    ocupadoPorCategoria.set(fila.categoria_id, lista);
   }
 
   const atributosPorCategoria = new Map<string, Atributo[]>();
@@ -224,9 +235,20 @@ export function construirCatalogoPublico(
      la tarjeta muestra uno, y recorrer el mes entero por cada producto sería
      trabajo para una respuesta que no se usa. */
   const proximoTurnoDe = (producto: ProductoPublico): string | null => {
-    const agenda = agendaPorCategoria.get(producto.categoria_id ?? "");
-    if (!agenda) return null;
-    const dias = proximosDias(agenda, tomadosPorProducto.get(producto.id) ?? {}, fecha, 7);
+    const base = agendaPorCategoria.get(producto.categoria_id ?? "");
+    if (!base) return null;
+    /* La duración del producto manda sobre la de su categoría: una valoración de
+       una hora y una vacunación de quince minutos comparten calendario pero no
+       duran lo mismo. */
+    const agenda = producto.duracion_minutos
+      ? { ...base, duracionMinutos: Number(producto.duracion_minutos) }
+      : base;
+    const dias = proximosDias(
+      agenda,
+      ocupadoPorCategoria.get(producto.categoria_id ?? "") ?? [],
+      fecha,
+      7,
+    );
     for (const dia of dias) {
       const libre = dia.horarios.find((horario) => horario.libres > 0);
       if (libre) return `${rotuloCorto(dia.fecha)}, ${libre.hora}`;

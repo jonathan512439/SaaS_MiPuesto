@@ -134,7 +134,7 @@ export default async function PaginaCatalogoPublico({
   const [
     resultadoCategorias,
     resultadoAgendas,
-    resultadoCupos,
+    resultadoOcupacion,
     resultadoVariantes,
     resultadoAtributos,
     resultadoSubcategorias,
@@ -161,7 +161,7 @@ export default async function PaginaCatalogoPublico({
           "categoria_id,duracion_minutos,cupo_por_franja,anticipacion_minima_horas,dias_maximos,franjas",
         )
         .eq("negocio_id", negocio.id),
-      supabase.rpc("cupos_tomados_negocio", {
+      supabase.rpc("ocupacion_negocio", {
         p_negocio_id: negocio.id,
         p_desde: ahora.toISOString(),
         p_hasta: new Date(ahora.getTime() + 31 * 86_400_000).toISOString(),
@@ -258,7 +258,7 @@ export default async function PaginaCatalogoPublico({
     resultadoAtributos.data ?? [],
     resultadoVariantes.data ?? [],
     resultadoAgendas.data ?? [],
-    resultadoCupos.data ?? [],
+    resultadoOcupacion.data ?? [],
   );
   return (
     <main className={styles.pagina}>

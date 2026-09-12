@@ -194,6 +194,22 @@ una cita aparta una hora, con otro mecanismo. Estaban separadas por diseño y el
 plan las juntó mal. La que sí las toca sigue siendo la reserva por presentación
 que dejó pendiente la fase 4.
 
+**Corrección de modelo, 2026-09-12: el calendario es de la categoría.**
+
+La primera versión puso la agenda en la categoría y el choque en el producto.
+Dos niveles para la misma cosa: un consultorio con un profesional y cinco tipos
+de consulta aceptaba dos citas a la misma hora, porque eran productos distintos.
+
+Lo que un negocio tiene no es un calendario por servicio, es **un profesional**.
+El recurso escaso es la persona, y la persona es la categoría: la exclusión pasó
+a `(categoria_id, cupo, rango)` y `cupo_por_franja` significa cuántos
+profesionales o consultorios hay. La duración bajó al producto, para que una
+valoración de una hora y una vacunación de quince minutos compartan calendario.
+
+Si algún día hace falta «dos doctores pero solo uno pone vacunas», eso es un
+recurso explícito y se agrega encima sin deshacer esto: la categoría queda como
+el recurso por omisión.
+
 **Criterio de salida:** en producción, dos teléfonos piden el mismo horario a la
 vez y solo uno lo consigue. **Probado a mano, no solo en pruebas.**
 

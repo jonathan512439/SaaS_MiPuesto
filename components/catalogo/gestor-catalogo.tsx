@@ -88,6 +88,7 @@ type FormularioProducto = {
   subcategoria_id: string;
   controla_stock: boolean;
   cantidad_stock: string;
+  duracion_minutos: string;
 };
 
 type RespuestaError = { error?: string; errores?: Record<string, string> };
@@ -106,6 +107,7 @@ const FORMULARIO_VACIO: FormularioProducto = {
   subcategoria_id: "",
   controla_stock: false,
   cantidad_stock: "",
+  duracion_minutos: "",
 };
 
 const CATEGORIAS_POR_PAGINA = 5;
@@ -477,6 +479,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       subcategoria_id: producto.subcategoria_id ?? "",
       controla_stock: producto.controla_stock,
       cantidad_stock: producto.cantidad_stock === null ? "" : String(producto.cantidad_stock),
+      duracion_minutos:
+        producto.duracion_minutos === null ? "" : String(producto.duracion_minutos),
     });
     /* Se leen con las definiciones de **su** categoría: un valor que dejó de
        corresponder —porque el campo se borró o cambió de tipo— se descarta acá y
@@ -590,6 +594,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
         categoria_id: formulario.categoria_id || null,
         subcategoria_id: formulario.subcategoria_id || null,
         atributos: valoresAtributos,
+        /* Vacío viaja como nulo y no como cero: cero minutos no es una
+           duración, y nulo es lo que la base entiende como «la de mi
+           categoría». */
+        duracion_minutos: formulario.duracion_minutos.trim() || null,
       };
       const { producto } = await solicitarJson<{ producto: ProductoCatalogo }>(
         "/api/catalogo/productos",
@@ -1129,6 +1137,22 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               {subcategoriasFormulario.map((subcategoria) => <option key={subcategoria.id} value={subcategoria.id}>{subcategoria.nombre}</option>)}
             </Selector>
           </div>
+          {/* La duración solo aparece si la categoría vende tiempo: en una
+              ferretería no significa nada, y un campo que no aplica es un campo
+              que hay que aprender a ignorar. Vacío significa «la de mi
+              categoría», que es lo normal. */}
+          {categorias.find(({ id }) => id === formulario.categoria_id)?.vende === "tiempo" ? (
+            <Campo
+              ayuda="Vacío: la duración que tiene configurada la categoría."
+              error={erroresFormulario.duracion_minutos}
+              etiqueta="Cuánto dura este servicio (minutos)"
+              id="producto-duracion"
+              inputMode="numeric"
+              onChange={(evento) => actualizarCampo("duracion_minutos", evento.target.value)}
+              placeholder="60"
+              value={formulario.duracion_minutos}
+            />
+          ) : null}
           {/* Solo con el producto ya creado: las presentaciones necesitan su
               identificador para guardarse, y pedirlas antes obligaría a
               mantener dos caminos de guardado para lo mismo. */}

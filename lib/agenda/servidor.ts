@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { leerFranjas } from "./franjas";
-import type { Agenda, CuposTomados } from "./horarios";
+import type { Agenda, Ocupado } from "./horarios";
 
 /* Lo que las rutas necesitan de la base para trabajar con la agenda.
  *
@@ -15,6 +15,10 @@ export type ProductoAgendable = {
   nombre: string;
   precio: number;
   negocioId: string;
+  /* La categoría es el recurso: el calendario y los choques son suyos, no del
+     producto. Un consultorio con un solo profesional y cinco servicios tiene una
+     sola agenda, y la comparten los cinco. */
+  categoriaId: string;
   agenda: Agenda;
 };
 
@@ -34,7 +38,7 @@ export async function obtenerProductoAgendable(
   const { data } = await supabase
     .from("productos")
     .select(
-      "id,nombre,precio,categoria_id,visible,categorias!inner(vende,agenda_categoria(duracion_minutos,cupo_por_franja,anticipacion_minima_horas,dias_maximos,franjas))",
+      "id,nombre,precio,duracion_minutos,categoria_id,visible,categorias!inner(vende,agenda_categoria(duracion_minutos,cupo_por_franja,anticipacion_minima_horas,dias_maximos,franjas))",
     )
     .eq("id", productoId)
     .eq("negocio_id", negocioId)
@@ -63,13 +67,19 @@ export async function obtenerProductoAgendable(
   const franjas = leerFranjas(fila.franjas);
   if (franjas.length === 0) return null;
 
+  if (!data.categoria_id) return null;
+
   return {
     id: data.id,
     nombre: data.nombre,
     precio: Number(data.precio),
     negocioId,
+    categoriaId: data.categoria_id,
     agenda: {
-      duracionMinutos: Number(fila.duracion_minutos ?? 30),
+      /* La del producto si la tiene, la de su categoría si no. Es lo que permite
+         que una valoración dure una hora y una vacunación quince minutos dentro
+         del mismo calendario. */
+      duracionMinutos: Number(data.duracion_minutos ?? fila.duracion_minutos ?? 30),
       cupoPorFranja: Number(fila.cupo_por_franja ?? 1),
       anticipacionMinimaHoras: Number(fila.anticipacion_minima_horas ?? 2),
       diasMaximos: Number(fila.dias_maximos ?? 30),
@@ -78,31 +88,30 @@ export async function obtenerProductoAgendable(
   };
 }
 
-/* Cuántos cupos hay tomados en cada comienzo, entre dos instantes.
+/* Qué está ocupado en el calendario de la categoría, entre dos instantes.
  *
- * Pasa por la función `cupos_tomados` de la base y no por un `select` sobre
- * `citas`: la tabla está cerrada para `anon` porque guarda nombre y teléfono de
- * personas, y lo que el catálogo público necesita es la cuenta, no quién
- * reservó. La función devuelve cuentas y nada más.
+ * Pasa por `ocupacion_categoria` y no por un `select` sobre `citas`: la tabla
+ * está cerrada para `anon` porque guarda nombre y teléfono de personas. La
+ * función devuelve rangos y números de cupo, nunca de quién son.
  */
-export async function contarCuposTomados(
+export async function obtenerOcupacion(
   supabase: SupabaseClient,
-  productoId: string,
+  categoriaId: string,
   desde: Date,
   hasta: Date,
-): Promise<CuposTomados> {
-  const { data } = await supabase.rpc("cupos_tomados", {
-    p_producto_id: productoId,
+): Promise<Ocupado[]> {
+  const { data } = await supabase.rpc("ocupacion_categoria", {
+    p_categoria_id: categoriaId,
     p_desde: desde.toISOString(),
     p_hasta: hasta.toISOString(),
   });
 
-  const tomados: CuposTomados = {};
-  for (const fila of (data ?? []) as Array<{ inicio: string; tomados: number }>) {
-    /* Se normaliza el instante antes de usarlo como llave: Postgres devuelve
-       «+00:00» y el cálculo de horarios genera «Z». Sin esto las llaves no
-       coinciden nunca y todas las franjas se verían libres. */
-    tomados[new Date(fila.inicio).toISOString()] = Number(fila.tomados);
-  }
-  return tomados;
+  return ((data ?? []) as Array<{ inicio: string; fin: string; cupo: number }>).map((fila) => ({
+    /* Se normalizan los instantes: Postgres devuelve «+00:00» y el cálculo de
+       horarios trabaja con «Z». Comparar textos sin normalizar haría que nada
+       pareciera ocupado. */
+    inicio: new Date(fila.inicio).toISOString(),
+    fin: new Date(fila.fin).toISOString(),
+    cupo: Number(fila.cupo),
+  }));
 }

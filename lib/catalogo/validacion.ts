@@ -103,6 +103,20 @@ export function validarProducto(entrada: unknown):
     errores.cantidad_stock = "Escribe una cantidad entera entre 0 y 999999.";
   }
 
+  /* La duración de un servicio. Vacía significa «la de mi categoría», que es lo
+     normal: el dueño solo la escribe donde de verdad es distinta. Los topes son
+     los mismos que hace cumplir la base. */
+  const duracionCruda = valor.duracion_minutos;
+  let duracion: number | null = null;
+  if (duracionCruda !== undefined && duracionCruda !== null && duracionCruda !== "") {
+    const numero = typeof duracionCruda === "number" ? duracionCruda : Number(duracionCruda);
+    if (!Number.isInteger(numero) || numero < 5 || numero > 480) {
+      errores.duracion_minutos = "La duración va entre 5 y 480 minutos.";
+    } else {
+      duracion = numero;
+    }
+  }
+
   if (Object.keys(errores).length > 0) return { correcto: false, errores };
 
   return {
@@ -115,6 +129,7 @@ export function validarProducto(entrada: unknown):
       subcategoria_id: subcategoriaId as string | null,
       controla_stock: controlaStock,
       cantidad_stock: cantidadStock,
+      duracion_minutos: duracion,
     },
   };
 }

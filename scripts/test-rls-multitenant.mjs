@@ -193,6 +193,7 @@ try {
   await insertarUno(clienteA, "citas", {
     negocio_id: negocios[0].id,
     producto_id: productoA.id,
+    categoria_id: categoriaA.id,
     rango: rangoCita,
     nombre_cliente: "Cliente A",
     telefono_cliente: "59170000000",
@@ -200,6 +201,7 @@ try {
   const citaB = await insertarUno(clienteB, "citas", {
     negocio_id: negocios[1].id,
     producto_id: productoB.id,
+    categoria_id: categoriaB.id,
     rango: rangoCita,
     nombre_cliente: "Cliente B",
     telefono_cliente: "59170000001",

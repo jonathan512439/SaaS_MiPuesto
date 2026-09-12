@@ -46,6 +46,10 @@ export type ProductoCatalogo = {
      `lib/catalogo/valores.ts` con las definiciones al lado, y declararlo acá
      sería afirmar sobre datos que todavía no se validaron. */
   atributos: unknown;
+  /* Cuánto dura este servicio, si su categoría vende tiempo. Nulo significa «la
+     de su categoría», que es lo normal: el dueño solo la escribe donde de verdad
+     es distinta. */
+  duracion_minutos: number | null;
 };
 
 export type DatosProductoEntrada = {
@@ -56,6 +60,7 @@ export type DatosProductoEntrada = {
   subcategoria_id: string | null;
   controla_stock: boolean;
   cantidad_stock: number | null;
+  duracion_minutos: number | null;
 };
 
 export type DatosCatalogoAdmin = {

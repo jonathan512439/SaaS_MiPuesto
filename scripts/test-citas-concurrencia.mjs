@@ -54,13 +54,25 @@ async function main() {
 
   const productos = await tabla(
     "productos",
-    supabase.from("productos").select("id").eq("negocio_id", negocioId).limit(1),
+    supabase
+      .from("productos")
+      .select("id,categoria_id")
+      .eq("negocio_id", negocioId)
+      .not("categoria_id", "is", null)
+      .limit(2),
   );
   if (productos.length === 0) {
     console.error("El negocio de ensayo no tiene productos.");
     process.exit(1);
   }
   const productoId = productos[0].id;
+  const categoriaId = productos[0].categoria_id;
+  /* Un segundo producto de **la misma categoría** si lo hay: es lo que prueba el
+     caso que originó el cambio de modelo, un consultorio con un solo profesional
+     y dos servicios distintos. */
+  const otroProducto = productos.find(
+    (p) => p.id !== productoId && p.categoria_id === categoriaId,
+  );
 
   /* Un horario lejos en el futuro para no chocar con datos reales del respaldo. */
   const inicio = new Date(Date.now() + 400 * 24 * 3600_000);
@@ -68,7 +80,7 @@ async function main() {
   const fin = new Date(inicio.getTime() + 30 * 60_000);
   const rango = `[${inicio.toISOString()},${fin.toISOString()})`;
 
-  await supabase.from("citas").delete().eq("producto_id", productoId).gte("creado_en", "2000-01-01")
+  await supabase.from("citas").delete().eq("categoria_id", categoriaId).gte("creado_en", "2000-01-01")
     .filter("rango", "eq", rango);
 
   let fallos = 0;
@@ -81,7 +93,11 @@ async function main() {
         .from("citas")
         .insert({
           negocio_id: negocioId,
-          producto_id: productoId,
+          /* Los intentos se reparten entre los productos de la categoría cuando
+             hay más de uno: el choque tiene que darse igual, porque el
+             calendario es del profesional y no del servicio. */
+          producto_id: otroProducto && i % 2 === 1 ? otroProducto.id : productoId,
+          categoria_id: categoriaId,
           rango,
           cupo: (i % cupos) + 1,
           nombre_cliente: `Prueba ${i + 1}`,
@@ -101,19 +117,25 @@ async function main() {
           (otro ? ` — ${otro.error.code}: ${otro.error.message}` : ""),
       );
       fallos += 1;
-    } else if (chocaron !== cantidad - cupos) {
-      console.error(
-        `✗ ${etiqueta}: ${chocaron} rechazos por choque, se esperaban ${cantidad - cupos}`,
-      );
-      fallos += 1;
     } else {
-      console.log(`✓ ${etiqueta}: ${ganaron} entraron, ${chocaron} rebotaron`);
+      /* Lo que importa es **cuántos entraron**, no con qué código rebotaron los
+         demás. Bajo concurrencia Postgres también puede devolver un fallo de
+         serialización o un interbloqueo en vez de la violación de exclusión:
+         los tres significan «este no entró», que es la garantía. Exigir el
+         código exacto hacía fallar una corrida correcta. */
+      const codigos = [...new Set(resultados.filter((r) => r.error).map((r) => r.error.code))];
+      console.log(
+        `✓ ${etiqueta}: ${ganaron} entraron, ${cantidad - ganaron} rebotaron` +
+          ` (${chocaron} por choque${codigos.length > 1 ? `, códigos ${codigos.join(", ")}` : ""})`,
+      );
     }
   }
 
-  await intentar(8, 1, "un cupo, ocho pedidos a la vez");
+  await intentar(8, 1, otroProducto
+    ? "un cupo, ocho pedidos a la vez entre dos servicios"
+    : "un cupo, ocho pedidos a la vez");
 
-  await supabase.from("citas").delete().eq("producto_id", productoId).filter("rango", "eq", rango);
+  await supabase.from("citas").delete().eq("categoria_id", categoriaId).filter("rango", "eq", rango);
   await intentar(8, 2, "dos cupos, ocho pedidos a la vez");
 
   /* Cancelar libera: la exclusión deja fuera las canceladas, así que el horario
@@ -121,7 +143,7 @@ async function main() {
   const { data: activas } = await supabase
     .from("citas")
     .select("id,cupo")
-    .eq("producto_id", productoId)
+    .eq("categoria_id", categoriaId)
     .filter("rango", "eq", rango)
     .neq("estado", "cancelada");
 
@@ -137,6 +159,7 @@ async function main() {
     const { error } = await supabase.from("citas").insert({
       negocio_id: negocioId,
       producto_id: productoId,
+      categoria_id: categoriaId,
       rango,
       cupo: activas[0].cupo,
       nombre_cliente: "Después de cancelar",
@@ -150,7 +173,7 @@ async function main() {
     }
   }
 
-  await supabase.from("citas").delete().eq("producto_id", productoId).filter("rango", "eq", rango);
+  await supabase.from("citas").delete().eq("categoria_id", categoriaId).filter("rango", "eq", rango);
 
   if (fallos > 0) {
     console.error(`\n${fallos} comprobación(es) fallaron. El doble agendamiento es posible.`);

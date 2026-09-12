@@ -6,7 +6,7 @@ import {
   proximosDias,
   rangoDeCita,
 } from "../../../../../lib/agenda/horarios";
-import { contarCuposTomados, obtenerProductoAgendable } from "../../../../../lib/agenda/servidor";
+import { obtenerOcupacion, obtenerProductoAgendable } from "../../../../../lib/agenda/servidor";
 import { esUuid } from "../../../../../lib/catalogo/validacion";
 import { crearClienteSupabaseAdmin } from "../../../../../lib/supabase/admin";
 import { construirEnlaceWhatsapp } from "../../../../../lib/whatsapp";
@@ -111,6 +111,10 @@ export async function POST(
       .insert({
         negocio_id: negocio.id,
         producto_id: producto.id,
+        /* La categoría va en la fila porque es **la dueña del calendario**: la
+           restricción de exclusión mira esta columna, y sin ella dos servicios
+           del mismo profesional volverían a poder pisarse. */
+        categoria_id: producto.categoriaId,
         rango: `[${rango.inicio},${rango.fin})`,
         cupo,
         nombre_cliente: nombre,
@@ -171,11 +175,11 @@ export async function POST(
   /* Se acabaron los cupos de esa franja mientras esta persona elegía. Se
      devuelven los horarios al día para que pueda elegir otro sin recargar. */
   const hasta = new Date(ahora.getTime() + (producto.agenda.diasMaximos + 1) * 86_400_000);
-  const tomados = await contarCuposTomados(supabase, producto.id, ahora, hasta);
+  const ocupados = await obtenerOcupacion(supabase, producto.categoriaId, ahora, hasta);
   return NextResponse.json(
     {
       error: "Ese horario se acaba de ocupar. Elegí otro.",
-      dias: proximosDias(producto.agenda, tomados, ahora),
+      dias: proximosDias(producto.agenda, ocupados, ahora),
     },
     { status: 409 },
   );
