@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      agenda_categoria: {
+        Row: {
+          actualizado_en: string
+          anticipacion_minima_horas: number
+          categoria_id: string
+          cupo_por_franja: number
+          dias_maximos: number
+          duracion_minutos: number
+          franjas: Json
+          negocio_id: string
+        }
+        Insert: {
+          actualizado_en?: string
+          anticipacion_minima_horas?: number
+          categoria_id: string
+          cupo_por_franja?: number
+          dias_maximos?: number
+          duracion_minutos?: number
+          franjas?: Json
+          negocio_id: string
+        }
+        Update: {
+          actualizado_en?: string
+          anticipacion_minima_horas?: number
+          categoria_id?: string
+          cupo_por_franja?: number
+          dias_maximos?: number
+          duracion_minutos?: number
+          franjas?: Json
+          negocio_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_categoria_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agenda_padre"
+            columns: ["categoria_id", "negocio_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id", "negocio_id"]
+          },
+        ]
+      }
       atributos_categoria: {
         Row: {
           categoria_id: string
@@ -147,6 +195,69 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "negocios"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      citas: {
+        Row: {
+          cancelado_en: string | null
+          codigo: string
+          creado_en: string
+          cupo: number
+          estado: string
+          id: string
+          idempotencia: string
+          negocio_id: string
+          nombre_cliente: string
+          nota: string | null
+          producto_id: string
+          rango: unknown
+          telefono_cliente: string
+        }
+        Insert: {
+          cancelado_en?: string | null
+          codigo?: string
+          creado_en?: string
+          cupo?: number
+          estado?: string
+          id?: string
+          idempotencia?: string
+          negocio_id: string
+          nombre_cliente: string
+          nota?: string | null
+          producto_id: string
+          rango: unknown
+          telefono_cliente: string
+        }
+        Update: {
+          cancelado_en?: string | null
+          codigo?: string
+          creado_en?: string
+          cupo?: number
+          estado?: string
+          id?: string
+          idempotencia?: string
+          negocio_id?: string
+          nombre_cliente?: string
+          nota?: string | null
+          producto_id?: string
+          rango?: unknown
+          telefono_cliente?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "citas_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_padre"
+            columns: ["producto_id", "negocio_id"]
+            isOneToOne: false
+            referencedRelation: "productos"
+            referencedColumns: ["id", "negocio_id"]
           },
         ]
       }
@@ -932,6 +1043,13 @@ export type Database = {
           p_slug: string
         }
         Returns: Json
+      }
+      cupos_tomados: {
+        Args: { p_desde: string; p_hasta: string; p_producto_id: string }
+        Returns: {
+          inicio: string
+          tomados: number
+        }[]
       }
       devolver_credito_ia: {
         Args: { p_negocio_id: string }
