@@ -244,12 +244,24 @@ export function HojaProducto({
             pide cantidad y la otra pide día y hora. Se dibuja una o la otra, no
             las dos, porque «2 unidades de consulta a las 10:00» no significa
             nada. */}
-        {producto.vendeTiempo ? (
+        {/* Un catálogo de solo mostrar **no reserva**: esa modalidad existe para
+            el negocio que publica lo que tiene y atiende por su cuenta, y
+            dejarle tomar turnos sería contradecir lo que el dueño eligió.
+
+            En cambio el horario de atención **no** se mira acá, y es a
+            propósito: se agenda para el martes un domingo a la noche. Bloquear
+            la reserva con el local cerrado es lo correcto para un pedido de
+            ahora y lo incorrecto para una cita de la semana que viene. */}
+        {producto.vendeTiempo && modalidad !== "solo_lectura" ? (
           <SelectorDeTurno
             productoId={producto.id}
             productoNombre={producto.nombre}
             slug={slug}
           />
+        ) : producto.vendeTiempo ? (
+          <p className={styles.soloMuestra}>
+            Consultá al negocio para agendar.
+          </p>
         ) : (
         <div className={styles.accion}>
           <AccionProducto

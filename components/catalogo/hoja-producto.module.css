@@ -365,3 +365,16 @@
   font-size: var(--text-xs);
   font-weight: 800;
 }
+
+/* Lo que ve quien abre un servicio en un catálogo de solo mostrar. No se deja
+   el hueco vacío: sin esta línea, la ficha de una consulta veterinaria termina
+   en el precio y parece que falta cargar algo. */
+.soloMuestra {
+  margin: 0;
+  padding: var(--spacing-4);
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  text-align: center;
+}
