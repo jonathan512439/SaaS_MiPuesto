@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Boton, useAvisos } from "../ui";
+import { Boton } from "../ui";
 import styles from "./selector-de-turno.module.css";
 
 /* Elegir día y hora, y reservar.
@@ -51,7 +51,12 @@ export function SelectorDeTurno({
   const [reserva, setReserva] = useState<{ codigo: string; cuando: string; enlace: string | null } | null>(
     null,
   );
-  const { mostrarAviso } = useAvisos();
+  /* El error se muestra acá adentro y no con un aviso flotante: `useAvisos`
+     lanza si no encuentra su proveedor, y el proveedor **vive solo en el
+     panel**. Usarlo en el catálogo público rompía la ficha entera con el
+     mensaje de recargar. Además, el error pertenece a este formulario: quien
+     está eligiendo un turno tiene que leerlo junto al botón que apretó. */
+  const [error, setError] = useState<string | null>(null);
 
   /* El reinicio va durante el render y no dentro del efecto, que es el patrón
      que ya usa la hoja de producto: poner estado en un efecto dibuja una vez con
@@ -63,6 +68,7 @@ export function SelectorDeTurno({
     setDiaElegido(null);
     setHorarioElegido(null);
     setReserva(null);
+    setError(null);
   }
 
   useEffect(() => {
@@ -122,6 +128,7 @@ export function SelectorDeTurno({
 
   async function reservar() {
     if (!horarioElegido) return;
+    setError(null);
     setReservando(true);
     try {
       const respuesta = await fetch(`/api/publico/${slug}/citas`, {
@@ -163,12 +170,8 @@ export function SelectorDeTurno({
         setHorarioElegido(null);
       }
       throw new Error(datos.error || "No se pudo reservar.");
-    } catch (error) {
-      mostrarAviso({
-        titulo: "No se pudo reservar",
-        mensaje: error instanceof Error ? error.message : "Intentá otra vez.",
-        variante: "error",
-      });
+    } catch (fallo) {
+      setError(fallo instanceof Error ? fallo.message : "No se pudo reservar. Intentá otra vez.");
     } finally {
       setReservando(false);
     }
@@ -248,6 +251,8 @@ export function SelectorDeTurno({
               value={nota}
             />
           </label>
+
+          {error ? <strong className={styles.error}>{error}</strong> : null}
 
           <Boton
             cargando={reservando}
