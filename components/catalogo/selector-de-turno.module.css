@@ -1,0 +1,174 @@
+@reference "../../app/globals.css";
+
+.seccion {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-fondo-hundido);
+}
+
+.titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  letter-spacing: var(--tracking-titulo);
+}
+
+.estado {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+/* Los días en una fila que se desplaza de costado. Es el único lugar del
+   catálogo donde se admite desplazamiento horizontal, y con motivo: catorce
+   días apilados empujarían el resto de la ficha fuera de la pantalla. */
+.dias {
+  display: flex;
+  gap: var(--spacing-2);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-1);
+}
+
+.dia,
+.diaActivo {
+  flex-shrink: 0;
+  min-height: var(--control-alto);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.diaActivo {
+  border-color: var(--color-marca);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+/* Las horas se acomodan solas: un día con cuatro turnos y otro con veinte tienen
+   que verse bien sin columnas fijas. */
+.horas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--spacing-20), 1fr));
+  gap: var(--spacing-2);
+}
+
+.hora,
+.horaActiva {
+  display: grid;
+  gap: var(--spacing-1);
+  min-height: var(--control-alto);
+  padding: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.horaActiva {
+  border-color: var(--color-marca);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+/* El ocupado se dibuja igual pero apagado: esconderlo haría parecer que el
+   negocio no atiende a esa hora, y eso es otra cosa. */
+.hora:disabled {
+  background: var(--color-fondo-hundido);
+  color: var(--color-texto-tenue);
+  cursor: not-allowed;
+}
+
+.hora small {
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.datos {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+}
+
+.control {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.control > span {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.control input {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-family: inherit;
+  font-size: var(--text-base);
+}
+
+.confirmacion {
+  display: grid;
+  gap: var(--spacing-2);
+  padding: var(--spacing-5);
+  border: var(--borde-fino) solid var(--color-marca);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-marca-tenue);
+  text-align: center;
+}
+
+.listo {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.cuando {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.codigo {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+}
+
+.whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-alto);
+  margin-top: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-control);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  text-decoration: none;
+}

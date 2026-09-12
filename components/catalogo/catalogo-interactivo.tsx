@@ -248,6 +248,7 @@ export function CatalogoInteractivo({
         paleta={paleta}
         permiteAcciones={datos.negocio.atencion.permiteAcciones}
         producto={productoEnFicha}
+        slug={slug}
       />
       {totalProductos === 0 && filtros.busqueda.trim() ? (
         <p className={styles.sinResultados} role="status">

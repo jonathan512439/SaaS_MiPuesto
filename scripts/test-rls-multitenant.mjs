@@ -34,8 +34,10 @@ function comprobar(condicion, mensaje) {
   if (!condicion) throw new Error(`RLS multi-tenant: ${mensaje}`);
 }
 
-async function insertarUno(cliente, tabla, valores) {
-  const { data, error } = await cliente.from(tabla).insert(valores).select("id").single();
+/* `clave` porque no toda tabla se identifica con `id`: `agenda_categoria` usa
+   `categoria_id`, que es su clave primaria y su clave foránea al mismo tiempo. */
+async function insertarUno(cliente, tabla, valores, clave = "id") {
+  const { data, error } = await cliente.from(tabla).insert(valores).select(clave).single();
   if (error || !data) {
     throw new Error(`No se pudo preparar ${tabla}: ${error?.message ?? "sin datos"}`);
   }
@@ -171,6 +173,38 @@ try {
     producto_id: productoB.id,
     nombre: "M",
   });
+  /* La agenda y las citas entran a la comprobación con el resto. Las citas
+     guardan nombre y teléfono, así que además de aislarlas entre negocios hay
+     que comprobar que un dueño no pueda leer las de otro. */
+  await insertarUno(clienteA, "agenda_categoria", {
+    categoria_id: categoriaA.id,
+    negocio_id: negocios[0].id,
+    franjas: [{ dia: 1, desde: "09:00", hasta: "12:00" }],
+  }, "categoria_id");
+  const agendaB = await insertarUno(clienteB, "agenda_categoria", {
+    categoria_id: categoriaB.id,
+    negocio_id: negocios[1].id,
+    franjas: [{ dia: 1, desde: "09:00", hasta: "12:00" }],
+  }, "categoria_id");
+
+  const cuando = new Date(Date.now() + 600 * 24 * 3600_000);
+  cuando.setUTCMinutes(0, 0, 0);
+  const rangoCita = `[${cuando.toISOString()},${new Date(cuando.getTime() + 1800_000).toISOString()})`;
+  await insertarUno(clienteA, "citas", {
+    negocio_id: negocios[0].id,
+    producto_id: productoA.id,
+    rango: rangoCita,
+    nombre_cliente: "Cliente A",
+    telefono_cliente: "59170000000",
+  });
+  const citaB = await insertarUno(clienteB, "citas", {
+    negocio_id: negocios[1].id,
+    producto_id: productoB.id,
+    rango: rangoCita,
+    nombre_cliente: "Cliente B",
+    telefono_cliente: "59170000001",
+  });
+
   await insertarUno(clienteA, "promociones", {
     negocio_id: negocios[0].id,
     categoria_id: categoriaA.id,
@@ -231,6 +265,7 @@ try {
     subcategorias: subcategoriaB.id,
     atributos_categoria: atributoB.id,
     variantes_producto: varianteB.id,
+    citas: citaB.id,
     productos: productoB.id,
     promociones: promocionB.id,
     pedidos: pedidoB.id,
@@ -243,12 +278,32 @@ try {
     subcategorias: { nombre: "Intento ajeno" },
     atributos_categoria: { nombre: "Intento ajeno" },
     variantes_producto: { nombre: "Intento ajeno" },
+    citas: { nombre_cliente: "Intento ajeno" },
     productos: { nombre: "Intento ajeno" },
     promociones: { activo: false },
     pedidos: { estado: "cancelado" },
     pedido_items: { nombre: "Intento ajeno" },
     eventos_analitica: { tipo: "clic_whatsapp" },
   };
+
+  /* `agenda_categoria` se comprueba aparte porque **su clave es `categoria_id`**,
+     no `id`, y el arnés genérico compara por `id`. Forzarla ahí adentro habría
+     pedido un caso especial dentro de la función que revisa a todas; es más
+     claro un bloque propio de cuatro líneas que una rama que solo usa una. */
+  const lecturaAgenda = await clienteA
+    .from("agenda_categoria")
+    .select("categoria_id")
+    .eq("categoria_id", agendaB.categoria_id);
+  comprobar(!lecturaAgenda.error, "agenda_categoria: la lectura ajena produjo un error inesperado");
+  comprobar(lecturaAgenda.data?.length === 0, "agenda_categoria: A pudo leer la agenda de B");
+
+  const escrituraAgenda = await clienteA
+    .from("agenda_categoria")
+    .update({ duracion_minutos: 15 })
+    .eq("categoria_id", agendaB.categoria_id)
+    .select("categoria_id");
+  comprobar(!escrituraAgenda.error, "agenda_categoria: la escritura ajena produjo un error inesperado");
+  comprobar(escrituraAgenda.data?.length === 0, "agenda_categoria: A pudo cambiar la agenda de B");
 
   for (const tabla of Object.keys(filasB)) {
     await comprobarAislamiento(
@@ -500,7 +555,7 @@ try {
   );
 
   console.log(
-    "RLS multi-tenant: 2 usuarios, 10 tablas de negocio, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 11 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([

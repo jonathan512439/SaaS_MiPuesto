@@ -55,6 +55,7 @@ type CategoriaPublica = {
      esfera sin ícono cae al predeterminado igual que cualquier otra. */
   icono?: string;
   visible?: boolean;
+  vende?: string;
 };
 /* Las definiciones de campos de todas las categorías del negocio, juntas. Se
    pasan enteras y se agrupan acá en vez de pedir una consulta por categoría: son
@@ -132,6 +133,13 @@ export function construirCatalogoPublico(
   /* Agrupados por categoría una sola vez, antes de recorrer los productos: con
      cuarenta productos, filtrar la lista entera por cada uno sería cuarenta
      recorridas de lo mismo. */
+  /* Qué categorías venden tiempo. Se arma una vez con el conjunto que ya llegó
+     en vez de consultar aparte: la lista de categorías la tiene el catálogo
+     desde siempre. */
+  const vendenTiempo = new Set(
+    categorias.filter((categoria) => categoria.vende === "tiempo").map(({ id }) => id),
+  );
+
   const atributosPorCategoria = new Map<string, Atributo[]>();
   for (const fila of [...atributos].sort((a, b) => a.orden - b.orden)) {
     const lista = atributosPorCategoria.get(fila.categoria_id) ?? [];
@@ -212,6 +220,7 @@ export function construirCatalogoPublico(
       })),
       /* Resueltos acá y no en la plantilla: así ninguna necesita conocer los
          tipos, las unidades ni qué campo va en qué lugar. */
+      vendeTiempo: vendenTiempo.has(producto.categoria_id ?? ""),
       lineaAtributos: lineaDeTarjeta(definiciones, producto.atributos),
       especificaciones: valoresParaMostrar(definiciones, producto.atributos, "ficha"),
       /* El precio se resuelve acá: el propio de la presentación, o el del

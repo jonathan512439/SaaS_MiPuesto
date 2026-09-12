@@ -188,6 +188,12 @@ después: **es preferible romperla acá que en producción con clientes**.
 - Con `cupo_por_franja = 2`, la tercera falla.
 - Cancelar libera el cupo.
 
+**Corrección al plan:** esta fase **no toca las cinco funciones del motor de
+compra**. Aquellas manejan `productos.cantidad_reservada`, que es existencias;
+una cita aparta una hora, con otro mecanismo. Estaban separadas por diseño y el
+plan las juntó mal. La que sí las toca sigue siendo la reserva por presentación
+que dejó pendiente la fase 4.
+
 **Criterio de salida:** en producción, dos teléfonos piden el mismo horario a la
 vez y solo uno lo consigue. **Probado a mano, no solo en pruebas.**
 

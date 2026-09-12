@@ -23,6 +23,7 @@
     "test:fase1:linked": "supabase db query --linked --file supabase/tests/remote/fase1-categorias.sql",
     "test:fase2:linked": "supabase db query --linked --file supabase/tests/remote/fase2-campos.sql",
     "test:fase4:linked": "supabase db query --linked --file supabase/tests/remote/fase4-variantes.sql",
+    "test:fase5:linked": "supabase db query --linked --file supabase/tests/remote/fase5-agenda.sql",
     "test:rls:multitenant": "node --env-file-if-exists=.env.local scripts/test-rls-multitenant.mjs",
     "test:citas:concurrencia": "node --env-file-if-exists=.env.local scripts/test-citas-concurrencia.mjs",
     "test:rls:linked": "npm run test:rls:estructura:linked && npm run test:rls:multitenant",

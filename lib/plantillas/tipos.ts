@@ -39,6 +39,10 @@ export type ProductoPlantilla = {
      propio, o el del producto si no tiene— para que ninguna pantalla tenga que
      acordarse de esa regla. Vacío es lo normal: la mayoría de los productos se
      venden de una sola forma. */
+  /* Si su categoría vende tiempo. Decide que la ficha dibuje el calendario en
+     vez del selector de cantidad: son dos formas de comprar distintas y ninguna
+     pantalla tiene que decidirlo mirando otra cosa. */
+  vendeTiempo: boolean;
   variantes: Array<{
     id: string;
     nombre: string;

@@ -40,6 +40,7 @@ function producto(indice: number, datos: ProductoDemo): ProductoPlantilla {
     id: `demo-${indice}`,
     codigo: `PRD-DEMO${String(indice).padStart(2, "0")}`,
     variantes: [],
+    vendeTiempo: false,
     lineaAtributos:
       datos.datosPropios && datos.datosPropios.length > 0
         ? datos.datosPropios.map(({ texto }) => texto).join(" · ")

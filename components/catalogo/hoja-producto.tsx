@@ -8,6 +8,7 @@ import type { ModoAccionCatalogo } from "../../lib/modalidades";
 import { formatearPrecioBolivianos } from "../../lib/precios";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { AccionProducto } from "../templates/accion-producto";
+import { SelectorDeTurno } from "./selector-de-turno";
 import { EstadoStockProducto } from "../templates/estado-stock-producto";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./hoja-producto.module.css";
@@ -18,6 +19,9 @@ type PropiedadesHojaProducto = {
   modalidad: ModoAccionCatalogo;
   permiteAcciones: boolean;
   cantidad: number;
+  /* Hace falta para pedir los horarios y para reservar: las dos rutas cuelgan
+     del negocio, no del producto. */
+  slug: string;
   onCerrar: () => void;
   alAgregarProducto: (productoId: string) => void;
   alAbrirWhatsapp: (productoId: string | null) => void;
@@ -33,6 +37,7 @@ export function HojaProducto({
   modalidad,
   permiteAcciones,
   cantidad,
+  slug,
   onCerrar,
   alAgregarProducto,
   alAbrirWhatsapp,
@@ -235,6 +240,17 @@ export function HojaProducto({
           </dl>
         ) : null}
 
+        {/* Vender tiempo y vender cosas son dos formas de comprar distintas: una
+            pide cantidad y la otra pide día y hora. Se dibuja una o la otra, no
+            las dos, porque «2 unidades de consulta a las 10:00» no significa
+            nada. */}
+        {producto.vendeTiempo ? (
+          <SelectorDeTurno
+            productoId={producto.id}
+            productoNombre={producto.nombre}
+            slug={slug}
+          />
+        ) : (
         <div className={styles.accion}>
           <AccionProducto
             alAgregarProducto={alAgregarProducto}
@@ -254,6 +270,7 @@ export function HojaProducto({
             }
           />
         </div>
+        )}
       </div>
     </dialog>
   );

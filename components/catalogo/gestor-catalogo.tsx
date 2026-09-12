@@ -23,7 +23,11 @@ import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
 import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
 import { rubroOfrece } from "../../lib/negocios/rubros";
 import { IconoCatalogo } from "../iconos/icono-catalogo";
-import { ICONO_PREDETERMINADO } from "../../lib/catalogo/categorias";
+import {
+  DEFINICIONES_FORMAS_DE_VENDER,
+  ICONO_PREDETERMINADO,
+} from "../../lib/catalogo/categorias";
+import { EditorDeAgenda } from "./editor-de-agenda";
 import { EditorDeCampos } from "./editor-de-campos";
 import { SelectorDeIcono } from "./selector-de-icono";
 import {
@@ -1390,7 +1394,36 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                             como «esconder la mercadería» y no es eso. */}
                         <small>Apagarla no esconde sus productos.</small>
                       </label>
+
+                      {/* Quedó fuera de la fase 1 a propósito: elegir «tiempo»
+                          no hacía nada hasta que existiera la agenda, y un
+                          interruptor que no cambia nada enseña que los
+                          controles no sirven. Ahora enciende el editor de
+                          horarios que está debajo. */}
+                      <label className={styles.campoVende}>
+                        <span>Qué vende esta categoría</span>
+                        <select
+                          onChange={(evento) =>
+                            void cambiarCategoria(categoria.id, { vende: evento.target.value })
+                          }
+                          value={categoria.vende}
+                        >
+                          {DEFINICIONES_FORMAS_DE_VENDER.map((forma) => (
+                            <option key={forma.id} value={forma.id}>
+                              {forma.nombre}
+                            </option>
+                          ))}
+                        </select>
+                        <small>
+                          {DEFINICIONES_FORMAS_DE_VENDER.find(
+                            (forma) => forma.id === categoria.vende,
+                          )?.descripcion}
+                        </small>
+                      </label>
                     </div>
+                  ) : null}
+                  {categoriaActiva === categoria.id && categoria.vende === "tiempo" ? (
+                    <EditorDeAgenda categoriaId={categoria.id} />
                   ) : null}
                   {categoriaActiva === categoria.id ? (
                     <EditorDeCampos

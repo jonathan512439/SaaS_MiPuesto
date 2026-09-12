@@ -1,0 +1,146 @@
+@reference "../../app/globals.css";
+
+.seccion {
+  display: grid;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-4);
+  padding: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.cabecera {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.cabecera h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  letter-spacing: var(--tracking-titulo);
+}
+
+.cabecera p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.cargando,
+.vacio {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+/* Los cuatro ajustes en una rejilla que se acomoda sola. `auto-fit` y no una
+   consulta de medios: el panel puede estar en una columna angosta, donde el
+   ancho de la pantalla no dice nada del espacio que hay. */
+.ajustes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-fondo-hundido);
+}
+
+/* Un tramo por renglón, con el día y las dos horas. En el teléfono cada campo
+   cae debajo del anterior sin que nada quede cortado. */
+.franja {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-24), 1fr));
+  align-items: end;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-control);
+  background: var(--color-lienzo);
+}
+
+.control {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.control > span {
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.control input,
+.control select {
+  width: 100%;
+  padding: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-family: inherit;
+  font-size: var(--text-base);
+}
+
+/* El número y su unidad en la misma línea: «30 minutos» se entiende de un
+   vistazo, mientras que un campo con «30» a secas obliga a buscar el rótulo. */
+.conUnidad {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.conUnidad small,
+.ayuda {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
+.quitar {
+  min-height: var(--control-alto);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Lo cargado, en una línea, con la cuenta de turnos. Es lo que el dueño mira
+   para confirmar sin releer la tabla. */
+.resumen {
+  margin: 0;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-control);
+  background: var(--color-marca-tenue);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.resumen span {
+  color: var(--color-texto-suave);
+  font-weight: 800;
+}
+
+.pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.error {
+  grid-column: 1 / -1;
+  color: var(--color-alerta);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}

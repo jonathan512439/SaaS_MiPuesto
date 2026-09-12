@@ -36,6 +36,7 @@ const PRODUCTO: ProductoPlantilla = {
   id: "prod-1",
   lineaAtributos: null,
   variantes: [],
+  vendeTiempo: false,
   especificaciones: [],
   codigo: "PRD-1",
   nombre: "Polera",
