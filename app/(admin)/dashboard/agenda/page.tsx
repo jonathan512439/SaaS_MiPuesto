@@ -32,7 +32,7 @@ export default async function PaginaAgenda() {
 
   const { data: negocio, error: errorNegocio } = await supabase
     .from("negocios")
-    .select("id")
+    .select("id,nombre")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (errorNegocio) throw new Error("No se pudo cargar tu negocio.");
@@ -134,8 +134,16 @@ export default async function PaginaAgenda() {
 
   return (
     <main className={styles.contenido}>
+      {/* El nombre del negocio va en la descripción a propósito. El panel muestra
+          el negocio de la cuenta con la que se entró, y quien tiene dos cuentas
+          de prueba puede estar mirando la agenda equivocada sin ninguna pista:
+          pasó, y se leyó como «los botones de confirmar no existen». */}
       <EncabezadoPanel
-        descripcion="Quién atiende, cuándo, y todos los turnos en un solo lugar."
+        descripcion={
+          negocio
+            ? `Agenda de ${negocio.nombre}: quién atiende, cuándo, y todos los turnos en un solo lugar.`
+            : "Quién atiende, cuándo, y todos los turnos en un solo lugar."
+        }
         titulo="Agenda"
       />
       <GestorAgenda citasIniciales={citas} recursosIniciales={recursos} servicios={servicios} />
