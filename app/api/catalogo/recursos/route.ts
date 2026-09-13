@@ -148,13 +148,19 @@ export async function DELETE(solicitud: NextRequest) {
   /* No se borra un recurso con citas por delante: desaparecerían del panel las
      personas que ya tienen hora. Primero se cancelan o se reasignan; después se
      borra. El número va en el mensaje para que el dueño sepa cuánto es. */
-  const { count } = await contexto.supabase
+  const { count, error: errorConteo } = await contexto.supabase
     .from("citas")
     .select("id", { count: "exact", head: true })
     .eq("recurso_id", id)
     .eq("negocio_id", contexto.negocio.id)
     .neq("estado", "cancelada")
-    .gte("rango", new Date().toISOString());
+    /* `rangeGte` y no `gte`: la columna es un rango, y con `gte` Postgres
+       rechazaba la consulta. Peor: el error se ignoraba, el conteo quedaba en
+       nulo, y el recurso se borraba **con turnos por delante**. */
+    .rangeGte("rango", `[${new Date().toISOString()},)`);
+  if (errorConteo) {
+    return NextResponse.json({ error: "No se pudo comprobar los turnos del recurso." }, { status: 500 });
+  }
   if ((count ?? 0) > 0) {
     return NextResponse.json(
       {

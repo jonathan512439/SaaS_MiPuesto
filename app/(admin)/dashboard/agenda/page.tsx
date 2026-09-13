@@ -63,7 +63,13 @@ export default async function PaginaAgenda() {
           "id,codigo,recurso_id,rango,nombre_cliente,telefono_cliente,nota,nota_interna,estado,origen,productos(nombre)",
         )
         .eq("negocio_id", negocio.id)
-        .gte("rango", desde.toISOString())
+        /* `rangeGte` y no `gte`: la columna es un rango de tiempo, y compararla
+           con una fecha suelta hace que Postgres rechace la consulta entera con
+           «malformed range literal». Con `gte` la pantalla mostraba cero turnos
+           **sin ningún error a la vista**, porque el error se ignoraba abajo.
+           «No se extiende a la izquierda de [desde, ∞)» es exactamente «empieza
+           en desde o después». */
+        .rangeGte("rango", `[${desde.toISOString()},)`)
         .order("rango")
         .range(0, 199),
       supabase
@@ -75,7 +81,15 @@ export default async function PaginaAgenda() {
         .order("nombre"),
     ]);
 
+    /* Las tres consultas fallan a la vista. La primera versión solo miraba la de
+       recursos, y por eso una consulta de citas rota se veía como «no hay turnos»
+       en vez de como un error: el dueño no podía confirmar nada y no sabía por
+       qué. */
     if (resultadoRecursos.error) throw new Error("No se pudo cargar la agenda.");
+    if (resultadoCitas.error) {
+      throw new Error(`No se pudieron cargar los turnos: ${resultadoCitas.error.message}`);
+    }
+    if (resultadoServicios.error) throw new Error("No se pudieron cargar los servicios.");
 
     recursos = (resultadoRecursos.data ?? []).map((fila) => {
       const agenda = Array.isArray(fila.agenda_recurso)
