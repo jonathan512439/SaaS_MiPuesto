@@ -145,13 +145,23 @@ export function GestorAgenda({
     });
   }, [citas]);
 
+  /* La lista del día **no incluye las pendientes**: esas viven en el buzón de
+     arriba, que abarca todos los días. Mostrarlas también acá era la
+     duplicación. Abajo queda la agenda ya resuelta —confirmadas, cumplidas,
+     canceladas— del día elegido. */
   const citasDelDia = citas
-    .filter((cita) => fechaDe(cita.inicio) === diaElegido)
+    .filter((cita) => fechaDe(cita.inicio) === diaElegido && cita.estado !== "pendiente")
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
 
   const pendientes = citas
     .filter((cita) => cita.estado === "pendiente")
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
+
+  /* Cuántas pendientes caen en el día elegido: sirve para que la lista de abajo,
+     cuando quede vacía, mande a mirar el buzón en vez de decir «no hay nada». */
+  const pendientesDelDia = pendientes.filter(
+    (cita) => fechaDe(cita.inicio) === diaElegido,
+  ).length;
 
   function informarError(titulo: string, error: unknown) {
     mostrarAviso({
@@ -537,7 +547,13 @@ export function GestorAgenda({
         ) : null}
 
         {citasDelDia.length === 0 ? (
-          <p className={styles.vacio}>Nada agendado para {rotuloDia(diaElegido)}.</p>
+          <p className={styles.vacio}>
+            {pendientesDelDia > 0
+              ? `${pendientesDelDia} ${
+                  pendientesDelDia === 1 ? "turno espera" : "turnos esperan"
+                } tu confirmación arriba. Nada confirmado todavía para ${rotuloDia(diaElegido)}.`
+              : `Nada confirmado para ${rotuloDia(diaElegido)}.`}
+          </p>
         ) : (
           <ul className={styles.citas}>
             {citasDelDia.map((cita) => (
