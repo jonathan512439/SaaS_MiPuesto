@@ -102,7 +102,18 @@ export function GestorAgenda({
   const [citas, setCitas] = useState(citasIniciales);
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [recursoAbierto, setRecursoAbierto] = useState<string | null>(null);
-  const [diaElegido, setDiaElegido] = useState(hoyEnBolivia());
+  /* Abre en hoy si hoy tiene turnos; si no, en el primer día que los tenga. La
+     primera versión abría siempre en hoy, y el dueño con todos sus pedidos para
+     mañana veía «Nada agendado» y concluía que los botones de confirmar no
+     existían. Estaban en un día que no estaba mirando. */
+  const [diaElegido, setDiaElegido] = useState(() => {
+    const hoy = hoyEnBolivia();
+    const conTurnos = citasIniciales
+      .filter((cita) => cita.estado !== "cancelada" && fechaDe(cita.inicio) >= hoy)
+      .map((cita) => fechaDe(cita.inicio))
+      .sort();
+    return conTurnos.includes(hoy) ? hoy : (conTurnos[0] ?? hoy);
+  });
   const [ocupado, setOcupado] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
   const [formulario, setFormulario] = useState<{
@@ -136,6 +147,10 @@ export function GestorAgenda({
 
   const citasDelDia = citas
     .filter((cita) => fechaDe(cita.inicio) === diaElegido)
+    .sort((a, b) => a.inicio.localeCompare(b.inicio));
+
+  const pendientes = citas
+    .filter((cita) => cita.estado === "pendiente")
     .sort((a, b) => a.inicio.localeCompare(b.inicio));
 
   function informarError(titulo: string, error: unknown) {
@@ -381,6 +396,29 @@ export function GestorAgenda({
           </p>
         </header>
 
+        {/* Lo que espera una decisión, junto y arriba, sin importar de qué día
+            sea. Es lo primero que el dueño busca al abrir la Agenda, y hacerlo
+            recorrer los días para encontrarlo es esconderle su propio trabajo. */}
+        {pendientes.length > 0 ? (
+          <div className={styles.pendientes}>
+            <h3>
+              Esperan tu confirmación <span>{pendientes.length}</span>
+            </h3>
+            <ul className={styles.citas}>
+              {pendientes.map((cita) => (
+                <TarjetaCita
+                  cita={cita}
+                  conFecha
+                  key={cita.id}
+                  ocupado={ocupado === cita.id}
+                  onCambiarEstado={cambiarEstado}
+                  recursoNombre={recursos.find(({ id }) => id === cita.recurso_id)?.nombre ?? "—"}
+                />
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         <div className={styles.dias}>
           {dias.map((dia) => (
             <button
@@ -502,56 +540,81 @@ export function GestorAgenda({
           <p className={styles.vacio}>Nada agendado para {rotuloDia(diaElegido)}.</p>
         ) : (
           <ul className={styles.citas}>
-            {citasDelDia.map((cita) => {
-              const recurso = recursos.find(({ id }) => id === cita.recurso_id);
-              return (
-                <li className={styles.cita} data-estado={cita.estado} key={cita.id}>
-                  <div className={styles.cuando}>
-                    <strong>
-                      {horaDe(cita.inicio)}–{horaDe(cita.fin)}
-                    </strong>
-                    <span>{recurso?.nombre ?? "—"}</span>
-                  </div>
-
-                  <div className={styles.quien}>
-                    <strong>{cita.nombre_cliente}</strong>
-                    {cita.producto ? <span>{cita.producto}</span> : <span>Bloqueo</span>}
-                    {cita.telefono_cliente ? (
-                      <a href={`https://wa.me/${cita.telefono_cliente}`} rel="noopener noreferrer" target="_blank">
-                        {cita.telefono_cliente}
-                      </a>
-                    ) : null}
-                    {cita.nota ? <em>Dice: {cita.nota}</em> : null}
-                    {cita.nota_interna ? <em className={styles.notaInterna}>{cita.nota_interna}</em> : null}
-                  </div>
-
-                  <div className={styles.estado}>
-                    {ROTULOS[cita.estado] ?? cita.estado}
-                    {cita.origen === "manual" ? <small> · a mano</small> : null}
-                  </div>
-
-                  {cita.estado === "pendiente" || cita.estado === "confirmada" ? (
-                    <div className={styles.acciones}>
-                      {cita.estado === "pendiente" ? (
-                        <Boton cargando={ocupado === cita.id} onClick={() => void cambiarEstado(cita, "confirmada")} type="button">
-                          Confirmar
-                        </Boton>
-                      ) : (
-                        <Boton cargando={ocupado === cita.id} onClick={() => void cambiarEstado(cita, "cumplida")} type="button" variante="secundario">
-                          Cumplido
-                        </Boton>
-                      )}
-                      <Boton disabled={ocupado === cita.id} onClick={() => void cambiarEstado(cita, "cancelada")} type="button" variante="peligro">
-                        Cancelar
-                      </Boton>
-                    </div>
-                  ) : null}
-                </li>
-              );
-            })}
+            {citasDelDia.map((cita) => (
+              <TarjetaCita
+                cita={cita}
+                key={cita.id}
+                ocupado={ocupado === cita.id}
+                onCambiarEstado={cambiarEstado}
+                recursoNombre={recursos.find(({ id }) => id === cita.recurso_id)?.nombre ?? "—"}
+              />
+            ))}
           </ul>
         )}
       </section>
     </div>
+  );
+}
+
+/* Una cita, con sus acciones. La misma tarjeta sirve en la lista de pendientes
+   —donde lleva la fecha, porque son de días distintos— y en la del día —donde
+   no, porque el día ya está elegido arriba—. */
+function TarjetaCita({
+  cita,
+  recursoNombre,
+  ocupado,
+  conFecha = false,
+  onCambiarEstado,
+}: {
+  cita: CitaAgenda;
+  recursoNombre: string;
+  ocupado: boolean;
+  conFecha?: boolean;
+  onCambiarEstado: (cita: CitaAgenda, estado: string) => Promise<void>;
+}) {
+  return (
+    <li className={styles.cita} data-estado={cita.estado}>
+      <div className={styles.cuando}>
+        <strong>
+          {conFecha ? `${rotuloDia(fechaDe(cita.inicio))} · ` : ""}
+          {horaDe(cita.inicio)}–{horaDe(cita.fin)}
+        </strong>
+        <span>{recursoNombre}</span>
+      </div>
+
+      <div className={styles.quien}>
+        <strong>{cita.nombre_cliente}</strong>
+        {cita.producto ? <span>{cita.producto}</span> : <span>Bloqueo</span>}
+        {cita.telefono_cliente ? (
+          <a href={`https://wa.me/${cita.telefono_cliente}`} rel="noopener noreferrer" target="_blank">
+            {cita.telefono_cliente}
+          </a>
+        ) : null}
+        {cita.nota ? <em>Dice: {cita.nota}</em> : null}
+        {cita.nota_interna ? <em className={styles.notaInterna}>{cita.nota_interna}</em> : null}
+      </div>
+
+      <div className={styles.estado}>
+        {ROTULOS[cita.estado] ?? cita.estado}
+        {cita.origen === "manual" ? <small> · a mano</small> : null}
+      </div>
+
+      {cita.estado === "pendiente" || cita.estado === "confirmada" ? (
+        <div className={styles.acciones}>
+          {cita.estado === "pendiente" ? (
+            <Boton cargando={ocupado} onClick={() => void onCambiarEstado(cita, "confirmada")} type="button">
+              Confirmar
+            </Boton>
+          ) : (
+            <Boton cargando={ocupado} onClick={() => void onCambiarEstado(cita, "cumplida")} type="button" variante="secundario">
+              Cumplido
+            </Boton>
+          )}
+          <Boton disabled={ocupado} onClick={() => void onCambiarEstado(cita, "cancelada")} type="button" variante="peligro">
+            Cancelar
+          </Boton>
+        </div>
+      ) : null}
+    </li>
   );
 }
