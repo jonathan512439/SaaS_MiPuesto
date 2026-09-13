@@ -67,6 +67,16 @@ async function main() {
   }
   const productoId = productos[0].id;
   const categoriaId = productos[0].categoria_id;
+
+  /* Un recurso propio para la prueba, que se borra al final. El calendario es
+     del recurso: es sobre él que la exclusión decide. */
+  const { data: recursoCreado, error: errorRecurso } = await supabase
+    .from("recursos")
+    .insert({ negocio_id: negocioId, nombre: `Prueba concurrencia ${Date.now()}` })
+    .select("id")
+    .single();
+  if (errorRecurso || !recursoCreado) throw new Error(`recursos: ${errorRecurso?.message}`);
+  const recursoId = recursoCreado.id;
   /* Un segundo producto de **la misma categoría** si lo hay: es lo que prueba el
      caso que originó el cambio de modelo, un consultorio con un solo profesional
      y dos servicios distintos. */
@@ -80,7 +90,7 @@ async function main() {
   const fin = new Date(inicio.getTime() + 30 * 60_000);
   const rango = `[${inicio.toISOString()},${fin.toISOString()})`;
 
-  await supabase.from("citas").delete().eq("categoria_id", categoriaId).gte("creado_en", "2000-01-01")
+  await supabase.from("citas").delete().eq("recurso_id", recursoId).gte("creado_en", "2000-01-01")
     .filter("rango", "eq", rango);
 
   let fallos = 0;
@@ -98,6 +108,7 @@ async function main() {
              calendario es del profesional y no del servicio. */
           producto_id: otroProducto && i % 2 === 1 ? otroProducto.id : productoId,
           categoria_id: categoriaId,
+          recurso_id: recursoId,
           rango,
           cupo: (i % cupos) + 1,
           nombre_cliente: `Prueba ${i + 1}`,
@@ -135,7 +146,7 @@ async function main() {
     ? "un cupo, ocho pedidos a la vez entre dos servicios"
     : "un cupo, ocho pedidos a la vez");
 
-  await supabase.from("citas").delete().eq("categoria_id", categoriaId).filter("rango", "eq", rango);
+  await supabase.from("citas").delete().eq("recurso_id", recursoId).filter("rango", "eq", rango);
   await intentar(8, 2, "dos cupos, ocho pedidos a la vez");
 
   /* Cancelar libera: la exclusión deja fuera las canceladas, así que el horario
@@ -143,7 +154,7 @@ async function main() {
   const { data: activas } = await supabase
     .from("citas")
     .select("id,cupo")
-    .eq("categoria_id", categoriaId)
+    .eq("recurso_id", recursoId)
     .filter("rango", "eq", rango)
     .neq("estado", "cancelada");
 
@@ -160,6 +171,7 @@ async function main() {
       negocio_id: negocioId,
       producto_id: productoId,
       categoria_id: categoriaId,
+      recurso_id: recursoId,
       rango,
       cupo: activas[0].cupo,
       nombre_cliente: "Después de cancelar",
@@ -173,7 +185,7 @@ async function main() {
     }
   }
 
-  await supabase.from("citas").delete().eq("categoria_id", categoriaId).filter("rango", "eq", rango);
+  await supabase.from("citas").delete().eq("recurso_id", recursoId).filter("rango", "eq", rango);
 
   if (fallos > 0) {
     console.error(`\n${fallos} comprobación(es) fallaron. El doble agendamiento es posible.`);

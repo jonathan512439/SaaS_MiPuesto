@@ -4,10 +4,6 @@ import {
   GestorPedidos,
   type PedidoAdmin,
 } from "../../../../components/pedidos/gestor-pedidos";
-import {
-  CitasDelDia,
-  type CitaAdmin,
-} from "../../../../components/pedidos/citas-del-dia";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./pedidos.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
@@ -29,7 +25,6 @@ export default async function PaginaPedidos() {
   if (errorNegocio) throw new Error("No se pudo cargar tu negocio.");
 
   let pedidos: PedidoAdmin[] = [];
-  let citas: CitaAdmin[] = [];
   if (negocio) {
     const { data, error } = await supabase
       .from("pedidos")
@@ -42,37 +37,14 @@ export default async function PaginaPedidos() {
     if (error) throw new Error("No se pudieron cargar los pedidos.");
     pedidos = (data ?? []) as PedidoAdmin[];
 
-    /* Los turnos por delante, no el historial: lo que el dueño abre esta
-       pantalla a mirar es qué tiene que atender, y las citas viejas empujarían
-       eso hacia abajo. Las canceladas quedan fuera por lo mismo. */
-    const { data: agendadas } = await supabase
-      .from("citas")
-      .select("id,codigo,rango,nombre_cliente,telefono_cliente,nota,estado,productos(nombre)")
-      .eq("negocio_id", negocio.id)
-      .neq("estado", "cancelada")
-      .gte("rango", new Date().toISOString())
-      .order("rango")
-      .range(0, 49);
-
-    citas = (agendadas ?? []).map((cita) => ({
-      id: cita.id,
-      codigo: cita.codigo,
-      /* El rango llega como «[inicio,fin)» y lo que se muestra es el comienzo.
-         Se parte acá y no en el componente para que el cliente no tenga que
-         conocer cómo Postgres escribe un rango. */
-      inicio: String(cita.rango).replace(/^[[(]/, "").split(",")[0].replace(/"/g, ""),
-      producto: (cita.productos as { nombre?: string } | null)?.nombre ?? "",
-      nombre_cliente: cita.nombre_cliente,
-      telefono_cliente: cita.telefono_cliente,
-      nota: cita.nota,
-      estado: cita.estado,
-    }));
   }
 
   return (
     <main className={styles.contenido}>
-      <EncabezadoPanel descripcion="Acá ves y resolvés todos tus pedidos." titulo="Pedidos" />
-      <CitasDelDia citasIniciales={citas} />
+      <EncabezadoPanel
+        descripcion="Acá ves y resolvés todos tus pedidos. Los turnos agendados están en Agenda."
+        titulo="Pedidos"
+      />
       <GestorPedidos pedidosIniciales={pedidos} />
     </main>
   );

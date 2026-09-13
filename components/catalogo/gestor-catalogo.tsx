@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { ChangeEvent, FormEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -27,7 +28,6 @@ import {
   DEFINICIONES_FORMAS_DE_VENDER,
   ICONO_PREDETERMINADO,
 } from "../../lib/catalogo/categorias";
-import { EditorDeAgenda } from "./editor-de-agenda";
 import { EditorDeCampos } from "./editor-de-campos";
 import { SelectorDeIcono } from "./selector-de-icono";
 import {
@@ -89,6 +89,7 @@ type FormularioProducto = {
   controla_stock: boolean;
   cantidad_stock: string;
   duracion_minutos: string;
+  recurso_id: string;
 };
 
 type RespuestaError = { error?: string; errores?: Record<string, string> };
@@ -108,6 +109,7 @@ const FORMULARIO_VACIO: FormularioProducto = {
   controla_stock: false,
   cantidad_stock: "",
   duracion_minutos: "",
+  recurso_id: "",
 };
 
 const CATEGORIAS_POR_PAGINA = 5;
@@ -481,6 +483,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       cantidad_stock: producto.cantidad_stock === null ? "" : String(producto.cantidad_stock),
       duracion_minutos:
         producto.duracion_minutos === null ? "" : String(producto.duracion_minutos),
+      recurso_id: producto.recurso_id ?? "",
     });
     /* Se leen con las definiciones de **su** categoría: un valor que dejó de
        corresponder —porque el campo se borró o cambió de tipo— se descarta acá y
@@ -598,6 +601,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
            duración, y nulo es lo que la base entiende como «la de mi
            categoría». */
         duracion_minutos: formulario.duracion_minutos.trim() || null,
+        recurso_id: formulario.recurso_id || null,
       };
       const { producto } = await solicitarJson<{ producto: ProductoCatalogo }>(
         "/api/catalogo/productos",
@@ -1142,16 +1146,39 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               que hay que aprender a ignorar. Vacío significa «la de mi
               categoría», que es lo normal. */}
           {categorias.find(({ id }) => id === formulario.categoria_id)?.vende === "tiempo" ? (
-            <Campo
-              ayuda="Vacío: la duración que tiene configurada la categoría."
-              error={erroresFormulario.duracion_minutos}
-              etiqueta="Cuánto dura este servicio (minutos)"
-              id="producto-duracion"
-              inputMode="numeric"
-              onChange={(evento) => actualizarCampo("duracion_minutos", evento.target.value)}
-              placeholder="60"
-              value={formulario.duracion_minutos}
-            />
+            <div className={styles.filaDoble}>
+              <Selector
+                ayuda={
+                  datosIniciales.recursos.length === 0
+                    ? "Todavía no cargaste a nadie. Hacelo en Agenda."
+                    : "Dos servicios de la misma persona no se pueden dar a la misma hora."
+                }
+                error={erroresFormulario.recurso_id}
+                etiqueta="Quién lo atiende"
+                id="producto-recurso"
+                onChange={(evento) => actualizarCampo("recurso_id", evento.target.value)}
+                value={formulario.recurso_id}
+              >
+                <option value="">Sin asignar · no se puede agendar</option>
+                {datosIniciales.recursos
+                  .filter((recurso) => recurso.activo)
+                  .map((recurso) => (
+                    <option key={recurso.id} value={recurso.id}>
+                      {recurso.nombre}
+                    </option>
+                  ))}
+              </Selector>
+              <Campo
+                ayuda="Vacío: la duración configurada para quien lo atiende."
+                error={erroresFormulario.duracion_minutos}
+                etiqueta="Cuánto dura (minutos)"
+                id="producto-duracion"
+                inputMode="numeric"
+                onChange={(evento) => actualizarCampo("duracion_minutos", evento.target.value)}
+                placeholder="30"
+                value={formulario.duracion_minutos}
+              />
+            </div>
           ) : null}
           {/* Solo con el producto ya creado: las presentaciones necesitan su
               identificador para guardarse, y pedirlas antes obligaría a
@@ -1446,8 +1473,16 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                       </label>
                     </div>
                   ) : null}
+                  {/* El horario ya no se configura acá: es del recurso —el doctor,
+                      el peluquero— y no de la categoría, y vive en la pantalla
+                      de Agenda. Se deja el camino a la vista para que el dueño
+                      no lo busque adentro de la categoría, que es donde estaba. */}
                   {categoriaActiva === categoria.id && categoria.vende === "tiempo" ? (
-                    <EditorDeAgenda categoriaId={categoria.id} />
+                    <p className={styles.avisoAgenda}>
+                      Los horarios se configuran en <Link href="/dashboard/agenda">Agenda</Link>,
+                      por cada persona o consultorio que atiende. Después, en cada servicio,
+                      elegís quién lo atiende.
+                    </p>
                   ) : null}
                   {categoriaActiva === categoria.id ? (
                     <EditorDeCampos

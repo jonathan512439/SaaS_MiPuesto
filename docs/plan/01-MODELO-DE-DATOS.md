@@ -206,6 +206,13 @@ vive en el producto, y tenerla en dos lugares permite que se contradigan.
 
 ## 6. Agenda: cuando la categoría vende tiempo
 
+> **Corregido en la implementación (2026-09-12).** Lo de abajo es el diseño
+> original y quedó superado: el calendario **no es de la categoría, es del
+> recurso** —quién atiende—. Existen `recursos` y `agenda_recurso`;
+> `agenda_categoria` no existe. `productos.recurso_id` dice quién atiende cada
+> servicio y `citas.recurso_id` es la columna sobre la que actúa la exclusión.
+> El motivo completo está en `06-FASES.md`, fase 5.
+
 ### 6.1 Cuándo atiende
 
 ```sql

@@ -6,10 +6,10 @@ import { usePathname } from "next/navigation";
 import { Icono, type NombreIcono } from "../iconos/icono";
 import styles from "../../app/(admin)/dashboard/dashboard.module.css";
 
-/* El ícono acompaña a la palabra, no la reemplaza. Con siete secciones que se
+/* El ícono acompaña a la palabra, no la reemplaza. Con ocho secciones que se
    recorren de reojo, la forma se reconoce antes que el texto y se vuelve a la
    sección de siempre sin leer; sin la palabra al lado, en cambio, habría que
-   aprenderse siete dibujos. */
+   aprenderse ocho dibujos. */
 const ENLACES: ReadonlyArray<{ href: string; etiqueta: string; icono: NombreIcono }> = [
   { href: "/dashboard", etiqueta: "Resumen", icono: "casa" },
   { href: "/dashboard/configuracion", etiqueta: "Negocio", icono: "tienda" },
@@ -17,6 +17,7 @@ const ENLACES: ReadonlyArray<{ href: string; etiqueta: string; icono: NombreIcon
   { href: "/dashboard/catalogo", etiqueta: "Catálogo", icono: "caja" },
   { href: "/dashboard/promociones", etiqueta: "Promociones", icono: "etiqueta" },
   { href: "/dashboard/pedidos", etiqueta: "Pedidos", icono: "documento" },
+  { href: "/dashboard/agenda", etiqueta: "Agenda", icono: "calendario" },
   { href: "/dashboard/cuenta", etiqueta: "Cuenta", icono: "persona" },
 ];
 

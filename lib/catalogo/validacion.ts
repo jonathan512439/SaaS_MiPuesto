@@ -117,6 +117,15 @@ export function validarProducto(entrada: unknown):
     }
   }
 
+  /* Quién atiende. Se comprueba la forma; que sea de este negocio lo comprueba
+     la ruta, que es la que sabe de quién es la sesión. */
+  const recursoCrudo = valor.recurso_id;
+  const recursoId =
+    recursoCrudo === undefined || recursoCrudo === null || recursoCrudo === "" ? null : recursoCrudo;
+  if (recursoId !== null && !esUuid(recursoId)) {
+    errores.recurso_id = "Elegí quién atiende de la lista.";
+  }
+
   if (Object.keys(errores).length > 0) return { correcto: false, errores };
 
   return {
@@ -130,6 +139,7 @@ export function validarProducto(entrada: unknown):
       controla_stock: controlaStock,
       cantidad_stock: cantidadStock,
       duracion_minutos: duracion,
+      recurso_id: recursoId as string | null,
     },
   };
 }

@@ -7,7 +7,7 @@ import {
 } from "../../../../../../lib/catalogo/servidor";
 import { esUuid } from "../../../../../../lib/catalogo/validacion";
 
-/* Cuándo atiende una categoría.
+/* Cuándo atiende un recurso.
  *
  * `PUT` y no `PATCH`: la semana es el conjunto, y una de sus reglas —que dos
  * tramos del mismo día no se pisen— solo se puede comprobar mirándola entera.
@@ -30,6 +30,19 @@ function numeroEnRango(valor: unknown, campo: keyof typeof LIMITES): number | nu
   return numero >= minimo && numero <= maximo ? numero : null;
 }
 
+async function recursoPropio(
+  contexto: Awaited<ReturnType<typeof obtenerContextoAdminCatalogo>> & { correcto: true },
+  recursoId: string,
+) {
+  const { data } = await contexto.supabase
+    .from("recursos")
+    .select("id")
+    .eq("id", recursoId)
+    .eq("negocio_id", contexto.negocio.id)
+    .maybeSingle();
+  return data !== null;
+}
+
 export async function GET(
   _solicitud: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -40,19 +53,19 @@ export async function GET(
   }
   const { id } = await params;
   if (!esUuid(id)) {
-    return NextResponse.json({ error: "La categoría no es válida." }, { status: 400 });
+    return NextResponse.json({ error: "El recurso no es válido." }, { status: 400 });
   }
 
   const { data } = await contexto.supabase
-    .from("agenda_categoria")
+    .from("agenda_recurso")
     .select(COLUMNAS)
-    .eq("categoria_id", id)
+    .eq("recurso_id", id)
     .eq("negocio_id", contexto.negocio.id)
     .maybeSingle();
 
-  /* Sin fila todavía se devuelve nulo y no un error: una categoría que acaba de
-     pasar a vender tiempo no tiene agenda, y eso es un estado normal, no una
-     falla. El editor dibuja los valores por omisión. */
+  /* Sin fila todavía se devuelve nulo y no un error: un recurso recién creado
+     no tiene agenda, y eso es un estado normal. El editor dibuja los valores
+     por omisión. */
   return NextResponse.json({ agenda: data ?? null });
 }
 
@@ -62,27 +75,8 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: contexto.error }, { status: contexto.estado });
   }
   const { id } = await params;
-  if (!esUuid(id)) {
-    return NextResponse.json({ error: "La categoría no es válida." }, { status: 400 });
-  }
-
-  /* Que la categoría sea de este negocio **y que venda tiempo**. Guardar una
-     agenda en una categoría de cosas dejaría una semana configurada que nadie
-     puede ver ni borrar desde el panel. */
-  const { data: categoria } = await contexto.supabase
-    .from("categorias")
-    .select("id,vende")
-    .eq("id", id)
-    .eq("negocio_id", contexto.negocio.id)
-    .maybeSingle();
-  if (!categoria) {
-    return NextResponse.json({ error: "La categoría no es válida." }, { status: 404 });
-  }
-  if (categoria.vende !== "tiempo") {
-    return NextResponse.json(
-      { error: "Esta categoría vende cosas. Cambiala a «tiempo» para darle una agenda." },
-      { status: 409 },
-    );
+  if (!esUuid(id) || !(await recursoPropio(contexto, id))) {
+    return NextResponse.json({ error: "El recurso no es válido." }, { status: 404 });
   }
 
   const entrada = await leerJson(solicitud);
@@ -97,23 +91,18 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
   const errores: Record<string, string> = {};
   const duracion = numeroEnRango(datos.duracionMinutos, "duracion_minutos");
   if (duracion === null) errores.duracionMinutos = "La duración va entre 5 y 480 minutos.";
-
   const cupo = numeroEnRango(datos.cupoPorFranja, "cupo_por_franja");
   if (cupo === null) errores.cupoPorFranja = "El cupo va entre 1 y 50.";
-
   const anticipacion = numeroEnRango(datos.anticipacionMinimaHoras, "anticipacion_minima_horas");
   if (anticipacion === null) errores.anticipacionMinimaHoras = "La anticipación va entre 0 y 168 horas.";
-
   const dias = numeroEnRango(datos.diasMaximos, "dias_maximos");
   if (dias === null) errores.diasMaximos = "Los días van entre 1 y 180.";
 
   const semana = validarFranjas(datos.franjas);
   if (!semana.correcto) Object.assign(errores, semana.errores);
 
-  /* La comprobación se escribe sobre los valores y no sobre la cuenta de errores
-     para que el sistema de tipos vea que después de acá ninguno es nulo. Con
-     `Object.keys(errores).length > 0` el resultado es el mismo en ejecución,
-     pero habría que afirmarlo con un `as` en cada campo. */
+  /* Sobre los valores y no sobre la cuenta de errores, para que el sistema de
+     tipos vea que después de acá ninguno es nulo. */
   if (
     duracion === null ||
     cupo === null ||
@@ -125,10 +114,10 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
   }
 
   const { data, error } = await contexto.supabase
-    .from("agenda_categoria")
+    .from("agenda_recurso")
     .upsert(
       {
-        categoria_id: id,
+        recurso_id: id,
         negocio_id: contexto.negocio.id,
         duracion_minutos: duracion,
         cupo_por_franja: cupo,
@@ -137,7 +126,7 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
         franjas: semana.franjas,
         actualizado_en: new Date().toISOString(),
       },
-      { onConflict: "categoria_id" },
+      { onConflict: "recurso_id" },
     )
     .select(COLUMNAS)
     .maybeSingle();

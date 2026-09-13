@@ -29,19 +29,17 @@ export function AccionProducto({
      que es donde está el calendario, en vez de meter «1 consulta» en el carrito
      sin día ni hora.
 
-     El botón dice cuándo es el próximo turno cuando se sabe. Ese es el punto de
-     tener un calendario: que la disponibilidad se vea **antes** de entrar, no
-     después. */
+     Dice solo «Agendar», sin adelantar el próximo horario: el dueño lo pidió
+     así, y la disponibilidad se mira adentro, donde están todos los días. */
   if (producto.vendeTiempo) {
-    const proximo = producto.proximoTurno;
     return (
       <button
-        aria-label={`Ver horarios de ${producto.nombre}`}
+        aria-label={`Agendar ${producto.nombre}`}
         disabled={demostracion}
         onClick={() => alVerProducto?.(producto.id)}
         type="button"
       >
-        {proximo ? `Agendar · ${proximo}` : "Ver horarios"}
+        Agendar
       </button>
     );
   }

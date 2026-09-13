@@ -14,8 +14,6 @@ import {
 import { obtenerUrlPublicaImagenProducto } from "./imagenes-publicas";
 import { obtenerRedesSociales } from "../negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
-import { leerFranjas } from "../agenda/franjas";
-import { proximosDias, type Agenda, type Ocupado } from "../agenda/horarios";
 import { leerAtributos, type Atributo } from "./atributos";
 import { ICONO_PREDETERMINADO, normalizarIcono } from "./categorias";
 import { lineaDeTarjeta, valoresParaMostrar } from "./valores";
@@ -74,24 +72,6 @@ export type AtributoPublico = {
   orden: number;
 };
 
-export type AgendaPublica = {
-  categoria_id: string;
-  duracion_minutos: number;
-  cupo_por_franja: number;
-  anticipacion_minima_horas: number;
-  dias_maximos: number;
-  franjas: unknown;
-};
-
-/* Lo ocupado en el calendario de cada categoría. Rangos y número de cupo, nunca
-   de quién son: las citas guardan datos de personas y `anon` no las lee. */
-export type OcupacionPublica = {
-  categoria_id: string;
-  inicio: string;
-  fin: string;
-  cupo: number;
-};
-
 export type VariantePublica = {
   id: string;
   producto_id: string;
@@ -128,17 +108,6 @@ type ProductoPublico = {
   duracion_minutos?: number | null;
 };
 
-/* «Sáb 19» para la tarjeta. Se arma desde el texto de la fecha y no con
-   `toLocaleDateString` porque esa lo interpretaría en la zona de quien mira: el
-   servidor corre en UTC y mostraría el día anterior toda la tarde. */
-const DIAS_CORTOS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-
-function rotuloCorto(fecha: string): string {
-  const [, , dia] = fecha.split("-");
-  const diaSemana = new Date(`${fecha}T00:00:00Z`).getUTCDay();
-  return `${DIAS_CORTOS[diaSemana]} ${Number(dia)}`;
-}
-
 export function obtenerTextoHorario(horario: unknown) {
   return evaluarHorario(horario).texto;
 }
@@ -153,8 +122,6 @@ export function construirCatalogoPublico(
   promociones: PromocionPrecio[] = [],
   atributos: AtributoPublico[] = [],
   variantes: VariantePublica[] = [],
-  agendas: AgendaPublica[] = [],
-  ocupacion: OcupacionPublica[] = [],
 ): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
   /* Agrupadas por producto una sola vez, por lo mismo que los campos: filtrar la
      lista entera por cada producto sería recorrerla cuarenta veces. */
@@ -174,38 +141,6 @@ export function construirCatalogoPublico(
   const vendenTiempo = new Set(
     categorias.filter((categoria) => categoria.vende === "tiempo").map(({ id }) => id),
   );
-
-  /* Las agendas por categoría y los cupos ya tomados por producto. Con los dos
-     se calcula el próximo turno libre de cada servicio sin una consulta por
-     tarjeta: el trabajo de armarlos se hace una vez para todo el catálogo. */
-  const agendaPorCategoria = new Map<string, Agenda>();
-  for (const fila of agendas) {
-    const franjas = leerFranjas(fila.franjas);
-    if (franjas.length === 0) continue;
-    agendaPorCategoria.set(fila.categoria_id, {
-      duracionMinutos: Number(fila.duracion_minutos),
-      cupoPorFranja: Number(fila.cupo_por_franja),
-      anticipacionMinimaHoras: Number(fila.anticipacion_minima_horas),
-      diasMaximos: Number(fila.dias_maximos),
-      franjas,
-    });
-  }
-
-  /* Lo ocupado se agrupa **por categoría**, no por producto: el calendario es del
-     profesional, y el profesional atiende todos los servicios de su categoría.
-     Agruparlo por producto era el defecto que dejaba dos citas a la misma hora. */
-  const ocupadoPorCategoria = new Map<string, Ocupado[]>();
-  for (const fila of ocupacion) {
-    const lista = ocupadoPorCategoria.get(fila.categoria_id) ?? [];
-    lista.push({
-      /* Se normalizan los instantes: Postgres devuelve «+00:00» y el cálculo
-         trabaja con «Z». */
-      inicio: new Date(fila.inicio).toISOString(),
-      fin: new Date(fila.fin).toISOString(),
-      cupo: Number(fila.cupo),
-    });
-    ocupadoPorCategoria.set(fila.categoria_id, lista);
-  }
 
   const atributosPorCategoria = new Map<string, Atributo[]>();
   for (const fila of [...atributos].sort((a, b) => a.orden - b.orden)) {
@@ -231,31 +166,6 @@ export function construirCatalogoPublico(
   const subcategoriasOrdenadas = [...subcategorias].sort(
     (a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre),
   );
-  /* El primer horario con lugar, de los próximos días. Se corta en el primero:
-     la tarjeta muestra uno, y recorrer el mes entero por cada producto sería
-     trabajo para una respuesta que no se usa. */
-  const proximoTurnoDe = (producto: ProductoPublico): string | null => {
-    const base = agendaPorCategoria.get(producto.categoria_id ?? "");
-    if (!base) return null;
-    /* La duración del producto manda sobre la de su categoría: una valoración de
-       una hora y una vacunación de quince minutos comparten calendario pero no
-       duran lo mismo. */
-    const agenda = producto.duracion_minutos
-      ? { ...base, duracionMinutos: Number(producto.duracion_minutos) }
-      : base;
-    const dias = proximosDias(
-      agenda,
-      ocupadoPorCategoria.get(producto.categoria_id ?? "") ?? [],
-      fecha,
-      7,
-    );
-    for (const dia of dias) {
-      const libre = dia.horarios.find((horario) => horario.libres > 0);
-      if (libre) return `${rotuloCorto(dia.fecha)}, ${libre.hora}`;
-    }
-    return null;
-  };
-
   const convertirProducto = (producto: ProductoPublico) => {
     const definiciones = atributosPorCategoria.get(producto.categoria_id ?? "") ?? [];
     const precioCalculado = calcularPrecioProducto(
@@ -313,7 +223,6 @@ export function construirCatalogoPublico(
       /* Resueltos acá y no en la plantilla: así ninguna necesita conocer los
          tipos, las unidades ni qué campo va en qué lugar. */
       vendeTiempo: vendenTiempo.has(producto.categoria_id ?? ""),
-      proximoTurno: proximoTurnoDe(producto),
       lineaAtributos: lineaDeTarjeta(definiciones, producto.atributos),
       especificaciones: valoresParaMostrar(definiciones, producto.atributos, "ficha"),
       /* El precio se resuelve acá: el propio de la presentación, o el del

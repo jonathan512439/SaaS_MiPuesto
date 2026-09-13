@@ -41,7 +41,6 @@ function producto(indice: number, datos: ProductoDemo): ProductoPlantilla {
     codigo: `PRD-DEMO${String(indice).padStart(2, "0")}`,
     variantes: [],
     vendeTiempo: false,
-    proximoTurno: null,
     lineaAtributos:
       datos.datosPropios && datos.datosPropios.length > 0
         ? datos.datosPropios.map(({ texto }) => texto).join(" · ")

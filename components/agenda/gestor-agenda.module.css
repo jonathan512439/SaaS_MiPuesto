@@ -1,0 +1,288 @@
+@reference "../../app/globals.css";
+
+.pantalla {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.bloque {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-5);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.cabecera {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.cabecera h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-titulo);
+}
+
+.cabecera p,
+.vacio,
+.ayuda {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+/* ── Recursos ─────────────────────────────────────────────────────────── */
+
+.recursos {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recurso {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-lienzo);
+}
+
+.recursoCabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.recursoCabecera > div:first-child {
+  display: grid;
+  flex: 1 1 var(--spacing-32);
+  gap: var(--spacing-1);
+}
+
+.recursoCabecera strong {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+}
+
+.recursoCabecera small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+/* El interruptor de reservas, con su rótulo cambiando. Se lee el estado sin
+   tener que interpretar una casilla marcada o no. */
+.interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.interruptor input {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  accent-color: var(--color-marca);
+}
+
+/* Cuando las reservas están apagadas se dice en una franja de alerta tenue: no
+   es un error, es un estado que el dueño eligió y que conviene que vea. */
+.apagado {
+  margin: 0;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-control);
+  background: var(--color-alerta-tenue);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.nuevo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--spacing-3);
+}
+
+/* ── Cronograma ───────────────────────────────────────────────────────── */
+
+/* Los días en una fila que se desplaza de costado. Es el único desplazamiento
+   horizontal admitido: catorce días apilados empujarían el cronograma fuera. */
+.dias {
+  display: flex;
+  gap: var(--spacing-2);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-1);
+}
+
+.dia,
+.diaActivo {
+  display: grid;
+  flex-shrink: 0;
+  gap: var(--spacing-1);
+  min-height: var(--control-alto);
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dia small,
+.diaActivo small {
+  font-size: var(--text-xs);
+  font-weight: 800;
+  opacity: 0.8;
+}
+
+.diaActivo {
+  border-color: var(--color-marca);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.accionesDia {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.formulario {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-marca);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-marca-tenue);
+}
+
+.formulario h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+}
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
+  gap: var(--spacing-3);
+}
+
+.accionesFormulario {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--spacing-3);
+}
+
+.citas {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cada turno con la hora primero: es lo que el dueño busca al abrir. */
+.cita {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-left-width: var(--spacing-1);
+  border-radius: var(--radius-tarjeta);
+  background: var(--color-superficie);
+}
+
+/* El borde izquierdo dice el estado sin leerlo: el pendiente pide atención, el
+   confirmado ya está, el cancelado se apaga. */
+.cita[data-estado="pendiente"] {
+  border-left-color: var(--color-alerta);
+}
+
+.cita[data-estado="confirmada"] {
+  border-left-color: var(--color-marca);
+}
+
+.cita[data-estado="cancelada"],
+.cita[data-estado="cumplida"] {
+  border-left-color: var(--color-borde);
+  opacity: 0.7;
+}
+
+.cuando {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-2) var(--spacing-3);
+}
+
+.cuando strong {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+}
+
+.cuando span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.quien {
+  display: grid;
+  gap: var(--spacing-1);
+  font-size: var(--text-sm);
+}
+
+.quien a {
+  color: var(--color-marca);
+  font-weight: 800;
+  justify-self: start;
+}
+
+.quien span,
+.quien em {
+  color: var(--color-texto-suave);
+  font-style: normal;
+  line-height: 1.5;
+}
+
+/* La nota del dueño se distingue de lo que escribió el cliente: una es un
+   recordatorio propio y la otra un pedido ajeno. */
+.notaInterna {
+  padding: var(--spacing-2) var(--spacing-3);
+  border-left: var(--spacing-1) solid var(--color-marca);
+  background: var(--color-marca-tenue);
+  color: var(--color-texto) !important;
+}
+
+.estado {
+  justify-self: start;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}

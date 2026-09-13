@@ -111,10 +111,10 @@ export async function POST(
       .insert({
         negocio_id: negocio.id,
         producto_id: producto.id,
-        /* La categoría va en la fila porque es **la dueña del calendario**: la
-           restricción de exclusión mira esta columna, y sin ella dos servicios
-           del mismo profesional volverían a poder pisarse. */
         categoria_id: producto.categoriaId,
+        /* El recurso es la dueña del calendario: la restricción de exclusión
+           mira esta columna. La categoría se guarda igual, para agrupar. */
+        recurso_id: producto.recursoId,
         rango: `[${rango.inicio},${rango.fin})`,
         cupo,
         nombre_cliente: nombre,
@@ -175,7 +175,7 @@ export async function POST(
   /* Se acabaron los cupos de esa franja mientras esta persona elegía. Se
      devuelven los horarios al día para que pueda elegir otro sin recargar. */
   const hasta = new Date(ahora.getTime() + (producto.agenda.diasMaximos + 1) * 86_400_000);
-  const ocupados = await obtenerOcupacion(supabase, producto.categoriaId, ahora, hasta);
+  const ocupados = await obtenerOcupacion(supabase, producto.recursoId, ahora, hasta);
   return NextResponse.json(
     {
       error: "Ese horario se acaba de ocupar. Elegí otro.",

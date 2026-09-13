@@ -46,6 +46,8 @@ export type ProductoCatalogo = {
      `lib/catalogo/valores.ts` con las definiciones al lado, y declararlo acá
      sería afirmar sobre datos que todavía no se validaron. */
   atributos: unknown;
+  /* Quién atiende este servicio. Nulo en productos que venden cosas. */
+  recurso_id: string | null;
   /* Cuánto dura este servicio, si su categoría vende tiempo. Nulo significa «la
      de su categoría», que es lo normal: el dueño solo la escribe donde de verdad
      es distinta. */
@@ -61,6 +63,7 @@ export type DatosProductoEntrada = {
   controla_stock: boolean;
   cantidad_stock: number | null;
   duracion_minutos: number | null;
+  recurso_id: string | null;
 };
 
 export type DatosCatalogoAdmin = {
@@ -74,6 +77,8 @@ export type DatosCatalogoAdmin = {
   categorias: CategoriaCatalogo[];
   subcategorias: SubcategoriaCatalogo[];
   productos: ProductoCatalogo[];
+  /* Quién atiende: los recursos del negocio, para que un servicio elija el suyo. */
+  recursos: Array<{ id: string; nombre: string; activo: boolean }>;
   /* Las definiciones de campos de todas las categorías, tal como vienen de la
      base. Se agrupan en el cliente: son diez filas por categoría y el formulario
      necesita cambiar de conjunto en cuanto el dueño elige otra categoría. */

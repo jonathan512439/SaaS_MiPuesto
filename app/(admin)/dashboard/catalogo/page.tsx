@@ -39,6 +39,7 @@ export default async function PaginaCatalogo() {
   const [
     resultadoCategorias,
     resultadoAtributos,
+    resultadoRecursos,
     resultadoSubcategorias,
     resultadoProductos,
     resultadoPapelera,
@@ -60,6 +61,12 @@ export default async function PaginaCatalogo() {
       )
       .eq("negocio_id", negocio.id)
       .order("orden"),
+    supabase
+      .from("recursos")
+      .select("id,nombre,activo")
+      .eq("negocio_id", negocio.id)
+      .order("orden")
+      .order("nombre"),
     supabase
       .from("subcategorias")
       .select("id,categoria_id,nombre,orden,categorias!inner(negocio_id)")
@@ -175,6 +182,7 @@ export default async function PaginaCatalogo() {
           subcategorias: subcategorias as SubcategoriaCatalogo[],
           productos: (resultadoProductos.data ?? []) as ProductoCatalogo[],
           atributos: resultadoAtributos.data ?? [],
+          recursos: resultadoRecursos.data ?? [],
         }}
         urlSupabase={url}
       />

@@ -34,8 +34,8 @@ function comprobar(condicion, mensaje) {
   if (!condicion) throw new Error(`RLS multi-tenant: ${mensaje}`);
 }
 
-/* `clave` porque no toda tabla se identifica con `id`: `agenda_categoria` usa
-   `categoria_id`, que es su clave primaria y su clave foránea al mismo tiempo. */
+/* `clave` porque no toda tabla se identifica con `id`: `agenda_recurso` usa
+   `recurso_id`, que es su clave primaria y su clave foránea al mismo tiempo. */
 async function insertarUno(cliente, tabla, valores, clave = "id") {
   const { data, error } = await cliente.from(tabla).insert(valores).select(clave).single();
   if (error || !data) {
@@ -173,19 +173,27 @@ try {
     producto_id: productoB.id,
     nombre: "M",
   });
-  /* La agenda y las citas entran a la comprobación con el resto. Las citas
-     guardan nombre y teléfono, así que además de aislarlas entre negocios hay
-     que comprobar que un dueño no pueda leer las de otro. */
-  await insertarUno(clienteA, "agenda_categoria", {
-    categoria_id: categoriaA.id,
+  /* Los recursos —quién atiende— y su agenda entran a la comprobación con el
+     resto. Las citas guardan nombre y teléfono, así que además de aislarlas
+     entre negocios hay que comprobar que un dueño no pueda leer las de otro. */
+  const recursoA = await insertarUno(clienteA, "recursos", {
+    negocio_id: negocios[0].id,
+    nombre: "Recurso A",
+  });
+  const recursoB = await insertarUno(clienteB, "recursos", {
+    negocio_id: negocios[1].id,
+    nombre: "Recurso B",
+  });
+  await insertarUno(clienteA, "agenda_recurso", {
+    recurso_id: recursoA.id,
     negocio_id: negocios[0].id,
     franjas: [{ dia: 1, desde: "09:00", hasta: "12:00" }],
-  }, "categoria_id");
-  const agendaB = await insertarUno(clienteB, "agenda_categoria", {
-    categoria_id: categoriaB.id,
+  }, "recurso_id");
+  const agendaB = await insertarUno(clienteB, "agenda_recurso", {
+    recurso_id: recursoB.id,
     negocio_id: negocios[1].id,
     franjas: [{ dia: 1, desde: "09:00", hasta: "12:00" }],
-  }, "categoria_id");
+  }, "recurso_id");
 
   const cuando = new Date(Date.now() + 600 * 24 * 3600_000);
   cuando.setUTCMinutes(0, 0, 0);
@@ -194,6 +202,7 @@ try {
     negocio_id: negocios[0].id,
     producto_id: productoA.id,
     categoria_id: categoriaA.id,
+    recurso_id: recursoA.id,
     rango: rangoCita,
     nombre_cliente: "Cliente A",
     telefono_cliente: "59170000000",
@@ -202,6 +211,7 @@ try {
     negocio_id: negocios[1].id,
     producto_id: productoB.id,
     categoria_id: categoriaB.id,
+    recurso_id: recursoB.id,
     rango: rangoCita,
     nombre_cliente: "Cliente B",
     telefono_cliente: "59170000001",
@@ -267,6 +277,7 @@ try {
     subcategorias: subcategoriaB.id,
     atributos_categoria: atributoB.id,
     variantes_producto: varianteB.id,
+    recursos: recursoB.id,
     citas: citaB.id,
     productos: productoB.id,
     promociones: promocionB.id,
@@ -280,6 +291,7 @@ try {
     subcategorias: { nombre: "Intento ajeno" },
     atributos_categoria: { nombre: "Intento ajeno" },
     variantes_producto: { nombre: "Intento ajeno" },
+    recursos: { nombre: "Intento ajeno" },
     citas: { nombre_cliente: "Intento ajeno" },
     productos: { nombre: "Intento ajeno" },
     promociones: { activo: false },
@@ -288,24 +300,24 @@ try {
     eventos_analitica: { tipo: "clic_whatsapp" },
   };
 
-  /* `agenda_categoria` se comprueba aparte porque **su clave es `categoria_id`**,
+  /* `agenda_recurso` se comprueba aparte porque **su clave es `recurso_id`**,
      no `id`, y el arnés genérico compara por `id`. Forzarla ahí adentro habría
      pedido un caso especial dentro de la función que revisa a todas; es más
      claro un bloque propio de cuatro líneas que una rama que solo usa una. */
   const lecturaAgenda = await clienteA
-    .from("agenda_categoria")
-    .select("categoria_id")
-    .eq("categoria_id", agendaB.categoria_id);
-  comprobar(!lecturaAgenda.error, "agenda_categoria: la lectura ajena produjo un error inesperado");
-  comprobar(lecturaAgenda.data?.length === 0, "agenda_categoria: A pudo leer la agenda de B");
+    .from("agenda_recurso")
+    .select("recurso_id")
+    .eq("recurso_id", agendaB.recurso_id);
+  comprobar(!lecturaAgenda.error, "agenda_recurso: la lectura ajena produjo un error inesperado");
+  comprobar(lecturaAgenda.data?.length === 0, "agenda_recurso: A pudo leer la agenda de B");
 
   const escrituraAgenda = await clienteA
-    .from("agenda_categoria")
+    .from("agenda_recurso")
     .update({ duracion_minutos: 15 })
-    .eq("categoria_id", agendaB.categoria_id)
-    .select("categoria_id");
-  comprobar(!escrituraAgenda.error, "agenda_categoria: la escritura ajena produjo un error inesperado");
-  comprobar(escrituraAgenda.data?.length === 0, "agenda_categoria: A pudo cambiar la agenda de B");
+    .eq("recurso_id", agendaB.recurso_id)
+    .select("recurso_id");
+  comprobar(!escrituraAgenda.error, "agenda_recurso: la escritura ajena produjo un error inesperado");
+  comprobar(escrituraAgenda.data?.length === 0, "agenda_recurso: A pudo cambiar la agenda de B");
 
   for (const tabla of Object.keys(filasB)) {
     await comprobarAislamiento(
@@ -557,7 +569,7 @@ try {
   );
 
   console.log(
-    "RLS multi-tenant: 2 usuarios, 11 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([

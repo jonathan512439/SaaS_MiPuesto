@@ -43,11 +43,6 @@ export type ProductoPlantilla = {
      vez del selector de cantidad: son dos formas de comprar distintas y ninguna
      pantalla tiene que decidirlo mirando otra cosa. */
   vendeTiempo: boolean;
-  /* El próximo turno libre, ya escrito como se lee: «Sáb 19, 09:00». Va en la
-     tarjeta para que la disponibilidad se vea **sin abrir la ficha**, que es
-     para lo que existe un calendario. Nulo cuando no hay ninguno a la vista, y
-     entonces la tarjeta dice eso en vez de mentir con una hora vieja. */
-  proximoTurno: string | null;
   variantes: Array<{
     id: string;
     nombre: string;

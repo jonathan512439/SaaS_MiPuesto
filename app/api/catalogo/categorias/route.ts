@@ -142,6 +142,23 @@ export async function PATCH(solicitud: NextRequest) {
     if (error || !data) {
       return NextResponse.json({ error: "No se pudo actualizar la categoría." }, { status: 404 });
     }
+
+    /* Al pasar a vender tiempo, si el negocio todavía no tiene a nadie que
+       atienda, se crea un recurso con el nombre de la categoría. Sin esto el
+       dueño llega a Agenda y encuentra una pantalla vacía sin saber por qué sus
+       servicios no se pueden agendar; con esto ya tiene dónde poner el horario y
+       lo renombra si quiere. */
+    if (cambios.vende === "tiempo") {
+      const { count } = await contexto.supabase
+        .from("recursos")
+        .select("id", { count: "exact", head: true })
+        .eq("negocio_id", contexto.negocio.id);
+      if ((count ?? 0) === 0) {
+        await contexto.supabase
+          .from("recursos")
+          .insert({ negocio_id: contexto.negocio.id, nombre: data.nombre });
+      }
+    }
     return NextResponse.json({ categoria: data });
   }
 

@@ -9,7 +9,6 @@ function producto(cambios: Partial<ProductoPlantilla> = {}): ProductoPlantilla {
     lineaAtributos: null,
   variantes: [],
   vendeTiempo: false,
-  proximoTurno: null,
   especificaciones: [],
   codigo: "PRD-1",
     nombre: "Coca Cola 2 L",

@@ -14,50 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
-      agenda_categoria: {
+      agenda_recurso: {
         Row: {
           actualizado_en: string
           anticipacion_minima_horas: number
-          categoria_id: string
           cupo_por_franja: number
           dias_maximos: number
           duracion_minutos: number
           franjas: Json
           negocio_id: string
+          recurso_id: string
         }
         Insert: {
           actualizado_en?: string
           anticipacion_minima_horas?: number
-          categoria_id: string
           cupo_por_franja?: number
           dias_maximos?: number
           duracion_minutos?: number
           franjas?: Json
           negocio_id: string
+          recurso_id: string
         }
         Update: {
           actualizado_en?: string
           anticipacion_minima_horas?: number
-          categoria_id?: string
           cupo_por_franja?: number
           dias_maximos?: number
           duracion_minutos?: number
           franjas?: Json
           negocio_id?: string
+          recurso_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "agenda_categoria_negocio_id_fkey"
+            foreignKeyName: "agenda_recurso_negocio_id_fkey"
             columns: ["negocio_id"]
             isOneToOne: false
             referencedRelation: "negocios"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "agenda_padre"
-            columns: ["categoria_id", "negocio_id"]
+            foreignKeyName: "agenda_recurso_padre"
+            columns: ["recurso_id", "negocio_id"]
             isOneToOne: false
-            referencedRelation: "categorias"
+            referencedRelation: "recursos"
             referencedColumns: ["id", "negocio_id"]
           },
         ]
@@ -201,7 +201,7 @@ export type Database = {
       citas: {
         Row: {
           cancelado_en: string | null
-          categoria_id: string
+          categoria_id: string | null
           codigo: string
           creado_en: string
           cupo: number
@@ -211,13 +211,16 @@ export type Database = {
           negocio_id: string
           nombre_cliente: string
           nota: string | null
-          producto_id: string
+          nota_interna: string | null
+          origen: string
+          producto_id: string | null
           rango: unknown
-          telefono_cliente: string
+          recurso_id: string
+          telefono_cliente: string | null
         }
         Insert: {
           cancelado_en?: string | null
-          categoria_id: string
+          categoria_id?: string | null
           codigo?: string
           creado_en?: string
           cupo?: number
@@ -227,13 +230,16 @@ export type Database = {
           negocio_id: string
           nombre_cliente: string
           nota?: string | null
-          producto_id: string
+          nota_interna?: string | null
+          origen?: string
+          producto_id?: string | null
           rango: unknown
-          telefono_cliente: string
+          recurso_id: string
+          telefono_cliente?: string | null
         }
         Update: {
           cancelado_en?: string | null
-          categoria_id?: string
+          categoria_id?: string | null
           codigo?: string
           creado_en?: string
           cupo?: number
@@ -243,9 +249,12 @@ export type Database = {
           negocio_id?: string
           nombre_cliente?: string
           nota?: string | null
-          producto_id?: string
+          nota_interna?: string | null
+          origen?: string
+          producto_id?: string | null
           rango?: unknown
-          telefono_cliente?: string
+          recurso_id?: string
+          telefono_cliente?: string | null
         }
         Relationships: [
           {
@@ -267,6 +276,13 @@ export type Database = {
             columns: ["producto_id", "negocio_id"]
             isOneToOne: false
             referencedRelation: "productos"
+            referencedColumns: ["id", "negocio_id"]
+          },
+          {
+            foreignKeyName: "citas_recurso_padre"
+            columns: ["recurso_id", "negocio_id"]
+            isOneToOne: false
+            referencedRelation: "recursos"
             referencedColumns: ["id", "negocio_id"]
           },
         ]
@@ -718,6 +734,7 @@ export type Database = {
           precio_actualizado_en: string | null
           precio_actualizado_por: string | null
           precio_anterior: number | null
+          recurso_id: string | null
           reservado_hasta: string | null
           subcategoria_id: string | null
           texto_busqueda: string | null
@@ -745,6 +762,7 @@ export type Database = {
           precio_actualizado_en?: string | null
           precio_actualizado_por?: string | null
           precio_anterior?: number | null
+          recurso_id?: string | null
           reservado_hasta?: string | null
           subcategoria_id?: string | null
           texto_busqueda?: string | null
@@ -772,6 +790,7 @@ export type Database = {
           precio_actualizado_en?: string | null
           precio_actualizado_por?: string | null
           precio_anterior?: number | null
+          recurso_id?: string | null
           reservado_hasta?: string | null
           subcategoria_id?: string | null
           texto_busqueda?: string | null
@@ -791,6 +810,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "negocios"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "productos_recurso"
+            columns: ["recurso_id", "negocio_id"]
+            isOneToOne: false
+            referencedRelation: "recursos"
+            referencedColumns: ["id", "negocio_id"]
           },
           {
             foreignKeyName: "productos_subcategoria_id_fkey"
@@ -864,6 +890,44 @@ export type Database = {
             columns: ["producto_id"]
             isOneToOne: false
             referencedRelation: "productos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recursos: {
+        Row: {
+          acepta_reservas: boolean
+          activo: boolean
+          creado_en: string
+          id: string
+          negocio_id: string
+          nombre: string
+          orden: number
+        }
+        Insert: {
+          acepta_reservas?: boolean
+          activo?: boolean
+          creado_en?: string
+          id?: string
+          negocio_id: string
+          nombre: string
+          orden?: number
+        }
+        Update: {
+          acepta_reservas?: boolean
+          activo?: boolean
+          creado_en?: string
+          id?: string
+          negocio_id?: string
+          nombre?: string
+          orden?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recursos_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
             referencedColumns: ["id"]
           },
         ]
@@ -1078,18 +1142,9 @@ export type Database = {
         Args: { p_limite?: number }
         Returns: number
       }
-      ocupacion_categoria: {
-        Args: { p_categoria_id: string; p_desde: string; p_hasta: string }
+      ocupacion_recurso: {
+        Args: { p_desde: string; p_hasta: string; p_recurso_id: string }
         Returns: {
-          cupo: number
-          fin: string
-          inicio: string
-        }[]
-      }
-      ocupacion_negocio: {
-        Args: { p_desde: string; p_hasta: string; p_negocio_id: string }
-        Returns: {
-          categoria_id: string
           cupo: number
           fin: string
           inicio: string

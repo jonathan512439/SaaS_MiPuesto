@@ -206,9 +206,26 @@ a `(categoria_id, cupo, rango)` y `cupo_por_franja` significa cuántos
 profesionales o consultorios hay. La duración bajó al producto, para que una
 valoración de una hora y una vacunación de quince minutos compartan calendario.
 
-Si algún día hace falta «dos doctores pero solo uno pone vacunas», eso es un
-recurso explícito y se agrega encima sin deshacer esto: la categoría queda como
-el recurso por omisión.
+**Y la tercera, del mismo día: el recurso explícito.** La categoría tampoco
+era el calendario. En una veterinaria, «Consultas» agrupa la consulta del doctor
+y el baño del peluquero porque al cliente le resulta natural buscarlos juntos,
+pero son dos agendas. Son dos ejes distintos y quedaron separados:
+
+| Eje | Para qué | Quién lo decide |
+|---|---|---|
+| Categoría | Cómo navega el cliente: las esferas | El marketing del negocio |
+| Recurso | Quién hace el trabajo: el doctor, el consultorio | La realidad del local |
+
+La exclusión es `(recurso_id, cupo, rango)`. El horario es del recurso —el
+peluquero viene los sábados y el doctor no—. Cada producto dice quién lo
+atiende. Y el dueño tiene una pantalla de **Agenda** con: quién atiende y
+cuándo, un interruptor para apagar las reservas de alguien, el cronograma de los
+próximos catorce días, y la carga a mano con nota interna para lo que llega por
+teléfono o para bloquear una hora.
+
+Lo que llega del catálogo entra **sin confirmar**. El dueño lo confirma si le
+parece serio o lo cancela y la hora vuelve a ofrecerse. Nada queda aceptado sin
+que él lo haya visto.
 
 **Criterio de salida:** en producción, dos teléfonos piden el mismo horario a la
 vez y solo uno lo consigue. **Probado a mano, no solo en pruebas.**

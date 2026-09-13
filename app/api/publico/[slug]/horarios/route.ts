@@ -44,7 +44,7 @@ export async function GET(
 
   const ahora = new Date();
   const hasta = new Date(ahora.getTime() + (producto.agenda.diasMaximos + 1) * 86_400_000);
-  const ocupados = await obtenerOcupacion(supabase, producto.categoriaId, ahora, hasta);
+  const ocupados = await obtenerOcupacion(supabase, producto.recursoId, ahora, hasta);
 
   return NextResponse.json({
     dias: proximosDias(producto.agenda, ocupados, ahora),

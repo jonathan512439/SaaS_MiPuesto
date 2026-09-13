@@ -52,6 +52,7 @@ export async function POST(solicitud: NextRequest) {
     contexto.negocio.id,
     validacion.datos.categoria_id,
     validacion.datos.subcategoria_id,
+    validacion.datos.recurso_id,
   );
   if (errorJerarquia) return NextResponse.json({ error: errorJerarquia }, { status: 400 });
 
@@ -231,6 +232,7 @@ export async function PATCH(solicitud: NextRequest) {
     contexto.negocio.id,
     validacion.datos.categoria_id,
     validacion.datos.subcategoria_id,
+    validacion.datos.recurso_id,
   );
   if (errorJerarquia) return NextResponse.json({ error: errorJerarquia }, { status: 400 });
 

@@ -57,6 +57,7 @@ export async function validarJerarquiaProducto(
   negocioId: string,
   categoriaId: string | null,
   subcategoriaId: string | null,
+  recursoId: string | null = null,
 ) {
   if (categoriaId) {
     const { data: categoria, error } = await supabase
@@ -79,6 +80,19 @@ export async function validarJerarquiaProducto(
     if (error || !subcategoria) {
       return "La subcategoría seleccionada no pertenece a la categoría indicada.";
     }
+  }
+
+  /* Quién atiende tiene que ser de este negocio. Es la misma comprobación que
+     las dos de arriba: la base la haría igual por la clave foránea compuesta,
+     pero el mensaje de la base no lo entiende nadie. */
+  if (recursoId) {
+    const { data: recurso, error } = await supabase
+      .from("recursos")
+      .select("id")
+      .eq("id", recursoId)
+      .eq("negocio_id", negocioId)
+      .maybeSingle();
+    if (error || !recurso) return "El recurso elegido no pertenece a tu negocio.";
   }
 
   return "";

@@ -43,6 +43,7 @@ const ICONOS = {
   codigoQr: "qr-code",
   carpeta: "folder",
   telefono: "phone",
+  calendario: "calendar",
 };
 
 /* Lucide dibuja sobre un lienzo de 24 con el trazo en `currentColor`. Se guarda

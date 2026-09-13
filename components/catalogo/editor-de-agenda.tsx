@@ -6,7 +6,7 @@ import { DIAS, resumirFranjas, type Franja } from "../../lib/agenda/franjas";
 import { Boton, useAvisos } from "../ui";
 import styles from "./editor-de-agenda.module.css";
 
-/* Cuándo atiende una categoría que vende tiempo.
+/* Cuándo atiende un recurso: un profesional, un consultorio, una silla.
  *
  * El dueño escribe tramos —«lunes de 8:30 a 12:00»— y **nunca una lista de
  * horarios**. Los horarios concretos los calcula el servidor con la duración del
@@ -35,7 +35,7 @@ const PREDETERMINADO = {
   diasMaximos: "30",
 };
 
-export function EditorDeAgenda({ categoriaId }: { categoriaId: string }) {
+export function EditorDeAgenda({ recursoId }: { recursoId: string }) {
   const [ajustes, setAjustes] = useState(PREDETERMINADO);
   const [franjas, setFranjas] = useState<FranjaEnEdicion[] | null>(null);
   const [errores, setErrores] = useState<Record<string, string>>({});
@@ -46,7 +46,7 @@ export function EditorDeAgenda({ categoriaId }: { categoriaId: string }) {
     let vigente = true;
     void (async () => {
       try {
-        const respuesta = await fetch(`/api/catalogo/categorias/${categoriaId}/agenda`);
+        const respuesta = await fetch(`/api/catalogo/recursos/${recursoId}/agenda`);
         const datos = (await respuesta.json()) as { agenda?: AgendaGuardada | null };
         if (!vigente) return;
         const agenda = datos.agenda;
@@ -74,7 +74,7 @@ export function EditorDeAgenda({ categoriaId }: { categoriaId: string }) {
     return () => {
       vigente = false;
     };
-  }, [categoriaId]);
+  }, [recursoId]);
 
   if (franjas === null) {
     return <p className={styles.cargando}>Cargando el horario…</p>;
@@ -93,7 +93,7 @@ export function EditorDeAgenda({ categoriaId }: { categoriaId: string }) {
     setGuardando(true);
     setErrores({});
     try {
-      const respuesta = await fetch(`/api/catalogo/categorias/${categoriaId}/agenda`, {
+      const respuesta = await fetch(`/api/catalogo/recursos/${recursoId}/agenda`, {
         method: "PUT",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({

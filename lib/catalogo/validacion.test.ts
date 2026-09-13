@@ -42,6 +42,7 @@ describe("validación del catálogo", () => {
         controla_stock: false,
         cantidad_stock: null,
       duracion_minutos: null,
+      recurso_id: null,
       },
     });
   });

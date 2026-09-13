@@ -1140,3 +1140,29 @@
   font-size: var(--text-xs);
   line-height: 1.4;
 }
+
+/* El aviso de que los horarios se mudaron a Agenda. Está donde el dueño los va a
+   buscar primero —adentro de la categoría, que es donde estaban— y lo manda al
+   lugar nuevo en vez de dejarlo sin nada. */
+.avisoAgenda {
+  margin: var(--spacing-3) 0 0;
+  padding: var(--spacing-3);
+  border-radius: var(--radius-control);
+  background: var(--color-marca-tenue);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.avisoAgenda a {
+  color: var(--color-marca);
+  font-weight: 800;
+}
+
+/* Quién atiende y cuánto dura, lado a lado: son las dos preguntas de un
+   servicio y se contestan juntas. En el teléfono caen una debajo de la otra. */
+.filaDoble {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
+  gap: var(--spacing-3);
+}
