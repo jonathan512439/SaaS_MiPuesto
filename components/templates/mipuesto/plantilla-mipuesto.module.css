@@ -4,6 +4,11 @@
    con el ancho. Los colores salen de la paleta del negocio (`--catalogo-*`), el
    resto de los tokens del sistema. */
 .catalogo {
+  /* Aislado y con posición propia para que el patrón de categorías —que va en
+     `z-index: -1`— quede detrás del contenido pero delante del fondo que pinta
+     esta misma hoja, que es la única capa donde se lo ve. */
+  position: relative;
+  isolation: isolate;
   display: grid;
   gap: var(--spacing-5);
   max-width: 60rem;

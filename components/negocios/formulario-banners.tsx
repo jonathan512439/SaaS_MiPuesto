@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { MAXIMO_BANNERS, type Banner } from "../../lib/negocios/banners";
@@ -34,17 +34,23 @@ const VACIO: BannerEnEdicion = {
   enlace: "",
 };
 
-/* Los dos banners del catálogo.
+/* El banner del catálogo: una franja ancha antes del pie.
  *
- * El de arriba va debajo de la portada y el de abajo antes del pie. Se editan
- * los dos juntos y se guardan juntos, porque la posición es el orden: mandar el
- * segundo sin el primero dejaría un hueco que el arreglo no puede representar.
+ * Eran dos —uno también debajo de la portada— y ese se retiró del diseño. El
+ * formulario sigue recorriendo un arreglo de `MAXIMO_BANNERS` en vez de tratar
+ * uno suelto: el día que vuelva a haber dos, lo único que cambia es esa
+ * constante.
  */
 export function FormularioBanners({
   bannersIniciales,
   urlPorRuta,
+  alCambiar,
 }: {
   bannersIniciales: Banner[];
+  /* Avisa lo que hay en el formulario ahora mismo, para que la vista previa de
+     la pantalla lo dibuje mientras se escribe. La imagen va como dirección y no
+     como ruta del depósito: lo que se manda acá es para mirar, no para guardar. */
+  alCambiar?: (banners: Banner[]) => void;
   /* La dirección pública de cada ruta ya guardada. La arma el servidor, que es
      quien conoce la del proyecto: pedírsela al navegador sería repetir acá una
      regla que ya vive en `obtenerUrlPublicaImagenNegocio`. */
@@ -70,6 +76,25 @@ export function FormularioBanners({
   const [subiendo, setSubiendo] = useState<number | null>(null);
   const [guardando, setGuardando] = useState(false);
   const { mostrarAviso } = useAvisos();
+
+  /* En un efecto y no dentro de `cambiar`: así la vista previa también refleja
+     la imagen recién subida, que entra por otro camino. */
+  useEffect(() => {
+    if (!alCambiar) return;
+    alCambiar(
+      banners
+        .filter((banner) => banner.vistaPrevia !== null)
+        .map((banner) => ({
+          imagen: banner.vistaPrevia ?? "",
+          alt: banner.alt.trim(),
+          eyebrow: banner.eyebrow.trim() || null,
+          titulo: banner.titulo.trim() || null,
+          copy: banner.copy.trim() || null,
+          boton: banner.boton.trim() || null,
+          enlace: banner.enlace.trim() || null,
+        })),
+    );
+  }, [alCambiar, banners]);
 
   function cambiar(indice: number, cambio: Partial<BannerEnEdicion>) {
     setBanners((actuales) =>
@@ -154,7 +179,7 @@ export function FormularioBanners({
         setErrores(datos.errores ?? {});
         throw new Error(datos.error || "No se pudieron guardar los banners.");
       }
-      mostrarAviso({ titulo: "Banners guardados", variante: "exito" });
+      mostrarAviso({ titulo: "Banner guardado", variante: "exito" });
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudieron guardar los banners",
@@ -169,18 +194,17 @@ export function FormularioBanners({
   return (
     <form className={styles.seccion} onSubmit={guardar}>
       <header className={styles.cabecera}>
-        <h2>Banners del catálogo</h2>
+        <h2>Banner del catálogo</h2>
         <p>
-          Dos franjas anchas, opcionales: una debajo de la portada y otra antes del pie.
-          Sirven para una promoción, un aviso o publicidad de tu negocio.
+          Una franja ancha y opcional, antes del pie. Sirve para una promoción, un aviso
+          o publicidad de tu negocio. Lo que cargues acá se ve arriba, en la vista previa.
         </p>
       </header>
 
       {banners.map((banner, indice) => {
-        const posicion = indice === 0 ? "Arriba, debajo de la portada" : "Abajo, antes del pie";
         return (
           <fieldset className={styles.banner} disabled={guardando} key={indice}>
-            <legend>{posicion}</legend>
+            <legend>Antes del pie del catálogo</legend>
 
             <div className={styles.previa}>
               {banner.vistaPrevia ? (
@@ -316,7 +340,7 @@ export function FormularioBanners({
       {errores.banners ? <strong className={styles.error}>{errores.banners}</strong> : null}
 
       <Boton cargando={guardando} type="submit">
-        Guardar banners
+        Guardar el banner
       </Boton>
     </form>
   );

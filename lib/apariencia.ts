@@ -57,6 +57,9 @@ export const PALETAS = [
   "altiplano",
   "jazmin",
   "grafito",
+  "selva",
+  "cobre",
+  "pizarra",
 ] as const;
 
 export type PlantillaId = (typeof PLANTILLAS)[number];
@@ -170,6 +173,9 @@ export const DEFINICIONES_PALETAS: ReadonlyArray<{
   { id: "altiplano", nombre: "Altiplano", descripcion: "Violeta andino con acento carmín." },
   { id: "jazmin", nombre: "Jazmín", descripcion: "Ciruela suave con acento dorado." },
   { id: "grafito", nombre: "Grafito", descripcion: "Gris carbón con acento rojo." },
+  { id: "selva", nombre: "Selva", descripcion: "Verde bosque con acento ámbar." },
+  { id: "cobre", nombre: "Cobre", descripcion: "Cobre cálido con acento petróleo." },
+  { id: "pizarra", nombre: "Pizarra", descripcion: "Fondo oscuro frío con acento durazno." },
 ];
 
 export const COMBINACIONES_APARIENCIA = PLANTILLAS.flatMap((plantilla) =>

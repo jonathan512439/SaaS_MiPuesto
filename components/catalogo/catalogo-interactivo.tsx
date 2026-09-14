@@ -29,7 +29,7 @@ import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
 import { ColorNavegador } from "./color-navegador";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./catalogo-interactivo.module.css";
-import { patronDeRubro } from "../../lib/patrones-fondo";
+import { iconosDePatron, patronDeRubro } from "../../lib/patrones-fondo";
 
 type PropiedadesCatalogoInteractivo = {
   datos: DatosPlantilla;
@@ -216,8 +216,14 @@ export function CatalogoInteractivo({
       className={`${temaStyles.tema} ${styles.contenedor}`}
       data-acceso-carrito={cantidadEnCarrito > 0 ? "si" : undefined}
       data-paleta={paleta}
-      /* Sin atributo no hay patron: apagarlo es no ponerlo, no pintar encima. */
-      data-patron={datos.negocio.patronFondo ? patronDeRubro(datos.negocio.rubro) : undefined}
+      /* Sin atributo no hay patron: apagarlo es no ponerlo, no pintar encima.
+         Y el de rubro es el de reserva: si el negocio tiene categorias propias,
+         el fondo lo dibuja la plantilla con los iconos de esas categorias. */
+      data-patron={
+        datos.negocio.patronFondo && iconosDePatron(categoriasNavegacion).length === 0
+          ? patronDeRubro(datos.negocio.rubro)
+          : undefined
+      }
       /* Y cuanto se nota. Va junto al patron y no por separado: sin patron, la
          opacidad no tiene sobre que actuar. */
       data-patron-opacidad={datos.negocio.patronFondo ? datos.negocio.patronOpacidad : undefined}

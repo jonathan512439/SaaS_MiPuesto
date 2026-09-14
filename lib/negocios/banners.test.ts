@@ -74,7 +74,7 @@ describe("leerBanners", () => {
     expect(leerBanners([{ ...bueno, enlace: "http://ejemplo.com" }])[0].enlace).toBeNull();
   });
 
-  it("nunca devuelve más de dos, aunque la columna traiga más", () => {
+  it("nunca devuelve más del tope, aunque la columna traiga más", () => {
     expect(leerBanners([bueno, bueno, bueno, bueno])).toHaveLength(MAXIMO_BANNERS);
   });
 
@@ -96,26 +96,26 @@ describe("validarBanners", () => {
     expect(validarBanners(undefined)).toEqual({ correcto: true, banners: [] });
   });
 
-  it("acepta dos bien formados", () => {
-    const resultado = validarBanners([bueno, { imagen: bueno.imagen, alt: "Aviso" }]);
-    expect(resultado.correcto).toBe(true);
+  it("acepta el único bien formado", () => {
+    expect(validarBanners([bueno]).correcto).toBe(true);
   });
 
-  it("rechaza el tercero", () => {
-    const resultado = validarBanners([bueno, bueno, bueno]);
+  /* El de arriba se retiró del diseño: una ranura que no se dibuja en ningún
+     lado solo sirve para que alguien cargue algo y después no lo encuentre. */
+  it("rechaza el segundo", () => {
+    const resultado = validarBanners([bueno, bueno]);
     expect(resultado.correcto).toBe(false);
-    if (!resultado.correcto) expect(resultado.errores.banners).toContain("hasta 2");
+    if (!resultado.correcto) expect(resultado.errores.banners).toContain("hasta 1");
   });
 
   /* Acá sí se avisa, y con el índice adentro de la clave, para que el
      formulario pueda marcar el banner exacto. */
-  it("dice cuál banner está mal y por qué", () => {
-    const resultado = validarBanners([bueno, { imagen: "", alt: "" }]);
+  it("dice qué le falta al banner y por qué", () => {
+    const resultado = validarBanners([{ imagen: "", alt: "" }]);
     expect(resultado.correcto).toBe(false);
     if (!resultado.correcto) {
-      expect(resultado.errores["banners.1.imagen"]).toBeTruthy();
-      expect(resultado.errores["banners.1.alt"]).toBeTruthy();
-      expect(resultado.errores["banners.0.imagen"]).toBeUndefined();
+      expect(resultado.errores["banners.0.imagen"]).toBeTruthy();
+      expect(resultado.errores["banners.0.alt"]).toBeTruthy();
     }
   });
 

@@ -3,12 +3,14 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
+import { iconosDePatron } from "../../../lib/patrones-fondo";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { Icono } from "../../iconos/icono";
 import { IconoCatalogo } from "../../iconos/icono-catalogo";
 import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
 import { BannerCatalogo } from "../banner-catalogo";
+import { PatronCategorias } from "../patron-categorias";
 import temaStyles from "../tema-catalogo.module.css";
 import { TarjetaMipuesto } from "./tarjeta-mipuesto";
 import styles from "./plantilla-mipuesto.module.css";
@@ -36,6 +38,15 @@ export function PlantillaMipuesto({
 }: PropiedadesPlantilla) {
   const { negocio } = datos;
   const esferas = navegacion?.categorias ?? datos.categorias;
+
+  /* El fondo se arma con los íconos de las categorías del negocio. Se toma de
+     `esferas` —la lista completa— y no de la página: si no, el fondo cambiaría
+     al filtrar por una categoría o al pasar de página.
+
+     Vacío significa que este negocio no tiene categorías propias, y entonces el
+     dibujo por rubro lo pone el contenedor con `data-patron`. Los dos nunca van
+     juntos: quien pone el atributo consulta esta misma función. */
+  const iconosPatron = negocio.patronFondo ? iconosDePatron(esferas) : [];
 
   const irA = (id: string) => {
     if (typeof document === "undefined") return;
@@ -71,6 +82,8 @@ export function PlantillaMipuesto({
         demostracion ? "Vista previa del catálogo" : `Catálogo de ${negocio.nombre}`
       }
     >
+      <PatronCategorias iconos={iconosPatron} />
+
       {/* 1 · Cabecera pintada con la paleta: logo, nombre y —si publicó su
           ubicación— el botón para llegar. La descripción vive acá solo cuando no
           hay portada; con portada la lleva el hero, para no repetirla. */}
@@ -249,8 +262,10 @@ export function PlantillaMipuesto({
         })}
       </div>
 
-      {/* 8 · Banner de abajo, opcional. */}
-      <BannerCatalogo banner={negocio.banners[1]} />
+      {/* 8 · Banner de abajo, opcional. Es el primero del arreglo porque es el
+          único: el de arriba se retiró del diseño y una ranura que no se dibuja
+          en ningún lado solo sirve para que alguien cargue algo y no lo vea. */}
+      <BannerCatalogo banner={negocio.banners[0]} />
 
       {/* 9 · Pie: cómo contactar y cómo llegar. */}
       <footer className={styles.pie}>

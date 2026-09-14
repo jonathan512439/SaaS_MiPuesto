@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { FormularioBanners } from "../../../../components/negocios/formulario-banners";
-import { SelectorApariencia } from "../../../../components/plantillas/selector-apariencia";
+import { PanelApariencia } from "../../../../components/plantillas/panel-apariencia";
 import { crearDatosDemoPlantilla } from "../../../../lib/plantillas/datos-demo";
 import { esTipoNegocio } from "../../../../lib/modalidades";
 import { tarjetaValidaPara } from "../../../../lib/apariencia";
@@ -75,16 +74,16 @@ export default async function PaginaPlantilla() {
         titulo="Apariencia"
       />
 
-      <SelectorApariencia
+      <PanelApariencia
+        bannersIniciales={bannersGuardados}
         datos={datos}
-        paletaInicial={paletaInicial}
-        tarjetaInicial={tarjetaInicial}
         opacidadInicial={acotarOpacidad(negocio.patron_opacidad)}
+        paletaInicial={paletaInicial}
         patronInicial={negocio.patron_fondo !== false}
         plantillaInicial={plantillaInicial}
+        tarjetaInicial={tarjetaInicial}
+        urlPorRuta={urlPorRuta}
       />
-
-      <FormularioBanners bannersIniciales={bannersGuardados} urlPorRuta={urlPorRuta} />
     </main>
   );
 }

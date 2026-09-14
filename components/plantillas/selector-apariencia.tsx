@@ -11,6 +11,7 @@ import {
 import {
   OPACIDAD_PATRON_PREDETERMINADA,
   PASOS_OPACIDAD_PATRON,
+  iconosDePatron,
   patronDeRubro,
 } from "../../lib/patrones-fondo";
 import type { DatosPlantilla } from "../../lib/plantillas/tipos";
@@ -215,7 +216,13 @@ export function SelectorApariencia({
         <div
           className={`${temaStyles.tema} ${styles.marcoVista}`}
           data-paleta={paletaElegida}
-          data-patron={patronElegido ? patronDeRubro(datos.negocio.rubro) : undefined}
+          /* Misma regla que el catálogo: el de rubro es el de reserva, y con
+             categorías propias el fondo lo dibuja la plantilla. */
+          data-patron={
+            patronElegido && iconosDePatron(datos.categorias).length === 0
+              ? patronDeRubro(datos.negocio.rubro)
+              : undefined
+          }
           data-patron-opacidad={patronElegido ? opacidadElegida : undefined}
         >
           <PlantillaMipuesto datos={datos} paleta={paletaElegida} />

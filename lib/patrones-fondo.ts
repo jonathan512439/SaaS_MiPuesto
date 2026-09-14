@@ -65,3 +65,29 @@ export function acotarOpacidad(valor: unknown): number {
     Math.abs(paso - dentroDelRango) < Math.abs(mejor - dentroDelRango) ? paso : mejor,
   );
 }
+
+/* Los íconos con los que se arma el fondo del negocio.
+ *
+ * Se decide en una función y no en cada pantalla porque **la decisión se toma en
+ * tres lugares**: el catálogo público y la vista previa del panel tienen que
+ * saber si poner el dibujo por rubro —el de reserva— y la plantilla tiene que
+ * saber si dibujar el propio. Si cada uno lo resolviera a su manera, un día
+ * pondrían los dos a la vez y el fondo saldría doble.
+ *
+ * Sin repetidos: dos categorías con el mismo ícono no tienen por qué ocupar dos
+ * de las ocho posiciones de la baldosa. El tope es ese, ocho, que es lo que la
+ * baldosa dibuja; pedir más sería trabajo que no se ve. */
+export const MAXIMO_ICONOS_PATRON = 8;
+
+export function iconosDePatron(
+  categorias: ReadonlyArray<{ icono?: string | null }>,
+): string[] {
+  const vistos: string[] = [];
+  for (const { icono } of categorias) {
+    const nombre = typeof icono === "string" ? icono.trim() : "";
+    if (nombre === "" || vistos.includes(nombre)) continue;
+    vistos.push(nombre);
+    if (vistos.length >= MAXIMO_ICONOS_PATRON) break;
+  }
+  return vistos;
+}

@@ -203,6 +203,43 @@
   --catalogo-alerta: #a1442a;
 }
 
+.tema[data-paleta="selva"] {
+  --catalogo-superficie: #f7faf7;
+  --catalogo-texto: #17251b;
+  --catalogo-marca: #1f5132;
+  --catalogo-sobre-marca: #f7faf7;
+  --catalogo-accion: #99490f;
+  --catalogo-sobre-accion: #f7faf7;
+  --catalogo-exito: #1e6a45;
+  --catalogo-alerta: #8a5500;
+}
+
+.tema[data-paleta="cobre"] {
+  --catalogo-superficie: #fdf8f4;
+  --catalogo-texto: #2a1d16;
+  --catalogo-marca: #8a4118;
+  --catalogo-sobre-marca: #fdf8f4;
+  --catalogo-accion: #175b6b;
+  --catalogo-sobre-accion: #fdf8f4;
+  --catalogo-exito: #1e6a45;
+  --catalogo-alerta: #8a5500;
+}
+
+.tema[data-paleta="pizarra"] {
+  --catalogo-superficie: #1a1f26;
+  --catalogo-texto: #eef1f5;
+  --catalogo-marca: #9ec5f0;
+  --catalogo-sobre-marca: #12202e;
+  --catalogo-accion: #f0a878;
+  --catalogo-sobre-accion: #2e1a0c;
+  --catalogo-exito: #8ecfa6;
+  --catalogo-alerta: #efc873;
+  /* Oscura, igual que «noche»: la cabecera sigue al color del fondo para
+     fundirse con la barra del navegador, con el texto claro. */
+  --catalogo-navegador: var(--catalogo-superficie);
+  --catalogo-sobre-navegador: var(--catalogo-texto);
+}
+
 .tema[data-paleta="grafito"] {
   --catalogo-superficie: #f7f7f6;
   --catalogo-texto: #1b1e20;

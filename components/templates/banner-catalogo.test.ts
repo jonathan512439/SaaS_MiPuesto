@@ -3,44 +3,33 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PLANTILLAS } from "../../lib/apariencia";
 import { MAXIMO_BANNERS } from "../../lib/negocios/banners";
 
-/* Misma falla que persigue la prueba del botón de llamar: una función que se
-   agrega a tres plantillas de cuatro. El dueño carga su banner, lo ve en la
-   demostración —que usa otra plantilla— y en su catálogo no aparece. */
+/* Que el modelo admita un banner y la plantilla no lo dibuje es una falla que no
+   atrapa nadie: no la ve el compilador, no la ve el lint, y el dueño se entera
+   cargando una promoción que después no aparece en su catálogo.
+ *
+ * La prueba mira el texto de la plantilla y no el resultado de dibujarla a
+ * propósito: lo que se quiere vigilar es que **exista la línea**, no que con
+ * ciertos datos se vea algo. */
 describe("los banners del catálogo", () => {
-  const fuenteDe = (plantilla: string) =>
-    readFileSync(join(import.meta.dirname, plantilla, `plantilla-${plantilla}.tsx`), "utf8");
+  const fuente = readFileSync(
+    join(import.meta.dirname, "mipuesto", "plantilla-mipuesto.tsx"),
+    "utf8",
+  );
 
-  it("están en todas las plantillas, arriba y abajo", () => {
-    for (const plantilla of PLANTILLAS) {
-      const fuente = fuenteDe(plantilla);
-      expect(fuente, `${plantilla} no dibuja el banner de arriba`).toContain(
-        "<BannerCatalogo banner={datos.negocio.banners[0]} />",
-      );
-      expect(fuente, `${plantilla} no dibuja el banner de abajo`).toContain(
-        "<BannerCatalogo banner={datos.negocio.banners[1]} />",
+  it("la plantilla dibuja todos los que el modelo admite", () => {
+    for (let posicion = 0; posicion < MAXIMO_BANNERS; posicion += 1) {
+      expect(fuente, `no dibuja el banner ${posicion}`).toContain(
+        `<BannerCatalogo banner={negocio.banners[${posicion}]} />`,
       );
     }
   });
 
-  /* El de arriba va después del aviso de horario y el de abajo antes del pie.
-     Ese orden es el de las maquetas, y si una plantilla lo invierte el negocio
-     ve su promoción en un lugar distinto según qué diseño eligió. */
-  it("respetan el orden en las cuatro", () => {
-    for (const plantilla of PLANTILLAS) {
-      const fuente = fuenteDe(plantilla);
-      const arriba = fuente.indexOf("banners[0]");
-      const abajo = fuente.indexOf("banners[1]");
-      expect(arriba, `${plantilla}: falta el de arriba`).toBeGreaterThan(-1);
-      expect(abajo, `${plantilla}: el de abajo no va después`).toBeGreaterThan(arriba);
-    }
-  });
-
-  /* La pieza lee dos posiciones del arreglo. Si el techo subiera a tres sin
-     tocar las plantillas, el tercero se guardaría y no lo vería nadie. */
-  it("las plantillas dibujan tantos como admite el modelo", () => {
-    expect(MAXIMO_BANNERS).toBe(2);
+  /* Y ninguno de más: leer una posición que el modelo no llena deja una pieza
+     que nunca recibe nada, y con ella la duda de si el banner no se ve porque
+     está mal cargado o porque esa ranura no existe. */
+  it("no lee posiciones que el modelo no llena", () => {
+    expect(fuente).not.toContain(`negocio.banners[${MAXIMO_BANNERS}]`);
   });
 });

@@ -19,6 +19,11 @@ export const COLOR_NAVEGADOR: Record<PaletaId, string> = {
   altiplano: "#543279",
   jazmin: "#7a2b52",
   grafito: "#303539",
+  selva: "#1f5132",
+  cobre: "#8a4118",
+  /* Oscura, como «noche»: la barra va del color del fondo y no del de marca.
+     Una barra menta o durazno sobre un catálogo oscuro corta contra él. */
+  pizarra: "#1a1f26",
 };
 
 export function colorDeNavegador(paleta: string): string {
