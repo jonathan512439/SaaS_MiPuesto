@@ -60,31 +60,62 @@ número.
 ## Paso 5 · Crear la clave
 
 1. **API y servicios** → **Credenciales**.
-2. **Crear credenciales** → **Clave de API**.
+2. **Crear credenciales**. Se abre un desplegable con cuatro opciones; elegí
+   **Clave de API**.
+
+   | Opción | ¿Esta? |
+   |---|---|
+   | **Clave de API** | ✅ **Sí** |
+   | ID de cliente de OAuth | ❌ Es para que un usuario inicie sesión con su cuenta de Google |
+   | Cuenta de servicio | ❌ Es para actuar *como un usuario* de Google Workspace |
+   | Ayúdame a elegir | ❌ No hace falta |
+
+   Nosotros solo consultamos datos públicos de lugares, no entramos a la cuenta
+   de nadie: eso es exactamente una clave de API.
+
 3. Aparece la clave en un cuadro. **No la cierres todavía.**
 4. Copiala y guardala un momento en un lugar seguro — un gestor de contraseñas,
    no un chat ni un archivo del proyecto.
+5. Tocá **Editar clave de API** para pasar al paso siguiente. Aprovechá y
+   ponele un nombre reconocible arriba, donde dice «API key 1»: por ejemplo
+   `MiPuesto · Places (servidor)`.
 
 ## Paso 6 · Restringir la clave (no te saltees este paso)
 
-En el mismo cuadro tocá **Editar clave de API**, o entrá desde Credenciales.
+Dentro de la clave hay **dos bloques de restricciones distintos**, y se
+configuran los dos.
 
-**Restricciones de API** — esto es lo importante:
+### Restricciones de aplicación → **Ninguna**
 
-1. Elegí **Restringir clave**.
-2. En la lista, marcá **solo `Places API (New)`**.
+Las opciones son: Ninguna · Sitios web (referentes HTTP) · Direcciones IP · Apps
+de Android · Apps de iOS.
+
+Suena mal dejarlo en Ninguna y conviene entender por qué es lo correcto acá.
+Las consultas salen del **servidor** —el Worker de Cloudflare— y no del
+navegador de nadie. «Sitios web» solo aplica a llamadas hechas desde el
+navegador, así que no sirve; y «Direcciones IP» tampoco, porque Cloudflare sale
+por un rango de direcciones que cambia.
+
+Lo que protege la clave acá es otra cosa: **nunca viaja al navegador** —la
+guarda `check-client-secrets` lo impide—, está limitada a una sola API (abajo) y
+tiene tope de consumo (paso 7).
+
+### Restricciones de API → **Restringir clave**
+
+Esta es la que de verdad protege.
+
+1. Elegí **Restringir clave** (la otra opción es «No restringir la clave»).
+2. Se despliega la lista de APIs del proyecto: marcá **solo `Places API (New)`**.
 3. **Guardar**.
 
 Así, si la clave se filtrara, no sirve para ningún otro servicio de Google.
 
-**Restricciones de aplicación:** dejalas en **Ninguna**.
+> ⚠️ **Esa lista solo muestra las APIs que ya habilitaste en el proyecto.** Si no
+> ves `Places API (New)`, te faltó el paso 4: volvé a la Biblioteca, habilitala,
+> y recién ahí aparece para marcarla.
 
-Suena mal y conviene entender por qué. Las llamadas salen del **servidor**
-(el Worker de Cloudflare), no del navegador de nadie. Restringir por sitio web
-(«HTTP referrer») no aplica, y restringir por IP tampoco sirve: Cloudflare sale
-por un rango de direcciones que cambia. Lo que protege la clave acá es otra
-cosa: **nunca viaja al navegador** —la guarda `check-client-secrets` lo impide—,
-está limitada a una sola API, y tiene tope de consumo (paso 7).
+Los cambios de restricciones **tardan unos minutos en aplicarse**. Si probás
+enseguida y falla, esperá un poco antes de sospechar de otra cosa.
 
 ## Paso 7 · Ponerle techo al gasto
 
