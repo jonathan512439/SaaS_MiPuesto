@@ -86,6 +86,8 @@ function negocio(
     resenasUrl: null,
     rubro: null,
     patronFondo: true,
+    patronOpacidad: 6,
+    subnombre: null,
     redesSociales: [],
     banners: [],
     tarjeta: "cuadricula" as const,

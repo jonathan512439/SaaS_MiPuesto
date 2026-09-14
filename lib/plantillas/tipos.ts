@@ -107,6 +107,12 @@ export type DatosPlantilla = {
     /* El dueño puede apagar el fondo con dibujos. El panel lo lleva igual: la
        preferencia es sobre lo que ve el comprador, no sobre lo que ve él. */
     patronFondo: boolean;
+    /* Cuánto se nota ese fondo, en por ciento. Llega ya acotado a uno de los
+       pasos que la hoja sabe dibujar, así que la plantilla lo pone tal cual. */
+    patronOpacidad: number;
+    /* El renglón corto bajo el nombre, en la cabecera. Vacío es lo normal: es
+       distinto de `descripcion`, que es el párrafo del negocio. */
+    subnombre: string | null;
   };
   categorias: CategoriaPlantilla[];
 };

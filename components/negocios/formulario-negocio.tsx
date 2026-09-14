@@ -22,6 +22,7 @@ export type PerfilNegocioInicial = {
   nombre: string;
   slug: string;
   descripcion: string | null;
+  subnombre: string | null;
   tipo_negocio: string;
   rubro?: string | null;
   pide_numero_mesa?: boolean | null;
@@ -70,6 +71,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   const [nombre, setNombre] = useState(negocioInicial?.nombre ?? "");
   const [slug, setSlug] = useState(negocioInicial?.slug ?? "");
   const [descripcion, setDescripcion] = useState(negocioInicial?.descripcion ?? "");
+  const [subnombre, setSubnombre] = useState(negocioInicial?.subnombre ?? "");
   const [tipo, setTipo] = useState<TipoNegocio>(
     (negocioInicial?.tipo_negocio as TipoNegocio | undefined) ?? "catalogo_estatico",
   );
@@ -136,6 +138,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       nombre,
       slug,
       descripcion,
+      subnombre,
       tipo_negocio: tipo,
       telefono_whatsapp: telefono,
       rubro,
@@ -180,6 +183,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       setNombre(datos.negocio.nombre);
       setSlug(datos.negocio.slug);
       setDescripcion(datos.negocio.descripcion ?? "");
+      setSubnombre(datos.negocio.subnombre ?? "");
       setTipo(datos.negocio.tipo_negocio as TipoNegocio);
       setRubro(datos.negocio.rubro ?? "");
       setPideMesa(datos.negocio.pide_numero_mesa === true);
@@ -222,6 +226,19 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           onChange={(evento) => cambiarNombre(evento.target.value)}
           required
           value={nombre}
+        />
+        {/* El renglón corto bajo el nombre, en la cabecera del catálogo. Es
+            distinto de la descripción: la descripción es el párrafo del negocio
+            y este es el rótulo que se lee de un vistazo al lado del logo. */}
+        <Campo
+          ayuda="Aparece bajo el nombre, en la cabecera del catálogo."
+          error={errores.subnombre}
+          etiqueta="Renglón bajo el nombre (opcional)"
+          id="subnombre"
+          maxLength={60}
+          onChange={(evento) => setSubnombre(evento.target.value)}
+          placeholder="Pollos a la brasa · Desde 1998"
+          value={subnombre}
         />
         <AreaTexto
           ayuda={`${descripcion.length}/500 caracteres`}

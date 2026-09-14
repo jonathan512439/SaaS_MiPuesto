@@ -18,6 +18,7 @@ import { leerAtributos, type Atributo } from "./atributos";
 import { ICONO_PREDETERMINADO, normalizarIcono } from "./categorias";
 import { lineaDeTarjeta, valoresParaMostrar } from "./valores";
 import { esPaletaId, esPlantillaId } from "../plantillas/validacion";
+import { acotarOpacidad } from "../patrones-fondo";
 
 type NegocioPublico = {
   id?: string;
@@ -38,6 +39,8 @@ type NegocioPublico = {
   rubro?: string | null;
   tarjeta_id?: string | null;
   patron_fondo?: boolean | null;
+  patron_opacidad?: number | null;
+  subnombre?: string | null;
   redes_sociales?: unknown;
   /* Opcional y sin tipar por dentro, igual que `redes_sociales` y `horario`: lo
      que hay en esa columna lo interpreta su propio lector, que no confía en
@@ -349,6 +352,11 @@ export function construirCatalogoPublico(
         /* Solo `false` apaga. Un negocio anterior a la columna llega sin el dato
            y no tendria sentido apagarle un fondo que nunca eligio apagar. */
         patronFondo: negocio.patron_fondo !== false,
+        /* Se acota acá también y no solo en la base: esta fila puede venir de una
+           restauración o de un script, y un número fuera de rango pintaría un
+           fondo que tapa el texto. */
+        patronOpacidad: acotarOpacidad(negocio.patron_opacidad),
+        subnombre: negocio.subnombre?.trim() || null,
         redesSociales: [
           { nombre: "Facebook", url: redes.facebook },
           { nombre: "Instagram", url: redes.instagram },

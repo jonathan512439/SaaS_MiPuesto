@@ -35,6 +35,7 @@ export type DatosNegocioValidados = {
   nombre: string;
   slug: string;
   descripcion: string | null;
+  subnombre: string | null;
   tipo_negocio: TipoNegocio;
   telefono_whatsapp: string;
   rubro: RubroId | null;
@@ -98,6 +99,7 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
   const nombre = textoDesde(objeto.nombre);
   const slug = normalizarSlug(objeto.slug);
   const descripcion = textoDesde(objeto.descripcion);
+  const subnombre = textoDesde(objeto.subnombre);
   const tipo = textoDesde(objeto.tipo_negocio);
   const rubro = textoDesde(objeto.rubro);
   const ciudad = textoDesde(objeto.ciudad);
@@ -114,6 +116,13 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
 
   if (descripcion.length > 500) {
     errores.descripcion = "La descripción puede tener hasta 500 caracteres.";
+  }
+
+  /* Corto a propósito: es un renglón al lado del logo, no un espacio para el
+     párrafo que ya tiene la descripción. Más largo se corta en la cabecera y el
+     dueño no entiende por qué. */
+  if (subnombre.length > 60) {
+    errores.subnombre = "El renglón bajo el nombre puede tener hasta 60 caracteres.";
   }
 
   if (!TIPOS_NEGOCIO.includes(tipo as TipoNegocio)) {
@@ -150,6 +159,7 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
       nombre,
       slug,
       descripcion: descripcion || null,
+      subnombre: subnombre || null,
       tipo_negocio: tipo as TipoNegocio,
       telefono_whatsapp: telefono,
       rubro: esRubroId(rubro) ? rubro : null,

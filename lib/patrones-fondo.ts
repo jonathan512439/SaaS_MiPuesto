@@ -31,3 +31,37 @@ const POR_RUBRO: Record<string, PatronFondo> = {
 export function patronDeRubro(rubro: string | null | undefined): PatronFondo {
   return POR_RUBRO[rubro ?? ""] ?? "comercio";
 }
+
+/* Cuánto se nota el patrón, en por ciento.
+ *
+ * De 0 a 30: arriba de 30 el dibujo compite con el texto y el catálogo se vuelve
+ * incómodo de leer. El techo también está en la base, para que no dependa de qué
+ * pantalla escribió el número.
+ *
+ * Va de tres en tres y no de uno en uno por dos razones. Entre 11 y 12 por
+ * ciento no hay diferencia que un ojo distinga, así que treinta y un valores
+ * serían treinta y un nombres para once cosas. Y cada valor posible es **una
+ * regla de CSS**: el número no puede viajar como estilo en línea —la guarda de
+ * tokens lo prohíbe, y con razón, porque un estilo en línea es la puerta por la
+ * que entra un color fuera del sistema—, así que viaja como atributo y la hoja
+ * tiene un paso por regla. Once pasos dan control fino y once reglas legibles.
+ */
+export const PASOS_OPACIDAD_PATRON = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30] as const;
+
+/* Lo que ya se veía antes de que esto fuera elegible. Un negocio anterior a la
+   columna tiene que seguir viéndose igual: la fase no le cambia el catálogo a
+   nadie por haber corrido una migración. */
+export const OPACIDAD_PATRON_PREDETERMINADA = 6;
+
+export function acotarOpacidad(valor: unknown): number {
+  const numero =
+    typeof valor === "number" && Number.isFinite(valor)
+      ? valor
+      : OPACIDAD_PATRON_PREDETERMINADA;
+  const dentroDelRango = Math.min(30, Math.max(0, numero));
+  /* Al paso más cercano: la base admite cualquier entero de 0 a 30 —un script o
+     una restauración pueden dejar un 11— y el catálogo dibuja los once pasos. */
+  return PASOS_OPACIDAD_PATRON.reduce((mejor, paso) =>
+    Math.abs(paso - dentroDelRango) < Math.abs(mejor - dentroDelRango) ? paso : mejor,
+  );
+}

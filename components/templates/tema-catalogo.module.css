@@ -80,6 +80,59 @@
   pointer-events: none;
 }
 
+/* Cuánto se nota el patrón, elegido por el dueño: un paso por regla.
+ *
+ * El número no puede viajar como estilo en línea —la guarda de tokens lo
+ * prohíbe— así que viaja como atributo y acá está la tabla. La tinta sale del
+ * texto de la paleta, igual que el valor de reserva de arriba: en la paleta
+ * oscura eso deja una trama más clara que el fondo, que es lo correcto.
+ *
+ * Sin atributo queda el 6 % de reserva que define `.tema`, que es lo que veían
+ * los negocios anteriores a la columna. */
+.tema[data-patron-opacidad="0"] {
+  --patron-tinta: transparent;
+}
+
+.tema[data-patron-opacidad="3"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 3%, transparent);
+}
+
+.tema[data-patron-opacidad="6"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 6%, transparent);
+}
+
+.tema[data-patron-opacidad="9"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 9%, transparent);
+}
+
+.tema[data-patron-opacidad="12"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 12%, transparent);
+}
+
+.tema[data-patron-opacidad="15"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 15%, transparent);
+}
+
+.tema[data-patron-opacidad="18"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 18%, transparent);
+}
+
+.tema[data-patron-opacidad="21"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 21%, transparent);
+}
+
+.tema[data-patron-opacidad="24"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 24%, transparent);
+}
+
+.tema[data-patron-opacidad="27"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 27%, transparent);
+}
+
+.tema[data-patron-opacidad="30"] {
+  --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 30%, transparent);
+}
+
 .tema[data-paleta="mercado"] {
   --catalogo-superficie: #fbfaf8;
   --catalogo-texto: #15292c;

@@ -2,6 +2,7 @@ import type { DatosPlantilla } from "./tipos";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import type { TipoNegocio } from "../negocios/validacion";
+import { OPACIDAD_PATRON_PREDETERMINADA } from "../patrones-fondo";
 
 type DatosNegocioDemo = {
   nombre: string;
@@ -12,6 +13,8 @@ type DatosNegocioDemo = {
      negocio: si no, muestra un fondo que no es el que va a quedar. */
   rubro?: string | null;
   patronFondo?: boolean;
+  patronOpacidad?: number;
+  subnombre?: string | null;
 };
 
 export function crearDatosDemoPlantilla({
@@ -21,6 +24,8 @@ export function crearDatosDemoPlantilla({
   tipoNegocio = "tienda_virtual",
   rubro = null,
   patronFondo = true,
+  patronOpacidad = OPACIDAD_PATRON_PREDETERMINADA,
+  subnombre = null,
 }: DatosNegocioDemo): DatosPlantilla {
   const modalidad = obtenerComportamientoModalidad(tipoNegocio);
   return {
@@ -43,6 +48,8 @@ export function crearDatosDemoPlantilla({
     resenasUrl: null,
     rubro,
     patronFondo,
+    patronOpacidad,
+    subnombre,
     redesSociales: [],
     banners: [],
     tarjeta: "cuadricula" as const,

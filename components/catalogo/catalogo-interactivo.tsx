@@ -218,6 +218,9 @@ export function CatalogoInteractivo({
       data-paleta={paleta}
       /* Sin atributo no hay patron: apagarlo es no ponerlo, no pintar encima. */
       data-patron={datos.negocio.patronFondo ? patronDeRubro(datos.negocio.rubro) : undefined}
+      /* Y cuanto se nota. Va junto al patron y no por separado: sin patron, la
+         opacidad no tiene sobre que actuar. */
+      data-patron-opacidad={datos.negocio.patronFondo ? datos.negocio.patronOpacidad : undefined}
     >
       <ColorNavegador paleta={paleta} />
       <PlantillaMipuesto

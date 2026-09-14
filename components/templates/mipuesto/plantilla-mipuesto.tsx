@@ -91,7 +91,15 @@ export function PlantillaMipuesto({
           )}
           <div className={styles.identidadTexto}>
             <h2>{negocio.nombre}</h2>
-            {negocio.descripcion && !negocio.portadaUrl ? <p>{negocio.descripcion}</p> : null}
+            {/* El subnombre es el renglón hecho para este lugar —«Pollos a la
+                brasa», «Desde 1998»— así que gana cuando está. Sin él cae a la
+                descripción, y solo si no hay portada, porque con portada esa
+                misma descripción ya la lleva el hero. */}
+            {negocio.subnombre ? (
+              <p>{negocio.subnombre}</p>
+            ) : negocio.descripcion && !negocio.portadaUrl ? (
+              <p>{negocio.descripcion}</p>
+            ) : null}
           </div>
         </div>
         {negocio.ubicacionUrl ? (

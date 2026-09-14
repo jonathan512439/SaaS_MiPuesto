@@ -23,6 +23,7 @@ describe("validación del perfil de negocio", () => {
         nombre: "Café Illimani",
         slug: "cafe-illimani",
         descripcion: "Café de especialidad.",
+        subnombre: null,
         tipo_negocio: "catalogo_cta",
         telefono_whatsapp: "59171234567",
         rubro: null,
@@ -31,6 +32,32 @@ describe("validación del perfil de negocio", () => {
         zona: null,
       },
     });
+  });
+
+  it("recorta el renglón bajo el nombre y lo deja nulo si viene vacío", () => {
+    const base = {
+      nombre: "Café Illimani",
+      slug: "cafe-illimani",
+      tipo_negocio: "catalogo_cta",
+      telefono_whatsapp: "+591 7123-4567",
+    };
+    const conSubnombre = validarDatosNegocio({ ...base, subnombre: "  Desde 1998 " });
+    expect(conSubnombre.correcto && conSubnombre.datos.subnombre).toBe("Desde 1998");
+
+    const vacio = validarDatosNegocio({ ...base, subnombre: "   " });
+    expect(vacio.correcto && vacio.datos.subnombre).toBeNull();
+  });
+
+  it("rechaza un renglón bajo el nombre larguisimo en vez de cortarlo callado", () => {
+    const resultado = validarDatosNegocio({
+      nombre: "Café Illimani",
+      slug: "cafe-illimani",
+      tipo_negocio: "catalogo_cta",
+      telefono_whatsapp: "+591 7123-4567",
+      subnombre: "s".repeat(61),
+    });
+    expect(resultado.correcto).toBe(false);
+    if (!resultado.correcto) expect(resultado.errores.subnombre).toContain("60");
   });
 
   it.each(["Admin", "api", "directorio", "login", "estilos"])(

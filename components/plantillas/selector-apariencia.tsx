@@ -8,7 +8,11 @@ import {
   type PlantillaId,
   type TarjetaId,
 } from "../../lib/apariencia";
-import { patronDeRubro } from "../../lib/patrones-fondo";
+import {
+  OPACIDAD_PATRON_PREDETERMINADA,
+  PASOS_OPACIDAD_PATRON,
+  patronDeRubro,
+} from "../../lib/patrones-fondo";
 import type { DatosPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
@@ -22,6 +26,7 @@ type PropiedadesSelector = {
   tarjetaInicial: TarjetaId;
   paletaInicial: PaletaId;
   patronInicial: boolean;
+  opacidadInicial: number;
 };
 
 export function SelectorApariencia({
@@ -30,11 +35,14 @@ export function SelectorApariencia({
   tarjetaInicial,
   paletaInicial,
   patronInicial,
+  opacidadInicial,
 }: PropiedadesSelector) {
   const [paletaElegida, setPaletaElegida] = useState(paletaInicial);
   const [paletaGuardada, setPaletaGuardada] = useState(paletaInicial);
   const [patronElegido, setPatronElegido] = useState(patronInicial);
   const [patronGuardado, setPatronGuardado] = useState(patronInicial);
+  const [opacidadElegida, setOpacidadElegida] = useState(opacidadInicial);
+  const [opacidadGuardada, setOpacidadGuardada] = useState(opacidadInicial);
   const [guardando, setGuardando] = useState(false);
   const { mostrarAviso } = useAvisos();
 
@@ -43,7 +51,9 @@ export function SelectorApariencia({
      tarjeta_producto siguen en la base —se podan aparte— y se reenvían tal como
      llegaron, para no tocar el endpoint antes de tiempo. */
   const hayCambioPendiente =
-    paletaElegida !== paletaGuardada || patronElegido !== patronGuardado;
+    paletaElegida !== paletaGuardada ||
+    patronElegido !== patronGuardado ||
+    opacidadElegida !== opacidadGuardada;
 
   async function guardarApariencia(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -60,6 +70,7 @@ export function SelectorApariencia({
           tarjeta_id: tarjetaInicial,
           paleta_id: paletaElegida,
           patron_fondo: patronElegido,
+          patron_opacidad: opacidadElegida,
         }),
       });
       const resultado = (await respuesta.json()) as {
@@ -68,6 +79,7 @@ export function SelectorApariencia({
         tarjeta_id?: TarjetaId;
         paleta_id?: PaletaId;
         patron_fondo?: boolean;
+        patron_opacidad?: number;
       };
 
       if (!respuesta.ok || !resultado.plantilla_id || !resultado.paleta_id) {
@@ -77,6 +89,9 @@ export function SelectorApariencia({
       setPaletaGuardada(resultado.paleta_id);
       setPatronGuardado(resultado.patron_fondo !== false);
       setPatronElegido(resultado.patron_fondo !== false);
+      const opacidad = resultado.patron_opacidad ?? OPACIDAD_PATRON_PREDETERMINADA;
+      setOpacidadGuardada(opacidad);
+      setOpacidadElegida(opacidad);
       mostrarAviso({ titulo: "Apariencia guardada", variante: "exito" });
     } catch (causa) {
       mostrarAviso({
@@ -156,6 +171,34 @@ export function SelectorApariencia({
             <span>Se ve en el catálogo que abren tus clientes.</span>
           </span>
         </label>
+
+        {/* La intensidad solo aparece con el fondo encendido: un control que
+            regula algo apagado es un control que no hace nada. */}
+        {patronElegido ? (
+          <label className={styles.intensidad} htmlFor="patron-opacidad">
+            <span>
+              <strong>Cuánto se nota</strong>
+              <span>Más a la derecha, más marcado. Arriba de 30 taparía el texto.</span>
+            </span>
+            <input
+              id="patron-opacidad"
+              list="pasos-opacidad"
+              max={PASOS_OPACIDAD_PATRON[PASOS_OPACIDAD_PATRON.length - 1]}
+              min={PASOS_OPACIDAD_PATRON[0]}
+              name="patron_opacidad"
+              onChange={(evento) => setOpacidadElegida(Number(evento.target.value))}
+              step={3}
+              type="range"
+              value={opacidadElegida}
+            />
+            <output htmlFor="patron-opacidad">{opacidadElegida} %</output>
+            <datalist id="pasos-opacidad">
+              {PASOS_OPACIDAD_PATRON.map((paso) => (
+                <option key={paso} value={paso} />
+              ))}
+            </datalist>
+          </label>
+        ) : null}
       </fieldset>
 
       <section className={styles.demostracion} aria-labelledby="titulo-demostracion">
@@ -173,6 +216,7 @@ export function SelectorApariencia({
           className={`${temaStyles.tema} ${styles.marcoVista}`}
           data-paleta={paletaElegida}
           data-patron={patronElegido ? patronDeRubro(datos.negocio.rubro) : undefined}
+          data-patron-opacidad={patronElegido ? opacidadElegida : undefined}
         >
           <PlantillaMipuesto datos={datos} paleta={paletaElegida} />
         </div>

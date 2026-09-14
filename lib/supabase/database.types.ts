@@ -468,14 +468,23 @@ export type Database = {
           ciudad: string | null
           creado_en: string
           descripcion: string | null
+          direccion_manual: string | null
           foto_ia_habilitada: boolean
           foto_ia_habilitada_en: string | null
           horario: Json
           id: string
           logo_url: string | null
+          maps_calificacion: number | null
+          maps_consultado_en: string | null
+          maps_direccion: string | null
+          maps_nombre: string | null
+          maps_opiniones: number | null
+          maps_place_id: string | null
+          maps_visible: boolean
           nombre: string
           paleta_id: string
           patron_fondo: boolean
+          patron_opacidad: number
           pide_numero_mesa: boolean
           plantilla_id: string
           portada_url: string | null
@@ -485,6 +494,7 @@ export type Database = {
           reserva_minutos: number
           rubro: string | null
           slug: string
+          subnombre: string | null
           suscripcion_vence_en: string
           suspendido_en: string | null
           tarjeta_id: string
@@ -504,14 +514,23 @@ export type Database = {
           ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
+          direccion_manual?: string | null
           foto_ia_habilitada?: boolean
           foto_ia_habilitada_en?: string | null
           horario?: Json
           id?: string
           logo_url?: string | null
+          maps_calificacion?: number | null
+          maps_consultado_en?: string | null
+          maps_direccion?: string | null
+          maps_nombre?: string | null
+          maps_opiniones?: number | null
+          maps_place_id?: string | null
+          maps_visible?: boolean
           nombre: string
           paleta_id?: string
           patron_fondo?: boolean
+          patron_opacidad?: number
           pide_numero_mesa?: boolean
           plantilla_id?: string
           portada_url?: string | null
@@ -521,6 +540,7 @@ export type Database = {
           reserva_minutos?: number
           rubro?: string | null
           slug: string
+          subnombre?: string | null
           suscripcion_vence_en?: string
           suspendido_en?: string | null
           tarjeta_id?: string
@@ -540,14 +560,23 @@ export type Database = {
           ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
+          direccion_manual?: string | null
           foto_ia_habilitada?: boolean
           foto_ia_habilitada_en?: string | null
           horario?: Json
           id?: string
           logo_url?: string | null
+          maps_calificacion?: number | null
+          maps_consultado_en?: string | null
+          maps_direccion?: string | null
+          maps_nombre?: string | null
+          maps_opiniones?: number | null
+          maps_place_id?: string | null
+          maps_visible?: boolean
           nombre?: string
           paleta_id?: string
           patron_fondo?: boolean
+          patron_opacidad?: number
           pide_numero_mesa?: boolean
           plantilla_id?: string
           portada_url?: string | null
@@ -557,6 +586,7 @@ export type Database = {
           reserva_minutos?: number
           rubro?: string | null
           slug?: string
+          subnombre?: string | null
           suscripcion_vence_en?: string
           suspendido_en?: string | null
           tarjeta_id?: string

@@ -35,6 +35,27 @@ export async function PATCH(solicitud: NextRequest) {
       ? entrada.patron_fondo
       : undefined;
 
+  const patronOpacidad =
+    typeof entrada === "object" && entrada !== null && "patron_opacidad" in entrada
+      ? entrada.patron_opacidad
+      : undefined;
+
+  /* Se rechaza en vez de acotarse, al revés que en el catalogo público: allá el
+     dato ya está guardado y no se puede dejar de dibujar la página por un número
+     raro; acá hay alguien mandando algo que el panel nunca ofrece, y guardarle
+     otra cosa sin avisar es peor que decirle que no. */
+  if (
+    typeof patronOpacidad !== "number" ||
+    !Number.isInteger(patronOpacidad) ||
+    patronOpacidad < 0 ||
+    patronOpacidad > 30
+  ) {
+    return NextResponse.json(
+      { error: "La intensidad del fondo no es válida." },
+      { status: 400 },
+    );
+  }
+
   if (typeof patronFondo !== "boolean") {
     return NextResponse.json(
       { error: "La preferencia de fondo no es válida." },
@@ -73,9 +94,10 @@ export async function PATCH(solicitud: NextRequest) {
       tarjeta_id: tarjetaId,
       paleta_id: paletaId,
       patron_fondo: patronFondo,
+      patron_opacidad: patronOpacidad,
     })
     .eq("admin_user_id", idUsuario)
-    .select("slug,plantilla_id,tarjeta_id,paleta_id,patron_fondo")
+    .select("slug,plantilla_id,tarjeta_id,paleta_id,patron_fondo,patron_opacidad")
     .maybeSingle();
 
   if (error) {

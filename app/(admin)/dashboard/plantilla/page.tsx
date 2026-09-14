@@ -13,6 +13,7 @@ import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./plantilla.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
+import { acotarOpacidad } from "../../../../lib/patrones-fondo";
 
 export const metadata: Metadata = {
   title: "Plantilla del catálogo | MiPuesto",
@@ -28,7 +29,7 @@ export default async function PaginaPlantilla() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,tarjeta_id,paleta_id,rubro,patron_fondo,banners")
+    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,tarjeta_id,paleta_id,rubro,patron_fondo,patron_opacidad,subnombre,banners")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -63,6 +64,8 @@ export default async function PaginaPlantilla() {
       : "catalogo_estatico",
     rubro: negocio.rubro,
     patronFondo: negocio.patron_fondo !== false,
+    patronOpacidad: acotarOpacidad(negocio.patron_opacidad),
+    subnombre: negocio.subnombre?.trim() || null,
   });
 
   return (
@@ -76,6 +79,7 @@ export default async function PaginaPlantilla() {
         datos={datos}
         paletaInicial={paletaInicial}
         tarjetaInicial={tarjetaInicial}
+        opacidadInicial={acotarOpacidad(negocio.patron_opacidad)}
         patronInicial={negocio.patron_fondo !== false}
         plantillaInicial={plantillaInicial}
       />
