@@ -16,10 +16,23 @@ type BannerEnEdicion = {
   imagen: string | null;
   vistaPrevia: string | null;
   alt: string;
+  eyebrow: string;
+  titulo: string;
+  copy: string;
+  boton: string;
   enlace: string;
 };
 
-const VACIO: BannerEnEdicion = { imagen: null, vistaPrevia: null, alt: "", enlace: "" };
+const VACIO: BannerEnEdicion = {
+  imagen: null,
+  vistaPrevia: null,
+  alt: "",
+  eyebrow: "",
+  titulo: "",
+  copy: "",
+  boton: "",
+  enlace: "",
+};
 
 /* Los dos banners del catálogo.
  *
@@ -45,6 +58,10 @@ export function FormularioBanners({
         imagen: guardado.imagen,
         vistaPrevia: urlPorRuta[guardado.imagen] ?? null,
         alt: guardado.alt,
+        eyebrow: guardado.eyebrow ?? "",
+        titulo: guardado.titulo ?? "",
+        copy: guardado.copy ?? "",
+        boton: guardado.boton ?? "",
         enlace: guardado.enlace ?? "",
       };
     }),
@@ -116,6 +133,10 @@ export function FormularioBanners({
         .map((banner) => ({
           imagen: banner.imagen ?? "",
           alt: banner.alt.trim(),
+          eyebrow: banner.eyebrow.trim() || null,
+          titulo: banner.titulo.trim() || null,
+          copy: banner.copy.trim() || null,
+          boton: banner.boton.trim() || null,
           enlace: banner.enlace.trim() || null,
         }));
 
@@ -210,6 +231,58 @@ export function FormularioBanners({
               {errores[`banners.${indice}.alt`] ? (
                 <strong className={styles.error}>{errores[`banners.${indice}.alt`]}</strong>
               ) : null}
+            </label>
+
+            {/* El texto que se dibuja encima de la imagen, como en las maquetas
+                de referencia. Todo opcional: un banner que es solo imagen sigue
+                siendo válido. */}
+            <label className={styles.campo} htmlFor={`banner-eyebrow-${indice}`}>
+              <span>Antetítulo (opcional)</span>
+              <input
+                id={`banner-eyebrow-${indice}`}
+                maxLength={40}
+                onChange={(evento) => cambiar(indice, { eyebrow: evento.target.value })}
+                placeholder="Solo esta semana"
+                type="text"
+                value={banner.eyebrow}
+              />
+            </label>
+
+            <label className={styles.campo} htmlFor={`banner-titulo-${indice}`}>
+              <span>Título (opcional)</span>
+              <input
+                id={`banner-titulo-${indice}`}
+                maxLength={80}
+                onChange={(evento) => cambiar(indice, { titulo: evento.target.value })}
+                placeholder="20 % en toda la línea eléctrica"
+                type="text"
+                value={banner.titulo}
+              />
+            </label>
+
+            <label className={styles.campo} htmlFor={`banner-copy-${indice}`}>
+              <span>Bajada (opcional)</span>
+              <input
+                id={`banner-copy-${indice}`}
+                maxLength={160}
+                onChange={(evento) => cambiar(indice, { copy: evento.target.value })}
+                placeholder="Del lunes al sábado, presentando el catálogo."
+                type="text"
+                value={banner.copy}
+              />
+            </label>
+
+            <label className={styles.campo} htmlFor={`banner-boton-${indice}`}>
+              <span>Texto del botón (opcional)</span>
+              <input
+                id={`banner-boton-${indice}`}
+                maxLength={32}
+                onChange={(evento) => cambiar(indice, { boton: evento.target.value })}
+                placeholder="Ver la promoción"
+                type="text"
+                value={banner.boton}
+              />
+              <small>El botón aparece solo si además pusiste a dónde lleva.</small>
             </label>
 
             <label className={styles.campo} htmlFor={`banner-enlace-${indice}`}>

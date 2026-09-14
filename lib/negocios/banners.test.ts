@@ -13,8 +13,39 @@ const bueno = {
 describe("leerBanners", () => {
   it("lee uno bien formado", () => {
     expect(leerBanners([bueno])).toEqual([
-      { imagen: bueno.imagen, alt: bueno.alt, enlace: bueno.enlace },
+      {
+        imagen: bueno.imagen,
+        alt: bueno.alt,
+        eyebrow: null,
+        titulo: null,
+        copy: null,
+        boton: null,
+        enlace: bueno.enlace,
+      },
     ]);
+  });
+
+  it("lee el texto de encima cuando viene, y lo recorta a su techo", () => {
+    const [banner] = leerBanners([
+      {
+        ...bueno,
+        eyebrow: "Solo esta semana",
+        titulo: "20 % en toda la línea eléctrica",
+        copy: "Del lunes al sábado, presentando el catálogo.",
+        boton: "Ver la promoción",
+      },
+    ]);
+    expect(banner.eyebrow).toBe("Solo esta semana");
+    expect(banner.titulo).toBe("20 % en toda la línea eléctrica");
+    expect(banner.copy).toBe("Del lunes al sábado, presentando el catálogo.");
+    expect(banner.boton).toBe("Ver la promoción");
+    expect(leerBanners([{ ...bueno, titulo: "t".repeat(200) }])[0].titulo).toHaveLength(80);
+  });
+
+  it("deja en nulo el texto de encima que no vino", () => {
+    const [banner] = leerBanners([bueno]);
+    expect(banner.titulo).toBeNull();
+    expect(banner.boton).toBeNull();
   });
 
   it("acepta un banner sin enlace: un aviso no lleva a ninguna parte", () => {

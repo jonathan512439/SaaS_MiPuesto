@@ -45,6 +45,7 @@ const ICONOS = {
   telefono: "phone",
   calendario: "calendar",
   ubicacion: "map-pin",
+  flechaArriba: "chevron-up",
 };
 
 /* Lucide dibuja sobre un lienzo de 24 con el trazo en `currentColor`. Se guarda

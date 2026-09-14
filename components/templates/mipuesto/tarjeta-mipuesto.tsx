@@ -27,7 +27,11 @@ export function TarjetaMipuesto({
   alVerProducto,
 }: PropiedadesTarjeta) {
   return (
-    <li className={styles.tarjeta} id={producto.anclaCategoria}>
+    <li
+      className={styles.tarjeta}
+      data-agotado={producto.estado === "agotado" ? "si" : undefined}
+      id={producto.anclaCategoria}
+    >
       <FotoProducto
         alVerProducto={alVerProducto}
         ancho={640}

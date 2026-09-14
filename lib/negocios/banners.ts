@@ -24,6 +24,14 @@
 
 export const MAXIMO_BANNERS = 2;
 const LARGO_MAXIMO_ALT = 120;
+/* El texto que el diseño de referencia pone sobre el banner: un antetítulo
+   corto, un título, una bajada y el rótulo del botón. Todos opcionales —un
+   banner que es solo imagen sigue siendo válido, y es lo que hoy tienen los
+   negocios cargados— y con techo, porque una franja no es un párrafo. */
+const LARGO_MAXIMO_EYEBROW = 40;
+const LARGO_MAXIMO_TITULO = 80;
+const LARGO_MAXIMO_COPY = 160;
+const LARGO_MAXIMO_BOTON = 32;
 
 export type Banner = {
   imagen: string;
@@ -32,12 +40,25 @@ export type Banner = {
      ser el aviso de que el negocio cierra por feriado, ese hueco es información
      perdida. */
   alt: string;
+  /* El texto que se dibuja encima de la imagen, como en las maquetas de
+     referencia. Nulo cuando el negocio no lo cargó: un banner sin texto es solo
+     su imagen, y sigue siendo válido. */
+  eyebrow: string | null;
+  titulo: string | null;
+  copy: string | null;
+  boton: string | null;
   /* A dónde lleva al tocarlo. Opcional: un aviso no lleva a ninguna parte. */
   enlace: string | null;
 };
 
 function textoDe(valor: unknown): string {
   return typeof valor === "string" ? valor.trim() : "";
+}
+
+/* Un campo de texto opcional del banner: recortado al techo, o nulo si vacío. */
+function textoOpcional(valor: unknown, largoMaximo: number): string | null {
+  const texto = textoDe(valor).slice(0, largoMaximo);
+  return texto === "" ? null : texto;
 }
 
 /* Solo `https`. Un banner es lo más grande y lo más tentador de tocar en la
@@ -91,7 +112,15 @@ export function leerBanners(valor: unknown): Banner[] {
        mudo sería peor que no dibujarlo. */
     if (!imagen || alt === "") continue;
 
-    banners.push({ imagen, alt, enlace: enlaceValido(registro.enlace) });
+    banners.push({
+      imagen,
+      alt,
+      eyebrow: textoOpcional(registro.eyebrow, LARGO_MAXIMO_EYEBROW),
+      titulo: textoOpcional(registro.titulo, LARGO_MAXIMO_TITULO),
+      copy: textoOpcional(registro.copy, LARGO_MAXIMO_COPY),
+      boton: textoOpcional(registro.boton, LARGO_MAXIMO_BOTON),
+      enlace: enlaceValido(registro.enlace),
+    });
   }
   return banners;
 }
@@ -138,7 +167,15 @@ export function validarBanners(valor: unknown): ResultadoBanners {
     }
 
     if (imagen && alt !== "" && alt.length <= LARGO_MAXIMO_ALT) {
-      banners.push({ imagen, alt, enlace });
+      banners.push({
+        imagen,
+        alt,
+        eyebrow: textoOpcional(registro.eyebrow, LARGO_MAXIMO_EYEBROW),
+        titulo: textoOpcional(registro.titulo, LARGO_MAXIMO_TITULO),
+        copy: textoOpcional(registro.copy, LARGO_MAXIMO_COPY),
+        boton: textoOpcional(registro.boton, LARGO_MAXIMO_BOTON),
+        enlace,
+      });
     }
   });
 
