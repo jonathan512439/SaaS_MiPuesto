@@ -2,7 +2,11 @@
 
 .pagina {
   min-height: 100dvh;
-  padding: var(--spacing-3) 0;
+  /* Sin aire arriba en el teléfono: la cabecera del catálogo llega hasta el
+     borde de la pantalla y se funde con la barra del navegador, que va pintada
+     del mismo color. Un margen acá dejaría una franja del color neutro de
+     MiPuesto entre la barra y la cabecera, que es la «frontera» que se ve. */
+  padding: 0 0 var(--spacing-3);
   background: var(--color-fondo-suave);
 }
 

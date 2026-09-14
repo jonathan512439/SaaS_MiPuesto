@@ -32,10 +32,21 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-3);
-  padding: var(--spacing-4);
-  border-radius: var(--radius-panel);
-  background: var(--catalogo-marca);
-  color: var(--catalogo-sobre-marca);
+  /* Sale de los márgenes del catálogo para llegar al borde de arriba y a los
+     dos lados: así no se distingue una frontera con la barra del navegador
+     —pintada del mismo color— ni con los costados de la pantalla. Arriba suma
+     el resguardo de la muesca del teléfono para que el logo no quede pegado. */
+  margin: calc(var(--spacing-4) * -1) calc(var(--spacing-4) * -1) 0;
+  padding: calc(var(--spacing-4) + env(safe-area-inset-top, 0)) var(--spacing-4) var(--spacing-4);
+  /* Solo las esquinas de abajo se redondean: las de arriba y los lados tocan el
+     borde, y una curva ahí volvería a dibujar la frontera que se quiere quitar. */
+  border-radius: 0 0 var(--radius-panel) var(--radius-panel);
+  /* Del color de la barra del navegador, no del de marca a secas: en la paleta
+     oscura esos dos difieren, y usar marca volvería a cortar contra la barra. */
+  background: var(--catalogo-navegador);
+  color: var(--catalogo-sobre-navegador);
+  /* La sombra cae hacia abajo, hacia el contenido: no dibuja línea arriba ni a
+     los lados, que es donde no debe notarse ningún corte. */
   box-shadow: var(--catalogo-sombra-flotante);
 }
 
@@ -59,8 +70,8 @@
   width: var(--spacing-14);
   height: var(--spacing-14);
   border-radius: var(--radius-control);
-  background: var(--catalogo-sobre-marca);
-  color: var(--catalogo-marca);
+  background: var(--catalogo-sobre-navegador);
+  color: var(--catalogo-navegador);
   font-family: var(--font-display);
   font-size: var(--text-2xl);
   font-weight: 800;
@@ -79,7 +90,7 @@
 
 .identidadTexto p {
   margin: 0;
-  color: color-mix(in srgb, var(--catalogo-sobre-marca) 85%, transparent);
+  color: color-mix(in srgb, var(--catalogo-sobre-navegador) 85%, transparent);
   font-size: var(--text-sm);
   line-height: 1.4;
 }
@@ -92,9 +103,9 @@
   align-items: center;
   gap: var(--spacing-1);
   padding: var(--spacing-2) var(--spacing-3);
-  border: var(--borde-fino) solid color-mix(in srgb, var(--catalogo-sobre-marca) 55%, transparent);
+  border: var(--borde-fino) solid color-mix(in srgb, var(--catalogo-sobre-navegador) 55%, transparent);
   border-radius: var(--radius-control);
-  color: var(--catalogo-sobre-marca);
+  color: var(--catalogo-sobre-navegador);
   font-size: var(--text-xs);
   font-weight: 800;
   text-decoration: none;

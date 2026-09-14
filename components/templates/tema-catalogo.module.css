@@ -43,6 +43,14 @@
     0 0.125rem 0.375rem color-mix(in srgb, var(--catalogo-texto) 16%, transparent),
     0 0.5rem 1.5rem -0.25rem color-mix(in srgb, var(--catalogo-texto) 32%, transparent);
 
+  /* El color de la cabecera pintada, que es el mismo que se pinta en la barra
+     del navegador (`COLOR_NAVEGADOR`): así la cabecera y la barra del teléfono
+     se funden sin una frontera. En casi todas las paletas es el de marca; la
+     oscura lo redefine más abajo, porque ahí la barra va del color del fondo y
+     una cabecera de marca —un menta brillante— cortaría contra ella. */
+  --catalogo-navegador: var(--catalogo-marca);
+  --catalogo-sobre-navegador: var(--catalogo-sobre-marca);
+
   background-color: var(--catalogo-superficie);
   color: var(--catalogo-texto);
 }
@@ -114,6 +122,10 @@
   --catalogo-sobre-accion: #2b1710;
   --catalogo-exito: #7fc89d;
   --catalogo-alerta: #f0c36a;
+  /* En la paleta oscura la barra del navegador va del color del fondo, no del de
+     marca; la cabecera lo sigue para fundirse con ella, con el texto claro. */
+  --catalogo-navegador: var(--catalogo-superficie);
+  --catalogo-sobre-navegador: var(--catalogo-texto);
 }
 
 .tema[data-paleta="altiplano"] {
