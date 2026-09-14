@@ -181,7 +181,12 @@ export function PlantillaMipuesto({
           if (productos.length === 0) return null;
           return (
             <section className={styles.seccion} id={`categoria-${categoria.id}`} key={categoria.id}>
-              <h3 className={styles.seccionTitulo}>{categoria.nombre}</h3>
+              <div className={styles.seccionCabecera}>
+                <h3 className={styles.seccionTitulo}>{categoria.nombre}</h3>
+                <span className={styles.seccionCuenta}>
+                  {productos.length === 1 ? "1 producto" : `${productos.length} productos`}
+                </span>
+              </div>
               <ul className={styles.rejilla}>
                 {productos.map((producto) => (
                   <TarjetaMipuesto
