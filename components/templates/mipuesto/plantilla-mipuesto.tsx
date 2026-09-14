@@ -153,9 +153,6 @@ export function PlantillaMipuesto({
       {/* 5 · Franja de horario. Se dibuja sola solo cuando hay algo que decir. */}
       <AvisoHorario estado={negocio.atencion} />
 
-      {/* 6 · Banner de arriba. */}
-      <BannerCatalogo banner={negocio.banners[0]} />
-
       {navegacion ? (
         <p aria-live="polite" className={styles.conteo}>
           {navegacion.totalProductos === 1

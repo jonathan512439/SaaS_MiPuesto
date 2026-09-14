@@ -26,6 +26,7 @@ import { CarritoCatalogo } from "../carrito/carrito-catalogo";
 import { HojaProducto } from "./hoja-producto";
 import { HojaCatalogo } from "./hoja-catalogo";
 import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
+import { ColorNavegador } from "./color-navegador";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./catalogo-interactivo.module.css";
 import { patronDeRubro } from "../../lib/patrones-fondo";
@@ -218,6 +219,7 @@ export function CatalogoInteractivo({
       /* Sin atributo no hay patron: apagarlo es no ponerlo, no pintar encima. */
       data-patron={datos.negocio.patronFondo ? patronDeRubro(datos.negocio.rubro) : undefined}
     >
+      <ColorNavegador paleta={paleta} />
       <PlantillaMipuesto
         alAgregarProducto={agregarProducto}
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
