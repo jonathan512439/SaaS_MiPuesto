@@ -249,7 +249,6 @@ export default async function PaginaCatalogoPublico({
           datos={catalogo.datos}
           filtros={filtros}
           paleta={catalogo.paleta}
-          plantilla={catalogo.plantilla}
           slug={slug}
           totalPaginas={totalPaginas}
           totalProductos={totalProductos}

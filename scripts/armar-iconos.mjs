@@ -44,6 +44,7 @@ const ICONOS = {
   carpeta: "folder",
   telefono: "phone",
   calendario: "calendar",
+  ubicacion: "map-pin",
 };
 
 /* Lucide dibuja sobre un lienzo de 24 con el trazo en `currentColor`. Se guarda

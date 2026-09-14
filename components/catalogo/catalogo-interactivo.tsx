@@ -11,7 +11,7 @@ import {
   useSyncExternalStore,
 } from "react";
 
-import type { PaletaId, PlantillaId } from "../../lib/apariencia";
+import type { PaletaId } from "../../lib/apariencia";
 import { registrarEventoAnalitica } from "../../lib/analitica-cliente";
 import {
   construirRutaCatalogo,
@@ -25,14 +25,13 @@ import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
 import { HojaProducto } from "./hoja-producto";
 import { HojaCatalogo } from "./hoja-catalogo";
-import { VISTAS_PLANTILLA } from "../templates/vistas";
+import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import styles from "./catalogo-interactivo.module.css";
 import { patronDeRubro } from "../../lib/patrones-fondo";
 
 type PropiedadesCatalogoInteractivo = {
   datos: DatosPlantilla;
-  plantilla: PlantillaId;
   paleta: PaletaId;
   slug: string;
   categoriasNavegacion: Array<{ id: string; nombre: string; icono: string }>;
@@ -45,16 +44,8 @@ type PropiedadesCatalogoInteractivo = {
    cada tecla sería un viaje al servidor. */
 const ESPERA_BUSQUEDA = 350;
 
-/* El registro compartido, no una copia.
- *
- * Acá había un cuarto mapa de plantillas, con su propio `dynamic` por cada una.
- * `vistas.tsx` existe justamente para que haya uno solo, y aun así se habían
- * juntado tres: agregar una plantilla obligaba a acordarse de tres archivos, que
- * es la falla más común de este proyecto.
- *
- * Lo que se pierde es el esqueleto propio mientras baja el módulo. Lo que se
- * gana es que una plantilla nueva aparezca en los tres lugares o en ninguno. */
-const VISTAS = VISTAS_PLANTILLA;
+/* El catálogo tiene un solo diseño: PlantillaMipuesto. Antes acá se elegía una
+   de cinco plantillas; la elección se retiró en la fase 6. */
 
 function suscribirInmutable() {
   return () => {};
@@ -71,7 +62,6 @@ function obtenerProductos(datos: DatosPlantilla): ProductoPlantilla[] {
 
 export function CatalogoInteractivo({
   datos,
-  plantilla,
   paleta,
   slug,
   categoriasNavegacion,
@@ -139,7 +129,6 @@ export function CatalogoInteractivo({
   const productosEnCarrito = productos.filter(
     (producto) => (cantidades[producto.id] ?? 0) > 0,
   ).length;
-  const Vista = VISTAS[plantilla];
   const registrar = useCallback(
     (
       tipo: "vista_catalogo" | "clic_whatsapp" | "clic_producto",
@@ -229,7 +218,7 @@ export function CatalogoInteractivo({
       /* Sin atributo no hay patron: apagarlo es no ponerlo, no pintar encima. */
       data-patron={datos.negocio.patronFondo ? patronDeRubro(datos.negocio.rubro) : undefined}
     >
-      <Vista
+      <PlantillaMipuesto
         alAgregarProducto={agregarProducto}
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
         alVerProducto={setFichaDe}
