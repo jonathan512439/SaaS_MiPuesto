@@ -22,6 +22,12 @@ export const dynamic = "force-dynamic";
    La caché es por isolate, así que no es una barrera: es un colchón. La barrera
    de verdad la pone `Cache-Control`, que deja que el borde de Cloudflare
    absorba las repeticiones antes de que lleguen acá. */
+/* Una marca de versión, para saber de un vistazo qué código está sirviendo el
+   sitio sin adivinar. Se lee en `/api/salud`. Cuando cambia acá y aparece allá
+   sin que nadie haya desplegado a mano, el despliegue automático está andando.
+   Se bumpea en cambios que importa poder confirmar en producción. */
+const MARCA_DESPLIEGUE = "autodeploy-2026-09-14";
+
 const VIDA_CACHE_MS = 15_000;
 
 let respuestaCacheada: { cuerpo: Record<string, unknown>; estado: number; hasta: number } | null =
@@ -67,7 +73,7 @@ export async function GET() {
       return responder({ estado: "tareas_atrasadas", atrasadas }, 503);
     }
 
-    return responder({ estado: "ok" }, 200);
+    return responder({ estado: "ok", marca: MARCA_DESPLIEGUE }, 200);
   } catch {
     return responder({ estado: "sin_configurar" }, 503);
   }
