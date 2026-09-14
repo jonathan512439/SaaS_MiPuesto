@@ -10,7 +10,6 @@ import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
 import { BannerCatalogo } from "../banner-catalogo";
 import temaStyles from "../tema-catalogo.module.css";
-import { BarraInferior } from "./barra-inferior";
 import { TarjetaMipuesto } from "./tarjeta-mipuesto";
 import styles from "./plantilla-mipuesto.module.css";
 
@@ -37,17 +36,6 @@ export function PlantillaMipuesto({
 }: PropiedadesPlantilla) {
   const { negocio } = datos;
   const esferas = navegacion?.categorias ?? datos.categorias;
-
-  /* Hay ofertas si algún producto visible tiene promoción. Decide la pestaña
-     «Ofertas» de la barra: sin promociones activas no se ofrece. */
-  const hayOfertas = datos.categorias.some((categoria) =>
-    [...categoria.productos, ...(categoria.subcategorias ?? []).flatMap((s) => s.productos)].some(
-      (producto) => producto.tienePromocion,
-    ),
-  );
-
-  const productosEnCarrito = Object.values(cantidadesCarrito).filter((cantidad) => cantidad > 0)
-    .length;
 
   const irA = (id: string) => {
     if (typeof document === "undefined") return;
@@ -289,22 +277,6 @@ export function PlantillaMipuesto({
         >
           <Icono nombre="flechaArriba" />
         </button>
-      ) : null}
-
-      {/* 10 · Barra inferior fija. No en la vista previa del panel: ahí no hay
-          adónde navegar y taparía el contenido de la muestra. */}
-      {!demostracion ? (
-        <BarraInferior
-          alAbrirCarrito={() => irA("productos")}
-          alIrCategorias={() => irA("categorias")}
-          alIrInicio={() => irA("inicio")}
-          alIrOfertas={() => irA("productos")}
-          hayOfertas={hayOfertas}
-          modalidad={negocio.modalidad}
-          productosEnCarrito={productosEnCarrito}
-          telefonoWhatsapp={negocio.telefonoWhatsapp}
-          ubicacionUrl={negocio.ubicacionUrl}
-        />
       ) : null}
     </article>
   );

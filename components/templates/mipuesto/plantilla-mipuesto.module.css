@@ -9,8 +9,7 @@
   max-width: 60rem;
   margin: 0 auto;
   padding: var(--spacing-4);
-  /* Deja aire abajo para que la barra fija no tape el pie. */
-  padding-bottom: var(--spacing-24);
+  padding-bottom: var(--spacing-8);
   background: var(--catalogo-fondo-suave);
   color: var(--catalogo-texto);
 }
@@ -222,44 +221,41 @@
   object-fit: cover;
 }
 
-/* El hero: título, bajada y botón sobre la portada. El velo teñido con el color
-   del negocio sube desde abajo para que el texto claro se lea sobre cualquier
-   fotografía. */
+/* El hero: título, bajada y botón sobre la portada.
+ *
+ * Es un **panel contenido abajo a la izquierda**, no un velo sobre la imagen
+ * entera. La portada no siempre es una fotografía de ambiente: puede ser el
+ * anuncio de una promoción, y atenuar toda la pieza tapaba justo lo que el
+ * negocio quería mostrar. Así el sombreado queda **solo debajo del título y el
+ * botón**, que es donde hace falta para leerlos, y el resto se ve limpio.
+ *
+ * Sin `right`: la caja se encoge a lo que ocupa su contenido en vez de cruzar
+ * la portada de lado a lado. El `max-width` la frena antes del borde opuesto. */
 .hero {
   position: absolute;
-  inset: 0;
+  bottom: var(--spacing-3);
+  left: var(--spacing-3);
   z-index: 1;
   display: grid;
-  align-content: end;
   justify-items: start;
-  gap: var(--spacing-2);
-  padding: var(--spacing-5) var(--spacing-4);
-  /* El velo ya no llega a transparente arriba: **toda** la fotografia queda
-     atenuada. Antes, una portada clara en la mitad de arriba dejaba el titulo
-     sin nada detras y el contraste dependia de que foto habia subido el negocio,
-     que es justo lo que no se puede dejar librado. */
-  background: linear-gradient(
-    to top,
-    var(--catalogo-velo) 0%,
-    color-mix(in srgb, var(--catalogo-velo) 62%, transparent) 45%,
-    color-mix(in srgb, var(--catalogo-velo) 30%, transparent) 100%
-  );
+  gap: var(--spacing-1);
+  max-width: calc(100% - var(--spacing-6));
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-panel);
+  background: var(--catalogo-velo);
   color: var(--catalogo-sobre-marca);
 }
 
 .heroTitulo {
   margin: 0;
   font-family: var(--font-display);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: var(--tracking-titulo);
-  /* El halo va del color del velo, o sea el contrario del de la letra: sirve en
-     las siete paletas, incluida la oscura, donde la letra es la que va oscura y
-     el halo el que va claro. Es lo que despega el texto de la fotografia. */
-  text-shadow:
-    0 0.0625rem 0.125rem color-mix(in srgb, var(--catalogo-marca) 92%, transparent),
-    0 0 0.75rem color-mix(in srgb, var(--catalogo-marca) 72%, transparent);
+  /* Una sola capa: el panel de atrás ya hace el contraste, y el halo queda solo
+     por si la imagen asoma a través del velo, que es traslucido. */
+  text-shadow: 0 0.0625rem 0.125rem color-mix(in srgb, var(--catalogo-marca) 85%, transparent);
   text-wrap: balance;
 }
 
@@ -280,17 +276,17 @@
 }
 
 .heroBoton {
-  margin-top: var(--spacing-2);
-  padding: var(--spacing-3) var(--spacing-6);
-  /* Relleno solido, borde propio y sombra: sobre una fotografia, un boton plano
-     del mismo color que la letra se confunde con el texto y deja de leerse como
-     algo que se toca. */
-  border: var(--borde-fino) solid var(--catalogo-sobre-marca);
+  margin-top: var(--spacing-1);
+  padding: var(--spacing-2) var(--spacing-4);
+  /* Relleno solido y sombra: sobre una fotografia, un boton plano del mismo
+     color que la letra se confunde con el texto y deja de leerse como algo que
+     se toca. */
+  border: none;
   border-radius: var(--radius-control);
   background: var(--catalogo-sobre-marca);
   color: var(--catalogo-marca);
   font: inherit;
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: 800;
   box-shadow: var(--catalogo-sombra-flotante);
   cursor: pointer;
@@ -538,55 +534,12 @@
   font-size: var(--text-sm);
 }
 
-/* 10 · Barra inferior fija */
-.barraInferior {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: space-around;
-  gap: var(--spacing-1);
-  padding: var(--spacing-2) var(--spacing-2)
-    calc(var(--spacing-2) + env(safe-area-inset-bottom, 0));
-  border-top: var(--borde-fino) solid var(--catalogo-borde);
-  background: var(--catalogo-superficie);
-  box-shadow: var(--catalogo-sombra-flotante);
-}
-
-.barraInferior button,
-.barraInferior a {
-  display: grid;
-  flex: 1;
-  justify-items: center;
-  gap: var(--spacing-1);
-  max-width: var(--spacing-24);
-  padding: var(--spacing-1);
-  border: none;
-  background: none;
-  color: var(--catalogo-texto-suave);
-  font: inherit;
-  font-size: var(--text-xs);
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.barraInferior svg {
-  font-size: var(--text-xl);
-}
-
-.barraCarrito[data-lleno="si"] {
-  color: var(--catalogo-marca);
-}
-
 /* Volver arriba: flota sobre la esquina, por encima de la barra inferior fija
    para no quedar tapado por ella. Redondo y de marca, como un botón de acción. */
 .subir {
   position: fixed;
   right: var(--spacing-4);
-  bottom: calc(var(--spacing-20) + env(safe-area-inset-bottom, 0));
+  bottom: calc(var(--spacing-4) + env(safe-area-inset-bottom, 0));
   z-index: 9;
   display: grid;
   place-items: center;
@@ -615,4 +568,10 @@
 .tarjeta[data-agotado="si"] .tarjetaPrecio strong {
   color: var(--catalogo-texto-tenue);
   text-decoration: line-through;
+}
+
+/* El acceso al carrito es una franja fija abajo. Cuando esta puesta, el boton de
+   volver arriba sube para no quedar debajo de ella. */
+[data-acceso-carrito] .subir {
+  bottom: calc(var(--spacing-20) + env(safe-area-inset-bottom, 0));
 }
