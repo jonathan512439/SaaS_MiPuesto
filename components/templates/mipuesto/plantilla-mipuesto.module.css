@@ -210,6 +210,14 @@
   box-shadow: var(--catalogo-sombra-flotante);
 }
 
+/* En pantalla ancha, 16:9 deja una portada de media pantalla de alto y empuja
+   los productos abajo del pliegue. Más apaisada ocupa lo que tiene que ocupar. */
+@media (min-width: 48rem) {
+  .portada {
+    aspect-ratio: 21 / 9;
+  }
+}
+
 .portadaImagen {
   object-fit: cover;
 }
@@ -316,6 +324,10 @@
   font-weight: 800;
 }
 
+/* Dos columnas en el teléfono y **más columnas** —no columnas más anchas— a
+   medida que hay lugar. Con dos fijas, en un monitor cada tarjeta terminaba de
+   treinta centímetros: una fotografía de una botella del tamaño de media
+   pantalla, que es lo que se veía desproporcionado. */
 .rejilla {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -323,6 +335,24 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+@media (min-width: 30rem) {
+  .rejilla {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 48rem) {
+  .rejilla {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .rejilla {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 /* La tarjeta única */
@@ -390,15 +420,50 @@
 }
 
 /* El precio y el botón quedan pegados abajo, alineados aunque las tarjetas de
-   al lado tengan descripciones de distinto largo. */
+   al lado tengan descripciones de distinto largo.
+
+   En columna y no en fila: los rótulos de acción son largos —«Pedir o agendar
+   por WhatsApp»— y al lado del precio en una tarjeta angosta quedaban partidos
+   en tres renglones. Abajo y a todo el ancho se lee de una y se toca mejor. */
 .tarjetaPie {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
   gap: var(--spacing-2);
   margin-top: auto;
   padding-top: var(--spacing-2);
+}
+
+/* El botón de acción de la tarjeta.
+ *
+ * `AccionProducto` devuelve un `button` o un `a` pelado —sin clase— porque cada
+ * plantilla lo vestía a su manera. Acá se lo viste por posición: es lo único
+ * accionable del pie de la tarjeta.
+ *
+ * Va del color de acción, que es el que la paleta reserva para «esto se toca»,
+ * y no del de marca: el de marca ya pinta la cabecera y las esferas, y si el
+ * botón fuera del mismo color no se distinguiría de la decoración. */
+.tarjetaPie button,
+.tarjetaPie a {
+  width: 100%;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--catalogo-accion);
+  color: var(--catalogo-sobre-accion);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Apagado cuando no se puede: agotado, fuera de horario o en la vista previa.
+   Se sigue viendo que ahí hay un botón, pero que ahora no responde. */
+.tarjetaPie button:disabled {
+  background: var(--catalogo-fondo-hundido);
+  color: var(--catalogo-texto-tenue);
+  cursor: not-allowed;
 }
 
 .tarjetaPrecio {
