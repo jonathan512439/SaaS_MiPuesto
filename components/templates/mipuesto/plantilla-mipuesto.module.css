@@ -145,9 +145,9 @@
    perdería la portada y los productos abajo del pliegue. */
 .esferas {
   display: flex;
-  gap: var(--spacing-4);
+  gap: var(--spacing-3);
   overflow-x: auto;
-  padding-bottom: var(--spacing-2);
+  padding-bottom: var(--spacing-1);
 }
 
 .esfera,
@@ -156,7 +156,7 @@
   flex-shrink: 0;
   justify-items: center;
   gap: var(--spacing-1);
-  width: var(--spacing-16);
+  width: var(--spacing-14);
   border: none;
   background: none;
   color: var(--catalogo-texto);
@@ -167,13 +167,13 @@
 .esferaIcono {
   display: grid;
   place-items: center;
-  width: var(--spacing-14);
-  height: var(--spacing-14);
+  width: var(--spacing-12);
+  height: var(--spacing-12);
   border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
   border-radius: var(--radius-tarjeta);
   background: var(--catalogo-superficie);
   box-shadow: var(--catalogo-sombra-tarjeta);
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   transition: transform 160ms ease;
 }
 
@@ -234,11 +234,15 @@
   justify-items: start;
   gap: var(--spacing-2);
   padding: var(--spacing-5) var(--spacing-4);
+  /* El velo ya no llega a transparente arriba: **toda** la fotografia queda
+     atenuada. Antes, una portada clara en la mitad de arriba dejaba el titulo
+     sin nada detras y el contraste dependia de que foto habia subido el negocio,
+     que es justo lo que no se puede dejar librado. */
   background: linear-gradient(
     to top,
-    var(--catalogo-velo),
-    color-mix(in srgb, var(--catalogo-velo) 35%, transparent) 55%,
-    transparent
+    var(--catalogo-velo) 0%,
+    color-mix(in srgb, var(--catalogo-velo) 62%, transparent) 45%,
+    color-mix(in srgb, var(--catalogo-velo) 30%, transparent) 100%
   );
   color: var(--catalogo-sobre-marca);
 }
@@ -250,15 +254,23 @@
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: var(--tracking-titulo);
+  /* El halo va del color del velo, o sea el contrario del de la letra: sirve en
+     las siete paletas, incluida la oscura, donde la letra es la que va oscura y
+     el halo el que va claro. Es lo que despega el texto de la fotografia. */
+  text-shadow:
+    0 0.0625rem 0.125rem color-mix(in srgb, var(--catalogo-marca) 92%, transparent),
+    0 0 0.75rem color-mix(in srgb, var(--catalogo-marca) 72%, transparent);
   text-wrap: balance;
 }
 
 .heroBajada {
   margin: 0;
   max-width: 40ch;
-  color: color-mix(in srgb, var(--catalogo-sobre-marca) 90%, transparent);
+  color: var(--catalogo-sobre-marca);
   font-size: var(--text-sm);
+  font-weight: 600;
   line-height: 1.4;
+  text-shadow: 0 0.0625rem 0.25rem color-mix(in srgb, var(--catalogo-marca) 88%, transparent);
   /* A dos líneas: una descripción larga no puede empujar el botón fuera de la
      portada. */
   display: -webkit-box;
@@ -268,15 +280,19 @@
 }
 
 .heroBoton {
-  margin-top: var(--spacing-1);
-  padding: var(--spacing-2) var(--spacing-5);
-  border: none;
+  margin-top: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-6);
+  /* Relleno solido, borde propio y sombra: sobre una fotografia, un boton plano
+     del mismo color que la letra se confunde con el texto y deja de leerse como
+     algo que se toca. */
+  border: var(--borde-fino) solid var(--catalogo-sobre-marca);
   border-radius: var(--radius-control);
   background: var(--catalogo-sobre-marca);
   color: var(--catalogo-marca);
   font: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   font-weight: 800;
+  box-shadow: var(--catalogo-sombra-flotante);
   cursor: pointer;
 }
 
@@ -372,7 +388,10 @@
 
 .tarjetaFoto {
   position: relative;
-  aspect-ratio: 1;
+  /* Antes cuadrada. La foto es lo mas alto de la tarjeta, y en una rejilla de
+     cuatro o cinco columnas una hilera de cuadrados empuja el precio y el boton
+     fuera de la pantalla. En 4:3 entra lo mismo de producto y sobra alto. */
+  aspect-ratio: 4 / 3;
   width: 100%;
   object-fit: cover;
   background: var(--catalogo-fondo-hundido);
@@ -392,7 +411,7 @@
   flex: 1;
   flex-direction: column;
   gap: var(--spacing-1);
-  padding: var(--spacing-3);
+  padding: var(--spacing-2);
 }
 
 .tarjetaNombre {

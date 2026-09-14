@@ -17,6 +17,10 @@ import styles from "./isotipo.module.css";
  * —los bordes de cada trazo, los picos de las ondas, el radio de las esquinas—
  * y de ahí salen todas las coordenadas. El `viewBox` es el tamaño exacto del
  * archivo original para que las proporciones sean las mismas.
+ *
+ * **El grosor es uno solo para los dos trazos.** Antes eran 18 y 16, y al lado
+ * del nombre —que va en peso 900— el símbolo se veía flaco y despareja la
+ * pareja. Con 22 parejo, el símbolo pesa lo mismo que la palabra.
  */
 export function Isotipo({ className, titulo }: { className?: string; titulo?: string }) {
   return (
@@ -30,6 +34,9 @@ export function Isotipo({ className, titulo }: { className?: string; titulo?: st
       height="30"
       role={titulo ? "img" : undefined}
       stroke="currentColor"
+      /* Las puntas redondeadas van con el trazo grueso: cortadas a escuadra, un
+         trazo de este grosor termina en un canto que se lee como un error. */
+      strokeLinecap="round"
       strokeLinejoin="round"
       viewBox="0 0 256 325"
       width="24"
@@ -41,12 +48,12 @@ export function Isotipo({ className, titulo }: { className?: string; titulo?: st
           el original. */}
       <path
         d="M21 95 C21 56 44 23 66 23 L190 23 C212 23 234 56 234 95 Q198.5 149 164 95 Q128 149 92 95 Q56.5 149 21 95 Z"
-        strokeWidth="18"
+        strokeWidth="22"
       />
       {/* El mostrador. Abierto arriba, con las esquinas de abajo redondeadas. */}
       <path
         d="M53 144 V290 a12 12 0 0 0 12 12 h124 a12 12 0 0 0 12 -12 V144"
-        strokeWidth="16"
+        strokeWidth="22"
       />
     </svg>
   );

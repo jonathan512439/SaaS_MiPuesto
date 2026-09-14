@@ -91,14 +91,26 @@ export function SelectorDeTurno({
     };
   }, [productoId, slug]);
 
-  if (dias === null) return <p className={styles.estado}>Buscando horarios…</p>;
+  if (dias === null) {
+    return (
+      <p className={styles.estado}>
+        <span aria-hidden="true">⏳</span> Buscando horarios…
+      </p>
+    );
+  }
 
   if (reserva) {
     return (
       <div className={styles.confirmacion}>
-        <p className={styles.listo}>Tu turno quedó apartado.</p>
-        <p className={styles.cuando}>{reserva.cuando}</p>
-        <p className={styles.codigo}>Código {reserva.codigo}</p>
+        <p className={styles.listo}>
+          <span aria-hidden="true">✅</span> Tu turno quedó apartado.
+        </p>
+        <p className={styles.cuando}>
+          <span aria-hidden="true">🗓️</span> {reserva.cuando}
+        </p>
+        <p className={styles.codigo}>
+          <span aria-hidden="true">🔖</span> Código {reserva.codigo}
+        </p>
         {/* El WhatsApp después de reservar y no antes: el turno ya está guardado,
             así que el mensaje sirve para confirmar con el negocio, no para pedir.
             Si la persona no lo manda, el turno igual existe. */}
@@ -119,7 +131,8 @@ export function SelectorDeTurno({
   if (dias.length === 0) {
     return (
       <p className={styles.estado}>
-        No hay horarios disponibles por ahora. Consultá al negocio directamente.
+        <span aria-hidden="true">📭</span> No hay horarios disponibles por ahora.
+        Consultá al negocio directamente.
       </p>
     );
   }
@@ -179,7 +192,18 @@ export function SelectorDeTurno({
 
   return (
     <section className={styles.seccion}>
-      <h3 className={styles.titulo}>Elegí tu turno</h3>
+      <h3 className={styles.titulo}>
+        <span aria-hidden="true">🗓️</span> Elegí tu turno
+      </h3>
+
+      {/* Los emojis van decorativos —`aria-hidden`— y el rótulo dice lo mismo en
+          palabras: quien usa lector de pantalla escucha «Elegí el día» y no el
+          nombre del pictograma. Sirven para separar de un vistazo las dos filas,
+          que antes eran dos hileras de botones iguales sin nada que las
+          distinguiera. */}
+      <p className={styles.rotulo}>
+        <span aria-hidden="true">📅</span> Elegí el día
+      </p>
 
       <div className={styles.dias}>
         {dias.map((dia) => (
@@ -197,6 +221,10 @@ export function SelectorDeTurno({
           </button>
         ))}
       </div>
+
+      <p className={styles.rotulo}>
+        <span aria-hidden="true">🕒</span> Elegí la hora
+      </p>
 
       <div className={styles.horas}>
         {horariosDelDia.map((horario) => (
