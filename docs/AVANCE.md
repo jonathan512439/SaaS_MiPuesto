@@ -71,7 +71,7 @@ restaurante, ferretería, ropa, distribuidora, repuestos y veterinaria. Está en
 | 2 | Los campos de la categoría | 4 | **CERRADA el 2026-09-10** |
 | 3 | Los campos en el producto | 4 | **CERRADA el 2026-09-11** |
 | 4 | Variantes | 3 | **Desplegada el 2026-09-11.** Falta la reserva por presentación |
-| 5 | Agenda y citas | 6 | **Desplegada el 2026-09-12.** Falta la prueba a mano |
+| 5 | Agenda y citas | 6 | **CERRADA el 2026-09-13.** Recurso, pantalla de Agenda, confirmar/cancelar, carga a mano |
 | 6 | El catálogo nuevo | 7 | No iniciada |
 | 7 | Identidad y apariencia | 4 | No iniciada |
 | 8 | Alta guiada y siembra | 5 | No iniciada |
