@@ -223,27 +223,52 @@
 
 /* El hero: título, bajada y botón sobre la portada.
  *
- * Es un **panel contenido abajo a la izquierda**, no un velo sobre la imagen
- * entera. La portada no siempre es una fotografía de ambiente: puede ser el
- * anuncio de una promoción, y atenuar toda la pieza tapaba justo lo que el
- * negocio quería mostrar. Así el sombreado queda **solo debajo del título y el
- * botón**, que es donde hace falta para leerlos, y el resto se ve limpio.
+ * El sombreado es una **cortina lateral**: arranca casi opaca contra el borde
+ * izquierdo y se desvanece hacia el centro, dejando limpia la mitad derecha de
+ * la imagen. La portada no siempre es una fotografía de ambiente —puede ser el
+ * anuncio de una promoción— y velarla entera tapaba lo que el negocio quiere
+ * mostrar; velarla de un lado deja lugar para las dos cosas.
  *
- * Sin `right`: la caja se encoge a lo que ocupa su contenido en vez de cruzar
- * la portada de lado a lado. El `max-width` la frena antes del borde opuesto. */
+ * El arranque va casi opaco (92 %) y no al 78 % del velo: el contraste tiene que
+ * darse **con cualquier imagen de fondo**, incluida una blanca, y eso no se
+ * puede dejar librado a qué subió el negocio.
+ *
+ * La columna única del `grid` encierra el texto en esa mitad: sin ella, un
+ * nombre largo cruzaba hasta la zona clara y perdía el fondo que lo sostiene. */
 .hero {
   position: absolute;
-  bottom: var(--spacing-3);
-  left: var(--spacing-3);
+  inset: 0;
   z-index: 1;
   display: grid;
+  grid-template-columns: minmax(0, 76%);
+  align-content: center;
   justify-items: start;
-  gap: var(--spacing-1);
-  max-width: calc(100% - var(--spacing-6));
-  padding: var(--spacing-3) var(--spacing-4);
-  border-radius: var(--radius-panel);
-  background: var(--catalogo-velo);
+  gap: var(--spacing-2);
+  padding: var(--spacing-4) var(--spacing-5);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--catalogo-marca) 92%, transparent) 0%,
+    color-mix(in srgb, var(--catalogo-velo) 76%, transparent) 30%,
+    color-mix(in srgb, var(--catalogo-velo) 32%, transparent) 58%,
+    transparent 82%
+  );
   color: var(--catalogo-sobre-marca);
+}
+
+/* En pantalla ancha la cortina se ciñe a la mitad justa: hay lugar de sobra
+   para el texto y la fotografía se luce del centro a la derecha. */
+@media (min-width: 48rem) {
+  .hero {
+    grid-template-columns: minmax(0, 50%);
+    padding: var(--spacing-6) var(--spacing-8);
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--catalogo-marca) 94%, transparent) 0%,
+      color-mix(in srgb, var(--catalogo-velo) 78%, transparent) 26%,
+      color-mix(in srgb, var(--catalogo-velo) 30%, transparent) 50%,
+      transparent 66%
+    );
+  }
 }
 
 .heroTitulo {
