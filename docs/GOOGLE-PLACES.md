@@ -1,5 +1,33 @@
 # Cómo conseguir y cargar `GOOGLE_PLACES_API_KEY`
 
+> ## ⏸ Estado: **pendiente, no bloqueante**
+>
+> **Decidido el 14 de septiembre de 2026: se pospone hasta tener capital.**
+>
+> Google cobra en Bolivia con **cuenta prepaga**, y pide una recarga inicial de
+> **30 USD** para habilitar la facturación. No es una tarifa —es saldo que se
+> consume— pero es plata por adelantado, y a una consulta por negocio por semana
+> ese saldo duraría años. No se justifica adelantarlo por una función cosmética
+> antes de tener negocios que la pidan.
+>
+> **Esto no frena ninguna otra fase ni deja nada a medias:**
+>
+> | | Estado |
+> |---|---|
+> | Botón «Cómo llegar» | ✅ Funciona y lleva al mapa. Desplegado |
+> | Columnas `maps_*` en la base | ✅ Existen desde la migración `20260930090000` |
+> | Restricción que impide mostrar calificación sin ficha | ✅ Puesta |
+> | El número de estrellas | ⏸ Lo único que espera la clave |
+>
+> **Para retomarlo:** seguí esta guía de punta a punta y después avisame. Falta
+> conectar `POST /api/negocios/maps/resolver`, la tarea semanal de `pg_cron` con
+> su tope duro, y la estrella al lado del botón. **No hay que tocar la base.**
+>
+> El aviso también está anotado en
+> [`plan/06-FASES.md`](plan/06-FASES.md) (fase 7) y en [`AVANCE.md`](AVANCE.md).
+
+---
+
 Para qué sirve: resolver la ficha de Google de cada negocio (`place_id`) y traer
 su **calificación** y su **cantidad de opiniones**, que el catálogo muestra al
 lado del botón «Cómo llegar».

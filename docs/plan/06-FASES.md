@@ -267,13 +267,17 @@ misma estructura y seis identidades distintas. Recién ahí corre la poda.
 
 **Entregables**
 
-- Logo y subnombre en la cabecera, en lugar del emoji.
-- Banners con eyebrow, título, bajada y botón. **El de abajo, opcional.**
-- Las diez paletas, alcanzando cabecera, fondo y tarjetas.
-- Patrón armado con los iconos de las categorías, con opacidad de 0 a 30.
-- `POST /api/negocios/maps/resolver` y el botón de Google.
-- La tarea semanal de `pg_cron` y el tope duro de consultas.
-- Vista previa en vivo en todo el panel de apariencia.
+- ✅ Logo y subnombre en la cabecera, en lugar del emoji.
+- ✅ Banner con eyebrow, título, bajada y botón. **Uno solo, antes del pie.**
+  Eran dos; el de arriba se retiró del diseño porque la portada ya lleva su
+  propio título y botón encima, y dos franjas anchas seguidas empujaban los
+  productos abajo del pliegue.
+- ✅ Las diez paletas, alcanzando cabecera, fondo y tarjetas.
+- ✅ Patrón armado con los iconos de las categorías, con opacidad de 0 a 30.
+- ✅ El botón de Google, **en su forma sin clave**: enlaza al mapa, sin número.
+- ✅ Vista previa en vivo en todo el panel de apariencia.
+- ⏸ `POST /api/negocios/maps/resolver` y la calificación. **Diferido.**
+- ⏸ La tarea semanal de `pg_cron` y el tope duro de consultas. **Diferido.**
 
 **Pruebas**
 
@@ -284,8 +288,27 @@ misma estructura y seis identidades distintas. Recién ahí corre la poda.
 - Sin categorías, el patrón cae al del rubro.
 - La tarea está declarada en `tareas_programadas`.
 
-**Criterio de salida:** en producción, un negocio con logo, dos banners, paleta
-propia, patrón al 12 % y su calificación de Google.
+**Criterio de salida:** en producción, un negocio con logo, subnombre, su
+banner, paleta propia y patrón al 12 % armado con sus propias categorías.
+
+### Lo que queda diferido, y por qué no bloquea
+
+**La calificación de Google.** Decidido el 14 de septiembre de 2026: se pospone
+hasta tener capital. Google cobra en Bolivia con cuenta prepaga y pide **30 USD
+de recarga inicial** para habilitar la facturación. No es una tarifa —es saldo
+que se consume— pero a **una consulta por negocio por semana** ese saldo duraría
+años, y no se justifica adelantarlo por una función cosmética antes de tener
+negocios que la pidan.
+
+**No es bloqueante ni determinante.** El botón «Cómo llegar» ya funciona y lleva
+al mapa; lo único que falta es el número de estrellas al lado. Las columnas
+`maps_*` y la restricción que impide mostrar una calificación sin ficha resuelta
+**ya están en la base** desde la migración `20260930090000`, así que retomarlo no
+toca el modelo de datos: es conectar el resolvedor, la tarea de `pg_cron` y la
+estrella.
+
+Ninguna fase posterior depende de esto. El paso a paso para conseguir la clave
+está en [`../GOOGLE-PLACES.md`](../GOOGLE-PLACES.md).
 
 ---
 

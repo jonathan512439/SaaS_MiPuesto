@@ -28,6 +28,15 @@ guardias del build en verde.
 
 ### Lo que quedó pendiente, y hay que decidir al volver
 
+**La calificación de Google (fase 7).** Diferido el 14 de septiembre de 2026
+hasta tener capital: Google cobra en Bolivia con cuenta prepaga y pide 30 USD de
+recarga inicial. **No bloquea nada.** El botón «Cómo llegar» ya funciona y lleva
+al mapa, y las columnas `maps_*` con su restricción ya están en la base desde la
+migración `20260930090000`; falta solo el número de estrellas. Retomarlo es
+conectar el resolvedor, la tarea semanal de `pg_cron` y la estrella —sin tocar
+el modelo de datos—. El paso a paso para la clave está en
+[`GOOGLE-PLACES.md`](GOOGLE-PLACES.md).
+
 **La reserva por presentación.** La fase 4 dejó las existencias por presentación
 como información del panel: el carrito todavía reserva sobre el total del
 producto, y el editor lo dice donde se cargan. Hacerlo de verdad toca **cinco
