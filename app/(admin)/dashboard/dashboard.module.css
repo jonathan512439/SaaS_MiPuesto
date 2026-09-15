@@ -191,8 +191,15 @@
   .navegacion {
     grid-row: 1;
     grid-column: 2;
-    justify-content: center;
-    overflow-x: visible;
+    /* `safe center`: centrada mientras entre, y alineada al principio cuando no.
+       Con `center` a secas, lo que no entra se corta por los dos lados y el
+       primer apartado queda inalcanzable. */
+    justify-content: safe center;
+    /* Sigue siendo desplazable, no visible. Con `visible`, lo que no entraba en
+       esta columna se dibujaba **encima** del logo y de la cuenta: es el
+       solapamiento que se veía en escritorio. Que se desplace es peor que nada,
+       pero muchísimo mejor que dos cosas pisadas. */
+    overflow-x: auto;
     padding-bottom: 0;
   }
 
