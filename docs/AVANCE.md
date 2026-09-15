@@ -26,6 +26,26 @@ de aislamiento entre negocios, cuatro auditorías estructurales contra el proyec
 real (`test:fase1:linked`, `fase2`, `fase4`, más `test:rls:linked`), y las seis
 guardias del build en verde.
 
+### Una falla que conviene recordar: los permisos por columna
+
+`negocios` **no concede `select` sobre la tabla entera**: concede columna por
+columna al rol `anon`, para que el catálogo público solo pueda leer lo que sale
+publicado. Es la decisión correcta y tiene un filo afilado: **una columna nueva
+no queda concedida sola**, y pedirla en la consulta pública no devuelve la fila
+sin ella — hace fallar la consulta entera con «permission denied».
+
+Pasó en la fase 7 con `patron_opacidad` y `subnombre`. Desde ese despliegue
+**ningún catálogo público cargó**, y nada avisó: el compilador no ve permisos,
+las pruebas corren sin base, y la página seguía devolviendo **200 con el cuerpo
+vacío**, así que ni el código de estado lo delataba. Se descubrió mirando el
+sitio, que es lo que se quiere evitar.
+
+Desde entonces hay una guarda: `npm run test:publico:linked` corre **la consulta
+de verdad** —la lee de `lib/catalogo/negocio-publico.ts`— con la clave anónima
+contra el proyecto real. Si alguien suma una columna y se olvida del `grant`,
+falla y dice cómo arreglarlo. **Conviene correrla después de cualquier migración
+que toque `negocios`.**
+
 ### Lo que quedó pendiente, y hay que decidir al volver
 
 **La calificación de Google (fase 7).** Diferido el 14 de septiembre de 2026
