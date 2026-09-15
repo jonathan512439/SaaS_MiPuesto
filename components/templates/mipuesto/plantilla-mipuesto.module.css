@@ -223,6 +223,10 @@
   overflow: hidden;
   margin-inline: calc(var(--spacing-4) * -1);
   margin-bottom: calc(var(--spacing-3) * -1);
+  /* Leve, y no la del panel: la portada llega al borde de la pantalla, así que
+     una curva marcada dejaría dos cuñas de fondo en las esquinas y volvería a
+     leerse como un recuadro. Con esta apenas se ablanda el canto. */
+  border-radius: var(--radius-control);
   background: var(--catalogo-fondo-hundido);
   box-shadow: var(--catalogo-sombra-flotante);
 }

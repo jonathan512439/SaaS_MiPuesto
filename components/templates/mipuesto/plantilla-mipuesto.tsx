@@ -208,6 +208,13 @@ export function PlantillaMipuesto({
       {/* 5 · Franja de horario. Se dibuja sola solo cuando hay algo que decir. */}
       <AvisoHorario estado={negocio.atencion} />
 
+      {/* 6 · Banner de arriba, opcional.
+          Va acá y no pegado a la portada: dos franjas anchas seguidas empujaban
+          los productos abajo del pliegue, que fue el motivo de sacarlo de ese
+          lugar. Con el buscador y las esferas en el medio ya no se apilan.
+          Que se vea o no lo decide el dueño: sin banner cargado no hay hueco. */}
+      <BannerCatalogo banner={negocio.banners[0]} />
+
       {navegacion ? (
         <p aria-live="polite" className={styles.conteo}>
           {navegacion.totalProductos === 1
@@ -262,10 +269,8 @@ export function PlantillaMipuesto({
         })}
       </div>
 
-      {/* 8 · Banner de abajo, opcional. Es el primero del arreglo porque es el
-          único: el de arriba se retiró del diseño y una ranura que no se dibuja
-          en ningún lado solo sirve para que alguien cargue algo y no lo vea. */}
-      <BannerCatalogo banner={negocio.banners[0]} />
+      {/* 8 · Banner de abajo, opcional, antes del pie. */}
+      <BannerCatalogo banner={negocio.banners[1]} />
 
       {/* 9 · Pie: cómo contactar y cómo llegar. */}
       <footer className={styles.pie}>

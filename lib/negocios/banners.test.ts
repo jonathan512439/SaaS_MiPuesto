@@ -96,26 +96,27 @@ describe("validarBanners", () => {
     expect(validarBanners(undefined)).toEqual({ correcto: true, banners: [] });
   });
 
-  it("acepta el único bien formado", () => {
-    expect(validarBanners([bueno]).correcto).toBe(true);
+  it("acepta los dos bien formados", () => {
+    expect(validarBanners([bueno, { imagen: bueno.imagen, alt: "Aviso" }]).correcto).toBe(true);
   });
 
-  /* El de arriba se retiró del diseño: una ranura que no se dibuja en ningún
-     lado solo sirve para que alguien cargue algo y después no lo encuentre. */
-  it("rechaza el segundo", () => {
-    const resultado = validarBanners([bueno, bueno]);
+  /* Tres franjas de publicidad en un catálogo de barrio es un catálogo que no se
+     lee. El techo está acá y no solo en el formulario. */
+  it("rechaza el tercero", () => {
+    const resultado = validarBanners([bueno, bueno, bueno]);
     expect(resultado.correcto).toBe(false);
-    if (!resultado.correcto) expect(resultado.errores.banners).toContain("hasta 1");
+    if (!resultado.correcto) expect(resultado.errores.banners).toContain("hasta 2");
   });
 
   /* Acá sí se avisa, y con el índice adentro de la clave, para que el
      formulario pueda marcar el banner exacto. */
-  it("dice qué le falta al banner y por qué", () => {
-    const resultado = validarBanners([{ imagen: "", alt: "" }]);
+  it("dice cuál banner está mal y por qué", () => {
+    const resultado = validarBanners([bueno, { imagen: "", alt: "" }]);
     expect(resultado.correcto).toBe(false);
     if (!resultado.correcto) {
-      expect(resultado.errores["banners.0.imagen"]).toBeTruthy();
-      expect(resultado.errores["banners.0.alt"]).toBeTruthy();
+      expect(resultado.errores["banners.1.imagen"]).toBeTruthy();
+      expect(resultado.errores["banners.1.alt"]).toBeTruthy();
+      expect(resultado.errores["banners.0.imagen"]).toBeUndefined();
     }
   });
 

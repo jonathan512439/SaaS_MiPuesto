@@ -1,33 +1,30 @@
-/* El banner del catálogo: una franja ancha antes del pie.
+/* Los dos banners del catálogo: dos franjas anchas, las dos opcionales.
  *
- * Sirve para una promoción, un aviso —«cerrado el 6 de agosto»— o publicidad
+ * Sirven para una promoción, un aviso —«cerrado el 6 de agosto»— o publicidad
  * propia, con la imagen y, encima, antetítulo, título, bajada y botón.
  *
- * **Va en `jsonb` y no en una tabla**, siguiendo a `redes_sociales`, que es la
+ * **Van en `jsonb` y no en una tabla**, siguiendo a `redes_sociales`, que es la
  * misma clase de cosa: un dato corto, acotado, propio del negocio, que se lee
  * siempre junto con él y nunca se consulta por su cuenta. Una tabla sumaría una
  * política de RLS, una ida más a la base en el camino público y un `join` en la
  * consulta que más importa, a cambio de nada.
  *
- * **Es uno y no una lista libre.** Dos o tres franjas de publicidad en un
- * catálogo de barrio es un catálogo que no se lee.
+ * **Son dos y no una lista libre.** Tres franjas de publicidad en un catálogo
+ * de barrio es un catálogo que no se lee.
  *
- * Sigue siendo un arreglo y no un objeto suelto porque la columna ya guarda un
- * arreglo en todos los negocios dados de alta: cambiar la forma del dato
- * obligaría a una migración de contenido para no ganar nada.
+ * La posición es la del arreglo: el primero va entre el horario y los productos,
+ * y el segundo antes del pie. Sin campo `posicion`, que sería un dato más que
+ * puede quedar en dos estados contradictorios.
+ *
+ * **Cuántos se ven lo decide el dueño, no el armazón**: un banner existe si
+ * tiene imagen y texto alternativo, y se apaga borrándolo. El catálogo dibuja
+ * los que haya y ninguno deja hueco si no está.
  *
  * `imagen` es una ruta dentro del depósito de negocios, no una dirección: ver el
  * comentario de `imagenValida`.
  */
 
-/* Uno solo, al pie del catálogo.
- *
- * Eran dos —uno debajo de la portada y otro antes del pie— y el de arriba se
- * retiró del diseño: la portada ya lleva su propio título y botón encima, y dos
- * franjas anchas seguidas empujaban los productos abajo del pliegue. Dejar la
- * ranura huérfana era peor que quitarla: el dueño cargaba una imagen y no la
- * veía en ninguna parte. */
-export const MAXIMO_BANNERS = 1;
+export const MAXIMO_BANNERS = 2;
 const LARGO_MAXIMO_ALT = 120;
 /* El texto que el diseño de referencia pone sobre el banner: un antetítulo
    corto, un título, una bajada y el rótulo del botón. Todos opcionales —un

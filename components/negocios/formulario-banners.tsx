@@ -34,12 +34,15 @@ const VACIO: BannerEnEdicion = {
   enlace: "",
 };
 
-/* El banner del catálogo: una franja ancha antes del pie.
+/* Los dos banners del catálogo.
  *
- * Eran dos —uno también debajo de la portada— y ese se retiró del diseño. El
- * formulario sigue recorriendo un arreglo de `MAXIMO_BANNERS` en vez de tratar
- * uno suelto: el día que vuelva a haber dos, lo único que cambia es esa
- * constante.
+ * El primero va entre el horario y los productos, y el segundo antes del pie.
+ * Se editan los dos juntos y se guardan juntos, porque la posición es el orden:
+ * mandar el segundo sin el primero dejaría un hueco que el arreglo no puede
+ * representar.
+ *
+ * **Los dos son opcionales y es el dueño quien decide.** Un banner vacío no se
+ * guarda y no deja hueco en el catálogo; para apagar uno, se lo quita.
  */
 export function FormularioBanners({
   bannersIniciales,
@@ -179,7 +182,7 @@ export function FormularioBanners({
         setErrores(datos.errores ?? {});
         throw new Error(datos.error || "No se pudieron guardar los banners.");
       }
-      mostrarAviso({ titulo: "Banner guardado", variante: "exito" });
+      mostrarAviso({ titulo: "Banners guardados", variante: "exito" });
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudieron guardar los banners",
@@ -194,17 +197,21 @@ export function FormularioBanners({
   return (
     <form className={styles.seccion} onSubmit={guardar}>
       <header className={styles.cabecera}>
-        <h2>Banner del catálogo</h2>
+        <h2>Banners del catálogo</h2>
         <p>
-          Una franja ancha y opcional, antes del pie. Sirve para una promoción, un aviso
-          o publicidad de tu negocio. Lo que cargues acá se ve arriba, en la vista previa.
+          Dos franjas anchas, las dos opcionales: una entre el horario y tus productos, y
+          otra antes del pie. Sirven para una promoción, un aviso o publicidad de tu
+          negocio. Si dejás una vacía, no se muestra y no deja hueco; y si cargás una
+          sola, va al primer lugar. Lo que cargás acá se ve arriba, en la vista previa.
         </p>
       </header>
 
       {banners.map((banner, indice) => {
+        const posicion =
+          indice === 0 ? "Entre el horario y tus productos" : "Antes del pie del catálogo";
         return (
           <fieldset className={styles.banner} disabled={guardando} key={indice}>
-            <legend>Antes del pie del catálogo</legend>
+            <legend>{posicion}</legend>
 
             <div className={styles.previa}>
               {banner.vistaPrevia ? (
@@ -340,7 +347,7 @@ export function FormularioBanners({
       {errores.banners ? <strong className={styles.error}>{errores.banners}</strong> : null}
 
       <Boton cargando={guardando} type="submit">
-        Guardar el banner
+        Guardar banners
       </Boton>
     </form>
   );
