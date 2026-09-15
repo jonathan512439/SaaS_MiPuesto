@@ -74,9 +74,19 @@
     box-shadow var(--movimiento-rapido) ease;
 }
 
+/* Lo elegido se pinta, no se bordea.
+ *
+ * Antes la única diferencia era el color de un borde de un píxel: entre seis
+ * tarjetas iguales eso no se encuentra, y menos de reojo en un teléfono. Con el
+ * fondo de marca se ve cuál está elegida sin buscarla, que es la corrección 3.6
+ * del plan del panel.
+ *
+ * El ancho del borde no cambia, solo su color: engrosarlo correría el contenido
+ * un píxel al elegir, y esa sacudida se nota más que la mejora. */
 .opcionElegida,
 .paletaElegida {
   border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
   box-shadow: var(--sombra-panel);
 }
 

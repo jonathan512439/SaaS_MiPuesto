@@ -68,7 +68,7 @@
 }
 
 .sinImagen {
-  color: var(--color-texto-tenue);
+  color: var(--color-texto-suave);
   font-size: var(--text-sm);
   font-weight: 800;
 }
@@ -100,7 +100,7 @@
 }
 
 .campo small {
-  color: var(--color-texto-tenue);
+  color: var(--color-texto-suave);
   font-size: var(--text-xs);
   line-height: 1.4;
 }

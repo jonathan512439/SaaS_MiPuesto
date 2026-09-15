@@ -329,6 +329,12 @@ está en [`../GOOGLE-PLACES.md`](../GOOGLE-PLACES.md).
 - `POST /api/plataforma/negocios/[id]/rubro`, con exportación previa.
 - La importación con IA usando la categoría como esquema, con **el informe de
   cobertura**.
+- **La reorganización de las pantallas del panel** según la tabla de
+  [`04-PANEL.md`](04-PANEL.md) §4: Inicio, Mi negocio, Mi catálogo, Productos,
+  Apariencia, Pedidos y citas, Herramientas. Estaba descrita ahí pero **no
+  figuraba como entregable de ninguna fase**, que es como se pierden las cosas
+  que todos dan por hechas en otro lado. Entra acá porque el alta guiada toca
+  esas mismas pantallas: hacerlo dos veces sería rehacer lo primero.
 
 **Pruebas**
 
@@ -354,7 +360,11 @@ sin ayuda y sin preguntar nada. Cronometrado.
 - Todo el texto del sistema revisado según [`08-VOCABULARIO.md`](08-VOCABULARIO.md).
 - **La portada, menos saturada**: fundir la franja de horario con la de
   confianza, cargar los productos al desplazar, revisar qué bloque sobra.
-- Repaso de contraste del panel con los tokens existentes.
+- ~~Repaso de contraste del panel con los tokens existentes.~~ **Adelantado**:
+  se hizo antes de la fase 8, el 15 de septiembre de 2026. El dueño reportó que
+  el panel se veía saturado y que no se distinguía dónde termina una opción; la
+  corrección 3.6 no depende de cómo queden repartidas las pantallas, así que
+  esperar a la fase 9 era dejar el problema puesto sin motivo.
 - **Compra del dominio**, DNS comodín, certificado y paso de ruta a subdominio,
   con las direcciones viejas redirigiendo.
 

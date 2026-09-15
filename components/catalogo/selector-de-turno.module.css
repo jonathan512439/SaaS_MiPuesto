@@ -6,7 +6,7 @@
   padding: var(--spacing-4);
   border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-radius: var(--radius-tarjeta);
-  background: var(--color-fondo-hundido);
+  background: var(--catalogo-fondo-hundido);
 }
 
 .titulo {
@@ -102,8 +102,8 @@
 /* El ocupado se dibuja igual pero apagado: esconderlo haría parecer que el
    negocio no atiende a esa hora, y eso es otra cosa. */
 .hora:disabled {
-  background: var(--color-fondo-hundido);
-  color: var(--color-texto-tenue);
+  background: var(--catalogo-fondo-hundido);
+  color: var(--catalogo-texto-tenue);
   cursor: not-allowed;
 }
 

@@ -199,6 +199,11 @@ const colores = Object.fromEntries(
        pareja de dos colores derivados, o sea de las que nadie miraba. */
     "marca-tenue",
     "marca-fuerte",
+    /* El gris de las notas al pie y el fondo que hunde un grupo. Se miran porque
+       son justo los que se usan para lo secundario, que es donde el contraste se
+       descuida: «total, no es lo importante». */
+    "texto-tenue",
+    "fondo-hundido",
   ].map((token) => [token, leerColor(token)]),
 );
 
@@ -211,7 +216,18 @@ const combinaciones = [
   ["marca", "lienzo", 4.5],
   ["texto-suave", "lienzo", 4.5],
   ["texto-suave", "superficie", 4.5],
+  /* Aunque sea el gris de las notas al pie, es texto: al 55 % se quedaba en
+     3.55:1 y por eso se definió al 65 %. Sin esta comprobación, alguien lo
+     aclara «porque es secundario» y vuelve a reprobar sin que nada avise. */
+  ["texto-tenue", "superficie", 4.5],
+  /* Lo que se hunde sigue llevando texto encima. */
+  ["texto", "fondo-hundido", 4.5],
+  ["texto-suave", "fondo-hundido", 4.5],
   ["marca-fuerte", "marca-tenue", 4.5],
+  /* La opción elegida del panel se pinta con el fondo de marca y conserva su
+     texto normal encima. */
+  ["texto", "marca-tenue", 4.5],
+  ["texto-suave", "marca-tenue", 4.5],
   ["marca", "superficie", 4.5],
   /* Los dos extremos del degradado de las herramientas con IA. Se comprueban los
      dos porque el texto va encima de todo el recorrido: alcanza con que un

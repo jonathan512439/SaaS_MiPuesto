@@ -34,6 +34,17 @@
      se confundan con el fondo de la página. */
   --color-lienzo: color-mix(in srgb, var(--color-marca) 5%, var(--color-superficie));
   --color-texto-suave: color-mix(in srgb, var(--color-texto) 74%, var(--color-superficie));
+  /* El gris de las notas al pie, **no el de las instrucciones**: para una
+     instrucción va `--color-texto-suave`, que es más oscuro. Acá caen los
+     rótulos de un control apagado y poco más.
+     Al 65 % y no al 55 %: con 55 se queda en 3.55:1 contra la superficie, o sea
+     por debajo de AA. Un token pensado para texto no puede reprobar contraste
+     aunque el texto sea secundario; con 65 da 4.77:1. */
+  --color-texto-tenue: color-mix(in srgb, var(--color-texto) 65%, var(--color-superficie));
+  /* El fondo que hunde un grupo dentro de una superficie. Separa sin dibujar una
+     línea y sin abrir un margen, que es lo que pide la corrección 3.6 del panel:
+     que se vea dónde termina una opción y empieza la siguiente. */
+  --color-fondo-hundido: color-mix(in srgb, var(--color-texto) 5%, var(--color-superficie));
 
   /* Las herramientas con IA no toman el color del negocio, y es a propósito:
      son de MiPuesto, no del catálogo. Con la marca del negocio se confundían con
