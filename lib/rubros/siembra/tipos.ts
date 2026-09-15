@@ -40,13 +40,18 @@ export type CategoriaSembrada = {
   vende: FormaDeVender;
   atributos?: AtributoSembrado[];
   /* Solo para las que venden tiempo. Sin esto, una categoría de consultas queda
-     sin horario y el cliente no puede agendar nada. */
+     sin horario y el cliente abre el calendario y no encuentra un solo turno.
+     Los nombres siguen a las columnas de `agenda_recurso`: la anticipación va en
+     **horas** porque así la guarda la base, y traducir de minutos acá sería una
+     conversión de ida y vuelta esperando a que alguien se equivoque. */
   agenda?: {
     duracionMinutos: number;
     /* Cuántos se pueden atender a la vez. Dos consultorios, dos cupos. */
     cupo: number;
-    anticipacionMinutosMinima: number;
+    anticipacionHorasMinima: number;
     diasHaciaAdelante: number;
+    /* El horario semanal. `dia` es 0 para domingo, como `DIAS`. */
+    franjas: Array<{ dia: number; desde: string; hasta: string }>;
   };
 };
 

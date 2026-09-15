@@ -144,6 +144,18 @@ describe("las siembras de rubro", () => {
           expect(agenda!.duracionMinutos).toBeGreaterThan(0);
           expect(agenda!.cupo).toBeGreaterThan(0);
           expect(agenda!.diasHaciaAdelante).toBeGreaterThan(0);
+          /* Sin franjas la agenda existe pero no atiende nunca: el cliente abre
+             el calendario y no encuentra un solo turno. Es peor que no tenerla,
+             porque parece que el negocio no tiene lugar. */
+          expect(agenda!.franjas.length, `${rubro} · «${nombre}» no atiende ningún día`)
+            .toBeGreaterThan(0);
+          for (const franja of agenda!.franjas) {
+            expect(franja.dia).toBeGreaterThanOrEqual(0);
+            expect(franja.dia).toBeLessThanOrEqual(6);
+            expect(franja.desde).toMatch(/^\d{2}:\d{2}$/);
+            expect(franja.hasta).toMatch(/^\d{2}:\d{2}$/);
+            expect(franja.hasta > franja.desde, "cierra antes de abrir").toBe(true);
+          }
         } else {
           expect(agenda, `${rubro} · «${nombre}» no vende tiempo y trae agenda`).toBeUndefined();
         }

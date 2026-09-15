@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { PASOS_ALTA } from "../../../../lib/negocios/alta";
 import { esRubroId } from "../../../../lib/negocios/rubros";
+import { sembrarRubro } from "../../../../lib/rubros/sembrar";
+import { siembraDeRubro } from "../../../../lib/rubros/siembra";
 import { normalizarSlug, validarSlug } from "../../../../lib/negocios/validacion";
 import type { Database } from "../../../../lib/supabase/database.types";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
@@ -122,6 +124,18 @@ export async function PATCH(solicitud: NextRequest) {
       );
     } else {
       Object.assign(cambios, { rubro, rubro_bloqueado_en: new Date().toISOString() });
+
+      /* La paleta y la modalidad del rubro se sugieren, no se imponen: se
+         escriben solo si el dueño no eligió nada todavía. Pisarle una paleta que
+         ya había elegido sería cambiarle el catálogo por haber vuelto atrás a
+         releer un aviso. */
+      const siembra = siembraDeRubro(rubro);
+      if (siembra && !negocio.rubro) {
+        Object.assign(cambios, {
+          paleta_id: siembra.paletaSugerida,
+          tipo_negocio: siembra.modalidadSugerida,
+        });
+      }
     }
   }
 
@@ -150,11 +164,30 @@ export async function PATCH(solicitud: NextRequest) {
     return NextResponse.json({ error: "No se pudo guardar. Intentá de nuevo." }, { status: 500 });
   }
 
+  /* La siembra va **después** de guardar el rubro y no antes: si fallara, el
+     rubro ya quedó elegido y el dueño puede seguir con el catálogo en blanco, que
+     es molesto pero no lo deja trabado. Al revés —sembrar primero— un fallo al
+     guardar dejaría categorías de un rubro que el negocio no tiene.
+     Tampoco tumba el paso: el dueño ya decidió, y volverlo a la pantalla
+     anterior por algo que se puede rehacer después sería castigarlo por un
+     problema nuestro. */
+  let sembrado: Awaited<ReturnType<typeof sembrarRubro>> | null = null;
+  if (paso === 2 && typeof cambios.rubro === "string") {
+    try {
+      sembrado = await sembrarRubro(supabase, negocio.id, cambios.rubro);
+    } catch {
+      sembrado = null;
+    }
+  }
+
   const siguiente = PASOS_ALTA[Math.min(paso, ULTIMO_PASO - 1)];
   return NextResponse.json({
     guardado: true,
     completada: cambios.alta_completada_en !== undefined,
     siguiente: siguiente.id,
     ruta: siguiente.ruta,
+    /* Cuántas categorías quedó con el rubro, para poder decírselo en vez de
+       mandarlo a la pantalla siguiente sin explicar qué acaba de pasar. */
+    sembradas: sembrado?.sembro ? sembrado.categorias : 0,
   });
 }
