@@ -339,6 +339,8 @@ está en [`../GOOGLE-PLACES.md`](../GOOGLE-PLACES.md).
   seña de cuáles tienen más de una foto—, datos al centro, acciones a la derecha.
   Una por fila en el teléfono, con fotos y botones legibles sin acercar la
   pantalla. Entra acá y no antes porque es la lista que la reorganización mueve.
+- *(Las subcategorías del catálogo se agrupan en la fase 9, junto con la carga
+  al desplazar: las dos reestructuran la misma lista.)*
 - **Las tarjetas de pedidos**, rehechas con la forma de las de Agenda: los
   botones de resolver a la vista, en vez de un resumen que hay que interpretar.
   El dueño con poca experiencia tiene que poder atender un pedido sin aprender
@@ -399,6 +401,34 @@ cualquiera de ellas se distingue a simple vista el panel del catálogo.
 - Todo el texto del sistema revisado según [`08-VOCABULARIO.md`](08-VOCABULARIO.md).
 - **La portada, menos saturada**: fundir la franja de horario con la de
   confianza, cargar los productos al desplazar, revisar qué bloque sobra.
+- **Las subcategorías, visibles en el catálogo**, agrupadas dentro de su
+  categoría: «Bebidas» se abre en subtítulos *Gaseosas*, *Jugos*, *Aguas*.
+
+  Hoy el panel deja crearlas y asignarles productos, pero **el catálogo no las
+  dibuja**: los aplana dentro de la categoría y el nombre de la subcategoría se
+  pierde. Es una regresión de la fase 6 —las seis tarjetas viejas sí dibujaban
+  esa línea— y no figuraba en ninguna fase.
+
+  **Se agrupa y no se rotula.** Una etiqueta al costado de la tarjeta la
+  degradaría a un dato más, y entonces no habría forma de explicar en qué se
+  diferencia de un campo de categoría. Una subcategoría es **dónde vive** el
+  producto; agrupando, esa diferencia se ve sola.
+
+  **Va en esta fase y no antes** porque toca la misma lista que la carga al
+  desplazar, que está en el punto de arriba. Hacer las dos cosas por separado es
+  reestructurar la lista de productos dos veces.
+
+  Las reglas con las que no puede chocar, que es lo que hay que resolver al
+  construirlo:
+
+  | Regla que ya existe | Lo que obliga |
+  |---|---|
+  | Hoy la lista **pagina**, y en esta fase pasa a cargar al desplazar | Un grupo no puede partirse entre dos tandas: el subtítulo aparecería dos veces |
+  | Las esferas saltan al ancla `categoria-{id}` | El ancla sigue siendo de la categoría; los subgrupos no se la pueden quedar |
+  | Elegir una categoría filtra a esa sola | Filtrada, sus subgrupos se siguen viendo |
+  | El anuncio va **a la mitad**, contado en categorías | Los subgrupos no cuentan: si contaran, el anuncio se correría de lugar según cómo el dueño subdivide |
+  | «Otros» y la carta del día son categorías que el sistema inventa | No tienen subcategorías y no pueden quedar con un subtítulo vacío |
+  | Una categoría puede tener productos **sueltos y en subcategorías a la vez** | Los sueltos van primero y **sin subtítulo**: inventarles uno —«Sin subcategoría»— le muestra al comprador un problema de organización que es del dueño |
 - ~~Repaso de contraste del panel con los tokens existentes.~~ **Adelantado**:
   se hizo antes de la fase 8, el 15 de septiembre de 2026. El dueño reportó que
   el panel se veía saturado y que no se distinguía dónde termina una opción; la

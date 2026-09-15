@@ -4,9 +4,19 @@ import type { ProductoPlantilla } from "../../../lib/plantillas/tipos";
 /* El producto tal como llega a la tarjeta.
  *
  * Es el de la plantilla más el rastro de dónde está: la plantilla aplana sus
- * categorías para dibujar la lista y, al hacerlo, pierde el árbol. La tarjeta
- * necesita esos dos nombres para dibujar la línea de arriba, y el ancla para que
- * la barra de categorías tenga a dónde saltar. */
+ * categorías para dibujar la lista y, al hacerlo, pierde el árbol.
+ *
+ * **`subcategoria` hoy llega y no se dibuja**, y se deja a propósito. Las seis
+ * tarjetas anteriores la escribían en una línea sobre el nombre; la tarjeta
+ * única de la fase 6 no heredó esa línea, así que quien crea «Bebidas →
+ * Gaseosas» en el panel no ve la subcategoría en ninguna parte del catálogo.
+ *
+ * Se resuelve en la fase 9 **agrupando**, no rotulando: una subcategoría es
+ * dónde vive el producto, y como etiqueta al costado quedaría indistinguible de
+ * un campo de categoría. Va con la carga al desplazar porque las dos
+ * reestructuran esta misma lista. Está anotado en `docs/plan/06-FASES.md`.
+ *
+ * El ancla es para que la barra de categorías tenga a dónde saltar. */
 export type ProductoEnTarjeta = ProductoPlantilla & {
   categoria: string;
   subcategoria: string | null;
