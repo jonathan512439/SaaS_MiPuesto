@@ -464,6 +464,8 @@ export type Database = {
           activo_actualizado_por: string | null
           activo_anterior: boolean | null
           admin_user_id: string
+          alta_completada_en: string | null
+          alta_paso: number
           banners: Json
           ciudad: string | null
           creado_en: string
@@ -482,6 +484,7 @@ export type Database = {
           maps_place_id: string | null
           maps_visible: boolean
           nombre: string
+          nombre_admin: string | null
           paleta_id: string
           patron_fondo: boolean
           patron_opacidad: number
@@ -492,6 +495,7 @@ export type Database = {
           resenas_url: string | null
           reserva_minutos: number
           rubro: string | null
+          rubro_bloqueado_en: string | null
           slug: string
           subnombre: string | null
           suscripcion_vence_en: string
@@ -508,6 +512,8 @@ export type Database = {
           activo_actualizado_por?: string | null
           activo_anterior?: boolean | null
           admin_user_id: string
+          alta_completada_en?: string | null
+          alta_paso?: number
           banners?: Json
           ciudad?: string | null
           creado_en?: string
@@ -526,6 +532,7 @@ export type Database = {
           maps_place_id?: string | null
           maps_visible?: boolean
           nombre: string
+          nombre_admin?: string | null
           paleta_id?: string
           patron_fondo?: boolean
           patron_opacidad?: number
@@ -536,6 +543,7 @@ export type Database = {
           resenas_url?: string | null
           reserva_minutos?: number
           rubro?: string | null
+          rubro_bloqueado_en?: string | null
           slug: string
           subnombre?: string | null
           suscripcion_vence_en?: string
@@ -552,6 +560,8 @@ export type Database = {
           activo_actualizado_por?: string | null
           activo_anterior?: boolean | null
           admin_user_id?: string
+          alta_completada_en?: string | null
+          alta_paso?: number
           banners?: Json
           ciudad?: string | null
           creado_en?: string
@@ -570,6 +580,7 @@ export type Database = {
           maps_place_id?: string | null
           maps_visible?: boolean
           nombre?: string
+          nombre_admin?: string | null
           paleta_id?: string
           patron_fondo?: boolean
           patron_opacidad?: number
@@ -580,6 +591,7 @@ export type Database = {
           resenas_url?: string | null
           reserva_minutos?: number
           rubro?: string | null
+          rubro_bloqueado_en?: string | null
           slug?: string
           subnombre?: string | null
           suscripcion_vence_en?: string
