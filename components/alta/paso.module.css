@@ -1,0 +1,113 @@
+@reference "../../app/globals.css";
+
+/* La tarjeta de un paso del alta. Angosta a propósito: son cuatro preguntas, no
+   un formulario de configuración. Un ancho de lectura hace que se vea cuánto
+   falta de un vistazo, y que no dé la sensación de trámite. */
+.paso {
+  display: grid;
+  gap: var(--spacing-5);
+  width: min(100%, 38rem);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-6);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-panel);
+}
+
+.titulo {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.titulo h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  letter-spacing: var(--tracking-titulo);
+}
+
+.titulo p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+/* La dirección, mostrada como la va a ver quien la reciba. No es un campo más:
+   es lo que el dueño va a escribir en una tarjeta y pegar en su vidriera, así
+   que se muestra armada y no en pedazos. */
+.direccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  margin: 0;
+  border-left: var(--spacing-1) solid var(--color-borde-suave);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-fondo-hundido);
+  font-size: var(--text-base);
+  overflow-wrap: anywhere;
+}
+
+.direccion[data-estado="libre"] {
+  border-left-color: var(--color-exito);
+  background: var(--color-exito-tenue);
+}
+
+.direccion[data-estado="tomada"],
+.direccion[data-estado="invalida"] {
+  border-left-color: var(--color-peligro);
+  background: var(--color-peligro-tenue);
+}
+
+.dominio {
+  color: var(--color-texto-suave);
+}
+
+.veredicto {
+  margin-left: auto;
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.direccion[data-estado="libre"] .veredicto {
+  color: var(--color-exito);
+}
+
+.direccion[data-estado="tomada"] .veredicto,
+.direccion[data-estado="invalida"] .veredicto {
+  color: var(--color-peligro);
+}
+
+.direccion[data-estado="consultando"] .veredicto {
+  color: var(--color-texto-suave);
+}
+
+/* El aviso de que el rubro es irreversible. Se viste de alerta —el mismo recurso
+   que el aviso de suscripción y el de cambiar precios— porque es la decisión más
+   cara de deshacer del sistema: cambiarla reinicia el catálogo. */
+.advertencia {
+  display: grid;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-alerta);
+  border-left: var(--spacing-1) solid var(--color-alerta);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-4);
+  background: var(--color-alerta-tenue);
+}
+
+.advertencia p {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.advertenciaTitulo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-alerta);
+  font-size: var(--text-base);
+  font-weight: 800;
+}
