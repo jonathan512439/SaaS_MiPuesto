@@ -52,7 +52,6 @@ export function crearDatosDemoPlantilla({
     subnombre,
     redesSociales: [],
     banners: [],
-    tarjeta: "cuadricula" as const,
     },
     categorias: [
       {

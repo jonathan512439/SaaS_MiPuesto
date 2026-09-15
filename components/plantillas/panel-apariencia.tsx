@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import type { PaletaId, PlantillaId, TarjetaId } from "../../lib/apariencia";
+import type { PaletaId } from "../../lib/apariencia";
 import type { Banner } from "../../lib/negocios/banners";
 import type { DatosPlantilla } from "../../lib/plantillas/tipos";
 import { FormularioBanners } from "../negocios/formulario-banners";
@@ -22,8 +22,6 @@ import { SelectorApariencia } from "./selector-apariencia";
  */
 export function PanelApariencia({
   datos,
-  plantillaInicial,
-  tarjetaInicial,
   paletaInicial,
   patronInicial,
   opacidadInicial,
@@ -31,8 +29,6 @@ export function PanelApariencia({
   urlPorRuta,
 }: {
   datos: DatosPlantilla;
-  plantillaInicial: PlantillaId;
-  tarjetaInicial: TarjetaId;
   paletaInicial: PaletaId;
   patronInicial: boolean;
   opacidadInicial: number;
@@ -60,8 +56,6 @@ export function PanelApariencia({
         opacidadInicial={opacidadInicial}
         paletaInicial={paletaInicial}
         patronInicial={patronInicial}
-        plantillaInicial={plantillaInicial}
-        tarjetaInicial={tarjetaInicial}
       />
 
       {/* `setBannersVista` y no una función escrita acá: el formulario avisa

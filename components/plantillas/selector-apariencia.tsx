@@ -2,12 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
-import {
-  DEFINICIONES_PALETAS,
-  type PaletaId,
-  type PlantillaId,
-  type TarjetaId,
-} from "../../lib/apariencia";
+import { DEFINICIONES_PALETAS, type PaletaId } from "../../lib/apariencia";
 import {
   OPACIDAD_PATRON_PREDETERMINADA,
   PASOS_OPACIDAD_PATRON,
@@ -23,8 +18,6 @@ import { PasoNumerado } from "../dashboard/paso-numerado";
 
 type PropiedadesSelector = {
   datos: DatosPlantilla;
-  plantillaInicial: PlantillaId;
-  tarjetaInicial: TarjetaId;
   paletaInicial: PaletaId;
   patronInicial: boolean;
   opacidadInicial: number;
@@ -32,8 +25,6 @@ type PropiedadesSelector = {
 
 export function SelectorApariencia({
   datos,
-  plantillaInicial,
-  tarjetaInicial,
   paletaInicial,
   patronInicial,
   opacidadInicial,
@@ -47,10 +38,7 @@ export function SelectorApariencia({
   const [guardando, setGuardando] = useState(false);
   const { mostrarAviso } = useAvisos();
 
-  /* El diseño del catálogo es único: ya no se elige estructura ni forma de
-     tarjeta. Lo editable es la paleta y el fondo. Las columnas plantilla_id y
-     tarjeta_producto siguen en la base —se podan aparte— y se reenvían tal como
-     llegaron, para no tocar el endpoint antes de tiempo. */
+  /* El diseño del catálogo es único: lo editable es la paleta y el fondo. */
   const hayCambioPendiente =
     paletaElegida !== paletaGuardada ||
     patronElegido !== patronGuardado ||
@@ -64,11 +52,6 @@ export function SelectorApariencia({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          /* Se reenvían los valores con los que llegó: la elección de
-             estructura y forma se retiró, pero las columnas siguen y el endpoint
-             las espera hasta la poda. */
-          plantilla_id: plantillaInicial,
-          tarjeta_id: tarjetaInicial,
           paleta_id: paletaElegida,
           patron_fondo: patronElegido,
           patron_opacidad: opacidadElegida,
@@ -76,14 +59,12 @@ export function SelectorApariencia({
       });
       const resultado = (await respuesta.json()) as {
         error?: string;
-        plantilla_id?: PlantillaId;
-        tarjeta_id?: TarjetaId;
         paleta_id?: PaletaId;
         patron_fondo?: boolean;
         patron_opacidad?: number;
       };
 
-      if (!respuesta.ok || !resultado.plantilla_id || !resultado.paleta_id) {
+      if (!respuesta.ok || !resultado.paleta_id) {
         throw new Error(resultado.error || "No se pudo guardar la apariencia.");
       }
 

@@ -3,22 +3,23 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PLANTILLAS } from "../../lib/apariencia";
 import { normalizarTelefonoWhatsappPublico } from "../../lib/whatsapp";
 
-/* Una función que se agrega a tres plantillas de cuatro es la falla más común de
-   este proyecto: se prueba en la que uno tiene abierta, se ve bien, y el negocio
-   que eligió la cuarta se queda sin ella y nadie se entera. Esta prueba no mira
-   cómo se ve el botón, mira que exista en las cuatro. */
+/* Una función que se agrega a tres plantillas de cuatro fue la falla más común
+   de este proyecto: se probaba en la que uno tenía abierta, se veía bien, y el
+   negocio que eligió la cuarta se quedaba sin ella.
+
+   Con la poda de la fase 6 hay una sola plantilla y esa clase de falla ya no
+   puede pasar, pero la prueba se conserva por lo otro que vigila: que el botón
+   **exista**. Borrarlo por accidente sigue siendo posible, y no lo atrapa nada
+   más —no es un error de tipos ni de lint—. No mira cómo se ve: mira que esté. */
 describe("el botón de llamar", () => {
-  it("está en las cuatro plantillas", () => {
-    for (const plantilla of PLANTILLAS) {
-      const fuente = readFileSync(
-        join(import.meta.dirname, plantilla, `plantilla-${plantilla}.tsx`),
-        "utf8",
-      );
-      expect(fuente, `${plantilla} no ofrece llamar`).toContain("<AccionLlamar");
-    }
+  it("está en el pie del catálogo", () => {
+    const fuente = readFileSync(
+      join(import.meta.dirname, "mipuesto", "plantilla-mipuesto.tsx"),
+      "utf8",
+    );
+    expect(fuente, "el catálogo no ofrece llamar").toContain("<AccionLlamar");
   });
 
   /* Un `tel:` sin código de país marca bien desde adentro de Bolivia y falla

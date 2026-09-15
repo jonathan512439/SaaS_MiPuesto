@@ -4,7 +4,7 @@ import { EstadoStockProducto } from "../estado-stock-producto";
 import { FotoProducto } from "../foto-producto";
 import { InsigniaProducto, insigniaDe } from "../insignias-producto";
 import { LineaAtributos } from "../linea-atributos";
-import type { PropiedadesTarjeta } from "../tarjetas/tipos";
+import type { PropiedadesTarjeta } from "./tipos";
 import styles from "./plantilla-mipuesto.module.css";
 
 /* La tarjeta única del catálogo nuevo.

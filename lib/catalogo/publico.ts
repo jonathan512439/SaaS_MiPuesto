@@ -1,4 +1,4 @@
-import { tarjetaValidaPara, type PaletaId, type PlantillaId } from "../apariencia";
+import type { PaletaId } from "../apariencia";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import { leerBanners } from "../negocios/banners";
@@ -17,7 +17,7 @@ import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
 import { leerAtributos, type Atributo } from "./atributos";
 import { ICONO_PREDETERMINADO, normalizarIcono } from "./categorias";
 import { lineaDeTarjeta, valoresParaMostrar } from "./valores";
-import { esPaletaId, esPlantillaId } from "../plantillas/validacion";
+import { esPaletaId } from "../plantillas/validacion";
 import { acotarOpacidad } from "../patrones-fondo";
 
 type NegocioPublico = {
@@ -28,7 +28,6 @@ type NegocioPublico = {
   telefono_whatsapp: string;
   tipo_negocio: string;
   horario: unknown;
-  plantilla_id: string;
   paleta_id: string;
   logo_url?: string | null;
   portada_url?: string | null;
@@ -37,7 +36,6 @@ type NegocioPublico = {
   pide_numero_mesa?: boolean | null;
   resenas_url?: string | null;
   rubro?: string | null;
-  tarjeta_id?: string | null;
   patron_fondo?: boolean | null;
   patron_opacidad?: number | null;
   subnombre?: string | null;
@@ -125,7 +123,7 @@ export function construirCatalogoPublico(
   promociones: PromocionPrecio[] = [],
   atributos: AtributoPublico[] = [],
   variantes: VariantePublica[] = [],
-): { datos: DatosPlantilla; plantilla: PlantillaId; paleta: PaletaId } {
+): { datos: DatosPlantilla; paleta: PaletaId } {
   /* Agrupadas por producto una sola vez, por lo mismo que los campos: filtrar la
      lista entera por cada producto sería recorrerla cuarenta veces. */
   const variantesPorProducto = new Map<string, VariantePublica[]>();
@@ -314,18 +312,11 @@ export function construirCatalogoPublico(
     });
   }
 
-  /* Se resuelve con el validador y no con una lista escrita a mano: la lista
-     anterior se quedó en tres plantillas y cuatro paletas, de modo que un
-     negocio que elegía Feria o Altiplano recibía Clásica y Mercado sin que nada
-     avisara. El validador sale del mismo registro que el resto.
-     Se calcula antes del `return` porque la tarjeta depende de ella: qué formas
-     son válidas lo decide la plantilla. */
-  const plantilla: PlantillaId = esPlantillaId(negocio.plantilla_id)
-    ? negocio.plantilla_id
-    : "clasica";
-
   return {
-    plantilla,
+    /* Se resuelve con el validador y no con una lista escrita a mano: la lista
+       anterior se quedó corta y un negocio que elegía una paleta nueva recibía
+       Mercado sin que nada avisara. El validador sale del mismo registro que el
+       resto, así que no puede quedarse atrás. */
     paleta: esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado",
     datos: {
       negocio: {
@@ -373,11 +364,6 @@ export function construirCatalogoPublico(
           ...banner,
           imagen: obtenerUrlPublicaImagenNegocio(urlSupabase, banner.imagen, "banner") ?? "",
         })),
-        /* Se corrige acá y no en la plantilla: una plantilla que tiene que
-           defenderse de un valor imposible es una plantilla que sabe demasiado.
-           Y el caso es real: el dueño elige «retrato» en Moderna y después se
-           cambia a Feria, que no la dibuja. */
-        tarjeta: tarjetaValidaPara(plantilla, negocio.tarjeta_id),
       },
       categorias: agrupadas,
     },

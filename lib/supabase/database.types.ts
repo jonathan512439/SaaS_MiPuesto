@@ -486,7 +486,6 @@ export type Database = {
           patron_fondo: boolean
           patron_opacidad: number
           pide_numero_mesa: boolean
-          plantilla_id: string
           portada_url: string | null
           qr_pago_url: string | null
           redes_sociales: Json
@@ -497,7 +496,6 @@ export type Database = {
           subnombre: string | null
           suscripcion_vence_en: string
           suspendido_en: string | null
-          tarjeta_id: string
           telefono_whatsapp: string
           tipo_negocio: string
           ubicacion_url: string | null
@@ -532,7 +530,6 @@ export type Database = {
           patron_fondo?: boolean
           patron_opacidad?: number
           pide_numero_mesa?: boolean
-          plantilla_id?: string
           portada_url?: string | null
           qr_pago_url?: string | null
           redes_sociales?: Json
@@ -543,7 +540,6 @@ export type Database = {
           subnombre?: string | null
           suscripcion_vence_en?: string
           suspendido_en?: string | null
-          tarjeta_id?: string
           telefono_whatsapp: string
           tipo_negocio: string
           ubicacion_url?: string | null
@@ -578,7 +574,6 @@ export type Database = {
           patron_fondo?: boolean
           patron_opacidad?: number
           pide_numero_mesa?: boolean
-          plantilla_id?: string
           portada_url?: string | null
           qr_pago_url?: string | null
           redes_sociales?: Json
@@ -589,7 +584,6 @@ export type Database = {
           subnombre?: string | null
           suscripcion_vence_en?: string
           suspendido_en?: string | null
-          tarjeta_id?: string
           telefono_whatsapp?: string
           tipo_negocio?: string
           ubicacion_url?: string | null

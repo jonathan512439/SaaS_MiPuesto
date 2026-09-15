@@ -286,7 +286,7 @@ try {
     eventos_analitica: eventoB.id,
   };
   const cambios = {
-    negocios: { plantilla_id: "moderna", paleta_id: "noche" },
+    negocios: { paleta_id: "noche" },
     categorias: { nombre: "Intento ajeno" },
     subcategorias: { nombre: "Intento ajeno" },
     atributos_categoria: { nombre: "Intento ajeno" },
@@ -338,24 +338,22 @@ try {
 
   const actualizacionPlantillaPropia = await clienteA
     .from("negocios")
-    .update({ plantilla_id: "minimal", paleta_id: "oceano" })
+    .update({ paleta_id: "oceano" })
     .eq("id", negocios[0].id)
-    .select("plantilla_id,paleta_id")
+    .select("paleta_id")
     .single();
   comprobar(
-    actualizacionPlantillaPropia.data?.plantilla_id === "minimal" &&
-      actualizacionPlantillaPropia.data?.paleta_id === "oceano",
+    actualizacionPlantillaPropia.data?.paleta_id === "oceano",
     "A no pudo guardar la apariencia de su propio negocio",
   );
 
   const verificacionPlantillaAjena = await clienteB
     .from("negocios")
-    .select("plantilla_id,paleta_id")
+    .select("paleta_id")
     .eq("id", negocios[1].id)
     .single();
   comprobar(
-    verificacionPlantillaAjena.data?.plantilla_id === "clasica" &&
-      verificacionPlantillaAjena.data?.paleta_id === "mercado",
+    verificacionPlantillaAjena.data?.paleta_id === "mercado",
     "A alteró la apariencia del negocio de B",
   );
 

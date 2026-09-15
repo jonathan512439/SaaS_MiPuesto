@@ -3,13 +3,12 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PALETAS, PLANTILLAS } from "../apariencia";
+import { PALETAS } from "../apariencia";
 import { DEMOS_POR_RUBRO } from "./demos-rubro";
 
 describe("demostraciones por rubro", () => {
-  it("usa combinaciones que el catálogo real sabe publicar", () => {
+  it("usa colores que el catálogo real sabe publicar", () => {
     for (const demo of DEMOS_POR_RUBRO) {
-      expect(PLANTILLAS).toContain(demo.plantilla);
       expect(PALETAS).toContain(demo.paleta);
     }
     expect(new Set(DEMOS_POR_RUBRO.map(({ id }) => id)).size).toBe(DEMOS_POR_RUBRO.length);

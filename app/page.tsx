@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Isotipo } from "../components/marca/isotipo";
 import { MuestraPlantillas } from "../components/inicio/muestra-plantillas";
 import { VitrinaPortada } from "../components/inicio/vitrina-portada";
-import { PALETAS, PLANTILLAS } from "../lib/apariencia";
+import { PALETAS } from "../lib/apariencia";
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
 import { CARGA_INICIAL, PLANES, PLAN_ANUAL, ahorroAnualBs } from "../lib/planes";
 import styles from "./inicio.module.css";
@@ -17,7 +17,6 @@ export const metadata: Metadata = {
 
 /* Las cifras salen del registro y no de un texto escrito a mano: la portada ya
    quedó desactualizada una vez cuando se sumaron plantillas y paletas. */
-const TOTAL_PLANTILLAS = PLANTILLAS.length;
 const TOTAL_PALETAS = PALETAS.length;
 
 const GARANTIAS = [
@@ -56,7 +55,7 @@ const PASOS = [
   },
   {
     titulo: "Elegís cómo se ve",
-    detalle: `${TOTAL_PLANTILLAS} estructuras y ${TOTAL_PALETAS} colores. Cambiarlo después no toca tus productos.`,
+    detalle: `${TOTAL_PALETAS} colores y el fondo con los dibujos de tu oficio. Cambiarlo después no toca tus productos.`,
   },
   {
     titulo: "Compartís tu enlace",
@@ -195,8 +194,8 @@ export default function Inicio() {
               <span>de comisión por venta</span>
             </p>
             <p>
-              <strong>{TOTAL_PLANTILLAS} diseños</strong>
-              <span>y {TOTAL_PALETAS} colores para elegir</span>
+              <strong>{TOTAL_PALETAS} colores</strong>
+              <span>y el fondo con los dibujos de tu oficio</span>
             </p>
             <p>
               <strong>1 mes</strong>
@@ -208,11 +207,12 @@ export default function Inicio() {
         <section aria-labelledby="rubros" className={styles.seccion}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
-              <p className={styles.rotulo}>{TOTAL_PLANTILLAS} diseños para elegir</p>
+              <p className={styles.rotulo}>Un catálogo por oficio</p>
               <h2 id="rubros">Para quién es</h2>
               <p>
-                Cada diseño nació de un rubro distinto. No cambian solo de color: cambia
-                qué se ve primero. Te recomendamos uno, pero elegís el que quieras.
+                El diseño es uno y está hecho para vender. Lo que cambia entre una
+                veterinaria y una ferretería no es la forma de la página: son sus
+                categorías, los datos de cada producto y el botón que lleva al cliente.
               </p>
             </div>
             <ul className={styles.rubros}>
@@ -254,7 +254,7 @@ export default function Inicio() {
               <p className={styles.rotulo}>Demostración en vivo</p>
               <h2 id="asi-se-ve">Elegí tu rubro y miralo</h2>
               <p>
-                Con productos y precios de tu oficio, y los {TOTAL_PLANTILLAS} diseños a
+                Con productos y precios de tu oficio, y los {TOTAL_PALETAS} colores a
                 mano para probarlos. Lo que ves acá es exactamente lo que recibe tu
                 cliente, no una imagen de muestra.
               </p>

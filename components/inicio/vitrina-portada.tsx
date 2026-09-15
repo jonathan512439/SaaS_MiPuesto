@@ -19,13 +19,9 @@ function PantallaCargando() {
   );
 }
 
-const Feria: ComponentType<PropiedadesPlantilla> = dynamic(
-  () => import("../templates/feria/plantilla-feria").then((m) => m.PlantillaFeria),
-  { loading: PantallaCargando },
-);
-
-const Moderna: ComponentType<PropiedadesPlantilla> = dynamic(
-  () => import("../templates/moderna/plantilla-moderna").then((m) => m.PlantillaModerna),
+const Catalogo: ComponentType<PropiedadesPlantilla> = dynamic(
+  () =>
+    import("../templates/mipuesto/plantilla-mipuesto").then((m) => m.PlantillaMipuesto),
   { loading: PantallaCargando },
 );
 
@@ -43,12 +39,14 @@ const TIENDA = crearDatosDemoPlantilla({
   tipoNegocio: "tienda_virtual",
 });
 
-/* Dos catálogos de verdad, no una ilustración: son las mismas plantillas que
-   recibe el cliente que paga. El segundo aparece solo en pantallas anchas, y
-   está ahí para decir sin texto lo que la página tardaría un párrafo en
-   explicar — que el catálogo no sale igual para todos.
-   Uno claro y otro oscuro, y comparte tipografía con la demostración de más
-   abajo: así la portada no arrastra una familia extra solo para el adorno. */
+/* Dos catálogos de verdad, no una ilustración: es el mismo catálogo que recibe
+   el cliente que paga. El segundo aparece solo en pantallas anchas, y está ahí
+   para decir sin texto lo que la página tardaría un párrafo en explicar — que
+   el catálogo no sale igual para todos.
+
+   Antes eran dos plantillas distintas. Ahora el diseño es uno solo y lo que
+   cambia entre los dos teléfonos es lo que de verdad cambia entre dos negocios:
+   su color, sus productos y sus categorías. Uno claro y otro oscuro. */
 export function VitrinaPortada() {
   return (
     <div className={styles.vitrina}>
@@ -59,7 +57,7 @@ export function VitrinaPortada() {
           <span className={styles.bateria} />
         </div>
         <div className={styles.pantalla}>
-          <Feria datos={PUESTO} paleta="mercado" />
+          <Catalogo datos={PUESTO} paleta="mercado" />
         </div>
       </div>
       <div className={`${styles.telefono} ${styles.telefonoAtras}`} aria-hidden="true">
@@ -69,7 +67,7 @@ export function VitrinaPortada() {
           <span className={styles.bateria} />
         </div>
         <div className={styles.pantalla}>
-          <Moderna datos={TIENDA} paleta="noche" />
+          <Catalogo datos={TIENDA} paleta="noche" />
         </div>
       </div>
     </div>

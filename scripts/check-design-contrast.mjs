@@ -265,50 +265,12 @@ compararListas("Paletas", paletas, leerListaTs(apariencia, "DEFINICIONES_PALETAS
 compararListas("Paletas", paletas, leerConstanteTs(apariencia, "PALETAS"), "la constante PALETAS");
 compararListas("Paletas", paletas, leerRestriccionSql("paleta_id"), "la restricción de la base");
 
-const plantillas = leerListaTs(apariencia, "DEFINICIONES_PLANTILLAS");
-compararListas("Plantillas", plantillas, leerConstanteTs(apariencia, "PLANTILLAS"), "la constante PLANTILLAS");
-compararListas("Plantillas", plantillas, leerRestriccionSql("plantilla_id"), "la restricción de la base");
+console.log(`Registro sincronizado: ${paletas.length} paletas.`);
 
-/* La tarjeta es el tercer eje y vive en los mismos cuatro sitios que los otros
-   dos. Se comprueba igual y por el mismo motivo: que el panel no ofrezca una
-   forma que la base rechaza, ni la base admita una que nadie sabe dibujar. */
-const tarjetas = leerListaTs(apariencia, "DEFINICIONES_TARJETAS");
-compararListas("Tarjetas", tarjetas, leerConstanteTs(apariencia, "TARJETAS"), "la constante TARJETAS");
-compararListas("Tarjetas", tarjetas, leerRestriccionSql("tarjeta_id"), "la restricción de la base");
-
-/* Y que cada plantilla declare qué tarjetas sabe dibujar. Sin esto, agregar una
-   plantilla y olvidarse de su lista la dejaría sin ninguna forma admitida: el
-   catálogo quedaría en blanco y el error aparecería recién en producción. */
-const bloqueTarjetasPorPlantilla = apariencia.slice(
-  apariencia.indexOf("TARJETAS_POR_PLANTILLA"),
-  apariencia.indexOf("};", apariencia.indexOf("TARJETAS_POR_PLANTILLA")),
-);
-for (const plantilla of plantillas) {
-  const declaradas = new RegExp(`${plantilla}:\\s*\\[([^\\]]*)\\]`).exec(bloqueTarjetasPorPlantilla);
-  if (!declaradas) {
-    throw new Error(`La plantilla «${plantilla}» no declara qué tarjetas sabe dibujar.`);
-  }
-  const suyas = [...declaradas[1].matchAll(/"([a-z]+)"/g)].map((c) => c[1]);
-  if (suyas.length === 0) {
-    throw new Error(`La plantilla «${plantilla}» no admite ninguna tarjeta.`);
-  }
-  const inventadas = suyas.filter((tarjeta) => !tarjetas.includes(tarjeta));
-  if (inventadas.length > 0) {
-    throw new Error(
-      `La plantilla «${plantilla}» admite tarjetas que no existen: ${inventadas.join(", ")}.`,
-    );
-  }
-}
-
-console.log(
-  `Registro sincronizado: ${plantillas.length} plantillas, ${tarjetas.length} tarjetas y ` +
-    `${paletas.length} paletas.`,
-);
-
-/* Una plantilla o una paleta se comprueba con su validador, nunca con una
-   comparacion escrita a mano. La resolucion de apariencia del catalogo publico
-   se habia quedado en tres plantillas y cuatro paletas justamente asi: un
-   negocio que elegia Feria recibia Clasica y nada avisaba. */
+/* Una paleta se comprueba con su validador, nunca con una comparacion escrita a
+   mano. La resolucion de apariencia del catalogo publico se habia quedado en
+   cuatro paletas justamente asi: un negocio que elegia Altiplano recibia
+   Mercado y nada avisaba. */
 function buscarComparacionesALaMano(identificadores) {
   const carpetas = ["app", "lib", "components"];
   const permitidos = [
@@ -357,7 +319,7 @@ function buscarComparacionesALaMano(identificadores) {
   return hallazgos;
 }
 
-const comparaciones = buscarComparacionesALaMano([...plantillas, ...tarjetas, ...paletas]);
+const comparaciones = buscarComparacionesALaMano(paletas);
 if (comparaciones.length > 0) {
   throw new Error(
     "Apariencia comparada a mano en vez de con su validador:\n" +

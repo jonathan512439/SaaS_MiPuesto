@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { PALETAS, PLANTILLAS } from "../apariencia";
+import { PALETAS } from "../apariencia";
 import {
   categoriasParaNavegar,
   construirCatalogoPublico,
@@ -13,7 +13,6 @@ const NEGOCIO = {
   telefono_whatsapp: "59170000000",
   tipo_negocio: "catalogo_estatico",
   horario: {},
-  plantilla_id: "desconocida",
   paleta_id: "desconocida",
 };
 
@@ -31,7 +30,6 @@ describe("construirCatalogoPublico", () => {
       "https://proyecto.supabase.co",
     );
 
-    expect(resultado.plantilla).toBe("clasica");
     expect(resultado.paleta).toBe("mercado");
     expect(resultado.datos.categorias.map(({ nombre }) => nombre)).toEqual(["Comida", "Otros"]);
     expect(resultado.datos.categorias.flatMap(({ productos }) => productos)).toHaveLength(2);
@@ -39,14 +37,13 @@ describe("construirCatalogoPublico", () => {
 
   it("usa la primera fotografía y respeta una apariencia válida", () => {
     const resultado = construirCatalogoPublico(
-      { ...NEGOCIO, plantilla_id: "moderna", paleta_id: "oceano" },
+      { ...NEGOCIO, paleta_id: "oceano" },
       [{ id: "cat-1", nombre: "Comida", orden: 1 }],
       [],
       [{ id: "p-1", categoria_id: "cat-1", subcategoria_id: null, nombre: "Producto", descripcion: "Detalle", precio: 20, fotos: ["n/p/foto.webp", "n/p/dos.webp"], estado: "disponible", visible: true, orden: 1 }],
       "https://proyecto.supabase.co",
     );
 
-    expect(resultado.plantilla).toBe("moderna");
     expect(resultado.paleta).toBe("oceano");
     expect(resultado.datos.categorias[0].productos[0].imagen?.src).toContain("foto.webp");
   });
@@ -202,29 +199,27 @@ describe("modalidad y horario del catálogo público", () => {
 });
 
 describe("apariencia publicada", () => {
-  /* Regresión: la resolución estaba escrita a mano con tres plantillas y cuatro
-     paletas, así que un negocio que elegía Feria recibía Clásica en silencio. */
-  it("respeta cada plantilla y cada paleta del registro", () => {
-    for (const plantilla of PLANTILLAS) {
-      for (const paleta of PALETAS) {
-        const catalogo = construirCatalogoPublico(
-          { ...NEGOCIO, plantilla_id: plantilla, paleta_id: paleta },
-          [],
-          [],
-          [],
-          "https://ejemplo.supabase.co",
-          new Date("2026-09-07T12:00:00-04:00"),
-          [],
-        );
-        expect(catalogo.plantilla).toBe(plantilla);
-        expect(catalogo.paleta).toBe(paleta);
-      }
+  /* Regresión: la resolución estaba escrita a mano con cuatro paletas, así que
+     un negocio que elegía Altiplano recibía Mercado en silencio. Se recorre el
+     registro entero para que sumar una paleta y olvidarse de esto se note. */
+  it("respeta cada paleta del registro", () => {
+    for (const paleta of PALETAS) {
+      const catalogo = construirCatalogoPublico(
+        { ...NEGOCIO, paleta_id: paleta },
+        [],
+        [],
+        [],
+        "https://ejemplo.supabase.co",
+        new Date("2026-09-07T12:00:00-04:00"),
+        [],
+      );
+      expect(catalogo.paleta).toBe(paleta);
     }
   });
 
-  it("cae en la plantilla y la paleta base si el valor no existe", () => {
+  it("cae en la paleta base si el valor no existe", () => {
     const catalogo = construirCatalogoPublico(
-      { ...NEGOCIO, plantilla_id: "inventada", paleta_id: "inventada" },
+      { ...NEGOCIO, paleta_id: "inventada" },
       [],
       [],
       [],
@@ -232,7 +227,6 @@ describe("apariencia publicada", () => {
       new Date("2026-09-07T12:00:00-04:00"),
       [],
     );
-    expect(catalogo.plantilla).toBe("clasica");
     expect(catalogo.paleta).toBe("mercado");
   });
 });
@@ -244,7 +238,6 @@ describe("carta del día", () => {
     telefono_whatsapp: "59170000000",
     tipo_negocio: "tienda_virtual",
     horario: { modo: "siempre_abierto", dias: {} },
-    plantilla_id: "clasica",
     paleta_id: "mercado",
   };
   const categorias = [{ id: "cat-1", nombre: "Platos", orden: 1 }];

@@ -8,12 +8,12 @@ on conflict (id) do nothing;
 
 insert into public.negocios (
   id, admin_user_id, slug, nombre, descripcion, tipo_negocio,
-  telefono_whatsapp, plantilla_id, horario, verificado
+  telefono_whatsapp, horario, verificado
 )
 values
-  ('20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'sabor-camba', 'Sabor Camba', 'Platos bolivianos para compartir.', 'catalogo_estatico', '59170000001', 'clasica', '{"lunes":{"abre":"11:30","cierra":"21:00"}}'::jsonb, true),
-  ('20000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000002', 'tienda-kantuta', 'Tienda Kantuta', 'Accesorios y regalos hechos en Bolivia.', 'tienda_virtual', '59170000002', 'moderna', '{"lunes":{"abre":"09:00","cierra":"18:30"}}'::jsonb, true),
-  ('20000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000003', 'barberia-central', 'Barbería Central', 'Cortes, barba y cuidado personal con cita.', 'catalogo_cta', '59170000003', 'minimal', '{"lunes":{"abre":"08:30","cierra":"19:00"}}'::jsonb, true)
+  ('20000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'sabor-camba', 'Sabor Camba', 'Platos bolivianos para compartir.', 'catalogo_estatico', '59170000001', '{"lunes":{"abre":"11:30","cierra":"21:00"}}'::jsonb, true),
+  ('20000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000002', 'tienda-kantuta', 'Tienda Kantuta', 'Accesorios y regalos hechos en Bolivia.', 'tienda_virtual', '59170000002', '{"lunes":{"abre":"09:00","cierra":"18:30"}}'::jsonb, true),
+  ('20000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000003', 'barberia-central', 'Barbería Central', 'Cortes, barba y cuidado personal con cita.', 'catalogo_cta', '59170000003', '{"lunes":{"abre":"08:30","cierra":"19:00"}}'::jsonb, true)
 on conflict (id) do nothing;
 
 insert into public.categorias (id, negocio_id, nombre, orden)

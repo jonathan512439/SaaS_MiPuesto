@@ -1,11 +1,10 @@
 
-import type { PaletaId, TarjetaId } from "../apariencia";
+import type { PaletaId } from "../apariencia";
 import type { Banner } from "../negocios/banners";
 import type { EstadoAtencion } from "../horario";
 import type { ModoAccionCatalogo } from "../modalidades";
 
-export { PLANTILLAS } from "../apariencia";
-export type { PaletaId, PlantillaId, TarjetaId } from "../apariencia";
+export type { PaletaId } from "../apariencia";
 
 export type ProductoPlantilla = {
   id: string;
@@ -89,10 +88,6 @@ export type DatosPlantilla = {
        del pie. Vacío es lo normal, y es lo que ve un negocio recién dado de
        alta: el armazón no dibuja nada en su lugar. */
     banners: Banner[];
-    /* Con qué forma se dibuja cada producto. Ya viene corregida: si el negocio
-       tenía guardada una que su plantilla no dibuja, el servidor la cambió por
-       la predeterminada antes de llegar acá. */
-    tarjeta: TarjetaId;
     /* Vacío significa que el negocio no publicó su ubicación, no que no la
        tenga: el pie no dibuja nada en vez de mostrar un enlace roto. */
     ubicacionUrl: string | null;

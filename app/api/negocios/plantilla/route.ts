@@ -1,8 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 
-import { tarjetaValidaPara } from "../../../../lib/apariencia";
-import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
+import { esPaletaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 
 export async function PATCH(solicitud: NextRequest) {
@@ -21,10 +20,6 @@ export async function PATCH(solicitud: NextRequest) {
     return NextResponse.json({ error: "Los datos enviados no son válidos." }, { status: 400 });
   }
 
-  const plantillaId =
-    typeof entrada === "object" && entrada !== null && "plantilla_id" in entrada
-      ? entrada.plantilla_id
-      : undefined;
   const paletaId =
     typeof entrada === "object" && entrada !== null && "paleta_id" in entrada
       ? entrada.paleta_id
@@ -63,41 +58,22 @@ export async function PATCH(solicitud: NextRequest) {
     );
   }
 
-  if (!esPlantillaId(plantillaId) || !esPaletaId(paletaId)) {
+  if (!esPaletaId(paletaId)) {
     return NextResponse.json(
-      { error: "La plantilla o la paleta seleccionada no es válida." },
+      { error: "La paleta seleccionada no es válida." },
       { status: 400 },
     );
   }
 
-  /* La tarjeta se corrige en vez de rechazarse.
-   *
-   * No toda plantilla dibuja toda forma, y el caso normal no es un ataque: el
-   * dueño tenía «retrato» en Moderna y se cambia a Feria, que no la dibuja. El
-   * navegador manda las dos cosas juntas y devolverle un error por algo que no
-   * hizo mal sería trabarlo sin motivo. Se le guarda la predeterminada de la
-   * plantilla nueva, que es la que habría elegido.
-   *
-   * La corrección es la misma función que usa el catálogo público, así que las
-   * dos puntas no pueden discrepar. */
-  const tarjetaId = tarjetaValidaPara(
-    plantillaId,
-    typeof entrada === "object" && entrada !== null && "tarjeta_id" in entrada
-      ? entrada.tarjeta_id
-      : undefined,
-  );
-
   const { data: negocio, error } = await supabase
     .from("negocios")
     .update({
-      plantilla_id: plantillaId,
-      tarjeta_id: tarjetaId,
       paleta_id: paletaId,
       patron_fondo: patronFondo,
       patron_opacidad: patronOpacidad,
     })
     .eq("admin_user_id", idUsuario)
-    .select("slug,plantilla_id,tarjeta_id,paleta_id,patron_fondo,patron_opacidad")
+    .select("slug,paleta_id,patron_fondo,patron_opacidad")
     .maybeSingle();
 
   if (error) {
@@ -112,12 +88,12 @@ export async function PATCH(solicitud: NextRequest) {
   }
 
 
+  /* Se devuelve lo que quedó guardado y no lo que llegó: si el servidor
+     corrigiera algo, el panel tiene que mostrar lo que de verdad tiene el
+     negocio y no lo que creyó mandar. */
   return NextResponse.json({
-    plantilla_id: negocio.plantilla_id,
-    /* Se devuelve la que quedó guardada y no la que llegó: si se corrigió, el
-       panel tiene que enterarse y mostrar la que de verdad tiene el negocio. */
-    tarjeta_id: negocio.tarjeta_id,
     paleta_id: negocio.paleta_id,
     patron_fondo: negocio.patron_fondo,
+    patron_opacidad: negocio.patron_opacidad,
   });
 }

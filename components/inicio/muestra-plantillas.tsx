@@ -2,27 +2,26 @@
 
 import { useState } from "react";
 
-import { DEFINICIONES_PALETAS, DEFINICIONES_PLANTILLAS } from "../../lib/apariencia";
-import type { PaletaId, PlantillaId } from "../../lib/apariencia";
+import { DEFINICIONES_PALETAS } from "../../lib/apariencia";
+import type { PaletaId } from "../../lib/apariencia";
 import { DEMOS_POR_RUBRO } from "../../lib/plantillas/demos-rubro";
 import temaStyles from "../templates/tema-catalogo.module.css";
-import { VISTAS_PLANTILLA } from "../templates/vistas";
+import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
 import styles from "./muestra-plantillas.module.css";
 
-/* Se entra por rubro y no por «estructura»: un comerciante sabe a qué se dedica
-   y no tiene por qué saber qué es una plantilla. Cada rubro llega con la
-   combinación que le recomendamos, pero los cuatro diseños y los siete colores
-   quedan a la vista y se pueden cambiar acá mismo: si no se muestran, nadie se
-   entera de que puede elegir. */
+/* Se entra por rubro: un comerciante sabe a qué se dedica, y lo que quiere ver
+   es su propio catálogo, no una muestra genérica.
+
+   El diseño es uno solo, así que lo que se elige acá es el color —y quedan los
+   diez a la vista, porque si no se muestran nadie se entera de que puede
+   elegir—. Lo que de verdad cambia entre un rubro y otro son sus productos, sus
+   categorías y sus campos, y eso se ve al cambiar de rubro. */
 export function MuestraPlantillas() {
   const [rubroId, setRubroId] = useState(DEMOS_POR_RUBRO[0].id);
-  const [plantillaElegida, setPlantillaElegida] = useState<PlantillaId | null>(null);
   const [paletaElegida, setPaletaElegida] = useState<PaletaId | null>(null);
 
   const demo = DEMOS_POR_RUBRO.find(({ id }) => id === rubroId) ?? DEMOS_POR_RUBRO[0];
-  const plantilla = plantillaElegida ?? demo.plantilla;
   const paleta = paletaElegida ?? demo.paleta;
-  const Vista = VISTAS_PLANTILLA[plantilla];
 
   return (
     <div className={styles.muestra}>
@@ -40,11 +39,9 @@ export function MuestraPlantillas() {
                   name="muestra-rubro"
                   onChange={() => {
                     setRubroId(id);
-                    /* Al cambiar de rubro vuelven el diseño y el color
-                       recomendados: si se conservaran los elegidos antes, la
-                       muestra siguiente saldría con una combinación que nadie
-                       eligió. */
-                    setPlantillaElegida(null);
+                    /* Al cambiar de rubro vuelve el color recomendado: si se
+                       conservara el elegido antes, la muestra siguiente saldría
+                       con una combinación que nadie eligió. */
                     setPaletaElegida(null);
                   }}
                   type="radio"
@@ -52,39 +49,6 @@ export function MuestraPlantillas() {
                 />
                 <strong>{rubro}</strong>
                 <span>{datos.negocio.nombre}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <div className={styles.tituloGrupo}>
-            <legend>Diseño</legend>
-            <p>
-              Son {DEFINICIONES_PLANTILLAS.length}. Te marcamos el que recomendamos para
-              tu rubro, pero elegís el que quieras.
-            </p>
-          </div>
-          <div className={styles.opciones}>
-            {DEFINICIONES_PLANTILLAS.map(({ id, nombre, enfoque }) => (
-              <label
-                className={plantilla === id ? styles.opcionElegida : styles.opcion}
-                key={id}
-              >
-                <input
-                  checked={plantilla === id}
-                  name="muestra-plantilla"
-                  onChange={() => setPlantillaElegida(id)}
-                  type="radio"
-                  value={id}
-                />
-                <strong>
-                  {nombre}
-                  {demo.plantilla === id ? (
-                    <span className={styles.recomendado}> · recomendado</span>
-                  ) : null}
-                </strong>
-                <span>{enfoque}</span>
               </label>
             ))}
           </div>
@@ -120,7 +84,7 @@ export function MuestraPlantillas() {
           <span className={styles.bateria} />
         </div>
         <div className={styles.lienzo}>
-          <Vista datos={demo.datos} paleta={paleta} />
+          <PlantillaMipuesto datos={demo.datos} paleta={paleta} />
         </div>
       </div>
     </div>

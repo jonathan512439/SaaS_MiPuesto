@@ -1,7 +1,0 @@
-@reference "../../app/globals.css";
-
-.cargando {
-  display: grid;
-  gap: var(--spacing-3);
-  padding: var(--spacing-5);
-}

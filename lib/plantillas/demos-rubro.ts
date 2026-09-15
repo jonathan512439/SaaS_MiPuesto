@@ -1,4 +1,4 @@
-import type { PaletaId, PlantillaId } from "../apariencia";
+import type { PaletaId } from "../apariencia";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import type { DatosPlantilla, ProductoPlantilla } from "./tipos";
@@ -17,7 +17,6 @@ export type DemoRubro = {
   id: string;
   rubro: string;
   gancho: string;
-  plantilla: PlantillaId;
   paleta: PaletaId;
   datos: DatosPlantilla;
 };
@@ -90,7 +89,6 @@ function negocio(
     subnombre: null,
     redesSociales: [],
     banners: [],
-    tarjeta: "cuadricula" as const,
   };
 }
 
@@ -99,7 +97,6 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
     id: "restaurante",
     rubro: "Restaurante",
     gancho: "Carta por categorías y pedidos con carrito.",
-    plantilla: "clasica",
     paleta: "tierra",
     datos: {
       negocio: negocio(
@@ -159,7 +156,6 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
     id: "ferreteria",
     rubro: "Ferretería",
     gancho: "Muchos productos, precio grande, foto chica.",
-    plantilla: "feria",
     paleta: "grafito",
     datos: {
       negocio: negocio(
@@ -216,7 +212,6 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
     id: "barberia",
     rubro: "Barbería",
     gancho: "Servicios con turno en vez de carrito.",
-    plantilla: "minimal",
     paleta: "altiplano",
     datos: {
       negocio: negocio(
@@ -261,7 +256,6 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
     id: "abarrotes",
     rubro: "Tienda de barrio",
     gancho: "Lo de siempre, a mano y con precio a la vista.",
-    plantilla: "feria",
     paleta: "mercado",
     datos: {
       negocio: negocio(

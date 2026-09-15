@@ -1,9 +1,9 @@
 import type { ModoAccionCatalogo } from "../../../lib/modalidades";
 import type { ProductoPlantilla } from "../../../lib/plantillas/tipos";
 
-/* El producto tal como llega a una tarjeta.
+/* El producto tal como llega a la tarjeta.
  *
- * Es el de la plantilla más el rastro de dónde está: cada plantilla aplana sus
+ * Es el de la plantilla más el rastro de dónde está: la plantilla aplana sus
  * categorías para dibujar la lista y, al hacerlo, pierde el árbol. La tarjeta
  * necesita esos dos nombres para dibujar la línea de arriba, y el ancla para que
  * la barra de categorías tenga a dónde saltar. */
@@ -13,7 +13,7 @@ export type ProductoEnTarjeta = ProductoPlantilla & {
   anclaCategoria?: string;
 };
 
-/* Todo lo que una tarjeta necesita, y nada más.
+/* Todo lo que la tarjeta necesita, y nada más.
  *
  * En particular **no recibe `datos`**: una tarjeta que puede leer el negocio
  * entero termina leyéndolo, y ahí deja de ser una pieza para pasar a ser un

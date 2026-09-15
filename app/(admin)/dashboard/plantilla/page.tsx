@@ -4,11 +4,10 @@ import { redirect } from "next/navigation";
 import { PanelApariencia } from "../../../../components/plantillas/panel-apariencia";
 import { crearDatosDemoPlantilla } from "../../../../lib/plantillas/datos-demo";
 import { esTipoNegocio } from "../../../../lib/modalidades";
-import { tarjetaValidaPara } from "../../../../lib/apariencia";
 import { leerBanners } from "../../../../lib/negocios/banners";
 import { obtenerUrlPublicaImagenNegocio } from "../../../../lib/negocios/imagenes-publicas";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
-import { esPaletaId, esPlantillaId } from "../../../../lib/plantillas/validacion";
+import { esPaletaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./plantilla.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
@@ -28,20 +27,13 @@ export default async function PaginaPlantilla() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,plantilla_id,tarjeta_id,paleta_id,rubro,patron_fondo,patron_opacidad,subnombre,banners")
+    .select("nombre,descripcion,telefono_whatsapp,tipo_negocio,paleta_id,rubro,patron_fondo,patron_opacidad,subnombre,banners")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
   if (!negocio) redirect("/dashboard/configuracion");
 
-  const plantillaInicial = esPlantillaId(negocio.plantilla_id)
-    ? negocio.plantilla_id
-    : "clasica";
   const paletaInicial = esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado";
-  /* Se corrige acá también, y no solo al guardar: un negocio anterior a esta
-     columna llega con la predeterminada, y uno que cambió de plantilla por SQL
-     podría llegar con una forma que su plantilla no dibuja. */
-  const tarjetaInicial = tarjetaValidaPara(plantillaInicial, negocio.tarjeta_id);
 
   /* La dirección de cada imagen se arma acá, en el servidor, que es quien conoce
      la del proyecto. Pasarle la regla al navegador sería repetirla en un segundo
@@ -80,8 +72,6 @@ export default async function PaginaPlantilla() {
         opacidadInicial={acotarOpacidad(negocio.patron_opacidad)}
         paletaInicial={paletaInicial}
         patronInicial={negocio.patron_fondo !== false}
-        plantillaInicial={plantillaInicial}
-        tarjetaInicial={tarjetaInicial}
         urlPorRuta={urlPorRuta}
       />
     </main>
