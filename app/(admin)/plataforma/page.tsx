@@ -121,7 +121,33 @@ export default async function PaginaPlataforma() {
             <li className={styles.cliente} data-estado={estado} key={negocio.id}>
               <div className={styles.identidad}>
                 <h2>{negocio.nombre}</h2>
-                <p className={styles.direccion}>/{negocio.slug}</p>
+                {/* La dirección es un enlace y no un renglón de texto: revisar el
+                    catálogo de un cliente es lo que se viene a hacer a esta
+                    lista, y copíar el slug a mano para pegarlo en la barra no
+                    es una forma de hacerlo.
+
+                    Se abre en otra pestaña para no perder el lugar en una lista
+                    larga, y con `a` en vez de `Link` a propósito: `Link`
+                    precargaría **todos** los catálogos de la lista al mostrarla.
+
+                    Fuera de línea no se enlaza. El catálogo público filtra por
+                    `activo`, así que el enlace llevaría a un «no encontrado» y
+                    se leería como un error del sistema en vez de como lo que
+                    es: un negocio dado de baja. */}
+                {negocio.activo ? (
+                  <a
+                    className={styles.direccion}
+                    href={`/${negocio.slug}`}
+                    rel="noreferrer noopener"
+                    target="_blank"
+                  >
+                    /{negocio.slug}
+                  </a>
+                ) : (
+                  <p className={styles.direccion}>
+                    /{negocio.slug} · <span>sin catálogo público</span>
+                  </p>
+                )}
               </div>
 
               <div className={styles.estado}>

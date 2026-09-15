@@ -64,6 +64,24 @@
   font-size: var(--text-xs);
 }
 
+/* Cuando la dirección es enlace se pinta como tal: en una lista de fichas casi
+   iguales, un renglón gris que además se puede tocar no lo descubre nadie. */
+a.direccion {
+  color: var(--color-marca);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+a.direccion:hover {
+  color: var(--color-marca-fuerte);
+}
+
+/* El negocio fuera de línea no tiene a dónde llevar, y conviene que se note por
+   qué este no se puede tocar y el de arriba sí. */
+.direccion span {
+  font-style: italic;
+}
+
 .estado {
   display: grid;
   gap: var(--spacing-1);
