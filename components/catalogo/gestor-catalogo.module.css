@@ -358,6 +358,43 @@
   background: var(--color-marca-tenue);
 }
 
+/* El nombre se queda con el lugar que sobra, así la cuenta y el galón quedan
+   siempre pegados a la derecha y en la misma columna en toda la lista. Sin esto,
+   el galón bailaba de posición según el largo del nombre. */
+.nombreCategoria {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Cerrada, el galón apunta hacia abajo y se ve apagado: «acá hay más». Abierta,
+   gira hacia arriba y toma el color de marca. Es la misma seña que «Organizar
+   categorías», para que las dos se aprendan de una sola vez. */
+.flechaCategoria {
+  flex-shrink: 0;
+  color: var(--color-texto-tenue);
+  font-size: var(--text-lg);
+  transform: rotate(180deg);
+  transition: transform var(--movimiento-rapido) ease;
+}
+
+.filtroActivo .flechaCategoria {
+  color: var(--color-marca);
+  transform: rotate(0deg);
+}
+
+/* Al pasar por encima el galón se enciende antes de tocar nada: es la seña de
+   que el renglón responde. */
+.filtro:hover {
+  background: var(--color-fondo-hundido);
+}
+
+.filtro:hover .flechaCategoria {
+  color: var(--color-marca);
+}
+
 .filtro span,
 .filtroActivo span {
   border-radius: var(--radius-status);

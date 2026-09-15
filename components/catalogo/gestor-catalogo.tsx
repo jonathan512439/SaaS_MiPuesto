@@ -530,6 +530,17 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
     setPaginaProductos(1);
   }
 
+  /* Presionar la categoría que ya está abierta la cierra. Antes volvía a
+     asignarla, o sea que el segundo toque no hacía **nada**: se abría y no había
+     forma de cerrarla salvo buscando el botón «Todo», que está en otro lado y no
+     se lee como «cerrar esto».
+     Va aparte de `seleccionarCategoria` porque esa la llaman el desplegable y
+     tres acciones más, donde alternar sería un error: al borrar una categoría se
+     quiere ir a «Todo», no conmutar. */
+  function alternarCategoria(id: string) {
+    seleccionarCategoria(categoriaActiva === id ? "" : id);
+  }
+
   async function cargarArchivosProducto(
     producto: ProductoCatalogo,
     archivos: File[],
@@ -1415,13 +1426,20 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
               ).length;
               return (
                 <section className={styles.categoria} key={categoria.id}>
+                  {/* El galón dice que acá hay algo que se abre, y girando dice si
+                      está abierto. Sin él esto se leía como un filtro —se presiona y
+                      aparecen opciones abajo sin que nada lo hubiera anunciado—.
+                      `aria-expanded` cuenta lo mismo a quien no lo ve. */}
                   <button
+                    aria-expanded={categoriaActiva === categoria.id}
                     className={categoriaActiva === categoria.id ? styles.filtroActivo : styles.filtro}
-                    onClick={() => seleccionarCategoria(categoria.id)}
+                    onClick={() => alternarCategoria(categoria.id)}
                     type="button"
                   >
                     <IconoCatalogo nombre={categoria.icono} />
-                    {categoria.nombre} <span>{cantidadProductos}</span>
+                    <span className={styles.nombreCategoria}>{categoria.nombre}</span>
+                    <span>{cantidadProductos}</span>
+                    <Icono className={styles.flechaCategoria} nombre="flechaArriba" />
                   </button>
                   <div className={styles.accionesPequenas} aria-label={`Acciones para ${categoria.nombre}`}>
                     <button onClick={() => pedirNuevoNombreCategoria(categoria)} type="button">Cambiar nombre</button>

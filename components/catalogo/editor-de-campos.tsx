@@ -210,17 +210,17 @@ export function EditorDeCampos({
   return (
     <section className={styles.seccion}>
       <header className={styles.cabecera}>
-        <h3>Los datos de «{categoriaNombre}»</h3>
-        <p>
-          Lo que cada producto de esta categoría va a llevar además del nombre y el precio.
-          Una ferretería pone potencia y casquillo; una veterinaria, especie y etapa.
-        </p>
+        <h3>Datos de «{categoriaNombre}»</h3>
+        {/* Una línea y un ejemplo. Antes eran dos frases con dos rubros distintos,
+            y el segundo no le servía a nadie: quien está acá ya sabe a qué se
+            dedica y lo que necesita es entender qué va en el campo, no leer la
+            explicación del oficio ajeno. */}
+        <p>Además del nombre y el precio. Por ejemplo: potencia, talla, especie.</p>
       </header>
 
       {campos.length === 0 ? (
         <p className={styles.vacio}>
-          Esta categoría no tiene datos propios todavía. Sus productos solo llevan nombre,
-          descripción, precio y fotos.
+          Sin datos propios: sus productos llevan nombre, descripción, precio y fotos.
         </p>
       ) : null}
 
