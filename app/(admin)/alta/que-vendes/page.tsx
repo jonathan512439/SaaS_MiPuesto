@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { PasoQueVendes } from "../../../../../components/alta/paso-que-vendes";
-import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
+import { PasoQueVendes } from "../../../../components/alta/paso-que-vendes";
+import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 
 export default async function PaginaQueVendes() {
   const supabase = await crearClienteSupabaseServidor();

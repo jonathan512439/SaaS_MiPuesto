@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { PasoQuienSos } from "../../../../../components/alta/paso-quien-sos";
-import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
+import { PasoQuienSos } from "../../../../components/alta/paso-quien-sos";
+import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 
 /* Los valores de arranque se leen en el servidor y no se piden después desde el
    navegador: quien vuelve al paso 1 a corregir algo tiene que ver lo que ya

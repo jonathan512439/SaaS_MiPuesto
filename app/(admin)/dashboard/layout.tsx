@@ -7,6 +7,7 @@ import { NavegacionDashboard } from "../../../components/dashboard/navegacion-da
 import { CerrarSesion } from "../../../components/negocios/cerrar-sesion";
 import { ProveedorSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { ProveedorAvisos, ProveedorConfirmacion } from "../../../components/ui";
+import { PASOS_ALTA } from "../../../lib/negocios/alta";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import {
   describirDiasRestantes,
@@ -36,9 +37,29 @@ export default async function LayoutPanel({
      que entrar a buscarlo, se entera el día que su catálogo deja de verse. */
   const { data: negocioSuscripcion } = await supabase
     .from("negocios")
-    .select("activo,suspendido_en,suscripcion_vence_en,rubro")
+    .select("activo,suspendido_en,suscripcion_vence_en,rubro,alta_paso,alta_completada_en")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
+  /* Hasta que el alta no esté cerrada, el panel abre siempre en el alta.
+   *
+   * Es la mitad de lo que convierte el menú en un camino: sin esto, el dueño que
+   * cierra el navegador en el paso 2 vuelve a entrar al menú de siempre y no
+   * encuentra dónde seguía. Con esto, retoma donde quedó sin buscar nada.
+   *
+   * Los negocios que ya existían antes del alta quedaron marcados como
+   * completados en una migración de relleno: sin ese paso previo, esta línea los
+   * habría mandado a todos a recorrer un camino que ya hicieron.
+   *
+   * **El alta vive fuera de este layout**, en `/alta`, y por dos razones. Una es
+   * que acá causaría un rebote infinito: sus pantallas colgarían del layout que
+   * las redirige. La otra importa más: mostrar la navegación completa del panel
+   * durante un recorrido guiado invita justo a la dispersión que el alta existe
+   * para evitar. El diagnóstico del plan es que el panel es «un menú de pantallas
+   * sueltas»; envolver el camino en ese menú lo desarma. */
+  if (negocioSuscripcion && !negocioSuscripcion.alta_completada_en) {
+    redirect(PASOS_ALTA[Math.min(negocioSuscripcion.alta_paso, PASOS_ALTA.length) - 1].ruta);
+  }
+
   const suscripcion = negocioSuscripcion
     ? evaluarSuscripcion(negocioSuscripcion.suscripcion_vence_en, new Date())
     : null;

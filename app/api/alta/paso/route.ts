@@ -16,9 +16,10 @@ import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
  * completar de una vez lo que el alta reparte en cuatro pantallas, que es
  * justamente el menú que se está desarmando.
  *
- * Cada paso escribe **solo lo suyo**. El 3 no escribe nada: logo, subnombre y
- * paleta se guardan desde sus propias pantallas, y acá solo queda registrado
- * que pasó por ahí.
+ * Cada paso escribe **solo lo suyo**, y lo que ya tiene su endpoint se guarda
+ * ahí: el logo lo sube el de identidad —que valida la imagen byte a byte— y la
+ * paleta la guarda el de apariencia. Duplicar esas validaciones acá las dejaría
+ * listas para separarse.
  */
 
 const ULTIMO_PASO = PASOS_ALTA.length;
@@ -136,6 +137,18 @@ export async function PATCH(solicitud: NextRequest) {
           tipo_negocio: siembra.modalidadSugerida,
         });
       }
+    }
+  }
+
+  if (paso === 3) {
+    /* Lo único que este paso escribe. El logo lo sube su propio endpoint —que
+       además valida la imagen byte a byte— y la paleta la guarda el de
+       apariencia. Acá solo queda el renglón, que no tiene dónde más vivir. */
+    const subnombre = leerTexto(objeto, "subnombre");
+    if (subnombre.length > 60) {
+      errores.subnombre = "El renglón bajo el nombre puede tener hasta 60 caracteres.";
+    } else {
+      cambios.subnombre = subnombre || null;
     }
   }
 

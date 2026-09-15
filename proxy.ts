@@ -13,6 +13,11 @@ export function requiereGestionDeSesion(ruta: string) {
   return (
     ruta === "/dashboard" ||
     ruta.startsWith("/dashboard/") ||
+    /* El alta vive fuera de `/dashboard` para que no arrastre la navegación del
+       panel, pero es igual de privada: sin esto, sus pantallas quedarían sin
+       refresco de sesión y el dueño se encontraría deslogueado a mitad del
+       recorrido. */
+    ruta.startsWith("/alta/") ||
     ruta === "/plataforma" ||
     ruta.startsWith("/plataforma/") ||
     RUTAS_AUTH.has(ruta)

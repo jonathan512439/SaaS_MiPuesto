@@ -20,25 +20,25 @@ export const PASOS_ALTA = [
     /* Se pide el nombre de la persona y el del negocio. El slug se calcula y se
        confirma acá: es la dirección que va a repartir, y cambiarla después deja
        muertos los códigos QR ya impresos. */
-    ruta: "/dashboard/alta/quien-sos",
+    ruta: "/alta/quien-sos",
   },
   {
     numero: 2,
     id: "que-vendes",
     titulo: "Qué vendés",
-    ruta: "/dashboard/alta/que-vendes",
+    ruta: "/alta/que-vendes",
   },
   {
     numero: 3,
     id: "tu-marca",
     titulo: "Tu marca",
-    ruta: "/dashboard/alta/tu-marca",
+    ruta: "/alta/tu-marca",
   },
   {
     numero: 4,
     id: "tus-productos",
     titulo: "Tus primeros productos",
-    ruta: "/dashboard/alta/tus-productos",
+    ruta: "/alta/tus-productos",
   },
 ] as const;
 
@@ -111,7 +111,10 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
     faltantes.push({
       clave: "rubro",
       titulo: "A qué se dedica tu negocio",
-      ruta: "/dashboard/alta/que-vendes",
+      /* A Configuración y **no al alta**: esta lista se ve sobre todo en negocios
+         que ya la terminaron, y el alta rebota a quien la completó. Mandarlo ahí
+         sería ofrecerle un enlace que lo devuelve al punto de partida. */
+      ruta: "/dashboard/configuracion",
       impide: true,
     });
   }

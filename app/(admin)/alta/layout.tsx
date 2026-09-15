@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
-import { PASOS_ALTA } from "../../../../lib/negocios/alta";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
+import { PASOS_ALTA } from "../../../lib/negocios/alta";
+import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./alta.module.css";
 
 /* La cáscara de los cuatro pasos: el progreso, siempre visible.
