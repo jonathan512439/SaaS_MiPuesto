@@ -5,6 +5,7 @@ import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { MAXIMO_BANNERS, type Banner } from "../../lib/negocios/banners";
+import { PasoNumerado } from "../dashboard/paso-numerado";
 import { Boton, useAvisos } from "../ui";
 import styles from "./formulario-banners.module.css";
 
@@ -196,8 +197,10 @@ export function FormularioBanners({
 
   return (
     <form className={styles.seccion} onSubmit={guardar}>
+      {/* El mismo encabezado que los tres pasos de arriba: esta sección vive en
+          la misma pantalla y con un `h2` suelto se leía como si fuera de otra. */}
       <header className={styles.cabecera}>
-        <h2>Banners del catálogo</h2>
+        <PasoNumerado numero={4} titulo="Banners del catálogo" />
         <p>
           Dos franjas anchas, las dos opcionales. Si dejás una vacía, no se muestra y no
           deja hueco; y si cargás una sola, va al primer lugar. Lo que cargás acá se ve

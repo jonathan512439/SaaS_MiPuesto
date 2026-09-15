@@ -184,11 +184,17 @@ export function SelectorApariencia({
       </fieldset>
 
       <section className={styles.demostracion} aria-labelledby="titulo-demostracion">
+        {/* Con `PasoNumerado`, igual que el 1 y el 2. Estaba escrito a mano como
+            «3. Revisa el resultado», que es exactamente lo que el comentario de ese
+            componente dice que no hay que hacer: se lee como una lista y no como
+            un paso. Quedó atrás cuando los otros dos se convirtieron. */}
         <header>
-          <div>
-            <p>3. Revisa el resultado</p>
-            <h2 id="titulo-demostracion">Así se verá la experiencia de tus clientes</h2>
-          </div>
+          <PasoNumerado
+            descripcion="Así se verá la experiencia de tus clientes."
+            idTitulo="titulo-demostracion"
+            numero={3}
+            titulo="Revisa el resultado"
+          />
           <span>Vista completa de demostración</span>
         </header>
         {/* El marco lleva `.tema` y las dos marcas porque el patrón se pinta con

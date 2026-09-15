@@ -29,8 +29,7 @@
 .ayuda,
 .avisoCambio,
 .avisoPendiente,
-.demostracion header p,
-.demostracion header h2 {
+.demostracion header > span {
   margin: 0;
 }
 
@@ -178,16 +177,10 @@
   gap: var(--spacing-3);
 }
 
-.demostracion header p {
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-xs);
-  font-weight: 800;
-}
-
-.demostracion header h2 {
-  margin-top: var(--spacing-1);
-  font-size: var(--text-lg);
-}
+/* El título y la explicación del paso los dibuja `PasoNumerado` con su propio
+   estilo. Las reglas que había acá vestían el rótulo escrito a mano; dejarlas
+   puestas ahora pintaría la explicación del paso con el color y el tamaño de un
+   rótulo, o sea al revés de lo que se busca. */
 
 .demostracion header > span {
   color: var(--color-texto-suave);

@@ -95,8 +95,38 @@
   font-size: var(--text-base);
 }
 
+/* El campo de archivo se viste como los demás.
+ *
+ * Sin esto salía el control crudo del navegador —un botón gris del sistema con
+ * un «Ningún archivo seleccionado» al lado— entre campos con borde, relleno y
+ * esquinas redondeadas. Se leía como algo que quedó sin terminar, y en un
+ * teléfono ese botón del sistema es además el más chico de la pantalla. */
 .campo input[type="file"] {
+  width: 100%;
+  padding: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  color: var(--color-texto-suave);
+  font-family: inherit;
   font-size: var(--text-sm);
+}
+
+.campo input[type="file"]::file-selector-button {
+  min-height: var(--control-alto);
+  margin-right: var(--spacing-3);
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.campo input[type="file"]::file-selector-button:hover {
+  background: var(--color-marca-fuerte);
 }
 
 .campo small {
