@@ -11,6 +11,15 @@ export const RUBROS = [
   "ferreteria",
   "servicios",
   "belleza",
+  /* Los tres que suma la fase 8, y que el alta siembra. Cada uno trae algo que
+     el modelo tenía que sostener: la distribuidora vende por caja con precio
+     propio, los repuestos se buscan por atributo y no por nombre, y la
+     veterinaria mezcla cosas y tiempo en el mismo catálogo. */
+  "distribuidora",
+  "repuestos",
+  "veterinaria",
+  /* «Otro» va último y no en orden alfabético: es la opción de descarte, y
+     ofrecerla en el medio de la lista invita a elegirla sin mirar el resto. */
   "otro",
 ] as const;
 
@@ -61,6 +70,24 @@ export const DEFINICIONES_RUBROS: ReadonlyArray<{
     id: "belleza",
     nombre: "Belleza y cuidado personal",
     ejemplo: "Barbería, salón, uñas",
+    funciones: [],
+  },
+  {
+    id: "distribuidora",
+    nombre: "Distribuidora y venta por mayor",
+    ejemplo: "Abarrotes por caja, bebidas, limpieza",
+    funciones: [],
+  },
+  {
+    id: "repuestos",
+    nombre: "Repuestos de auto y moto",
+    ejemplo: "Motor, frenos, filtros, eléctrico",
+    funciones: [],
+  },
+  {
+    id: "veterinaria",
+    nombre: "Veterinaria y mascotas",
+    ejemplo: "Alimento, accesorios, consultas con turno",
     funciones: [],
   },
   {

@@ -336,6 +336,21 @@ select,
 }
 
 /* Sin rubro: lo unico que todos comparten, la venta. */
+[data-patron="mayoreo"] {
+  --patron-mascara: url("/patrones/distribuidora.svg");
+  --patron-relleno: var(--patron-tinta);
+}
+
+[data-patron="autopartes"] {
+  --patron-mascara: url("/patrones/repuestos.svg");
+  --patron-relleno: var(--patron-tinta);
+}
+
+[data-patron="mascotas"] {
+  --patron-mascara: url("/patrones/veterinaria.svg");
+  --patron-relleno: var(--patron-tinta);
+}
+
 [data-patron="comercio"] {
   --patron-mascara: url("/patrones/otro.svg");
   --patron-relleno: var(--patron-tinta);

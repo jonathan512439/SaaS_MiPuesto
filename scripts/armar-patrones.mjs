@@ -108,6 +108,45 @@ function componer({ archivo, nombres, semilla, trazo }) {
 }
 
 const BALDOSAS = [
+  /* Los tres que suma la fase 8. Cada rubro lleva su propio dibujo y no uno
+     prestado: el fondo es lo primero que se ve de un catálogo, y compartirlo
+     hacía que no dijera nada del negocio. */
+  {
+    archivo: "distribuidora.svg",
+    semilla: 20261002,
+    trazo: 1.7,
+    nombres: [
+      "truck", "package", "boxes", "warehouse", "forklift",
+      "container", "grip", "clipboard-list", "scale", "barcode",
+      "box", "hand-coins", "notebook-tabs", "archive", "layers-3",
+      "cylinder", "shopping-cart", "receipt", "calculator", "coins",
+      "banknote", "ruler", "split", "weight", "blocks",
+    ],
+  },
+  {
+    archivo: "repuestos.svg",
+    semilla: 20261003,
+    trazo: 1.7,
+    nombres: [
+      "car", "bike", "cog", "wrench", "disc",
+      "gauge", "fuel", "battery", "lightbulb", "settings",
+      "circle-dot", "wind", "thermometer", "key-round", "zap",
+      "filter", "droplet", "hammer", "bolt", "nut",
+      "ruler", "clipboard-check", "timer", "caravan", "truck",
+    ],
+  },
+  {
+    archivo: "veterinaria.svg",
+    semilla: 20261004,
+    trazo: 1.7,
+    nombres: [
+      "dog", "cat", "bone", "syringe", "stethoscope",
+      "pill", "heart-pulse", "bath", "scissors", "bird",
+      "fish", "rabbit", "paw-print", "shield-check", "thermometer",
+      "clipboard-plus", "cross", "pill-bottle", "bandage", "brush",
+      "spray-can", "house-heart", "ribbon", "bug", "leaf",
+    ],
+  },
   {
     archivo: "restaurante.svg",
     semilla: 20260907,
