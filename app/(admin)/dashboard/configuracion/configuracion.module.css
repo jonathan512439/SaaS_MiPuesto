@@ -118,6 +118,9 @@
 @media (min-width: 60rem) {
   .contenido {
     padding-top: var(--spacing-8);
+    /* Cuatro bloques grandes uno debajo de otro se leen como un solo muro si
+       están pegados. Más aire entre ellos es lo que los vuelve cuatro cosas. */
+    gap: var(--spacing-8);
   }
 
   .rejilla {

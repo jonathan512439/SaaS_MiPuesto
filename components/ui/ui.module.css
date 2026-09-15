@@ -87,10 +87,17 @@
   animation: girar 700ms linear infinite;
 }
 
+/* `min-width: 0` no es adorno: sin él, el tamaño mínimo automático de un hijo
+   de rejilla es su **contenido más ancho**, y el contenido más ancho de un
+   `select` es su opción más larga. Las del rubro dicen «Restaurante y comida —
+   Almuerzos, pollos, pizzería, café»: eso estiraba la columna, y con ella el
+   panel entero, hasta sacarlo de la pantalla. El `width: 100%` de abajo no
+   alcanza, porque se resuelve contra un contenedor que ya se estiró. */
 .grupoCampo {
   display: grid;
   gap: var(--spacing-2);
   width: 100%;
+  min-width: 0;
 }
 
 .filaEtiqueta {
@@ -118,6 +125,10 @@
 
 .campo {
   width: 100%;
+  /* Mismo motivo que arriba, y además el techo: ningún control puede pasarse de
+     su contenedor, ni aunque su contenido intrínseco sea más ancho. */
+  min-width: 0;
+  max-width: 100%;
   min-height: var(--control-alto);
   border: var(--borde-marcado) solid var(--color-borde);
   border-radius: var(--radius-control);
