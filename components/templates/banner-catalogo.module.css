@@ -26,7 +26,10 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 4 / 1;
+  /* 5:2 y no 4:1. A cuatro por uno la franja quedaba tan fina que una
+     publicidad con título y botón no entraba, y en un teléfono se leía como una
+     línea de color. */
+  aspect-ratio: 5 / 2;
   object-fit: cover;
 }
 

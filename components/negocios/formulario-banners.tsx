@@ -199,19 +199,23 @@ export function FormularioBanners({
       <header className={styles.cabecera}>
         <h2>Banners del catálogo</h2>
         <p>
-          Dos franjas anchas, las dos opcionales: una entre el horario y tus productos, y
-          otra antes del pie. Sirven para una promoción, un aviso o publicidad de tu
-          negocio. Si dejás una vacía, no se muestra y no deja hueco; y si cargás una
-          sola, va al primer lugar. Lo que cargás acá se ve arriba, en la vista previa.
+          Dos franjas anchas, las dos opcionales. Si dejás una vacía, no se muestra y no
+          deja hueco; y si cargás una sola, va al primer lugar. Lo que cargás acá se ve
+          arriba, en la vista previa.
         </p>
       </header>
 
       {banners.map((banner, indice) => {
         const posicion =
-          indice === 0 ? "Entre el horario y tus productos" : "Antes del pie del catálogo";
+          indice === 0 ? "Aviso · arriba del catálogo" : "Publicidad · a la mitad del catálogo";
+        const paraQue =
+          indice === 0
+            ? "Se ve apenas entra tu cliente, entre el horario y tus productos. Sirve para un aviso: «cerrado el 6 de agosto», «hoy hay promo»."
+            : "Se ve mientras tu cliente recorre los productos, entre dos categorías. Es el espacio de publicidad: una marca que vendes, una promocion de temporada, tu otro local.";
         return (
           <fieldset className={styles.banner} disabled={guardando} key={indice}>
             <legend>{posicion}</legend>
+            <p className={styles.paraQue}>{paraQue}</p>
 
             <div className={styles.previa}>
               {banner.vistaPrevia ? (

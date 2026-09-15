@@ -9,11 +9,16 @@
      esta misma hoja, que es la única capa donde se lo ve. */
   position: relative;
   isolation: isolate;
+  /* El margen lateral del catálogo, en una variable porque **tres bloques lo
+     cancelan** para llegar al borde: la cabecera, la portada y la barra fija. Si
+     el número viviera repetido en cuatro reglas, cambiarlo en una sola dejaría
+     esos bloques desalineados por unos píxeles, que es de las cosas que se ven y
+     no se explican. */
+  --margen-lateral: var(--spacing-4);
+
   display: grid;
   gap: var(--spacing-5);
-  max-width: 60rem;
-  margin: 0 auto;
-  padding: var(--spacing-4);
+  padding: var(--margen-lateral);
   padding-bottom: var(--spacing-8);
   background: var(--catalogo-fondo-suave);
   color: var(--catalogo-texto);
@@ -40,8 +45,9 @@
      dos lados: así no se distingue una frontera con la barra del navegador
      —pintada del mismo color— ni con los costados de la pantalla. Arriba suma
      el resguardo de la muesca del teléfono para que el logo no quede pegado. */
-  margin: calc(var(--spacing-4) * -1) calc(var(--spacing-4) * -1) 0;
-  padding: calc(var(--spacing-4) + env(safe-area-inset-top, 0)) var(--spacing-4) var(--spacing-4);
+  margin: calc(var(--margen-lateral) * -1) calc(var(--margen-lateral) * -1) 0;
+  padding: calc(var(--spacing-4) + env(safe-area-inset-top, 0)) var(--margen-lateral)
+    var(--spacing-4);
   /* Solo las esquinas de abajo se redondean: las de arriba y los lados tocan el
      borde, y una curva ahí volvería a dibujar la frontera que se quiere quitar. */
   border-radius: 0 0 var(--radius-panel) var(--radius-panel);
@@ -126,8 +132,8 @@
   z-index: 5;
   display: grid;
   gap: var(--spacing-3);
-  margin: 0 calc(var(--spacing-4) * -1);
-  padding: var(--spacing-3) var(--spacing-4);
+  margin: 0 calc(var(--margen-lateral) * -1);
+  padding: var(--spacing-3) var(--margen-lateral);
   background: color-mix(in srgb, var(--catalogo-fondo-suave) 88%, transparent);
   backdrop-filter: blur(0.5rem);
 }
@@ -221,7 +227,7 @@
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  margin-inline: calc(var(--spacing-4) * -1);
+  margin-inline: calc(var(--margen-lateral) * -1);
   margin-bottom: calc(var(--spacing-3) * -1);
   /* Leve, y no la del panel: la portada llega al borde de la pantalla, así que
      una curva marcada dejaría dos cuñas de fondo en las esquinas y volvería a
@@ -414,6 +420,31 @@
 @media (min-width: 64rem) {
   .rejilla {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* Sin el tope de ancho, un monitor grande tiene lugar para más productos por
+   fila. Se suman columnas en vez de ensanchar las tarjetas, que es la misma
+   regla de siempre: la tarjeta tiene un tamaño bueno y no hay que estirarlo. */
+@media (min-width: 80rem) {
+  .rejilla {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 100rem) {
+  .rejilla {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+/* El aire lateral crece con la pantalla: pegado al borde en un teléfono está
+   bien, pero en un monitor el contenido necesita margen para no leerse como un
+   cartel. La cabecera y la portada lo cancelan igual, así que ellas siguen
+   llegando al borde. */
+@media (min-width: 64rem) {
+  .catalogo {
+    --margen-lateral: var(--spacing-8);
   }
 }
 
@@ -624,4 +655,11 @@
    volver arriba sube para no quedar debajo de ella. */
 [data-acceso-carrito] .subir {
   bottom: calc(var(--spacing-20) + env(safe-area-inset-bottom, 0));
+}
+
+/* El anuncio intercalado entre categorías. Va con más aire arriba y abajo que
+   una sección cualquiera: si se pega a los productos parece una categoría más
+   y deja de leerse como lo que es, un espacio publicitario. */
+.anuncio {
+  margin-block: var(--spacing-3);
 }

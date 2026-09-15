@@ -110,3 +110,13 @@
   font-size: var(--text-xs);
   font-weight: 800;
 }
+
+/* Para qué sirve cada banner, arriba de sus campos. Va en el formulario y no en
+   la cabecera de la sección porque son dos cosas distintas: uno es un aviso y el
+   otro es publicidad, y decirlo una sola vez para los dos no lo explica. */
+.paraQue {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}

@@ -11,8 +11,11 @@
 }
 
 .catalogo {
-  width: min(100%, 72rem);
-  margin: 0 auto;
+  /* Sin tope: el catálogo ocupa la pantalla entera. El encajonado dejaba dos
+     franjas grises enormes a los costados en un monitor, y el negocio quedaba
+     mirando su vitrina por una ranura. El ancho lo administra el propio
+     catálogo, que sabe cuántas columnas de producto le entran. */
+  width: 100%;
 }
 
 .vacio {
@@ -41,6 +44,8 @@
 
 @media (min-width: 48rem) {
   .pagina {
-    padding: var(--spacing-8);
+    /* Solo abajo: los costados y el techo los maneja el catálogo, que llega al
+       borde con su cabecera y su portada. */
+    padding: 0 0 var(--spacing-8);
   }
 }

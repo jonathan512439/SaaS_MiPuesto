@@ -20,8 +20,11 @@ describe("los banners del catálogo", () => {
 
   it("la plantilla dibuja todos los que el modelo admite", () => {
     for (let posicion = 0; posicion < MAXIMO_BANNERS; posicion += 1) {
+      /* Se busca el par posición-prop y no la línea entera: el del medio lleva
+         además una clase propia, y una prueba que exige el texto literal falla
+         por agregarle una prop, sin que nada haya dejado de funcionar. */
       expect(fuente, `no dibuja el banner ${posicion}`).toContain(
-        `<BannerCatalogo banner={negocio.banners[${posicion}]} />`,
+        `banner={negocio.banners[${posicion}]}`,
       );
     }
   });

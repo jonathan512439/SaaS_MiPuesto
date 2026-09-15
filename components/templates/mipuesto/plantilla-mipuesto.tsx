@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import { iconosDePatron } from "../../../lib/patrones-fondo";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
@@ -47,6 +47,35 @@ export function PlantillaMipuesto({
      dibujo por rubro lo pone el contenedor con `data-patron`. Los dos nunca van
      juntos: quien pone el atributo consulta esta misma función. */
   const iconosPatron = negocio.patronFondo ? iconosDePatron(esferas) : [];
+
+  /* Las categorías que de verdad tienen algo que mostrar, aplanadas una sola vez.
+     Antes esto se calculaba dentro del `map` y se descartaba con un `return null`
+     a mitad de camino, lo que hacía imposible saber **cuántas** secciones iban a
+     dibujarse —y sin ese número no se puede poner nada «a la mitad». */
+  const seccionesConProductos = datos.categorias
+    .map((categoria) => ({
+      categoria,
+      productos: [
+        ...categoria.productos.map((producto) => ({
+          ...producto,
+          categoria: categoria.nombre,
+          subcategoria: null,
+        })),
+        ...(categoria.subcategorias ?? []).flatMap((subcategoria) =>
+          subcategoria.productos.map((producto) => ({
+            ...producto,
+            categoria: categoria.nombre,
+            subcategoria: subcategoria.nombre,
+          })),
+        ),
+      ],
+    }))
+    .filter(({ productos }) => productos.length > 0);
+
+  /* Después de cuál va el anuncio. Con una sola categoría cae al final, que es lo
+     único que existe; con varias, en el medio. Nunca queda último cuando hay
+     más de una: ahí dejaría de estar «a la mitad» para volver a ser un pie. */
+  const posicionDelAnuncio = Math.max(0, Math.ceil(seccionesConProductos.length / 2) - 1);
 
   const irA = (id: string) => {
     if (typeof document === "undefined") return;
@@ -223,26 +252,16 @@ export function PlantillaMipuesto({
         </p>
       ) : null}
 
-      {/* 7 · Productos, agrupados por categoría, con la tarjeta única. */}
+      {/* 7 · Productos, agrupados por categoría, con la tarjeta única.
+
+          El banner de publicidad se intercala **a la mitad**, entre dos
+          categorías: ahí lo ve quien ya está recorriendo el catálogo, que es a
+          quien le sirve una promoción. Pegado al pie lo ve solo el que llegó
+          hasta abajo, y pegado arriba compite con la portada. */}
       <div className={styles.secciones} id="productos">
-        {datos.categorias.map((categoria) => {
-          const productos = [
-            ...categoria.productos.map((producto) => ({
-              ...producto,
-              categoria: categoria.nombre,
-              subcategoria: null,
-            })),
-            ...(categoria.subcategorias ?? []).flatMap((subcategoria) =>
-              subcategoria.productos.map((producto) => ({
-                ...producto,
-                categoria: categoria.nombre,
-                subcategoria: subcategoria.nombre,
-              })),
-            ),
-          ];
-          if (productos.length === 0) return null;
-          return (
-            <section className={styles.seccion} id={`categoria-${categoria.id}`} key={categoria.id}>
+        {seccionesConProductos.map(({ categoria, productos }, posicion) => (
+          <Fragment key={categoria.id}>
+            <section className={styles.seccion} id={`categoria-${categoria.id}`}>
               <div className={styles.seccionCabecera}>
                 <h3 className={styles.seccionTitulo}>{categoria.nombre}</h3>
                 <span className={styles.seccionCuenta}>
@@ -265,12 +284,13 @@ export function PlantillaMipuesto({
                 ))}
               </ul>
             </section>
-          );
-        })}
-      </div>
 
-      {/* 8 · Banner de abajo, opcional, antes del pie. */}
-      <BannerCatalogo banner={negocio.banners[1]} />
+            {posicion === posicionDelAnuncio ? (
+              <BannerCatalogo banner={negocio.banners[1]} className={styles.anuncio} />
+            ) : null}
+          </Fragment>
+        ))}
+      </div>
 
       {/* 9 · Pie: cómo contactar y cómo llegar. */}
       <footer className={styles.pie}>
