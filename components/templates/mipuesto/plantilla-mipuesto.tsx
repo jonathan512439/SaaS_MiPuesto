@@ -128,7 +128,28 @@ export function PlantillaMipuesto({
         ) : null}
       </header>
 
-      {/* 2 y 3 · Buscador y esferas, pegados arriba al desplazar: son con lo que
+      {/* 2 · Portada con hero encima: título, bajada y botón. Solo si el negocio
+          subió una imagen; apagada no deja hueco. */}
+      {negocio.portadaUrl ? (
+        <section className={styles.portada}>
+          <Image
+            alt={`Portada de ${negocio.nombre}`}
+            className={styles.portadaImagen}
+            fill
+            sizes="(min-width: 60rem) 800px, 100vw"
+            src={negocio.portadaUrl}
+          />
+          <div className={styles.hero}>
+            <h1 className={styles.heroTitulo}>{negocio.nombre}</h1>
+            {negocio.descripcion ? <p className={styles.heroBajada}>{negocio.descripcion}</p> : null}
+            <button className={styles.heroBoton} onClick={() => irA("productos")} type="button">
+              Ver productos
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {/* 3 y 4 · Buscador y esferas, pegados arriba al desplazar: son con lo que
           se navega, y en un catálogo largo tenerlos siempre a mano evita subir
           hasta arriba para cambiar de categoría. */}
       <div className={styles.barraFija}>
@@ -183,27 +204,6 @@ export function PlantillaMipuesto({
           </nav>
         ) : null}
       </div>
-
-      {/* 4 · Portada con hero encima: título, bajada y botón. Solo si el negocio
-          subió una imagen; apagada no deja hueco. */}
-      {negocio.portadaUrl ? (
-        <section className={styles.portada}>
-          <Image
-            alt={`Portada de ${negocio.nombre}`}
-            className={styles.portadaImagen}
-            fill
-            sizes="(min-width: 60rem) 800px, 100vw"
-            src={negocio.portadaUrl}
-          />
-          <div className={styles.hero}>
-            <h1 className={styles.heroTitulo}>{negocio.nombre}</h1>
-            {negocio.descripcion ? <p className={styles.heroBajada}>{negocio.descripcion}</p> : null}
-            <button className={styles.heroBoton} onClick={() => irA("productos")} type="button">
-              Ver productos
-            </button>
-          </div>
-        </section>
-      ) : null}
 
       {/* 5 · Franja de horario. Se dibuja sola solo cuando hay algo que decir. */}
       <AvisoHorario estado={negocio.atencion} />
