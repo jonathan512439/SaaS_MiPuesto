@@ -716,13 +716,21 @@
 
 /* ---- ajuste de precios en lote ---- */
 
+/* Se viste de aviso y no de formulario más.
+ *
+ * Es la única herramienta de esta pantalla que **cambia el dinero de todos los
+ * productos a la vez y sin vuelta de fecha**. Dibujada igual que el resto se
+ * confunde con «Promociones», que hace algo parecido pero temporal. El borde de
+ * alerta a la izquierda es el mismo recurso que ya usa el aviso de suscripción
+ * del panel: donde aparece, hay que leer antes de tocar. */
 .ajustePrecios {
   display: grid;
   gap: var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-fino) solid var(--color-alerta);
+  border-left: var(--spacing-1) solid var(--color-alerta);
   border-radius: var(--radius-panel);
   padding: var(--spacing-4);
-  background: var(--color-fondo-suave);
+  background: var(--color-alerta-tenue);
 }
 
 .tituloAjuste {
@@ -731,7 +739,11 @@
 }
 
 .tituloAjuste h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
   margin: 0;
+  color: var(--color-alerta);
   font-size: var(--text-base);
   font-weight: 800;
 }
@@ -898,15 +910,53 @@
   padding: 0 var(--spacing-4) var(--spacing-4);
 }
 
+/* Se viste de opción y no de encabezado: superficie propia y respuesta al pasar
+   por encima. Antes era un renglón de texto sobre el mismo fondo del recuadro,
+   o sea nada que invitara a tocarlo. */
 .resumenOrganizacion {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-3);
+  min-height: var(--control-alto);
   padding: var(--spacing-4);
+  background: var(--color-superficie);
   font-size: var(--text-base);
   font-weight: 800;
   cursor: pointer;
+}
+
+.resumenOrganizacion:hover {
+  background: var(--color-marca-tenue);
+}
+
+/* El triángulo que el navegador pone solo: se saca porque ya hay un galón
+   propio, y tener los dos se lee como un error. */
+.resumenOrganizacion::-webkit-details-marker {
+  display: none;
+}
+
+.resumenOrganizacion::marker {
+  content: "";
+}
+
+.tituloOrganizacion {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.flechaOrganizacion {
+  flex-shrink: 0;
+  color: var(--color-marca);
+  font-size: var(--text-xl);
+  transition: transform var(--movimiento-rapido) ease;
+}
+
+/* Cerrado apunta hacia abajo —«acá hay más»— y abierto hacia arriba. El ícono
+   del juego es el galón hacia arriba, así que el que gira es el cerrado. */
+.organizacion:not([open]) .flechaOrganizacion {
+  transform: rotate(180deg);
 }
 
 .resumenOrganizacion small {

@@ -335,6 +335,14 @@ está en [`../GOOGLE-PLACES.md`](../GOOGLE-PLACES.md).
   figuraba como entregable de ninguna fase**, que es como se pierden las cosas
   que todos dan por hechas en otro lado. Entra acá porque el alta guiada toca
   esas mismas pantallas: hacerlo dos veces sería rehacer lo primero.
+- **La ficha de producto de la lista**, rehecha: miniatura a la izquierda —con
+  seña de cuáles tienen más de una foto—, datos al centro, acciones a la derecha.
+  Una por fila en el teléfono, con fotos y botones legibles sin acercar la
+  pantalla. Entra acá y no antes porque es la lista que la reorganización mueve.
+- **Las tarjetas de pedidos**, rehechas con la forma de las de Agenda: los
+  botones de resolver a la vista, en vez de un resumen que hay que interpretar.
+  El dueño con poca experiencia tiene que poder atender un pedido sin aprender
+  una pantalla nueva.
 
 **Pruebas**
 
@@ -347,6 +355,37 @@ está en [`../GOOGLE-PLACES.md`](../GOOGLE-PLACES.md).
 
 **Criterio de salida:** alguien ajeno al proyecto completa el alta en un teléfono,
 sin ayuda y sin preguntar nada. Cronometrado.
+
+---
+
+## Fase 8.5 — El panel con el color del negocio
+
+**Objetivo:** que el dueño reconozca su panel como suyo, sin perder de vista que
+el panel es el administrador y el catálogo es su tienda.
+
+Va después de la fase 8 y no antes: pintar pantallas que están por reordenarse
+es pintar dos veces.
+
+**Entregables**
+
+- **Solo los acentos**, decidido con el dueño: la barra superior, lo que está
+  elegido y los realces. **No** el fondo ni las superficies. Si el panel se
+  pintara entero con la paleta del negocio, se perdería la señal que hoy
+  distingue de un vistazo «estoy en mi tienda» de «estoy en el administrador».
+- El mapa de cada una de las diez paletas a los roles que el panel usa y el
+  catálogo no tiene: `lienzo`, `marca-fuerte`, `peligro`, `deshabilitado` y el
+  degradado de las herramientas con IA.
+- La paleta llega al panel desde el negocio, no desde una preferencia aparte:
+  es la misma que ya se elige en Apariencia.
+
+**Pruebas**
+
+- El control de contraste corre sobre el panel **con las diez paletas**, no solo
+  con la de MiPuesto. Hoy mide una sola combinación.
+- Con la paleta oscura, la barra superior y lo elegido siguen legibles.
+
+**Criterio de salida:** las diez paletas pasan contraste en el panel, y en
+cualquiera de ellas se distingue a simple vista el panel del catálogo.
 
 ---
 

@@ -23,6 +23,7 @@ import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
 import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
 import { rubroOfrece } from "../../lib/negocios/rubros";
+import { Icono } from "../iconos/icono";
 import { IconoCatalogo } from "../iconos/icono-catalogo";
 import {
   DEFINICIONES_FORMAS_DE_VENDER,
@@ -1366,9 +1367,15 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           }}
           open={organizacionAbierta}
         >
+          {/* El galón no es adorno: sin él esto se leeía como un recuadro con una
+              leyenda adentro, y nadie descubría que se abre. Gira al abrirse, que
+              es la seña que todo el mundo ya conoce. */}
           <summary className={styles.resumenOrganizacion}>
-            <span>Organizar categorías</span>
-            <small>{categorias.length} de 40 creadas</small>
+            <span className={styles.tituloOrganizacion}>
+              Organizar categorías
+              <small>{categorias.length} de 40 creadas</small>
+            </span>
+            <Icono className={styles.flechaOrganizacion} nombre="flechaArriba" />
           </summary>
           <form className={styles.nuevaCategoria} onSubmit={crearCategoria}>
             <label htmlFor="nueva-categoria">Nueva categoría</label>
@@ -1565,8 +1572,18 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           {productos.length > 0 ? (
             <form className={styles.ajustePrecios} onSubmit={ajustarPrecios}>
               <div className={styles.tituloAjuste}>
-                <h3>Ajustar precios en lote</h3>
-                <p>Cada producto guarda su precio anterior, así que se puede corregir uno por uno.</p>
+                <h3>
+                  <span aria-hidden="true">⚠</span> Cambiar precios de verdad
+                </h3>
+                {/* Se dice qué **no** es, y no por capricho: al lado existe
+                    «Promociones», que baja un precio con fecha de vencimiento y lo
+                    devuelve solo. Sin esta línea, un dueño sube todos sus precios
+                    creyendo que el domingo vuelven como estaban. */}
+                <p>
+                  <strong>Reescribe el precio guardado de tus productos y no vence.</strong>{" "}
+                  No es una oferta: para un descuento con fecha, usá Promociones. Cada
+                  producto guarda su precio anterior, así que se puede corregir uno por uno.
+                </p>
               </div>
               <div className={styles.controlesAjuste}>
                 <label htmlFor="ajuste-alcance">

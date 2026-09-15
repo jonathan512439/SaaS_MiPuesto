@@ -204,6 +204,10 @@ const colores = Object.fromEntries(
        descuida: «total, no es lo importante». */
     "texto-tenue",
     "fondo-hundido",
+    /* El aviso: fondo tenue con su propio color de texto encima. Lo usa el
+       recuadro de suscripción y el de cambiar precios, o sea los dos lugares
+       donde hay que leer antes de tocar. */
+    "alerta-tenue",
   ].map((token) => [token, leerColor(token)]),
 );
 
@@ -228,6 +232,9 @@ const combinaciones = [
      texto normal encima. */
   ["texto", "marca-tenue", 4.5],
   ["texto-suave", "marca-tenue", 4.5],
+  ["alerta", "alerta-tenue", 4.5],
+  ["texto", "alerta-tenue", 4.5],
+  ["texto-suave", "alerta-tenue", 4.5],
   ["marca", "superficie", 4.5],
   /* Los dos extremos del degradado de las herramientas con IA. Se comprueban los
      dos porque el texto va encima de todo el recorrido: alcanza con que un

@@ -214,6 +214,15 @@ select {
   font: inherit;
 }
 
+/* Un `fieldset` trae de fábrica un ancho mínimo igual a su contenido, y eso no
+   lo dice ninguna hoja: viene del navegador. Adentro de una rejilla angosta se
+   niega a encogerse y empuja la página a lo ancho. Nueve pantallas del panel
+   agrupan sus campos con `fieldset`, así que se corrige una vez acá y no nueve
+   veces con la esperanza de acordarse la décima. */
+fieldset {
+  min-width: 0;
+}
+
 button,
 a,
 input,
