@@ -23,15 +23,119 @@ export type ResultadoSiembra =
   | { sembro: false; motivo: "sin-siembra" | "ya-tenia-catalogo" }
   | { sembro: true; categorias: number; atributos: number; recursos: number };
 
+/* La siembra, ya traducida a filas de la base pero todavía sin escribir.
+ *
+ * Se separa del acto de escribirla porque hay **dos caminos** que la necesitan y
+ * escriben distinto: el alta, donde el dueño la inserta con su propia sesión, y
+ * el cambio de rubro, donde la plataforma se la manda a una función de la base
+ * porque nadie más puede escribir en el catálogo de otro.
+ *
+ * Con esto los dos parten de la misma traducción. Si cada uno tradujera lo suyo,
+ * el día que un campo cambie de nombre quedaría bien en el alta y mal en el
+ * cambio de rubro, o al revés, y nadie lo notaría hasta que un negocio cambiado
+ * de rubro apareciera con los datos de sus categorías vacíos.
+ *
+ * Los atributos y las agendas se refieren a su categoría **por nombre** y no por
+ * id: los ids no existen hasta que las categorías están escritas, y quien las
+ * escribe es el otro lado. */
+export type CargaDeSiembra = {
+  categorias: Array<{
+    nombre: string;
+    icono: string;
+    vende: string;
+    orden: number;
+    visible: boolean;
+  }>;
+  atributos: Array<{
+    categoria: string;
+    clave: string;
+    nombre: string;
+    tipo: string;
+    unidad: string | null;
+    opciones: string[];
+    obligatorio: boolean;
+    en_tarjeta: boolean;
+    en_resumen: boolean;
+    orden: number;
+  }>;
+  recursos: Array<{
+    nombre: string;
+    orden: number;
+    activo: boolean;
+    acepta_reservas: boolean;
+    agenda: {
+      duracion_minutos: number;
+      cupo_por_franja: number;
+      anticipacion_minima_horas: number;
+      dias_maximos: number;
+      franjas: Array<{ dia: number; desde: string; hasta: string }>;
+    };
+  }>;
+};
+
+export function armarSiembra(rubro: string): CargaDeSiembra | null {
+  const siembra = siembraDeRubro(rubro);
+  /* Cuatro de los diez rubros no tienen siembra y eso no es un error: se les
+     arma cuando llegue el primer cliente de ese rubro. */
+  if (!siembra) return null;
+
+  const categorias = siembra.categorias.map((categoria, posicion) => ({
+    nombre: categoria.nombre,
+    icono: categoria.icono,
+    vende: categoria.vende,
+    orden: posicion + 1,
+    visible: true,
+  }));
+
+  const atributos = siembra.categorias.flatMap((categoria) =>
+    (categoria.atributos ?? []).map((atributo, posicion) => ({
+      categoria: categoria.nombre,
+      clave: atributo.clave,
+      nombre: atributo.nombre,
+      tipo: atributo.tipo as string,
+      unidad: atributo.unidad ?? null,
+      opciones: atributo.opciones ?? [],
+      obligatorio: false,
+      en_tarjeta: atributo.enTarjeta === true,
+      /* En el resumen del pedido no va nada por omisión: lo elige el dueño
+         cuando sepa qué necesita leer al preparar un pedido. */
+      en_resumen: false,
+      orden: posicion + 1,
+    })),
+  );
+
+  /* Las categorías que venden tiempo necesitan **un recurso**, que es quien hace
+     el trabajo: el calendario cuelga de él y no de la categoría. Sin recurso, la
+     categoría existe y el cliente abre el calendario y no encuentra nada.
+     Se crea uno por categoría de tiempo y con su nombre: una veterinaria arranca
+     con «Consultas», «Vacunación» y «Baño y peluquería» como tres recursos, y el
+     dueño los renombra a los nombres de su gente si quiere. */
+  const recursos = siembra.categorias
+    .filter((categoria) => categoria.agenda)
+    .map((categoria, posicion) => ({
+      nombre: categoria.nombre,
+      orden: posicion + 1,
+      activo: true,
+      acepta_reservas: true,
+      agenda: {
+        duracion_minutos: categoria.agenda!.duracionMinutos,
+        cupo_por_franja: categoria.agenda!.cupo,
+        anticipacion_minima_horas: categoria.agenda!.anticipacionHorasMinima,
+        dias_maximos: categoria.agenda!.diasHaciaAdelante,
+        franjas: categoria.agenda!.franjas,
+      },
+    }));
+
+  return { categorias, atributos, recursos };
+}
+
 export async function sembrarRubro(
   supabase: Cliente,
   negocioId: string,
   rubro: string,
 ): Promise<ResultadoSiembra> {
-  const siembra = siembraDeRubro(rubro);
-  /* Cuatro de los diez rubros no tienen siembra y eso no es un error: se les
-     arma cuando llegue el primer cliente de ese rubro. */
-  if (!siembra) return { sembro: false, motivo: "sin-siembra" };
+  const carga = armarSiembra(rubro);
+  if (!carga) return { sembro: false, motivo: "sin-siembra" };
 
   const { count } = await supabase
     .from("categorias")
@@ -46,16 +150,7 @@ export async function sembrarRubro(
      sembrado por la mitad. */
   const { data: categorias, error: errorCategorias } = await supabase
     .from("categorias")
-    .insert(
-      siembra.categorias.map((categoria, posicion) => ({
-        negocio_id: negocioId,
-        nombre: categoria.nombre,
-        icono: categoria.icono,
-        vende: categoria.vende,
-        orden: posicion + 1,
-        visible: true,
-      })),
-    )
+    .insert(carga.categorias.map((categoria) => ({ ...categoria, negocio_id: negocioId })))
     .select("id,nombre");
 
   if (errorCategorias || !categorias) {
@@ -67,48 +162,30 @@ export async function sembrarRubro(
      que nadie prometió. */
   const idPorNombre = new Map(categorias.map(({ id, nombre }) => [nombre, id]));
 
-  const atributos = siembra.categorias.flatMap((categoria) =>
-    (categoria.atributos ?? []).map((atributo, posicion) => ({
-      negocio_id: negocioId,
-      categoria_id: idPorNombre.get(categoria.nombre) ?? "",
-      clave: atributo.clave,
-      nombre: atributo.nombre,
-      tipo: atributo.tipo,
-      unidad: atributo.unidad ?? null,
-      opciones: atributo.opciones ?? [],
-      obligatorio: false,
-      en_tarjeta: atributo.enTarjeta === true,
-      /* En el resumen del pedido no va nada por omisión: lo elige el dueño
-         cuando sepa qué necesita leer al preparar un pedido. */
-      en_resumen: false,
-      orden: posicion + 1,
-    })),
-  );
+  const atributos = carga.atributos.map(({ categoria, ...resto }) => ({
+    ...resto,
+    negocio_id: negocioId,
+    categoria_id: idPorNombre.get(categoria) ?? "",
+  }));
 
   if (atributos.length > 0) {
     const { error } = await supabase.from("atributos_categoria").insert(atributos);
     if (error) throw new Error("No se pudieron preparar los datos de las categorías.");
   }
 
-  /* Las categorías que venden tiempo necesitan **un recurso**, que es quien hace
-     el trabajo: el calendario cuelga de él y no de la categoría. Sin recurso, la
-     categoría existe y el cliente abre el calendario y no encuentra nada.
-     Se crea uno por categoría de tiempo y con su nombre: una veterinaria arranca
-     con «Consultas», «Vacunación» y «Baño y peluquería» como tres recursos, y el
-     dueño los renombra a los nombres de su gente si quiere. */
-  const deTiempo = siembra.categorias.filter((categoria) => categoria.agenda);
   let recursos = 0;
 
-  if (deTiempo.length > 0) {
+  if (carga.recursos.length > 0) {
     const { data: creados, error } = await supabase
       .from("recursos")
       .insert(
-        deTiempo.map((categoria, posicion) => ({
+        /* El horario va en su propia tabla, asi que el recurso viaja sin el. */
+        carga.recursos.map((recurso) => ({
           negocio_id: negocioId,
-          nombre: categoria.nombre,
-          orden: posicion + 1,
-          activo: true,
-          acepta_reservas: true,
+          nombre: recurso.nombre,
+          orden: recurso.orden,
+          activo: recurso.activo,
+          acepta_reservas: recurso.acepta_reservas,
         })),
       )
       .select("id,nombre");
@@ -117,19 +194,20 @@ export async function sembrarRubro(
     recursos = creados.length;
 
     const idRecursoPorNombre = new Map(creados.map(({ id, nombre }) => [nombre, id]));
-    const agendas = deTiempo.map((categoria) => ({
+    const agendas = carga.recursos.map((recurso) => ({
+      ...recurso.agenda,
       negocio_id: negocioId,
-      recurso_id: idRecursoPorNombre.get(categoria.nombre) ?? "",
-      duracion_minutos: categoria.agenda!.duracionMinutos,
-      cupo_por_franja: categoria.agenda!.cupo,
-      anticipacion_minima_horas: categoria.agenda!.anticipacionHorasMinima,
-      dias_maximos: categoria.agenda!.diasHaciaAdelante,
-      franjas: categoria.agenda!.franjas,
+      recurso_id: idRecursoPorNombre.get(recurso.nombre) ?? "",
     }));
 
     const { error: errorAgenda } = await supabase.from("agenda_recurso").insert(agendas);
     if (errorAgenda) throw new Error("No se pudo preparar el horario de atención.");
   }
 
-  return { sembro: true, categorias: categorias.length, atributos: atributos.length, recursos };
+  return {
+    sembro: true,
+    categorias: categorias.length,
+    atributos: atributos.length,
+    recursos,
+  };
 }

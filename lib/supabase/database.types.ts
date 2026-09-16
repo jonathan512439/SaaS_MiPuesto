@@ -1120,6 +1120,10 @@ export type Database = {
         Args: { p_activo: boolean; p_motivo?: string; p_negocio_id: string }
         Returns: Json
       }
+      admin_cambiar_rubro: {
+        Args: { p_negocio_id: string; p_rubro: string; p_siembra?: Json }
+        Returns: Json
+      }
       admin_registrar_invitacion: {
         Args: { p_correo: string }
         Returns: undefined
@@ -1184,6 +1188,14 @@ export type Database = {
           cupo: number
           fin: string
           inicio: string
+        }[]
+      }
+      permisos_de_columnas_negocios: {
+        Args: never
+        Returns: {
+          column_name: string
+          grantee: string
+          privilege_type: string
         }[]
       }
       purgar_analitica_vieja: { Args: { p_dias?: number }; Returns: number }

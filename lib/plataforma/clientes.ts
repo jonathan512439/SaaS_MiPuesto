@@ -11,6 +11,9 @@ export type NegocioPlataforma = {
   suscripcion_vence_en: string;
   creado_en: string;
   foto_ia_habilitada?: boolean;
+  /* Opcional porque la fila puede ser vieja: hay negocios anteriores a que el
+     rubro existiera, y son justamente los candidatos a que haya que cambiarlo. */
+  rubro?: string | null;
 };
 
 export type EstadoCliente =

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { AccionesCliente } from "../../../components/plataforma/acciones-cliente";
+import { CambioDeRubro } from "../../../components/plataforma/cambio-de-rubro";
 import { EtiquetasNfc } from "../../../components/plataforma/etiquetas-nfc";
 import type { EtiquetaPlataforma } from "../../../components/plataforma/etiquetas-nfc";
 import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
@@ -59,7 +60,7 @@ export default async function PaginaPlataforma() {
     supabase
       .from("negocios")
       .select(
-        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada",
+        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada,rubro",
       )
       .order("nombre"),
     supabase
@@ -180,6 +181,12 @@ export default async function PaginaPlataforma() {
                 nombre={negocio.nombre}
                 suspendidoPorPago={estado === "suspendido"}
                 topeFotos={TOPE_FOTOS_POR_MES}
+              />
+
+              <CambioDeRubro
+                negocioId={negocio.id}
+                nombre={negocio.nombre}
+                rubroActual={negocio.rubro ?? null}
               />
             </li>
           ))}
