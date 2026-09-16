@@ -761,8 +761,7 @@
  * alerta a la izquierda es el mismo recurso que ya usa el aviso de suscripción
  * del panel: donde aparece, hay que leer antes de tocar. */
 .ajustePrecios {
-  display: grid;
-  gap: var(--spacing-3);
+  overflow: hidden;
   border: var(--borde-fino) solid var(--color-alerta);
   border-left: var(--spacing-1) solid var(--color-alerta);
   border-radius: var(--radius-panel);
@@ -1252,4 +1251,69 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
   gap: var(--spacing-3);
+}
+
+
+/* El resumen del desplegable de precios: dice qué hace sin abrirlo. */
+.resumenAjuste {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  min-height: var(--control-alto);
+  padding: var(--spacing-4);
+  cursor: pointer;
+}
+
+.resumenAjuste::-webkit-details-marker {
+  display: none;
+}
+
+.resumenAjuste::marker {
+  content: "";
+}
+
+.tituloAjuste {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.tituloAjuste strong {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-alerta);
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.tituloAjuste small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.flechaAjuste {
+  flex-shrink: 0;
+  color: var(--color-alerta);
+  font-size: var(--text-xl);
+  transform: rotate(180deg);
+  transition: transform var(--movimiento-rapido) ease;
+}
+
+.ajustePrecios[open] .flechaAjuste {
+  transform: rotate(0deg);
+}
+
+.formularioAjuste {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: 0 var(--spacing-4) var(--spacing-4);
+}
+
+.avisoAjuste {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.45;
 }

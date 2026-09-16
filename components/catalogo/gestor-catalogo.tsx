@@ -1587,22 +1587,33 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
           {/* Ajustar precios de a uno sobre trescientos productos es lo que hace
               que un catálogo quede desactualizado. Va acá arriba y no escondido
               en otra pantalla porque con inflación se usa varias veces al año. */}
+          {/* Plegado por omisión: se usa unas pocas veces al año —cuando cambian los
+              precios— y desplegado ocupaba la mitad de la pantalla de productos todos
+              los días. El resumen dice de una qué hace, así que no hace falta abrirlo
+              para saber si es lo que se busca. */}
           {productos.length > 0 ? (
-            <form className={styles.ajustePrecios} onSubmit={ajustarPrecios}>
-              <div className={styles.tituloAjuste}>
-                <h3>
-                  <span aria-hidden="true">⚠</span> Cambiar precios de verdad
-                </h3>
-                {/* Se dice qué **no** es, y no por capricho: al lado existe
-                    «Promociones», que baja un precio con fecha de vencimiento y lo
-                    devuelve solo. Sin esta línea, un dueño sube todos sus precios
-                    creyendo que el domingo vuelven como estaban. */}
-                <p>
-                  <strong>Reescribe el precio guardado de tus productos y no vence.</strong>{" "}
-                  No es una oferta: para un descuento con fecha, usá Promociones. Cada
-                  producto guarda su precio anterior, así que se puede corregir uno por uno.
-                </p>
-              </div>
+            <details className={styles.ajustePrecios}>
+              <summary className={styles.resumenAjuste}>
+                <span className={styles.tituloAjuste}>
+                  <strong>
+                    <span aria-hidden="true">⚠</span> Cambiar precios
+                  </strong>
+                  <small>
+                    Subí o bajá de una vez el precio de todo tu catálogo o de una categoría.
+                  </small>
+                </span>
+                <Icono className={styles.flechaAjuste} nombre="flechaArriba" />
+              </summary>
+              <form className={styles.formularioAjuste} onSubmit={ajustarPrecios}>
+              {/* Se dice qué **no** es, y no por capricho: al lado existe
+                  «Promociones», que baja un precio con fecha de vencimiento y lo
+                  devuelve solo. Sin esta línea, un dueño sube todos sus precios
+                  creyendo que el domingo vuelven como estaban. */}
+              <p className={styles.avisoAjuste}>
+                <strong>Reescribe el precio guardado y no vence.</strong> No es una oferta:
+                para un descuento con fecha, usá Promociones. Cada producto guarda su precio
+                anterior, así que se puede corregir uno por uno.
+              </p>
               <div className={styles.controlesAjuste}>
                 <label htmlFor="ajuste-alcance">
                   Qué ajustar
@@ -1641,7 +1652,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                 Escribí <strong>10</strong> para subir un 10 % o <strong>-10</strong> para
                 bajarlo. Ningún precio queda en cero.
               </p>
-            </form>
+              </form>
+            </details>
           ) : null}
 
           {productosVisibles.length === 0 ? (

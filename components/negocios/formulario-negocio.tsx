@@ -13,7 +13,7 @@ import {
   LARGO_MAXIMO_ZONA,
   NOMBRES_CIUDADES,
 } from "../../lib/negocios/lugares";
-import { DEFINICIONES_RUBROS, rubroOfrece } from "../../lib/negocios/rubros";
+import { DEFINICIONES_RUBROS, nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "../../app/(admin)/dashboard/configuracion/configuracion.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
@@ -25,6 +25,7 @@ export type PerfilNegocioInicial = {
   subnombre: string | null;
   tipo_negocio: string;
   rubro?: string | null;
+  rubro_bloqueado_en?: string | null;
   pide_numero_mesa?: boolean | null;
   ciudad?: string | null;
   zona?: string | null;
@@ -77,6 +78,9 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   );
   const [telefono, setTelefono] = useState(negocioInicial?.telefono_whatsapp ?? "");
   const [rubro, setRubro] = useState(negocioInicial?.rubro ?? "");
+  /* Del dato y no de una propiedad aparte: la verdad de si ya se eligió está
+     en la base, y una bandera suelta se desincroniza. */
+  const rubroBloqueado = Boolean(negocioInicial?.rubro_bloqueado_en);
   const [pideMesa, setPideMesa] = useState(negocioInicial?.pide_numero_mesa === true);
   const [ciudad, setCiudad] = useState(negocioInicial?.ciudad ?? "");
   const [zona, setZona] = useState(negocioInicial?.zona ?? "");
@@ -321,24 +325,48 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
             </option>
           ))}
         </Selector>
+        {/* Pegada al selector que explica, y no tres campos más abajo. Una
+            explicación que cambia al elegir tiene que estar donde se elige: si
+            queda lejos, el dueño cambia la modalidad y no ve que algo respondió. */}
+        <div className={styles.modalidadExplicacion} aria-live="polite">
+          <h3>{EXPLICACIONES_MODALIDAD[tipo].titulo}</h3>
+          <p>{EXPLICACIONES_MODALIDAD[tipo].descripcion}</p>
+          <p>Puedes cambiar esta modalidad más adelante si tu negocio lo necesita.</p>
+        </div>
         {/* El rubro va junto a la modalidad porque son las dos mitades de la
-            misma pregunta: cómo vende y qué vende. Solo enciende o apaga
-            pantallas del panel; no toca ni un dato de lo que ya cargó. */}
-        <Selector
-          ayuda="Solo decide qué herramientas te ofrecemos. Cambiarlo no borra nada."
-          error={errores.rubro}
-          etiqueta="¿Qué vendés?"
-          id="rubro-negocio"
-          onChange={(evento) => setRubro(evento.target.value)}
-          value={rubro}
-        >
-          <option value="">Prefiero no decirlo</option>
-          {DEFINICIONES_RUBROS.map(({ id, nombre, ejemplo }) => (
-            <option key={id} value={id}>
-              {nombre} — {ejemplo}
-            </option>
-          ))}
-        </Selector>
+            misma pregunta: cómo vende y qué vende.
+ 
+            **Una vez elegido, acá solo se muestra.** Antes este selector lo dejaba
+            cambiar libremente, y desde que el rubro **siembra el catálogo** eso es
+            una contradicción: el alta le dice «se elige una sola vez» y esta
+            pantalla lo desmiente. La ayuda vieja —«cambiarlo no borra nada»—
+            además dejó de ser cierta. */}
+        {rubroBloqueado ? (
+          <div className={styles.rubroFijo}>
+            <span className={styles.rubroEtiqueta}>¿Qué vendés?</span>
+            <strong>{nombreDeRubro(rubro)}</strong>
+            <small>
+              Tu rubro ya quedó fijo. Para cambiarlo escribinos: el catálogo se reinicia y te
+              lo exportamos antes.
+            </small>
+          </div>
+        ) : (
+          <Selector
+            ayuda="Con esto preparamos tus categorías y los datos de cada producto. Se elige una sola vez."
+            error={errores.rubro}
+            etiqueta="¿Qué vendés?"
+            id="rubro-negocio"
+            onChange={(evento) => setRubro(evento.target.value)}
+            value={rubro}
+          >
+            <option value="">Prefiero no decirlo</option>
+            {DEFINICIONES_RUBROS.map(({ id, nombre, ejemplo }) => (
+              <option key={id} value={id}>
+                {nombre} — {ejemplo}
+              </option>
+            ))}
+          </Selector>
+        )}
         {/* Aparece pegado al rubro porque solo tiene sentido ahí: pedirle la
             mesa a quien compra ropa por WhatsApp es un campo más entre él y el
             pedido. Si el rubro cambia y deja de ofrecerlo, la marca guardada no
@@ -388,11 +416,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
             </span>
           </label>
         ) : null}
-        <div className={styles.modalidadExplicacion} aria-live="polite">
-          <h3>{EXPLICACIONES_MODALIDAD[tipo].titulo}</h3>
-          <p>{EXPLICACIONES_MODALIDAD[tipo].descripcion}</p>
-          <p>Puedes cambiar esta modalidad más adelante si tu negocio lo necesita.</p>
-        </div>
         <Campo
           autoComplete="tel"
           ayuda="Puedes escribir 71234567 o +591 71234567."

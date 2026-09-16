@@ -55,7 +55,7 @@ export async function POST(solicitud: NextRequest) {
 
   const { data: negocioActual, error: errorLectura } = await supabase
     .from("negocios")
-    .select("id,slug")
+    .select("id,slug,rubro,rubro_bloqueado_en")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -66,16 +66,37 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
+  /* El rubro no se cambia desde acá una vez elegido.
+   *
+   * La pantalla ya lo muestra de solo lectura, pero eso no alcanza: una pantalla
+   * es una sugerencia y el servidor es la regla. Cambiarlo **reinicia el
+   * catálogo** —se borran categorías, productos y fotos— y lo hace el equipo con
+   * la exportación previa, no una petición armada a mano.
+   *
+   * Se compara contra lo guardado y no se rechaza cualquier envío con rubro: el
+   * formulario manda el negocio entero, así que **siempre** incluye el rubro que
+   * ya tenía. Rechazar por venir sería trabar cualquier cambio de teléfono. */
+  const datos = { ...validacion.datos };
+  if (negocioActual?.rubro_bloqueado_en && datos.rubro !== negocioActual.rubro) {
+    return NextResponse.json(
+      {
+        error:
+          "Tu rubro ya quedó fijo. Para cambiarlo, escribinos: el catálogo se reinicia y te lo exportamos antes.",
+      },
+      { status: 409 },
+    );
+  }
+
   const consulta = negocioActual
     ? supabase
         .from("negocios")
-        .update(validacion.datos)
+        .update(datos)
         .eq("id", negocioActual.id)
         .select(COLUMNAS_PERFIL)
         .single()
     : supabase
         .from("negocios")
-        .insert({ ...validacion.datos, admin_user_id: idUsuario })
+        .insert({ ...datos, admin_user_id: idUsuario })
         .select(COLUMNAS_PERFIL)
         .single();
 
