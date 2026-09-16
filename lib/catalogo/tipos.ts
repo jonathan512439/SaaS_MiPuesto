@@ -72,7 +72,12 @@ export type DatosCatalogoAdmin = {
     nombre: string;
     slug: string;
     rubro: string | null;
-    foto_ia_habilitada?: boolean;
+    /* Obligatorio a propósito, aunque el valor pueda ser falso.
+       Era opcional, y por eso una consulta que dejó de pedirlo compiló igual:
+       el formulario de producto se quedó sin su bloque de lectura con foto y no
+       protestó nadie. Un campo que una pantalla necesita para dibujarse no es
+       opcional; que el dato sea `false` es otra cosa. */
+    foto_ia_habilitada: boolean;
   };
   categorias: CategoriaCatalogo[];
   subcategorias: SubcategoriaCatalogo[];
