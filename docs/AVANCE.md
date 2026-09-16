@@ -26,7 +26,7 @@ de aislamiento entre negocios, cuatro auditorías estructurales contra el proyec
 real (`test:fase1:linked`, `fase2`, `fase4`, más `test:rls:linked`), y las seis
 guardias del build en verde.
 
-### Una falla que conviene recordar: los permisos por columna
+### Una falla que ya cortó dos veces: los permisos por columna
 
 `negocios` **no concede `select` sobre la tabla entera**: concede columna por
 columna al rol `anon`, para que el catálogo público solo pueda leer lo que sale
@@ -40,7 +40,20 @@ las pruebas corren sin base, y la página seguía devolviendo **200 con el cuerp
 vacío**, así que ni el código de estado lo delataba. Se descubrió mirando el
 sitio, que es lo que se quiere evitar.
 
-Desde entonces hay una guarda: `npm run test:publico:linked` corre **la consulta
+**Y volvió a pasar del lado de la escritura.** `authenticated` también tiene
+permisos por columna, y ninguna de las columnas de las fases 7 y 8 estaba
+concedida: el alta fallaba en el paso 1 sin decir por qué, y el subnombre y la
+intensidad del fondo **nunca se llegaron a guardar** —el panel mostraba el
+control, el dueño lo movía, y la escritura se rechazaba—.
+
+La regla, entonces: **al agregar una columna a `negocios`, preguntarse quién la
+lee y quién la escribe, y conceder**. No hay valor por omisión razonable; el
+sistema no avisa.
+
+Desde entonces hay dos guardas. `npm run test:permisos:linked` compara contra la
+base qué columnas puede escribir el dueño y cuáles puede leer un visitante, con
+una lista declarada en el propio script: agregar una columna obliga a decir de
+quién es. Y `npm run test:publico:linked` corre **la consulta
 de verdad** —la lee de `lib/catalogo/negocio-publico.ts`— con la clave anónima
 contra el proyecto real. Si alguien suma una columna y se olvida del `grant`,
 falla y dice cómo arreglarlo. **Conviene correrla después de cualquier migración
