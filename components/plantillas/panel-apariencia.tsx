@@ -34,16 +34,20 @@ export function PanelApariencia({
   paletaInicial: PaletaId;
   patronInicial: boolean;
   opacidadInicial: number;
-  bannersIniciales: Banner[];
+  bannersIniciales: Array<Banner | null>;
   urlPorRuta: Record<string, string>;
   destinos: ContextoDestino;
 }) {
   /* Arranca con lo guardado ya resuelto a direcciones: la muestra dibuja
      imágenes, y lo que hay en la base son rutas del depósito. */
-  const [bannersVista, setBannersVista] = useState<Banner[]>(() =>
-    bannersIniciales.flatMap((banner) => {
+  const [bannersVista, setBannersVista] = useState<Array<Banner | null>>(() =>
+    /* `map` y no `flatMap`: cada lugar conserva el suyo. Compactando, la muestra
+       dibujaba arriba el banner que el dueño cargó abajo, y la vista previa
+       mentía sobre su propio catálogo. */
+    bannersIniciales.map((banner) => {
+      if (!banner) return null;
       const url = urlPorRuta[banner.imagen];
-      return url ? [{ ...banner, imagen: url }] : [];
+      return url ? { ...banner, imagen: url } : null;
     }),
   );
 

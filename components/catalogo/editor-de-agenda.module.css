@@ -82,7 +82,10 @@
   padding-right: var(--spacing-8);
   border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
-  background: var(--color-superficie);
+  /* En forma larga: `background` a secas borra la imagen del galon que
+     dibuja globals.css, y el desplegable vuelve a parecer una caja de
+     escribir. */
+  background-color: var(--color-superficie);
   color: var(--color-texto);
   font-family: inherit;
   font-size: var(--text-base);

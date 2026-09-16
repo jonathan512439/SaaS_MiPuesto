@@ -56,10 +56,13 @@ export default async function PaginaPlantilla() {
   const bannersGuardados = leerBanners(negocio.banners);
   const { url: urlSupabase } = obtenerVariablesPublicasSupabase();
   const urlPorRuta = Object.fromEntries(
-    bannersGuardados.map((banner) => [
-      banner.imagen,
-      obtenerUrlPublicaImagenNegocio(urlSupabase, banner.imagen, "banner") ?? "",
-    ]),
+    /* Los lugares vacíos no tienen imagen que resolver. */
+    bannersGuardados
+      .filter((banner) => banner !== null)
+      .map((banner) => [
+        banner.imagen,
+        obtenerUrlPublicaImagenNegocio(urlSupabase, banner.imagen, "banner") ?? "",
+      ]),
   );
   const datos = crearDatosDemoPlantilla({
     nombre: negocio.nombre,
@@ -77,7 +80,7 @@ export default async function PaginaPlantilla() {
   return (
     <main className={styles.contenido}>
       <EncabezadoPanel
-        descripcion="Cambiala cuando quieras. No altera tus productos ni tus pedidos."
+        descripcion="Cambiala cuando quieras."
         titulo="Apariencia"
       />
 

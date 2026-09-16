@@ -360,10 +360,16 @@ export function construirCatalogoPublico(
         /* La ruta se convierte en dirección acá, como el logo y la portada: lo
            guardado es una ruta del depósito, no una dirección con el proyecto
            adentro. */
-        banners: leerBanners(negocio.banners).map((banner) => ({
-          ...banner,
-          imagen: obtenerUrlPublicaImagenNegocio(urlSupabase, banner.imagen, "banner") ?? "",
-        })),
+        /* Los huecos viajan como huecos: el lugar de cada banner es su índice,
+           y compactarlos acá subiría el de abajo al lugar de arriba. */
+        banners: leerBanners(negocio.banners).map((banner) =>
+          banner
+            ? {
+                ...banner,
+                imagen: obtenerUrlPublicaImagenNegocio(urlSupabase, banner.imagen, "banner") ?? "",
+              }
+            : null,
+        ),
       },
       categorias: agrupadas,
     },

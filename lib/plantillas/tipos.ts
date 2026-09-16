@@ -87,7 +87,10 @@ export type DatosPlantilla = {
     /* Hasta dos, en orden: el primero va debajo de la portada y el segundo antes
        del pie. Vacío es lo normal, y es lo que ve un negocio recién dado de
        alta: el armazón no dibuja nada en su lugar. */
-    banners: Banner[];
+    /* Dos lugares fijos: el de arriba y el de la mitad. `null` es «este lugar
+       queda vacío», y no se compacta: si el dueño carga solo el de abajo, va
+       abajo. */
+    banners: Array<Banner | null>;
     /* Vacío significa que el negocio no publicó su ubicación, no que no la
        tenga: el pie no dibuja nada en vez de mostrar un enlace roto. */
     ubicacionUrl: string | null;

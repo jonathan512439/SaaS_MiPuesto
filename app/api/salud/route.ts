@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
    sitio sin adivinar. Se lee en `/api/salud`. Cuando cambia acá y aparece allá
    sin que nadie haya desplegado a mano, el despliegue automático está andando.
    Se bumpea en cambios que importa poder confirmar en producción. */
-const MARCA_DESPLIEGUE = "campos-que-parecen-campos";
+const MARCA_DESPLIEGUE = "tanda-b-textos-y-banners";
 
 const VIDA_CACHE_MS = 15_000;
 

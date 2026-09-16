@@ -975,7 +975,12 @@
   gap: var(--spacing-1);
 }
 
-.tituloAjuste h3 {
+/* Apuntaba a `h3` y `p`, y el marcado usa `strong` y `small`: ninguna de las dos
+   reglas se aplicaba nunca. El triangulo de advertencia estaba escrito en el
+   HTML desde siempre, pero salia del tamano del texto comun y sin el color de
+   alerta, o sea invisible. Lo que anuncia que esto cambia precios de verdad es
+   justamente eso. */
+.tituloAjuste strong {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
@@ -985,7 +990,14 @@
   font-weight: 800;
 }
 
-.tituloAjuste p {
+/* El triangulo, un punto mas grande que su texto: es la senia que se ve antes
+   de leer. */
+.tituloAjuste strong > span {
+  font-size: var(--text-lg);
+  line-height: 1;
+}
+
+.tituloAjuste small {
   margin: 0;
   color: var(--color-texto-suave);
   font-size: var(--text-sm);
@@ -1016,7 +1028,10 @@
   /* Sitio para el galón del desplegable, que lo dibuja `globals.css`. Sin
      esto, una opción larga se mete debajo de él. */
   padding-right: var(--spacing-8);
-  background: var(--color-superficie);
+  /* En forma larga: `background` a secas borra la imagen del galon que
+     dibuja globals.css, y el desplegable vuelve a parecer una caja de
+     escribir. */
+  background-color: var(--color-superficie);
   color: var(--color-texto);
   font: inherit;
   font-size: var(--text-sm);
@@ -1106,7 +1121,10 @@
   /* Sitio para el galón del desplegable, que lo dibuja `globals.css`. Sin
      esto, una opción larga se mete debajo de él. */
   padding-right: var(--spacing-8);
-  background: var(--color-superficie);
+  /* En forma larga: `background` a secas borra la imagen del galon que
+     dibuja globals.css, y el desplegable vuelve a parecer una caja de
+     escribir. */
+  background-color: var(--color-superficie);
   color: var(--color-texto);
   font: inherit;
   font-size: var(--text-sm);
@@ -1387,7 +1405,10 @@
   padding-right: var(--spacing-8);
   border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
-  background: var(--color-superficie);
+  /* En forma larga: `background` a secas borra la imagen del galon que
+     dibuja globals.css, y el desplegable vuelve a parecer una caja de
+     escribir. */
+  background-color: var(--color-superficie);
   color: var(--color-texto);
   font-family: inherit;
   font-size: var(--text-base);

@@ -25,6 +25,9 @@ describe("leerBanners", () => {
         boton: null,
         enlace: bueno.enlace,
       },
+      /* El segundo lugar, vacío: el arreglo tiene siempre dos y el hueco es
+         parte de la respuesta, no algo que se recorta. */
+      null,
     ]);
   });
 
@@ -38,43 +41,46 @@ describe("leerBanners", () => {
         boton: "Ver la promoción",
       },
     ]);
+    if (!banner) throw new Error("el primer lugar viene con banner");
     expect(banner.eyebrow).toBe("Solo esta semana");
     expect(banner.titulo).toBe("20 % en toda la línea eléctrica");
     expect(banner.copy).toBe("Del lunes al sábado, presentando el catálogo.");
     expect(banner.boton).toBe("Ver la promoción");
-    expect(leerBanners([{ ...bueno, titulo: "t".repeat(200) }])[0].titulo).toHaveLength(80);
+    expect(leerBanners([{ ...bueno, titulo: "t".repeat(200) }])[0]?.titulo).toHaveLength(80);
   });
 
   it("deja en nulo el texto de encima que no vino", () => {
     const [banner] = leerBanners([bueno]);
+    if (!banner) throw new Error("el primer lugar viene con banner");
     expect(banner.titulo).toBeNull();
     expect(banner.boton).toBeNull();
   });
 
   it("acepta un banner sin enlace: un aviso no lleva a ninguna parte", () => {
-    expect(leerBanners([{ imagen: bueno.imagen, alt: "Cerrado el 6 de agosto" }])[0].enlace).toBeNull();
+    expect(leerBanners([{ imagen: bueno.imagen, alt: "Cerrado el 6 de agosto" }])[0]?.enlace).toBeNull();
   });
 
   /* Los descartes son en silencio a propósito: esta función lee lo que ya está
-     guardado, y un banner mal formado no puede dejar el catálogo sin cargar. */
+     guardado, y un banner mal formado no puede dejar el catálogo sin cargar.
+     Lo que se descarta deja su lugar **vacío**, no corre al de abajo. */
   it("descarta el que no tiene imagen o no tiene texto alternativo", () => {
-    expect(leerBanners([{ alt: "Sin imagen" }])).toEqual([]);
-    expect(leerBanners([{ imagen: bueno.imagen }])).toEqual([]);
-    expect(leerBanners([{ imagen: bueno.imagen, alt: "   " }])).toEqual([]);
+    expect(leerBanners([{ alt: "Sin imagen" }])).toEqual([null, null]);
+    expect(leerBanners([{ imagen: bueno.imagen }])).toEqual([null, null]);
+    expect(leerBanners([{ imagen: bueno.imagen, alt: "   " }])).toEqual([null, null]);
   });
 
   /* La ruta se descarta si podría salirse del depósito. Que además sea de este
      negocio lo comprueba el servidor, que es donde se sabe cuál es. */
   it("descarta rutas que podrían salirse del depósito", () => {
-    expect(leerBanners([{ ...bueno, imagen: "../otro-negocio/banner/x.webp" }])).toEqual([]);
-    expect(leerBanners([{ ...bueno, imagen: "/etc/passwd" }])).toEqual([]);
-    expect(leerBanners([{ ...bueno, imagen: "carpeta\\archivo.webp" }])).toEqual([]);
-    expect(leerBanners([{ ...bueno, imagen: "x".repeat(400) }])).toEqual([]);
+    expect(leerBanners([{ ...bueno, imagen: "../otro-negocio/banner/x.webp" }])).toEqual([null, null]);
+    expect(leerBanners([{ ...bueno, imagen: "/etc/passwd" }])).toEqual([null, null]);
+    expect(leerBanners([{ ...bueno, imagen: "carpeta\\archivo.webp" }])).toEqual([null, null]);
+    expect(leerBanners([{ ...bueno, imagen: "x".repeat(400) }])).toEqual([null, null]);
   });
 
   it("descarta enlaces que no son https", () => {
-    expect(leerBanners([{ ...bueno, enlace: "javascript:alert(1)" }])[0].enlace).toBeNull();
-    expect(leerBanners([{ ...bueno, enlace: "http://ejemplo.com" }])[0].enlace).toBeNull();
+    expect(leerBanners([{ ...bueno, enlace: "javascript:alert(1)" }])[0]?.enlace).toBeNull();
+    expect(leerBanners([{ ...bueno, enlace: "http://ejemplo.com" }])[0]?.enlace).toBeNull();
   });
 
   it("nunca devuelve más del tope, aunque la columna traiga más", () => {
@@ -82,14 +88,14 @@ describe("leerBanners", () => {
   });
 
   it("no rompe con lo que no es una lista", () => {
-    expect(leerBanners(null)).toEqual([]);
-    expect(leerBanners("dos banners")).toEqual([]);
-    expect(leerBanners([null, 7, "x"])).toEqual([]);
+    expect(leerBanners(null)).toEqual([null, null]);
+    expect(leerBanners("dos banners")).toEqual([null, null]);
+    expect(leerBanners([null, 7, "x"])).toEqual([null, null]);
   });
 
   it("recorta un texto alternativo larguísimo en vez de descartarlo", () => {
     const largo = leerBanners([{ ...bueno, alt: "a".repeat(500) }]);
-    expect(largo[0].alt).toHaveLength(120);
+    expect(largo[0]?.alt).toHaveLength(120);
   });
 });
 

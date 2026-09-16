@@ -91,9 +91,7 @@ export function SelectorApariencia({
       <fieldset className={styles.grupo} disabled={guardando}>
         <legend className={styles.leyendaOculta}>Elige la paleta de colores</legend>
         <PasoNumerado numero={1} titulo="Elige la paleta de colores" />
-        <p className={styles.ayuda}>
-          Tiñe la cabecera, el fondo y las tarjetas. Todas cumplen contraste AA.
-        </p>
+        <p className={styles.ayuda}>Tiñe la cabecera, el fondo y las tarjetas.</p>
         <div className={styles.paletas}>
           {DEFINICIONES_PALETAS.map((paleta) => {
             const elegida = paletaElegida === paleta.id;
@@ -135,8 +133,7 @@ export function SelectorApariencia({
         <legend className={styles.leyendaOculta}>Elige el fondo</legend>
         <PasoNumerado numero={2} titulo="Elige el fondo" />
         <p className={styles.ayuda}>
-          El catálogo lleva detrás un dibujo tenue con objetos de tu rubro. Apagalo si
-          preferís un fondo liso; tu panel de administración no cambia.
+          El catálogo lleva detrás un patrón de íconos tenue.
         </p>
         <label className={styles.interruptor} htmlFor="patron-fondo">
           <input

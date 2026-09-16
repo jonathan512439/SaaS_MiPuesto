@@ -22,7 +22,7 @@ export function BannerCatalogo({
   banner,
   className,
 }: {
-  banner: Banner | undefined;
+  banner: Banner | null | undefined;
   className?: string;
 }) {
   if (!banner) return null;

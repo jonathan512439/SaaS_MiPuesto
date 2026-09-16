@@ -13,8 +13,15 @@
  * de barrio es un catálogo que no se lee.
  *
  * La posición es la del arreglo: el primero va entre el horario y los productos,
- * y el segundo antes del pie. Sin campo `posicion`, que sería un dato más que
- * puede quedar en dos estados contradictorios.
+ * y el segundo a la mitad. Sin campo `posicion`, que sería un dato más que puede
+ * quedar en dos estados contradictorios.
+ *
+ * **Un hueco se guarda como hueco.** El arreglo tiene siempre dos lugares y el
+ * vacío es `null`. Antes los vacíos se descartaban, así que un negocio que
+ * quisiera solo el de abajo —la publicidad entre sus productos, sin el aviso de
+ * arriba— se encontraba con que se le subía al principio. Era una regla
+ * inventada por la forma de guardar, no una decisión de nadie: si el dueño elige
+ * usar un solo lugar, usa el que eligió.
  *
  * **Cuántos se ven lo decide el dueño, no el armazón**: un banner existe si
  * tiene imagen y texto alternativo, y se apaga borrándolo. El catálogo dibuja
@@ -116,22 +123,23 @@ function imagenValida(valor: unknown): string | null {
  * panel, pero también podría venir de una restauración o de un script, y un
  * banner mal formado no tiene por qué dejar el catálogo entero sin cargar. Lo
  * que no se puede dibujar, no se dibuja. */
-export function leerBanners(valor: unknown): Banner[] {
-  if (!Array.isArray(valor)) return [];
+export function leerBanners(valor: unknown): Array<Banner | null> {
+  const guardados = Array.isArray(valor) ? valor : [];
 
-  const banners: Banner[] = [];
-  for (const crudo of valor) {
-    if (banners.length >= MAXIMO_BANNERS) break;
-    if (typeof crudo !== "object" || crudo === null) continue;
+  /* Siempre dos lugares, aunque no haya nada en ninguno: quien lo lee pregunta
+     por el lugar que le toca dibujar, no por cuántos hay. */
+  return Array.from({ length: MAXIMO_BANNERS }, (_, indice) => {
+    const crudo = guardados[indice];
+    if (typeof crudo !== "object" || crudo === null) return null;
 
     const registro = crudo as Record<string, unknown>;
     const imagen = imagenValida(registro.imagen);
     const alt = textoDe(registro.alt).slice(0, LARGO_MAXIMO_ALT);
     /* Sin imagen no hay banner, y sin texto alternativo tampoco: dibujar uno
-       mudo sería peor que no dibujarlo. */
-    if (!imagen || alt === "") continue;
+       mudo sería peor que no dibujarlo. El lugar queda vacío, no se corre. */
+    if (!imagen || alt === "") return null;
 
-    banners.push({
+    return {
       imagen,
       alt,
       eyebrow: textoOpcional(registro.eyebrow, LARGO_MAXIMO_EYEBROW),
@@ -139,9 +147,8 @@ export function leerBanners(valor: unknown): Banner[] {
       copy: textoOpcional(registro.copy, LARGO_MAXIMO_COPY),
       boton: textoOpcional(registro.boton, LARGO_MAXIMO_BOTON),
       enlace: enlaceValido(registro.enlace),
-    });
-  }
-  return banners;
+    };
+  });
 }
 
 /* Valida lo que manda el panel antes de guardarlo, y dice qué está mal.
@@ -149,7 +156,7 @@ export function leerBanners(valor: unknown): Banner[] {
  * Distinto de `leerBanners`, que descarta en silencio: acá hay una persona
  * esperando saber por qué no se guardó lo que cargó. */
 export type ResultadoBanners =
-  | { correcto: true; banners: Banner[] }
+  | { correcto: true; banners: Array<Banner | null> }
   | { correcto: false; errores: Record<string, string> };
 
 export function validarBanners(valor: unknown): ResultadoBanners {
@@ -165,11 +172,19 @@ export function validarBanners(valor: unknown): ResultadoBanners {
   }
 
   const errores: Record<string, string> = {};
-  const banners: Banner[] = [];
+  const banners: Array<Banner | null> = [];
 
   valor.forEach((crudo, indice) => {
+    /* `null` es «este lugar queda vacío», y es una respuesta válida: el dueño
+       puede querer solo el de abajo. No se recorta el arreglo ni se corre nada
+       hacia arriba. */
+    if (crudo === null || crudo === undefined) {
+      banners.push(null);
+      return;
+    }
+
     const registro =
-      typeof crudo === "object" && crudo !== null ? (crudo as Record<string, unknown>) : {};
+      typeof crudo === "object" ? (crudo as Record<string, unknown>) : {};
     const imagen = imagenValida(registro.imagen);
     const alt = textoDe(registro.alt);
     const enlaceCrudo = textoDe(registro.enlace);
@@ -195,6 +210,11 @@ export function validarBanners(valor: unknown): ResultadoBanners {
         boton: textoOpcional(registro.boton, LARGO_MAXIMO_BOTON),
         enlace,
       });
+    } else {
+      /* Quedó con errores: se ocupa el lugar igual para que el de abajo no se
+         corra. La respuesta no se usa —hay errores— pero el arreglo se mantiene
+         legible para quien lo lea. */
+      banners.push(null);
     }
   });
 

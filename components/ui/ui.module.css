@@ -175,7 +175,10 @@
      hoja pisa la regla de elemento, no porque sea distinto. */
   border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
-  background: var(--color-superficie);
+  /* En forma larga, y no `background` a secas: esta clase la usan el campo de
+     texto **y** el desplegable, y la forma corta borraría la imagen del galón
+     que `globals.css` le dibuja al segundo. */
+  background-color: var(--color-superficie);
   color: var(--color-texto);
   padding: var(--spacing-2) var(--spacing-3);
   font-size: var(--text-base);
@@ -191,7 +194,9 @@
 }
 
 .campo:disabled {
-  background: var(--color-deshabilitado);
+  /* En forma larga por lo mismo: apagado sigue siendo un desplegable, y con la
+     forma corta perdia su galon justo cuando mas se parece a un texto. */
+  background-color: var(--color-deshabilitado);
   cursor: not-allowed;
 }
 

@@ -318,9 +318,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         <p className={styles.vistaDireccion}>
           Dirección reservada: mipuesto.com/<strong>{slug || "tu-negocio"}</strong>
         </p>
-        <p className={styles.ayudaSlug}>
-          Aún no es un enlace público. Podrás compartirlo cuando el catálogo esté publicado.
-        </p>
       </section>
 
       <section className={styles.bloqueFormulario} aria-labelledby="atencion-negocio">

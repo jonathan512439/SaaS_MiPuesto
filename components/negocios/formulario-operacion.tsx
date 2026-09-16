@@ -212,7 +212,7 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
 
       <div className={styles.controles}>
         <Selector
-          ayuda="Puedes cambiarlo después sin perder productos ni pedidos."
+          ayuda="Podés cambiarlo cuando quieras."
           error={errores.horario}
           etiqueta="Horario del negocio"
           id="modo-horario"

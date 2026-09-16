@@ -40,9 +40,15 @@ function rutaDeBanner(ruta: string, negocioId: string) {
  * dueño puede reordenarlos: si el banner de abajo pasa a ser el de arriba, su
  * imagen sigue en uso aunque haya cambiado de índice. Borrar por posición dejaría
  * el catálogo sin esa imagen. */
-function imagenesHuerfanas(antes: Banner[], despues: Banner[], negocioId: string) {
-  const enUso = new Set(despues.map((banner) => banner.imagen));
+function imagenesHuerfanas(
+  antes: Array<Banner | null>,
+  despues: Array<Banner | null>,
+  negocioId: string,
+) {
+  /* Los lugares vacios no tienen imagen, ni antes ni despues. */
+  const enUso = new Set(despues.filter((b) => b !== null).map((banner) => banner.imagen));
   return antes
+    .filter((banner) => banner !== null)
     .map((banner) => banner.imagen)
     .filter((ruta) => !enUso.has(ruta) && rutaDeBanner(ruta, negocioId));
 }
@@ -120,7 +126,7 @@ export async function PATCH(solicitud: NextRequest) {
      petición armada a mano podría apuntar a la carpeta de otro negocio y mostrar
      su imagen en el catálogo propio. */
   const ajena = validacion.banners.find(
-    (banner) => !rutaDeBanner(banner.imagen, contexto.negocio.id),
+    (banner) => banner !== null && !rutaDeBanner(banner.imagen, contexto.negocio.id),
   );
   if (ajena) {
     return NextResponse.json(

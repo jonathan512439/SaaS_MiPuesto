@@ -90,14 +90,14 @@ export function FormularioBanners({
   alCambiar,
   destinos,
 }: {
-  bannersIniciales: Banner[];
+  bannersIniciales: Array<Banner | null>;
   /* Los lugares a los que el banner puede llevar. Llegan del servidor porque
      solo él conoce el dominio del catálogo y las categorías del negocio. */
   destinos: ContextoDestino;
   /* Avisa lo que hay en el formulario ahora mismo, para que la vista previa de
      la pantalla lo dibuje mientras se escribe. La imagen va como dirección y no
      como ruta del depósito: lo que se manda acá es para mirar, no para guardar. */
-  alCambiar?: (banners: Banner[]) => void;
+  alCambiar?: (banners: Array<Banner | null>) => void;
   /* La dirección pública de cada ruta ya guardada. La arma el servidor, que es
      quien conoce la del proyecto: pedírsela al navegador sería repetir acá una
      regla que ya vive en `obtenerUrlPublicaImagenNegocio`. */
@@ -129,17 +129,21 @@ export function FormularioBanners({
   useEffect(() => {
     if (!alCambiar) return;
     alCambiar(
-      banners
-        .filter((banner) => banner.vistaPrevia !== null)
-        .map((banner) => ({
-          imagen: banner.vistaPrevia ?? "",
-          alt: banner.alt.trim(),
-          eyebrow: banner.eyebrow.trim() || null,
-          titulo: banner.titulo.trim() || null,
-          copy: banner.copy.trim() || null,
-          boton: banner.boton.trim() || null,
-          enlace: enlaceDe(banner, destinos),
-        })),
+      /* Cada lugar conserva el suyo: un vacío arriba con algo abajo tiene que
+         verse así en la vista previa, porque así se va a ver el catálogo. */
+      banners.map((banner) =>
+        banner.vistaPrevia === null
+          ? null
+          : {
+              imagen: banner.vistaPrevia,
+              alt: banner.alt.trim(),
+              eyebrow: banner.eyebrow.trim() || null,
+              titulo: banner.titulo.trim() || null,
+              copy: banner.copy.trim() || null,
+              boton: banner.boton.trim() || null,
+              enlace: enlaceDe(banner, destinos),
+            },
+      ),
     );
   }, [alCambiar, banners, destinos]);
 
@@ -196,21 +200,24 @@ export function FormularioBanners({
     setGuardando(true);
     setErrores({});
     try {
-      /* Los vacíos se descartan y no se mandan como huecos: el arreglo posiciona
-         por orden, así que un hueco al principio correría el de abajo hacia
-         arriba. Quitar el primero y dejar el segundo lo sube, que es lo que el
-         dueño espera al borrar uno. */
-      const aGuardar = banners
-        .filter((banner) => banner.imagen !== null || banner.alt.trim() !== "")
-        .map((banner) => ({
-          imagen: banner.imagen ?? "",
-          alt: banner.alt.trim(),
-          eyebrow: banner.eyebrow.trim() || null,
-          titulo: banner.titulo.trim() || null,
-          copy: banner.copy.trim() || null,
-          boton: banner.boton.trim() || null,
-          enlace: enlaceDe(banner, destinos),
-        }));
+      /* Los vacíos se mandan como huecos, no se descartan.
+         Antes se filtraban, y entonces el arreglo se corría: quien quisiera solo
+         la publicidad de abajo se encontraba con que se le subía arriba. El
+         lugar de cada banner es su índice, y un lugar vacío sigue siendo ese
+         lugar. */
+      const aGuardar = banners.map((banner) =>
+        banner.imagen === null && banner.alt.trim() === ""
+          ? null
+          : {
+              imagen: banner.imagen ?? "",
+              alt: banner.alt.trim(),
+              eyebrow: banner.eyebrow.trim() || null,
+              titulo: banner.titulo.trim() || null,
+              copy: banner.copy.trim() || null,
+              boton: banner.boton.trim() || null,
+              enlace: enlaceDe(banner, destinos),
+            },
+      );
 
       const respuesta = await fetch("/api/negocios/banners", {
         method: "PATCH",
@@ -245,9 +252,8 @@ export function FormularioBanners({
       <header className={styles.cabecera}>
         <PasoNumerado numero={4} titulo="Banners del catálogo" />
         <p>
-          Dos franjas anchas, las dos opcionales. Si dejás una vacía, no se muestra y no
-          deja hueco; y si cargás una sola, va al primer lugar. Lo que cargás acá se ve
-          arriba, en la vista previa.
+          Dos lugares fijos, los dos opcionales. Podés usar uno, el otro o los dos: el que
+          dejes vacío no se muestra y no deja hueco.
         </p>
       </header>
 
