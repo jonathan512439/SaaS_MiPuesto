@@ -26,12 +26,14 @@ export const RUTAS_PANEL = {
   pedidos: "/dashboard/pedidos",
   agenda: "/dashboard/agenda",
   cuenta: "/dashboard/cuenta",
-  /* Las tres herramientas que hoy cuelgan de «Mi catálogo». Se nombran acá desde
-     ahora, aunque todavía no se hayan mudado a su pantalla propia: así el día
-     que se muden cambia un valor y no hay que rastrear quién las enlazaba. */
-  importar: "/dashboard/catalogo/importar",
-  desdeFoto: "/dashboard/catalogo/desde-foto",
-  papelera: "/dashboard/catalogo/papelera",
+  /* Las herramientas: lo que se usa de vez en cuando y no todos los días.
+     Colgaban de «Mi catálogo», apretadas en una fila de botones chicos arriba de
+     la pantalla que más se usa, donde no había lugar para explicar qué hace cada
+     una. */
+  herramientas: "/dashboard/herramientas",
+  importar: "/dashboard/herramientas/importar",
+  desdeFoto: "/dashboard/herramientas/desde-foto",
+  papelera: "/dashboard/herramientas/papelera",
 } as const;
 
 /* A dónde va quien entra al panel sin tener un negocio todavía.
@@ -50,4 +52,7 @@ export const RUTA_SIN_NEGOCIO = RUTAS_PANEL.negocio;
 export const RUTAS_MUDADAS: ReadonlyArray<{ vieja: string; nueva: string }> = [
   { vieja: "/dashboard/configuracion", nueva: RUTAS_PANEL.negocio },
   { vieja: "/dashboard/plantilla", nueva: RUTAS_PANEL.apariencia },
+  { vieja: "/dashboard/catalogo/importar", nueva: RUTAS_PANEL.importar },
+  { vieja: "/dashboard/catalogo/desde-foto", nueva: RUTAS_PANEL.desdeFoto },
+  { vieja: "/dashboard/catalogo/papelera", nueva: RUTAS_PANEL.papelera },
 ];
