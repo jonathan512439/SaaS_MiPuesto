@@ -18,6 +18,7 @@ import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variable
 import styles from "./dashboard.module.css";
 import { patronDeRubro } from "../../../lib/patrones-fondo";
 import { Isotipo } from "../../../components/marca/isotipo";
+import { RUTAS_PANEL } from "../../../lib/panel/rutas";
 
 type PropiedadesLayoutPanel = Readonly<{
   children: ReactNode;
@@ -88,7 +89,7 @@ export default async function LayoutPanel({
               <div className={styles.barraContenido}>
                 <Link
                   className={styles.marca}
-                  href="/dashboard/catalogo"
+                  href={RUTAS_PANEL.catalogo}
                   aria-label="MiPuesto, ir al catálogo"
                 >
                   <Isotipo className={styles.isotipo} />
@@ -120,7 +121,7 @@ export default async function LayoutPanel({
                       ? `Venció el ${formatearFechaVencimiento(suscripcion.venceEn)}. Tu catálogo deja de publicarse en las próximas horas.`
                       : `Tu mes termina el ${formatearFechaVencimiento(suscripcion.venceEn)}.`}
                 </p>
-                <Link href="/dashboard/cuenta">Ver mi cuenta</Link>
+                <Link href={RUTAS_PANEL.cuenta}>Ver mi cuenta</Link>
               </aside>
             ) : null}
             {children}

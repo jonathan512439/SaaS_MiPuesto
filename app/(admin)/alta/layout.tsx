@@ -8,6 +8,7 @@ import { ProveedorAvisos } from "../../../components/ui";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./alta.module.css";
+import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../lib/panel/rutas";
 
 /* La cáscara de los cuatro pasos: el progreso, siempre visible.
  *
@@ -40,8 +41,8 @@ export default async function LayoutAlta({
 
   /* Sin negocio no hay nada que dar de alta todavía: primero se crea el perfil.
      Con el alta terminada, el camino no se vuelve a recorrer. */
-  if (!negocio) redirect("/dashboard/configuracion");
-  if (negocio.alta_completada_en) redirect("/dashboard/catalogo");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
+  if (negocio.alta_completada_en) redirect(RUTAS_PANEL.catalogo);
 
   const alcanzado = negocio.alta_paso;
 

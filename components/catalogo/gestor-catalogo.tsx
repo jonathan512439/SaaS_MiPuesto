@@ -59,6 +59,7 @@ import {
   useConfirmacion,
 } from "../ui";
 import styles from "./gestor-catalogo.module.css";
+import { RUTAS_PANEL } from "../../lib/panel/rutas";
 
 /* Buscar sin tildes ni mayúsculas: quien escribe "cafe" en el panel espera
    encontrar "Café", igual que en el catálogo público. */
@@ -1504,7 +1505,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
                       no lo busque adentro de la categoría, que es donde estaba. */}
                   {categoriaActiva === categoria.id && categoria.vende === "tiempo" ? (
                     <p className={styles.avisoAgenda}>
-                      Los horarios se configuran en <Link href="/dashboard/agenda">Agenda</Link>,
+                      Los horarios se configuran en <Link href={RUTAS_PANEL.agenda}>Agenda</Link>,
                       por cada persona o consultorio que atiende. Después, en cada servicio,
                       elegís quién lo atiende.
                     </p>

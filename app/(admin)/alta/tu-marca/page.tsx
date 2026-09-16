@@ -6,6 +6,7 @@ import { crearDatosDemoPlantilla } from "../../../../lib/plantillas/datos-demo";
 import { obtenerUrlPublicaImagenNegocio } from "../../../../lib/negocios/imagenes-publicas";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 
 /* La muestra se arma con los datos de demostración y no con el catálogo real del
    negocio: en este paso el catálogo suele estar vacío —los productos vienen en el
@@ -23,7 +24,7 @@ export default async function PaginaTuMarca() {
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   const { url } = obtenerVariablesPublicasSupabase();
   const datos = crearDatosDemoPlantilla({

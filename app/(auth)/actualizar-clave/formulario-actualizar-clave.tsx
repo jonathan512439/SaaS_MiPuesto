@@ -24,6 +24,7 @@ import {
   limpiarUrl,
   type TokensDeUrl,
 } from "../../../lib/auth/sesion-desde-url";
+import { RUTAS_PANEL } from "../../../lib/panel/rutas";
 
 /* El enlace del correo se canjea **en el mismo clic** que guarda la contraseña.
  *
@@ -113,7 +114,7 @@ export function FormularioActualizarClave() {
         });
         if (!errorEntrada) {
           await supabase.auth.signOut({ scope: "others" });
-          router.replace("/dashboard/configuracion");
+          router.replace(RUTAS_PANEL.negocio);
           router.refresh();
           return;
         }
@@ -239,7 +240,7 @@ export function FormularioActualizarClave() {
        anterior. Sin esto, un restablecimiento no recupera una cuenta tomada. */
     await supabase.auth.signOut({ scope: "others" });
 
-    router.replace("/dashboard/configuracion");
+    router.replace(RUTAS_PANEL.negocio);
     router.refresh();
   }
 
@@ -283,7 +284,7 @@ export function FormularioActualizarClave() {
       refresh_token: pendienteMfa.refreshToken,
     });
     await supabase.auth.signOut({ scope: "others" });
-    router.replace("/dashboard/configuracion");
+    router.replace(RUTAS_PANEL.negocio);
     router.refresh();
   }
 

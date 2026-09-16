@@ -5,6 +5,7 @@ import { GestorPromociones } from "../../../../components/promociones/gestor-pro
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./promociones.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
+import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
   title: "Promociones | MiPuesto",
@@ -22,7 +23,7 @@ export default async function PaginaPromociones() {
     .select("id,nombre")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   const [resultadoCategorias, resultadoProductos, resultadoPromociones] = await Promise.all([
     supabase

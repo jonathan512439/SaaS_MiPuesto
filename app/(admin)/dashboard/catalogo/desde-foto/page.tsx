@@ -9,6 +9,7 @@ import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server
 import styles from "../catalogo.module.css";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
+import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
   title: "Cargar desde una foto | MiPuesto",
@@ -28,12 +29,12 @@ export default async function PaginaCargaDesdeFoto() {
     .select("id,foto_ia_habilitada")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   /* Sin la función habilitada, la página no existe para este negocio. Mostrarla
      apagada, con un botón que no hace nada, es peor que no mostrarla: enseña una
      puerta que no se puede abrir. */
-  if (!negocio.foto_ia_habilitada) redirect("/dashboard/catalogo");
+  if (!negocio.foto_ia_habilitada) redirect(RUTAS_PANEL.catalogo);
 
   const [{ data: categorias }, { data: uso }] = await Promise.all([
     supabase
@@ -68,7 +69,7 @@ export default async function PaginaCargaDesdeFoto() {
   return (
     <main className={styles.contenido}>
       <EncabezadoPanel
-        accion={<Link href="/dashboard/catalogo">Volver al catálogo</Link>}
+        accion={<Link href={RUTAS_PANEL.catalogo}>Volver al catálogo</Link>}
         descripcion="Fotografiá tu lista de precios y te armamos el borrador. Vos revisás y confirmás: nada se publica sin que lo mires."
         titulo="Cargar desde una foto"
       />

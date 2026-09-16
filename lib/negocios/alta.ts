@@ -12,6 +12,8 @@
  * sistema sigue creyendo que el alta terminó.
  */
 
+import { RUTAS_PANEL } from "../panel/rutas";
+
 export const PASOS_ALTA = [
   {
     numero: 1,
@@ -102,7 +104,7 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
     faltantes.push({
       clave: "telefono",
       titulo: "Tu WhatsApp, para que te puedan escribir",
-      ruta: "/dashboard/configuracion",
+      ruta: RUTAS_PANEL.negocio,
       impide: true,
     });
   }
@@ -114,7 +116,7 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
       /* A Configuración y **no al alta**: esta lista se ve sobre todo en negocios
          que ya la terminaron, y el alta rebota a quien la completó. Mandarlo ahí
          sería ofrecerle un enlace que lo devuelve al punto de partida. */
-      ruta: "/dashboard/configuracion",
+      ruta: RUTAS_PANEL.negocio,
       impide: true,
     });
   }
@@ -123,7 +125,7 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
     faltantes.push({
       clave: "categorias",
       titulo: "Al menos una categoría",
-      ruta: "/dashboard/catalogo",
+      ruta: RUTAS_PANEL.catalogo,
       impide: true,
     });
   }
@@ -132,7 +134,7 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
     faltantes.push({
       clave: "productos",
       titulo: "Tu primer producto",
-      ruta: "/dashboard/catalogo",
+      ruta: RUTAS_PANEL.catalogo,
       impide: true,
     });
   }
@@ -144,7 +146,7 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
     faltantes.push({
       clave: "logo",
       titulo: "Tu logo, para que te reconozcan",
-      ruta: "/dashboard/plantilla",
+      ruta: RUTAS_PANEL.apariencia,
       impide: false,
     });
   }

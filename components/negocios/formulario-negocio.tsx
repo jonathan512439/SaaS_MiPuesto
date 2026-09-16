@@ -15,7 +15,7 @@ import {
 } from "../../lib/negocios/lugares";
 import { nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
-import styles from "../../app/(admin)/dashboard/configuracion/configuracion.module.css";
+import styles from "../../app/(admin)/dashboard/negocio/negocio.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
 
 export type PerfilNegocioInicial = {

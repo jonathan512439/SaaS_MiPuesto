@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { PasoQueVendes } from "../../../../components/alta/paso-que-vendes";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 
 export default async function PaginaQueVendes() {
   const supabase = await crearClienteSupabaseServidor();
@@ -15,7 +16,7 @@ export default async function PaginaQueVendes() {
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   return <PasoQueVendes rubroInicial={negocio.rubro ?? ""} />;
 }

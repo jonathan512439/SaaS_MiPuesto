@@ -13,6 +13,7 @@ import { formatearPrecioBolivianos } from "../../../lib/precios";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./resumen.module.css";
 import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
+import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
   title: "Reportes | MiPuesto",
@@ -48,7 +49,7 @@ export default async function PaginaDashboard() {
     .select("id,nombre,slug,activo")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   const { actual, previa } = obtenerVentanasSemanales();
 
@@ -159,7 +160,7 @@ export default async function PaginaDashboard() {
       <section aria-labelledby="pedidos-semana" className={styles.actividad}>
         <div className={styles.tituloSeccion}>
           <h2 id="pedidos-semana">Pedidos de la semana</h2>
-          <Link href="/dashboard/pedidos">Revisar pedidos</Link>
+          <Link href={RUTAS_PANEL.pedidos}>Revisar pedidos</Link>
         </div>
         <dl className={styles.metricas}>
           <div>
@@ -180,7 +181,7 @@ export default async function PaginaDashboard() {
       <section aria-labelledby="mas-vistos" className={styles.actividad}>
         <div className={styles.tituloSeccion}>
           <h2 id="mas-vistos">Lo que más agregan</h2>
-          <Link href="/dashboard/catalogo">Administrar productos</Link>
+          <Link href={RUTAS_PANEL.catalogo}>Administrar productos</Link>
         </div>
         {masVistos.length === 0 ? (
           <p className={styles.sinDatos}>
@@ -201,9 +202,9 @@ export default async function PaginaDashboard() {
       <section aria-labelledby="siguientes-pasos" className={styles.acciones}>
         <h2 id="siguientes-pasos">Accesos rápidos</h2>
         <div>
-          <Link href="/dashboard/catalogo">Administrar productos</Link>
-          <Link href="/dashboard/pedidos">Revisar pedidos</Link>
-          <Link href="/dashboard/configuracion">Compartir el QR</Link>
+          <Link href={RUTAS_PANEL.catalogo}>Administrar productos</Link>
+          <Link href={RUTAS_PANEL.pedidos}>Revisar pedidos</Link>
+          <Link href={RUTAS_PANEL.negocio}>Compartir el QR</Link>
         </div>
       </section>
     </main>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import styles from "./plataforma.module.css";
+import { RUTAS_PANEL } from "../../../lib/panel/rutas";
 
 /* La página sigue respondiendo 404 —quien no administra la plataforma no tiene
    por qué enterarse de que existe—, pero con su propio mensaje: el del sitio
@@ -15,7 +16,7 @@ export default function PlataformaNoEncontrada() {
           La dirección no existe, o tu cuenta no tiene acceso a esta sección. Si
           esperabas administrar la plataforma, revisá con qué cuenta iniciaste sesión.
         </p>
-        <Link href="/dashboard">Ir a mi panel</Link>
+        <Link href={RUTAS_PANEL.inicio}>Ir a mi panel</Link>
       </section>
     </main>
   );

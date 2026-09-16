@@ -17,6 +17,7 @@ import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../lib/catalogo/columnas";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { Icono } from "../../../../components/iconos/icono";
 import { COLUMNAS_CATEGORIA } from "../../../../lib/catalogo/columnas";
+import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
   title: "Catálogo | MiPuesto",
@@ -34,7 +35,7 @@ export default async function PaginaCatalogo() {
     .select("id,nombre,slug,rubro,foto_ia_habilitada,foto_ia_habilitada_en")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   const [
     resultadoCategorias,
@@ -125,7 +126,7 @@ export default async function PaginaCatalogo() {
                   <b>3</b> Confirmás y se crean los productos
                 </li>
               </ol>
-              <Link className={styles.abrirIa} href="/dashboard/catalogo/desde-foto">
+              <Link className={styles.abrirIa} href={RUTAS_PANEL.desdeFoto}>
                 Abrir la herramienta
               </Link>
             </div>
@@ -150,12 +151,12 @@ export default async function PaginaCatalogo() {
           ) : null}
           {/* Sin condición ninguna: importar una planilla no gasta la cuota de
               Google, así que no hay nada que reservar para unos pocos negocios. */}
-          <Link className={styles.enlacePapelera} href="/dashboard/catalogo/importar">
+          <Link className={styles.enlacePapelera} href={RUTAS_PANEL.importar}>
             <Icono className={styles.iconoAcceso} nombre="grafico" />
             Importar mi Excel o CSV
           </Link>
           {enPapelera > 0 ? (
-            <Link className={styles.enlacePapelera} href="/dashboard/catalogo/papelera">
+            <Link className={styles.enlacePapelera} href={RUTAS_PANEL.papelera}>
               <Icono className={styles.iconoAcceso} nombre="carpeta" />
               Papelera ({enPapelera})
             </Link>
@@ -171,7 +172,7 @@ export default async function PaginaCatalogo() {
             varios productos de una vez, y completar el nombre y la descripción de un
             producto con su fotografía. El precio lo ponés siempre vos.
           </p>
-          <Link href="/dashboard/catalogo/desde-foto">Probar con mi lista de precios</Link>
+          <Link href={RUTAS_PANEL.desdeFoto}>Probar con mi lista de precios</Link>
         </aside>
       ) : null}
 

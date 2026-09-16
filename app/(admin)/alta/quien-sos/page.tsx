@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { PasoQuienSos } from "../../../../components/alta/paso-quien-sos";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 
 /* Los valores de arranque se leen en el servidor y no se piden después desde el
    navegador: quien vuelve al paso 1 a corregir algo tiene que ver lo que ya
@@ -18,7 +19,7 @@ export default async function PaginaQuienSos() {
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   return (
     <PasoQuienSos

@@ -8,6 +8,7 @@ import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { Boton, Campo, CampoClave } from "../../../components/ui";
 import { mensajeErrorInicioSesion } from "../../../lib/auth/mensajes";
+import { RUTAS_PANEL } from "../../../lib/panel/rutas";
 
 type PropiedadesFormularioLogin = {
   sesionRequerida?: boolean;
@@ -42,7 +43,7 @@ export function FormularioLogin({
       return;
     }
 
-    router.replace("/dashboard/configuracion");
+    router.replace(RUTAS_PANEL.negocio);
     router.refresh();
   }
 

@@ -10,6 +10,7 @@ import {
 } from "../../../../lib/suscripcion";
 import styles from "./cuenta.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
+import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
   title: "Tu cuenta | MiPuesto",
@@ -33,7 +34,7 @@ export default async function PaginaCuenta() {
     .select("nombre,slug,activo,suspendido_en,suscripcion_vence_en")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   const suscripcion = evaluarSuscripcion(negocio.suscripcion_vence_en, new Date());
   /* El título sale del estado real y no solo de la fecha: el corte corre una vez

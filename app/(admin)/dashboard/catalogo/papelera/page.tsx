@@ -9,6 +9,7 @@ import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server
 import { obtenerVariablesPublicasSupabase } from "../../../../../lib/supabase/variables";
 import styles from "../catalogo.module.css";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
+import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
   title: "Papelera | MiPuesto",
@@ -26,7 +27,7 @@ export default async function PaginaPapelera() {
     .select("id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   const { data: productos } = await supabase
     .from("productos")
@@ -40,7 +41,7 @@ export default async function PaginaPapelera() {
   return (
     <main className={styles.contenido}>
       <EncabezadoPanel
-        accion={<Link href="/dashboard/catalogo">Volver al catálogo</Link>}
+        accion={<Link href={RUTAS_PANEL.catalogo}>Volver al catálogo</Link>}
         descripcion={`Lo que borrás se guarda ${DIAS_PAPELERA} días y podés recuperarlo con sus fotografías. Después se borra solo.`}
         titulo="Papelera"
       />

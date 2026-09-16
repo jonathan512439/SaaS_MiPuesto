@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { PasoTusProductos } from "../../../../components/alta/paso-tus-productos";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 
 export default async function PaginaTusProductos() {
   const supabase = await crearClienteSupabaseServidor();
@@ -15,7 +16,7 @@ export default async function PaginaTusProductos() {
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   /* Con `head` y `count`: hace falta saber cuántos hay, no cuáles son. */
   const [{ count: productos }, { count: categorias }] = await Promise.all([

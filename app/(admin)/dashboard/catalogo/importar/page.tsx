@@ -8,6 +8,7 @@ import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server
 import styles from "../catalogo.module.css";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
+import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
   title: "Importar tu Excel | MiPuesto",
@@ -31,7 +32,7 @@ export default async function PaginaImportarPlanilla() {
     .select("id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
-  if (!negocio) redirect("/dashboard/configuracion");
+  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   const { data: categorias } = await supabase
     .from("categorias")
@@ -58,7 +59,7 @@ export default async function PaginaImportarPlanilla() {
   return (
     <main className={styles.contenido}>
       <EncabezadoPanel
-        accion={<Link href="/dashboard/catalogo">Volver al catálogo</Link>}
+        accion={<Link href={RUTAS_PANEL.catalogo}>Volver al catálogo</Link>}
         descripcion="Si ya llevás tu inventario en una planilla, no hace falta volver a escribirlo. Subí el archivo, decinos qué columna es cuál y revisá antes de crear."
         titulo="Importar tu Excel"
       />

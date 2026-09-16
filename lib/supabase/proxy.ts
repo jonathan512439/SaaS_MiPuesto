@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { esSesionDeRecuperacion } from "../auth/sesion-recuperacion";
 import type { Database } from "./database.types";
 import { obtenerVariablesPublicasSupabase } from "./variables";
+import { RUTAS_PANEL } from "../panel/rutas";
 
 export async function actualizarSesionSupabase(solicitud: NextRequest) {
   let respuesta = NextResponse.next({ request: solicitud });
@@ -37,7 +38,7 @@ export async function actualizarSesionSupabase(solicitud: NextRequest) {
   /* Quien viene del enlace del correo todavía no definió su contraseña. Puede
      hacer una sola cosa: definirla. Antes caía en el panel y salía de ahí
      creyendo que ya la había cambiado. */
-  if (enRecuperacion && (ruta === "/dashboard" || ruta.startsWith("/dashboard/"))) {
+  if (enRecuperacion && (ruta === RUTAS_PANEL.inicio || ruta.startsWith("/dashboard/"))) {
     const destino = solicitud.nextUrl.clone();
     destino.pathname = "/actualizar-clave";
     destino.search = "";
@@ -45,7 +46,7 @@ export async function actualizarSesionSupabase(solicitud: NextRequest) {
     return NextResponse.redirect(destino);
   }
 
-  if (!claims && ruta.startsWith("/dashboard")) {
+  if (!claims && ruta.startsWith(RUTAS_PANEL.inicio)) {
     const destino = solicitud.nextUrl.clone();
     destino.pathname = "/login";
     destino.search = "";
@@ -58,7 +59,7 @@ export async function actualizarSesionSupabase(solicitud: NextRequest) {
      abriendo la aplicación sin haber cambiado nada. */
   if (claims && !enRecuperacion && (ruta === "/login" || ruta === "/recuperar-clave")) {
     const destino = solicitud.nextUrl.clone();
-    destino.pathname = "/dashboard/configuracion";
+    destino.pathname = RUTAS_PANEL.negocio;
     destino.search = "";
     return NextResponse.redirect(destino);
   }
