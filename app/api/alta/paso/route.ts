@@ -125,18 +125,6 @@ export async function PATCH(solicitud: NextRequest) {
       );
     } else {
       Object.assign(cambios, { rubro, rubro_bloqueado_en: new Date().toISOString() });
-
-      /* La paleta y la modalidad del rubro se sugieren, no se imponen: se
-         escriben solo si el dueño no eligió nada todavía. Pisarle una paleta que
-         ya había elegido sería cambiarle el catálogo por haber vuelto atrás a
-         releer un aviso. */
-      const siembra = siembraDeRubro(rubro);
-      if (siembra && !negocio.rubro) {
-        Object.assign(cambios, {
-          paleta_id: siembra.paletaSugerida,
-          tipo_negocio: siembra.modalidadSugerida,
-        });
-      }
     }
   }
 
@@ -190,6 +178,20 @@ export async function PATCH(solicitud: NextRequest) {
       sembrado = await sembrarRubro(supabase, negocio.id, cambios.rubro);
     } catch {
       sembrado = null;
+    }
+
+    /* La paleta y la modalidad del rubro se sugieren **solo a quien arranca de
+       cero**, o sea cuando la siembra efectivamente corrió. Es la misma condición
+       que la siembra y por el mismo motivo: un negocio sin rubro pero con
+       catálogo y paleta ya elegidos existe —hay uno real—, y pisarle la paleta
+       por haber elegido rubro tarde sería cambiarle la vitrina sin que lo haya
+       pedido. Mirar solo «no tenía rubro» no alcanzaba para distinguirlo. */
+    const siembra = siembraDeRubro(cambios.rubro);
+    if (sembrado?.sembro && siembra) {
+      await supabase
+        .from("negocios")
+        .update({ paleta_id: siembra.paletaSugerida, tipo_negocio: siembra.modalidadSugerida })
+        .eq("admin_user_id", idUsuario);
     }
   }
 
