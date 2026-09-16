@@ -1500,7 +1500,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                         no lo busque adentro de la categoría, que es donde estaba. */}
                     {categoriaActiva === categoria.id && categoria.vende === "tiempo" ? (
                       <p className={styles.avisoAgenda}>
-                        Los horarios se configuran en <Link href={RUTAS_PANEL.agenda}>Agenda</Link>,
+                        Los horarios se configuran en <Link href={RUTAS_PANEL.pedidos}>Pedidos y citas</Link>,
                         por cada persona o consultorio que atiende. Después, en cada servicio,
                         elegís quién lo atiende.
                       </p>

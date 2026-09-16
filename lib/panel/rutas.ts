@@ -28,8 +28,10 @@ export const RUTAS_PANEL = {
   productos: "/dashboard/productos",
   apariencia: "/dashboard/apariencia",
   promociones: "/dashboard/promociones",
+  /* Pedidos **y citas**: eran dos pantallas, y un dueño que vende cosas y turnos
+     tenía que acordarse de mirar las dos. Lo que se olvida de mirar es lo que se
+     atiende tarde. */
   pedidos: "/dashboard/pedidos",
-  agenda: "/dashboard/agenda",
   cuenta: "/dashboard/cuenta",
   /* Las herramientas: lo que se usa de vez en cuando y no todos los días.
      Colgaban de «Mi catálogo», apretadas en una fila de botones chicos arriba de
@@ -60,4 +62,5 @@ export const RUTAS_MUDADAS: ReadonlyArray<{ vieja: string; nueva: string }> = [
   { vieja: "/dashboard/catalogo/importar", nueva: RUTAS_PANEL.importar },
   { vieja: "/dashboard/catalogo/desde-foto", nueva: RUTAS_PANEL.desdeFoto },
   { vieja: "/dashboard/catalogo/papelera", nueva: RUTAS_PANEL.papelera },
+  { vieja: "/dashboard/agenda", nueva: RUTAS_PANEL.pedidos },
 ];

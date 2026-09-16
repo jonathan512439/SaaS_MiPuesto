@@ -316,86 +316,11 @@ export function GestorAgenda({
 
   return (
     <div className={styles.pantalla}>
-      {/* ── Quién atiende ─────────────────────────────────────────────── */}
-      <section className={styles.bloque}>
-        <header className={styles.cabecera}>
-          <h2>Quién atiende</h2>
-          <p>
-            Cada persona o consultorio tiene su propio horario y su propio calendario. Dos
-            servicios del mismo recurso no se pueden dar a la misma hora.
-          </p>
-        </header>
-
-        {recursos.length === 0 ? (
-          <p className={styles.vacio}>
-            Todavía no cargaste a nadie. Empezá por quien atiende: «Dr. Ana», «Consultorio 1».
-          </p>
-        ) : null}
-
-        <ul className={styles.recursos}>
-          {recursos.map((recurso) => {
-            const franjas = leerFranjas(recurso.franjas);
-            const abierto = recursoAbierto === recurso.id;
-            return (
-              <li className={styles.recurso} key={recurso.id}>
-                <div className={styles.recursoCabecera}>
-                  <div>
-                    <strong>{recurso.nombre}</strong>
-                    <small>{resumirFranjas(franjas)}</small>
-                  </div>
-
-                  {/* El botón de apagar. Un gesto, sin confirmación: es lo que
-                      el dueño toca a las 7 de la mañana cuando el doctor avisa
-                      que no viene, y volver a encenderlo es el mismo gesto. */}
-                  <label className={styles.interruptor}>
-                    <input
-                      checked={recurso.acepta_reservas}
-                      disabled={ocupado === recurso.id}
-                      onChange={(evento) =>
-                        void cambiarRecurso(recurso.id, { acepta_reservas: evento.target.checked })
-                      }
-                      type="checkbox"
-                    />
-                    <span>{recurso.acepta_reservas ? "Recibe reservas" : "Reservas apagadas"}</span>
-                  </label>
-
-                  <Boton
-                    onClick={() => setRecursoAbierto(abierto ? null : recurso.id)}
-                    type="button"
-                    variante="secundario"
-                  >
-                    {abierto ? "Cerrar" : "Horario"}
-                  </Boton>
-                </div>
-
-                {!recurso.acepta_reservas ? (
-                  <p className={styles.apagado}>
-                    El catálogo no ofrece horarios de {recurso.nombre}. Vos seguís pudiendo cargar
-                    turnos a mano.
-                  </p>
-                ) : null}
-
-                {abierto ? <EditorDeAgenda recursoId={recurso.id} /> : null}
-              </li>
-            );
-          })}
-        </ul>
-
-        <div className={styles.nuevo}>
-          <Campo
-            etiqueta="Agregar a alguien"
-            id="nuevo-recurso"
-            maxLength={60}
-            onChange={(evento) => setNuevoNombre(evento.target.value)}
-            placeholder="Dr. Ana, Peluquero, Consultorio 2"
-            value={nuevoNombre}
-          />
-          <Boton cargando={cargando} disabled={nuevoNombre.trim() === ""} onClick={() => void crearRecurso()} type="button">
-            Agregar
-          </Boton>
-        </div>
-      </section>
-
+      {/* El cronograma va primero y «Quién atiende» después: lo de arriba es lo
+          que hay que resolver hoy —un turno tiene hora—, y lo de abajo se
+          configura una vez y se toca cada tanto. Estaba al revés porque esta era
+          la pantalla de la agenda, donde lo primero era armarla; ahora comparte
+          pantalla con los pedidos, donde lo primero es atender. */}
       {/* ── Cronograma ────────────────────────────────────────────────── */}
       <section className={styles.bloque}>
         <header className={styles.cabecera}>
@@ -567,6 +492,86 @@ export function GestorAgenda({
             ))}
           </ul>
         )}
+      </section>
+
+      {/* ── Quién atiende ─────────────────────────────────────────────── */}
+      <section className={styles.bloque}>
+        <header className={styles.cabecera}>
+          <h2>Quién atiende</h2>
+          <p>
+            Cada persona o consultorio tiene su propio horario y su propio calendario. Dos
+            servicios del mismo recurso no se pueden dar a la misma hora.
+          </p>
+        </header>
+
+        {recursos.length === 0 ? (
+          <p className={styles.vacio}>
+            Todavía no cargaste a nadie. Empezá por quien atiende: «Dr. Ana», «Consultorio 1».
+          </p>
+        ) : null}
+
+        <ul className={styles.recursos}>
+          {recursos.map((recurso) => {
+            const franjas = leerFranjas(recurso.franjas);
+            const abierto = recursoAbierto === recurso.id;
+            return (
+              <li className={styles.recurso} key={recurso.id}>
+                <div className={styles.recursoCabecera}>
+                  <div>
+                    <strong>{recurso.nombre}</strong>
+                    <small>{resumirFranjas(franjas)}</small>
+                  </div>
+
+                  {/* El botón de apagar. Un gesto, sin confirmación: es lo que
+                      el dueño toca a las 7 de la mañana cuando el doctor avisa
+                      que no viene, y volver a encenderlo es el mismo gesto. */}
+                  <label className={styles.interruptor}>
+                    <input
+                      checked={recurso.acepta_reservas}
+                      disabled={ocupado === recurso.id}
+                      onChange={(evento) =>
+                        void cambiarRecurso(recurso.id, { acepta_reservas: evento.target.checked })
+                      }
+                      type="checkbox"
+                    />
+                    <span>{recurso.acepta_reservas ? "Recibe reservas" : "Reservas apagadas"}</span>
+                  </label>
+
+                  <Boton
+                    onClick={() => setRecursoAbierto(abierto ? null : recurso.id)}
+                    type="button"
+                    variante="secundario"
+                  >
+                    {abierto ? "Cerrar" : "Horario"}
+                  </Boton>
+                </div>
+
+                {!recurso.acepta_reservas ? (
+                  <p className={styles.apagado}>
+                    El catálogo no ofrece horarios de {recurso.nombre}. Vos seguís pudiendo cargar
+                    turnos a mano.
+                  </p>
+                ) : null}
+
+                {abierto ? <EditorDeAgenda recursoId={recurso.id} /> : null}
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className={styles.nuevo}>
+          <Campo
+            etiqueta="Agregar a alguien"
+            id="nuevo-recurso"
+            maxLength={60}
+            onChange={(evento) => setNuevoNombre(evento.target.value)}
+            placeholder="Dr. Ana, Peluquero, Consultorio 2"
+            value={nuevoNombre}
+          />
+          <Boton cargando={cargando} disabled={nuevoNombre.trim() === ""} onClick={() => void crearRecurso()} type="button">
+            Agregar
+          </Boton>
+        </div>
       </section>
     </div>
   );
