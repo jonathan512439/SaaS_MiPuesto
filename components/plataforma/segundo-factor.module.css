@@ -71,11 +71,11 @@
 
 .formulario button {
   min-height: var(--control-alto);
-  border: var(--borde-marcado) solid var(--color-accion);
+  border: var(--borde-marcado) solid var(--control-principal-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-5);
-  background: var(--color-accion);
-  color: var(--color-superficie);
+  background: var(--control-principal-fondo);
+  color: var(--control-principal-texto);
   font: inherit;
   font-size: var(--text-base);
   font-weight: 800;

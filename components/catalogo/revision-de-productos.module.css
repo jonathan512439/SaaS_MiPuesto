@@ -32,11 +32,11 @@
 
 .seleccion button {
   min-height: var(--control-alto);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: 0 var(--spacing-3);
-  background: var(--color-superficie);
-  color: var(--color-marca);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font-size: var(--text-sm);
   font-weight: 800;
 }
@@ -172,13 +172,14 @@
   display: inline-flex;
   min-height: var(--control-alto);
   align-items: center;
-  border: var(--borde-fino) solid var(--color-marca);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: 0 var(--spacing-3);
-  color: var(--color-marca);
+  color: var(--control-segundo-texto);
   font-size: var(--text-xs);
   font-weight: 800;
   cursor: pointer;
+  background: var(--control-segundo-fondo);
 }
 
 .agregarFoto:has(input:disabled) {

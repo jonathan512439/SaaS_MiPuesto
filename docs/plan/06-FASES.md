@@ -379,15 +379,39 @@ es pintar dos veces.
   degradado de las herramientas con IA.
 - La paleta llega al panel desde el negocio, no desde una preferencia aparte:
   es la misma que ya se elige en Apariencia.
+- **Los botones se pintan con la paleta**, decidido con el dueño. Son un acento,
+  no una superficie: lo que cambia de color es la acción principal y los estados
+  de «elegido», no el fondo de la pantalla.
+
+  Esto ya no es trabajo de buscar: el panel tiene **tres aspectos de control**
+  —`--control-principal-*`, `--control-segundo-*`, `--control-peligro-*`—
+  definidos en un solo lugar de `globals.css`. Pintarlos con la paleta del
+  negocio es cambiar esos tres, y no perseguir las ocho recetas que había antes
+  repartidas una por pantalla.
+
+  Lo vigila `components/ui/aspecto-de-los-controles.test.ts`, que rechaza el
+  control nuevo que se invente colores propios. Cada excepción está listada ahí
+  con su motivo escrito, y son las que **no** deben seguir a la paleta del
+  negocio: los enlaces, el degradado de las herramientas con IA —que avisa que
+  gastan cuota— y los controles que van encima de una fotografía.
 
 **Pruebas**
 
 - El control de contraste corre sobre el panel **con las diez paletas**, no solo
   con la de MiPuesto. Hoy mide una sola combinación.
 - Con la paleta oscura, la barra superior y lo elegido siguen legibles.
+- Con las diez paletas, la acción principal se distingue de la segunda: si una
+  paleta las deja del mismo color, la jerarquía de los botones desaparece
+  justo en el negocio que eligió esa paleta.
 
 **Criterio de salida:** las diez paletas pasan contraste en el panel, y en
 cualquiera de ellas se distingue a simple vista el panel del catálogo.
+
+**Lo que esta fase no es.** No es un modo oscuro del panel. Con la paleta oscura
+de un negocio, el panel se verá oscuro **en sus acentos**; el fondo sigue claro,
+y a propósito. Un modo oscuro del panel entero no está en ninguna fase: si se
+quiere, es una fase aparte, porque obliga a definir la segunda mitad de todos los
+tokens de color y a correr el control de contraste dos veces por paleta.
 
 ---
 
