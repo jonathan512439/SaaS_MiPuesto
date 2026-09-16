@@ -3,6 +3,9 @@ import type { ReactNode } from "react";
 
 import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
 import { PASOS_ALTA } from "../../../lib/negocios/alta";
+import { ProveedorSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
+import { ProveedorAvisos } from "../../../components/ui";
+import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./alta.module.css";
 
@@ -17,7 +20,12 @@ import styles from "./alta.module.css";
  * después desde el navegador mostraría la barra vacía un instante y saltando
  * al valor bueno, justo en la pantalla que tiene que dar seguridad.
  */
-export default async function LayoutAlta({ children }: { children: ReactNode }) {
+export default async function LayoutAlta({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const { clavePublica, url } = obtenerVariablesPublicasSupabase();
   const supabase = await crearClienteSupabaseServidor();
   const { data: datosClaims } = await supabase.auth.getClaims();
   const idUsuario = datosClaims?.claims.sub;
@@ -37,39 +45,63 @@ export default async function LayoutAlta({ children }: { children: ReactNode }) 
 
   const alcanzado = negocio.alta_paso;
 
+  /* Los proveedores van acá y no se heredan: al sacar el alta de `/dashboard`
+     dejó de estar dentro del layout que los ponía, y los cuatro pasos usan
+     `useAvisos` para contar que algo falló al guardar. Sin proveedor ese hook
+     **lanza**, y el alta entera moría con la pantalla de error genérica antes de
+     dibujar nada. Es la misma falla que ya se había visto en el catálogo público
+     con este mismo hook, y por eso existe una guarda para ese caso. */
   return (
-    <main className={styles.contenido}>
-      {/* El saludo **es** el título de la pantalla, así que usa el encabezado del
+    <ProveedorSupabaseNavegador clavePublica={clavePublica} url={url}>
+      <ProveedorAvisos>
+        <main className={styles.contenido}>
+          {/* El saludo **es** el título de la pantalla, así que usa el encabezado del
           panel en vez de dibujar uno propio. El progreso va como contenido suyo:
           pertenece al encabezado, no es una sección aparte. */}
-      <EncabezadoPanel
-        rotulo={`Paso ${alcanzado} de ${PASOS_ALTA.length}`}
-        titulo={
-          negocio.nombre_admin ? `Hola, ${negocio.nombre_admin}` : "Vamos a publicar tu catálogo"
-        }
-      >
-        {/* Una lista ordenada y no una fila de puntos: para quien usa lector de
+          <EncabezadoPanel
+            rotulo={`Paso ${alcanzado} de ${PASOS_ALTA.length}`}
+            titulo={
+              negocio.nombre_admin
+                ? `Hola, ${negocio.nombre_admin}`
+                : "Vamos a publicar tu catálogo"
+            }
+          >
+            {/* Una lista ordenada y no una fila de puntos: para quien usa lector de
             pantalla, «paso 2 de 4» tiene que poder leerse, no solo verse. */}
-        <ol className={styles.progreso}>
-          {PASOS_ALTA.map((paso) => {
-            const estado =
-              paso.numero < alcanzado ? "hecho" : paso.numero === alcanzado ? "actual" : "pendiente";
-            return (
-              <li className={styles.paso} data-estado={estado} key={paso.id}>
-                <span aria-hidden="true" className={styles.disco}>
-                  {paso.numero}
-                </span>
-                <span className={styles.nombrePaso}>{paso.titulo}</span>
-                <span className={styles.soloLectores}>
-                  {estado === "hecho" ? " (hecho)" : estado === "actual" ? " (acá estás)" : ""}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
-      </EncabezadoPanel>
+            <ol className={styles.progreso}>
+              {PASOS_ALTA.map((paso) => {
+                const estado =
+                  paso.numero < alcanzado
+                    ? "hecho"
+                    : paso.numero === alcanzado
+                      ? "actual"
+                      : "pendiente";
+                return (
+                  <li
+                    className={styles.paso}
+                    data-estado={estado}
+                    key={paso.id}
+                  >
+                    <span aria-hidden="true" className={styles.disco}>
+                      {paso.numero}
+                    </span>
+                    <span className={styles.nombrePaso}>{paso.titulo}</span>
+                    <span className={styles.soloLectores}>
+                      {estado === "hecho"
+                        ? " (hecho)"
+                        : estado === "actual"
+                          ? " (acá estás)"
+                          : ""}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          </EncabezadoPanel>
 
-      {children}
-    </main>
+          {children}
+        </main>
+      </ProveedorAvisos>
+    </ProveedorSupabaseNavegador>
   );
 }
