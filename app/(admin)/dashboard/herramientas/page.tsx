@@ -70,6 +70,17 @@ export default async function PaginaHerramientas() {
         "Si ya tenés tus productos en un Excel o un CSV, los cargás todos de una vez en lugar de escribirlos uno por uno.",
       icono: "grafico",
     },
+    {
+      /* Una ruta de la API y no una pantalla: es un enlace que descarga.
+         Conviene que el dueño sepa que existe **antes** de necesitarla: quien
+         descubre que puede llevarse su catálogo recién el día que quiere irse ya
+         perdió la confianza que esto venía a dar. */
+      href: "/api/catalogo/exportar",
+      titulo: "Descargar mi catálogo",
+      explicacion:
+        "Una planilla con tus productos, sus precios y sus categorías. Te la podés llevar, o volver a cargarla acá si alguna vez necesitás rehacer el catálogo.",
+      icono: "carpeta",
+    },
   ];
 
   /* Solo para los rubros a los que les sirve: un menú impreso en una boutique es
