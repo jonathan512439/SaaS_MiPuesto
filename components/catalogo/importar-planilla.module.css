@@ -70,6 +70,21 @@
   font-size: var(--text-base);
   font-weight: 800;
   cursor: pointer;
+  box-shadow: var(--sombra-suave);
+}
+
+/* Relieve: lo mismo que el botón compartido, por el mismo motivo. Sin sombra
+   estos controles se leían como rótulos, y el dueño no sabía cuáles se tocaban
+   hasta probarlos. El hundido al presionar es la única confirmación que hay en
+   un teléfono de que el dedo dio en el blanco. */
+.cargar:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.cargar:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
 .cargar:hover {

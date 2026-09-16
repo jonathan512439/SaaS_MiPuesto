@@ -13,15 +13,55 @@
   font-weight: 700;
   line-height: 1.25rem;
   cursor: pointer;
+  /* Relieve.
+   *
+   * Sin sombra, un botón es un rectángulo de color, y en una pantalla donde casi
+   * todo es un rectángulo de color deja de leerse como algo que se toca: el
+   * dueño no distingue el botón del rótulo que tiene al lado. La sombra es lo
+   * que lo despega del papel, y el despegue es la única seña de que ahí hay una
+   * acción y no una etiqueta.
+   *
+   * Es deliberadamente corta. Lo que hace falta es que **haya** relieve, no que
+   * el botón flote: en un teléfono, con seis controles a la vista, sombras
+   * largas se pisan entre ellas y ensucian. */
+  box-shadow: var(--sombra-suave);
   transition:
     background-color var(--movimiento-rapido) ease,
     border-color var(--movimiento-rapido) ease,
+    box-shadow var(--movimiento-rapido) ease,
+    transform var(--movimiento-rapido) ease,
     color var(--movimiento-rapido) ease;
+}
+
+/* Al pasar por encima sube, al presionar se hunde.
+ *
+ * El hundido importa más que el levantado: es la respuesta al toque, y en un
+ * teléfono —donde no hay «pasar por encima»— es la **única** confirmación de que
+ * el dedo dio en el blanco antes de que la pantalla cambie. Sin eso, quien no
+ * está seguro vuelve a tocar, y la segunda vez sí llega: dos veces la misma
+ * acción. */
+.boton:hover:not(:disabled) {
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.boton:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* El anillo de foco lo pone una regla global, pero la escribe con `box-shadow`,
+   y acá acabamos de escribir otra: la del botón ganaba y el foco del teclado se
+   quedaba sin su anillo. Se repite para que no se pierda. */
+.boton:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
 .boton:disabled {
   cursor: not-allowed;
   opacity: 0.58;
+  /* Sin relieve: lo que no se puede tocar no tiene por qué parecer que se toca. */
+  box-shadow: none;
 }
 
 .botonPrincipal {
@@ -36,9 +76,12 @@
   background: var(--color-accion-fuerte);
 }
 
+/* Con fondo propio y no transparente. Sobre el gris del panel, un botón
+   transparente con contorno se lee como un recuadro dibujado alrededor de una
+   palabra; con su superficie, se lee como una pieza apoyada encima. */
 .botonSecundario {
   border-color: var(--color-marca);
-  background: transparent;
+  background: var(--color-superficie);
   color: var(--color-marca);
 }
 

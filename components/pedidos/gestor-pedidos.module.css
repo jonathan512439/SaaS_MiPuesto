@@ -37,6 +37,21 @@
   font-weight: 800;
   white-space: nowrap;
   cursor: pointer;
+  box-shadow: var(--sombra-suave);
+}
+
+/* Relieve: lo mismo que el botón compartido, por el mismo motivo. Sin sombra
+   estos controles se leían como rótulos, y el dueño no sabía cuáles se tocaban
+   hasta probarlos. El hundido al presionar es la única confirmación que hay en
+   un teléfono de que el dedo dio en el blanco. */
+.filtros button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.filtros button:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
 .filtros button[aria-pressed="true"] {
@@ -299,6 +314,21 @@
   font-size: var(--text-sm);
   font-weight: 800;
   cursor: pointer;
+  box-shadow: var(--sombra-suave);
+}
+
+/* Relieve: lo mismo que el botón compartido, por el mismo motivo. Sin sombra
+   estos controles se leían como rótulos, y el dueño no sabía cuáles se tocaban
+   hasta probarlos. El hundido al presionar es la única confirmación que hay en
+   un teléfono de que el dedo dio en el blanco. */
+.acciones button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.acciones button:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
 .acciones button:last-child {
