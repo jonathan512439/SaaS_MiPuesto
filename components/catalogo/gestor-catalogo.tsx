@@ -59,6 +59,7 @@ import {
   useConfirmacion,
 } from "../ui";
 import styles from "./gestor-catalogo.module.css";
+import { TOPE_FOTOS_POR_MES } from "../../lib/ia/limites";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import { normalizarBusqueda as normalizarTexto } from "../../lib/texto";
 
@@ -141,6 +142,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
      cambiar de rubro no borra ninguna marca ya puesta. */
   const ofreceCartaDelDia = rubroOfrece(datosIniciales.negocio.rubro, "carta_del_dia");
   const ofreceLecturaDeFotos = datosIniciales.negocio.foto_ia_habilitada === true;
+  /* Cuántas lecturas le quedan al negocio este mes. Se dice acá, pegado al
+     botón que las gasta, y no en otra pantalla: la pregunta «¿me queda?» aparece
+     justo cuando se está por tocar, y una cuenta que hay que ir a buscar no la
+     busca nadie. Nunca baja de cero: el servidor corta antes, y un número
+     negativo se leería como una deuda. */
+  const lecturasQueQuedan = Math.max(0, TOPE_FOTOS_POR_MES - datosIniciales.fotosUsadasMes);
   const [leyendoFoto, setLeyendoFoto] = useState(false);
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [paginaCategorias, setPaginaCategorias] = useState(1);
@@ -1103,6 +1110,21 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 </label>
                 <small>{AYUDA_PRODUCTO.advertencia}</small>
               </div>
+              {/* Cuántas quedan, en un renglón y pegado al botón que las gasta.
+                  Del mes y no del día: el mes es el tope que el negocio tiene
+                  contratado —el diario es un reparto interno de la cuota— y es
+                  además el único que el dueño puede consultar. Decirle dos
+                  números lo obligaría a calcular cuál lo frena antes. */}
+              <p className={styles.usosIa}>
+                <span>
+                  Te quedan <strong>{lecturasQueQuedan}</strong> de {TOPE_FOTOS_POR_MES} lecturas
+                  este mes
+                </span>
+                {/* En cero no se esconde ni se cambia de color: se dice qué pasa
+                    después, que es lo único que sirve cuando ya no se puede
+                    usar. */}
+                {lecturasQueQuedan === 0 ? <small>Vuelven el día 1</small> : null}
+              </p>
             </section>
           ) : null}
           <div className={styles.camposProducto}>

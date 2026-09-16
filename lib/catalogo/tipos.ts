@@ -79,6 +79,10 @@ export type DatosCatalogoAdmin = {
        opcional; que el dato sea `false` es otra cosa. */
     foto_ia_habilitada: boolean;
   };
+  /* Cuántas lecturas con IA lleva el negocio este mes. Va al lado de la
+     herramienta, en el formulario de producto: quien está por usarla es quien
+     tiene que saber cuántas le quedan, y no se entera abriendo otra pantalla. */
+  fotosUsadasMes: number;
   categorias: CategoriaCatalogo[];
   subcategorias: SubcategoriaCatalogo[];
   productos: ProductoCatalogo[];

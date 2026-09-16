@@ -111,6 +111,22 @@ describe("la exportación del catálogo", () => {
 });
 
 describe("el escritor de planillas", () => {
+  it("lleva la hoja de estilos que Excel exige", async () => {
+    /* Sin `xl/styles.xml`, Excel **repara** el archivo: tira la hoja de datos y
+       deja la pestaña vacía con su nombre. Y ningún otro lector se entera —ni el
+       importador de este proyecto, ni `openpyxl`, ni un descompresor—, así que
+       la prueba de ida y vuelta pasaba en verde mientras el dueño abría una
+       planilla vacía. Se comprueba mirando las partes del ZIP, que es el único
+       lugar donde esto se ve. */
+    const archivo = exportarCatalogo(CATALOGO);
+    const partes = nombresDeLasPartes(archivo);
+
+    expect(partes).toContain("xl/styles.xml");
+    /* Declarada en los dos sitios donde hace falta, o Excel no la encuentra. */
+    expect(new TextDecoder().decode(archivo)).toContain("spreadsheetml.styles+xml");
+    expect(new TextDecoder().decode(archivo)).toContain("relationships/styles");
+  });
+
   it("escribe una celda vacía como celda ausente y no como texto vacío", async () => {
     const filas = await volverALeer(armarXlsx([["uno", "", "tres"]]));
     expect(filas).toEqual([["uno", "", "tres"]]);
@@ -124,3 +140,20 @@ describe("el escritor de planillas", () => {
     expect(filas).toEqual([["a"]]);
   });
 });
+
+/* Los nombres de las entradas de un ZIP, leídos del directorio central.
+   Se recorren los bytes en vez de buscar con una expresión regular sobre el
+   archivo convertido a texto: los datos comprimidos contienen cualquier byte, y
+   una regular encuentra firmas falsas adentro de ellos. */
+function nombresDeLasPartes(archivo: Uint8Array): string[] {
+  const nombres: string[] = [];
+  const vista = new DataView(archivo.buffer, archivo.byteOffset, archivo.byteLength);
+
+  for (let i = 0; i + 46 <= archivo.length; i += 1) {
+    if (vista.getUint32(i, true) !== 0x02014b50) continue;
+    const largo = vista.getUint16(i + 28, true);
+    nombres.push(new TextDecoder().decode(archivo.subarray(i + 46, i + 46 + largo)));
+  }
+
+  return nombres;
+}

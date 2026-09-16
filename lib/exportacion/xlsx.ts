@@ -19,7 +19,14 @@
  *
  * Lo que **no** hace, y no necesita: formatos, fórmulas, varias hojas, ni
  * fechas. Todo se escribe como texto o como número.
- */
+ *
+ * **Lleva una hoja de estilos vacía, y no es opcional.** Excel exige la parte
+ * `xl/styles.xml` aunque ninguna celda declare estilo: cada celda referencia
+ * implícitamente el estilo cero, y sin esa parte ese cero no existe. Un lector
+ * cualquiera —el del importador, `openpyxl`, un descompresor— abre el archivo
+ * sin protestar; Excel lo «repara», y reparar significa **tirar la hoja de
+ * datos y dejar la pestaña vacía con su nombre**. El síntoma no se parece en
+ * nada a la causa: parece que la exportación no encontró productos. */
 
 /* La tabla de CRC-32 que pide el formato ZIP. Se calcula una vez. */
 const TABLA_CRC = (() => {
@@ -197,7 +204,7 @@ export function armarXlsx(
     {
       nombre: "[Content_Types].xml",
       contenido: texto(
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
       ),
     },
     {
@@ -215,7 +222,16 @@ export function armarXlsx(
     {
       nombre: "xl/_rels/workbook.xml.rels",
       contenido: texto(
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+      ),
+    },
+    /* El mínimo que Excel acepta. Los dos rellenos son obligatorios —«ninguno» y
+       «gris 125»— aunque no se use ninguno: Excel da por hecho que están y
+       cuenta a partir de ahí. */
+    {
+      nombre: "xl/styles.xml",
+      contenido: texto(
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/></styleSheet>',
       ),
     },
     { nombre: "xl/worksheets/sheet1.xml", contenido: texto(hoja(filas)) },

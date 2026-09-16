@@ -35,6 +35,11 @@ type Herramienta = {
   explicacion: string;
   icono: NombreIcono;
   externa?: boolean;
+  /* Una descarga, no una pantalla. Va con una etiqueta `a` común y no con el
+     enlace de Next: el enrutador del navegador intenta resolver el destino como
+     una pantalla, y esto no lo es —devuelve un archivo—. Con `a` el navegador
+     hace lo único que hay que hacer: pedirlo y guardarlo. */
+  descarga?: boolean;
 };
 
 export default async function PaginaHerramientas() {
@@ -76,6 +81,7 @@ export default async function PaginaHerramientas() {
          descubre que puede llevarse su catálogo recién el día que quiere irse ya
          perdió la confianza que esto venía a dar. */
       href: "/api/catalogo/exportar",
+      descarga: true,
       titulo: "Descargar mi catálogo",
       explicacion:
         "Una planilla con tus productos, sus precios y sus categorías. Te la podés llevar, o volver a cargarla acá si alguna vez necesitás rehacer el catálogo.",
@@ -156,17 +162,21 @@ export default async function PaginaHerramientas() {
       ) : null}
 
       <ul className={styles.lista}>
-        {herramientas.map(({ explicacion, externa, href, icono, titulo }) => (
+        {herramientas.map(({ descarga, explicacion, externa, href, icono, titulo }) => (
           <li className={styles.tarjeta} key={href}>
             <Icono className={styles.iconoHerramienta} nombre={icono} />
             <h2>
-              <Link
-                href={href}
-                rel={externa ? "noreferrer" : undefined}
-                target={externa ? "_blank" : undefined}
-              >
-                {titulo}
-              </Link>
+              {descarga ? (
+                <a href={href}>{titulo}</a>
+              ) : (
+                <Link
+                  href={href}
+                  rel={externa ? "noreferrer" : undefined}
+                  target={externa ? "_blank" : undefined}
+                >
+                  {titulo}
+                </Link>
+              )}
             </h2>
             <p>{explicacion}</p>
           </li>

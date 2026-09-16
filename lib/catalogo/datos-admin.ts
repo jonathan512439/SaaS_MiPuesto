@@ -56,7 +56,7 @@ export async function leerCatalogoAdmin(
     .maybeSingle();
   if (!negocio) return null;
 
-  const [categorias, atributos, recursos, subcategorias, productos] = await Promise.all([
+  const [categorias, atributos, recursos, subcategorias, productos, usoIa] = await Promise.all([
     supabase
       .from("categorias")
       .select(COLUMNAS_CATEGORIA)
@@ -78,6 +78,14 @@ export async function leerCatalogoAdmin(
       .is("eliminado_en", null)
       .order("orden")
       .order("creado_en"),
+    /* El mes se guarda como su día 1, en hora de Bolivia. Si el negocio todavía
+       no usó la herramienta este mes no hay fila, y eso es cero. */
+    supabase
+      .from("uso_ia_negocio")
+      .select("cantidad")
+      .eq("negocio_id", negocio.id)
+      .eq("mes", `${new Date().toISOString().slice(0, 8)}01`)
+      .maybeSingle(),
   ]);
 
   return {
@@ -94,5 +102,6 @@ export async function leerCatalogoAdmin(
     productos: (productos.data ?? []) as ProductoCatalogo[],
     atributos: atributos.data ?? [],
     recursos: recursos.data ?? [],
+    fotosUsadasMes: usoIa.data?.cantidad ?? 0,
   };
 }
