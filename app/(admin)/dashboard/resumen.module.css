@@ -231,3 +231,89 @@
 .contenido > * {
   min-width: 0;
 }
+
+/* «Lo que le falta a tu catálogo».
+ *
+ * Toma la forma del aviso de catálogo inactivo —la barra de color a la
+ * izquierda— y no la de las tarjetas de actividad: no es un dato que se mira, es
+ * algo que hay que hacer. Con el mismo marco que las métricas se leería como una
+ * sección más y se perdería entre ellas.
+ *
+ * El color lo decide `data-impide`: alerta cuando sin eso el catálogo no recibe
+ * pedidos, y el gris del panel cuando solo queda más pobre. Es la única
+ * diferencia visible entre las dos clases de falta, y tiene que ser evidente de
+ * lejos, porque el dueño decide en un segundo si esto le urge o no. */
+.faltantes {
+  display: grid;
+  gap: var(--spacing-2);
+  border-left: var(--spacing-1) solid var(--color-borde);
+  border-radius: 0 var(--radius-panel) var(--radius-panel) 0;
+  padding: var(--spacing-4);
+  background: var(--color-fondo-suave);
+}
+
+.faltantes[data-impide="si"] {
+  border-left-color: var(--color-alerta);
+  background: var(--color-alerta-tenue);
+}
+
+.faltantes h2 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.faltantes[data-impide="si"] h2 {
+  color: var(--color-alerta);
+}
+
+.faltantes ul {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cada falta es una fila con su enlace, no una viñeta de texto: lo que importa
+   acá es que se pueda tocar y resolver, no que se pueda leer. */
+.faltantes li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-sm);
+}
+
+.faltantes li a {
+  min-height: var(--control-alto);
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-marca-fuerte);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--sombra-suave);
+}
+
+.faltantes li a:hover {
+  background: var(--color-marca-tenue);
+}
+
+/* «Opcional» dicho con todas las letras y no con un color más claro: un matiz de
+   gris no le dice a nadie que puede dejarlo para después. */
+.faltantes li small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.faltantes p {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.faltantes[data-impide="si"] p {
+  color: var(--color-alerta);
+}

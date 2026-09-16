@@ -9,6 +9,8 @@ import {
   MAXIMO_EVENTOS_LEIDOS,
   obtenerVentanasSemanales,
 } from "../../../lib/analitica-servidor";
+import { faltantesParaPublicar } from "../../../lib/negocios/alta";
+import { leerSituacionDelNegocio } from "../../../lib/negocios/situacion";
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./resumen.module.css";
@@ -16,8 +18,8 @@ import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel"
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
-  title: "Reportes | MiPuesto",
-  description: "Qué pasó con tu catálogo esta semana y cómo se compara con la anterior.",
+  title: "Inicio | MiPuesto",
+  description: "Qué le falta a tu catálogo y qué pasó con él esta semana.",
 };
 
 const METRICAS = [
@@ -44,12 +46,18 @@ export default async function PaginaDashboard() {
   const idUsuario = datosClaims?.claims.sub;
   if (!idUsuario) redirect("/login?motivo=sesion");
 
-  const { data: negocio } = await supabase
-    .from("negocios")
-    .select("id,nombre,slug,activo")
-    .eq("admin_user_id", idUsuario)
-    .maybeSingle();
-  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
+  const leido = await leerSituacionDelNegocio(supabase, idUsuario);
+  if (!leido) redirect(RUTA_SIN_NEGOCIO);
+  const { negocio } = leido;
+
+  /* Lo que le falta al catálogo para servir, en la primera pantalla y no
+     escondido en el alta.
+     El alta se recorre una vez; esto **vive para siempre**. Un negocio que
+     terminó el alta hace seis meses y borró su teléfono tiene que enterarse acá,
+     que es donde entra todos los días, y no descubrirlo porque dejó de recibir
+     pedidos. */
+  const faltantes = faltantesParaPublicar(leido.situacion);
+  const impiden = faltantes.filter(({ impide }) => impide);
 
   const { actual, previa } = obtenerVentanasSemanales();
 
@@ -124,8 +132,46 @@ export default async function PaginaDashboard() {
       <EncabezadoPanel
         descripcion="Sin nombres, teléfonos ni contenido de los pedidos."
         rotulo="Últimos 7 días"
-        titulo={`Reportes de ${negocio.nombre}`}
+        titulo={negocio.nombre}
       />
+
+      {/* Va arriba de todo y solo cuando falta algo. Un recuadro de «está todo
+          listo» en cada visita es ruido, y peor: enseña a saltearlo, de modo que
+          el día que sí dice algo tampoco se lee.
+
+          Lo que impide se separa de lo que no. Sin teléfono el catálogo no
+          recibe un solo pedido; sin logo, se ve peor y vende igual. Mezclarlos
+          en una lista sola haría que el dueño trate a los dos como iguales: o se
+          alarma por el logo, o desatiende el teléfono. */}
+      {faltantes.length > 0 ? (
+        <section
+          aria-labelledby="falta-publicar"
+          className={styles.faltantes}
+          data-impide={impiden.length > 0 ? "si" : undefined}
+        >
+          <h2 id="falta-publicar">
+            {impiden.length > 0
+              ? "Esto le falta a tu catálogo para funcionar"
+              : "Con esto tu catálogo se vería mejor"}
+          </h2>
+          <ul>
+            {faltantes.map(({ clave, impide, ruta, titulo }) => (
+              <li data-impide={impide ? "si" : undefined} key={clave}>
+                {/* El enlace es la tarea. Decirle «te falta el WhatsApp» sin
+                    llevarlo a cargarlo es una queja, no algo que pueda resolver. */}
+                <Link href={ruta}>{titulo}</Link>
+                {impide ? null : <small>Opcional</small>}
+              </li>
+            ))}
+          </ul>
+          {impiden.length > 0 ? (
+            <p>
+              Mientras falte algo de esto, quien abra tu catálogo no va a poder hacerte un
+              pedido.
+            </p>
+          ) : null}
+        </section>
+      ) : null}
 
       {!negocio.activo ? (
         <aside className={styles.inactivo} role="status">
