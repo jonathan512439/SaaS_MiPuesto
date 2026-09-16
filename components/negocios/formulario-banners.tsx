@@ -4,7 +4,13 @@ import Image from "next/image";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 
 import { prepararImagenParaSubir } from "../../lib/imagenes";
-import { MAXIMO_BANNERS, type Banner } from "../../lib/negocios/banners";
+import { MAXIMO_BANNERS, PROPORCION_BANNER, type Banner } from "../../lib/negocios/banners";
+import {
+  armarEnlace,
+  leerDestino,
+  type ContextoDestino,
+  type DestinoBanner,
+} from "../../lib/negocios/destino-banner";
 import { PasoNumerado } from "../dashboard/paso-numerado";
 import { Boton, useAvisos } from "../ui";
 import styles from "./formulario-banners.module.css";
@@ -21,8 +27,39 @@ type BannerEnEdicion = {
   titulo: string;
   copy: string;
   boton: string;
+  /* El destino se guarda **desarmado** mientras se edita: el tipo por un lado y,
+     si es una dirección suelta, su texto por otro. Guardar solo la URL armada
+     obligaría a deducir el tipo en cada dibujado, y elegir «mi WhatsApp» sin
+     teléfono cargado dejaría el desplegable saltando solo a otra opción. */
+  destino: DestinoBanner["tipo"];
+  categoriaDestino: string;
   enlace: string;
 };
+
+/* Del enlace guardado a los campos del formulario, y de vuelta. Viven acá y no
+   dentro del componente porque no dependen de su estado, y así el `useState`
+   inicial los puede usar sin haberse dibujado todavía. */
+function desarmarDestino(
+  enlace: string | null,
+  contexto: ContextoDestino,
+): Pick<BannerEnEdicion, "destino" | "categoriaDestino" | "enlace"> {
+  const destino = leerDestino(enlace, contexto);
+  return {
+    destino: destino.tipo,
+    categoriaDestino: destino.tipo === "categoria" ? destino.categoriaId : "",
+    enlace: destino.tipo === "otra" ? destino.url : "",
+  };
+}
+
+function enlaceDe(banner: BannerEnEdicion, contexto: ContextoDestino): string | null {
+  if (banner.destino === "categoria") {
+    return armarEnlace({ tipo: "categoria", categoriaId: banner.categoriaDestino }, contexto);
+  }
+  if (banner.destino === "otra") {
+    return armarEnlace({ tipo: "otra", url: banner.enlace }, contexto);
+  }
+  return armarEnlace({ tipo: banner.destino }, contexto);
+}
 
 const VACIO: BannerEnEdicion = {
   imagen: null,
@@ -32,6 +69,8 @@ const VACIO: BannerEnEdicion = {
   titulo: "",
   copy: "",
   boton: "",
+  destino: "ninguno",
+  categoriaDestino: "",
   enlace: "",
 };
 
@@ -49,8 +88,12 @@ export function FormularioBanners({
   bannersIniciales,
   urlPorRuta,
   alCambiar,
+  destinos,
 }: {
   bannersIniciales: Banner[];
+  /* Los lugares a los que el banner puede llevar. Llegan del servidor porque
+     solo él conoce el dominio del catálogo y las categorías del negocio. */
+  destinos: ContextoDestino;
   /* Avisa lo que hay en el formulario ahora mismo, para que la vista previa de
      la pantalla lo dibuje mientras se escribe. La imagen va como dirección y no
      como ruta del depósito: lo que se manda acá es para mirar, no para guardar. */
@@ -72,7 +115,7 @@ export function FormularioBanners({
         titulo: guardado.titulo ?? "",
         copy: guardado.copy ?? "",
         boton: guardado.boton ?? "",
-        enlace: guardado.enlace ?? "",
+        ...desarmarDestino(guardado.enlace, destinos),
       };
     }),
   );
@@ -95,10 +138,10 @@ export function FormularioBanners({
           titulo: banner.titulo.trim() || null,
           copy: banner.copy.trim() || null,
           boton: banner.boton.trim() || null,
-          enlace: banner.enlace.trim() || null,
+          enlace: enlaceDe(banner, destinos),
         })),
     );
-  }, [alCambiar, banners]);
+  }, [alCambiar, banners, destinos]);
 
   function cambiar(indice: number, cambio: Partial<BannerEnEdicion>) {
     setBanners((actuales) =>
@@ -166,7 +209,7 @@ export function FormularioBanners({
           titulo: banner.titulo.trim() || null,
           copy: banner.copy.trim() || null,
           boton: banner.boton.trim() || null,
-          enlace: banner.enlace.trim() || null,
+          enlace: enlaceDe(banner, destinos),
         }));
 
       const respuesta = await fetch("/api/negocios/banners", {
@@ -245,7 +288,7 @@ export function FormularioBanners({
               <small>
                 {subiendo === indice
                   ? "Subiendo…"
-                  : "Se recomienda una imagen ancha, cuatro veces más larga que alta."}
+                  : `Proporción ${PROPORCION_BANNER.ancho}:${PROPORCION_BANNER.alto} — por ejemplo, ${PROPORCION_BANNER.ejemplo}. Otra medida se recorta por el medio.`}
               </small>
               {errores[`banners.${indice}.imagen`] ? (
                 <strong className={styles.error}>{errores[`banners.${indice}.imagen`]}</strong>
@@ -323,16 +366,63 @@ export function FormularioBanners({
               <small>El botón aparece solo si además pusiste a dónde lleva.</small>
             </label>
 
-            <label className={styles.campo} htmlFor={`banner-enlace-${indice}`}>
+            <label className={styles.campo} htmlFor={`banner-destino-${indice}`}>
               <span>A dónde lleva (opcional)</span>
-              <input
-                id={`banner-enlace-${indice}`}
-                onChange={(evento) => cambiar(indice, { enlace: evento.target.value })}
-                placeholder="https://…"
-                type="url"
-                value={banner.enlace}
-              />
-              <small>Dejalo vacío si es solo un aviso.</small>
+              {/* Lugares, no direcciones. Pedirle una URL escrita a mano a un
+                  comerciante es pedirle que falle: no sabe que tiene que empezar
+                  con «https://», no conoce el ancla de su categoría, y si se
+                  equivoca el banner queda mudo sin decir por qué. Escribir una
+                  dirección sigue estando, pero como última opción. */}
+              <select
+                id={`banner-destino-${indice}`}
+                onChange={(evento) =>
+                  cambiar(indice, {
+                    destino: evento.target.value as BannerEnEdicion["destino"],
+                  })
+                }
+                value={banner.destino}
+              >
+                <option value="ninguno">No lleva a ninguna parte</option>
+                {destinos.categorias.length > 0 ? (
+                  <option value="categoria">Una categoría de mi catálogo</option>
+                ) : null}
+                <option value="whatsapp">Mi WhatsApp</option>
+                {/* Sin ubicación publicada no se ofrece: elegirla dejaría un
+                    banner que no lleva a ninguna parte sin haberlo pedido. */}
+                {destinos.ubicacionUrl ? <option value="ubicacion">Cómo llegar</option> : null}
+                <option value="otra">Otra dirección</option>
+              </select>
+
+              {banner.destino === "categoria" ? (
+                <select
+                  aria-label="Qué categoría"
+                  onChange={(evento) => cambiar(indice, { categoriaDestino: evento.target.value })}
+                  value={banner.categoriaDestino}
+                >
+                  <option value="">Elegí una</option>
+                  {destinos.categorias.map(({ id, nombre }) => (
+                    <option key={id} value={id}>
+                      {nombre}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
+
+              {banner.destino === "otra" ? (
+                <input
+                  aria-label="La dirección"
+                  onChange={(evento) => cambiar(indice, { enlace: evento.target.value })}
+                  placeholder="https://…"
+                  type="url"
+                  value={banner.enlace}
+                />
+              ) : null}
+
+              <small>
+                {banner.destino === "ninguno"
+                  ? "Es solo un aviso: no se toca."
+                  : "Tu cliente llega ahí al tocar el banner o su botón."}
+              </small>
               {errores[`banners.${indice}.enlace`] ? (
                 <strong className={styles.error}>{errores[`banners.${indice}.enlace`]}</strong>
               ) : null}

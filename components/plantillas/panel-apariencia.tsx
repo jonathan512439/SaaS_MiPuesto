@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import type { PaletaId } from "../../lib/apariencia";
 import type { Banner } from "../../lib/negocios/banners";
+import type { ContextoDestino } from "../../lib/negocios/destino-banner";
 import type { DatosPlantilla } from "../../lib/plantillas/tipos";
 import { FormularioBanners } from "../negocios/formulario-banners";
 import { SelectorApariencia } from "./selector-apariencia";
@@ -27,6 +28,7 @@ export function PanelApariencia({
   opacidadInicial,
   bannersIniciales,
   urlPorRuta,
+  destinos,
 }: {
   datos: DatosPlantilla;
   paletaInicial: PaletaId;
@@ -34,6 +36,7 @@ export function PanelApariencia({
   opacidadInicial: number;
   bannersIniciales: Banner[];
   urlPorRuta: Record<string, string>;
+  destinos: ContextoDestino;
 }) {
   /* Arranca con lo guardado ya resuelto a direcciones: la muestra dibuja
      imágenes, y lo que hay en la base son rutas del depósito. */
@@ -65,6 +68,7 @@ export function PanelApariencia({
       <FormularioBanners
         alCambiar={setBannersVista}
         bannersIniciales={bannersIniciales}
+        destinos={destinos}
         urlPorRuta={urlPorRuta}
       />
     </>
