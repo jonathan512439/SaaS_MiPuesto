@@ -11,8 +11,8 @@
 .tituloSeccion p,
 .tituloProductos h2,
 .tituloProductos p,
-.detalleProducto h3,
-.detalleProducto p {
+.datosProducto h3,
+.datosProducto p {
   margin: 0;
 }
 
@@ -263,7 +263,10 @@
   position: absolute;
   z-index: 20;
   top: calc(100% + var(--spacing-1));
-  left: 0;
+  /* Anclado a la derecha y no a la izquierda: el botón vive contra el borde
+     derecho de la tarjeta, y un panel que se abriera hacia afuera se saldría de
+     la pantalla en un teléfono. */
+  right: 0;
   display: grid;
   min-width: 13rem;
   /* El borde completo pisa a propósito la línea divisoria que traen las
@@ -668,14 +671,112 @@
   list-style: none;
 }
 
+/* Miniatura, datos y mandos: tres columnas, también en el teléfono.
+ *
+ * Antes era una fila de fotografías arriba y todo lo demás debajo, y cada
+ * producto ocupaba media pantalla: para llegar al décimo había que recorrer diez
+ * tiras de fotos que casi nunca se miran. Con la foto chica al costado, en la
+ * misma pantalla entran seis productos en vez de dos, y **eso** es lo que hace
+ * que se pueda buscar algo en una lista de trescientos.
+ *
+ * Las columnas de los costados se miden por su contenido y la del medio se queda
+ * con lo que sobre, que es la única que puede encogerse sin volverse inútil: una
+ * miniatura más chica no se ve, un botón más angosto no se toca, pero un nombre
+ * largo se parte en dos renglones y se sigue leyendo. */
 .producto {
   display: grid;
-  gap: var(--spacing-4);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--spacing-3);
   border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-radius: var(--radius-panel);
-  padding: var(--spacing-4);
+  padding: var(--spacing-3);
   background: var(--color-superficie);
   box-shadow: var(--sombra-tarjeta);
+}
+
+/* La miniatura, que además es el botón que abre las demás fotografías. */
+.miniaturaProducto {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--spacing-16);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-control);
+  padding: 0;
+  background: var(--color-fondo-suave);
+  cursor: pointer;
+}
+
+.miniaturaProducto img {
+  object-fit: cover;
+}
+
+.miniaturaProducto:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.sinFotoMini {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+/* «+3» sobre la esquina. Va con fondo oscuro y no en un color de la paleta
+   porque tiene que leerse encima de cualquier fotografía. */
+.masFotos {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  border-radius: var(--radius-control) 0 0 0;
+  padding: 0 var(--spacing-1);
+  background: var(--color-texto);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+/* Los mandos, en su columna. En vertical y no en fila: en un teléfono, dos
+   botones lado a lado a la derecha no entran sin robarle el ancho al nombre. */
+.mandosProducto {
+  display: grid;
+  justify-items: stretch;
+  gap: var(--spacing-1);
+}
+
+/* Las fotografías, cuando se las abre: el ancho entero, debajo de las tres
+   columnas. */
+.tiraFotos {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: var(--spacing-2);
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  padding-top: var(--spacing-3);
+}
+
+.tiraFotos small {
+  color: var(--color-texto-suave);
+}
+
+/* En la columna de mandos los dos van del mismo ancho. «Más» se encoge al ancho
+   de su texto por regla propia —la necesita para que el panel flotante cuelgue
+   del botón y no de la tarjeta—, y al lado de un «Editar» estirado se veía como
+   un descuido. Acá manda la columna, y el panel sigue colgando bien porque se
+   ancla a la derecha. */
+.mandosProducto > .masOpciones {
+  width: 100%;
+  margin-top: 0;
+}
+
+.mandosProducto > .masOpciones > summary {
+  width: 100%;
+  justify-content: center;
 }
 
 .fotos {
@@ -689,8 +790,7 @@
   display: none;
 }
 
-.foto,
-.sinFoto {
+.foto {
   position: relative;
   flex: 0 0 6rem;
   width: 6rem;
@@ -721,19 +821,11 @@
   cursor: pointer;
 }
 
-.sinFoto {
-  display: grid;
-  place-items: center;
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-  font-weight: 700;
-}
-
-.detalleProducto {
+.datosProducto {
   display: grid;
   align-content: start;
   justify-items: start;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
   min-width: 0;
 }
 
@@ -746,22 +838,17 @@
 
 .nombreProducto h3 {
   overflow-wrap: anywhere;
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: 800;
 }
 
-.detalleProducto > strong {
+.datosProducto > strong {
   font-size: var(--text-lg);
 }
 
-.detalleProducto p {
-  max-width: 65ch;
+.datosProducto small {
   color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-}
-
-.detalleProducto small {
-  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
 }
 
 .auditoriaPrecio {
@@ -819,10 +906,6 @@
 
   .descripcion {
     grid-column: 1 / -1;
-  }
-
-  .producto {
-    grid-template-columns: minmax(6rem, 14rem) minmax(0, 1fr);
   }
 }
 

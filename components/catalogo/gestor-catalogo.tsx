@@ -186,6 +186,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   );
   const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
+  /* Qué producto tiene abierta su tira de fotografías. Uno solo: dos tiras
+     abiertas en una lista de trescientos productos es volver a la pantalla que
+     esto vino a arreglar. */
+  const [fotosAbiertas, setFotosAbiertas] = useState<string | null>(null);
   const [busquedaProductos, setBusquedaProductos] = useState("");
   const [filtroEstado, setFiltroEstado] = useState<"todos" | "visibles" | "ocultos">(
     "todos",
@@ -1687,20 +1691,47 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               <ul className={styles.listaProductos}>
                 {productosPaginados.map((producto) => (
                   <li className={styles.producto} key={producto.id}>
-                    <div className={styles.fotos}>
-                      {producto.fotos.length ? producto.fotos.map((ruta, indice) => (
-                        <div className={styles.foto} key={ruta}>
-                          <Image
-                            alt={`${producto.nombre}, fotografía ${indice + 1}`}
-                            fill
-                            sizes="(min-width: 60rem) 112px, 96px"
-                            src={obtenerUrlPublicaImagenProducto(urlSupabase, ruta)}
-                          />
-                          <button aria-label={`Borrar fotografía ${indice + 1} de ${producto.nombre}`} onClick={() => void borrarImagen(producto, ruta)} type="button">Borrar</button>
-                        </div>
-                      )) : <div className={styles.sinFoto}>Sin foto</div>}
-                    </div>
-                    <div className={styles.detalleProducto}>
+                    {/* La miniatura es un botón: abre las demás fotos.
+                        Antes la tarjeta mostraba todas las fotografías en una
+                        fila que se desplazaba, y en un teléfono eso era media
+                        pantalla por producto: para ver diez productos había que
+                        recorrer diez tiras de fotos que casi nunca se miran.
+                        Ahora se ve una, con la cuenta de las que hay detrás, y
+                        se abren solo cuando se las busca. */}
+                    <button
+                      aria-expanded={fotosAbiertas === producto.id}
+                      aria-label={
+                        producto.fotos.length
+                          ? `Fotografías de ${producto.nombre} (${producto.fotos.length})`
+                          : `Agregar una fotografía a ${producto.nombre}`
+                      }
+                      className={styles.miniaturaProducto}
+                      onClick={() =>
+                        setFotosAbiertas((abierto) => (abierto === producto.id ? null : producto.id))
+                      }
+                      type="button"
+                    >
+                      {producto.fotos.length ? (
+                        <Image
+                          alt=""
+                          fill
+                          sizes="64px"
+                          src={obtenerUrlPublicaImagenProducto(urlSupabase, producto.fotos[0])}
+                        />
+                      ) : (
+                        <span className={styles.sinFotoMini}>Sin foto</span>
+                      )}
+                      {/* La seña de que hay más. Sin esto, la tarjeta de un
+                          producto con seis fotos y la de uno con una se ven
+                          iguales, y nadie abre lo que no sabe que existe. */}
+                      {producto.fotos.length - 1 > 0 ? (
+                        <span aria-hidden="true" className={styles.masFotos}>
+                          +{producto.fotos.length - 1}
+                        </span>
+                      ) : null}
+                    </button>
+
+                    <div className={styles.datosProducto}>
                       <div className={styles.nombreProducto}>
                         <h3>{producto.nombre}</h3>
                         {producto.visible ? null : <IndicadorEstado estado="oculto" />}
@@ -1708,54 +1739,53 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                           <IndicadorEstado estado={producto.estado as EstadoProducto} />
                         )}
                       </div>
-                      <small>Código: {producto.codigo}</small>
                       <strong>Bs {Number(producto.precio).toFixed(2).replace(".", ",")}</strong>
+                      <small>
+                        {producto.codigo}
+                        {" · "}
+                        {producto.controla_stock
+                          ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} de ${producto.cantidad_stock ?? 0} disponible(s), ${producto.cantidad_reservada} reservada(s)`
+                          : "Sin control de existencias"}
+                      </small>
                       {producto.precio_anterior !== null && producto.precio_actualizado_en ? (
                         <small className={styles.auditoriaPrecio}>
                           Precio anterior: Bs {Number(producto.precio_anterior).toFixed(2).replace(".", ",")}. Actualizado {producto.precio_actualizado_por ? "por tu cuenta" : "por administración de MiPuesto"} el {FORMATEADOR_CAMBIO_PRECIO.format(new Date(producto.precio_actualizado_en))}.
                         </small>
                       ) : null}
-                      {producto.descripcion ? <p>{producto.descripcion}</p> : null}
-                      <small>
-                        {producto.controla_stock
-                          ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} disponible(s) de ${producto.cantidad_stock ?? 0}; ${producto.cantidad_reservada} reservada(s)`
-                          : "Sin control de existencias"}
-                      </small>
-                      {/* Dos grupos separados, y no siete botones en fila.
-                          Arriba lo que se toca todos los días; lo demás queda
-                          plegado, que además acorta cada tarjeta a la mitad y es
-                          lo que evita recorrer el catálogo entero para encontrar
-                          un producto. */}
-                      <div className={styles.accionesProducto}>
-                        <Boton onClick={() => editarProducto(producto)} variante="secundario">
-                          Editar
-                        </Boton>
-                        {producto.estado !== "agotado" || !producto.controla_stock ? (
-                          <Boton
-                            onClick={() => void alternarAgotado(producto)}
-                            variante="discreto"
-                          >
-                            {producto.estado === "agotado" ? "Hay de nuevo" : "Agotado"}
-                          </Boton>
-                        ) : null}
-                        {ofreceCartaDelDia ? (
-                          <Boton
-                            onClick={() => void alternarCartaDelDia(producto)}
-                            variante="discreto"
-                          >
-                            {estaEnLaCartaDeHoy(producto.en_carta_hasta)
-                              ? "Sacar de hoy"
-                              : "Poner en hoy"}
-                          </Boton>
-                        ) : null}
-                        <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">
-                          {producto.visible ? "Ocultar" : "Mostrar"}
-                        </Boton>
-                      </div>
+                    </div>
+
+                    {/* A la derecha y en dos escalones: «Editar», que es lo que
+                        se toca, y el resto detrás de un menú.
+                        Estaban los siete botones a la vista, y en un teléfono se
+                        envolvían en tres renglones que hacían la tarjeta más
+                        alta que el producto. Siete botones del mismo tamaño
+                        tampoco dicen cuál es el importante. */}
+                    <div className={styles.mandosProducto}>
+                      <Boton onClick={() => editarProducto(producto)} variante="secundario">
+                        Editar
+                      </Boton>
 
                       <details className={styles.masOpciones}>
-                        <summary>Más opciones</summary>
+                        <summary>Más</summary>
                         <div className={styles.accionesProducto}>
+                          {producto.estado !== "agotado" || !producto.controla_stock ? (
+                            <Boton onClick={() => void alternarAgotado(producto)} variante="discreto">
+                              {producto.estado === "agotado" ? "Hay de nuevo" : "Agotado"}
+                            </Boton>
+                          ) : null}
+                          {ofreceCartaDelDia ? (
+                            <Boton
+                              onClick={() => void alternarCartaDelDia(producto)}
+                              variante="discreto"
+                            >
+                              {estaEnLaCartaDeHoy(producto.en_carta_hasta)
+                                ? "Sacar de hoy"
+                                : "Poner en hoy"}
+                            </Boton>
+                          ) : null}
+                          <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">
+                            {producto.visible ? "Ocultar" : "Mostrar"}
+                          </Boton>
                           <Boton onClick={() => void duplicarProducto(producto)} variante="discreto">
                             Duplicar
                           </Boton>
@@ -1765,6 +1795,36 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                           >
                             Copiar enlace
                           </Boton>
+                          <Boton onClick={() => void borrarProducto(producto)} variante="peligro">
+                            Borrar
+                          </Boton>
+                        </div>
+                      </details>
+                    </div>
+
+                    {/* La tira ocupa el ancho entero y va debajo de las tres
+                        columnas: es lo único de la tarjeta que a veces necesita
+                        sitio, y dárselo abajo no angosta lo de arriba. */}
+                    {fotosAbiertas === producto.id ? (
+                      <div className={styles.tiraFotos}>
+                        <div className={styles.fotos}>
+                          {producto.fotos.map((ruta, indice) => (
+                            <div className={styles.foto} key={ruta}>
+                              <Image
+                                alt={`${producto.nombre}, fotografía ${indice + 1}`}
+                                fill
+                                sizes="96px"
+                                src={obtenerUrlPublicaImagenProducto(urlSupabase, ruta)}
+                              />
+                              <button
+                                aria-label={`Borrar fotografía ${indice + 1} de ${producto.nombre}`}
+                                onClick={() => void borrarImagen(producto, ruta)}
+                                type="button"
+                              >
+                                Borrar
+                              </button>
+                            </div>
+                          ))}
                           <label className={styles.botonFoto}>
                             Agregar fotos
                             <input
@@ -1775,15 +1835,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                               type="file"
                             />
                           </label>
-                          <Boton onClick={() => void borrarProducto(producto)} variante="peligro">
-                            Borrar
-                          </Boton>
                         </div>
-                      </details>
-                      <small>
-                        {producto.fotos.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías
-                      </small>
-                    </div>
+                        <small>
+                          {producto.fotos.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías
+                        </small>
+                      </div>
+                    ) : null}
                   </li>
                 ))}
               </ul>
