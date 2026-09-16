@@ -87,7 +87,7 @@
 .campo input[type="url"] {
   width: 100%;
   padding: var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   background: var(--color-superficie);
   color: var(--color-texto);
@@ -104,7 +104,7 @@
 .campo input[type="file"] {
   width: 100%;
   padding: var(--spacing-2);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   background: var(--color-superficie);
   color: var(--color-texto-suave);

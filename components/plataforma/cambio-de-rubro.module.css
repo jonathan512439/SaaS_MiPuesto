@@ -57,9 +57,12 @@
 .campo select {
   min-height: var(--control-alto);
   min-width: 0;
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   padding: 0 var(--spacing-3);
+  /* Sitio para el galón del desplegable, que lo dibuja `globals.css`. Sin
+     esto, una opción larga se mete debajo de él. */
+  padding-right: var(--spacing-8);
   background: var(--color-superficie);
   font: inherit;
 }

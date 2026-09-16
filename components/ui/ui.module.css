@@ -171,7 +171,9 @@
   min-width: 0;
   max-width: 100%;
   min-height: var(--control-alto);
-  border: var(--borde-marcado) solid var(--color-borde);
+  /* El mismo borde que cualquier campo del proyecto: acá se declara porque esta
+     hoja pisa la regla de elemento, no porque sea distinto. */
+  border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   background: var(--color-superficie);
   color: var(--color-texto);

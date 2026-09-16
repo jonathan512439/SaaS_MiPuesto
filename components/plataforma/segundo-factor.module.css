@@ -56,7 +56,7 @@
 .formulario input {
   width: 100%;
   min-height: var(--control-alto);
-  border: var(--borde-marcado) solid var(--color-borde);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-4);
   background: var(--color-superficie);

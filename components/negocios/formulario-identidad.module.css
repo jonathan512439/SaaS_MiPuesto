@@ -200,7 +200,7 @@
 
 .camposRedes input {
   min-height: var(--control-alto);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-3);
   background: var(--color-superficie);
@@ -265,7 +265,7 @@
 .campoUbicacion input {
   width: 100%;
   min-height: var(--control-alto);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-3);
   background: var(--color-superficie);

@@ -15,6 +15,12 @@
   --color-peligro: color-mix(in srgb, var(--color-accion) 72%, var(--color-texto));
   --color-deshabilitado: color-mix(in srgb, var(--color-texto) 12%, var(--color-superficie));
   --color-borde-suave: color-mix(in srgb, var(--color-texto) 13%, transparent);
+  /* El borde de un campo donde se escribe, más marcado que cualquier otro.
+     El borde general —al 22 %— separa bloques, y para eso está bien. Pero un
+     campo de texto tiene que anunciarse **antes de tocarlo**: con ese mismo
+     borde tenue se leía como un rótulo con un recuadro alrededor, y el dueño
+     no sabía dónde se podía escribir hasta que probaba. */
+  --color-borde-campo: color-mix(in srgb, var(--color-texto) 38%, transparent);
   /* El borde de una tarjeta, más tenue que cualquier otro: con la sombra y el
      lienzo tintado detrás, la tarjeta ya se distingue sola y este borde solo
      define el filo. Un borde marcado convierte cualquier pantalla en un
@@ -268,6 +274,48 @@ textarea,
 select,
 [tabindex]:not([tabindex="-1"]) {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Un campo se hunde; un botón se levanta.
+ *
+ * Es el idioma que faltaba. Los botones ya tienen relieve y se hunden al
+ * presionarse; los campos no decían nada, y con un borde tenue sobre fondo
+ * blanco se leían igual que un rótulo. Lo que distingue un lugar donde se
+ * escribe de uno que se toca no es el color: es de qué lado del papel está.
+ *
+ * La sombra va **hacia adentro**, y es corta. No hace falta que parezca un
+ * pozo: hace falta que no parezca plano.
+ *
+ * Va acá y no en la hoja del campo compartido porque la mitad de las pantallas
+ * escriben su `input` a mano. Como es un selector de elemento, cualquier hoja
+ * que quiera decidir lo suyo le gana sin pelear. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+textarea,
+select {
+  border: var(--borde-marcado) solid var(--color-borde-campo);
+  border-radius: var(--radius-control);
+  background-color: var(--color-superficie);
+  box-shadow: inset 0 0.0625rem 0.1875rem
+    color-mix(in srgb, var(--color-texto) 12%, transparent);
+}
+
+/* El desplegable dice que lo es, con el galón dibujado por nosotros.
+ *
+ * El que pone el navegador es distinto en cada uno y en algunos casi no se ve;
+ * en un `select` con borde propio y fondo blanco, el resultado era una caja
+ * idéntica a la de escribir. Son dos cosas que se usan distinto —una se escribe,
+ * la otra se despliega— y tenían el mismo aspecto.
+ *
+ * El galón va en un gris fijo y no en un color de la paleta: todos los `select`
+ * del proyecto viven en el panel, cuyas superficies son siempre claras. El
+ * catálogo público no tiene ninguno. */
+select {
+  appearance: none;
+  padding-right: var(--spacing-8);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%233a4a4d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-3) center;
+  background-size: var(--spacing-4) var(--spacing-4);
 }
 
 :focus-visible {

@@ -21,7 +21,7 @@
 .renovar input {
   width: var(--spacing-16);
   min-height: var(--control-alto);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-2);
   background: var(--color-superficie);
