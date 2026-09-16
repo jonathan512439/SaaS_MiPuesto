@@ -4,8 +4,16 @@
  *
  * Ancho completo del catálogo y **proporción fija**: sin una proporción
  * declarada, cada negocio sube una imagen de un alto distinto y el catálogo
- * cambia de forma según quién lo mire. 4:1 es la de las maquetas y la que deja
- * una franja que se lee sin tapar el catálogo en un teléfono.
+ * cambia de forma según quién lo mire.
+ *
+ * La proporción se declara **una sola vez**, acá abajo, y de ahí salen los dos
+ * casos: el banner que es solo imagen y el que lleva texto encima. Antes solo la
+ * seguía el primero —al segundo lo estiraba su propio texto—, así que dos
+ * banners del mismo catálogo podían tener alturas distintas sin motivo.
+ *
+ * El mismo número vive en `PROPORCION_BANNER`, que es lo que el panel le dice al
+ * dueño para que prepare su imagen; una prueba compara los dos, porque si acá
+ * cambia y allá no, el dueño arma una imagen con la forma equivocada.
  *
  * No define foco ni transición: el foco lo pone la regla global de
  * `app/globals.css`, que es la misma en todo el sitio, y una transición propia
@@ -20,16 +28,20 @@
   /* Se ve mientras la imagen baja, y en un banner ancho eso es medio segundo de
      hueco blanco si no hay nada detrás. */
   background: var(--catalogo-fondo-suave);
+
+  /* La proporción, en dos números para poder hacer cuentas con ellos más abajo.
+     2:1 y no 4:1, que era el de las maquetas: a cuatro por uno la franja quedaba
+     tan fina que una publicidad con título y botón no entraba, y en un teléfono
+     se leía como una línea de color. */
+  --banner-ancho: 2;
+  --banner-alto: 1;
 }
 
 .imagen {
   display: block;
   width: 100%;
   height: auto;
-  /* 5:2 y no 4:1. A cuatro por uno la franja quedaba tan fina que una
-     publicidad con título y botón no entraba, y en un teléfono se leía como una
-     línea de color. */
-  aspect-ratio: 5 / 2;
+  aspect-ratio: var(--banner-ancho) / var(--banner-alto);
   object-fit: cover;
 }
 
@@ -38,6 +50,10 @@
 figure.banner {
   position: relative;
   margin: 0;
+  /* Para medir el alto mínimo del texto contra el ancho de **esta** franja y no
+     contra el de la pantalla: el banner tiene márgenes a los costados, y en
+     escritorio comparte la fila con el resto del catálogo. */
+  container-type: inline-size;
 }
 
 figure.banner .imagen {
@@ -56,7 +72,11 @@ figure.banner .imagen {
   justify-items: start;
   gap: var(--spacing-1);
   padding: var(--spacing-5) var(--spacing-4);
-  min-height: 100%;
+  /* La proporción entra acá como **piso y no como techo**. Fijarle el alto a la
+     figura recortaría el texto: en un teléfono angosto, un título largo con
+     bajada y botón mide más que la mitad del ancho, y una franja un poco más
+     alta es mejor que una publicidad cortada por la mitad. */
+  min-height: calc(100cqw * var(--banner-alto) / var(--banner-ancho));
   align-content: end;
   /* El velo cubre **toda** la imagen y no solo la mitad de abajo: si la
      fotografia del banner es clara arriba, el titulo se quedaba sin nada detras

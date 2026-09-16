@@ -25,6 +25,23 @@
  */
 
 export const MAXIMO_BANNERS = 2;
+
+/* La forma de la imagen del banner, en un solo lugar.
+ *
+ * El dueño tiene que **poder prepararla antes de subirla**: sin saber la
+ * proporción, arma una imagen cuadrada, el catálogo la recorta por el medio y
+ * pierde justo lo que quería mostrar. Decir «ancha» no alcanza; hace falta el
+ * número.
+ *
+ * Vive acá y no suelto en el texto del formulario porque **la hoja de estilos
+ * declara el mismo número**, y dos copias se separan. Una prueba las compara. */
+export const PROPORCION_BANNER = {
+  ancho: 2,
+  alto: 1,
+  /* Un tamaño concreto, no solo la razón: quien abre un editor de imágenes
+     escribe píxeles, no proporciones. */
+  ejemplo: "1200 × 600 píxeles",
+} as const;
 const LARGO_MAXIMO_ALT = 120;
 /* El texto que el diseño de referencia pone sobre el banner: un antetítulo
    corto, un título, una bajada y el rótulo del botón. Todos opcionales —un

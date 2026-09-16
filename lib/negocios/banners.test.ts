@@ -1,6 +1,9 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
-import { MAXIMO_BANNERS, leerBanners, validarBanners } from "./banners";
+import { MAXIMO_BANNERS, PROPORCION_BANNER, leerBanners, validarBanners } from "./banners";
 
 const bueno = {
   /* Una ruta del depósito, no una dirección: guardar la dirección completa
@@ -130,5 +133,41 @@ describe("validarBanners", () => {
 
   it("no se queja del enlace vacío", () => {
     expect(validarBanners([{ imagen: bueno.imagen, alt: "Aviso", enlace: "" }]).correcto).toBe(true);
+  });
+});
+
+/* La proporción del banner se dice en dos lugares y tiene que ser una sola.
+ *
+ * El panel le promete al dueño una forma —«2:1, por ejemplo 1200 × 600»— y la
+ * hoja de estilos decide la forma de verdad. Si alguien retoca el CSS porque la
+ * franja le parece baja y no toca el texto, el dueño sigue preparando imágenes
+ * con la proporción vieja y el catálogo se las recorta por el medio, sin avisar
+ * a nadie: la imagen entra, se ve, y le falta un pedazo.
+ *
+ * No se puede importar un número desde un módulo de CSS, así que se lee el
+ * archivo. */
+describe("la proporción del banner", () => {
+  const hoja = readFileSync(
+    join(import.meta.dirname, "..", "..", "components", "templates", "banner-catalogo.module.css"),
+    "utf8",
+  );
+
+  it("es la misma en la hoja de estilos que en el panel", () => {
+    expect(hoja).toContain(`--banner-ancho: ${PROPORCION_BANNER.ancho};`);
+    expect(hoja).toContain(`--banner-alto: ${PROPORCION_BANNER.alto};`);
+  });
+
+  it("sale de esos dos números y no de otro escrito a mano", () => {
+    /* Que la declaren, no que la repitan: un `aspect-ratio: 5 / 2` suelto sería
+       otra copia del mismo dato. */
+    expect(hoja).toContain("aspect-ratio: var(--banner-ancho) / var(--banner-alto);");
+    expect(hoja).not.toMatch(/aspect-ratio:\s*\d/);
+  });
+
+  it("le da al dueño una medida en píxeles que la cumple", () => {
+    /* El ejemplo es lo único que la mayoría va a mirar. Si no cumple la
+       proporción que la misma frase anuncia, enseña a equivocarse. */
+    const [ancho, alto] = PROPORCION_BANNER.ejemplo.match(/\d+/g)!.map(Number);
+    expect(ancho / alto).toBe(PROPORCION_BANNER.ancho / PROPORCION_BANNER.alto);
   });
 });
