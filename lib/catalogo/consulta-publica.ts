@@ -1,3 +1,5 @@
+import { normalizarBusqueda } from "../texto";
+
 export const PRODUCTOS_PUBLICOS_POR_PAGINA = 12;
 export const LARGO_MAXIMO_BUSQUEDA = 60;
 export const MAXIMO_TERMINOS = 5;
@@ -8,17 +10,10 @@ export type FiltrosCatalogo = {
   pagina: number;
 };
 
-/* Quien busca "cafe" debe encontrar "Café", y quien busca "CAMISA" debe
-   encontrar "camisa". La comparación la hace Postgres contra `texto_busqueda`,
-   que se guarda ya normalizado; acá se normaliza lo que escribió la persona
-   para que las dos puntas hablen el mismo idioma. */
-export function normalizarBusqueda(valor: string): string {
-  return valor
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-}
+/* Vive en `lib/texto.ts` desde que el panel necesito la misma: estaba escrita
+   dos veces, y buscar lo mismo podia dar resultados distintos segun la pantalla.
+   Se sigue exportando desde aca porque es donde el catalogo publico la busca. */
+export { normalizarBusqueda } from "../texto";
 
 function primerValor(valor: string | string[] | undefined) {
   return (Array.isArray(valor) ? valor[0] : valor) ?? "";

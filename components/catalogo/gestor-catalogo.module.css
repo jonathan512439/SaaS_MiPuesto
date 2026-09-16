@@ -163,8 +163,8 @@
 }
 
 .archivosPendientes button {
-  border: 0;
-  background: transparent;
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  background: var(--control-segundo-fondo);
   color: var(--color-peligro);
   font: inherit;
   font-size: var(--text-xs);
@@ -222,11 +222,11 @@
   min-height: var(--control-alto);
   align-items: center;
   gap: var(--spacing-2);
-  border: var(--borde-marcado) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-4);
-  background: var(--color-fondo-suave);
-  color: var(--color-texto);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font-size: var(--text-sm);
   font-weight: 800;
   cursor: pointer;
@@ -456,11 +456,11 @@
 .accionesPequenas button,
 .subcategoria button {
   min-height: var(--spacing-8);
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-2);
-  background: var(--color-fondo-suave);
-  color: var(--color-marca-fuerte);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 700;
@@ -523,11 +523,11 @@
 
 .nuevaSubcategoria button {
   min-height: var(--control-alto);
-  border: var(--borde-fino) solid var(--color-marca);
+  border: var(--borde-fino) solid var(--control-principal-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-3);
-  background: var(--color-marca);
-  color: var(--color-superficie);
+  background: var(--control-principal-fondo);
+  color: var(--control-principal-texto);
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 800;
@@ -568,11 +568,11 @@
 
 .paginacion button {
   min-height: var(--spacing-10);
-  border: var(--borde-fino) solid var(--color-marca);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-2);
-  background: var(--color-superficie);
-  color: var(--color-marca-fuerte);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 800;
@@ -618,11 +618,11 @@
 
 .paginacionProductos button {
   min-height: var(--spacing-10);
-  border: var(--borde-fino) solid var(--color-marca);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-2);
-  background: var(--color-superficie);
-  color: var(--color-marca-fuerte);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 800;
@@ -861,14 +861,15 @@
   display: inline-flex;
   min-height: var(--control-alto);
   align-items: center;
-  border: var(--borde-fino) solid var(--color-marca);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-4);
-  color: var(--color-marca-fuerte);
+  color: var(--control-segundo-texto);
   font-size: var(--text-sm);
   font-weight: 800;
   cursor: pointer;
   box-shadow: var(--sombra-suave);
+  background: var(--control-segundo-fondo);
 }
 
 /* Relieve: lo mismo que el botón compartido, por el mismo motivo. Sin sombra
@@ -1114,11 +1115,11 @@
 .chip,
 .chipActivo {
   min-height: var(--control-alto);
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-status);
   padding: var(--spacing-1) var(--spacing-4);
-  background: var(--color-superficie);
-  color: var(--color-texto-suave);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 800;

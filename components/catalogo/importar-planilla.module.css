@@ -65,12 +65,13 @@
   justify-self: start;
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-5);
-  background: var(--color-accion);
-  color: var(--color-superficie);
+  background: var(--control-principal-fondo);
+  color: var(--control-principal-texto);
   font-size: var(--text-base);
   font-weight: 800;
   cursor: pointer;
   box-shadow: var(--sombra-suave);
+  border: var(--borde-fino) solid var(--control-principal-borde);
 }
 
 /* Relieve: lo mismo que el botón compartido, por el mismo motivo. Sin sombra

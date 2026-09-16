@@ -75,10 +75,10 @@
 .quitar {
   min-height: var(--control-alto);
   padding: var(--spacing-2) var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
-  background: var(--color-superficie);
-  color: var(--color-texto);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 800;

@@ -19,10 +19,10 @@
   gap: var(--spacing-3);
   justify-self: start;
   padding: var(--spacing-2) var(--spacing-4);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
-  background: var(--color-superficie);
-  color: var(--color-texto);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font-family: inherit;
   font-size: var(--text-2xl);
   cursor: pointer;
@@ -76,10 +76,10 @@
   display: grid;
   place-items: center;
   aspect-ratio: 1;
-  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
-  background: var(--color-superficie);
-  color: var(--color-texto);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font-size: var(--text-xl);
   cursor: pointer;
   box-shadow: var(--sombra-suave);

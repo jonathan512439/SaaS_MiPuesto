@@ -120,14 +120,15 @@
   display: inline-flex;
   min-height: var(--control-alto);
   align-items: center;
-  border: var(--borde-fino) solid var(--color-marca);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-2) var(--spacing-4);
-  color: var(--color-marca-fuerte);
+  color: var(--control-segundo-texto);
   font-size: var(--text-sm);
   font-weight: 800;
   cursor: pointer;
   box-shadow: var(--sombra-suave);
+  background: var(--control-segundo-fondo);
 }
 
 /* Relieve: lo mismo que el botón compartido, por el mismo motivo. Sin sombra

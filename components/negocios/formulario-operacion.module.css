@@ -165,11 +165,11 @@
 .intervalo button,
 .intervalos > button {
   min-height: var(--spacing-10);
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-fondo-suave);
-  color: var(--color-marca-fuerte);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 800;
@@ -326,11 +326,11 @@
 .filaExcepcion button,
 .agregarExcepcion {
   min-height: var(--spacing-10);
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-control);
   padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-fondo-suave);
-  color: var(--color-marca-fuerte);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
   font: inherit;
   font-size: var(--text-xs);
   font-weight: 800;

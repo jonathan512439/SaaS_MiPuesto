@@ -64,10 +64,13 @@
   box-shadow: none;
 }
 
+/* Los tres aspectos salen de los tokens de `globals.css`, que es donde se
+   definen para todo el panel. Acá no se elige ningún color: se elige cuál de los
+   tres es este botón. */
 .botonPrincipal {
-  border-color: var(--color-accion);
-  background: var(--color-accion);
-  color: var(--color-superficie);
+  border-color: var(--control-principal-borde);
+  background: var(--control-principal-fondo);
+  color: var(--control-principal-texto);
 }
 
 .botonPrincipal:hover:not(:disabled),
@@ -76,39 +79,34 @@
   background: var(--color-accion-fuerte);
 }
 
-/* Con fondo propio y no transparente. Sobre el gris del panel, un botón
-   transparente con contorno se lee como un recuadro dibujado alrededor de una
-   palabra; con su superficie, se lee como una pieza apoyada encima. */
+/* Un solo aspecto secundario, y no dos.
+ *
+ * Había «secundario» —contorno y letra de marca— y «discreto» —contorno y letra
+ * normal—, y la diferencia no quería decir nada: en la misma tarjeta convivían
+ * los dos y se leían como dos clases de botón sin ninguna regla. Ahora las dos
+ * variantes dibujan esto, y el color queda reservado para la acción principal,
+ * que es donde distingue algo.
+ *
+ * Con fondo propio y no transparente: sobre el gris del panel, un botón
+ * transparente con contorno se lee como un recuadro dibujado alrededor de una
+ * palabra; con su superficie, se lee como una pieza apoyada encima. */
 .botonSecundario {
-  border-color: var(--color-marca);
-  background: var(--color-superficie);
-  color: var(--color-marca);
+  border-color: var(--control-segundo-borde);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
 }
 
 .botonSecundario:hover:not(:disabled),
 .botonSecundario:active:not(:disabled) {
+  border-color: var(--color-marca);
   background: var(--color-fondo-suave);
 }
 
-/* Con el borde transparente no se leía como botón: en la tarjeta de un producto,
-   cuatro acciones sin contorno parecen una línea de texto y hay que probarlas
-   para saber cuáles se tocan. Discreto no quiere decir invisible. */
-.botonDiscreto {
-  border-color: var(--color-borde);
-  background: var(--color-superficie);
-  color: var(--color-texto);
-}
-
-.botonDiscreto:hover:not(:disabled),
-.botonDiscreto:active:not(:disabled) {
-  border-color: var(--color-borde);
-  background: var(--color-fondo-suave);
-}
 
 .botonPeligro {
-  border-color: var(--color-peligro);
-  background: var(--color-peligro);
-  color: var(--color-superficie);
+  border-color: var(--control-peligro-borde);
+  background: var(--control-peligro-fondo);
+  color: var(--control-peligro-texto);
 }
 
 .botonPeligro:hover:not(:disabled),

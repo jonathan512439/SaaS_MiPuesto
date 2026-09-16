@@ -21,6 +21,37 @@
      formulario. */
   --color-borde-tarjeta: color-mix(in srgb, var(--color-texto) 8%, transparent);
 
+  /* El aspecto de un control, en un solo lugar.
+   *
+   * El panel tenía ocho recetas distintas para lo mismo: un botón chico era
+   * fondo hundido con letra de marca en una pantalla, superficie con borde de
+   * marca en otra, y superficie con letra neutra en una tercera. Ninguna de esas
+   * diferencias quería decir nada —nacieron una por pantalla, cada una el día
+   * que hizo falta— pero quien las mira sí les busca sentido, y no lo encuentra.
+   *
+   * Quedan tres, y las tres dicen algo:
+   *
+   * - **Principal**: la acción de la pantalla. Es la única que va pintada con el
+   *   color de acción, y por eso hay una sola por pantalla o por tarjeta.
+   * - **Segundo**: todo lo demás que se toca. Superficie, borde y letra normal.
+   *   Antes esto eran cinco aspectos; el color no distingue nada acá, lo
+   *   distingue el relieve.
+   * - **Peligro**: lo que no tiene vuelta.
+   *
+   * Los estados de «elegido» —una ficha de filtro encendida— siguen usando el
+   * color de marca, que es otra cosa: no es jerarquía, es en qué estás parado. */
+  --control-principal-fondo: var(--color-accion);
+  --control-principal-borde: var(--color-accion);
+  --control-principal-texto: var(--color-superficie);
+
+  --control-segundo-fondo: var(--color-superficie);
+  --control-segundo-borde: var(--color-borde);
+  --control-segundo-texto: var(--color-texto);
+
+  --control-peligro-fondo: var(--color-peligro);
+  --control-peligro-borde: var(--color-peligro);
+  --control-peligro-texto: var(--color-superficie);
+
   /* El fondo de la página, apenas tintado, contra la superficie casi blanca de
      las tarjetas.
 

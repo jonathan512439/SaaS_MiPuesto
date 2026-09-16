@@ -10,6 +10,7 @@ import {
   type TipoPromocion,
 } from "../../lib/precios";
 import { validarPromocion } from "../../lib/promociones/validacion";
+import { normalizarBusqueda } from "../../lib/texto";
 import { Boton, EstadoVacio, useAvisos, useConfirmacion } from "../ui";
 import styles from "./gestor-promociones.module.css";
 
@@ -35,6 +36,14 @@ type Propiedades = {
 };
 
 type Destino = "producto" | "categoria";
+
+/* A partir de cuántas opciones aparece el buscador.
+ *
+ * Con ocho se recorren de un vistazo y un campo más sería estorbo. Con cien hay
+ * que desplegar la lista y bajar hasta encontrar el producto, que es justo lo
+ * que nadie hace: se elige el primero que suene parecido, o se abandona el
+ * descuento. El número no es una medida, es dónde deja de servir mirar. */
+const OPCIONES_SIN_BUSCADOR = 8;
 
 const FORMATEADOR_FECHA = new Intl.DateTimeFormat("es-BO", {
   timeZone: "America/La_Paz",
@@ -116,6 +125,7 @@ export function GestorPromociones({
   const [valor, setValor] = useState("");
   const [destino, setDestino] = useState<Destino>("producto");
   const [destinoId, setDestinoId] = useState(productos[0]?.id ?? "");
+  const [busquedaDestino, setBusquedaDestino] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [horaInicio, setHoraInicio] = useState("");
@@ -163,6 +173,9 @@ export function GestorPromociones({
     setDestinoId(
       nuevoDestino === "producto" ? (productos[0]?.id ?? "") : (categorias[0]?.id ?? ""),
     );
+    /* Lo que se escribio buscando un producto no significa nada entre las
+       categorias, y dejarlo ahi mostraria una lista vacia sin motivo visible. */
+    setBusquedaDestino("");
     setErrores({});
   }
 
@@ -266,6 +279,24 @@ export function GestorPromociones({
 
   const opcionesDisponibles = destino === "producto" ? productos : categorias;
 
+  /* Las opciones que quedan después de escribir.
+   *
+   * La elegida se mantiene en la lista aunque no coincida con lo que se está
+   * escribiendo: un `select` cuyo valor no está entre sus opciones se dibuja
+   * vacío, y el descuento se guardaría sin destino sin que nada lo avisara. */
+  const opcionesFiltradas = useMemo(() => {
+    const aguja = normalizarBusqueda(busquedaDestino);
+    if (aguja === "") return opcionesDisponibles;
+
+    const coinciden = opcionesDisponibles.filter((opcion) =>
+      normalizarBusqueda(opcion.nombre).includes(aguja),
+    );
+    const elegida = opcionesDisponibles.find((opcion) => opcion.id === destinoId);
+    return elegida && !coinciden.some((opcion) => opcion.id === elegida.id)
+      ? [elegida, ...coinciden]
+      : coinciden;
+  }, [busquedaDestino, destinoId, opcionesDisponibles]);
+
   return (
     <div className={styles.gestor}>
       <form className={styles.formulario} onSubmit={crearPromocion}>
@@ -310,6 +341,22 @@ export function GestorPromociones({
           </label>
           <label>
             {destino === "producto" ? "Producto" : "Categoría"}
+            {/* Con muchos productos, elegir uno era desplegar la lista y bajar
+                hasta encontrarlo. Nadie hace eso: se elige el primero que suene
+                parecido, o se abandona el descuento. El buscador achica la lista
+                antes de abrirla. */}
+            {opcionesDisponibles.length > OPCIONES_SIN_BUSCADOR ? (
+              <input
+                autoComplete="off"
+                className={styles.buscadorDestino}
+                onChange={(evento) => setBusquedaDestino(evento.target.value)}
+                placeholder={
+                  destino === "producto" ? "Buscar entre tus productos" : "Buscar una categoría"
+                }
+                type="search"
+                value={busquedaDestino}
+              />
+            ) : null}
             <select
               disabled={opcionesDisponibles.length === 0}
               onChange={(evento) => setDestinoId(evento.target.value)}
@@ -319,10 +366,19 @@ export function GestorPromociones({
               {opcionesDisponibles.length === 0 ? (
                 <option value="">No hay opciones creadas</option>
               ) : null}
-              {opcionesDisponibles.map((opcion) => (
+              {opcionesFiltradas.map((opcion) => (
                 <option key={opcion.id} value={opcion.id}>{opcion.nombre}</option>
               ))}
             </select>
+            {/* Cuántas quedaron. Sin esto, escribir algo que no existe deja una
+                lista vacía sin explicación, y parece que se rompió. */}
+            {busquedaDestino.trim() && opcionesDisponibles.length > OPCIONES_SIN_BUSCADOR ? (
+              <small className={styles.conteoDestino}>
+                {opcionesFiltradas.length === 0
+                  ? `Nada coincide con «${busquedaDestino.trim()}»`
+                  : `${opcionesFiltradas.length} de ${opcionesDisponibles.length}`}
+              </small>
+            ) : null}
             {errores.destino_id ? <small className={styles.errorCampo}>{errores.destino_id}</small> : null}
           </label>
           <label>

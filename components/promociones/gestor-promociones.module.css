@@ -304,3 +304,16 @@
   outline: var(--foco-ancho) solid var(--color-superficie);
   box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
+
+/* El buscador que achica la lista de destinos. Va pegado al desplegable que
+   filtra, sin hueco entre los dos, porque son una sola cosa: si quedaran
+   separados se leerian como dos campos distintos y nadie relacionaria lo que
+   escribe con lo que aparece abajo. */
+.buscadorDestino {
+  margin-bottom: var(--spacing-1);
+}
+
+.conteoDestino {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}

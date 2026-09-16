@@ -60,16 +60,7 @@ import {
 } from "../ui";
 import styles from "./gestor-catalogo.module.css";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
-
-/* Buscar sin tildes ni mayúsculas: quien escribe "cafe" en el panel espera
-   encontrar "Café", igual que en el catálogo público. */
-function normalizarTexto(valor: string) {
-  return valor
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
-}
+import { normalizarBusqueda as normalizarTexto } from "../../lib/texto";
 
 const FORMATEADOR_CAMBIO_PRECIO = new Intl.DateTimeFormat("es-BO", {
   timeZone: "America/La_Paz",
