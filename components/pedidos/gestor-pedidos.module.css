@@ -130,14 +130,122 @@
   gap: var(--spacing-4);
 }
 
+/* La misma forma que la tarjeta de un turno: una pila corta de bloques, con
+   el borde izquierdo diciendo el estado.
+ *
+ * Era otra cosa: una cabecera con fondo propio, una rejilla de datos del
+ * cliente, la lista entera de artículos, un resumen y recién al final los
+ * botones. Cinco bloques separados por líneas, y para resolver un pedido de
+ * ocho artículos había que pasar por los ocho. El dueño que aprendió a atender
+ * un turno tenía que aprender otra pantalla para atender un pedido, y son la
+ * misma decisión: esto llegó, ¿lo tomo o no? */
 .pedido {
   display: grid;
-  overflow: hidden;
-  border: var(--borde-fino) solid var(--color-borde-suave);
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-left: var(--spacing-1) solid var(--color-borde);
-  border-radius: var(--radius-panel);
+  border-radius: var(--radius-tarjeta);
+  padding: var(--spacing-4);
   background: var(--color-superficie);
   box-shadow: var(--sombra-suave);
+}
+
+/* Qué es: código, estado y cuándo llegó, en un renglón. */
+.cuando {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-2) var(--spacing-3);
+}
+
+.cuando > strong {
+  overflow-wrap: anywhere;
+  font-size: var(--text-lg);
+  font-weight: 900;
+}
+
+.cuando > span:last-child {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+/* De quién es. */
+.quien {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-1) var(--spacing-3);
+  font-size: var(--text-sm);
+}
+
+.quien > span {
+  color: var(--color-texto-suave);
+}
+
+.quien a {
+  color: var(--color-marca-fuerte);
+  font-weight: 700;
+}
+
+/* Cuánto. Va solo en su renglón y con el color de acción: es el dato por el que
+   se abre la pantalla. */
+.plata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-1) var(--spacing-3);
+}
+
+.plata strong {
+  color: var(--color-accion);
+  font-size: var(--text-lg);
+  font-weight: 900;
+}
+
+.plata small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+/* El detalle, plegado. El resumen dice cuántos artículos hay, que es lo único
+   que hace falta saber para decidir si vale la pena abrirlo. */
+.detalle > summary {
+  display: inline-flex;
+  min-height: var(--spacing-8);
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-3);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+  box-shadow: var(--sombra-suave);
+}
+
+.detalle > summary::-webkit-details-marker {
+  display: none;
+}
+
+.detalle > summary::after {
+  content: "\25BE";
+}
+
+.detalle[open] > summary::after {
+  content: "\25B4";
+}
+
+.detalle > summary:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.detalle > summary:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
 .pedido[data-estado="pendiente"] {
@@ -149,37 +257,10 @@
   border-left-color: var(--color-exito);
 }
 
-.pedido header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--spacing-2) var(--spacing-3);
-  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-4);
-  background: var(--color-fondo-suave);
-}
-
-.pedido header > div {
-  display: grid;
-  gap: var(--spacing-1);
-  min-width: 0;
-}
-
-.pedido h2,
-.pedido header p,
-.cliente p,
-.resumen p {
+.pedido p {
   margin: 0;
 }
 
-.pedido h2 {
-  overflow-wrap: anywhere;
-  font-size: var(--text-lg);
-  font-weight: 900;
-}
-
-.pedido header p,
 .items small,
 .sinDetalle,
 .auditoria {
@@ -215,21 +296,11 @@
   color: var(--color-texto-suave);
 }
 
-.cliente {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-2) var(--spacing-4);
-  padding: var(--spacing-3) var(--spacing-4);
-  font-size: var(--text-sm);
-}
-
-.cliente p {
-  overflow-wrap: anywhere;
-}
-
 .items {
   display: grid;
-  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  margin-top: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-control);
 }
 
 .items li {
@@ -256,116 +327,28 @@
   font-size: var(--text-sm);
 }
 
-.items span,
-.resumen strong {
+.items span {
   font-weight: 900;
   white-space: nowrap;
-}
-
-.sinDetalle {
-  padding: var(--spacing-3) var(--spacing-4);
-}
-
-.resumen {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--spacing-3);
-  border-top: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-3) var(--spacing-4);
-  background: var(--color-fondo-suave);
-}
-
-.resumen p {
-  display: grid;
-  gap: var(--spacing-1);
-}
-
-.resumen span {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-  font-weight: 700;
-}
-
-.resumen p:first-child strong {
-  color: var(--color-accion);
-  font-size: var(--text-lg);
 }
 
 .acciones {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-3);
-  border-top: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-4);
-}
-
-.acciones button {
-  min-height: var(--control-alto);
-  flex: 1 1 12rem;
-  border: var(--borde-fino) solid var(--control-principal-borde);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-4);
-  background: var(--control-principal-fondo);
-  color: var(--control-principal-texto);
-  font: inherit;
-  font-size: var(--text-sm);
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: var(--sombra-suave);
-}
-
-/* Relieve: lo mismo que el botón compartido, por el mismo motivo. Sin sombra
-   estos controles se leían como rótulos, y el dueño no sabía cuáles se tocaban
-   hasta probarlos. El hundido al presionar es la única confirmación que hay en
-   un teléfono de que el dedo dio en el blanco. */
-.acciones button:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-.acciones button:focus-visible {
-  outline: var(--foco-ancho) solid var(--color-superficie);
-  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
-}
-
-.acciones button:last-child {
-  flex: 0 1 auto;
-  border-color: var(--color-borde);
-  background: transparent;
-  color: var(--color-peligro);
-}
-
-.acciones button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.auditoria {
-  border-top: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-3) var(--spacing-4);
+  gap: var(--spacing-2);
 }
 
 @media (max-width: 24rem) {
-  .pedido header,
-  .cliente,
-  .items li,
-  .resumen,
-  .acciones,
-  .auditoria,
-  .sinDetalle {
-    padding-right: var(--spacing-3);
-    padding-left: var(--spacing-3);
+  .pedido {
+    padding: var(--spacing-3);
   }
 
-  .cliente {
-    grid-template-columns: 1fr;
-  }
-
-  .acciones button {
-    flex: 1 1 100%;
+  /* Los dos botones, uno por renglón: en una pantalla angosta, «Confirmar
+     venta» y «Cancelar pedido» lado a lado quedan tan finos que el dedo no
+     distingue dónde termina uno. Y uno de los dos cancela. */
+  .acciones > * {
+    width: 100%;
   }
 }
 

@@ -11,7 +11,8 @@ import {
   type EstadoPedido,
 } from "../../lib/pedidos/estado";
 import { formatearPrecioBolivianos } from "../../lib/precios";
-import { EstadoVacio, useAvisos, useConfirmacion } from "../ui";
+import { normalizarTelefonoWhatsappPublico } from "../../lib/whatsapp";
+import { Boton, EstadoVacio, useAvisos, useConfirmacion } from "../ui";
 import styles from "./gestor-pedidos.module.css";
 
 export type ItemPedidoAdmin = {
@@ -200,69 +201,99 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
         <ol className={styles.lista}>
           {visibles.map((pedido) => {
             const estado = esEstadoPedido(pedido.estado) ? pedido.estado : "expirado";
+            const articulos = pedido.pedido_items.length;
             return (
               <li className={styles.pedido} data-estado={estado} key={pedido.id}>
-                <header>
-                  <div>
-                    <h2>{pedido.codigo}</h2>
-                    <p>Recibido el {formatearFechaPedido(pedido.creado_en)}</p>
-                  </div>
+                {/* Qué es, de un vistazo: el código, cuándo llegó y en qué
+                    estado está. */}
+                <div className={styles.cuando}>
+                  <strong>{pedido.codigo}</strong>
                   <span className={styles[estado]}>{etiquetaEstadoPedido(estado)}</span>
-                </header>
+                  <span>Recibido el {formatearFechaPedido(pedido.creado_en)}</span>
+                </div>
 
-                <div className={styles.cliente}>
-                  <p><strong>Cliente:</strong> {pedido.cliente_nombre || "No informado"}</p>
-                  <p><strong>Celular:</strong> {pedido.cliente_telefono || "No informado"}</p>
-                  {pedido.numero_mesa ? (
-                    <p><strong>Mesa:</strong> {pedido.numero_mesa}</p>
+                {/* De quién es. El teléfono es un enlace a WhatsApp: desde acá
+                    se le escribe al cliente sin copiar el número a mano, que es
+                    lo que el dueño hace igual, pero peor. */}
+                <div className={styles.quien}>
+                  <strong>{pedido.cliente_nombre || "Cliente no informado"}</strong>
+                  {pedido.numero_mesa ? <span>Mesa {pedido.numero_mesa}</span> : null}
+                  {pedido.cliente_telefono ? (
+                    <a
+                      href={`https://wa.me/${normalizarTelefonoWhatsappPublico(pedido.cliente_telefono)}`}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {pedido.cliente_telefono}
+                    </a>
+                  ) : (
+                    <span>Sin teléfono</span>
+                  )}
+                </div>
+
+                <div className={styles.plata}>
+                  <strong>{formatearPrecioBolivianos(Number(pedido.total))}</strong>
+                  {estado === "pendiente" ? (
+                    <small>Reserva hasta {formatearFechaPedido(pedido.expira_en)}</small>
                   ) : null}
                 </div>
 
-                {pedido.pedido_items.length > 0 ? (
-                  <ul className={styles.items}>
-                    {pedido.pedido_items.map((item) => (
-                      <li key={item.id}>
-                        <div>
-                          <strong>{item.cantidad} × {item.nombre}</strong>
-                          <small>{item.producto_codigo}{item.controla_stock ? " / Con reserva de stock" : " / Sin control de stock"}</small>
-                        </div>
-                        <span>{formatearPrecioBolivianos(Number(item.subtotal))}</span>
-                      </li>
-                    ))}
-                  </ul>
+                {/* El detalle, plegado.
+                    Estaba abierto y entre el cliente y los botones: para
+                    resolver un pedido de ocho artículos había que pasar por los
+                    ocho, y eso en una pantalla donde lo que se hace es decidir
+                    rápido. No se pierde nada: el diálogo de confirmar repite el
+                    detalle, que es el momento en que de verdad hace falta
+                    mirarlo, porque confirmar descuenta stock. */}
+                {articulos > 0 ? (
+                  <details className={styles.detalle}>
+                    <summary>
+                      {articulos} artículo{articulos === 1 ? "" : "s"}
+                    </summary>
+                    <ul className={styles.items}>
+                      {pedido.pedido_items.map((item) => (
+                        <li key={item.id}>
+                          <div>
+                            <strong>
+                              {item.cantidad} × {item.nombre}
+                            </strong>
+                            <small>
+                              {item.producto_codigo}
+                              {item.controla_stock
+                                ? " / Con reserva de stock"
+                                : " / Sin control de stock"}
+                            </small>
+                          </div>
+                          <span>{formatearPrecioBolivianos(Number(item.subtotal))}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
                 ) : (
                   <p className={styles.sinDetalle}>Pedido anterior sin detalle normalizado.</p>
                 )}
 
-                <div className={styles.resumen}>
-                  <p>
-                    <span>Total verificado</span>
-                    <strong>{formatearPrecioBolivianos(Number(pedido.total))}</strong>
-                  </p>
-                  {estado === "pendiente" ? (
-                    <p>
-                      <span>Reserva hasta</span>
-                      <strong>{formatearFechaPedido(pedido.expira_en)}</strong>
-                    </p>
-                  ) : null}
-                </div>
-
+                {/* Lo que hay que hacer, al final y con los dos botones a la
+                    vista. Son los mismos de la Agenda, del mismo tamaño y en el
+                    mismo orden: quien aprendió a atender un turno ya sabe
+                    atender un pedido. */}
                 {estado === "pendiente" ? (
                   <div className={styles.acciones}>
-                    <button
-                      disabled={procesando === pedido.id}
+                    <Boton
+                      cargando={procesando === pedido.id}
                       onClick={() => void cambiarEstado(pedido, "confirmado")}
                       type="button"
                     >
                       Confirmar venta
-                    </button>
-                    <button
+                    </Boton>
+                    <Boton
                       disabled={procesando === pedido.id}
                       onClick={() => void cambiarEstado(pedido, "cancelado")}
                       type="button"
+                      variante="peligro"
                     >
                       Cancelar pedido
-                    </button>
+                    </Boton>
                   </div>
                 ) : (
                   <p className={styles.auditoria}>
