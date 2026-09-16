@@ -228,11 +228,16 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   margin-inline: calc(var(--margen-lateral) * -1);
+  /* Pegada a la cabecera: se descuenta el `gap` entero del catálogo. Las dos son
+     la identidad del negocio —su nombre y su imagen— y separadas se leían como
+     dos bloques sin relación. */
+  margin-top: calc(var(--spacing-5) * -1);
   margin-bottom: calc(var(--spacing-3) * -1);
   /* Leve, y no la del panel: la portada llega al borde de la pantalla, así que
-     una curva marcada dejaría dos cuñas de fondo en las esquinas y volvería a
-     leerse como un recuadro. Con esta apenas se ablanda el canto. */
-  border-radius: var(--radius-control);
+     una curva marcada dejaría dos cuñas de fondo en las esquinas.
+     Y solo abajo: arriba toca la cabecera, y curvar ahí dejaría ver el fondo
+     entre las dos. */
+  border-radius: 0 0 var(--radius-control) var(--radius-control);
   background: var(--catalogo-fondo-hundido);
   box-shadow: var(--catalogo-sombra-flotante);
 }
@@ -662,4 +667,11 @@
    y deja de leerse como lo que es, un espacio publicitario. */
 .anuncio {
   margin-block: var(--spacing-3);
+}
+
+
+/* Con portada debajo, la cabecera no curva: las dos se pegan y forman un solo
+   bloque. Dos curvas enfrentadas dejarían un ojal de fondo en el medio. */
+.catalogo[data-con-portada="si"] .cabecera {
+  border-radius: 0;
 }

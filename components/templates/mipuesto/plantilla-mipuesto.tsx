@@ -72,10 +72,14 @@ export function PlantillaMipuesto({
     }))
     .filter(({ productos }) => productos.length > 0);
 
-  /* Después de cuál va el anuncio. Con una sola categoría cae al final, que es lo
-     único que existe; con varias, en el medio. Nunca queda último cuando hay
-     más de una: ahí dejaría de estar «a la mitad» para volver a ser un pie. */
-  const posicionDelAnuncio = Math.max(0, Math.ceil(seccionesConProductos.length / 2) - 1);
+  /* Después de cuál va el anuncio: **antes de la última categoría**.
+     
+     Abajo del todo, pero todavía dentro de los productos. Es publicidad, y la
+     publicidad se mira cuando ya se recorrió lo que se venía a ver —no a la
+     mitad, interrumpiendo—. Que quede una categoría después es a propósito: así
+     sigue siendo parte del catálogo y no un pie pegado al final.
+     Con una sola categoría cae después de ella, que es lo único que hay. */
+  const posicionDelAnuncio = Math.max(0, seccionesConProductos.length - 2);
 
   const irA = (id: string) => {
     if (typeof document === "undefined") return;
@@ -106,6 +110,11 @@ export function PlantillaMipuesto({
   return (
     <article
       className={`${temaStyles.tema} ${styles.catalogo}`}
+      /* La cabecera y la portada se pegan, así que la cabecera deja de curvar su
+         borde de abajo: dos curvas enfrentadas dejan un ojal de fondo en el
+         medio y se lee como un error de armado. Sin portada, la cabecera
+         conserva su curva, que ahí sí tiene contra qué recortarse. */
+      data-con-portada={negocio.portadaUrl ? "si" : undefined}
       data-paleta={paleta}
       aria-label={
         demostracion ? "Vista previa del catálogo" : `Catálogo de ${negocio.nombre}`
