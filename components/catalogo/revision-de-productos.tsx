@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
+import type { InformeDeCobertura } from "../../lib/ia/cobertura";
 import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { Boton, Selector, useAvisos } from "../ui";
@@ -28,6 +29,10 @@ export type ProductoLeido = {
      una planilla puede no traer la columna. No es cero, que significa
      «no queda ninguno» y publica el producto como agotado. */
   cantidad?: number | null;
+  /* Los datos propios de la categoría que la lectura pudo completar: la marca de
+     un repuesto, el volumen de una gaseosa. Vienen ya filtrados contra las
+     claves que la categoría declaró de verdad. */
+  datos?: Array<{ clave: string; valor: string }>;
 };
 
 type ImagenPendiente = { archivo: File; vistaPrevia: string };
@@ -56,12 +61,16 @@ export function RevisionDeProductos({
   productos,
   introduccion,
   controlaStock,
+  cobertura,
   onTerminado,
 }: {
   categorias: CategoriaCatalogo[];
   productos: ProductoLeido[];
   introduccion: string;
   controlaStock: boolean;
+  /* Cuánto se pudo completar. Ausente cuando la lectura no lo trae —una planilla
+     importada no pasa por el modelo— y entonces no se dibuja nada. */
+  cobertura?: InformeDeCobertura;
   onTerminado: () => void;
 }) {
   const router = useRouter();
@@ -266,6 +275,13 @@ export function RevisionDeProductos({
             precio: producto.precio,
             categoria_id: idPorTitulo.get(titulo) ?? null,
             subcategoria_id: null,
+            /* Lo que la lectura completó de los campos de la categoría. La ruta
+               de productos los valida otra vez contra la categoría que termine
+               teniendo: acá el dueño pudo haber mandado ese título a otra
+               categoría, y un campo que allá no existe se descarta. */
+            atributos: producto.datos?.length
+              ? Object.fromEntries(producto.datos.map(({ clave, valor }) => [clave, valor]))
+              : undefined,
             controla_stock: conStock,
             cantidad_stock: conStock ? Math.max(0, Math.round(cantidad)) : null,
           }),
@@ -344,6 +360,39 @@ export function RevisionDeProductos({
         <h2>Revisá antes de crear</h2>
         <p>{introduccion}</p>
       </header>
+
+      {/* Qué pudo completar la lectura, antes de confirmar y no después.
+          Después significa abrir cuarenta productos uno por uno para descubrir
+          a cuáles les falta la marca. Acá todavía se puede completar a mano lo
+          que falta, o decidir que no importa: el informe no impide nada. */}
+      {cobertura && (cobertura.campos.length > 0 || cobertura.vacios.length > 0) ? (
+        <aside aria-labelledby="titulo-cobertura" className={styles.cobertura}>
+          <h3 id="titulo-cobertura">Qué pudimos completar</h3>
+          <ul>
+            {cobertura.campos.map((campo) => (
+              <li key={`${campo.categoria}-${campo.clave}`}>
+                <strong>
+                  {campo.completos} de {campo.productos}
+                </strong>{" "}
+                productos de <em>{campo.categoria}</em> traen {campo.nombre.toLowerCase()}
+              </li>
+            ))}
+            {/* Los que no vinieron nunca se dicen distinto: no es que la lista
+                los traiga a medias, es que esa columna no está, y lo que hay que
+                revisar es la lista y no los productos. */}
+            {cobertura.vacios.map((campo) => (
+              <li data-vacio="si" key={`${campo.categoria}-${campo.clave}`}>
+                <strong>Ninguno</strong> de los {campo.productos} productos de{" "}
+                <em>{campo.categoria}</em> trae {campo.nombre.toLowerCase()}
+              </li>
+            ))}
+          </ul>
+          <p>
+            Los podés completar ahora en cada producto, o después desde Productos. Nada de
+            esto impide crearlos.
+          </p>
+        </aside>
+      ) : null}
 
       {/* Con una planilla de doscientos renglones, marcar de a uno no es una
           opción. Con una foto de doce tampoco molesta tenerlo. */}

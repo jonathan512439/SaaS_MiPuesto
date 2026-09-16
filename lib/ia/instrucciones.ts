@@ -1,3 +1,5 @@
+import type { CampoDeCategoria } from "./cobertura";
+
 /* Las instrucciones al modelo viven acá y no dentro de las rutas: son el
    verdadero código de estas funciones. Ajustar una coma cambia el resultado
    más que cualquier refactor, así que conviene poder leerlas juntas, verlas en
@@ -51,7 +53,27 @@ export const ESQUEMA_LISTA = {
           descripcion: { type: "string" },
           categoria: { type: "string" },
           confianza: { type: "string", enum: ["alta", "media", "baja"] },
+          /* Los datos que la categoría del negocio pide: la marca de un
+             repuesto, el volumen de una gaseosa. Van como lista de pares y no
+             como un objeto con propiedades fijas porque **cada negocio tiene
+             campos distintos**, y el esquema que se le manda al modelo es uno
+             solo. Las claves se validan contra las de verdad al volver: lo que
+             el modelo invente se descarta. */
+          datos: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                clave: { type: "string" },
+                valor: { type: "string" },
+              },
+              required: ["clave", "valor"],
+            },
+          },
         },
+        /* `datos` queda fuera de los obligatorios: un negocio sin campos
+           declarados no tiene nada que completar, y exigirle al modelo una lista
+           vacía en cada renglón es gastar tokens en nada. */
         required: ["nombre", "precio", "descripcion", "categoria", "confianza"],
       },
     },
@@ -67,9 +89,42 @@ export type ListaLeida = {
     descripcion: string;
     categoria: string;
     confianza: "alta" | "media" | "baja";
+    datos?: Array<{ clave: string; valor: string }>;
   }>;
   es_lista_de_precios: boolean;
 };
+
+/* Los campos que el negocio declaró, dichos al modelo en sus propias palabras.
+ *
+ * Esto es «la categoría como esquema»: el dueño ya definió que sus repuestos
+ * tienen marca y modelo, y esa definición es la mejor pista que existe sobre qué
+ * mirar en cada renglón. Sin ella el modelo devuelve nombre y precio y el dueño
+ * completa cuarenta veces a mano lo que estaba escrito en la lista.
+ *
+ * **Se prohíbe deducir, igual que con la marca en la foto de un producto.** Un
+ * modelo que sabe de autos completaría la marca de un repuesto por el nombre, y
+ * el dueño publicaría un dato que nadie escribió. El informe de cobertura existe
+ * justamente para que «no lo pude leer» sea una respuesta aceptable y visible.
+ */
+export function instruccionDeCamposDeCategoria(
+  camposPorCategoria: ReadonlyMap<string, ReadonlyArray<CampoDeCategoria>>,
+): string {
+  const lineas = [...camposPorCategoria.entries()]
+    .filter(([, campos]) => campos.length > 0)
+    .map(([categoria, campos]) => {
+      const detalle = campos
+        .map((campo) => {
+          const unidad = campo.unidad ? `, en ${campo.unidad}` : "";
+          return `${campo.nombre} (clave "${campo.clave}"${unidad})`;
+        })
+        .join("; ");
+      return `- ${categoria}: ${detalle}`;
+    });
+
+  if (lineas.length === 0) return "";
+
+  return `\n\nEl negocio ya tiene categorías con datos propios. Cuando un renglón caiga en una de estas categorías Y el renglón diga alguno de esos datos, devolvelos en "datos", con la clave exacta entre comillas:\n${lineas.join("\n")}\n\nReglas de "datos", que no se rompen:\n- Solo si el dato está escrito en el renglón. NO lo deduzcas de lo que sabés del producto ni de su nombre.\n- Si no está, no devuelvas esa clave. Es correcto devolver "datos" vacío.\n- Usá únicamente las claves de la lista de arriba. No inventes claves nuevas.`;
+}
 
 /* «No inventes» va repetido y en primer lugar porque es el umbral que decide si
    esta función se publica: un producto que no está en la lista es una falla, no

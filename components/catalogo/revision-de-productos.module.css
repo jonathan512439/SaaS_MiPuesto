@@ -267,3 +267,56 @@
     grid-template-columns: minmax(0, 1fr) auto;
   }
 }
+
+/* El informe de cobertura.
+ *
+ * Va arriba, antes de la lista, y con la forma de un aviso y no de una tarjeta
+ * más: es lo único de esta pantalla que el dueño no puede deducir mirando los
+ * renglones. Contarle «la marca en 12 de 40» exige recorrer cuarenta productos
+ * para llegar al mismo número.
+ *
+ * No lleva color de alerta a propósito. No hay nada roto: una lista que no trae
+ * la marca es una lista normal, y teñirla de rojo le diría que algo salió mal
+ * cuando lo que pasó es que esa columna no estaba escrita. */
+.cobertura {
+  display: grid;
+  gap: var(--spacing-2);
+  border-left: var(--spacing-1) solid var(--color-marca);
+  border-radius: 0 var(--radius-panel) var(--radius-panel) 0;
+  padding: var(--spacing-4);
+  background: var(--color-fondo-suave);
+}
+
+.cobertura h3 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.cobertura ul {
+  display: grid;
+  gap: var(--spacing-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cobertura li {
+  font-size: var(--text-sm);
+}
+
+/* Lo que no vino nunca se apaga en vez de encenderse: no es más urgente que lo
+   que vino a medias, es otra cosa, y el gris lo separa sin gritar. */
+.cobertura li[data-vacio="si"] {
+  color: var(--color-texto-suave);
+}
+
+.cobertura em {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.cobertura p {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}

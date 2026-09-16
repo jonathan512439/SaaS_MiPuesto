@@ -2,11 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { leerJson } from "../../../../lib/catalogo/servidor";
 import { analizarArchivo } from "../../../../lib/ia/gemini";
+import { informeDeCobertura, type CampoDeCategoria } from "../../../../lib/ia/cobertura";
 import {
   ESQUEMA_LISTA,
   INSTRUCCION_LISTA,
+  instruccionDeCamposDeCategoria,
   type ListaLeida,
 } from "../../../../lib/ia/instrucciones";
+import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { TIPOS_LISTA, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
 import {
   devolverCredito,
@@ -36,10 +39,22 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  const lectura = await analizarArchivo<ListaLeida>(INSTRUCCION_LISTA, ESQUEMA_LISTA, {
-    base64: archivo.base64,
-    tipo: archivo.tipo,
-  });
+  /* Los campos que el negocio ya declaró en sus categorías: es «la categoría
+     como esquema». El dueño definió alguna vez que sus repuestos tienen marca y
+     modelo, y esa definición es la mejor pista que existe sobre qué mirar en
+     cada renglón. Se leen antes de llamar al modelo porque viajan adentro de la
+     instrucción.
+
+     Si la consulta falla no se corta la lectura: la importación sin campos sigue
+     sirviendo, y negarle al dueño su lista entera porque no pudimos leer una
+     tabla auxiliar sería cambiar un problema chico por uno grande. */
+  const camposPorCategoria = await leerCamposPorCategoria(preparacion.negocioId);
+
+  const lectura = await analizarArchivo<ListaLeida>(
+    INSTRUCCION_LISTA + instruccionDeCamposDeCategoria(camposPorCategoria),
+    ESQUEMA_LISTA,
+    { base64: archivo.base64, tipo: archivo.tipo },
+  );
 
   await registrarLlamada(
     preparacion.admin,
@@ -85,6 +100,14 @@ export async function POST(solicitud: NextRequest) {
          catálogo escrita por el dueño, y le pedíamos que la volviera a armar. */
       categoria: (producto.categoria ?? "").trim().slice(0, 60),
       confianza: producto.confianza ?? "baja",
+      /* Solo las claves que la categoría declaró de verdad. El modelo puede
+         devolver una clave inventada o la de otra categoría, y guardarla sería
+         meterle al producto un campo que su categoría no tiene: el panel no
+         sabría dibujarlo y el dueño no sabría de dónde salió. */
+      datos: clavesValidas(
+        producto.datos,
+        camposPorCategoria.get((producto.categoria ?? "").trim().toLowerCase()),
+      ),
     }))
     /* Se descarta acá lo que la base rechazaría igual, pero con la ventaja de
        que el dueño nunca ve un renglón que no podría guardar. */
@@ -108,5 +131,101 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  return NextResponse.json({ productos });
+  /* Cuánto se pudo completar, dicho antes de que el dueño confirme. Si se
+     enterara después, tendría que abrir los cuarenta productos uno por uno para
+     descubrir a cuáles les falta la marca. */
+  const cobertura = informeDeCobertura(productos, camposPorCategoria);
+
+  return NextResponse.json({ productos, cobertura });
+}
+
+/* Los campos de cada categoría, indexados por el nombre de la categoría en
+   minúsculas: es la misma llave con la que la pantalla de revisión decide que
+   «BEBIDAS» de la lista es la categoría «Bebidas» que el negocio ya tiene. */
+async function leerCamposPorCategoria(
+  negocioId: string,
+): Promise<Map<string, CampoDeCategoria[]>> {
+  const mapa = new Map<string, CampoDeCategoria[]>();
+  const supabase = await crearClienteSupabaseServidor();
+
+  const { data, error } = await supabase
+    .from("atributos_categoria")
+    .select("clave,nombre,tipo,unidad,opciones,orden,categorias!inner(nombre,negocio_id)")
+    .eq("negocio_id", negocioId)
+    .order("orden");
+
+  if (error || !data) return mapa;
+
+  for (const fila of data) {
+    const categoria = (fila.categorias as unknown as { nombre: string } | null)?.nombre;
+    if (!categoria) continue;
+    const clave = categoria.trim().toLowerCase();
+    const actuales = mapa.get(clave) ?? [];
+    actuales.push({
+      clave: fila.clave,
+      nombre: fila.nombre,
+      tipo: fila.tipo,
+      unidad: fila.unidad,
+      opciones: fila.opciones ?? [],
+    });
+    mapa.set(clave, actuales);
+  }
+
+  return mapa;
+}
+
+/* Qué valores sobreviven, y por qué se descartan los demás.
+ *
+ * No alcanza con que la clave exista: el valor tiene que ser uno que la ruta de
+ * productos vaya a aceptar. Un campo «Potencia» de tipo número recibiendo «500
+ * W» hace que esa ruta rechace **el producto entero** con un 400, y el dueño ve
+ * «no se pudo crear» en un producto que estaba perfecto. Una ayuda que rompe lo
+ * que venía funcionando no es una ayuda.
+ *
+ * Así que acá se descarta lo que no encaja, en silencio y a propósito: el
+ * informe de cobertura va a contarlo como faltante, que es exactamente lo que
+ * es. «No lo pude leer» es una respuesta aceptable; «lo leí mal y te tumbé el
+ * producto» no.
+ */
+function clavesValidas(
+  datos: Array<{ clave: string; valor: string }> | undefined,
+  campos: CampoDeCategoria[] | undefined,
+): Array<{ clave: string; valor: string }> {
+  if (!datos || !campos || campos.length === 0) return [];
+  const porClave = new Map(campos.map((campo) => [campo.clave, campo]));
+
+  return datos
+    .map((dato) => {
+      const campo = porClave.get(dato?.clave);
+      if (!campo) return null;
+
+      const valor = String(dato.valor ?? "").trim().slice(0, 120);
+      if (valor === "") return null;
+
+      if (campo.tipo === "numero") {
+        /* «500 W» y «500» son lo mismo para quien lee la lista, pero el campo
+           guarda un número. Se rescata el número si está al principio; si el
+           renglón dice «media pulgada», no hay número y se descarta. */
+        const numero = Number.parseFloat(valor.replace(",", "."));
+        return Number.isFinite(numero) ? { clave: campo.clave, valor: String(numero) } : null;
+      }
+
+      if (campo.tipo === "opcion") {
+        /* Solo si coincide con una de las opciones que el dueño escribió. El
+           modelo devuelve «rojo» y la opción es «Rojo»: eso se acomoda. Una
+           opción que no está en la lista se descarta, porque agregarla sería
+           decidir por el dueño qué opciones tiene su campo. */
+        const elegida = (campo.opciones ?? []).find(
+          (opcion) => opcion.toLowerCase() === valor.toLowerCase(),
+        );
+        return elegida ? { clave: campo.clave, valor: elegida } : null;
+      }
+
+      /* `si_no` queda afuera: una lista de precios no dice si algo es sí o no, y
+         un modelo que lo deduzca está inventando. */
+      if (campo.tipo === "si_no") return null;
+
+      return { clave: campo.clave, valor };
+    })
+    .filter((dato): dato is { clave: string; valor: string } => dato !== null);
 }

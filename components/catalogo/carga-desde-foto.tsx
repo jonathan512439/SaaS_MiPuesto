@@ -6,6 +6,7 @@ import { AYUDA_LISTA } from "../../lib/ia/ayuda";
 import { prepararArchivoParaLectura } from "../../lib/ia/adjunto";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { Trabajando, useAvisos } from "../ui";
+import type { InformeDeCobertura } from "../../lib/ia/cobertura";
 import { RevisionDeProductos, type ProductoLeido } from "./revision-de-productos";
 import styles from "./carga-desde-foto.module.css";
 
@@ -29,6 +30,7 @@ export function CargaDesdeFoto({
   const [nombreArchivo, setNombreArchivo] = useState("");
   const [leyendo, setLeyendo] = useState(false);
   const [productos, setProductos] = useState<ProductoLeido[]>([]);
+  const [cobertura, setCobertura] = useState<InformeDeCobertura | undefined>(undefined);
   /* Cambia con cada lectura y sirve de `key` del paso de revisión: una lectura
      nueva monta una revisión nueva en vez de mezclarse con la anterior. */
   const [lectura, setLectura] = useState(0);
@@ -53,12 +55,14 @@ export function CargaDesdeFoto({
       const datos = (await respuesta.json()) as {
         error?: string;
         productos?: ProductoLeido[];
+        cobertura?: InformeDeCobertura;
       };
       if (!respuesta.ok || !datos.productos) {
         throw new Error(datos.error ?? "No pudimos leer el archivo.");
       }
 
       setProductos(datos.productos);
+      setCobertura(datos.cobertura);
       setLectura((numero) => numero + 1);
     } catch (error) {
       mostrarAviso({
@@ -152,6 +156,7 @@ export function CargaDesdeFoto({
       {productos.length > 0 ? (
         <RevisionDeProductos
           categorias={categorias}
+          cobertura={cobertura}
           controlaStock={negocioLlevaStock}
           introduccion={`Encontramos ${productos.length} producto(s). Lo que no leímos con seguridad viene desmarcado. Compará con tu lista antes de confirmar.`}
           key={lectura}
