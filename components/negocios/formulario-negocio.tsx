@@ -13,7 +13,7 @@ import {
   LARGO_MAXIMO_ZONA,
   NOMBRES_CIUDADES,
 } from "../../lib/negocios/lugares";
-import { DEFINICIONES_RUBROS, nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
+import { nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "../../app/(admin)/dashboard/configuracion/configuracion.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
@@ -78,9 +78,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   );
   const [telefono, setTelefono] = useState(negocioInicial?.telefono_whatsapp ?? "");
   const [rubro, setRubro] = useState(negocioInicial?.rubro ?? "");
-  /* Del dato y no de una propiedad aparte: la verdad de si ya se eligió está
-     en la base, y una bandera suelta se desincroniza. */
-  const rubroBloqueado = Boolean(negocioInicial?.rubro_bloqueado_en);
   const [pideMesa, setPideMesa] = useState(negocioInicial?.pide_numero_mesa === true);
   const [ciudad, setCiudad] = useState(negocioInicial?.ciudad ?? "");
   const [zona, setZona] = useState(negocioInicial?.zona ?? "");
@@ -244,6 +241,28 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           placeholder="Pollos a la brasa · Desde 1998"
           value={subnombre}
         />
+        {/* Solo texto: el rubro se elige una sola vez, al crear el catálogo, y
+            ofrecerlo acá como campo editable —aunque fuera de solo lectura— sigue
+            sugiriendo que es una decisión de esta pantalla. Acá se informa, no se
+            configura.
+
+            El caso sin rubro no es hipotético: existen negocios anteriores al
+            alta. Si no dijera nada, la lista de «lo que falta» los manda a esta
+            pantalla y no encuentran cómo resolverlo. */}
+        <p className={styles.rubroInformado}>
+          {rubro ? (
+            <>
+              Tu negocio está registrado como <strong>{nombreDeRubro(rubro)}</strong>. Se elige
+              una sola vez, al crear el catálogo, porque de él salen tus categorías y los
+              datos de cada producto.
+            </>
+          ) : (
+            <>
+              Tu negocio todavía no tiene un rubro elegido. Escribinos y lo configuramos:
+              de él salen tus categorías y los datos de cada producto.
+            </>
+          )}
+        </p>
         <AreaTexto
           ayuda={`${descripcion.length}/500 caracteres`}
           error={errores.descripcion}
@@ -333,40 +352,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           <p>{EXPLICACIONES_MODALIDAD[tipo].descripcion}</p>
           <p>Puedes cambiar esta modalidad más adelante si tu negocio lo necesita.</p>
         </div>
-        {/* El rubro va junto a la modalidad porque son las dos mitades de la
-            misma pregunta: cómo vende y qué vende.
- 
-            **Una vez elegido, acá solo se muestra.** Antes este selector lo dejaba
-            cambiar libremente, y desde que el rubro **siembra el catálogo** eso es
-            una contradicción: el alta le dice «se elige una sola vez» y esta
-            pantalla lo desmiente. La ayuda vieja —«cambiarlo no borra nada»—
-            además dejó de ser cierta. */}
-        {rubroBloqueado ? (
-          <div className={styles.rubroFijo}>
-            <span className={styles.rubroEtiqueta}>¿Qué vendés?</span>
-            <strong>{nombreDeRubro(rubro)}</strong>
-            <small>
-              Tu rubro ya quedó fijo. Para cambiarlo escribinos: el catálogo se reinicia y te
-              lo exportamos antes.
-            </small>
-          </div>
-        ) : (
-          <Selector
-            ayuda="Con esto preparamos tus categorías y los datos de cada producto. Se elige una sola vez."
-            error={errores.rubro}
-            etiqueta="¿Qué vendés?"
-            id="rubro-negocio"
-            onChange={(evento) => setRubro(evento.target.value)}
-            value={rubro}
-          >
-            <option value="">Prefiero no decirlo</option>
-            {DEFINICIONES_RUBROS.map(({ id, nombre, ejemplo }) => (
-              <option key={id} value={id}>
-                {nombre} — {ejemplo}
-              </option>
-            ))}
-          </Selector>
-        )}
         {/* Aparece pegado al rubro porque solo tiene sentido ahí: pedirle la
             mesa a quien compra ropa por WhatsApp es un campo más entre él y el
             pedido. Si el rubro cambia y deja de ofrecerlo, la marca guardada no

@@ -193,3 +193,18 @@
 .contenido > * {
   min-width: 0;
 }
+
+/* El rubro, informado y no ofrecido. Se viste de nota y no de campo: si llevara
+   borde y fondo de control, seguiría invitando a tocarlo. */
+.rubroInformado {
+  margin: 0;
+  border-left: var(--borde-fino) solid var(--color-borde-suave);
+  padding-left: var(--spacing-3);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.rubroInformado strong {
+  color: var(--color-texto);
+}
