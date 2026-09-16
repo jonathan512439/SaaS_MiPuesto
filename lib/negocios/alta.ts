@@ -134,7 +134,7 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
     faltantes.push({
       clave: "productos",
       titulo: "Tu primer producto",
-      ruta: RUTAS_PANEL.catalogo,
+      ruta: RUTAS_PANEL.productos,
       impide: true,
     });
   }

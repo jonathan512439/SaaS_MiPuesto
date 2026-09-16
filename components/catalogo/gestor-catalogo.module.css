@@ -285,13 +285,38 @@
   gap: var(--spacing-5);
 }
 
+/* Era un recuadro plegado arriba de los productos, y por eso tenía marco y un
+   fondo más hundido: servían para separarlo de la lista que tenía debajo. Ahora
+   es la pantalla, y no hay nada de lo que separarse. */
 .organizacion {
   align-self: start;
   grid-column: 1 / -1;
   border: var(--borde-fino) solid var(--color-borde-suave);
   border-radius: var(--radius-panel);
   overflow: hidden;
-  background: var(--color-fondo-suave);
+  background: var(--color-superficie);
+}
+
+/* El título de la pantalla de categorías, donde antes iba el renglón que se
+   tocaba para abrir. */
+.tituloOrganizacion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding: var(--spacing-4);
+  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
+}
+
+.tituloOrganizacion h2 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.tituloOrganizacion small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
 }
 
 .tituloSeccion,
@@ -946,61 +971,6 @@
   padding: 0 var(--spacing-4) var(--spacing-4);
 }
 
-/* Se viste de opción y no de encabezado: superficie propia y respuesta al pasar
-   por encima. Antes era un renglón de texto sobre el mismo fondo del recuadro,
-   o sea nada que invitara a tocarlo. */
-.resumenOrganizacion {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-3);
-  min-height: var(--control-alto);
-  padding: var(--spacing-4);
-  background: var(--color-superficie);
-  font-size: var(--text-base);
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.resumenOrganizacion:hover {
-  background: var(--color-marca-tenue);
-}
-
-/* El triángulo que el navegador pone solo: se saca porque ya hay un galón
-   propio, y tener los dos se lee como un error. */
-.resumenOrganizacion::-webkit-details-marker {
-  display: none;
-}
-
-.resumenOrganizacion::marker {
-  content: "";
-}
-
-.tituloOrganizacion {
-  display: grid;
-  gap: var(--spacing-1);
-  min-width: 0;
-}
-
-.flechaOrganizacion {
-  flex-shrink: 0;
-  color: var(--color-marca);
-  font-size: var(--text-xl);
-  transition: transform var(--movimiento-rapido) ease;
-}
-
-/* Cerrado apunta hacia abajo —«acá hay más»— y abierto hacia arriba. El ícono
-   del juego es el galón hacia arriba, así que el que gira es el cerrado. */
-.organizacion:not([open]) .flechaOrganizacion {
-  transform: rotate(180deg);
-}
-
-.resumenOrganizacion small {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-  font-weight: 700;
-}
-
 @media (max-width: 30rem) {
   .filtrosCatalogo label,
   .filtrosCatalogo select {
@@ -1252,7 +1222,6 @@
   grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
   gap: var(--spacing-3);
 }
-
 
 /* El resumen del desplegable de precios: dice qué hace sin abrirlo. */
 .resumenAjuste {

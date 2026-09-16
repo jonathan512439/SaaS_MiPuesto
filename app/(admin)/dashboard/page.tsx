@@ -227,7 +227,7 @@ export default async function PaginaDashboard() {
       <section aria-labelledby="mas-vistos" className={styles.actividad}>
         <div className={styles.tituloSeccion}>
           <h2 id="mas-vistos">Lo que más agregan</h2>
-          <Link href={RUTAS_PANEL.catalogo}>Administrar productos</Link>
+          <Link href={RUTAS_PANEL.productos}>Administrar productos</Link>
         </div>
         {masVistos.length === 0 ? (
           <p className={styles.sinDatos}>
@@ -248,7 +248,7 @@ export default async function PaginaDashboard() {
       <section aria-labelledby="siguientes-pasos" className={styles.acciones}>
         <h2 id="siguientes-pasos">Accesos rápidos</h2>
         <div>
-          <Link href={RUTAS_PANEL.catalogo}>Administrar productos</Link>
+          <Link href={RUTAS_PANEL.productos}>Administrar productos</Link>
           <Link href={RUTAS_PANEL.pedidos}>Revisar pedidos</Link>
           <Link href={RUTAS_PANEL.negocio}>Compartir el QR</Link>
         </div>

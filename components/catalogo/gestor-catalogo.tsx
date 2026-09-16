@@ -77,7 +77,25 @@ const FORMATEADOR_CAMBIO_PRECIO = new Intl.DateTimeFormat("es-BO", {
   timeStyle: "short",
 });
 
+/* Las dos pantallas salen del mismo componente y no de dos.
+ *
+ * «Mi catálogo» y «Productos» se separaron porque son dos trabajos distintos:
+ * armar las categorías se hace una vez, cargar productos se hace todos los días.
+ * Pero comparten el estado —crear una categoría tiene que aparecer al instante
+ * en el desplegable del formulario de producto— y partirlo en dos componentes
+ * habría significado duplicar la mitad de las llamadas a la API para después
+ * mantenerlas sincronizadas a mano.
+ *
+ * `vista` elige qué mitad se dibuja. El estado sigue siendo uno solo.
+ *
+ * De paso, esto desanuda `categoriaActiva`, que hacía dos cosas a la vez: era
+ * el filtro de la lista de productos **y** cuál categoría está abierta para
+ * editarla. Cada pantalla usa ahora uno solo de los dos sentidos.
+ */
+export type VistaCatalogo = "categorias" | "productos";
+
 type PropiedadesGestorCatalogo = {
+  vista: VistaCatalogo;
   datosIniciales: DatosCatalogoAdmin;
   urlSupabase: string;
 };
@@ -124,7 +142,7 @@ async function solicitarJson<T>(ruta: string, opciones: RequestInit) {
   return datos;
 }
 
-export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGestorCatalogo) {
+export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: PropiedadesGestorCatalogo) {
   const [categorias, setCategorias] = useState(datosIniciales.categorias);
   const [subcategorias, setSubcategorias] = useState(datosIniciales.subcategorias);
   const [productos, setProductos] = useState(datosIniciales.productos);
@@ -145,10 +163,6 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
      vacío: obligar a elegirlo antes de escribir el nombre pondría una decisión
      de aspecto delante de la única que importa acá, que es cómo se llama. */
   const [iconoCategoria, setIconoCategoria] = useState<string>(ICONO_PREDETERMINADO);
-  /* Solo la posición inicial sale de los datos; después manda la persona. */
-  const [organizacionAbierta, setOrganizacionAbierta] = useState(
-    datosIniciales.categorias.length === 0,
-  );
   const [nuevasSubcategorias, setNuevasSubcategorias] = useState<Record<string, string>>({});
   const [formularioAbierto, setFormularioAbierto] = useState(false);
   const { mostrarAviso } = useAvisos();
@@ -1305,516 +1319,500 @@ export function GestorCatalogo({ datosIniciales, urlSupabase }: PropiedadesGesto
       ) : null}
 
       {/* Buscar, filtrar y crear van juntos y arriba de todo: es lo que se hace
-          todos los días. Las categorías se administran de vez en cuando, así que
-          bajan a un panel plegado. */}
-      <section className={styles.barraCatalogo} aria-label="Buscar productos">
-        <div className={styles.buscadorProductos}>
-          <label htmlFor="buscar-producto">Buscar producto</label>
-          <input
-            autoComplete="off"
-            id="buscar-producto"
-            onChange={(evento) => {
-              setBusquedaProductos(evento.target.value);
-              setPaginaProductos(1);
-            }}
-            placeholder="Nombre, descripción o código"
-            type="search"
-            value={busquedaProductos}
-          />
-        </div>
-        <div className={styles.filtrosCatalogo}>
-          <label htmlFor="filtrar-categoria">
-            Categoría
-            <select
-              id="filtrar-categoria"
-              onChange={(evento) => seleccionarCategoria(evento.target.value)}
-              value={categoriaActiva}
-            >
-              <option value="">Todas</option>
-              {categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.id}>
-                  {categoria.nombre}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className={styles.chipsEstado} role="group" aria-label="Estado de publicación">
-            {(
-              [
-                ["todos", `Todos (${productos.length})`],
-                ["visibles", `Publicados (${productos.length - ocultos})`],
-                ["ocultos", `Ocultos (${ocultos})`],
-              ] as const
-            ).map(([valor, etiqueta]) => (
-              <button
-                aria-pressed={filtroEstado === valor}
-                className={filtroEstado === valor ? styles.chipActivo : styles.chip}
-                key={valor}
-                onClick={() => {
-                  setFiltroEstado(valor);
-                  setPaginaProductos(1);
-                }}
-                type="button"
-              >
-                {etiqueta}
-              </button>
-            ))}
+          todos los días. El filtro por categoría es un desplegable y no la lista
+          de categorías: acá se viene a trabajar sobre productos, y administrar
+          las categorías es otra pantalla. */}
+      {vista === "productos" ? (
+        <section className={styles.barraCatalogo} aria-label="Buscar productos">
+          <div className={styles.buscadorProductos}>
+            <label htmlFor="buscar-producto">Buscar producto</label>
+            <input
+              autoComplete="off"
+              id="buscar-producto"
+              onChange={(evento) => {
+                setBusquedaProductos(evento.target.value);
+                setPaginaProductos(1);
+              }}
+              placeholder="Nombre, descripción o código"
+              type="search"
+              value={busquedaProductos}
+            />
           </div>
-          <Boton onClick={abrirProductoNuevo}>Crear producto</Boton>
-        </div>
-      </section>
+          <div className={styles.filtrosCatalogo}>
+            <label htmlFor="filtrar-categoria">
+              Categoría
+              <select
+                id="filtrar-categoria"
+                onChange={(evento) => seleccionarCategoria(evento.target.value)}
+                value={categoriaActiva}
+              >
+                <option value="">Todas</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria.id} value={categoria.id}>
+                    {categoria.nombre}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className={styles.chipsEstado} role="group" aria-label="Estado de publicación">
+              {(
+                [
+                  ["todos", `Todos (${productos.length})`],
+                  ["visibles", `Publicados (${productos.length - ocultos})`],
+                  ["ocultos", `Ocultos (${ocultos})`],
+                ] as const
+              ).map(([valor, etiqueta]) => (
+                <button
+                  aria-pressed={filtroEstado === valor}
+                  className={filtroEstado === valor ? styles.chipActivo : styles.chip}
+                  key={valor}
+                  onClick={() => {
+                    setFiltroEstado(valor);
+                    setPaginaProductos(1);
+                  }}
+                  type="button"
+                >
+                  {etiqueta}
+                </button>
+              ))}
+            </div>
+            <Boton onClick={abrirProductoNuevo}>Crear producto</Boton>
+          </div>
+        </section>
+      ) : null}
 
       <div className={styles.columnas}>
-        {/* Abierto cuando se entra sin ninguna categoría: plegado, un recién
-            llegado no encuentra dónde crearlas y concluye que no se puede.
-
-            El estado se guarda en vez de derivarse de `categorias.length`: `open`
-            es una propiedad controlada y React la reescribe en cada render, así
-            que al crear la primera categoría el panel se cerraba solo, con el
-            formulario de categorías y todas las subcategorías adentro. */}
-        <details
-          className={styles.organizacion}
-          onToggle={(evento) => {
-            setOrganizacionAbierta(evento.currentTarget.open);
-          }}
-          open={organizacionAbierta}
-        >
-          {/* El galón no es adorno: sin él esto se leeía como un recuadro con una
-              leyenda adentro, y nadie descubría que se abre. Gira al abrirse, que
-              es la seña que todo el mundo ya conoce. */}
-          <summary className={styles.resumenOrganizacion}>
-            <span className={styles.tituloOrganizacion}>
-              Organizar categorías
+        {/* Era un panel plegado arriba de la lista de productos, y se leía como
+            un recuadro con una leyenda adentro: casi nadie descubría que se
+            abría. Ahora es la pantalla entera, así que no hay nada que abrir. */}
+        {vista === "categorias" ? (
+          <section aria-labelledby="titulo-categorias" className={styles.organizacion}>
+            <div className={styles.tituloOrganizacion}>
+              <h2 id="titulo-categorias">Tus categorías</h2>
               <small>{categorias.length} de 40 creadas</small>
-            </span>
-            <Icono className={styles.flechaOrganizacion} nombre="flechaArriba" />
-          </summary>
-          <form className={styles.nuevaCategoria} onSubmit={crearCategoria}>
-            <label htmlFor="nueva-categoria">Nueva categoría</label>
-            <small className={styles.ayudaCampo}>{AYUDA_CATEGORIA}</small>
-            <div>
-              <input
-                id="nueva-categoria"
-                maxLength={80}
-                onChange={(evento) => setNombreCategoria(evento.target.value)}
-                placeholder="Ej.: Bebidas"
-                required
-                value={nombreCategoria}
-              />
-              <Boton cargando={ocupado} type="submit">Crear categoría</Boton>
             </div>
-            <SelectorDeIcono
-              alElegir={setIconoCategoria}
-              etiqueta="Su ícono"
-              rubro={datosIniciales.negocio.rubro}
-              valor={iconoCategoria}
-            />
-          </form>
-          <button
-            className={!categoriaActiva ? styles.filtroActivo : styles.filtro}
-            onClick={() => seleccionarCategoria("")}
-            type="button"
-          >
-            Todos los productos <span>{productos.length}</span>
-          </button>
-          <div className={styles.listaCategorias}>
-            {categoriasPaginadas.map((categoria) => {
-              const subcategoriasDeCategoria = subcategorias
-                .filter((item) => item.categoria_id === categoria.id)
-                .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
-              const cantidadProductos = productos.filter(
-                (producto) => producto.categoria_id === categoria.id,
-              ).length;
-              return (
-                <section className={styles.categoria} key={categoria.id}>
-                  {/* El galón dice que acá hay algo que se abre, y girando dice si
-                      está abierto. Sin él esto se leía como un filtro —se presiona y
-                      aparecen opciones abajo sin que nada lo hubiera anunciado—.
-                      `aria-expanded` cuenta lo mismo a quien no lo ve. */}
-                  <button
-                    aria-expanded={categoriaActiva === categoria.id}
-                    className={categoriaActiva === categoria.id ? styles.filtroActivo : styles.filtro}
-                    onClick={() => alternarCategoria(categoria.id)}
-                    type="button"
-                  >
-                    <IconoCatalogo nombre={categoria.icono} />
-                    <span className={styles.nombreCategoria}>{categoria.nombre}</span>
-                    <span>{cantidadProductos}</span>
-                    <Icono className={styles.flechaCategoria} nombre="flechaArriba" />
-                  </button>
-                  <div className={styles.accionesPequenas} aria-label={`Acciones para ${categoria.nombre}`}>
-                    <button onClick={() => pedirNuevoNombreCategoria(categoria)} type="button">Cambiar nombre</button>
-                    <button onClick={() => void borrarCategoria(categoria)} type="button">Eliminar categoría</button>
-                  </div>
-                  {/* La identidad se edita con la categoría abierta y no en una
-                      pantalla aparte: el ícono y la esfera son de esta categoría
-                      y se entienden mirándola, no en una lista de ajustes. */}
-                  {categoriaActiva === categoria.id ? (
-                    <div className={styles.identidadCategoria}>
-                      <SelectorDeIcono
-                        alElegir={(icono) => void cambiarCategoria(categoria.id, { icono })}
-                        rubro={datosIniciales.negocio.rubro}
-                        valor={categoria.icono}
-                      />
-                      <label className={styles.interruptor}>
-                        <input
-                          checked={categoria.visible}
-                          onChange={(evento) =>
-                            void cambiarCategoria(categoria.id, {
-                              visible: evento.target.checked,
-                            })
-                          }
-                          type="checkbox"
-                        />
-                        <span>Mostrar su esfera en el catálogo</span>
-                        {/* Se aclara qué **no** hace, porque «ocultar» se lee
-                            como «esconder la mercadería» y no es eso. */}
-                        <small>Apagarla no esconde sus productos.</small>
-                      </label>
-
-                      {/* Quedó fuera de la fase 1 a propósito: elegir «tiempo»
-                          no hacía nada hasta que existiera la agenda, y un
-                          interruptor que no cambia nada enseña que los
-                          controles no sirven. Ahora enciende el editor de
-                          horarios que está debajo. */}
-                      <label className={styles.campoVende}>
-                        <span>Qué vende esta categoría</span>
-                        <select
-                          onChange={(evento) =>
-                            void cambiarCategoria(categoria.id, { vende: evento.target.value })
-                          }
-                          value={categoria.vende}
-                        >
-                          {DEFINICIONES_FORMAS_DE_VENDER.map((forma) => (
-                            <option key={forma.id} value={forma.id}>
-                              {forma.nombre}
-                            </option>
-                          ))}
-                        </select>
-                        <small>
-                          {DEFINICIONES_FORMAS_DE_VENDER.find(
-                            (forma) => forma.id === categoria.vende,
-                          )?.descripcion}
-                        </small>
-                      </label>
-                    </div>
-                  ) : null}
-                  {/* El horario ya no se configura acá: es del recurso —el doctor,
-                      el peluquero— y no de la categoría, y vive en la pantalla
-                      de Agenda. Se deja el camino a la vista para que el dueño
-                      no lo busque adentro de la categoría, que es donde estaba. */}
-                  {categoriaActiva === categoria.id && categoria.vende === "tiempo" ? (
-                    <p className={styles.avisoAgenda}>
-                      Los horarios se configuran en <Link href={RUTAS_PANEL.agenda}>Agenda</Link>,
-                      por cada persona o consultorio que atiende. Después, en cada servicio,
-                      elegís quién lo atiende.
-                    </p>
-                  ) : null}
-                  {categoriaActiva === categoria.id ? (
-                    <EditorDeCampos
-                      categoriaId={categoria.id}
-                      categoriaNombre={categoria.nombre}
-                    />
-                  ) : null}
-                  {categoriaActiva === categoria.id ? <div className={styles.subcategorias}>
-                    {subcategoriasDeCategoria.map((subcategoria, subindice) => (
-                      <div className={styles.subcategoria} key={subcategoria.id}>
-                        <span>{subcategoria.nombre}</span>
-                        <div>
-                          <button aria-label={`Subir ${subcategoria.nombre}`} disabled={subindice === 0} onClick={() => void cambiarSubcategoria(subcategoria, { direccion: "subir" })} type="button">↑</button>
-                          <button aria-label={`Bajar ${subcategoria.nombre}`} disabled={subindice === subcategoriasDeCategoria.length - 1} onClick={() => void cambiarSubcategoria(subcategoria, { direccion: "bajar" })} type="button">↓</button>
-                          <button aria-label={`Cambiar nombre de ${subcategoria.nombre}`} onClick={() => pedirNuevoNombreSubcategoria(subcategoria)} type="button">Cambiar nombre</button>
-                          <button aria-label={`Eliminar ${subcategoria.nombre}`} onClick={() => void borrarSubcategoria(subcategoria)} type="button">Eliminar</button>
-                        </div>
-                      </div>
-                    ))}
-                    <div className={styles.nuevaSubcategoria}>
-                      <input
-                        aria-label={`Nueva subcategoría de ${categoria.nombre}`}
-                        maxLength={80}
-                        onChange={(evento) => setNuevasSubcategorias((actuales) => ({ ...actuales, [categoria.id]: evento.target.value }))}
-                        placeholder="Nueva subcategoría"
-                        value={nuevasSubcategorias[categoria.id] ?? ""}
-                      />
-                      <button onClick={() => void crearSubcategoria(categoria.id)} type="button">Crear subcategoría</button>
-                    </div>
-                  </div> : null}
-                </section>
-              );
-            })}
-          </div>
-          {totalPaginasCategorias > 1 ? (
-            <nav className={styles.paginacion} aria-label="Páginas de categorías">
-              <button
-                disabled={paginaCategoriasActual === 1}
-                onClick={() => {
-                  setPaginaCategorias((pagina) => Math.max(1, pagina - 1));
-                  seleccionarCategoria("");
-                }}
-                type="button"
-              >
-                Anterior
-              </button>
-              <span>Página {paginaCategoriasActual} de {totalPaginasCategorias}</span>
-              <button
-                disabled={paginaCategoriasActual === totalPaginasCategorias}
-                onClick={() => {
-                  setPaginaCategorias((pagina) => Math.min(totalPaginasCategorias, pagina + 1));
-                  seleccionarCategoria("");
-                }}
-                type="button"
-              >
-                Siguiente
-              </button>
-            </nav>
-          ) : null}
-        </details>
-
-        <section className={styles.productos} aria-labelledby="titulo-productos">
-          <div className={styles.tituloProductos}>
-            <div>
-              <h2 id="titulo-productos">
-                {categoriaActiva
-                  ? categorias.find(({ id }) => id === categoriaActiva)?.nombre
-                  : "Todos los productos"}
-              </h2>
-              <p>
-                {productosVisibles.length} de {productos.length} producto(s)
-                {busquedaProductos.trim() ? ` para «${busquedaProductos.trim()}»` : ""}
-              </p>
-            </div>
-          </div>
-
-          {/* Ajustar precios de a uno sobre trescientos productos es lo que hace
-              que un catálogo quede desactualizado. Va acá arriba y no escondido
-              en otra pantalla porque con inflación se usa varias veces al año. */}
-          {/* Plegado por omisión: se usa unas pocas veces al año —cuando cambian los
-              precios— y desplegado ocupaba la mitad de la pantalla de productos todos
-              los días. El resumen dice de una qué hace, así que no hace falta abrirlo
-              para saber si es lo que se busca. */}
-          {productos.length > 0 ? (
-            <details className={styles.ajustePrecios}>
-              <summary className={styles.resumenAjuste}>
-                <span className={styles.tituloAjuste}>
-                  <strong>
-                    <span aria-hidden="true">⚠</span> Cambiar precios
-                  </strong>
-                  <small>
-                    Subí o bajá de una vez el precio de todo tu catálogo o de una categoría.
-                  </small>
-                </span>
-                <Icono className={styles.flechaAjuste} nombre="flechaArriba" />
-              </summary>
-              <form className={styles.formularioAjuste} onSubmit={ajustarPrecios}>
-              {/* Se dice qué **no** es, y no por capricho: al lado existe
-                  «Promociones», que baja un precio con fecha de vencimiento y lo
-                  devuelve solo. Sin esta línea, un dueño sube todos sus precios
-                  creyendo que el domingo vuelven como estaban. */}
-              <p className={styles.avisoAjuste}>
-                <strong>Reescribe el precio guardado y no vence.</strong> No es una oferta:
-                para un descuento con fecha, usá Promociones. Cada producto guarda su precio
-                anterior, así que se puede corregir uno por uno.
-              </p>
-              <div className={styles.controlesAjuste}>
-                <label htmlFor="ajuste-alcance">
-                  Qué ajustar
-                  <select
-                    id="ajuste-alcance"
-                    onChange={(evento) => setAjusteCategoria(evento.target.value)}
-                    value={ajusteCategoria}
-                  >
-                    <option value="">Todo el catálogo</option>
-                    {categorias.map((categoria) => (
-                      <option key={categoria.id} value={categoria.id}>
-                        {categoria.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label htmlFor="ajuste-porcentaje">
-                  Porcentaje
-                  <input
-                    id="ajuste-porcentaje"
-                    inputMode="decimal"
-                    max={AJUSTE_MAXIMO}
-                    min={AJUSTE_MINIMO}
-                    onChange={(evento) => setAjustePorcentaje(evento.target.value)}
-                    placeholder="10"
-                    step="0.1"
-                    type="number"
-                    value={ajustePorcentaje}
-                  />
-                </label>
-                <Boton cargando={ajustando} disabled={!ajustePorcentaje} type="submit">
-                  Aplicar
-                </Boton>
+            <form className={styles.nuevaCategoria} onSubmit={crearCategoria}>
+              <label htmlFor="nueva-categoria">Nueva categoría</label>
+              <small className={styles.ayudaCampo}>{AYUDA_CATEGORIA}</small>
+              <div>
+                <input
+                  id="nueva-categoria"
+                  maxLength={80}
+                  onChange={(evento) => setNombreCategoria(evento.target.value)}
+                  placeholder="Ej.: Bebidas"
+                  required
+                  value={nombreCategoria}
+                />
+                <Boton cargando={ocupado} type="submit">Crear categoría</Boton>
               </div>
-              <p className={styles.ayudaAjuste}>
-                Escribí <strong>10</strong> para subir un 10 % o <strong>-10</strong> para
-                bajarlo. Ningún precio queda en cero.
-              </p>
-              </form>
-            </details>
-          ) : null}
-
-          {productosVisibles.length === 0 ? (
-            <EstadoVacio
-              accion={
-                productos.length === 0 ? (
-                  <Boton onClick={abrirProductoNuevo}>Crear el primer producto</Boton>
-                ) : (
-                  <Boton
-                    onClick={() => {
-                      setBusquedaProductos("");
-                      setFiltroEstado("todos");
-                      seleccionarCategoria("");
-                    }}
-                    variante="secundario"
-                  >
-                    Quitar los filtros
-                  </Boton>
-                )
-              }
-              descripcion={
-                productos.length === 0
-                  ? "Empieza por el primero."
-                  : "Probá con otra palabra o quitá los filtros."
-              }
-              titulo={
-                productos.length === 0
-                  ? "Todavía no cargaste productos"
-                  : "Ningún producto coincide"
-              }
-            />
-          ) : (
-            <ul className={styles.listaProductos}>
-              {productosPaginados.map((producto) => (
-                <li className={styles.producto} key={producto.id}>
-                  <div className={styles.fotos}>
-                    {producto.fotos.length ? producto.fotos.map((ruta, indice) => (
-                      <div className={styles.foto} key={ruta}>
-                        <Image
-                          alt={`${producto.nombre}, fotografía ${indice + 1}`}
-                          fill
-                          sizes="(min-width: 60rem) 112px, 96px"
-                          src={obtenerUrlPublicaImagenProducto(urlSupabase, ruta)}
+              <SelectorDeIcono
+                alElegir={setIconoCategoria}
+                etiqueta="Su ícono"
+                rubro={datosIniciales.negocio.rubro}
+                valor={iconoCategoria}
+              />
+            </form>
+            <div className={styles.listaCategorias}>
+              {categoriasPaginadas.map((categoria) => {
+                const subcategoriasDeCategoria = subcategorias
+                  .filter((item) => item.categoria_id === categoria.id)
+                  .sort((a, b) => a.orden - b.orden || a.nombre.localeCompare(b.nombre));
+                const cantidadProductos = productos.filter(
+                  (producto) => producto.categoria_id === categoria.id,
+                ).length;
+                return (
+                  <section className={styles.categoria} key={categoria.id}>
+                    {/* El galón dice que acá hay algo que se abre, y girando dice si
+                        está abierto. Sin él esto se leía como un filtro —se presiona y
+                        aparecen opciones abajo sin que nada lo hubiera anunciado—.
+                        `aria-expanded` cuenta lo mismo a quien no lo ve. */}
+                    <button
+                      aria-expanded={categoriaActiva === categoria.id}
+                      className={categoriaActiva === categoria.id ? styles.filtroActivo : styles.filtro}
+                      onClick={() => alternarCategoria(categoria.id)}
+                      type="button"
+                    >
+                      <IconoCatalogo nombre={categoria.icono} />
+                      <span className={styles.nombreCategoria}>{categoria.nombre}</span>
+                      <span>{cantidadProductos}</span>
+                      <Icono className={styles.flechaCategoria} nombre="flechaArriba" />
+                    </button>
+                    <div className={styles.accionesPequenas} aria-label={`Acciones para ${categoria.nombre}`}>
+                      <button onClick={() => pedirNuevoNombreCategoria(categoria)} type="button">Cambiar nombre</button>
+                      <button onClick={() => void borrarCategoria(categoria)} type="button">Eliminar categoría</button>
+                    </div>
+                    {/* La identidad se edita con la categoría abierta y no en una
+                        pantalla aparte: el ícono y la esfera son de esta categoría
+                        y se entienden mirándola, no en una lista de ajustes. */}
+                    {categoriaActiva === categoria.id ? (
+                      <div className={styles.identidadCategoria}>
+                        <SelectorDeIcono
+                          alElegir={(icono) => void cambiarCategoria(categoria.id, { icono })}
+                          rubro={datosIniciales.negocio.rubro}
+                          valor={categoria.icono}
                         />
-                        <button aria-label={`Borrar fotografía ${indice + 1} de ${producto.nombre}`} onClick={() => void borrarImagen(producto, ruta)} type="button">Borrar</button>
-                      </div>
-                    )) : <div className={styles.sinFoto}>Sin foto</div>}
-                  </div>
-                  <div className={styles.detalleProducto}>
-                    <div className={styles.nombreProducto}>
-                      <h3>{producto.nombre}</h3>
-                      {producto.visible ? null : <IndicadorEstado estado="oculto" />}
-                      {producto.estado === "disponible" ? null : (
-                        <IndicadorEstado estado={producto.estado as EstadoProducto} />
-                      )}
-                    </div>
-                    <small>Código: {producto.codigo}</small>
-                    <strong>Bs {Number(producto.precio).toFixed(2).replace(".", ",")}</strong>
-                    {producto.precio_anterior !== null && producto.precio_actualizado_en ? (
-                      <small className={styles.auditoriaPrecio}>
-                        Precio anterior: Bs {Number(producto.precio_anterior).toFixed(2).replace(".", ",")}. Actualizado {producto.precio_actualizado_por ? "por tu cuenta" : "por administración de MiPuesto"} el {FORMATEADOR_CAMBIO_PRECIO.format(new Date(producto.precio_actualizado_en))}.
-                      </small>
-                    ) : null}
-                    {producto.descripcion ? <p>{producto.descripcion}</p> : null}
-                    <small>
-                      {producto.controla_stock
-                        ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} disponible(s) de ${producto.cantidad_stock ?? 0}; ${producto.cantidad_reservada} reservada(s)`
-                        : "Sin control de existencias"}
-                    </small>
-                    {/* Dos grupos separados, y no siete botones en fila.
-                        Arriba lo que se toca todos los días; lo demás queda
-                        plegado, que además acorta cada tarjeta a la mitad y es
-                        lo que evita recorrer el catálogo entero para encontrar
-                        un producto. */}
-                    <div className={styles.accionesProducto}>
-                      <Boton onClick={() => editarProducto(producto)} variante="secundario">
-                        Editar
-                      </Boton>
-                      {producto.estado !== "agotado" || !producto.controla_stock ? (
-                        <Boton
-                          onClick={() => void alternarAgotado(producto)}
-                          variante="discreto"
-                        >
-                          {producto.estado === "agotado" ? "Hay de nuevo" : "Agotado"}
-                        </Boton>
-                      ) : null}
-                      {ofreceCartaDelDia ? (
-                        <Boton
-                          onClick={() => void alternarCartaDelDia(producto)}
-                          variante="discreto"
-                        >
-                          {estaEnLaCartaDeHoy(producto.en_carta_hasta)
-                            ? "Sacar de hoy"
-                            : "Poner en hoy"}
-                        </Boton>
-                      ) : null}
-                      <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">
-                        {producto.visible ? "Ocultar" : "Mostrar"}
-                      </Boton>
-                    </div>
-
-                    <details className={styles.masOpciones}>
-                      <summary>Más opciones</summary>
-                      <div className={styles.accionesProducto}>
-                        <Boton onClick={() => void duplicarProducto(producto)} variante="discreto">
-                          Duplicar
-                        </Boton>
-                        <Boton
-                          onClick={() => void copiarEnlaceProducto(producto)}
-                          variante="discreto"
-                        >
-                          Copiar enlace
-                        </Boton>
-                        <label className={styles.botonFoto}>
-                          Agregar fotos
+                        <label className={styles.interruptor}>
                           <input
-                            accept="image/jpeg,image/png,image/webp"
-                            disabled={ocupado || producto.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO}
-                            multiple
-                            onChange={(evento) => void subirImagenes(producto, evento)}
-                            type="file"
+                            checked={categoria.visible}
+                            onChange={(evento) =>
+                              void cambiarCategoria(categoria.id, {
+                                visible: evento.target.checked,
+                              })
+                            }
+                            type="checkbox"
                           />
+                          <span>Mostrar su esfera en el catálogo</span>
+                          {/* Se aclara qué **no** hace, porque «ocultar» se lee
+                              como «esconder la mercadería» y no es eso. */}
+                          <small>Apagarla no esconde sus productos.</small>
                         </label>
-                        <Boton onClick={() => void borrarProducto(producto)} variante="peligro">
-                          Borrar
-                        </Boton>
+
+                        {/* Quedó fuera de la fase 1 a propósito: elegir «tiempo»
+                            no hacía nada hasta que existiera la agenda, y un
+                            interruptor que no cambia nada enseña que los
+                            controles no sirven. Ahora enciende el editor de
+                            horarios que está debajo. */}
+                        <label className={styles.campoVende}>
+                          <span>Qué vende esta categoría</span>
+                          <select
+                            onChange={(evento) =>
+                              void cambiarCategoria(categoria.id, { vende: evento.target.value })
+                            }
+                            value={categoria.vende}
+                          >
+                            {DEFINICIONES_FORMAS_DE_VENDER.map((forma) => (
+                              <option key={forma.id} value={forma.id}>
+                                {forma.nombre}
+                              </option>
+                            ))}
+                          </select>
+                          <small>
+                            {DEFINICIONES_FORMAS_DE_VENDER.find(
+                              (forma) => forma.id === categoria.vende,
+                            )?.descripcion}
+                          </small>
+                        </label>
                       </div>
-                    </details>
+                    ) : null}
+                    {/* El horario ya no se configura acá: es del recurso —el doctor,
+                        el peluquero— y no de la categoría, y vive en la pantalla
+                        de Agenda. Se deja el camino a la vista para que el dueño
+                        no lo busque adentro de la categoría, que es donde estaba. */}
+                    {categoriaActiva === categoria.id && categoria.vende === "tiempo" ? (
+                      <p className={styles.avisoAgenda}>
+                        Los horarios se configuran en <Link href={RUTAS_PANEL.agenda}>Agenda</Link>,
+                        por cada persona o consultorio que atiende. Después, en cada servicio,
+                        elegís quién lo atiende.
+                      </p>
+                    ) : null}
+                    {categoriaActiva === categoria.id ? (
+                      <EditorDeCampos
+                        categoriaId={categoria.id}
+                        categoriaNombre={categoria.nombre}
+                      />
+                    ) : null}
+                    {categoriaActiva === categoria.id ? <div className={styles.subcategorias}>
+                      {subcategoriasDeCategoria.map((subcategoria, subindice) => (
+                        <div className={styles.subcategoria} key={subcategoria.id}>
+                          <span>{subcategoria.nombre}</span>
+                          <div>
+                            <button aria-label={`Subir ${subcategoria.nombre}`} disabled={subindice === 0} onClick={() => void cambiarSubcategoria(subcategoria, { direccion: "subir" })} type="button">↑</button>
+                            <button aria-label={`Bajar ${subcategoria.nombre}`} disabled={subindice === subcategoriasDeCategoria.length - 1} onClick={() => void cambiarSubcategoria(subcategoria, { direccion: "bajar" })} type="button">↓</button>
+                            <button aria-label={`Cambiar nombre de ${subcategoria.nombre}`} onClick={() => pedirNuevoNombreSubcategoria(subcategoria)} type="button">Cambiar nombre</button>
+                            <button aria-label={`Eliminar ${subcategoria.nombre}`} onClick={() => void borrarSubcategoria(subcategoria)} type="button">Eliminar</button>
+                          </div>
+                        </div>
+                      ))}
+                      <div className={styles.nuevaSubcategoria}>
+                        <input
+                          aria-label={`Nueva subcategoría de ${categoria.nombre}`}
+                          maxLength={80}
+                          onChange={(evento) => setNuevasSubcategorias((actuales) => ({ ...actuales, [categoria.id]: evento.target.value }))}
+                          placeholder="Nueva subcategoría"
+                          value={nuevasSubcategorias[categoria.id] ?? ""}
+                        />
+                        <button onClick={() => void crearSubcategoria(categoria.id)} type="button">Crear subcategoría</button>
+                      </div>
+                    </div> : null}
+                  </section>
+                );
+              })}
+            </div>
+            {totalPaginasCategorias > 1 ? (
+              <nav className={styles.paginacion} aria-label="Páginas de categorías">
+                <button
+                  disabled={paginaCategoriasActual === 1}
+                  onClick={() => {
+                    setPaginaCategorias((pagina) => Math.max(1, pagina - 1));
+                    seleccionarCategoria("");
+                  }}
+                  type="button"
+                >
+                  Anterior
+                </button>
+                <span>Página {paginaCategoriasActual} de {totalPaginasCategorias}</span>
+                <button
+                  disabled={paginaCategoriasActual === totalPaginasCategorias}
+                  onClick={() => {
+                    setPaginaCategorias((pagina) => Math.min(totalPaginasCategorias, pagina + 1));
+                    seleccionarCategoria("");
+                  }}
+                  type="button"
+                >
+                  Siguiente
+                </button>
+              </nav>
+            ) : null}
+          </section>
+        ) : null}
+
+        {vista === "productos" ? (
+          <section className={styles.productos} aria-labelledby="titulo-productos">
+            <div className={styles.tituloProductos}>
+              <div>
+                <h2 id="titulo-productos">
+                  {categoriaActiva
+                    ? categorias.find(({ id }) => id === categoriaActiva)?.nombre
+                    : "Todos los productos"}
+                </h2>
+                <p>
+                  {productosVisibles.length} de {productos.length} producto(s)
+                  {busquedaProductos.trim() ? ` para «${busquedaProductos.trim()}»` : ""}
+                </p>
+              </div>
+            </div>
+
+            {/* Ajustar precios de a uno sobre trescientos productos es lo que hace
+                que un catálogo quede desactualizado. Va acá arriba y no escondido
+                en otra pantalla porque con inflación se usa varias veces al año. */}
+            {/* Plegado por omisión: se usa unas pocas veces al año —cuando cambian los
+                precios— y desplegado ocupaba la mitad de la pantalla de productos todos
+                los días. El resumen dice de una qué hace, así que no hace falta abrirlo
+                para saber si es lo que se busca. */}
+            {productos.length > 0 ? (
+              <details className={styles.ajustePrecios}>
+                <summary className={styles.resumenAjuste}>
+                  <span className={styles.tituloAjuste}>
+                    <strong>
+                      <span aria-hidden="true">⚠</span> Cambiar precios
+                    </strong>
                     <small>
-                      {producto.fotos.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías
+                      Subí o bajá de una vez el precio de todo tu catálogo o de una categoría.
                     </small>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          {totalPaginasProductos > 1 ? (
-            <nav className={styles.paginacionProductos} aria-label="Páginas de productos">
-              <button
-                disabled={paginaProductosActual === 1}
-                onClick={() => setPaginaProductos((actual) => Math.max(1, actual - 1))}
-                type="button"
-              >
-                Anterior
-              </button>
-              <span>Página {paginaProductosActual} de {totalPaginasProductos}</span>
-              <button
-                disabled={paginaProductosActual === totalPaginasProductos}
-                onClick={() =>
-                  setPaginaProductos((actual) =>
-                    Math.min(totalPaginasProductos, actual + 1),
+                  </span>
+                  <Icono className={styles.flechaAjuste} nombre="flechaArriba" />
+                </summary>
+                <form className={styles.formularioAjuste} onSubmit={ajustarPrecios}>
+                {/* Se dice qué **no** es, y no por capricho: al lado existe
+                    «Promociones», que baja un precio con fecha de vencimiento y lo
+                    devuelve solo. Sin esta línea, un dueño sube todos sus precios
+                    creyendo que el domingo vuelven como estaban. */}
+                <p className={styles.avisoAjuste}>
+                  <strong>Reescribe el precio guardado y no vence.</strong> No es una oferta:
+                  para un descuento con fecha, usá Promociones. Cada producto guarda su precio
+                  anterior, así que se puede corregir uno por uno.
+                </p>
+                <div className={styles.controlesAjuste}>
+                  <label htmlFor="ajuste-alcance">
+                    Qué ajustar
+                    <select
+                      id="ajuste-alcance"
+                      onChange={(evento) => setAjusteCategoria(evento.target.value)}
+                      value={ajusteCategoria}
+                    >
+                      <option value="">Todo el catálogo</option>
+                      {categorias.map((categoria) => (
+                        <option key={categoria.id} value={categoria.id}>
+                          {categoria.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label htmlFor="ajuste-porcentaje">
+                    Porcentaje
+                    <input
+                      id="ajuste-porcentaje"
+                      inputMode="decimal"
+                      max={AJUSTE_MAXIMO}
+                      min={AJUSTE_MINIMO}
+                      onChange={(evento) => setAjustePorcentaje(evento.target.value)}
+                      placeholder="10"
+                      step="0.1"
+                      type="number"
+                      value={ajustePorcentaje}
+                    />
+                  </label>
+                  <Boton cargando={ajustando} disabled={!ajustePorcentaje} type="submit">
+                    Aplicar
+                  </Boton>
+                </div>
+                <p className={styles.ayudaAjuste}>
+                  Escribí <strong>10</strong> para subir un 10 % o <strong>-10</strong> para
+                  bajarlo. Ningún precio queda en cero.
+                </p>
+                </form>
+              </details>
+            ) : null}
+
+            {productosVisibles.length === 0 ? (
+              <EstadoVacio
+                accion={
+                  productos.length === 0 ? (
+                    <Boton onClick={abrirProductoNuevo}>Crear el primer producto</Boton>
+                  ) : (
+                    <Boton
+                      onClick={() => {
+                        setBusquedaProductos("");
+                        setFiltroEstado("todos");
+                        seleccionarCategoria("");
+                      }}
+                      variante="secundario"
+                    >
+                      Quitar los filtros
+                    </Boton>
                   )
                 }
-                type="button"
-              >
-                Siguiente
-              </button>
-            </nav>
-          ) : null}
-        </section>
+                descripcion={
+                  productos.length === 0
+                    ? "Empieza por el primero."
+                    : "Probá con otra palabra o quitá los filtros."
+                }
+                titulo={
+                  productos.length === 0
+                    ? "Todavía no cargaste productos"
+                    : "Ningún producto coincide"
+                }
+              />
+            ) : (
+              <ul className={styles.listaProductos}>
+                {productosPaginados.map((producto) => (
+                  <li className={styles.producto} key={producto.id}>
+                    <div className={styles.fotos}>
+                      {producto.fotos.length ? producto.fotos.map((ruta, indice) => (
+                        <div className={styles.foto} key={ruta}>
+                          <Image
+                            alt={`${producto.nombre}, fotografía ${indice + 1}`}
+                            fill
+                            sizes="(min-width: 60rem) 112px, 96px"
+                            src={obtenerUrlPublicaImagenProducto(urlSupabase, ruta)}
+                          />
+                          <button aria-label={`Borrar fotografía ${indice + 1} de ${producto.nombre}`} onClick={() => void borrarImagen(producto, ruta)} type="button">Borrar</button>
+                        </div>
+                      )) : <div className={styles.sinFoto}>Sin foto</div>}
+                    </div>
+                    <div className={styles.detalleProducto}>
+                      <div className={styles.nombreProducto}>
+                        <h3>{producto.nombre}</h3>
+                        {producto.visible ? null : <IndicadorEstado estado="oculto" />}
+                        {producto.estado === "disponible" ? null : (
+                          <IndicadorEstado estado={producto.estado as EstadoProducto} />
+                        )}
+                      </div>
+                      <small>Código: {producto.codigo}</small>
+                      <strong>Bs {Number(producto.precio).toFixed(2).replace(".", ",")}</strong>
+                      {producto.precio_anterior !== null && producto.precio_actualizado_en ? (
+                        <small className={styles.auditoriaPrecio}>
+                          Precio anterior: Bs {Number(producto.precio_anterior).toFixed(2).replace(".", ",")}. Actualizado {producto.precio_actualizado_por ? "por tu cuenta" : "por administración de MiPuesto"} el {FORMATEADOR_CAMBIO_PRECIO.format(new Date(producto.precio_actualizado_en))}.
+                        </small>
+                      ) : null}
+                      {producto.descripcion ? <p>{producto.descripcion}</p> : null}
+                      <small>
+                        {producto.controla_stock
+                          ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} disponible(s) de ${producto.cantidad_stock ?? 0}; ${producto.cantidad_reservada} reservada(s)`
+                          : "Sin control de existencias"}
+                      </small>
+                      {/* Dos grupos separados, y no siete botones en fila.
+                          Arriba lo que se toca todos los días; lo demás queda
+                          plegado, que además acorta cada tarjeta a la mitad y es
+                          lo que evita recorrer el catálogo entero para encontrar
+                          un producto. */}
+                      <div className={styles.accionesProducto}>
+                        <Boton onClick={() => editarProducto(producto)} variante="secundario">
+                          Editar
+                        </Boton>
+                        {producto.estado !== "agotado" || !producto.controla_stock ? (
+                          <Boton
+                            onClick={() => void alternarAgotado(producto)}
+                            variante="discreto"
+                          >
+                            {producto.estado === "agotado" ? "Hay de nuevo" : "Agotado"}
+                          </Boton>
+                        ) : null}
+                        {ofreceCartaDelDia ? (
+                          <Boton
+                            onClick={() => void alternarCartaDelDia(producto)}
+                            variante="discreto"
+                          >
+                            {estaEnLaCartaDeHoy(producto.en_carta_hasta)
+                              ? "Sacar de hoy"
+                              : "Poner en hoy"}
+                          </Boton>
+                        ) : null}
+                        <Boton onClick={() => void cambiarVisibilidad(producto)} variante="discreto">
+                          {producto.visible ? "Ocultar" : "Mostrar"}
+                        </Boton>
+                      </div>
+
+                      <details className={styles.masOpciones}>
+                        <summary>Más opciones</summary>
+                        <div className={styles.accionesProducto}>
+                          <Boton onClick={() => void duplicarProducto(producto)} variante="discreto">
+                            Duplicar
+                          </Boton>
+                          <Boton
+                            onClick={() => void copiarEnlaceProducto(producto)}
+                            variante="discreto"
+                          >
+                            Copiar enlace
+                          </Boton>
+                          <label className={styles.botonFoto}>
+                            Agregar fotos
+                            <input
+                              accept="image/jpeg,image/png,image/webp"
+                              disabled={ocupado || producto.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO}
+                              multiple
+                              onChange={(evento) => void subirImagenes(producto, evento)}
+                              type="file"
+                            />
+                          </label>
+                          <Boton onClick={() => void borrarProducto(producto)} variante="peligro">
+                            Borrar
+                          </Boton>
+                        </div>
+                      </details>
+                      <small>
+                        {producto.fotos.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías
+                      </small>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {totalPaginasProductos > 1 ? (
+              <nav className={styles.paginacionProductos} aria-label="Páginas de productos">
+                <button
+                  disabled={paginaProductosActual === 1}
+                  onClick={() => setPaginaProductos((actual) => Math.max(1, actual - 1))}
+                  type="button"
+                >
+                  Anterior
+                </button>
+                <span>Página {paginaProductosActual} de {totalPaginasProductos}</span>
+                <button
+                  disabled={paginaProductosActual === totalPaginasProductos}
+                  onClick={() =>
+                    setPaginaProductos((actual) =>
+                      Math.min(totalPaginasProductos, actual + 1),
+                    )
+                  }
+                  type="button"
+                >
+                  Siguiente
+                </button>
+              </nav>
+            ) : null}
+          </section>
+        ) : null}
       </div>
     </div>
   );

@@ -45,7 +45,7 @@ export function PasoTusProductos({
          `alta_completada_en`, y sin refrescar seguiría leyendo el valor viejo y
          lo devolvería al alta que acaba de cerrar. */
       router.refresh();
-      router.push(RUTAS_PANEL.catalogo);
+      router.push(RUTAS_PANEL.productos);
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo terminar",
@@ -81,7 +81,7 @@ export function PasoTusProductos({
           </Link>
         </li>
         <li>
-          <Link className={styles.camino} href={RUTAS_PANEL.catalogo}>
+          <Link className={styles.camino} href={RUTAS_PANEL.productos}>
             <strong>Cargalos a mano</strong>
             <span>Uno por uno, con su foto y su precio.</span>
           </Link>

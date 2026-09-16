@@ -34,7 +34,7 @@ export default async function PaginaCargaDesdeFoto() {
   /* Sin la función habilitada, la página no existe para este negocio. Mostrarla
      apagada, con un botón que no hace nada, es peor que no mostrarla: enseña una
      puerta que no se puede abrir. */
-  if (!negocio.foto_ia_habilitada) redirect(RUTAS_PANEL.catalogo);
+  if (!negocio.foto_ia_habilitada) redirect(RUTAS_PANEL.herramientas);
 
   const [{ data: categorias }, { data: uso }] = await Promise.all([
     supabase
@@ -69,7 +69,7 @@ export default async function PaginaCargaDesdeFoto() {
   return (
     <main className={styles.contenido}>
       <EncabezadoPanel
-        accion={<Link href={RUTAS_PANEL.catalogo}>Volver al catálogo</Link>}
+        accion={<Link href={RUTAS_PANEL.productos}>Ver mis productos</Link>}
         descripcion="Fotografiá tu lista de precios y te armamos el borrador. Vos revisás y confirmás: nada se publica sin que lo mires."
         titulo="Cargar desde una foto"
       />

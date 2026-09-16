@@ -59,7 +59,7 @@ export default async function PaginaImportarPlanilla() {
   return (
     <main className={styles.contenido}>
       <EncabezadoPanel
-        accion={<Link href={RUTAS_PANEL.catalogo}>Volver al catálogo</Link>}
+        accion={<Link href={RUTAS_PANEL.productos}>Ver mis productos</Link>}
         descripcion="Si ya llevás tu inventario en una planilla, no hace falta volver a escribirlo. Subí el archivo, decinos qué columna es cuál y revisá antes de crear."
         titulo="Importar tu Excel"
       />

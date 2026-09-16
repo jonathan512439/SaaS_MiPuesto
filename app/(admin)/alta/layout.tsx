@@ -42,7 +42,7 @@ export default async function LayoutAlta({
   /* Sin negocio no hay nada que dar de alta todavía: primero se crea el perfil.
      Con el alta terminada, el camino no se vuelve a recorrer. */
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
-  if (negocio.alta_completada_en) redirect(RUTAS_PANEL.catalogo);
+  if (negocio.alta_completada_en) redirect(RUTAS_PANEL.productos);
 
   const alcanzado = negocio.alta_paso;
 

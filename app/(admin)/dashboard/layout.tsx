@@ -89,8 +89,8 @@ export default async function LayoutPanel({
               <div className={styles.barraContenido}>
                 <Link
                   className={styles.marca}
-                  href={RUTAS_PANEL.catalogo}
-                  aria-label="MiPuesto, ir al catálogo"
+                  href={RUTAS_PANEL.inicio}
+                  aria-label="MiPuesto, ir al inicio"
                 >
                   <Isotipo className={styles.isotipo} />
                   <span>MiPuesto</span>

@@ -41,7 +41,7 @@ export default async function PaginaPapelera() {
   return (
     <main className={styles.contenido}>
       <EncabezadoPanel
-        accion={<Link href={RUTAS_PANEL.catalogo}>Volver al catálogo</Link>}
+        accion={<Link href={RUTAS_PANEL.productos}>Ver mis productos</Link>}
         descripcion={`Lo que borrás se guarda ${DIAS_PAPELERA} días y podés recuperarlo con sus fotografías. Después se borra solo.`}
         titulo="Papelera"
       />

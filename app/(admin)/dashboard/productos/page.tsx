@@ -7,21 +7,21 @@ import { leerCatalogoAdmin } from "../../../../lib/catalogo/datos-admin";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
-import styles from "./catalogo.module.css";
+import styles from "../catalogo/catalogo.module.css";
 
 export const metadata: Metadata = {
-  title: "Mi catálogo | MiPuesto",
-  description: "Las categorías de tu catálogo, con sus íconos, sus campos y sus horarios.",
+  title: "Productos | MiPuesto",
+  description: "Cargá, buscá y actualizá los productos de tu catálogo.",
 };
 
-/* Las categorías, solas.
+/* Los productos, con la pantalla entera para ellos.
  *
- * Estaban plegadas arriba de la lista de productos, en un panel que casi nadie
- * descubría que se abría. Son dos trabajos distintos: armar las categorías se
- * hace una vez y se retoca de vez en cuando; cargar productos se hace todos los
- * días. Juntos, el que se hace una vez le comía sitio al que se hace siempre.
+ * Carga lo mismo que «Mi catálogo» —el mismo componente atiende a las dos, y su
+ * estado es uno solo— pero dibuja la otra mitad: buscar, filtrar, crear y la
+ * lista. El filtro por categoría acá es un desplegable, que es lo que hace falta
+ * cuando se viene a trabajar sobre productos y no sobre categorías.
  */
-export default async function PaginaCatalogo() {
+export default async function PaginaProductos() {
   const supabase = await crearClienteSupabaseServidor();
   const { data: datosClaims } = await supabase.auth.getClaims();
   const idUsuario = datosClaims?.claims.sub;
@@ -35,11 +35,11 @@ export default async function PaginaCatalogo() {
   return (
     <main className={styles.contenido}>
       <EncabezadoPanel
-        descripcion="Las categorías son las secciones de tu catálogo. Acá elegís su ícono, qué datos pide cada una y, si vendés turnos, sus horarios."
-        titulo="Mi catálogo"
+        descripcion="Gestioná tus productos y mantené tu negocio siempre al día."
+        titulo="Productos"
       />
 
-      <GestorCatalogo datosIniciales={datos} urlSupabase={url} vista="categorias" />
+      <GestorCatalogo datosIniciales={datos} urlSupabase={url} vista="productos" />
     </main>
   );
 }
