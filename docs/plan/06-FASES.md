@@ -407,11 +407,18 @@ es pintar dos veces.
 **Criterio de salida:** las diez paletas pasan contraste en el panel, y en
 cualquiera de ellas se distingue a simple vista el panel del catálogo.
 
-**Lo que esta fase no es.** No es un modo oscuro del panel. Con la paleta oscura
-de un negocio, el panel se verá oscuro **en sus acentos**; el fondo sigue claro,
-y a propósito. Un modo oscuro del panel entero no está en ninguna fase: si se
-quiere, es una fase aparte, porque obliga a definir la segunda mitad de todos los
-tokens de color y a correr el control de contraste dos veces por paleta.
+**El modo oscuro no se implementa.** Decidido con el dueño el 16 de septiembre
+de 2026, y cerrado: **esta fase lo cubre**. Con la paleta oscura de un negocio el
+panel se verá oscuro en sus acentos, y eso es lo que se buscaba —que el dueño
+reconozca su panel como suyo—. El fondo sigue claro, a propósito, porque es la
+señal que distingue de un vistazo «estoy en mi tienda» de «estoy en el
+administrador».
+
+No queda como fase diferida ni como pendiente: queda descartado. Un modo oscuro
+del panel entero obligaría a definir la segunda mitad de todos los tokens de
+color y a correr el control de contraste dos veces por paleta —veinte
+combinaciones en vez de diez— a cambio de una preferencia que la paleta del
+negocio ya atiende.
 
 ---
 

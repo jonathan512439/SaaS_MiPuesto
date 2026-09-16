@@ -70,6 +70,12 @@ conectar el resolvedor, la tarea semanal de `pg_cron` y la estrella —sin tocar
 el modelo de datos—. El paso a paso para la clave está en
 [`GOOGLE-PLACES.md`](GOOGLE-PLACES.md).
 
+**El modo oscuro del panel: descartado.** Decidido el 16 de septiembre de 2026.
+No queda diferido —queda cerrado—: la fase 8.5, que pinta el panel con la paleta
+del negocio en los acentos, cubre lo que se buscaba. Con una paleta oscura el
+panel se verá oscuro en sus acentos y el fondo seguirá claro, que es la señal que
+distingue de un vistazo el panel del catálogo.
+
 **La reserva por presentación.** La fase 4 dejó las existencias por presentación
 como información del panel: el carrito todavía reserva sobre el total del
 producto, y el editor lo dice donde se cargan. Hacerlo de verdad toca **cinco
@@ -245,6 +251,91 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | Comprar y conectar el dominio | Bloquea correo propio, QR, NFC y el reporte por correo |
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
+
+---
+
+## El panel, reorganizado — 2026-09-16
+
+Diez despliegues entre el 15 y el 16 de septiembre de 2026, todos verificados en
+producción contra `https://mipuesto-dev.mipuesto-app.workers.dev`. Cierra la
+**reorganización de pantallas** de [`plan/04-PANEL.md`](plan/04-PANEL.md) §4, que
+era entregable de la fase 8, más la ficha de producto y las tarjetas de pedido.
+
+| Marca de despliegue | Qué dejó | Commit |
+|---|---|---|
+| `banner-destino-y-proporcion` | El banner elige a dónde lleva; los dos del cuerpo pasan a 2:1 y el panel dice la proporción | `a9f7076`, `6018b9b` |
+| `panel-rutas-con-nombre` | «Configuración» → **Mi negocio**, «Diseño» → **Apariencia**; las direcciones en un solo módulo | `9fb2fbc` |
+| `panel-herramientas-aparte` | **Herramientas**: importar, menú impreso, papelera y lectura con IA, cada una con su explicación | `85fc151` |
+| `inicio-lo-que-falta` | **Inicio** dice qué le falta al catálogo para funcionar | `86eadeb` |
+| `catalogo-y-productos-aparte` | **Mi catálogo** (categorías) y **Productos** (la lista), separadas | `4299404` |
+| `pedidos-y-citas-juntos` | **Pedidos y citas** en una sola pantalla; la agenda aparece solo si el negocio la usa | `0473188` |
+| `panel-con-relieve` | Los botones dejan de parecer rótulos: relieve, y se hunden al presionar | `dc25c35` |
+| `ficha-de-producto-en-fila` | Miniatura, datos y mandos en tres columnas, también en el teléfono | `89dd27f` |
+| `botones-uniformes-y-buscador` | Buscador para elegir el producto del descuento; tres aspectos de control en vez de ocho | `9b137bd` |
+| `un-solo-juego-de-botones` | Cerradas las siete ventanas que quedaban con botón propio, con una prueba que lo cuida | `c82601c` |
+| `tarjetas-de-pedido-como-agenda` | La tarjeta de pedido toma la forma de la de un turno | `5087369` |
+
+**651 pruebas** y las seis guardias del build en verde al cerrar.
+
+### Las direcciones del panel, en un solo lugar
+
+Estaban escritas a mano en **veinticuatro sitios**, y la mayoría no eran enlaces
+de una pantalla a otra: eran el `redirect` de «todavía no tenés negocio» que
+repite cada página. Veinticuatro copias aguantan hasta el día que una pantalla
+cambia de nombre, y ese día la que quedó sin actualizar manda al dueño a un 404
+desde donde menos se lo espera: recién entrado, sin negocio, sin saber qué hizo
+mal.
+
+Ahora viven en `lib/panel/rutas.ts`, y `lib/panel/rutas.test.ts` comprueba tres
+cosas: que no quede ninguna suelta, que toda ruta tenga pantalla, y que las cinco
+direcciones viejas sigan redirigiendo.
+
+### Tres aspectos de control, y no ocho
+
+El panel tenía **ocho recetas distintas** para el mismo botón chico: fondo
+hundido con letra de marca en una pantalla, superficie con borde de marca en
+otra, superficie con letra neutra en una tercera. Ninguna nació de un descuido
+—cada pantalla nueva necesitaba un botón, lo escribía ahí mismo y elegía los
+colores a ojo—, pero quien las mira sí les busca sentido y no lo encuentra. Lo
+reportó el dueño.
+
+Quedan tres, definidos en `app/globals.css`: `--control-principal-*` (la acción
+de la pantalla, la única pintada), `--control-segundo-*` (todo lo demás que se
+toca) y `--control-peligro-*`. Las variantes `secundario` y `discreto` del botón
+compartido dibujan lo mismo: convivían en la misma tarjeta haciendo creer que la
+diferencia significaba algo.
+
+**Limpiarlo una vez no alcanzaba**: la novena pantalla vuelve a empezar, que es
+exactamente como se llegó a ocho. `components/ui/aspecto-de-los-controles.test.ts`
+rechaza el control que se invente colores propios. Las 26 excepciones están
+listadas **con su motivo escrito al lado**, y esa es la parte que importa: si el
+motivo no se puede escribir, es que no había motivo.
+
+### Un defecto que apareció al mostrarlo
+
+La cuenta de productos que decide «tu catálogo ya está listo» **incluía los de la
+papelera**. Un negocio que borró todos sus productos tiene el catálogo vacío para
+quien lo abre, y el sistema le decía que estaba listo justo cuando había dejado
+de estarlo. No se veía porque esa cuenta solo la usaba el alta, que se recorre
+una vez y con productos recién cargados; se vio al ponerla en la pantalla de
+inicio, que se mira todos los días.
+
+### Lo que este tramo dejó pendiente
+
+**El contenedor `.contenido` está copiado en diez hojas de estilo.** El ancho y
+los márgenes de cada pantalla del panel, repetidos diez veces. Su lugar es el
+layout, no cada página. La décima copia se agregó **a propósito** al crear
+Herramientas: inventar una convención nueva a mitad de la reorganización habría
+dejado el panel con dos, que es peor que tener una mala. Moverlo pide mirar las
+diez pantallas, y eso lo tiene que ver el dueño.
+
+**Dos decisiones que esperan uso real para confirmarse.** «Agotado» quedó dentro
+del menú «Más» de la ficha de producto: es una acción de todos los días y ahora
+cuesta un clic más: se movió porque siete botones a la vista hacían la tarjeta
+más alta que el producto en un teléfono, y siete botones iguales tampoco dicen
+cuál es el importante. Y Pedidos **no** tiene el bloque «Esperan tu decisión» que
+sí tiene Agenda: la pantalla ya abre filtrada en «Pendiente», así que el bloque
+sería el mismo listado dos veces.
 
 ---
 
