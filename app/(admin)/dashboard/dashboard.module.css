@@ -276,3 +276,28 @@
   font-weight: 800;
   white-space: nowrap;
 }
+
+/* El panel con el color del negocio — fase 8.5.
+ *
+ * **Solo los acentos.** Lo que se pinta con la paleta del negocio es lo que
+ * señala: la marca, la acción principal, lo que está elegido, los realces. El
+ * lienzo, las superficies y la tinta siguen siendo los de MiPuesto, y eso no es
+ * una limitación técnica sino la decisión: si el panel se pintara entero, se
+ * perdería la señal que distingue de un vistazo «estoy en mi tienda» de «estoy
+ * en el administrador». El dueño entra a los dos el mismo día.
+ *
+ * Con reasignar estos dos alcanza. Todo lo demás del panel —la marca fuerte, los
+ * tonos tenues, el color de peligro, los tres aspectos de control— ya estaba
+ * derivado de ellos con `color-mix`, así que sigue solo. Los botones se pintan
+ * con la paleta sin una línea más, que es lo que se ganó al dejar tres aspectos
+ * en vez de ocho. */
+.pagina[data-paleta] {
+  /* El tono propio para panel si la paleta lo declara, y el de la paleta si no.
+     Ocho de las diez pasan tal cual; las dos oscuras traen el suyo, porque su
+     marca está pensada para leerse sobre fondo oscuro y el panel es claro. La
+     alternativa —un bloque por paleta acá— sería copiar diez colores que ya
+     están escritos en otro archivo. */
+  --color-marca: var(--catalogo-marca-panel, var(--catalogo-marca));
+  --color-accion: var(--catalogo-accion-panel, var(--catalogo-accion));
+}
+

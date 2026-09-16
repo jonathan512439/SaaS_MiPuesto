@@ -17,6 +17,7 @@ import {
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import styles from "./dashboard.module.css";
 import { patronDeRubro } from "../../../lib/patrones-fondo";
+import tema from "../../../components/templates/tema-catalogo.module.css";
 import { Isotipo } from "../../../components/marca/isotipo";
 import { RUTAS_PANEL } from "../../../lib/panel/rutas";
 
@@ -38,7 +39,7 @@ export default async function LayoutPanel({
      que entrar a buscarlo, se entera el día que su catálogo deja de verse. */
   const { data: negocioSuscripcion } = await supabase
     .from("negocios")
-    .select("activo,suspendido_en,suscripcion_vence_en,rubro,alta_paso,alta_completada_en")
+    .select("activo,suspendido_en,suscripcion_vence_en,rubro,paleta_id,alta_paso,alta_completada_en")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   /* Hasta que el alta no esté cerrada, el panel abre siempre en el alta.
@@ -84,7 +85,11 @@ export default async function LayoutPanel({
     <ProveedorSupabaseNavegador clavePublica={clavePublica} url={url}>
       <ProveedorAvisos>
         <ProveedorConfirmacion>
-          <div className={styles.pagina} data-patron={patronDeRubro(negocioSuscripcion?.rubro)}>
+          <div
+            className={`${styles.pagina} ${tema.paleta}`}
+            data-paleta={negocioSuscripcion?.paleta_id ?? undefined}
+            data-patron={patronDeRubro(negocioSuscripcion?.rubro)}
+          >
             <header className={styles.barra}>
               <div className={styles.barraContenido}>
                 <Link

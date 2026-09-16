@@ -133,7 +133,19 @@
   --patron-tinta: color-mix(in srgb, var(--catalogo-texto) 30%, transparent);
 }
 
-.tema[data-paleta="mercado"] {
+/* `.paleta` es el mismo juego de colores sin el tema.
+ *
+ * `.tema` pinta: se da el fondo y la tinta del catálogo. El panel del
+ * administrador necesita **los colores del negocio pero no su fondo** —la fase
+ * 8.5 decidió que toma la paleta solo en los acentos, para que nunca se
+ * confunda «estoy en mi tienda» con «estoy en el administrador»—, así que usa
+ * esta clase, que declara las variables y no pinta nada.
+ *
+ * Se agrega acá y no se copian los diez juegos de color en una hoja del panel:
+ * copiarlos daría dos listas que el día que una paleta se retoque quedarían
+ * distintas, y el dueño vería un verde en su catálogo y otro en su panel. */
+.tema[data-paleta="mercado"],
+.paleta[data-paleta="mercado"] {
   --catalogo-superficie: #fbfaf8;
   --catalogo-texto: #15292c;
   --catalogo-marca: #1f5b63;
@@ -144,7 +156,8 @@
   --catalogo-alerta: #8a5500;
 }
 
-.tema[data-paleta="tierra"] {
+.tema[data-paleta="tierra"],
+.paleta[data-paleta="tierra"] {
   --catalogo-superficie: #fff9f0;
   --catalogo-texto: #2d241e;
   --catalogo-marca: #5a3722;
@@ -155,7 +168,8 @@
   --catalogo-alerta: #825a00;
 }
 
-.tema[data-paleta="oceano"] {
+.tema[data-paleta="oceano"],
+.paleta[data-paleta="oceano"] {
   --catalogo-superficie: #f5fbfc;
   --catalogo-texto: #14303b;
   --catalogo-marca: #0f6178;
@@ -166,7 +180,23 @@
   --catalogo-alerta: #7a5600;
 }
 
-.tema[data-paleta="noche"] {
+.tema[data-paleta="noche"],
+/* Los dos tonos con los que esta paleta se ve en el **panel**.
+ *
+ * Su marca y su acción están elegidas para leerse sobre el fondo oscuro del
+ * catálogo. El panel tiene fondo claro y ahí esos mismos colores dan dos a uno:
+ * un botón que no se lee. No es un caso raro que se pueda ignorar, son dos de
+ * las diez paletas.
+ *
+ * Viven acá, con su paleta, y no en la hoja del panel: son colores de la
+ * paleta, y el día que alguien retoque este menta querrá retocar el verde que
+ * le corresponde sin tener que acordarse de que existe en otro archivo.
+ *
+ * No son «otro color»: son el mismo matiz llevado a donde se lee sobre claro,
+ * que es lo que el dueño reconoce. El control de contraste los comprueba. */
+.paleta[data-paleta="noche"] {
+  --catalogo-marca-panel: #1f5f57;
+  --catalogo-accion-panel: #a8481f;
   --catalogo-superficie: #151a1c;
   --catalogo-texto: #f7f3ea;
   --catalogo-marca: #8fd0c9;
@@ -181,7 +211,8 @@
   --catalogo-sobre-navegador: var(--catalogo-texto);
 }
 
-.tema[data-paleta="altiplano"] {
+.tema[data-paleta="altiplano"],
+.paleta[data-paleta="altiplano"] {
   --catalogo-superficie: #faf7fc;
   --catalogo-texto: #241a2b;
   --catalogo-marca: #543279;
@@ -192,7 +223,8 @@
   --catalogo-alerta: #8a5500;
 }
 
-.tema[data-paleta="jazmin"] {
+.tema[data-paleta="jazmin"],
+.paleta[data-paleta="jazmin"] {
   --catalogo-superficie: #fff8fa;
   --catalogo-texto: #2b1d25;
   --catalogo-marca: #7a2b52;
@@ -203,7 +235,8 @@
   --catalogo-alerta: #a1442a;
 }
 
-.tema[data-paleta="selva"] {
+.tema[data-paleta="selva"],
+.paleta[data-paleta="selva"] {
   --catalogo-superficie: #f7faf7;
   --catalogo-texto: #17251b;
   --catalogo-marca: #1f5132;
@@ -214,7 +247,8 @@
   --catalogo-alerta: #8a5500;
 }
 
-.tema[data-paleta="cobre"] {
+.tema[data-paleta="cobre"],
+.paleta[data-paleta="cobre"] {
   --catalogo-superficie: #fdf8f4;
   --catalogo-texto: #2a1d16;
   --catalogo-marca: #8a4118;
@@ -225,7 +259,23 @@
   --catalogo-alerta: #8a5500;
 }
 
-.tema[data-paleta="pizarra"] {
+.tema[data-paleta="pizarra"],
+/* Los dos tonos con los que esta paleta se ve en el **panel**.
+ *
+ * Su marca y su acción están elegidas para leerse sobre el fondo oscuro del
+ * catálogo. El panel tiene fondo claro y ahí esos mismos colores dan dos a uno:
+ * un botón que no se lee. No es un caso raro que se pueda ignorar, son dos de
+ * las diez paletas.
+ *
+ * Viven acá, con su paleta, y no en la hoja del panel: son colores de la
+ * paleta, y el día que alguien retoque este menta querrá retocar el verde que
+ * le corresponde sin tener que acordarse de que existe en otro archivo.
+ *
+ * No son «otro color»: son el mismo matiz llevado a donde se lee sobre claro,
+ * que es lo que el dueño reconoce. El control de contraste los comprueba. */
+.paleta[data-paleta="pizarra"] {
+  --catalogo-marca-panel: #2a5f8f;
+  --catalogo-accion-panel: #9c5220;
   --catalogo-superficie: #1a1f26;
   --catalogo-texto: #eef1f5;
   --catalogo-marca: #9ec5f0;
@@ -240,7 +290,8 @@
   --catalogo-sobre-navegador: var(--catalogo-texto);
 }
 
-.tema[data-paleta="grafito"] {
+.tema[data-paleta="grafito"],
+.paleta[data-paleta="grafito"] {
   --catalogo-superficie: #f7f7f6;
   --catalogo-texto: #1b1e20;
   --catalogo-marca: #303539;

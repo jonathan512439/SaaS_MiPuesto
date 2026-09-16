@@ -112,9 +112,16 @@ function mezclar(colorA, colorB, proporcionA) {
 
    Una mezcla contra `transparent` devuelve `null`: sin saber qué hay detrás no
    se puede calcular su contraste, y afirmar uno sería peor que no comprobarlo. */
-function leerColor(token, vistos = new Set()) {
+function leerColor(token, vistos = new Set(), sustitutos = {}) {
   if (vistos.has(token)) throw new Error(`El token --color-${token} se define en círculo.`);
   vistos.add(token);
+
+  /* El panel pintado con la paleta de un negocio reasigna `marca` y `accion`, y
+     **todo lo demás se recalcula solo** porque está derivado de esos dos con
+     `color-mix`. Comprobar la paleta nueva es, entonces, resolver los mismos
+     tokens cambiando las dos bases: si se leyeran de la hoja global se
+     comprobaría diez veces el mismo color de MiPuesto y no se vería nada. */
+  if (sustitutos[token]) return sustitutos[token];
 
   const declaracion = css.match(new RegExp(`--color-${token}:\\s*([^;]+);`));
   if (!declaracion) throw new Error(`No se encontró el token --color-${token}.`);
@@ -130,8 +137,8 @@ function leerColor(token, vistos = new Set()) {
   const [, primero, proporcion, segundo, transparente] = mezcla;
   if (transparente) return null;
 
-  const colorA = leerColor(primero, new Set(vistos));
-  const colorB = leerColor(segundo, new Set(vistos));
+  const colorA = leerColor(primero, new Set(vistos), sustitutos);
+  const colorB = leerColor(segundo, new Set(vistos), sustitutos);
   if (!colorA || !colorB) return null;
 
   return mezclar(colorA, colorB, Number(proporcion));
@@ -161,7 +168,10 @@ function contraste(colorA, colorB) {
 
 function leerColoresPaleta(paleta) {
   const bloque = cssPaletas.match(
-    new RegExp(`\\.tema\\[data-paleta="${paleta}"\\]\\s*\\{([\\s\\S]*?)\\}`),
+    /* El selector agrupa dos clases —`.tema` pinta, `.paleta` solo declara—
+       y entre el nombre de la paleta y la llave hay otro selector. Sin esta
+       tolerancia el control no encontraba ninguna paleta. */
+    new RegExp(`\\.tema\\[data-paleta="${paleta}"\\][^{]*\\{([\\s\\S]*?)\\}`),
   )?.[1];
 
   if (!bloque) throw new Error(`No se encontró la paleta ${paleta}.`);
@@ -279,10 +289,81 @@ for (const [frente, fondo, minimo] of combinacionesFoco) {
   console.log(`foco ${frente} sobre ${fondo}: ${relacion.toFixed(2)}:1`);
 }
 
-console.log("Control de contraste: correcto.");
-
 const apariencia = readFileSync(new URL("../lib/apariencia.ts", import.meta.url), "utf8");
 const paletas = descubrirPaletas();
+
+/* ── El panel con la paleta del negocio (fase 8.5) ───────────────────────────
+ *
+ * Hasta acá el control medía **una sola combinación**: la de MiPuesto. Desde que
+ * el panel toma el color del negocio en sus acentos, hay diez paneles distintos,
+ * y nueve no los miraba nadie.
+ *
+ * No es una precaución teórica: dos de las diez paletas —«Noche» y «Pizarra»—
+ * tienen una marca y una acción pensadas para leerse sobre fondo oscuro. Sobre
+ * el lienzo claro del panel esos colores dan dos a uno. Por eso el panel les
+ * asigna un tono propio, y por eso eso mismo tiene que estar comprobado: un tono
+ * elegido a ojo se ajusta hasta que «se ve bien» y termina reprobando.
+ */
+/* Qué marca y qué acción usa el panel con cada paleta: la de la paleta, salvo
+   que la hoja del panel declare un tono propio para ella. Se lee del CSS y no de
+   una lista acá, porque una lista aparte es una copia que se desactualiza. */
+function acentosDelPanel(paleta, coloresPaleta) {
+  const bloque = cssPaletas.match(
+    new RegExp(`\\.tema\\[data-paleta="${paleta}"\\][^{]*\\{([\\s\\S]*?)\\}`),
+  )?.[1];
+
+  const propio = (token) =>
+    bloque?.match(new RegExp(`--catalogo-${token}-panel:\\s*(#[0-9a-fA-F]{6})\\s*;`))?.[1];
+
+  return {
+    marca: propio("marca") ?? coloresPaleta.marca,
+    accion: propio("accion") ?? coloresPaleta.accion,
+  };
+}
+
+/* Las parejas del panel que dependen de la marca o de la acción. Las que no
+   —texto sobre superficie, el degradado de la IA— ya se comprobaron arriba y
+   no cambian con la paleta: repetirlas diez veces sería ruido. */
+const combinacionesDePaleta = combinaciones.filter(([frente, fondo]) =>
+  /* `lienzo` entra aunque no lleve «marca» en el nombre: está derivado de ella
+     —es un 5 % de la marca sobre la superficie— y por lo tanto cambia con la
+     paleta. Dejarlo afuera habría sido comprobar los acentos y no el fondo sobre
+     el que se leen, que es donde el contraste se pierde de verdad. */
+  [frente, fondo].some((token) => /marca|accion|peligro|fondo-suave|lienzo/.test(token)),
+);
+
+for (const paleta of paletas) {
+  const acentos = acentosDelPanel(paleta, leerColoresPaleta(paleta));
+
+  for (const [frente, fondo, minimo] of combinacionesDePaleta) {
+    const colorFrente = leerColor(frente, new Set(), acentos);
+    const colorFondo = leerColor(fondo, new Set(), acentos);
+    if (!colorFrente || !colorFondo) continue;
+
+    const relacion = contraste(colorFrente, colorFondo);
+    if (relacion < minimo) {
+      throw new Error(
+        `Panel con la paleta ${paleta}: ${frente} sobre ${fondo} = ${relacion.toFixed(2)}:1; mínimo ${minimo}:1.`,
+      );
+    }
+  }
+
+  /* La acción principal tiene que distinguirse de la segunda, que es la
+     superficie con borde. Si una paleta las deja del mismo color, la jerarquía
+     de los botones desaparece **en el negocio que eligió esa paleta**, y eso no
+     se ve probando con una sola. Tres a uno: es la señal de un elemento gráfico,
+     no de un texto. */
+  const principal = leerColor("accion", new Set(), acentos);
+  const segundo = leerColor("superficie", new Set(), acentos);
+  const separacion = contraste(principal, segundo);
+  if (separacion < 3) {
+    throw new Error(
+      `Panel con la paleta ${paleta}: la acción principal no se distingue de la segunda (${separacion.toFixed(2)}:1; mínimo 3:1).`,
+    );
+  }
+}
+
+console.log(`Control de contraste: correcto, con las ${paletas.length} paletas del panel.`);
 
 compararListas("Paletas", paletas, leerListaTs(apariencia, "DEFINICIONES_PALETAS"), "DEFINICIONES_PALETAS");
 compararListas("Paletas", paletas, leerConstanteTs(apariencia, "PALETAS"), "la constante PALETAS");
