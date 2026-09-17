@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 
 import { iconosDePatron } from "../../../lib/patrones-fondo";
-import { armarSecciones } from "../../../lib/plantillas/secciones";
+import { armarSecciones, posicionDelAnuncio } from "../../../lib/plantillas/secciones";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { Icono } from "../../iconos/icono";
 import { IconoRed } from "../../iconos/redes";
@@ -63,14 +63,10 @@ export function PlantillaMipuesto({
      dibujar la pantalla entera. */
   const seccionesConProductos = armarSecciones(datos.categorias);
 
-  /* Después de cuál va el anuncio: **antes de la última categoría**.
-     
-     Abajo del todo, pero todavía dentro de los productos. Es publicidad, y la
-     publicidad se mira cuando ya se recorrió lo que se venía a ver —no a la
-     mitad, interrumpiendo—. Que quede una categoría después es a propósito: así
-     sigue siendo parte del catálogo y no un pie pegado al final.
-     Con una sola categoría cae después de ella, que es lo único que hay. */
-  const posicionDelAnuncio = Math.max(0, seccionesConProductos.length - 2);
+  /* Después de cuál va el anuncio. La regla vive en `secciones.ts` con el
+     motivo escrito: acá adentro no se podía comprobar sin dibujar la pantalla
+     entera, y es justo la que se rompió. */
+  const posicionAnuncio = posicionDelAnuncio(seccionesConProductos.length);
 
   const irA = (id: string) => {
     if (typeof document === "undefined") return;
@@ -268,10 +264,10 @@ export function PlantillaMipuesto({
 
       {/* 7 · Productos, agrupados por categoría, con la tarjeta única.
 
-          El banner de publicidad se intercala **a la mitad**, entre dos
-          categorías: ahí lo ve quien ya está recorriendo el catálogo, que es a
-          quien le sirve una promoción. Pegado al pie lo ve solo el que llegó
-          hasta abajo, y pegado arriba compite con la portada. */}
+          El banner de publicidad se intercala entre dos categorías: ahí lo ve
+          quien ya está recorriendo el catálogo, que es a quien le sirve una
+          promoción. Pegado al pie lo ve solo el que llegó hasta abajo, y pegado
+          arriba compite con la portada. */}
       <div className={styles.secciones} id="productos">
         {seccionesConProductos.map(({ categoria, sueltos, grupos, total }, posicion) => (
           <Fragment key={categoria.id}>
@@ -327,7 +323,7 @@ export function PlantillaMipuesto({
               ))}
             </section>
 
-            {posicion === posicionDelAnuncio ? (
+            {posicion === posicionAnuncio ? (
               <BannerCatalogo banner={negocio.banners[1]} className={styles.anuncio} />
             ) : null}
           </Fragment>

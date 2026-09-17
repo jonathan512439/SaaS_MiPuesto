@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { PaletaId } from "../../lib/apariencia";
 import { fusionarCategorias } from "../../lib/plantillas/fusionar";
@@ -82,8 +82,6 @@ export function CatalogoInteractivo({
     setBusqueda(filtros.busqueda);
   }
 
-  const productosPagina = useMemo(() => obtenerProductos(datos), [datos]);
-
   /* Los tramos que se fueron trayendo al bajar, sumados al que vino dibujado.
      Arranca en el que sirvió la pantalla, así que sin JavaScript —o antes de que
      corra— el catálogo es exactamente el de siempre.
@@ -111,6 +109,20 @@ export function CatalogoInteractivo({
   }
 
   const { categorias, ultimaTanda } = acumulado;
+
+  /* El catálogo **como se está viendo**: lo que sirvió el servidor más lo que se
+     trajo al bajar. Se arma una sola vez y de acá salen las dos cosas que tienen
+     que coincidir —lo que se dibuja y lo que se puede agregar al pedido—.
+
+     Estaban separadas, y por eso los productos que llegaban al bajar se
+     dibujaban pero no se podían agregar: `cambiarCantidad` los buscaba en la
+     primera tanda, no los encontraba y se volvía sin hacer nada. El botón del
+     carrito no respondía y no había ningún aviso de por qué. El dueño lo
+     encontró probando: «el artículo diccionario no se agregaba al carrito al
+     presionar carrito». */
+  const enPantalla = { ...datos, categorias };
+  const productosPagina = obtenerProductos(enPantalla);
+
   const [trayendo, setTrayendo] = useState(false);
   const finDeLaLista = useRef<HTMLDivElement | null>(null);
 
@@ -167,11 +179,11 @@ export function CatalogoInteractivo({
     return () => observador.disconnect();
   }, [direccionActual, filtros.busqueda, filtros.categoria, hayMas, slug, totalPaginas, trayendo, ultimaTanda]);
   const productosCarrito = Object.values(elegidos);
-  const productos = useMemo(() => {
-    const porId = new Map(productosCarrito.map((producto) => [producto.id, producto]));
-    for (const producto of productosPagina) porId.set(producto.id, producto);
-    return [...porId.values()];
-  }, [productosCarrito, productosPagina]);
+  /* Todo lo que se puede agregar al pedido: lo que está en pantalla y lo que el
+     cliente ya eligió antes, que puede no estar en esta página. */
+  const porId = new Map(productosCarrito.map((producto) => [producto.id, producto]));
+  for (const producto of productosPagina) porId.set(producto.id, producto);
+  const productos = [...porId.values()];
   const cantidadEnCarrito = Object.values(cantidades).reduce(
     (total, cantidad) => total + cantidad,
     0,
@@ -331,7 +343,7 @@ export function CatalogoInteractivo({
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
         alVerProducto={(productoId) => registrar("clic_producto", productoId)}
         cantidadesCarrito={cantidades}
-        datos={{ ...datos, categorias }}
+        datos={enPantalla}
         demostracion={false}
         navegacion={categoriasNavegacion.length > 0 ? navegacion : undefined}
         paleta={paleta}

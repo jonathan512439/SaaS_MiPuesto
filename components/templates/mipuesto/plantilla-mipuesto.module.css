@@ -466,11 +466,17 @@
   }
 }
 
-/* La tarjeta única */
+/* La tarjeta única.
+ *
+ * Con borde además de sombra. La sombra sola alcanzaba sobre el fondo teñido del
+ * catálogo, pero no sobre los fondos claros de varias paletas: ahí la tarjeta y
+ * el fondo eran casi el mismo blanco y la rejilla se leía como una lista de
+ * fotos sueltas. El borde la recorta siempre, con cualquier paleta. */
 .tarjeta {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
   border-radius: var(--radius-panel);
   background: var(--catalogo-superficie);
   box-shadow: var(--catalogo-sombra-flotante);
@@ -483,6 +489,9 @@
 
 .tarjetaFoto {
   position: relative;
+  /* Una línea entre la fotografía y los datos: sin ella, una foto de fondo claro
+     se derramaba sobre el nombre y la tarjeta no tenía dónde empezar. */
+  border-bottom: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
   /* Antes cuadrada. La foto es lo mas alto de la tarjeta, y en una rejilla de
      cuatro o cinco columnas una hilera de cuadrados empuja el precio y el boton
      fuera de la pantalla. En 4:3 entra lo mismo de producto y sobra alto. */

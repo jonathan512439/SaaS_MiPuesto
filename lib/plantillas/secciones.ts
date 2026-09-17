@@ -65,3 +65,23 @@ export function armarSecciones(
        la mitad». */
     .filter(({ total }) => total > 0);
 }
+
+/* Después de cuál sección va el banner de publicidad.
+ *
+ * Contaba desde el final —«antes de la última categoría»— y eso lo hacía
+ * saltar. Con la carga al desplazar, cada tanda que llega agrega secciones: el
+ * final se corre, la cuenta da otro número, y el banner se muda de lugar
+ * mientras la persona está mirando, empujando las tarjetas que tenía debajo. El
+ * dueño lo vio y lo describió así: «el segundo banner se pasa brincando, a veces
+ * está en un lado y luego se mueve a otro».
+ *
+ * Contando desde el principio no puede pasar: las tandas se suman al final, así
+ * que la segunda sección sigue siendo la segunda por más que lleguen diez más.
+ *
+ * Y va ahí —después de la segunda— porque el dueño además lo pidió más arriba:
+ * una publicidad al pie la ve solo quien llegó hasta abajo. Con una sola
+ * sección cae después de ella, que es lo único que hay; sin secciones no hay
+ * dónde ponerlo. */
+export function posicionDelAnuncio(cantidadDeSecciones: number) {
+  return Math.min(1, cantidadDeSecciones - 1);
+}

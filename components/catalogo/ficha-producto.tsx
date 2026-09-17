@@ -179,19 +179,31 @@ export function FichaProducto({
           <p className={styles.descripcion}>{producto.descripcion}</p>
         ) : null}
 
-        {/* Las especificaciones, con su nombre al lado. Acá sí van los nombres
-            —a diferencia de la línea de la tarjeta— porque este es el lugar
-            adonde se viene a mirar el detalle, y «E27» sin decir «Casquillo» no
-            le sirve a quien no conoce el rubro. */}
+        {/* Los campos propios de la categoría, en una tabla de dos columnas.
+            Acá sí van los nombres —a diferencia de la línea de la tarjeta—
+            porque este es el lugar adonde se viene a mirar el detalle, y «E27»
+            sin decir «Casquillo» no le sirve a quien no conoce el rubro.
+
+            Alineados en columna y con una línea entre filas: es la forma en que
+            se leen las fichas técnicas en cualquier tienda, y con los nombres
+            uno debajo del otro la vista los recorre de una. Sueltos, cada par
+            arrancaba en un lugar distinto y el bloque se leía como notas.
+
+            Sigue siendo una lista de definiciones y no una `<table>`: son pares
+            nombre-valor, no una grilla de datos, y el lector de pantalla los
+            anuncia mejor así. La tabla es cómo se ve, no qué es. */}
         {producto.especificaciones.length > 0 ? (
-          <dl className={styles.especificaciones}>
-            {producto.especificaciones.map((dato) => (
-              <div key={dato.clave}>
-                <dt>{dato.nombre}</dt>
-                <dd>{dato.texto}</dd>
-              </div>
-            ))}
-          </dl>
+          <section className={styles.fichaTecnica}>
+            <h2 className={styles.fichaTecnicaTitulo}>Detalles</h2>
+            <dl className={styles.especificaciones}>
+              {producto.especificaciones.map((dato) => (
+                <div key={dato.clave}>
+                  <dt>{dato.nombre}</dt>
+                  <dd>{dato.texto}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
         ) : null}
 
         {/* Vender tiempo y vender cosas son dos formas de comprar distintas: una

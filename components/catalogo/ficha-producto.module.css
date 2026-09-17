@@ -4,19 +4,27 @@
  *
  * En el teléfono es una columna y no se nota. En una pantalla ancha es lo que
  * le permite a la página poner las fotos de un lado y el detalle del otro sin
- * que la tira de miniaturas se despegue de su imagen. */
+ * que la tira de miniaturas se despegue de su imagen.
+ *
+ * Va sobre una superficie con borde propio, igual que el detalle: sin eso las
+ * fotografías flotaban sobre el fondo del catálogo y la página se leía como un
+ * documento suelto en vez de una ficha de producto. */
 .galeria {
   display: grid;
   align-content: start;
-  gap: var(--spacing-3);
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border-radius: var(--radius-panel);
+  background: var(--catalogo-superficie);
+  box-shadow: var(--catalogo-sombra-tarjeta);
 }
 
 .lienzo {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 14rem;
-  padding: var(--spacing-2);
+  min-height: 16rem;
+  padding: var(--spacing-3);
   background: var(--catalogo-fondo-hundido);
 }
 
@@ -80,7 +88,10 @@
   display: flex;
   gap: var(--spacing-2);
   overflow-x: auto;
-  padding: var(--spacing-3) var(--spacing-4) 0;
+  /* Adentro de la superficie de la galería, con una línea que las separa de la
+     fotografía grande: sin ella la tira parecía parte de la imagen. */
+  border-top: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
+  padding: var(--spacing-3);
   scrollbar-width: none;
 }
 
@@ -112,18 +123,28 @@
   object-fit: cover;
 }
 
+/* El detalle: nombre, precio, presentaciones, estado, descripción, campos y la
+   acción. Sobre superficie y con borde, como la galería: son las dos mitades de
+   la misma ficha y tienen que verse como un par. */
 .detalle {
   display: grid;
-  gap: var(--spacing-3);
+  align-content: start;
+  gap: var(--spacing-4);
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border-radius: var(--radius-panel);
   padding: var(--spacing-5);
+  background: var(--catalogo-superficie);
+  box-shadow: var(--catalogo-sombra-tarjeta);
 }
 
 .titulo {
   margin: 0;
   overflow-wrap: anywhere;
-  font-size: var(--text-xl);
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
   font-weight: 900;
   line-height: 1.15;
+  text-wrap: balance;
 }
 
 .precio {
@@ -136,7 +157,7 @@
 
 .precio strong {
   color: var(--catalogo-accion);
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
   font-weight: 900;
   line-height: 1;
 }
@@ -190,6 +211,14 @@
   line-height: 1.55;
 }
 
+/* La acción cierra la ficha, y se separa de lo de arriba con una línea: es lo
+   único que se toca de toda la columna, y sin ese corte quedaba pegada a los
+   campos como si fuera un dato más. */
+.accion {
+  border-top: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
+  padding-top: var(--spacing-4);
+}
+
 /* Vacío en un catálogo de solo lectura: la acción no dibuja nada por su cuenta
    y la ficha queda como una vitrina, que es lo que esa modalidad promete. */
 .accion:empty {
@@ -223,32 +252,63 @@
   opacity: 1;
 }
 
-/* Las especificaciones del producto: los datos propios de su categoría.
- *
- * Dos columnas donde entran y una sola en el teléfono, con `auto-fit` en vez de
- * una consulta de medios: en una pantalla ancha el detalle es media página, y
- * lo que decide es el ancho que le tocó, no el de la pantalla.
+/* Los campos propios de la categoría, como una ficha técnica.
  *
  * De uno a diez pares. No hay un número fijo a propósito: cada categoría declara
  * los suyos y una veterinaria no tiene los mismos que una ferretería. */
+.fichaTecnica {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.fichaTecnicaTitulo {
+  margin: 0;
+  color: var(--catalogo-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+  text-transform: uppercase;
+}
+
+/* Dos columnas alineadas entre todas las filas: la de los nombres se ajusta al
+   más largo y la de los valores se queda con el resto. Eso es lo que hace que
+   se lea como una tabla y no como notas sueltas —los nombres arrancan todos en
+   la misma vertical—, y `display: contents` en cada par es lo que deja que el
+   `dt` y el `dd` caigan en esas columnas siendo hijos de su `div`.
+
+   El `div` sigue existiendo porque un `dl` necesita agrupar cada par: sin él,
+   qué valor va con qué nombre lo tendría que adivinar el lector de pantalla. */
 .especificaciones {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
-  gap: var(--spacing-2) var(--spacing-4);
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
   margin: 0;
-  padding: var(--spacing-4);
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
   border-radius: var(--radius-tarjeta);
-  background: var(--catalogo-fondo-hundido);
 }
 
 .especificaciones > div {
-  display: grid;
-  gap: var(--spacing-1);
-  padding: var(--spacing-1) 0;
+  display: contents;
 }
 
+.especificaciones dt,
+.especificaciones dd {
+  padding: var(--spacing-2) var(--spacing-3);
+}
+
+/* Una línea entre filas y no alrededor de cada celda: la reja completa se lee
+   como una planilla de cálculo. Con la línea sola alcanza para seguir el
+   renglón. */
+.especificaciones > div + div dt,
+.especificaciones > div + div dd {
+  border-top: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
+}
+
+/* La columna de los nombres, teñida: separa las dos columnas sin una línea
+   vertical más, y de paso marca cuál es el nombre y cuál el dato. */
 .especificaciones dt {
-  color: var(--color-texto-suave);
+  background: var(--catalogo-fondo-suave);
+  color: var(--catalogo-texto-suave);
   font-size: var(--text-xs);
   font-weight: 800;
   letter-spacing: var(--tracking-etiqueta);
@@ -259,6 +319,7 @@
   margin: 0;
   font-size: var(--text-sm);
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 /* El selector de presentación: talla, color o tamaño.
@@ -272,14 +333,14 @@
   gap: var(--spacing-2);
   margin: 0;
   padding: var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
   border-radius: var(--radius-control);
-  background: var(--catalogo-fondo-hundido);
+  background: var(--catalogo-fondo-suave);
 }
 
 .variantes legend {
   padding: 0 var(--spacing-2);
-  color: var(--color-texto-suave);
+  color: var(--catalogo-texto-suave);
   font-size: var(--text-xs);
   font-weight: 800;
   letter-spacing: var(--tracking-etiqueta);
@@ -291,25 +352,25 @@
   align-items: center;
   gap: var(--spacing-2);
   padding: var(--spacing-2) var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--catalogo-borde);
   border-radius: var(--radius-control);
-  background: var(--color-superficie);
+  background: var(--catalogo-superficie);
   font-size: var(--text-sm);
   font-weight: 700;
   cursor: pointer;
 }
 
 .variantes label:has(input:checked) {
-  border-color: var(--color-marca);
-  background: var(--color-marca-tenue);
+  border-color: var(--catalogo-marca);
+  background: var(--catalogo-marca-tenue);
 }
 
 .variantes input {
-  accent-color: var(--color-marca);
+  accent-color: var(--catalogo-marca);
 }
 
 .variantes small {
-  color: var(--color-texto-suave);
+  color: var(--catalogo-texto-suave);
   font-size: var(--text-xs);
   font-weight: 800;
 }
@@ -321,8 +382,8 @@
   margin: 0;
   padding: var(--spacing-4);
   border-radius: var(--radius-control);
-  background: var(--catalogo-fondo-hundido);
-  color: var(--color-texto-suave);
+  background: var(--catalogo-fondo-suave);
+  color: var(--catalogo-texto-suave);
   font-size: var(--text-sm);
   text-align: center;
 }

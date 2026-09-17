@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { armarSecciones } from "./secciones";
+import { armarSecciones, posicionDelAnuncio } from "./secciones";
 import type { CategoriaPlantilla, ProductoPlantilla } from "./tipos";
 
 /* Las subcategorías del catálogo tienen seis reglas escritas en el plan, y cada
@@ -120,5 +120,21 @@ describe("las secciones del catálogo", () => {
       categoria: "Bebidas",
       subcategoria: "Gaseosas",
     });
+  });
+});
+
+describe("dónde cae el banner de publicidad", () => {
+  /* La prueba que faltaba: el catálogo crece mientras la persona baja, y la
+     posición del anuncio no puede cambiar por eso. Antes cambiaba —se contaba
+     desde el final— y el banner saltaba de lugar arrastrando las tarjetas. */
+  it("no se mueve cuando llegan más secciones al bajar", () => {
+    const tandas = [2, 3, 4, 5, 8, 13].map((cantidad) => posicionDelAnuncio(cantidad));
+    expect(new Set(tandas).size).toBe(1);
+    expect(tandas[0]).toBe(1);
+  });
+
+  it("con una sola sección va después de ella, y sin secciones no va", () => {
+    expect(posicionDelAnuncio(1)).toBe(0);
+    expect(posicionDelAnuncio(0)).toBe(-1);
   });
 });
