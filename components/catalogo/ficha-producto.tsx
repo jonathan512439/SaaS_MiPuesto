@@ -136,15 +136,34 @@ export function FichaProducto({
             producto: su nombre es el título de todo lo que hay en pantalla. */}
         <h1 className={styles.titulo}>{producto.nombre}</h1>
 
-        <div className={styles.precio}>
-          {producto.tienePromocion ? (
-            <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
-          ) : null}
-          {/* El precio sigue a la presentación elegida: si «7,5 kg» cuesta otra
-              cosa, el número de arriba tiene que decirlo antes de que la persona
-              toque el botón, no después. */}
-          <strong>{formatearPrecioBolivianos(precioMostrado)}</strong>
-          {producto.tienePromocion ? <small>Precio promocional</small> : null}
+        {/* La descripción va antes del precio y no después, como en los
+            catálogos de referencia: primero qué es, después cuánto cuesta. Con
+            el precio arriba, el número se lee sin saber todavía de qué. */}
+        {producto.descripcion ? (
+          <p className={styles.descripcion}>{producto.descripcion}</p>
+        ) : null}
+
+        {/* El precio y el estado comparten renglón, que es como se ven en las
+            referencias: «Bs 245» y la pastilla «En stock» al mismo nivel. Lo
+            primero que se mira es cuánto cuesta y si lo hay. */}
+        <div className={styles.precioYEstado}>
+          <div className={styles.precio}>
+            {producto.tienePromocion ? (
+              <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
+            ) : null}
+            {/* El precio sigue a la presentación elegida: si «7,5 kg» cuesta otra
+                cosa, el número de arriba tiene que decirlo antes de que la persona
+                toque el botón, no después. */}
+            <strong>{formatearPrecioBolivianos(precioMostrado)}</strong>
+            {producto.tienePromocion ? <small>Precio promocional</small> : null}
+          </div>
+
+          <div className={styles.estados}>
+            {producto.estado === "agotado" ? (
+              <span className={styles.agotado}>Agotado</span>
+            ) : null}
+            <EstadoStockProducto className={styles.stock} producto={producto} />
+          </div>
         </div>
 
         {producto.variantes.length > 0 ? (
@@ -166,17 +185,6 @@ export function FichaProducto({
               </label>
             ))}
           </fieldset>
-        ) : null}
-
-        <div className={styles.estados}>
-          {producto.estado === "agotado" ? (
-            <span className={styles.agotado}>Agotado</span>
-          ) : null}
-          <EstadoStockProducto className={styles.stock} producto={producto} />
-        </div>
-
-        {producto.descripcion ? (
-          <p className={styles.descripcion}>{producto.descripcion}</p>
         ) : null}
 
         {/* Los campos propios de la categoría, en una tabla de dos columnas.

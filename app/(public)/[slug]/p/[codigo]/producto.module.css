@@ -1,26 +1,56 @@
 @reference "../../../../globals.css";
 
+/* La página se acerca al borde de la pantalla.
+ *
+ * Tenía el margen de una página de lectura, y esto no es una página de lectura:
+ * en los catálogos de referencia la fotografía del producto llega casi al borde
+ * y el texto respira apenas. En un teléfono cada milímetro de margen es un
+ * milímetro menos de producto. */
 .pagina {
   display: grid;
   align-content: start;
-  gap: var(--spacing-6);
+  gap: var(--spacing-4);
   min-height: 100dvh;
-  width: min(calc(100% - var(--spacing-8)), 68rem);
+  width: min(calc(100% - var(--spacing-4)), 68rem);
   margin: 0 auto;
   /* Abajo sobra sitio para la barra flotante del pedido: sin ese hueco, la
      barra taparía la acción del último producto que se está mirando. */
-  padding: var(--spacing-5) 0 var(--spacing-24);
+  padding: var(--spacing-3) 0 var(--spacing-24);
 }
 
-.volver a {
-  display: inline-flex;
-  min-height: var(--control-alto);
+/* La cabecera de las referencias: la flecha sola a la izquierda, el rótulo de la
+   pantalla al medio, y el hueco de la derecha para que el rótulo quede centrado
+   de verdad y no corrido por el ancho de la flecha. */
+.barra {
+  display: grid;
+  grid-template-columns: var(--control-alto) minmax(0, 1fr) var(--control-alto);
   align-items: center;
-  color: var(--catalogo-marca);
+  gap: var(--spacing-2);
+}
+
+.barra h2 {
+  margin: 0;
+  color: var(--catalogo-texto-suave);
   font-size: var(--text-sm);
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 0.1875rem;
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* La flecha sola, sin palabras. Del tamaño de un control para que se pueda tocar
+   con el pulgar sin apuntar. */
+.barra a {
+  display: grid;
+  width: var(--control-alto);
+  height: var(--control-alto);
+  place-items: center;
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border-radius: var(--radius-control);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  font-size: var(--text-lg);
+  text-decoration: none;
 }
 
 /* Las dos partes de la ficha: las fotografías y el detalle.
@@ -32,18 +62,12 @@
 .producto {
   display: grid;
   align-items: start;
-  gap: var(--spacing-6);
+  gap: var(--spacing-4);
 }
 
 @media (min-width: 60rem) {
   .producto {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: var(--spacing-10);
-  }
-}
-
-@media (max-width: 24rem) {
-  .pagina {
-    width: min(calc(100% - var(--spacing-6)), 68rem);
+    gap: var(--spacing-8);
   }
 }

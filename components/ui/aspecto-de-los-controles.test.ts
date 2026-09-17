@@ -30,6 +30,10 @@ const FUERA_DEL_PANEL = [
   "catalogo-interactivo",
   "hoja-catalogo",
   "ficha-producto",
+  /* La página pública de un producto. Está en `app/(public)` y no en
+     `components`, así que no la alcanzaba ninguna de las otras entradas: su
+     flecha de volver se leía como un control del panel sin serlo. */
+  "producto.module.css",
   "foto-producto",
   "selector-de-turno",
   "inicio",

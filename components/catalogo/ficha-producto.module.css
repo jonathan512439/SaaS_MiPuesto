@@ -132,7 +132,7 @@
   gap: var(--spacing-4);
   border: var(--borde-fino) solid var(--catalogo-borde-suave);
   border-radius: var(--radius-panel);
-  padding: var(--spacing-5);
+  padding: var(--spacing-4);
   background: var(--catalogo-superficie);
   box-shadow: var(--catalogo-sombra-tarjeta);
 }
@@ -145,6 +145,18 @@
   font-weight: 900;
   line-height: 1.15;
   text-wrap: balance;
+}
+
+/* El precio a la izquierda y la pastilla de estado a la derecha, en la misma
+   línea, como en los catálogos de referencia: «Bs 245» y «En stock» al mismo
+   nivel. Es lo primero que se mira —cuánto cuesta y si lo hay—, y separarlos en
+   dos renglones obligaba a bajar para saber la mitad. */
+.precioYEstado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2) var(--spacing-3);
 }
 
 .precio {
@@ -207,8 +219,8 @@
 .descripcion {
   margin: 0;
   color: var(--catalogo-texto-suave);
-  font-size: var(--text-base);
-  line-height: 1.55;
+  font-size: var(--text-sm);
+  line-height: 1.5;
 }
 
 /* La acción cierra la ficha, y se separa de lo de arriba con una línea: es lo
@@ -270,17 +282,22 @@
   text-transform: uppercase;
 }
 
-/* Dos columnas alineadas entre todas las filas: la de los nombres se ajusta al
-   más largo y la de los valores se queda con el resto. Eso es lo que hace que
-   se lea como una tabla y no como notas sueltas —los nombres arrancan todos en
-   la misma vertical—, y `display: contents` en cada par es lo que deja que el
-   `dt` y el `dd` caigan en esas columnas siendo hijos de su `div`.
+/* Dos columnas del mismo reparto en todas las filas.
+ *
+ * La de los nombres se ajustaba al nombre más largo, y con eso un campo llamado
+ * «Temperatura ideal» corría la columna de los valores de toda la tabla: las
+ * filas quedaban con un hueco distinto cada una según qué campos declaró la
+ * categoría. Con un reparto fijo, la separación entre las dos columnas es la
+ * misma en cada renglón, que es como se leen las fichas técnicas de los
+ * catálogos de referencia.
 
-   El `div` sigue existiendo porque un `dl` necesita agrupar cada par: sin él,
-   qué valor va con qué nombre lo tendría que adivinar el lector de pantalla. */
+   `display: contents` en cada par es lo que deja que el `dt` y el `dd` caigan en
+   esas columnas siendo hijos de su `div`, y el `div` sigue existiendo porque un
+   `dl` necesita agrupar cada par: sin él, qué valor va con qué nombre lo tendría
+   que adivinar el lector de pantalla. */
 .especificaciones {
   display: grid;
-  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
   margin: 0;
   overflow: hidden;
   border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
@@ -294,6 +311,7 @@
 .especificaciones dt,
 .especificaciones dd {
   padding: var(--spacing-2) var(--spacing-3);
+  align-self: center;
 }
 
 /* Una línea entre filas y no alrededor de cada celda: la reja completa se lee

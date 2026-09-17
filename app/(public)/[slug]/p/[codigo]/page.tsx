@@ -7,6 +7,7 @@ import { COLUMNAS_PRODUCTO_PUBLICO } from "../../../../../lib/catalogo/columnas"
 import { obtenerNegocioPublico } from "../../../../../lib/catalogo/negocio-publico";
 import { consultarContextoPublico } from "../../../../../lib/catalogo/pagina-publica";
 import { construirCatalogoPublico } from "../../../../../lib/catalogo/publico";
+import { Icono } from "../../../../../components/iconos/icono";
 import { ProductoConPedido } from "../../../../../components/catalogo/producto-con-pedido";
 import { formatearPrecioBolivianos } from "../../../../../lib/precios";
 import { crearClienteSupabasePublico } from "../../../../../lib/supabase/public";
@@ -131,9 +132,18 @@ export default async function PaginaProducto({ params }: PropiedadesPagina) {
 
   return (
     <main className={`${temaStyles.tema} ${styles.pagina}`} data-paleta={paleta}>
-      <nav aria-label="Volver" className={styles.volver}>
-        <Link href={`/${negocio.slug}`}>Volver al catálogo de {negocio.nombre}</Link>
-      </nav>
+      {/* La cabecera de las referencias: la flecha sola a la izquierda y el
+          rótulo de la pantalla al medio.
+          Decía «Volver al catálogo de Pollos Broaster Saolito», que en un
+          teléfono ocupaba dos renglones para explicar un gesto que nadie
+          necesita que le expliquen. El nombre del negocio, además, ya está
+          arriba de todo apenas se toca la flecha. */}
+      <header className={styles.barra}>
+        <Link aria-label={`Volver al catálogo de ${negocio.nombre}`} href={`/${negocio.slug}`}>
+          <Icono nombre="atras" />
+        </Link>
+        <h2>Detalle del producto</h2>
+      </header>
 
       <article className={styles.producto}>
         <ProductoConPedido
