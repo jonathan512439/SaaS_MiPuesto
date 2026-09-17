@@ -1,36 +1,5 @@
 @reference "../../../globals.css";
 
-.contenido {
-  display: grid;
-  align-content: start;
-  gap: var(--spacing-5);
-  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
-  margin: 0 auto;
-  padding: var(--spacing-6) 0 var(--spacing-16);
-}
-
-@media (min-width: 60rem) {
-  .contenido {
-    padding-top: var(--spacing-8);
-  }
-}
-
-/* Ninguna pantalla del panel puede empujar la página a lo ancho.
- *
- * En una rejilla, el tamaño mínimo automático de un hijo es **su contenido**:
- * si algo adentro no sabe encogerse, el bloque se sale, el documento se vuelve
- * más ancho que la pantalla y aparece la barra horizontal. El síntoma engaña,
- * porque lo que se ve cortado no es el culpable: la cabecera y el pie, que miden
- * 100 % de la ventana, quedan **más cortos** que el contenido desbordado, y
- * parece que el problema es de ellos.
- *
- * Con esto cada bloque se encoge hasta lo que haya, y lo que de verdad necesita
- * más ancho —una tabla, una fila de fichas— se desplaza solo, adentro de su
- * caja, en vez de arrastrar a toda la pantalla. */
-.contenido > * {
-  min-width: 0;
-}
-
 .avisoFoto {
   display: grid;
   gap: var(--spacing-2);

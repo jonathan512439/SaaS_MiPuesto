@@ -28,9 +28,13 @@ import { svgDeIsotipo } from "./marca/isotipo";
 export const PARTE_DEL_LADO = 0.62;
 
 /* Qué tan tenue. Es el único número que puede romper algo acá: subirlo acerca
-   el gris del velo al negro de los módulos. A 0,12 el velo queda en un gris muy
-   claro, lejísimos del umbral con el que un lector separa claro de oscuro. */
-export const VELO = 0.12;
+   el gris del velo al negro de los módulos.
+   Empezó en 0,12 y el dueño reportó que la marca quedaba casi invisible con el
+   código impreso encima. A 0,17 se distingue y el gris que queda sigue a más de
+   diez a uno del negro de los módulos, que es lo que la prueba comprueba. No se
+   sube sin volver a escanear uno: lo que se rompe acá no se ve en la pantalla,
+   se ve en el mostrador. */
+export const VELO = 0.17;
 
 export type OpcionesQr = {
   texto: string;

@@ -19,6 +19,7 @@ import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/varia
 import { construirUrlPublicaNegocio } from "../../../../lib/url-sitio";
 import styles from "./negocio.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
+import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Configuración del negocio | MiPuesto",
@@ -41,7 +42,7 @@ export default async function PaginaConfiguracion() {
   const { url } = obtenerVariablesPublicasSupabase();
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Configurá la información de tu negocio para que tus clientes te encuentren en el catálogo."
         titulo={negocio ? "Tu negocio" : "Crea el perfil de tu negocio"}

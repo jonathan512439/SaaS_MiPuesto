@@ -5,10 +5,10 @@ import { redirect } from "next/navigation";
 import { ImportarPlanilla } from "../../../../../components/catalogo/importar-planilla";
 import type { CategoriaCatalogo } from "../../../../../lib/catalogo/tipos";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
-import styles from "../herramientas.module.css";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../../lib/panel/rutas";
+import panel from "../../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Importar tu Excel | MiPuesto",
@@ -57,7 +57,7 @@ export default async function PaginaImportarPlanilla() {
   const negocioLlevaStock = conStock !== null;
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         accion={<Link href={RUTAS_PANEL.productos}>Ver mis productos</Link>}
         descripcion="Si ya llevás tu inventario en una planilla, no hace falta volver a escribirlo. Subí el archivo, decinos qué columna es cuál y revisá antes de crear."

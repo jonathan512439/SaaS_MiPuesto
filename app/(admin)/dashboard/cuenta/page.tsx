@@ -12,6 +12,7 @@ import styles from "./cuenta.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { Isotipo } from "../../../../components/marca/isotipo";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
+import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Tu cuenta | MiPuesto",
@@ -48,7 +49,7 @@ export default async function PaginaCuenta() {
   );
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Administrá tu suscripción y los datos de tu negocio."
         titulo="Tu cuenta"

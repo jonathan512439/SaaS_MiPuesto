@@ -6,7 +6,7 @@ import { GestorPedidos, type PedidoAdmin } from "../../../../components/pedidos/
 import { leerAgendaAdmin } from "../../../../lib/agenda/datos-admin";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
-import styles from "./pedidos.module.css";
+import panel from "../panel.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +57,7 @@ export default async function PaginaPedidos() {
   const usaAgenda = agenda.recursos.length > 0 || agenda.citas.length > 0;
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       {/* El nombre del negocio va en la descripción a propósito. El panel muestra
           el negocio de la cuenta con la que se entró, y quien tiene dos cuentas
           de prueba puede estar mirando la pantalla equivocada sin ninguna pista:

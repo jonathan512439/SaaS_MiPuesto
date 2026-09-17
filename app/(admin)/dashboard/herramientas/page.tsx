@@ -9,6 +9,7 @@ import { rubroOfrece } from "../../../../lib/negocios/rubros";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import styles from "./herramientas.module.css";
+import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Herramientas | MiPuesto",
@@ -115,7 +116,7 @@ export default async function PaginaHerramientas() {
   }
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Cosas que vas a usar de vez en cuando: cargar muchos productos juntos, imprimir tu menú o recuperar lo borrado."
         titulo="Herramientas"

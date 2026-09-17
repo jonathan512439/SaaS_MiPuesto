@@ -3,9 +3,9 @@ import { redirect } from "next/navigation";
 
 import { GestorPromociones } from "../../../../components/promociones/gestor-promociones";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
-import styles from "./promociones.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
+import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Promociones | MiPuesto",
@@ -50,7 +50,7 @@ export default async function PaginaPromociones() {
   }
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Si coinciden varias, se aplica la que deje el precio más bajo."
         titulo="Promociones"

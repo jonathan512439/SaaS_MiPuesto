@@ -9,11 +9,11 @@ import { obtenerUrlPublicaImagenNegocio } from "../../../../lib/negocios/imagene
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import { esPaletaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
-import styles from "./apariencia.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { acotarOpacidad } from "../../../../lib/patrones-fondo";
 import { construirUrlPublicaNegocio } from "../../../../lib/url-sitio";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
+import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Plantilla del catálogo | MiPuesto",
@@ -78,7 +78,7 @@ export default async function PaginaPlantilla() {
   });
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Cambiala cuando quieras."
         titulo="Apariencia"

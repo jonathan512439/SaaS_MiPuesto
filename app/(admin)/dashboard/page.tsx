@@ -17,6 +17,7 @@ import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./resumen.module.css";
 import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../lib/panel/rutas";
+import panel from "./panel.module.css";
 
 export const metadata: Metadata = {
   title: "Resumen | MiPuesto",
@@ -145,7 +146,7 @@ export default async function PaginaDashboard() {
   const entregados = pedidos.filter((pedido) => pedido.estado === "entregado").length;
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Sin nombres, teléfonos ni contenido de los pedidos."
         rotulo="Últimos 7 días"

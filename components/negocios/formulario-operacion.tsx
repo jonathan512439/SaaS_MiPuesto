@@ -319,8 +319,12 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
         <fieldset className={styles.excepciones}>
           <legend>Fechas especiales</legend>
           <p className={styles.ayudaExcepciones}>
-            Un feriado, un inventario o una fiesta patronal. Mandan sobre el horario de
-            ese día, y las que ya pasaron se borran al guardar.
+            Feriados, días especiales o imprevistos: mandan sobre el horario de ese día.
+            {/* Se conserva esta frase aunque el resto se acorto: es lo unico del
+                bloque que describe algo que pasa solo. Sin ella, el dueno vuelve
+                en marzo, no encuentra el feriado de enero que cargo, y cree que
+                se perdio. */}{" "}
+            Las que ya pasaron se borran al guardar.
           </p>
 
           {horario.excepciones.length === 0 ? (

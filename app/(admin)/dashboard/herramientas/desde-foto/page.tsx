@@ -6,10 +6,10 @@ import { CargaDesdeFoto } from "../../../../../components/catalogo/carga-desde-f
 import type { CategoriaCatalogo } from "../../../../../lib/catalogo/tipos";
 import { TOPE_FOTOS_POR_MES } from "../../../../../lib/ia/servidor";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
-import styles from "../herramientas.module.css";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../../lib/panel/rutas";
+import panel from "../../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Cargar desde una foto | MiPuesto",
@@ -67,7 +67,7 @@ export default async function PaginaCargaDesdeFoto() {
   const negocioLlevaStock = conStock !== null;
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         accion={<Link href={RUTAS_PANEL.productos}>Ver mis productos</Link>}
         descripcion="Fotografiá tu lista de precios y te armamos el borrador. Vos revisás y confirmás: nada se publica sin que lo mires."

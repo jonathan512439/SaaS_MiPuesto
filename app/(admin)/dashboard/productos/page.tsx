@@ -7,7 +7,7 @@ import { leerCatalogoAdmin } from "../../../../lib/catalogo/datos-admin";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
-import styles from "../catalogo/catalogo.module.css";
+import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Productos | MiPuesto",
@@ -33,7 +33,7 @@ export default async function PaginaProductos() {
   const { url } = obtenerVariablesPublicasSupabase();
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Gestioná tus productos y mantené tu negocio siempre al día."
         titulo="Productos"

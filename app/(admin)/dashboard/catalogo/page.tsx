@@ -7,7 +7,7 @@ import { leerCatalogoAdmin } from "../../../../lib/catalogo/datos-admin";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
-import styles from "./catalogo.module.css";
+import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Mi catálogo | MiPuesto",
@@ -33,7 +33,7 @@ export default async function PaginaCatalogo() {
   const { url } = obtenerVariablesPublicasSupabase();
 
   return (
-    <main className={styles.contenido}>
+    <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Las categorías son las secciones de tu catálogo. Acá elegís su ícono, qué datos pide cada una y, si vendés turnos, sus horarios."
         titulo="Mi catálogo"
