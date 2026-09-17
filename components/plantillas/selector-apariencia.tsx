@@ -121,8 +121,12 @@ export function SelectorApariencia({
                   <i />
                   <i />
                 </span>
+                {/* Solo el nombre. La descripción —«cacao profundo con acento de
+                    ladrillo»— describía con palabras lo que las cuatro muestras
+                    de color ya están mostrando, y con dieciséis paletas eso son
+                    dieciséis renglones de texto que hay que leer para elegir
+                    algo que se elige mirando. */}
                 <strong>{paleta.nombre}</strong>
-                <span>{paleta.descripcion}</span>
               </label>
             );
           })}

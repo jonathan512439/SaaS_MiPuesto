@@ -16,7 +16,8 @@ export const COLOR_NAVEGADOR: Record<PaletaId, string> = {
   tierra: "#5a3722",
   /* Oscura desde que se la cambió: la barra va del color del fondo. */
   oceano: "#0f1720",
-  noche: "#151a1c",
+  /* El segundo azul de la paleta, que es el que pinta su cabecera. */
+  noche: "#063852",
   altiplano: "#8a3a1e",
   jazmin: "#7a2b52",
   grafito: "#303539",
@@ -27,10 +28,13 @@ export const COLOR_NAVEGADOR: Record<PaletaId, string> = {
   pizarra: "#1d1714",
   rosal: "#a8325f",
   amapola: "#b3301f",
-  /* Las dos de fondo negro: la barra va del negro del catálogo. Un amarillo o
-     un dorado ahí dejaría los íconos del navegador ilegibles. */
-  abeja: "#141310",
+  /* Clara: la barra va de su color de marca, como el resto de las claras. */
+  abeja: "#c9341f",
+  /* Las de fondo negro: la barra va del negro del catálogo. Un dorado o un rojo
+     vivo ahí dejaría los íconos del navegador ilegibles. */
   dorado: "#121110",
+  rubi: "#131011",
+  cielo: "#124a8c",
 };
 
 export function colorDeNavegador(paleta: string): string {

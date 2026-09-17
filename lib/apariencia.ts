@@ -27,6 +27,8 @@ export const PALETAS = [
   "amapola",
   "abeja",
   "dorado",
+  "rubi",
+  "cielo",
 ] as const;
 
 export type PaletaId = (typeof PALETAS)[number];
@@ -39,7 +41,7 @@ export const DEFINICIONES_PALETAS: ReadonlyArray<{
   { id: "mercado", nombre: "Mercado", descripcion: "Verde profundo y naranja cálido." },
   { id: "tierra", nombre: "Tierra", descripcion: "Cacao profundo con acento de ladrillo." },
   { id: "oceano", nombre: "Océano", descripcion: "Azul de medianoche con acento latón." },
-  { id: "noche", nombre: "Noche", descripcion: "Fondo oscuro con acentos claros y elegantes." },
+  { id: "noche", nombre: "Día y noche", descripcion: "Azul de medianoche con naranja y amarillo de amanecer." },
   { id: "altiplano", nombre: "Carta", descripcion: "Crema y madera con brasa, como una carta de restaurante." },
   { id: "jazmin", nombre: "Jazmín", descripcion: "Ciruela suave con acento dorado." },
   { id: "grafito", nombre: "Grafito", descripcion: "Gris carbón con acento rojo." },
@@ -48,6 +50,8 @@ export const DEFINICIONES_PALETAS: ReadonlyArray<{
   { id: "pizarra", nombre: "Carta de noche", descripcion: "Madera oscura, crema y oro viejo." },
   { id: "rosal", nombre: "Rosal", descripcion: "Rosa profundo sobre azúcar, con caramelo. Para pastelerías." },
   { id: "amapola", nombre: "Amapola", descripcion: "Rojo de flor con ciruela. Para florerías." },
-  { id: "abeja", nombre: "Abeja", descripcion: "Negro con amarillo encendido." },
+  { id: "abeja", nombre: "Sabor", descripcion: "Tomate y menta sobre crema. Para comida." },
   { id: "dorado", nombre: "Dorado", descripcion: "Negro con dorado y champán." },
+  { id: "rubi", nombre: "Rubí", descripcion: "Negro con rojo encendido." },
+  { id: "cielo", nombre: "Cielo", descripcion: "Blanco con azul marino y azul cielo." },
 ];

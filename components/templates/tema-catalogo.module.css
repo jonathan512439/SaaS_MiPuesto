@@ -205,20 +205,21 @@
  * No son «otro color»: son el mismo matiz llevado a donde se lee sobre claro,
  * que es lo que el dueño reconoce. El control de contraste los comprueba. */
 .paleta[data-paleta="noche"] {
-  --catalogo-marca-panel: #1f5f57;
-  --catalogo-accion-panel: #a8481f;
-  --catalogo-superficie: #151a1c;
-  --catalogo-texto: #f7f3ea;
-  --catalogo-marca: #8fd0c9;
-  --catalogo-sobre-marca: #132225;
-  --catalogo-accion: #f29a70;
-  --catalogo-sobre-accion: #2b1710;
+  --catalogo-marca-panel: #9a4f00;
+  --catalogo-accion-panel: #7a6a00;
+  --catalogo-superficie: #011a27;
+  --catalogo-texto: #eaf2f6;
+  --catalogo-marca: #f0810f;
+  --catalogo-sobre-marca: #011a27;
+  --catalogo-accion: #e6df44;
+  --catalogo-sobre-accion: #011a27;
   --catalogo-exito: #7fc89d;
-  --catalogo-alerta: #f0c36a;
-  /* En la paleta oscura la barra del navegador va del color del fondo, no del de
-     marca; la cabecera lo sigue para fundirse con ella, con el texto claro. */
-  --catalogo-navegador: var(--catalogo-superficie);
-  --catalogo-sobre-navegador: var(--catalogo-texto);
+  --catalogo-alerta: #ff9d7a;
+  /* El segundo azul de la paleta va en la barra del navegador y en la cabecera:
+     un punto más claro que el fondo, que es lo que le da el nombre —la noche
+     abajo y el amanecer arriba— y de paso despega la cabecera de la página. */
+  --catalogo-navegador: #063852;
+  --catalogo-sobre-navegador: #eaf2f6;
 }
 
 /* Carta de restaurante, de día: crema, madera y brasa. Era «violeta andino con
@@ -342,27 +343,19 @@
   --catalogo-alerta: #8a4b12;
 }
 
-/* Negro y amarillo. */
+/* Comida, de día: tomate y menta sobre crema. Clara a propósito —una carta se
+   mira con hambre y con prisa— y con dos colores que no son del mismo lado de la
+   rueda, que es lo que la hace alegre en vez de correcta. */
 .tema[data-paleta="abeja"],
-/* Los dos tonos con los que esta paleta se ve en el **panel**: su marca y su
- * acción están elegidas para leerse sobre el fondo oscuro del catálogo, y sobre
- * el lienzo claro del panel esos mismos colores no se leen. Son el mismo matiz
- * llevado a donde funciona. El control de contraste los comprueba. */
 .paleta[data-paleta="abeja"] {
-  --catalogo-marca-panel: #7a5e00;
-  --catalogo-accion-panel: #8f4f00;
-  --catalogo-superficie: #141310;
-  --catalogo-texto: #f5f2e8;
-  --catalogo-marca: #f7cf4f;
-  --catalogo-sobre-marca: #1a1705;
-  --catalogo-accion: #ffab3d;
-  --catalogo-sobre-accion: #2a1500;
-  --catalogo-exito: #86c79b;
-  --catalogo-alerta: #ff8f6b;
-  /* Oscura: la cabecera sigue al color del fondo para fundirse con la barra
-     del navegador, con el texto claro. */
-  --catalogo-navegador: var(--catalogo-superficie);
-  --catalogo-sobre-navegador: var(--catalogo-texto);
+  --catalogo-superficie: #fffdf6;
+  --catalogo-texto: #2e2a20;
+  --catalogo-marca: #c9341f;
+  --catalogo-sobre-marca: #fffdf6;
+  --catalogo-accion: #1f7a6b;
+  --catalogo-sobre-accion: #fffdf6;
+  --catalogo-exito: #2f6b46;
+  --catalogo-alerta: #a8500f;
 }
 
 /* Negro y dorado: el oro es la marca y el champán la acción. Dos oros del mismo
@@ -388,4 +381,43 @@
      del navegador, con el texto claro. */
   --catalogo-navegador: var(--catalogo-superficie);
   --catalogo-sobre-navegador: var(--catalogo-texto);
+}
+
+/* Negro y rojo. Los dos rojos son el mismo matiz a dos alturas: el vivo para lo
+   que se mira —títulos, esferas— y el pleno para lo que se toca. Con uno solo,
+   el botón desaparecía adentro del acento. */
+.tema[data-paleta="rubi"],
+/* Los dos tonos con los que esta paleta se ve en el **panel**: su marca y su
+ * acción están elegidas para leerse sobre el fondo oscuro del catálogo, y sobre
+ * el lienzo claro del panel esos mismos colores no se leen. Son el mismo matiz
+ * llevado a donde funciona. El control de contraste los comprueba. */
+.paleta[data-paleta="rubi"] {
+  --catalogo-marca-panel: #a3291a;
+  --catalogo-accion-panel: #8f2418;
+  --catalogo-superficie: #131011;
+  --catalogo-texto: #f2e9e9;
+  --catalogo-marca: #ff5f4a;
+  --catalogo-sobre-marca: #1a0806;
+  --catalogo-accion: #e8483a;
+  --catalogo-sobre-accion: #170705;
+  --catalogo-exito: #86c79b;
+  --catalogo-alerta: #f0c36a;
+  /* Oscura: la cabecera sigue al color del fondo para fundirse con la barra
+     del navegador, con el texto claro. */
+  --catalogo-navegador: var(--catalogo-superficie);
+  --catalogo-sobre-navegador: var(--catalogo-texto);
+}
+
+/* Blanco y azul. El azul manda en los dos acentos, a dos profundidades: marino
+   para la marca y cielo para la acción. */
+.tema[data-paleta="cielo"],
+.paleta[data-paleta="cielo"] {
+  --catalogo-superficie: #f7fbff;
+  --catalogo-texto: #10233a;
+  --catalogo-marca: #124a8c;
+  --catalogo-sobre-marca: #f7fbff;
+  --catalogo-accion: #0e6fa8;
+  --catalogo-sobre-accion: #f7fbff;
+  --catalogo-exito: #1f6a50;
+  --catalogo-alerta: #8a4b12;
 }
