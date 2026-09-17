@@ -1,52 +1,49 @@
-/* Un QR con el logo del negocio en el medio, sin que deje de escanearse.
+import { svgDeIsotipo } from "./marca/isotipo";
+
+/* El QR del catálogo, con el isotipo de MiPuesto detrás.
  *
- * Tapar el centro de un QR no lo rompe **porque el formato está preparado para
- * que le falte información**: cada código lleva datos de corrección de errores
- * que permiten reconstruir lo que no se lee. Lo que decide si sigue funcionando
- * es cuánto se tapa y con qué nivel de corrección se generó.
+ * **La marca va debajo y no encima, y ese es todo el asunto.** Un logo puesto
+ * sobre el centro tapa módulos: funciona porque el formato sabe reconstruir lo
+ * que le falta, pero funciona *a pesar* del logo, y cuanto más grande se lo
+ * quiere, más cerca queda del borde en que deja de leerse.
  *
- * Por eso esto hace tres cosas y no una:
+ * Detrás no tapa nada. El truco es generar el código **con el fondo
+ * transparente**, de modo que la imagen traiga solo los módulos oscuros, y
+ * pintar debajo: primero el papel, después la marca de agua, y encima el código.
+ * Los módulos oscuros quedan igual de oscuros y los claros quedan con un velo
+ * gris clarísimo. Un lector decide entre claro y oscuro comparando, y esa
+ * diferencia no se toca.
  *
- * 1. **Sube la corrección a «H»**, que recupera hasta un 30 % del código. El QR
- *    del catálogo estaba en «M» —15 %—, que alcanza para un código limpio y no
- *    para uno con algo encima.
- * 2. **Tapa el 18 % del lado**, o sea algo más del 3 % de la superficie. Muy por
- *    debajo del 30 %, y a propósito: ese 30 % es el techo teórico con el código
- *    perfectamente impreso y perfectamente enfocado, y un QR se escanea en un
- *    mostrador, con luz de tubo, desde un teléfono que tiembla. El margen que
- *    sobra es lo que hace que funcione en ese mostrador y no solo en la pantalla.
- * 3. **Pone el logo sobre un recuadro claro** con su propio borde. Sin él, un
- *    logo oscuro se confunde con los módulos negros que lo rodean y el lector no
- *    encuentra dónde termina el código; con él, la zona tapada queda delimitada
- *    y es justo lo que la corrección de errores sabe reconstruir.
+ * Por eso la marca de agua **puede ser grande** —ocupa más de la mitad del
+ * código— sin que eso cueste nada en fiabilidad, que es justo lo contrario de lo
+ * que pasaba con el logo encima.
  *
- * **Si el logo no se puede cargar, se devuelve el QR sin logo.** Un QR sin logo
- * es un QR; un QR a medio dibujar no es nada. El caso real es el logo que tarda,
- * o el que quedó con una dirección que ya no existe.
+ * Se conserva la corrección alta igual. No hace falta para esto, pero da margen
+ * para lo que no se puede controlar desde acá: una impresión pálida, una
+ * fotocopia, un plástico rayado sobre el mostrador.
  */
 
-/* Cuánto del lado del QR ocupa el logo. No se sube sin volver a escanear el
-   resultado en un teléfono de verdad: el número que importa no es el de la
-   especificación sino el que funciona en el mostrador. */
-const PARTE_DEL_LADO = 0.18;
+/* Cuánto del lado ocupa la marca de agua. Grande a propósito: si va a ser un
+   velo, tiene que leerse como una figura y no como una mancha. */
+export const PARTE_DEL_LADO = 0.62;
+
+/* Qué tan tenue. Es el único número que puede romper algo acá: subirlo acerca
+   el gris del velo al negro de los módulos. A 0,12 el velo queda en un gris muy
+   claro, lejísimos del umbral con el que un lector separa claro de oscuro. */
+export const VELO = 0.12;
 
 export type OpcionesQr = {
   texto: string;
   lado: number;
   colorOscuro: string;
   colorClaro: string;
-  logoUrl?: string | null;
 };
 
 function cargarImagen(url: string): Promise<HTMLImageElement> {
   return new Promise((resolver, rechazar) => {
     const imagen = new Image();
-    /* Sin esto el lienzo queda «manchado» y el navegador prohíbe exportarlo: el
-       QR se dibujaría bien en pantalla y fallaría al convertirlo en imagen, que
-       es el único momento en que sirve. */
-    imagen.crossOrigin = "anonymous";
     imagen.onload = () => resolver(imagen);
-    imagen.onerror = () => rechazar(new Error("no se pudo cargar el logo"));
+    imagen.onerror = () => rechazar(new Error("no se pudo cargar la imagen"));
     imagen.src = url;
   });
 }
@@ -56,24 +53,24 @@ export async function dibujarQrConLogo({
   lado,
   colorOscuro,
   colorClaro,
-  logoUrl,
 }: OpcionesQr): Promise<string> {
   const { toDataURL } = await import("qrcode");
 
   const qr = await toDataURL(texto, {
-    /* «H» y no «M»: es lo que deja sitio para el logo. Se usa aunque no haya
-       logo, para que el código impreso sea el mismo con logo y sin él —un
-       negocio que sube su logo después no tiene que reimprimir nada. */
     errorCorrectionLevel: "H",
     margin: 2,
     width: lado,
-    color: { dark: colorOscuro, light: colorClaro },
+    color: {
+      dark: colorOscuro,
+      /* Transparente: la imagen trae solo los módulos oscuros. Sin esto, el
+         fondo blanco del código taparía la marca de agua y no se vería nada. */
+      light: "#00000000",
+    },
   });
 
-  if (!logoUrl) return qr;
-
   try {
-    const [base, logo] = await Promise.all([cargarImagen(qr), cargarImagen(logoUrl)]);
+    const svg = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgDeIsotipo(colorOscuro))}`;
+    const [codigo, marca] = await Promise.all([cargarImagen(qr), cargarImagen(svg)]);
 
     const lienzo = document.createElement("canvas");
     lienzo.width = lado;
@@ -81,27 +78,33 @@ export async function dibujarQrConLogo({
     const pincel = lienzo.getContext("2d");
     if (!pincel) return qr;
 
-    pincel.drawImage(base, 0, 0, lado, lado);
-
-    const ladoLogo = Math.round(lado * PARTE_DEL_LADO);
-    /* El recuadro claro es un poco más grande que el logo: ese aire es lo que
-       separa el logo de los módulos y lo que hace que el lector vea un hueco
-       limpio en vez de un dibujo pegado al código. */
-    const ladoPad = Math.round(ladoLogo * 1.28);
-    const desde = Math.round((lado - ladoPad) / 2);
-
+    /* 1. El papel. Va pintado y no se deja transparente: un PNG con fondo
+          transparente impreso o pegado en un chat se ve sobre lo que haya
+          detrás, y ahí sí se pierde el contraste. */
     pincel.fillStyle = colorClaro;
-    pincel.beginPath();
-    pincel.roundRect(desde, desde, ladoPad, ladoPad, Math.round(ladoPad * 0.18));
-    pincel.fill();
+    pincel.fillRect(0, 0, lado, lado);
 
-    const desdeLogo = Math.round((lado - ladoLogo) / 2);
-    pincel.drawImage(logo, desdeLogo, desdeLogo, ladoLogo, ladoLogo);
+    /* 2. La marca de agua, centrada y tenue. El isotipo es más alto que ancho
+          —256 por 325—, así que se escala por el alto para que entre entero. */
+    const alto = Math.round(lado * PARTE_DEL_LADO);
+    const ancho = Math.round((alto * 256) / 325);
+    pincel.globalAlpha = VELO;
+    pincel.drawImage(marca, Math.round((lado - ancho) / 2), Math.round((lado - alto) / 2), ancho, alto);
+    pincel.globalAlpha = 1;
+
+    /* 3. El código, encima y sin tocar. */
+    pincel.drawImage(codigo, 0, 0, lado, lado);
 
     return lienzo.toDataURL("image/png");
   } catch {
-    /* El logo no pudo entrar. El QR que ya está hecho sirve igual, y es lo que
-       el dueño necesita ahora mismo. */
-    return qr;
+    /* Si algo falló, el código sin marca de agua sirve igual —y es lo que el
+       dueño necesita ahora—. Pero hay que devolverlo con su fondo: el que se
+       generó arriba lo tiene transparente. */
+    return toDataURL(texto, {
+      errorCorrectionLevel: "H",
+      margin: 2,
+      width: lado,
+      color: { dark: colorOscuro, light: colorClaro },
+    });
   }
 }

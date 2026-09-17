@@ -9,12 +9,9 @@ import styles from "./codigo-qr-negocio.module.css";
 type PropiedadesCodigoQr = {
   nombreNegocio: string;
   urlCatalogo: string;
-  /* La dirección del logo ya resuelta por el servidor. Opcional: un negocio sin
-     logo tiene su QR igual, solo que sin nada en el medio. */
-  logoUrl?: string | null;
 };
 
-export function CodigoQrNegocio({ logoUrl, nombreNegocio, urlCatalogo }: PropiedadesCodigoQr) {
+export function CodigoQrNegocio({ nombreNegocio, urlCatalogo }: PropiedadesCodigoQr) {
   const [imagen, setImagen] = useState("");
   const [error, setError] = useState("");
 
@@ -25,7 +22,6 @@ export function CodigoQrNegocio({ logoUrl, nombreNegocio, urlCatalogo }: Propied
       lado: 320,
       colorOscuro: COLORES_MIPUESTO.texto,
       colorClaro: COLORES_MIPUESTO.superficie,
-      logoUrl,
     })
       .then((resultado) => {
         if (activo) setImagen(resultado);
@@ -36,16 +32,13 @@ export function CodigoQrNegocio({ logoUrl, nombreNegocio, urlCatalogo }: Propied
     return () => {
       activo = false;
     };
-  }, [logoUrl, urlCatalogo]);
+  }, [urlCatalogo]);
 
   return (
     <section aria-labelledby="titulo-qr-catalogo" className={styles.bloque}>
       <div className={styles.texto}>
         <h2 id="titulo-qr-catalogo">Código QR de tu catálogo</h2>
-        <p>
-          Imprímelo o compártelo: al escanearlo se abre tu catálogo.
-          {logoUrl ? " Lleva tu logo en el centro." : ""}
-        </p>
+        <p>Imprímelo o compártelo: al escanearlo se abre tu catálogo.</p>
         <a href={urlCatalogo} rel="noreferrer" target="_blank">Abrir catálogo público</a>
       </div>
       <div className={styles.vista} aria-live="polite">

@@ -1,3 +1,9 @@
+import {
+  ISOTIPO_GROSOR,
+  ISOTIPO_MOSTRADOR,
+  ISOTIPO_TOLDO,
+  ISOTIPO_VIEWBOX,
+} from "../../lib/marca/isotipo";
 import styles from "./isotipo.module.css";
 
 /* El isotipo de MiPuesto: un toldo sobre un mostrador, o sea un puesto.
@@ -38,7 +44,7 @@ export function Isotipo({ className, titulo }: { className?: string; titulo?: st
          trazo de este grosor termina en un canto que se lee como un error. */
       strokeLinecap="round"
       strokeLinejoin="round"
-      viewBox="0 0 256 325"
+      viewBox={ISOTIPO_VIEWBOX}
       width="24"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -46,15 +52,9 @@ export function Isotipo({ className, titulo }: { className?: string; titulo?: st
       {/* El toldo. Las tres ondas son curvas cuadráticas y no arcos: el punto de
           control a 149 deja el fondo de cada onda en 122, que es donde estaba en
           el original. */}
-      <path
-        d="M21 95 C21 56 44 23 66 23 L190 23 C212 23 234 56 234 95 Q198.5 149 164 95 Q128 149 92 95 Q56.5 149 21 95 Z"
-        strokeWidth="22"
-      />
+      <path d={ISOTIPO_TOLDO} strokeWidth={ISOTIPO_GROSOR} />
       {/* El mostrador. Abierto arriba, con las esquinas de abajo redondeadas. */}
-      <path
-        d="M53 144 V290 a12 12 0 0 0 12 12 h124 a12 12 0 0 0 12 -12 V144"
-        strokeWidth="22"
-      />
+      <path d={ISOTIPO_MOSTRADOR} strokeWidth={ISOTIPO_GROSOR} />
     </svg>
   );
 }
