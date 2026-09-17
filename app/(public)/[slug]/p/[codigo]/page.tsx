@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-import { construirProductoPublico } from "../../../../../lib/catalogo/producto-publico";
+import { COLUMNAS_PRODUCTO_PUBLICO } from "../../../../../lib/catalogo/columnas";
+import { obtenerNegocioPublico } from "../../../../../lib/catalogo/negocio-publico";
+import { consultarContextoPublico } from "../../../../../lib/catalogo/pagina-publica";
+import { construirCatalogoPublico } from "../../../../../lib/catalogo/publico";
+import { FichaProducto } from "../../../../../components/catalogo/ficha-producto";
 import { formatearPrecioBolivianos } from "../../../../../lib/precios";
 import { crearClienteSupabasePublico } from "../../../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../../../lib/url-sitio";
 import temaStyles from "../../../../../components/templates/tema-catalogo.module.css";
-import { esPaletaId } from "../../../../../lib/plantillas/validacion";
 import styles from "./producto.module.css";
 
 type PropiedadesPagina = {
@@ -19,22 +21,26 @@ type PropiedadesPagina = {
 
 export const dynamic = "force-dynamic";
 
+/* El producto, armado **con el mismo constructor que el catálogo**.
+ *
+ * Antes tenía el suyo, y por eso esta página sabía menos que la hoja que se
+ * abre al tocar el mismo producto: no dibujaba las presentaciones ni los datos
+ * de su categoría. Quien recibía el enlace no podía elegir la talla que su
+ * vecino sí veía.
+ *
+ * Dos constructores del mismo producto son, a la larga, dos precios del mismo
+ * producto: alcanza con que una promoción se aplique en uno y no en el otro. Así
+ * que se le pasa **un solo producto** al constructor del catálogo y se saca de
+ * ahí; el costo es leer las mismas tablas auxiliares, que son chicas.
+ */
 const obtenerProducto = cache(async (slug: string, codigo: string) => {
-  const supabase = crearClienteSupabasePublico();
-  const { data: negocio, error: errorNegocio } = await supabase
-    .from("negocios")
-    .select("id,slug,nombre,telefono_whatsapp,tipo_negocio,paleta_id")
-    .eq("slug", slug)
-    .eq("activo", true)
-    .maybeSingle();
-  if (errorNegocio) throw new Error("No se pudo consultar el negocio.");
+  const negocio = await obtenerNegocioPublico(slug);
   if (!negocio) return null;
 
+  const supabase = crearClienteSupabasePublico();
   const { data: producto, error: errorProducto } = await supabase
     .from("productos")
-    .select(
-      "id,codigo,nombre,descripcion,precio,fotos,estado,controla_stock,cantidad_stock,cantidad_reservada,categoria_id",
-    )
+    .select(COLUMNAS_PRODUCTO_PUBLICO)
     .eq("negocio_id", negocio.id)
     .eq("codigo", codigo)
     .eq("visible", true)
@@ -42,26 +48,45 @@ const obtenerProducto = cache(async (slug: string, codigo: string) => {
   if (errorProducto) throw new Error("No se pudo consultar el producto.");
   if (!producto) return null;
 
-  const { data: promociones } = await supabase
-    .from("promociones")
-    .select("id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo,hora_inicio,hora_fin,dias")
-    .eq("negocio_id", negocio.id);
+  const [categorias, variantes, atributos, subcategorias, promociones] =
+    await consultarContextoPublico(supabase, negocio.id);
 
   const { url } = obtenerVariablesPublicasSupabase();
-  return {
+  const { datos, paleta } = construirCatalogoPublico(
     negocio,
-    producto: construirProductoPublico(
-      negocio,
-      { ...producto, precio: Number(producto.precio) },
-      url,
-      new Date(),
-      (promociones ?? []).map((promocion) => ({
-        ...promocion,
-        valor: Number(promocion.valor),
-      })),
-    ),
-  };
+    categorias.data ?? [],
+    (subcategorias.data ?? []).map(({ id, categoria_id, nombre, orden }) => ({
+      id,
+      categoria_id,
+      nombre,
+      orden,
+    })),
+    [producto],
+    url,
+    new Date(),
+    (promociones.data ?? []).map((promocion) => ({
+      ...promocion,
+      valor: Number(promocion.valor),
+    })),
+    atributos.data ?? [],
+    variantes.data ?? [],
+  );
+
+  /* El constructor devuelve el catálogo agrupado; acá dentro hay un solo
+     producto, así que se lo busca sin importar en qué categoría cayó. */
+  const armado = datos.categorias
+    .flatMap((categoria) => [
+      ...categoria.productos,
+      ...(categoria.subcategorias ?? []).flatMap((sub) => sub.productos),
+    ])
+    .find((item) => item.codigo === codigo);
+  if (!armado) return null;
+
+  /* La paleta la devuelve el constructor aparte del negocio: es del catálogo y
+     no del negocio, y en el tipo del catálogo no viaja adentro. */
+  return { negocio: datos.negocio, producto: armado, paleta };
 });
+
 
 export async function generateMetadata({ params }: PropiedadesPagina): Promise<Metadata> {
   const { slug, codigo } = await params;
@@ -102,9 +127,7 @@ export default async function PaginaProducto({ params }: PropiedadesPagina) {
   const datos = await obtenerProducto(slug, codigo);
   if (!datos) notFound();
 
-  const { negocio, producto } = datos;
-  const paleta = esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado";
-  const agotado = producto.estado === "agotado" || producto.cantidadDisponible === 0;
+  const { negocio, producto, paleta } = datos;
 
   return (
     <main className={`${temaStyles.tema} ${styles.pagina}`} data-paleta={paleta}>
@@ -113,64 +136,23 @@ export default async function PaginaProducto({ params }: PropiedadesPagina) {
       </nav>
 
       <article className={styles.producto}>
-        <div className={styles.galeria}>
-          {producto.imagenes.length ? (
-            producto.imagenes.map((imagen, indice) => (
-              <div className={styles.marco} key={imagen.src}>
-                <Image
-                  alt={imagen.alt}
-                  fill
-                  priority={indice === 0}
-                  sizes="(min-width: 60rem) 540px, 100vw"
-                  src={imagen.src}
-                />
-              </div>
-            ))
-          ) : (
-            <div className={styles.marco}>
-              <span className={styles.sinFoto}>Sin fotografía</span>
-            </div>
-          )}
-        </div>
-
-        <div className={styles.detalle}>
-          <h1>{producto.nombre}</h1>
-
-          <p className={styles.precio}>
-            {producto.tienePromocion ? (
-              <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
-            ) : null}
-            <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
-            {producto.tienePromocion ? <small>Precio promocional</small> : null}
-          </p>
-
-          {agotado ? (
-            <p className={styles.agotado}>Sin unidades disponibles por ahora.</p>
-          ) : producto.controlaStock && producto.cantidadDisponible !== null ? (
-            <p className={styles.stock}>
-              {producto.cantidadDisponible === 1
-                ? "Queda 1 unidad"
-                : `Quedan ${producto.cantidadDisponible} unidades`}
-            </p>
-          ) : null}
-
-          {producto.descripcion ? (
-            <p className={styles.descripcion}>{producto.descripcion}</p>
-          ) : null}
-
-          {producto.accionWhatsapp && !agotado ? (
-            <a
-              className={styles.accion}
-              href={producto.accionWhatsapp}
-              rel="noreferrer"
-              target="_blank"
-            >
-              Consultar por WhatsApp
-            </a>
-          ) : null}
-
-          <p className={styles.codigo}>Código {producto.codigo}</p>
-        </div>
+        <FichaProducto
+          /* En un negocio con carrito, el carrito vive en el catálogo: esta
+             página no puede agregar nada, y un botón que no agrega sería peor
+             que un enlace a donde sí se puede. En las otras modalidades la
+             acción es un enlace de WhatsApp, que funciona igual acá. */
+          accionAlternativa={
+            negocio.modalidad === "carrito" ? (
+              <Link className={styles.accion} href={`/${negocio.slug}`}>
+                Agregar desde el catálogo
+              </Link>
+            ) : undefined
+          }
+          modalidad={negocio.modalidad}
+          permiteAcciones={negocio.atencion.permiteAcciones}
+          producto={producto}
+          slug={negocio.slug}
+        />
       </article>
     </main>
   );
