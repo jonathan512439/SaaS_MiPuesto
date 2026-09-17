@@ -430,8 +430,31 @@ negocio ya atiende.
 
 - `scripts/check-vocabulario.mjs` y la lista de palabras prohibidas.
 - Todo el texto del sistema revisado según [`08-VOCABULARIO.md`](08-VOCABULARIO.md).
-- **La portada, menos saturada**: fundir la franja de horario con la de
-  confianza, cargar los productos al desplazar, revisar qué bloque sobra.
+- ~~**La portada, menos saturada**: fundir la franja de horario con la de
+  confianza, cargar los productos al desplazar, revisar qué bloque sobra.~~
+  **Hecho el 17 de septiembre de 2026, con una corrección al enunciado.**
+
+  **La franja de confianza nunca se construyó.** Estaba en el inventario de
+  bloques de [`03-FRONTEND.md`](03-FRONTEND.md) §1 como el número 10 —«frase del
+  rubro», automática— y no llegó a existir: el diseño de la fase 6 se quedó con
+  los bloques que tenían dueño y ese no lo tenía. Así que no había nada que
+  fundir. Queda dicho acá y no se retoma: una frase automática sobre el rubro es
+  relleno, y el motivo por el que la portada estaba saturada era justamente el
+  relleno.
+
+  Lo que sí había que hacer, y se hizo:
+
+  - **La carga al desplazar**, con la regla de que un grupo no se parte entre dos
+    tandas resuelta al fusionar y no al dibujar.
+  - **El bloque que sobraba era el nombre del negocio, repetido.** Estaba en la
+    cabecera y otra vez cien píxeles más abajo, en el hero de la portada. En un
+    teléfono es lo primero que se ve y lo único que se repite.
+
+    Al sacarlo apareció algo peor de lo que se buscaba: el título de la página
+    —el `h1`— vivía en el hero, que **solo existe si el negocio subió una
+    portada**. Un catálogo sin portada no tenía título de página. Ahora lo lleva
+    la cabecera, que está siempre, y el hero se queda con la descripción y el
+    botón, que es lo que la cabecera no dice.
 - **Las subcategorías, visibles en el catálogo**, agrupadas dentro de su
   categoría: «Bebidas» se abre en subtítulos *Gaseosas*, *Jugos*, *Aguas*.
 

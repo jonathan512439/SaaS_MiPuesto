@@ -20,7 +20,7 @@ sistema y quién lo controla.
 | 7 | Franja de horario | `horario` del negocio | Automático |
 | 8 | Productos | `productos` | Dueño: orden y visibilidad |
 | 9 | Banner inferior | `banners[1]` | Dueño: **opcional** |
-| 10 | Franja de confianza | Frase del rubro | Automático |
+| ~~10~~ | ~~Franja de confianza~~ | **Nunca se construyó**: descartada en la fase 9, ver [`06-FASES.md`](06-FASES.md) | — |
 | 11 | Barra inferior | Según modalidad | Automático |
 
 ### 1.1 Lo que se retira del diseño de referencia
@@ -59,7 +59,10 @@ El plan lo prepara así, sin resolverlo todavía:
   margen. Nada de bloques vacíos con altura.
 - El orden de los bloques vive en una lista, no repartido por el JSX. Reordenar
   o recortar en la Fase 9 es cambiar una lista, no rehacer la página.
-- La franja de confianza y la de horario son candidatas a fundirse en una sola.
+- ~~La franja de confianza y la de horario son candidatas a fundirse en una
+  sola.~~ La de confianza nunca llegó a existir, así que no hubo qué fundir. El
+  bloque que de verdad sobraba era el nombre del negocio, repetido entre la
+  cabecera y el hero.
 - La portada carga los primeros productos y **el resto al desplazar**.
 
 ## 2. La tarjeta de producto

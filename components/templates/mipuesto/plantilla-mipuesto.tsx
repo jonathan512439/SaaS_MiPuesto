@@ -127,7 +127,15 @@ export function PlantillaMipuesto({
             </span>
           )}
           <div className={styles.identidadTexto}>
-            <h2>{negocio.nombre}</h2>
+            {/* El título de la página vive acá y no en el hero.
+                Estaba en el hero, que solo existe si el negocio subió una
+                portada: un catálogo sin portada no tenía título de página, y el
+                que sí la tenía decía el nombre del negocio **dos veces** —en la
+                cabecera y a cien píxeles debajo—, que en un teléfono es lo
+                primero que se ve y lo único que se repite.
+                La cabecera está siempre, así que es el único lugar donde el
+                título está siempre. */}
+            <h1>{negocio.nombre}</h1>
             {/* El subnombre es el renglón hecho para este lugar —«Pollos a la
                 brasa», «Desde 1998»— así que gana cuando está. Sin él cae a la
                 descripción, y solo si no hay portada, porque con portada esa
@@ -164,8 +172,14 @@ export function PlantillaMipuesto({
             src={negocio.portadaUrl}
           />
           <div className={styles.hero}>
-            <h1 className={styles.heroTitulo}>{negocio.nombre}</h1>
-            {negocio.descripcion ? <p className={styles.heroBajada}>{negocio.descripcion}</p> : null}
+            {/* Sin el nombre: lo acaba de decir la cabecera, justo arriba. Lo que
+                va acá es lo que la cabecera no dice —de qué se trata el
+                negocio— y el botón que baja a los productos. Un negocio sin
+                descripción se queda con el botón solo, que es lo que el hero
+                existe para ofrecer. */}
+            {negocio.descripcion ? (
+              <p className={styles.heroTitulo}>{negocio.descripcion}</p>
+            ) : null}
             <button className={styles.heroBoton} onClick={() => irA("productos")} type="button">
               Ver productos
             </button>
