@@ -4,7 +4,6 @@ import { cache } from "react";
 
 import { CatalogoInteractivo } from "../../../components/catalogo/catalogo-interactivo";
 import {
-  calcularRango,
   calcularTotalPaginas,
   construirRutaCatalogo,
   extraerTerminos,
@@ -15,13 +14,15 @@ import {
   categoriasParaNavegar,
   construirCatalogoPublico,
 } from "../../../lib/catalogo/publico";
+import {
+  consultarContextoPublico,
+  consultarProductosPublicos,
+} from "../../../lib/catalogo/pagina-publica";
 import { esUuid } from "../../../lib/catalogo/validacion";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../lib/url-sitio";
 import styles from "./catalogo-publico.module.css";
-import { COLUMNAS_PRODUCTO_PUBLICO } from "../../../lib/catalogo/columnas";
-import { COLUMNAS_CATEGORIA } from "../../../lib/catalogo/columnas";
 
 type PropiedadesPagina = {
   params: Promise<{ slug: string }>;
@@ -83,31 +84,6 @@ function leerCategoriaPedida(parametros: Record<string, string | string[] | unde
 }
 
 
-/* Filtrar y paginar aquí, y no en el navegador, es lo que permite un catálogo
-   de trescientos productos: antes viajaba la ficha completa de cada uno en cada
-   visita para mostrar doce. */
-function consultarProductos(
-  supabase: ReturnType<typeof crearClienteSupabasePublico>,
-  negocioId: string,
-  parametros: Record<string, string | string[] | undefined>,
-  categoria: string,
-) {
-  const filtros = leerFiltrosCatalogo(parametros, []);
-  const { desde, hasta } = calcularRango(filtros.pagina);
-
-  let consulta = supabase
-    .from("productos")
-    .select(COLUMNAS_PRODUCTO_PUBLICO, { count: "exact" })
-    .eq("negocio_id", negocioId)
-    .eq("visible", true);
-
-  if (categoria) consulta = consulta.eq("categoria_id", categoria);
-  for (const termino of extraerTerminos(filtros.busqueda)) {
-    consulta = consulta.ilike("texto_busqueda", `%${termino}%`);
-  }
-
-  return consulta.order("orden").order("creado_en").range(desde, hasta);
-}
 
 export default async function PaginaCatalogoPublico({
   params,
@@ -131,51 +107,23 @@ export default async function PaginaCatalogoPublico({
      difieran por unos milisegundos y muestren cosas distintas. */
   const ahora = new Date();
 
+  /* El contexto y los productos, juntos. El contexto es el mismo para todas
+     las páginas de este negocio y los productos dependen del filtro y del
+     tramo; las dos lecturas viven en `lib/catalogo/pagina-publica.ts` porque la
+     ruta que trae las páginas siguientes usa exactamente las mismas. */
   const [
-    resultadoCategorias,
-    resultadoVariantes,
-    resultadoAtributos,
-    resultadoSubcategorias,
-    resultadoPromociones,
+    [
+      resultadoCategorias,
+      resultadoVariantes,
+      resultadoAtributos,
+      resultadoSubcategorias,
+      resultadoPromociones,
+    ],
     resultadoOptimista,
   ] = await Promise.all([
-      supabase
-        .from("categorias")
-        .select(COLUMNAS_CATEGORIA)
-        .eq("negocio_id", negocio.id)
-        .order("orden")
-        .order("nombre"),
-      /* Las definiciones de campos de todas las categorías, en una sola
-         consulta. Son diez filas por categoría como mucho, y el catálogo las
-         necesita todas: pedirlas por categoría serían cuarenta viajes para
-         dibujar una página. */
-      /* Las presentaciones de todos los productos del negocio, en una consulta.
-         Se filtran las ocultas al agrupar, no acá, para que el conteo del
-         catálogo no dependa de dos lugares. */
-      supabase
-        .from("variantes_producto")
-        .select("id,producto_id,nombre,precio,cantidad_stock,visible,orden")
-        .eq("negocio_id", negocio.id)
-        .order("orden"),
-      supabase
-        .from("atributos_categoria")
-        .select(
-          "categoria_id,clave,nombre,tipo,unidad,opciones,en_tarjeta,en_resumen,orden",
-        )
-        .eq("negocio_id", negocio.id)
-        .order("orden"),
-      supabase
-        .from("subcategorias")
-        .select("id,categoria_id,nombre,orden,categorias!inner(negocio_id)")
-        .eq("categorias.negocio_id", negocio.id)
-        .order("orden")
-        .order("nombre"),
-      supabase
-        .from("promociones")
-        .select("id,tipo,valor,producto_id,categoria_id,fecha_inicio,fecha_fin,activo,hora_inicio,hora_fin,dias")
-        .eq("negocio_id", negocio.id),
-      consultarProductos(supabase, negocio.id, parametros, categoriaPedida),
-    ]);
+    consultarContextoPublico(supabase, negocio.id),
+    consultarProductosPublicos(supabase, negocio.id, parametros, categoriaPedida),
+  ]);
 
   const categorias = resultadoCategorias.data ?? [];
   const filtros = leerFiltrosCatalogo(parametros, categorias);
@@ -185,7 +133,7 @@ export default async function PaginaCatalogoPublico({
      el catálogo entero y no una página vacía. */
   const resultadoProductos =
     categoriaPedida && !filtros.categoria
-      ? await consultarProductos(supabase, negocio.id, parametros, "")
+      ? await consultarProductosPublicos(supabase, negocio.id, parametros, "")
       : resultadoOptimista;
 
   /* Pedir un tramo que no existe no es un fallo del catálogo sino una dirección

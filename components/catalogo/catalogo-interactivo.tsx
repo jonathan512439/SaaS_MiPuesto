@@ -12,6 +12,8 @@ import {
 } from "react";
 
 import type { PaletaId } from "../../lib/apariencia";
+import { fusionarCategorias } from "../../lib/plantillas/fusionar";
+import type { CategoriaPlantilla } from "../../lib/plantillas/tipos";
 import { registrarEventoAnalitica } from "../../lib/analitica-cliente";
 import {
   construirRutaCatalogo,
@@ -107,6 +109,89 @@ export function CatalogoInteractivo({
     setElegidos(guardado.elegidos);
   }
   const productosPagina = useMemo(() => obtenerProductos(datos), [datos]);
+
+  /* Los tramos que se fueron trayendo al bajar, sumados al que vino dibujado.
+     Arranca en el que sirvió la pantalla, así que sin JavaScript —o antes de que
+     corra— el catálogo es exactamente el de siempre.
+
+     Van los tres datos en un solo estado, y con la dirección que los produjo
+     adentro. Una dirección nueva —otra categoría, otra búsqueda, otra página
+     compartida— es **otro catálogo**: lo traído antes no tiene nada que ver y se
+     descarta. Guardar de qué dirección viene lo acumulado es lo que permite
+     darse cuenta, y hacerlo durante el dibujo y no en un efecto evita el paso
+     intermedio en que la pantalla muestra los productos de la búsqueda
+     anterior. */
+  const direccionActual = `${filtros.pagina}|${filtros.categoria}|${filtros.busqueda}`;
+  const [acumulado, setAcumulado] = useState({
+    direccion: direccionActual,
+    categorias: datos.categorias,
+    ultimaTanda: filtros.pagina,
+  });
+
+  if (acumulado.direccion !== direccionActual) {
+    setAcumulado({
+      direccion: direccionActual,
+      categorias: datos.categorias,
+      ultimaTanda: filtros.pagina,
+    });
+  }
+
+  const { categorias, ultimaTanda } = acumulado;
+  const [trayendo, setTrayendo] = useState(false);
+  const finDeLaLista = useRef<HTMLDivElement | null>(null);
+
+  const hayMas = ultimaTanda < totalPaginas;
+
+  useEffect(() => {
+    const marca = finDeLaLista.current;
+    if (!marca || !hayMas || trayendo) return;
+
+    /* Se observa una marca al final de la lista en vez de escuchar el
+       desplazamiento: el navegador avisa cuando aparece y no hay que calcular
+       alturas en cada píxel que se mueve, que es lo que traba un teléfono. */
+    const observador = new IntersectionObserver(
+      (entradas) => {
+        if (!entradas[0]?.isIntersecting) return;
+        setTrayendo(true);
+
+        const direccion = new URL(`/api/catalogo/${slug}/pagina`, window.location.origin);
+        direccion.searchParams.set("pagina", String(ultimaTanda + 1));
+        if (filtros.categoria) direccion.searchParams.set("categoria", filtros.categoria);
+        if (filtros.busqueda) direccion.searchParams.set("busqueda", filtros.busqueda);
+
+        fetch(direccion)
+          .then((respuesta) => (respuesta.ok ? respuesta.json() : Promise.reject(respuesta)))
+          .then((datosNuevos: { categorias: CategoriaPlantilla[] }) => {
+            setAcumulado((previo) =>
+              /* Si mientras tanto cambió la dirección, lo que llegó es de otro
+                 catálogo y se tira: agregarlo mezclaría los productos de una
+                 búsqueda con los de otra. */
+              previo.direccion !== direccionActual
+                ? previo
+                : {
+                    ...previo,
+                    categorias: fusionarCategorias(previo.categorias, datosNuevos.categorias),
+                    ultimaTanda: previo.ultimaTanda + 1,
+                  },
+            );
+          })
+          /* Si falla, se deja de intentar y quedan los enlaces de siempre: el
+             visitante puede seguir a la página siguiente a mano. Insistir solo
+             gastaría datos de su teléfono. */
+          .catch(() =>
+            setAcumulado((previo) => ({ ...previo, ultimaTanda: totalPaginas })),
+          )
+          .finally(() => setTrayendo(false));
+      },
+      /* Se pide con antelación, antes de que la marca se vea: así el tramo
+         siguiente suele estar antes de que el visitante llegue al final, y lo
+         que ve es un catálogo que no termina en vez de una espera. */
+      { rootMargin: "600px" },
+    );
+
+    observador.observe(marca);
+    return () => observador.disconnect();
+  }, [direccionActual, filtros.busqueda, filtros.categoria, hayMas, slug, totalPaginas, trayendo, ultimaTanda]);
   const productosCarrito = useMemo(() => Object.values(elegidos), [elegidos]);
   const productos = useMemo(() => {
     const porId = new Map(productosCarrito.map((producto) => [producto.id, producto]));
@@ -242,9 +327,24 @@ export function CatalogoInteractivo({
               el catálogo.
             </p>
           ) : null}
+          {/* La marca que dispara el tramo siguiente. Va antes de los enlaces y
+              no después: se quiere pedir lo que viene **mientras** el visitante
+              mira los últimos productos, no cuando ya no tiene nada que mirar. */}
+          <div aria-hidden="true" ref={finDeLaLista} />
+
+          {trayendo ? (
+            <p className={styles.trayendo} role="status">
+              Trayendo más productos…
+            </p>
+          ) : null}
+
           {/* Las páginas son enlaces y no botones: así se pueden compartir, abrir en
-              otra pestaña y quedar en el historial. */}
-          {totalPaginas > 1 ? (
+              otra pestaña y quedar en el historial.
+              Se dibujan siempre del lado del servidor —sin JavaScript el catálogo
+              se recorre con ellos— y se retiran en cuanto el navegador trajo el
+              primer tramo solo: a partir de ahí «Página 1 de 3» diría una cosa y
+              la pantalla mostraría otra. */}
+          {totalPaginas > 1 && ultimaTanda === filtros.pagina ? (
             <nav aria-label="Páginas de productos" className={styles.paginacion}>
               {filtros.pagina > 1 ? (
                 <Link
@@ -277,7 +377,7 @@ export function CatalogoInteractivo({
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
         alVerProducto={setFichaDe}
         cantidadesCarrito={cantidades}
-        datos={datos}
+        datos={{ ...datos, categorias }}
         demostracion={false}
         navegacion={categoriasNavegacion.length > 0 ? navegacion : undefined}
         paleta={paleta}

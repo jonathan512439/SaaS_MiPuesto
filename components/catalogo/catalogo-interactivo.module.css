@@ -153,3 +153,16 @@
   background: var(--catalogo-alerta-tenue);
   color: var(--catalogo-texto);
 }
+
+/* «Trayendo más productos…».
+ *
+ * Aparece solo cuando algo tarda: si el tramo llega antes de que el visitante
+ * termine de mirar lo que tiene delante —que es lo normal, porque se pide con
+ * seiscientos píxeles de antelación— este renglón no llega a verse. Está para el
+ * caso lento, que es cuando una pantalla sin señales parece rota. */
+.trayendo {
+  padding: var(--spacing-3) var(--spacing-4);
+  color: var(--catalogo-texto-suave);
+  font-size: var(--text-sm);
+  text-align: center;
+}
