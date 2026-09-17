@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PieSitio } from "../components/sitio/pie-sitio";
 import Link from "next/link";
 
+import { Introduccion } from "../components/marca/introduccion";
 import { Isotipo } from "../components/marca/isotipo";
 import { MuestraPlantillas } from "../components/inicio/muestra-plantillas";
 import { VitrinaPortada } from "../components/inicio/vitrina-portada";
@@ -114,6 +115,13 @@ export default function Inicio() {
 
   return (
     <>
+      {/* La marca se presenta antes de la portada. Acá sale siempre que la
+          sesión no la haya visto todavía: es la página de MiPuesto, no hay un
+          catálogo ajeno detrás, y quien llega viene justamente a saber qué es
+          esto. Va fuera del `main` para que nada de adentro pueda encerrar su
+          posición fija. */}
+      <Introduccion />
+
       <main className={styles.pagina}>
         <header className={styles.barra}>
           <div className={styles.barraContenido}>

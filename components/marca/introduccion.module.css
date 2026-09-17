@@ -1,0 +1,230 @@
+@reference "../../app/globals.css";
+
+/* La presentación de la marca.
+ *
+ * Dura 1,8 s y no 3: el gesto completo —mostrador, techo, las tres ondas, el
+ * nombre— entra en ese tiempo, y pasado eso un logotipo deja de presentarse y
+ * empieza a hacer esperar. Detrás hay un catálogo que ya está dibujado, así que
+ * cada décima de más es tiempo que se le saca al cliente del comerciante.
+ *
+ * `fixed` y fuera del flujo: no cambia ninguna dimensión ni empuja nada, así que
+ * no puede provocar un salto de los que mide el presupuesto de la fase 9.
+ *
+ * `pointer-events: none` desde el primer fotograma: la capa se ve pero no ataja.
+ * Quien quiera tocar el catálogo con la marca todavía en pantalla, puede — y ese
+ * mismo toque la corta, porque el guion lo escucha en la ventana. */
+.introduccion {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--spacing-6);
+  background: var(--color-superficie);
+  color: var(--color-marca);
+  pointer-events: none;
+  animation: revelarPagina 1800ms linear both;
+}
+
+.marca {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-6);
+  animation: despedirMarca 1800ms ease-in-out both;
+}
+
+.isotipo {
+  display: block;
+  width: var(--spacing-32);
+  height: auto;
+  /* El trazo redondeado se sale del cuadro por medio grosor en los extremos. */
+  overflow: visible;
+}
+
+/* Cada pieza se dibuja sola: el guion queda del largo del trazo y se corre hasta
+   descubrirlo entero. `pathLength="1"` en el marcado hace que 1 sea el largo de
+   cualquiera de las cinco, por distintas que sean. */
+.isotipo path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: componerPieza 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* El orden del movimiento: primero el mueble, después el techo, y las ondas de
+   derecha a izquierda, siguiendo el recorrido con que se trazó el techo. */
+.mostrador {
+  animation-delay: 40ms;
+}
+
+.techo {
+  animation-delay: 190ms;
+}
+
+.ondaPrimera {
+  animation-delay: 340ms;
+}
+
+.ondaSegunda {
+  animation-delay: 440ms;
+}
+
+.ondaTercera {
+  animation-delay: 540ms;
+}
+
+.nombre {
+  display: flex;
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 900;
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1;
+}
+
+/* El nombre se escribe mientras el toldo termina de cerrarse, no después: en
+   1,8 s, esperar a que el dibujo acabe dejaría las letras corriendo contra la
+   salida. Así los dos llegan juntos y la marca completa se sostiene un momento
+   antes de irse.
+   Ocho letras, ocho demoras. Si «MiPuesto» cambiara de nombre, hay que tocar
+   esta lista además del componente. */
+.letra {
+  display: block;
+  animation: aparecerLetra 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.letra:nth-child(1) {
+  animation-delay: 560ms;
+}
+
+.letra:nth-child(2) {
+  animation-delay: 590ms;
+}
+
+.letra:nth-child(3) {
+  animation-delay: 620ms;
+}
+
+.letra:nth-child(4) {
+  animation-delay: 650ms;
+}
+
+.letra:nth-child(5) {
+  animation-delay: 680ms;
+}
+
+.letra:nth-child(6) {
+  animation-delay: 710ms;
+}
+
+.letra:nth-child(7) {
+  animation-delay: 740ms;
+}
+
+.letra:nth-child(8) {
+  animation-delay: 770ms;
+}
+
+@keyframes componerPieza {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes aparecerLetra {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-3));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* La marca se va un poco antes que la capa y creciendo apenas: da la sensación
+   de que se acerca y deja ver lo que había detrás, en vez de apagarse. */
+@keyframes despedirMarca {
+  0%,
+  72% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+/* El estado final libera la página aunque JavaScript no llegue nunca: `both`
+   deja fijado el último fotograma, con la capa invisible y sin ocupar el paso. */
+@keyframes revelarPagina {
+  0%,
+  80% {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  99.99% {
+    opacity: 0;
+    visibility: visible;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Ya la vio en esta sesión: no nace, no parpadea. El atributo lo pone el guion
+   mientras el navegador todavía arma el documento, antes del primer pintado. */
+:global(html[data-marca="vista"]) .introduccion {
+  display: none;
+}
+
+/* La cortó con un toque, la rueda o una tecla. Se va con una transición corta y
+   no de golpe: cortar no es lo mismo que parpadear. */
+:global(html[data-marca="saltada"]) .introduccion {
+  opacity: 0;
+  visibility: hidden;
+  animation: none;
+  transition:
+    opacity 160ms linear,
+    visibility 0s linear 160ms;
+}
+
+:global(html[data-marca="saltada"]) .marca {
+  animation: none;
+}
+
+/* Quien empieza a navegar con teclado ve el destino del foco inmediatamente. */
+:global(body:has(:focus-visible)) .introduccion {
+  display: none;
+}
+
+@media (max-height: 30rem) {
+  .marca {
+    gap: var(--spacing-4);
+  }
+
+  .isotipo {
+    width: var(--spacing-20);
+  }
+
+  .nombre {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (prefers-reduced-motion: reduce), print {
+  .introduccion {
+    display: none;
+  }
+}

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
 import { CatalogoInteractivo } from "../../../components/catalogo/catalogo-interactivo";
+import { Introduccion } from "../../../components/marca/introduccion";
 import {
   calcularTotalPaginas,
   construirRutaCatalogo,
@@ -33,9 +34,13 @@ export const dynamic = "force-dynamic";
 
 /* cache() de React evita repetir la consulta entre generateMetadata y la
    pagina dentro de una misma peticion; unstable_cache la evita entre visitas. */
-const obtenerNegocioPublico = cache((slug: string) => consultarNegocioPublico(slug));
+const obtenerNegocioPublico = cache((slug: string) =>
+  consultarNegocioPublico(slug),
+);
 
-export async function generateMetadata({ params }: PropiedadesPagina): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PropiedadesPagina): Promise<Metadata> {
   const { slug } = await params;
   const negocio = await obtenerNegocioPublico(slug);
 
@@ -47,7 +52,8 @@ export async function generateMetadata({ params }: PropiedadesPagina): Promise<M
     };
   }
   const urlCatalogo = construirUrlPublicaNegocio(negocio.slug);
-  const descripcion = negocio.descripcion?.trim() || `Catálogo digital de ${negocio.nombre}.`;
+  const descripcion =
+    negocio.descripcion?.trim() || `Catálogo digital de ${negocio.nombre}.`;
   return {
     title: `${negocio.nombre} | MiPuesto`,
     description: descripcion,
@@ -77,13 +83,13 @@ function esRangoFueraDeAlcance(error: { code?: string } | null) {
   return error?.code === "PGRST103";
 }
 
-function leerCategoriaPedida(parametros: Record<string, string | string[] | undefined>) {
+function leerCategoriaPedida(
+  parametros: Record<string, string | string[] | undefined>,
+) {
   const valor = parametros.categoria;
   const pedida = (Array.isArray(valor) ? valor[0] : valor)?.trim() ?? "";
   return esUuid(pedida) ? pedida : "";
 }
-
-
 
 export default async function PaginaCatalogoPublico({
   params,
@@ -122,7 +128,12 @@ export default async function PaginaCatalogoPublico({
     resultadoOptimista,
   ] = await Promise.all([
     consultarContextoPublico(supabase, negocio.id),
-    consultarProductosPublicos(supabase, negocio.id, parametros, categoriaPedida),
+    consultarProductosPublicos(
+      supabase,
+      negocio.id,
+      parametros,
+      categoriaPedida,
+    ),
   ]);
 
   const categorias = resultadoCategorias.data ?? [];
@@ -146,7 +157,8 @@ export default async function PaginaCatalogoPublico({
       .select("id", { count: "exact", head: true })
       .eq("negocio_id", negocio.id)
       .eq("visible", true);
-    if (filtros.categoria) consultaTotal = consultaTotal.eq("categoria_id", filtros.categoria);
+    if (filtros.categoria)
+      consultaTotal = consultaTotal.eq("categoria_id", filtros.categoria);
     for (const termino of extraerTerminos(filtros.busqueda)) {
       consultaTotal = consultaTotal.ilike("texto_busqueda", `%${termino}%`);
     }
@@ -172,7 +184,12 @@ export default async function PaginaCatalogoPublico({
   const totalProductos = resultadoProductos.count ?? 0;
   const totalPaginas = calcularTotalPaginas(totalProductos);
   const subcategorias = (resultadoSubcategorias.data ?? []).map(
-    ({ id, categoria_id, nombre, orden }) => ({ id, categoria_id, nombre, orden }),
+    ({ id, categoria_id, nombre, orden }) => ({
+      id,
+      categoria_id,
+      nombre,
+      orden,
+    }),
   );
   const { url } = obtenerVariablesPublicasSupabase();
   const catalogo = construirCatalogoPublico(
@@ -189,25 +206,45 @@ export default async function PaginaCatalogoPublico({
     resultadoAtributos.data ?? [],
     resultadoVariantes.data ?? [],
   );
+  /* La visita que llega apuntada a algo no se interrumpe.
+     Un enlace con búsqueda o con categoría, o la página 2 de una lista, lo
+     manda alguien que ya sabe qué está buscando —por WhatsApp, casi siempre—.
+     Taparle la pantalla con nuestro logotipo ahí es costo puro: no se entera de
+     nada nuevo y pierde el tiempo dos veces, porque además tiene que encontrar
+     dónde quedó lo que venía a ver. */
+  const visitaApuntada =
+    Boolean(filtros.busqueda) ||
+    Boolean(filtros.categoria) ||
+    filtros.pagina > 1;
+
   return (
-    <main className={styles.pagina}>
-      <div className={styles.catalogo}>
-        <CatalogoInteractivo
-          categoriasNavegacion={categoriasParaNavegar(categorias)}
-          datos={catalogo.datos}
-          filtros={filtros}
-          paleta={catalogo.paleta}
-          slug={slug}
-          totalPaginas={totalPaginas}
-          totalProductos={totalProductos}
-        />
-        {categorias.length === 0 && totalProductos === 0 ? (
-          <section className={styles.vacio} aria-labelledby="catalogo-vacio">
-            <h2 id="catalogo-vacio">El catálogo se está preparando</h2>
-            <p>Este negocio todavía no publicó productos. Puedes consultarle por WhatsApp.</p>
-          </section>
-        ) : null}
-      </div>
-    </main>
+    <>
+      {/* Fuera del `main`: adentro, cualquier ancestro con `transform` dejaría
+          de ser la pantalla el marco de la capa fija. */}
+      {visitaApuntada ? null : <Introduccion />}
+
+      <main className={styles.pagina}>
+        <div className={styles.catalogo}>
+          <CatalogoInteractivo
+            categoriasNavegacion={categoriasParaNavegar(categorias)}
+            datos={catalogo.datos}
+            filtros={filtros}
+            paleta={catalogo.paleta}
+            slug={slug}
+            totalPaginas={totalPaginas}
+            totalProductos={totalProductos}
+          />
+          {categorias.length === 0 && totalProductos === 0 ? (
+            <section className={styles.vacio} aria-labelledby="catalogo-vacio">
+              <h2 id="catalogo-vacio">El catálogo se está preparando</h2>
+              <p>
+                Este negocio todavía no publicó productos. Puedes consultarle
+                por WhatsApp.
+              </p>
+            </section>
+          ) : null}
+        </div>
+      </main>
+    </>
   );
 }
