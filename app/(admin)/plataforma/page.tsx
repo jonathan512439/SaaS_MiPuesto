@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { AccionesCliente } from "../../../components/plataforma/acciones-cliente";
@@ -10,6 +11,7 @@ import { UsoAlmacenamientoPanel } from "../../../components/plataforma/uso-almac
 import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
 import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
+import { nombreDeRubro } from "../../../lib/negocios/rubros";
 import type { UsoIa } from "../../../lib/ia/limites";
 import { TOPE_FOTOS_POR_MES } from "../../../lib/ia/servidor";
 import { UsoIaPanel } from "../../../components/plataforma/uso-ia";
@@ -18,6 +20,7 @@ import {
   ordenarPorUrgencia,
   resumirCliente,
 } from "../../../lib/plataforma/clientes";
+import { PESTANAS_PLATAFORMA, leerPestana } from "../../../lib/plataforma/pestanas";
 import { formatearFechaVencimiento } from "../../../lib/suscripcion";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./plataforma.module.css";
@@ -31,7 +34,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function PaginaPlataforma() {
+export default async function PaginaPlataforma({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const pestana = leerPestana((await searchParams).vista);
   const supabase = await crearClienteSupabaseServidor();
   const { data: datosClaims } = await supabase.auth.getClaims();
   if (!datosClaims?.claims.sub) redirect("/login?motivo=sesion");
@@ -98,23 +106,46 @@ export default async function PaginaPlataforma() {
   return (
     <main className={styles.pagina}>
       <EncabezadoPanel
-        descripcion={`${clientes.length} en total · ${atencion} necesitan atención · Bs ${cobrables * PRECIO_MENSUAL_BS} al mes si todos pagan`}
+        descripcion={`${clientes.length} negocios · ${atencion} necesitan atención · Bs ${cobrables * PRECIO_MENSUAL_BS} al mes si todos pagan`}
         rotulo="Administración"
-        titulo="Negocios"
+        titulo="Plataforma"
       />
 
-      <InvitarNegocio />
+      {/* Las pestañas van en la dirección y no en el estado del navegador: así
+          «Consumo» se puede guardar en favoritos, y volver de una acción no
+          devuelve al administrador a la primera. */}
+      <nav aria-label="Secciones de la plataforma" className={styles.pestanas}>
+        {PESTANAS_PLATAFORMA.map(({ id, titulo, pregunta }) => (
+          <Link
+            aria-current={id === pestana ? "page" : undefined}
+            className={id === pestana ? styles.pestanaActiva : styles.pestana}
+            href={id === "negocios" ? "/plataforma" : `/plataforma?vista=${id}`}
+            key={id}
+          >
+            <strong>{titulo}</strong>
+            <small>{pregunta}</small>
+          </Link>
+        ))}
+      </nav>
 
-      <UsoIaPanel uso={(consumoIa as UsoIa | null) ?? null} />
+      {pestana === "consumo" ? (
+        <>
+          <UsoIaPanel uso={(consumoIa as UsoIa | null) ?? null} />
+          <UsoAlmacenamientoPanel uso={(uso as UsoAlmacenamiento | null) ?? null} />
+        </>
+      ) : null}
 
-      <UsoAlmacenamientoPanel uso={(uso as UsoAlmacenamiento | null) ?? null} />
+      {pestana === "herramientas" ? (
+        <>
+          <InvitarNegocio />
+          <EtiquetasNfc
+            etiquetas={(etiquetas ?? []) as EtiquetaPlataforma[]}
+            negocios={(negocios ?? []).map(({ id, nombre }) => ({ id, nombre }))}
+          />
+        </>
+      ) : null}
 
-      <EtiquetasNfc
-        etiquetas={(etiquetas ?? []) as EtiquetaPlataforma[]}
-        negocios={(negocios ?? []).map(({ id, nombre }) => ({ id, nombre }))}
-      />
-
-      {clientes.length === 0 ? (
+      {pestana !== "negocios" ? null : clientes.length === 0 ? (
         <p className={styles.vacio}>Todavía no hay negocios cargados.</p>
       ) : (
         <ul className={styles.lista}>
@@ -149,6 +180,24 @@ export default async function PaginaPlataforma() {
                     /{negocio.slug} · <span>sin catálogo público</span>
                   </p>
                 )}
+
+                {/* Los tres datos que hacen falta para hablar con este cliente,
+                    y que hasta ahora obligaban a abrir su panel: a qué se
+                    dedica, desde cuándo es cliente, y si tiene encendida la
+                    herramienta que cuesta dinero. Ninguno pide una consulta
+                    nueva: los tres ya venían en la fila. */}
+                <ul className={styles.datos}>
+                  <li>{nombreDeRubro(negocio.rubro)}</li>
+                  <li>
+                    Cliente desde {formatearFechaVencimiento(new Date(negocio.creado_en))}
+                  </li>
+                  {negocio.foto_ia_habilitada ? (
+                    <li data-ia="si">
+                      IA · {fotosPorNegocio.get(negocio.id) ?? 0} de {TOPE_FOTOS_POR_MES} este
+                      mes
+                    </li>
+                  ) : null}
+                </ul>
               </div>
 
               <div className={styles.estado}>

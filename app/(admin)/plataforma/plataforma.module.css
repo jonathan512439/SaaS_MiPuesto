@@ -151,3 +151,106 @@ a.direccion:hover {
   font-weight: 800;
   text-decoration: none;
 }
+
+/* Las pestañas: qué pregunta contesta cada una.
+ *
+ * Con la pregunta debajo del nombre y no solo el nombre. «Consumo» a secas no
+ * dice si adentro está la cuota de Google o el espacio de las fotos, y el
+ * administrador entra a las tres para averiguarlo la primera vez. Son tres
+ * palabras que se leen una sola vez y evitan dos clics cada una.
+ *
+ * Se desplazan de costado en un teléfono en vez de apilarse: apiladas ocupan
+ * media pantalla antes de que empiece el contenido. */
+.pestanas {
+  display: flex;
+  gap: var(--spacing-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pestanas::-webkit-scrollbar {
+  display: none;
+}
+
+.pestana,
+.pestanaActiva {
+  display: grid;
+  flex: 1 0 auto;
+  gap: var(--spacing-1);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
+  text-decoration: none;
+  box-shadow: var(--sombra-suave);
+}
+
+.pestana strong,
+.pestanaActiva strong {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.pestana small,
+.pestanaActiva small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+/* La elegida se pinta con el color de marca, la misma seña que usa el panel del
+   negocio para «acá estás». */
+.pestanaActiva {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+}
+
+.pestanaActiva small {
+  color: var(--color-marca-fuerte);
+}
+
+.pestana:hover {
+  border-color: var(--color-marca);
+}
+
+.pestana:active,
+.pestanaActiva:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.pestana:focus-visible,
+.pestanaActiva:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+/* Los tres datos del cliente, en una fila de fichas.
+ *
+ * En renglones sueltos habrían sumado tres líneas a cada tarjeta de una lista
+ * que se recorre entera; en fichas ocupan una y se saltean con la vista cuando
+ * no interesan. */
+.datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.datos li {
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--color-fondo-hundido);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+/* La que cuesta dinero cada vez que se usa se distingue de las que solo
+   informan: es la única de las tres sobre la que hay algo que decidir. */
+.datos li[data-ia="si"] {
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+}

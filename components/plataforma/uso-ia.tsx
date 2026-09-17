@@ -75,6 +75,25 @@ export function UsoIaPanel({ uso }: { uso: UsoIa | null }) {
   }
 
   const herramientas = Object.entries(uso.por_herramienta);
+
+  /* Cuál de los tres límites es el que frena hoy.
+   *
+   * Había cuatro medidores y ninguno contestaba la pregunta que uno trae al
+   * abrir esto: «¿puedo habilitarle la herramienta a otro negocio?». Con tres
+   * barras al 12 %, al 3 % y al 68 % hay que mirarlas de a una y quedarse con la
+   * peor, que es una cuenta que puede hacer la pantalla.
+   *
+   * Se compara por proporción y no por número: quince pedidos por minuto y
+   * quinientos por día no se comparan entre sí, lo que se compara es cuánto de
+   * cada uno está usado. */
+  const limites = [
+    { nombre: "el minuto", valor: uso.minuto.llamadas, limite: LIMITES_GEMINI.porMinuto },
+    { nombre: "los tokens del minuto", valor: uso.minuto.tokens, limite: LIMITES_GEMINI.tokensPorMinuto },
+    { nombre: "el día", valor: uso.dia_cuota.llamadas, limite: LIMITES_GEMINI.porDia },
+  ];
+  const aprieta = limites.reduce((peor, actual) =>
+    actual.valor / actual.limite > peor.valor / peor.limite ? actual : peor,
+  );
   /* Lo que queda del día compartido después de lo ya gastado. Es la cifra que
      dice si entra otro negocio hoy, y no se deduce de ninguna barra. */
   const restanteHoy = Math.max(0, LIMITES_GEMINI.porDia - uso.dia_cuota.llamadas);
@@ -90,6 +109,19 @@ export function UsoIaPanel({ uso }: { uso: UsoIa | null }) {
           <strong>no incluye las pruebas que hagas en AI Studio</strong>.
         </p>
       </header>
+
+      {/* La respuesta, antes que las barras. Las barras siguen abajo porque
+          sirven para lo otro: ver si algo se disparó. */}
+      <p className={styles.titular} data-nivel={nivelDeUsoIa(aprieta.valor, aprieta.limite)}>
+        Lo que aprieta ahora es <strong>{aprieta.nombre}</strong>, al{" "}
+        <strong>{porcentajeDeUso(aprieta.valor, aprieta.limite)} %</strong>. Quedan{" "}
+        <strong>{restanteHoy.toLocaleString("es-BO")}</strong> pedidos de hoy, que alcanzan
+        para{" "}
+        <strong>
+          {Math.floor(restanteHoy / TOPE_FOTOS_POR_DIA).toLocaleString("es-BO")}
+        </strong>{" "}
+        negocio(s) más usando su cupo entero.
+      </p>
 
       <div className={styles.medidores}>
         <Medidor

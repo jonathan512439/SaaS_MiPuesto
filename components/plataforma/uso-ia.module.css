@@ -201,3 +201,30 @@
   color: var(--color-peligro);
   font-weight: 800;
 }
+
+/* El titular: la respuesta en un renglón, antes de las barras.
+ *
+ * Se tiñe con el mismo nivel que los medidores —holgado, atención, crítico— así
+ * que el color ya dice si hay que hacer algo antes de leer el número. Es el
+ * mismo idioma que las barras de abajo, para no aprender dos. */
+.titular {
+  border-left: var(--spacing-1) solid var(--color-exito);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-fondo-suave);
+  font-size: var(--text-sm);
+}
+
+.titular[data-nivel="atencion"] {
+  border-left-color: var(--color-alerta);
+  background: var(--color-alerta-tenue);
+}
+
+.titular[data-nivel="critico"] {
+  border-left-color: var(--color-peligro);
+  background: var(--color-peligro-tenue);
+}
+
+.titular strong {
+  font-weight: 900;
+}
