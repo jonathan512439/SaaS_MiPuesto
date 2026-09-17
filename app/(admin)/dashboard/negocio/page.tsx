@@ -14,6 +14,7 @@ import {
   type OperacionNegocioInicial,
 } from "../../../../components/negocios/formulario-operacion";
 import { CodigoQrNegocio } from "../../../../components/negocios/codigo-qr-negocio";
+import { obtenerUrlPublicaImagenNegocio } from "../../../../lib/negocios/imagenes-publicas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../../lib/url-sitio";
@@ -61,6 +62,9 @@ export default async function PaginaConfiguracion() {
             urlSupabase={url}
           />
           <CodigoQrNegocio
+            /* La direccion la arma el servidor, que es quien conoce la del
+               proyecto: lo guardado es una ruta del deposito. */
+            logoUrl={obtenerUrlPublicaImagenNegocio(url, negocio.logo_url, "logo")}
             nombreNegocio={negocio.nombre}
             urlCatalogo={construirUrlPublicaNegocio(negocio.slug)}
           />

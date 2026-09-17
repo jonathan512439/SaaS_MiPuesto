@@ -3,28 +3,30 @@
 import { useEffect, useState } from "react";
 
 import { COLORES_MIPUESTO } from "../../lib/identidad-visual";
+import { dibujarQrConLogo } from "../../lib/qr-con-logo";
 import styles from "./codigo-qr-negocio.module.css";
 
 type PropiedadesCodigoQr = {
   nombreNegocio: string;
   urlCatalogo: string;
+  /* La dirección del logo ya resuelta por el servidor. Opcional: un negocio sin
+     logo tiene su QR igual, solo que sin nada en el medio. */
+  logoUrl?: string | null;
 };
 
-export function CodigoQrNegocio({ nombreNegocio, urlCatalogo }: PropiedadesCodigoQr) {
+export function CodigoQrNegocio({ logoUrl, nombreNegocio, urlCatalogo }: PropiedadesCodigoQr) {
   const [imagen, setImagen] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
     let activo = true;
-    import("qrcode")
-      .then(({ toDataURL }) =>
-        toDataURL(urlCatalogo, {
-          errorCorrectionLevel: "M",
-          margin: 2,
-          width: 320,
-          color: { dark: COLORES_MIPUESTO.texto, light: COLORES_MIPUESTO.superficie },
-        }),
-      )
+    dibujarQrConLogo({
+      texto: urlCatalogo,
+      lado: 320,
+      colorOscuro: COLORES_MIPUESTO.texto,
+      colorClaro: COLORES_MIPUESTO.superficie,
+      logoUrl,
+    })
       .then((resultado) => {
         if (activo) setImagen(resultado);
       })
@@ -34,13 +36,16 @@ export function CodigoQrNegocio({ nombreNegocio, urlCatalogo }: PropiedadesCodig
     return () => {
       activo = false;
     };
-  }, [urlCatalogo]);
+  }, [logoUrl, urlCatalogo]);
 
   return (
     <section aria-labelledby="titulo-qr-catalogo" className={styles.bloque}>
       <div className={styles.texto}>
         <h2 id="titulo-qr-catalogo">Código QR de tu catálogo</h2>
-        <p>Imprímelo o compártelo: al escanearlo se abre tu catálogo.</p>
+        <p>
+          Imprímelo o compártelo: al escanearlo se abre tu catálogo.
+          {logoUrl ? " Lleva tu logo en el centro." : ""}
+        </p>
         <a href={urlCatalogo} rel="noreferrer" target="_blank">Abrir catálogo público</a>
       </div>
       <div className={styles.vista} aria-live="polite">

@@ -317,3 +317,50 @@
 .faltantes[data-impide="si"] p {
   color: var(--color-alerta);
 }
+
+/* Lo que el negocio tiene incluido, con lo usado al lado.
+ *
+ * Con la forma de las métricas de actividad y no la de un aviso: son números que
+ * se miran, no algo que haya que resolver. Lo que se resuelve está arriba, en
+ * «lo que le falta al catálogo», y mezclarlos haría que un tope normal se leyera
+ * como un problema. */
+.limites {
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.limites h2 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.limites dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--spacing-3);
+  margin: 0;
+}
+
+.limites dt {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.limites dd {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.limites dd strong {
+  font-size: var(--text-xl);
+  font-weight: 900;
+}
+
+.limites p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}

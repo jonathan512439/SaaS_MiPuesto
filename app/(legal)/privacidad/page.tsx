@@ -84,13 +84,12 @@ export default function PaginaPrivacidad() {
           hasta que vos lo revisás y lo aceptás.
         </p>
         <p>
-          <strong>Algo que queremos que sepas y no está escondido acá abajo:</strong> hoy
-          usamos el nivel gratuito de ese servicio. Según los términos de Google, en ese
-          nivel el contenido que se le envía puede ser usado por Google para mejorar sus
-          propios servicios. Cuando pasemos al nivel de pago —donde eso no ocurre—
-          actualizamos esta página y te avisamos. Mientras tanto, si preferís que tus
-          listas de precios no salgan de acá, pedinos que te apaguemos las herramientas y
-          seguís cargando a mano, sin ningún cargo ni penalidad.
+          <strong>Algo que queremos que sepas y no está escondido acá abajo:</strong> las
+          condiciones con las que ese proveedor trata lo que se le envía son suyas y
+          pueden cambiar. Si cambian de una forma que te afecte, actualizamos esta página
+          y te avisamos. Y si preferís que tus listas de precios no salgan de acá, pedinos
+          que te apaguemos las herramientas y seguís cargando a mano, sin ningún cargo ni
+          penalidad.
         </p>
         <p>
           De cada lectura guardamos un registro para controlar el consumo: la fecha, cuál

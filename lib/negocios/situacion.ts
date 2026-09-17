@@ -15,13 +15,18 @@ import type { SituacionDelNegocio } from "./alta";
  * otra. Esa clase de desacuerdo no se ve en las pruebas de ninguno de los dos.
  */
 const COLUMNAS =
-  "id,nombre,slug,activo,nombre_admin,rubro,telefono_whatsapp,logo_url,alta_paso,alta_completada_en";
+  "id,nombre,slug,activo,foto_ia_habilitada,nombre_admin,rubro,telefono_whatsapp,logo_url,alta_paso,alta_completada_en";
 
 export type NegocioEnSituacion = {
   id: string;
   nombre: string;
   slug: string;
   activo: boolean;
+  /* Si la plataforma le encendio la lectura con IA. Obligatorio y no opcional:
+     la pantalla de resumen lo necesita para decidir si dibuja sus topes, y un
+     campo opcional que una consulta deja de pedir compila igual y desaparece en
+     silencio, que es como se perdio una vez el bloque de la foto. */
+  foto_ia_habilitada: boolean;
 };
 
 export async function leerSituacionDelNegocio(
@@ -60,6 +65,7 @@ export async function leerSituacionDelNegocio(
       nombre: negocio.nombre,
       slug: negocio.slug,
       activo: negocio.activo,
+      foto_ia_habilitada: negocio.foto_ia_habilitada === true,
     },
     situacion: {
       nombreAdmin: negocio.nombre_admin,

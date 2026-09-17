@@ -36,12 +36,30 @@ describe("páginas legales", () => {
     }
   });
 
-  /* Decir «no se usa para entrenar» mientras se usa el nivel gratuito sería
-     falso, y es justo la frase que alguien querría escribir. Mientras el texto
-     hable del nivel gratuito tiene que decir qué implica. */
-  it("la privacidad explica qué implica el nivel gratuito", () => {
-    expect(privacidad).toContain("nivel gratuito");
-    expect(privacidad).toContain("mejorar sus");
+  /* Antes esta prueba **exigía** hablar del nivel gratuito, porque el texto lo
+     hacía y había que obligarlo a decir qué implicaba. El nivel dejó de
+     nombrarse al pasar al plan de pago, así que lo que queda por vigilar es lo
+     de siempre pero al revés: que la página no prometa de más.
+     «Google no usa tus fotos para entrenar» es exactamente la frase que alguien
+     querría escribir y que nosotros no podemos sostener: depende del plan
+     contratado y de los términos de un tercero, las dos cosas fuera de este
+     repositorio. Lo que sí podemos sostener —y la página dice— es qué se envía,
+     qué no, y que se pueden apagar las herramientas. */
+  it("la privacidad no promete lo que no podemos sostener", () => {
+    for (const promesa of [/no (?:se )?usan? .{0,40}entrenar/i, /nunca .{0,30}entrenar/i]) {
+      expect(privacidad, `la página promete algo que depende de un tercero: ${promesa}`).not.toMatch(
+        promesa,
+      );
+    }
+  });
+
+  /* Si algún día el texto vuelve a nombrar el nivel gratuito, tiene que volver a
+     decir qué implica: decir «gratuito» sin la consecuencia es la mitad del
+     dato, que es peor que no decirlo. */
+  it("si nombra el nivel gratuito, dice qué implica", () => {
+    if (privacidad.includes("nivel gratuito")) {
+      expect(privacidad).toContain("mejorar sus");
+    }
   });
 
   /* Los topes se importan del código en vez de escribirse. Si alguien los

@@ -9,6 +9,7 @@ import {
   MAXIMO_EVENTOS_LEIDOS,
   obtenerVentanasSemanales,
 } from "../../../lib/analitica-servidor";
+import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
 import { faltantesParaPublicar } from "../../../lib/negocios/alta";
 import { leerSituacionDelNegocio } from "../../../lib/negocios/situacion";
 import { formatearPrecioBolivianos } from "../../../lib/precios";
@@ -18,8 +19,8 @@ import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel"
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
-  title: "Inicio | MiPuesto",
-  description: "Qué le falta a tu catálogo y qué pasó con él esta semana.",
+  title: "Resumen | MiPuesto",
+  description: "Qué le falta a tu catálogo, qué pasó con él esta semana y qué tenés usado.",
 };
 
 const METRICAS = [
@@ -58,6 +59,22 @@ export default async function PaginaDashboard() {
      pedidos. */
   const faltantes = faltantesParaPublicar(leido.situacion);
   const impiden = faltantes.filter(({ impide }) => impide);
+
+  /* Lo que el negocio tiene contratado y cuánto lleva usado.
+   *
+   * Vivía en dos lugares, y en ninguno de los dos estaba cuando hacía falta: el
+   * tope, escrito en los términos, que nadie relee; y el uso, en la pantalla de
+   * la herramienta, que solo se ve estando por usarla. La pregunta «¿cuánto me
+   * queda?» se hace **antes** de sentarse a trabajar, y este es el lugar donde
+   * el dueño mira antes de empezar. */
+  const { data: usoIa } = negocio.foto_ia_habilitada
+    ? await supabase
+        .from("uso_ia_negocio")
+        .select("cantidad")
+        .eq("negocio_id", negocio.id)
+        .eq("mes", `${new Date().toISOString().slice(0, 8)}01`)
+        .maybeSingle()
+    : { data: null };
 
   const { actual, previa } = obtenerVentanasSemanales();
 
@@ -178,6 +195,40 @@ export default async function PaginaDashboard() {
           <strong>Tu catálogo está temporalmente inactivo.</strong>
           <span>Conservas el acceso a tus datos, pero el enlace no aparece en el directorio.</span>
         </aside>
+      ) : null}
+
+      {/* Los topes del negocio, con lo usado al lado. Aparece solo si tiene la
+          herramienta encendida: al que no la tiene, un tope de algo que no puede
+          usar le sobra. */}
+      {negocio.foto_ia_habilitada ? (
+        <section aria-labelledby="tus-limites" className={styles.limites}>
+          <h2 id="tus-limites">Lo que tenés incluido</h2>
+          <dl>
+            <div>
+              <dt>Lecturas con IA este mes</dt>
+              <dd>
+                <strong>{usoIa?.cantidad ?? 0}</strong> de {TOPE_FOTOS_POR_MES}
+              </dd>
+              {/* El tope diario también, porque es el que frena primero a quien
+                  carga su catálogo entero en una tarde. */}
+              <p>Hasta {TOPE_FOTOS_POR_DIA} por día</p>
+            </div>
+            <div>
+              <dt>Productos</dt>
+              <dd>
+                <strong>{leido.situacion.productos}</strong> cargados
+              </dd>
+              <p>Sin tope</p>
+            </div>
+            <div>
+              <dt>Categorías</dt>
+              <dd>
+                <strong>{leido.situacion.categorias}</strong> de 40
+              </dd>
+              <p>Hasta 10 campos en cada una</p>
+            </div>
+          </dl>
+        </section>
       ) : null}
 
       <section aria-labelledby="actividad-semanal" className={styles.actividad}>

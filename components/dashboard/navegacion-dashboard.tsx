@@ -12,7 +12,10 @@ import { RUTAS_PANEL } from "../../lib/panel/rutas";
    sección de siempre sin leer; sin la palabra al lado, en cambio, habría que
    aprenderse nueve dibujos. */
 const ENLACES: ReadonlyArray<{ href: string; etiqueta: string; icono: NombreIcono }> = [
-  { href: RUTAS_PANEL.inicio, etiqueta: "Inicio", icono: "casa" },
+  /* «Resumen» y no «Inicio», decidido con el dueño. «Inicio» dice dónde está la
+     pantalla; «Resumen» dice qué hay adentro, que es lo que sirve para elegir
+     entre nueve secciones. */
+  { href: RUTAS_PANEL.inicio, etiqueta: "Resumen", icono: "casa" },
   /* «Mi negocio» y «Mi catálogo» con el posesivo, y no «Negocio» y «Catálogo» a
      secas: son las dos pantallas que un dueño nuevo confunde con las de la
      plataforma, y el «mi» es lo que le dice de quién es lo que está tocando. */
