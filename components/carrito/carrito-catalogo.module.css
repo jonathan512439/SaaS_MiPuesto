@@ -442,20 +442,6 @@
     justify-self: end;
   }
 
-  .campos {
-    grid-template-columns: 1fr;
-  }
-
-  .campos label,
-  .campos input,
-  .campos label:first-of-type,
-  .campos input:first-of-type,
-  .campos label:last-of-type,
-  .campos input:last-of-type {
-    grid-column: 1;
-    grid-row: auto;
-  }
-
   .qr {
     grid-template-columns: 1fr;
     justify-items: center;
