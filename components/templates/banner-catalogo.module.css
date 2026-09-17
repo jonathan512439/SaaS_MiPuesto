@@ -70,9 +70,15 @@ figure.banner .imagen {
  * negocio quiere mostrar, y velarla entera es taparle lo que puso.
  *
  * Velada de un lado hay lugar para las dos cosas: el texto sobre la cortina y la
- * imagen respirando a la derecha. El arranque va casi opaco y no al 78 % del
- * velo porque el contraste tiene que darse **con cualquier fotografía**,
- * incluida una blanca, y eso no se puede dejar librado a qué subió el negocio.
+ * imagen respirando a la derecha.
+ *
+ * El arranque iba casi opaco porque el contraste tiene que darse **con cualquier
+ * fotografía**, incluida una blanca, y eso no se puede dejar librado a qué subió
+ * el negocio. Ahora baja diez puntos —el dueño pidió ver más de la foto— y lo
+ * que lo compensa es el contorno del texto: la letra se sostiene sola contra el
+ * fondo que sea, así que la cortina no tiene que taparlo todo. Las dos cosas van
+ * juntas; aclarar el velo sin el contorno dejaría un título ilegible sobre una
+ * fotografía clara.
  *
  * La columna única encierra el texto en esa mitad: sin ella un título largo
  * cruza hasta la zona clara y pierde el fondo que lo sostiene. */
@@ -92,9 +98,9 @@ figure.banner .imagen {
   align-content: end;
   background: linear-gradient(
     to right,
-    color-mix(in srgb, var(--catalogo-marca) 92%, transparent) 0%,
-    color-mix(in srgb, var(--catalogo-velo) 76%, transparent) 30%,
-    color-mix(in srgb, var(--catalogo-velo) 32%, transparent) 58%,
+    color-mix(in srgb, var(--catalogo-marca) 82%, transparent) 0%,
+    color-mix(in srgb, var(--catalogo-velo) 64%, transparent) 30%,
+    color-mix(in srgb, var(--catalogo-velo) 24%, transparent) 58%,
     transparent 82%
   );
   color: var(--catalogo-sobre-marca);
@@ -109,16 +115,32 @@ figure.banner .imagen {
     padding: var(--spacing-6) var(--spacing-8);
     background: linear-gradient(
       to right,
-      color-mix(in srgb, var(--catalogo-marca) 94%, transparent) 0%,
-      color-mix(in srgb, var(--catalogo-velo) 78%, transparent) 26%,
-      color-mix(in srgb, var(--catalogo-velo) 30%, transparent) 50%,
+      color-mix(in srgb, var(--catalogo-marca) 84%, transparent) 0%,
+      color-mix(in srgb, var(--catalogo-velo) 66%, transparent) 26%,
+      color-mix(in srgb, var(--catalogo-velo) 22%, transparent) 50%,
       transparent 66%
     );
   }
 }
 
+/* El contorno de la letra, que es lo que permite aclarar la cortina.
+ *
+ * Va pintado **debajo** del relleno —`paint-order`— para que engorde la letra
+ * hacia afuera en vez de comérsela desde el borde; sin eso, a cuerpo chico el
+ * trazo se traga la mitad del palo de una «l».
+ *
+ * El color es el de marca, no un negro: el contorno tiene que pertenecer a la
+ * paleta que eligió el dueño, igual que la cortina. */
+.eyebrow,
+.titulo,
+.copy {
+  -webkit-text-stroke: 0.035em var(--catalogo-marca);
+  paint-order: stroke fill;
+}
+
 .eyebrow {
   margin: 0;
+  font-family: var(--font-marca);
   font-size: var(--text-xs);
   font-weight: 800;
   letter-spacing: var(--tracking-etiqueta);
@@ -128,7 +150,9 @@ figure.banner .imagen {
 
 .titulo {
   margin: 0;
-  font-family: var(--font-display);
+  /* La misma letra de letrero que el nombre del negocio: un banner es un cartel,
+     y un cartel no se escribe con la tipografía de un formulario. */
+  font-family: var(--font-marca);
   font-size: var(--text-xl);
   font-weight: 800;
   line-height: 1.15;
@@ -153,6 +177,7 @@ figure.banner .imagen {
 
 .boton {
   margin-top: var(--spacing-2);
+  font-family: var(--font-marca);
   padding: var(--spacing-3) var(--spacing-6);
   /* Relleno solido, borde propio y sombra: sobre una fotografia, un boton plano
      del mismo color que la letra se confunde con el texto y deja de leerse como

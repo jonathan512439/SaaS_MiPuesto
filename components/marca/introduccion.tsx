@@ -27,6 +27,13 @@ export const CLAVE_INTRODUCCION = "mipuesto-marca-vista";
  * 2. Si no, la anota y queda escuchando el primer toque, rueda, deslizamiento o
  *    tecla para cortarla. Quien ya sabe lo que busca no tiene que esperar a que
  *    la marca termine de presentarse.
+ * 3. Y cuando termina, **marca la raíz igual**. Esto faltaba, y por eso volver
+ *    al catálogo desde la página de un producto repetía la animación: al ir y
+ *    volver no se recarga la página —el `<html>` es el mismo y este guion no
+ *    corre de nuevo—, así que lo único que podía esconder la capa era el
+ *    atributo, y en la primera visita nadie lo ponía. Quedaba anotado en la
+ *    sesión, que solo se lee al recargar, y el cliente veía el logotipo cada vez
+ *    que volvía de mirar un producto.
  *
  * Sin `sessionStorage` —navegación privada, almacenamiento bloqueado— la
  * animación sale igual. Se pierde el «una vez por sesión», que es una comodidad;
@@ -38,9 +45,10 @@ if(sessionStorage.getItem(${JSON.stringify(CLAVE_INTRODUCCION)})){r.dataset.marc
 sessionStorage.setItem(${JSON.stringify(CLAVE_INTRODUCCION)},"si");
 }catch(e){}
 var n=["pointerdown","wheel","touchmove","keydown"];
-function salir(){r.dataset.marca="saltada";n.forEach(function(t){window.removeEventListener(t,salir)});}
+function quitar(){n.forEach(function(t){window.removeEventListener(t,salir)});}
+function salir(){r.dataset.marca="saltada";quitar();}
 n.forEach(function(t){window.addEventListener(t,salir,{passive:true});});
-setTimeout(function(){n.forEach(function(t){window.removeEventListener(t,salir)});},2000);
+setTimeout(function(){quitar();r.dataset.marca="vista";},2000);
 })();`;
 
 /* La presentación de la marca: el isotipo se dibuja solo y el nombre se escribe
