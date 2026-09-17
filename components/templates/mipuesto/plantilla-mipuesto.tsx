@@ -170,7 +170,7 @@ export function PlantillaMipuesto({
           ) : null}
           {negocio.resenasUrl ? (
             <a
-              className={`${styles.botonMapa} ${styles.botonCalificar}`}
+              className={styles.botonMapa}
               href={negocio.resenasUrl}
               rel="noreferrer noopener"
               target="_blank"
@@ -365,32 +365,45 @@ export function PlantillaMipuesto({
           enlace de MiPuesto, o sea al final de todo, donde nadie lo busca. */}
       {antesDelPie}
 
-      {/* La invitación a calificar, al final de todo.
-          El botón de la cabecera es un atajo para quien ya entró decidido a
-          dejar la reseña; esto es otra cosa: llega **después** de recorrer el
-          catálogo, que es cuando la persona ya se formó una opinión. Pedir una
-          calificación al llegar es pedirla antes de que haya pasado nada.
-          La pregunta es lo que hace que alguien se detenga; el botón solo, por
-          grande que sea, se lee como un cartel más. */}
-      {negocio.resenasUrl ? (
-        <section aria-labelledby="invitacion-calificar" className={styles.invitacion}>
-          <Icono nombre="mapa" />
-          <h3 id="invitacion-calificar">¿Te atendieron bien?</h3>
-          <a href={negocio.resenasUrl} rel="noreferrer noopener" target="_blank">
-            Calificar en Google
-          </a>
-        </section>
+      {/* Las dos invitaciones del final: ir hasta el negocio y calificarlo.
+          Los botones de la cabecera son atajos para quien ya entró decidido;
+          esto es otra cosa. Llegan **después** de recorrer el catálogo, que es
+          cuando la persona ya se formó una opinión y ya sabe si le interesa
+          acercarse. Pedir una calificación al llegar es pedirla antes de que
+          haya pasado nada.
+          Y son preguntas y no rótulos: una pregunta se contesta, aunque sea
+          mentalmente, y ese medio segundo es el que gana el toque. Un botón
+          solo, por grande que sea, se lee como un cartel más. */}
+      {negocio.ubicacionUrl || negocio.resenasUrl ? (
+        <div className={styles.invitaciones}>
+          {negocio.ubicacionUrl ? (
+            <section aria-labelledby="invitacion-llegar" className={styles.invitacion}>
+              <Icono nombre="ubicacion" />
+              <h3 id="invitacion-llegar">¿Venís a vernos?</h3>
+              <a href={negocio.ubicacionUrl} rel="noreferrer noopener" target="_blank">
+                Cómo llegar
+              </a>
+            </section>
+          ) : null}
+          {negocio.resenasUrl ? (
+            <section aria-labelledby="invitacion-calificar" className={styles.invitacion}>
+              <Icono nombre="mapa" />
+              <h3 id="invitacion-calificar">¿Te atendieron bien?</h3>
+              <a href={negocio.resenasUrl} rel="noreferrer noopener" target="_blank">
+                Calificar en Google
+              </a>
+            </section>
+          ) : null}
+        </div>
       ) : null}
 
       <footer className={styles.pie}>
         <strong>WhatsApp {negocio.telefonoWhatsapp}</strong>
+        {/* Sin «Cómo llegar»: ya está en la cabecera y en la invitación de acá
+            arriba. El mismo enlace tres veces en una pantalla deja de leerse
+            como una ayuda y empieza a leerse como relleno. */}
         <div className={styles.pieAcciones}>
           <AccionLlamar className={styles.pieEnlace} telefono={negocio.telefonoWhatsapp} />
-          {negocio.ubicacionUrl ? (
-            <a className={styles.pieEnlace} href={negocio.ubicacionUrl} rel="noreferrer" target="_blank">
-              Cómo llegar
-            </a>
-          ) : null}
         </div>
         {negocio.redesSociales.length ? (
           /* Con el dibujo arriba y el nombre debajo.

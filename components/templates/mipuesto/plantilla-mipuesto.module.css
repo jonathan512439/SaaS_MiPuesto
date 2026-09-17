@@ -134,15 +134,24 @@
   gap: var(--spacing-2);
 }
 
+/* Los dos botones de la cabecera van rellenos y no contorneados.
+   Contorneados sobre la cabecera pintada se leían como un borde más y se
+   perdían; rellenos se recortan contra el fondo y se ven sin buscarlos.
+
+   El relleno son los mismos dos colores de la cabecera dados vuelta, y eso no es
+   una casualidad cómoda: el contraste es simétrico, así que la pareja que el
+   control ya comprueba —`sobre-navegador` sobre `navegador`— vale igual al
+   revés. Destacar no cuesta una excepción. */
 .botonMapa {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   gap: var(--spacing-1);
   padding: var(--spacing-2) var(--spacing-3);
-  border: var(--borde-fino) solid color-mix(in srgb, var(--catalogo-sobre-navegador) 55%, transparent);
+  border: var(--borde-fino) solid var(--catalogo-sobre-navegador);
   border-radius: var(--radius-control);
-  color: var(--catalogo-sobre-navegador);
+  background: var(--catalogo-sobre-navegador);
+  color: var(--catalogo-navegador);
   font-size: var(--text-xs);
   font-weight: 800;
   text-decoration: none;
@@ -152,27 +161,29 @@
   font-size: var(--text-base);
 }
 
-/* «Calificar» va relleno y «Cómo llegar» contorneado: al lado, dos botones
-   iguales se leen como un par de utilidades y no se mira ninguno.
-
-   El relleno son los mismos dos colores de la cabecera dados vuelta, y eso no es
-   una casualidad cómoda: el contraste es simétrico, así que la pareja que el
-   control ya comprueba —`sobre-navegador` sobre `navegador`— vale igual al
-   revés. Destacar no cuesta una excepción. */
-.botonCalificar {
-  border-color: var(--catalogo-sobre-navegador);
-  background: var(--catalogo-sobre-navegador);
-  color: var(--catalogo-navegador);
+/* Las dos invitaciones del final, una al lado de la otra donde entran y una
+   debajo de la otra en un teléfono. Con una sola cargada ocupa el ancho entero,
+   que es lo normal: pocos negocios tienen los dos enlaces puestos. */
+.invitaciones {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0 var(--margen-lateral) var(--spacing-4);
 }
 
-/* La invitación del final. Sobre la superficie y con borde de marca, que son dos
-   parejas ya comprobadas en las dieciséis paletas; el botón va del color de
-   acción, el que la paleta reserva para «esto se toca». */
+@media (min-width: 40rem) {
+  .invitaciones {
+    grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
+  }
+}
+
+/* Cada invitación: sobre la superficie y con borde de marca, dos parejas ya
+   comprobadas en las dieciséis paletas; el botón va del color de acción, el que
+   la paleta reserva para «esto se toca». */
 .invitacion {
   display: grid;
   justify-items: center;
+  align-content: start;
   gap: var(--spacing-2);
-  margin: 0 var(--margen-lateral) var(--spacing-4);
   border: var(--borde-fino) solid var(--catalogo-borde-marca);
   border-radius: var(--radius-panel);
   padding: var(--spacing-5) var(--spacing-4);
