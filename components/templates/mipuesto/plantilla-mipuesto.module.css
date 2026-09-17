@@ -157,6 +157,16 @@
   display: flex;
   gap: var(--spacing-3);
   overflow-x: auto;
+  /* La frontera de esta fila es la pantalla, no el margen del catálogo.
+     Terminaba donde termina el buscador, así que la última categoría quedaba
+     cortada a un centímetro del borde y parecía que ahí se acababan: nadie
+     desplaza una fila que no se ve continuar. Sale del margen y lo devuelve como
+     relleno, de modo que la primera esfera sigue alineada con el resto de la
+     pantalla pero las demás pasan por debajo del borde. */
+  margin-inline: calc(var(--margen-lateral) * -1);
+  padding-inline: var(--margen-lateral);
+  /* Al saltar a una categoría con el teclado, que no quede pegada al borde. */
+  scroll-padding-inline: var(--margen-lateral);
   padding-bottom: var(--spacing-1);
 }
 

@@ -62,13 +62,25 @@ figure.banner .imagen {
   height: 100%;
 }
 
-/* El velo sube desde abajo, teñido con el color del negocio: así el texto —que
-   va claro— se lee sobre cualquier fotografía, y la franja no se ve como una
-   imagen con una caja opaca pegada. */
+/* El mismo velo que la portada: una cortina que entra desde la izquierda.
+ *
+ * Subía desde abajo y cubría el ancho entero. Eran dos idiomas para lo mismo
+ * —texto claro sobre la fotografía de un negocio— en la misma pantalla, y el de
+ * abajo además tapaba la franja completa: una publicidad es una imagen que el
+ * negocio quiere mostrar, y velarla entera es taparle lo que puso.
+ *
+ * Velada de un lado hay lugar para las dos cosas: el texto sobre la cortina y la
+ * imagen respirando a la derecha. El arranque va casi opaco y no al 78 % del
+ * velo porque el contraste tiene que darse **con cualquier fotografía**,
+ * incluida una blanca, y eso no se puede dejar librado a qué subió el negocio.
+ *
+ * La columna única encierra el texto en esa mitad: sin ella un título largo
+ * cruza hasta la zona clara y pierde el fondo que lo sostiene. */
 .contenido {
   position: relative;
   z-index: 1;
   display: grid;
+  grid-template-columns: minmax(0, 76%);
   justify-items: start;
   gap: var(--spacing-1);
   padding: var(--spacing-5) var(--spacing-4);
@@ -78,16 +90,31 @@ figure.banner .imagen {
      alta es mejor que una publicidad cortada por la mitad. */
   min-height: calc(100cqw * var(--banner-alto) / var(--banner-ancho));
   align-content: end;
-  /* El velo cubre **toda** la imagen y no solo la mitad de abajo: si la
-     fotografia del banner es clara arriba, el titulo se quedaba sin nada detras
-     y el contraste terminaba dependiendo de que imagen subio el negocio. */
   background: linear-gradient(
-    to top,
-    var(--catalogo-velo) 0%,
-    color-mix(in srgb, var(--catalogo-velo) 66%, transparent) 50%,
-    color-mix(in srgb, var(--catalogo-velo) 34%, transparent) 100%
+    to right,
+    color-mix(in srgb, var(--catalogo-marca) 92%, transparent) 0%,
+    color-mix(in srgb, var(--catalogo-velo) 76%, transparent) 30%,
+    color-mix(in srgb, var(--catalogo-velo) 32%, transparent) 58%,
+    transparent 82%
   );
   color: var(--catalogo-sobre-marca);
+}
+
+/* En pantalla ancha la cortina se ciñe a la mitad justa, igual que la portada:
+   hay lugar de sobra para el texto y la fotografía se luce del centro a la
+   derecha. */
+@media (min-width: 48rem) {
+  .contenido {
+    grid-template-columns: minmax(0, 50%);
+    padding: var(--spacing-6) var(--spacing-8);
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--catalogo-marca) 94%, transparent) 0%,
+      color-mix(in srgb, var(--catalogo-velo) 78%, transparent) 26%,
+      color-mix(in srgb, var(--catalogo-velo) 30%, transparent) 50%,
+      transparent 66%
+    );
+  }
 }
 
 .eyebrow {
