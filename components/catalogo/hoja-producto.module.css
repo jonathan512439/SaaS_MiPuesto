@@ -378,3 +378,19 @@
   font-size: var(--text-sm);
   text-align: center;
 }
+
+/* El icono junto a la palabra en el boton de la ficha: acompania, no reemplaza.
+   Es el mismo dibujo que la tarjeta usa solo, asi que quien toco el icono
+   afuera reconoce el boton adentro. */
+.accion button,
+.accion a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+}
+
+.accion svg {
+  flex-shrink: 0;
+  font-size: var(--text-lg);
+}

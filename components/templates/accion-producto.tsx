@@ -32,6 +32,17 @@ type PropiedadesAccionProducto = {
   /* Para los servicios: la acción es abrir la ficha, que es donde vive el
      calendario. Las tarjetas ya reciben esta función para la foto. */
   alVerProducto?: (productoId: string) => void;
+  /* Con ícono en la tarjeta y con palabras en la ficha.
+
+     No es una preferencia: es el sitio disponible. En la tarjeta, al lado del
+     precio, una frase se parte en tres renglones y hace la tarjeta más alta que
+     el producto; en la ficha hay una pantalla entera y el botón es lo único que
+     se toca, así que decir qué hace cuesta nada y ahorra una duda.
+
+     La forma corta vino después, y por eso la larga es la de omisión: una
+     pantalla nueva que se olvide de elegir sale con palabras, que es lo que no
+     se entiende mal. */
+  presentacion?: "icono" | "completa";
 };
 
 export function AccionProducto({
@@ -43,7 +54,9 @@ export function AccionProducto({
   alAgregarProducto,
   alAbrirWhatsapp,
   alVerProducto,
+  presentacion = "completa",
 }: PropiedadesAccionProducto) {
+  const soloIcono = presentacion === "icono";
   if (modalidad === "solo_lectura") return null;
 
   /* Un servicio no se agrega al carrito: se agenda. La tarjeta lleva a la ficha,
@@ -61,6 +74,7 @@ export function AccionProducto({
         type="button"
       >
         <IconoDeAccion producto={producto} />
+        {soloIcono ? null : <span>Agendar</span>}
       </button>
     );
   }
@@ -73,6 +87,7 @@ export function AccionProducto({
       return (
         <button aria-label={etiqueta} disabled={!demostracion || noDisponible} type="button">
           <IconoDeAccion producto={producto} />
+          {soloIcono ? null : <span>{etiqueta}</span>}
         </button>
       );
     }
@@ -86,6 +101,7 @@ export function AccionProducto({
         target="_blank"
       >
         <IconoDeAccion producto={producto} />
+        {soloIcono ? null : <span>{etiqueta}</span>}
       </a>
     );
   }
@@ -106,10 +122,19 @@ export function AccionProducto({
       type="button"
     >
       <IconoDeAccion producto={producto} />
-      {/* Cuántos lleva ya. Encima del ícono y no como palabras al lado: es el
-          mismo lugar donde lo pone el carrito de la cabecera, así que se lee sin
-          aprender nada nuevo. */}
-      {cantidad > 0 ? <b aria-hidden="true">{cantidad}</b> : null}
+      {soloIcono ? null : (
+        <span>
+          {sinCantidad
+            ? `Máximo disponible (${cantidad})`
+            : cantidad > 0
+              ? `Agregar otro (${cantidad} en el pedido)`
+              : "Agregar al pedido"}
+        </span>
+      )}
+      {/* Cuántos lleva ya, sobre la esquina. Solo con el ícono solo: con
+          palabras el número ya está escrito, y repetirlo sería decirlo dos
+          veces. */}
+      {soloIcono && cantidad > 0 ? <b aria-hidden="true">{cantidad}</b> : null}
     </button>
   );
 }

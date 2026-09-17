@@ -73,6 +73,9 @@ export function TarjetaMipuesto({
             demostracion={demostracion}
             modalidad={modalidad}
             permiteAcciones={permiteAcciones}
+            /* Solo el ícono: al lado del precio no entra una frase. La ficha,
+               que tiene la pantalla entera, la usa con palabras. */
+            presentacion="icono"
             producto={producto}
           />
         </div>
