@@ -91,24 +91,28 @@
   min-width: 0;
 }
 
-/* El nombre del negocio es lo primero que se lee y lo único que no se repite
-   en ningún otro catálogo. Iba en la misma geométrica que los títulos del panel
-   y se leía como un rótulo de sistema; ahora lleva la letra de marca —una serif
-   de trazo marcado, con carácter— que además contrasta con Inter, que es la del
-   resto. Ese contraste es lo que lo hace destacar sin agrandarlo de más. */
+/* El nombre del negocio es lo primero que se lee y lo único que no se repite en
+   ningún otro catálogo. Iba en la misma geométrica que los títulos del panel y
+   se leía como un rótulo de sistema.
+
+   Ahora lleva letra propia: una grotesca de letrero, con terminaciones que se
+   reconocen —la que usaría un local para su cartel—, y no una serif de libro. El
+   contraste con Inter, que es la del resto del catálogo, es lo que lo hace
+   destacar; por eso no necesita cuerpo de más y va apenas por encima del texto
+   común. Un nombre largo en una cabecera de teléfono tiene que caber. */
 .identidadTexto h1 {
   margin: 0;
   font-family: var(--font-marca);
-  font-size: var(--text-2xl);
+  font-size: var(--text-lg);
   font-weight: 700;
   letter-spacing: normal;
-  line-height: 1.1;
+  line-height: 1.15;
   overflow-wrap: anywhere;
 }
 
 @media (min-width: 48rem) {
   .identidadTexto h1 {
-    font-size: var(--text-3xl);
+    font-size: var(--text-xl);
   }
 }
 

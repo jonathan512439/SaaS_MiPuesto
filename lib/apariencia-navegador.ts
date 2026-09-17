@@ -14,16 +14,23 @@ import type { PaletaId } from "./apariencia";
 export const COLOR_NAVEGADOR: Record<PaletaId, string> = {
   mercado: "#1f5b63",
   tierra: "#5a3722",
-  oceano: "#0f6178",
+  /* Oscura desde que se la cambió: la barra va del color del fondo. */
+  oceano: "#0f1720",
   noche: "#151a1c",
-  altiplano: "#543279",
+  altiplano: "#8a3a1e",
   jazmin: "#7a2b52",
   grafito: "#303539",
   selva: "#1f5132",
   cobre: "#8a4118",
   /* Oscura, como «noche»: la barra va del color del fondo y no del de marca.
      Una barra menta o durazno sobre un catálogo oscuro corta contra él. */
-  pizarra: "#1a1f26",
+  pizarra: "#1d1714",
+  rosal: "#a8325f",
+  amapola: "#b3301f",
+  /* Las dos de fondo negro: la barra va del negro del catálogo. Un amarillo o
+     un dorado ahí dejaría los íconos del navegador ilegibles. */
+  abeja: "#141310",
+  dorado: "#121110",
 };
 
 export function colorDeNavegador(paleta: string): string {

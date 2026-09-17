@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, Outfit } from "next/font/google";
+import { Bricolage_Grotesque, Inter, Outfit } from "next/font/google";
 import type { ReactNode } from "react";
 
 import "./globals.css";
@@ -37,7 +37,7 @@ const fuenteTitulo = Outfit({
   variable: "--fuente-titulo",
 });
 
-const fuenteMarca = Fraunces({
+const fuenteMarca = Bricolage_Grotesque({
   subsets: ["latin"],
   display: "swap",
   variable: "--fuente-marca",

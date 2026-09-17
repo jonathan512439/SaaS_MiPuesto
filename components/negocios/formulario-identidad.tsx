@@ -300,9 +300,23 @@ export function FormularioIdentidad({
             type="url"
             value={resenas}
           />
+          {/* Los pasos van acá y no en un manual aparte: el dueño necesita
+              sacar ese enlace **mientras** está mirando este campo, y un enlace
+              de Maps que no es el de calificar se pega igual y no falla —lleva a
+              ver la ficha en vez de a puntuarla, y nadie se entera—. */}
           <small className={styles.ayudaUbicacion}>
-            Se lo mostramos a tu cliente recién cuando termina de pedir, que es el
-            momento en que está contento y todavía tiene el teléfono en la mano.
+            Se lo mostramos a tu cliente al terminar el pedido, que es cuando está
+            contento y con el teléfono en la mano.
+          </small>
+          <ol className={styles.pasosResenas}>
+            <li>Abrí Google Maps y buscá tu negocio.</li>
+            <li>Tocá tu ficha y bajá hasta «Reseñas».</li>
+            <li>Tocá «Escribe una reseña».</li>
+            <li>Copiá la dirección que se abre y pegala acá.</li>
+          </ol>
+          <small className={styles.ayudaUbicacion}>
+            No sirve el enlace de «Compartir»: ese lleva a ver tu ficha, no a
+            calificarla.
           </small>
           {errores.resenas_url ? <small>{errores.resenas_url}</small> : null}
         </label>

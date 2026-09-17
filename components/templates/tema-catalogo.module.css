@@ -169,15 +169,25 @@
 }
 
 .tema[data-paleta="oceano"],
+/* Los dos tonos con los que esta paleta se ve en el **panel**: su marca y su
+ * acción están elegidas para leerse sobre el fondo oscuro del catálogo, y sobre
+ * el lienzo claro del panel esos mismos colores no se leen. Son el mismo matiz
+ * llevado a donde funciona. El control de contraste los comprueba. */
 .paleta[data-paleta="oceano"] {
-  --catalogo-superficie: #f5fbfc;
-  --catalogo-texto: #14303b;
-  --catalogo-marca: #0f6178;
-  --catalogo-sobre-marca: #f5fbfc;
-  --catalogo-accion: #b03562;
-  --catalogo-sobre-accion: #f5fbfc;
-  --catalogo-exito: #1f6a50;
-  --catalogo-alerta: #7a5600;
+  --catalogo-marca-panel: #1f5f8a;
+  --catalogo-accion-panel: #9a5a1e;
+  --catalogo-superficie: #0f1720;
+  --catalogo-texto: #e8eef5;
+  --catalogo-marca: #8fc0e8;
+  --catalogo-sobre-marca: #0b1620;
+  --catalogo-accion: #e0a76a;
+  --catalogo-sobre-accion: #2a1a0c;
+  --catalogo-exito: #7fc89d;
+  --catalogo-alerta: #f0c36a;
+  /* Oscura: la cabecera sigue al color del fondo para fundirse con la barra
+     del navegador, con el texto claro. */
+  --catalogo-navegador: var(--catalogo-superficie);
+  --catalogo-sobre-navegador: var(--catalogo-texto);
 }
 
 .tema[data-paleta="noche"],
@@ -211,6 +221,8 @@
   --catalogo-sobre-navegador: var(--catalogo-texto);
 }
 
+/* Carta de restaurante, de día: crema, madera y brasa. Era «violeta andino con
+   acento carmín»; el dueño pidió cambiarla por algo cálido y de carta. */
 .tema[data-paleta="altiplano"],
 .paleta[data-paleta="altiplano"] {
   --catalogo-superficie: #faf7fc;
@@ -300,4 +312,80 @@
   --catalogo-sobre-accion: #f7f7f6;
   --catalogo-exito: #1e6a45;
   --catalogo-alerta: #8a5500;
+}
+
+/* Pastelería y afines: rosa profundo sobre azúcar, con caramelo para la acción.
+   El rosa manda, que es lo que pidió el dueño para ese rubro. */
+.tema[data-paleta="rosal"],
+.paleta[data-paleta="rosal"] {
+  --catalogo-superficie: #fff7f9;
+  --catalogo-texto: #3d1f2a;
+  --catalogo-marca: #a8325f;
+  --catalogo-sobre-marca: #fff7f9;
+  --catalogo-accion: #9a5a1e;
+  --catalogo-sobre-accion: #fff7f9;
+  --catalogo-exito: #2f6b46;
+  --catalogo-alerta: #a02f14;
+}
+
+/* Florería: rojo amapola con ciruela. Dos colores de flor, no uno de flor y uno
+   de hoja: el verde ya lo pone la fotografía. */
+.tema[data-paleta="amapola"],
+.paleta[data-paleta="amapola"] {
+  --catalogo-superficie: #fff8f5;
+  --catalogo-texto: #3a231d;
+  --catalogo-marca: #b3301f;
+  --catalogo-sobre-marca: #fff8f5;
+  --catalogo-accion: #7d3560;
+  --catalogo-sobre-accion: #fff8f5;
+  --catalogo-exito: #1f6a50;
+  --catalogo-alerta: #8a4b12;
+}
+
+/* Negro y amarillo. */
+.tema[data-paleta="abeja"],
+/* Los dos tonos con los que esta paleta se ve en el **panel**: su marca y su
+ * acción están elegidas para leerse sobre el fondo oscuro del catálogo, y sobre
+ * el lienzo claro del panel esos mismos colores no se leen. Son el mismo matiz
+ * llevado a donde funciona. El control de contraste los comprueba. */
+.paleta[data-paleta="abeja"] {
+  --catalogo-marca-panel: #7a5e00;
+  --catalogo-accion-panel: #8f4f00;
+  --catalogo-superficie: #141310;
+  --catalogo-texto: #f5f2e8;
+  --catalogo-marca: #f7cf4f;
+  --catalogo-sobre-marca: #1a1705;
+  --catalogo-accion: #ffab3d;
+  --catalogo-sobre-accion: #2a1500;
+  --catalogo-exito: #86c79b;
+  --catalogo-alerta: #ff8f6b;
+  /* Oscura: la cabecera sigue al color del fondo para fundirse con la barra
+     del navegador, con el texto claro. */
+  --catalogo-navegador: var(--catalogo-superficie);
+  --catalogo-sobre-navegador: var(--catalogo-texto);
+}
+
+/* Negro y dorado: el oro es la marca y el champán la acción. Dos oros del mismo
+   matiz se confundirían; con uno metálico y otro casi crema, la jerarquía de los
+   botones se sostiene. */
+.tema[data-paleta="dorado"],
+/* Los dos tonos con los que esta paleta se ve en el **panel**: su marca y su
+ * acción están elegidas para leerse sobre el fondo oscuro del catálogo, y sobre
+ * el lienzo claro del panel esos mismos colores no se leen. Son el mismo matiz
+ * llevado a donde funciona. El control de contraste los comprueba. */
+.paleta[data-paleta="dorado"] {
+  --catalogo-marca-panel: #6b5416;
+  --catalogo-accion-panel: #8a5a12;
+  --catalogo-superficie: #121110;
+  --catalogo-texto: #efe8d8;
+  --catalogo-marca: #d8b451;
+  --catalogo-sobre-marca: #1b1608;
+  --catalogo-accion: #e9dcc0;
+  --catalogo-sobre-accion: #1a1710;
+  --catalogo-exito: #8fc7a2;
+  --catalogo-alerta: #e8a05a;
+  /* Oscura: la cabecera sigue al color del fondo para fundirse con la barra
+     del navegador, con el texto claro. */
+  --catalogo-navegador: var(--catalogo-superficie);
+  --catalogo-sobre-navegador: var(--catalogo-texto);
 }

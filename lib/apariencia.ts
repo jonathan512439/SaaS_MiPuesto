@@ -23,6 +23,10 @@ export const PALETAS = [
   "selva",
   "cobre",
   "pizarra",
+  "rosal",
+  "amapola",
+  "abeja",
+  "dorado",
 ] as const;
 
 export type PaletaId = (typeof PALETAS)[number];
@@ -34,12 +38,16 @@ export const DEFINICIONES_PALETAS: ReadonlyArray<{
 }> = [
   { id: "mercado", nombre: "Mercado", descripcion: "Verde profundo y naranja cálido." },
   { id: "tierra", nombre: "Tierra", descripcion: "Cacao profundo con acento de ladrillo." },
-  { id: "oceano", nombre: "Océano", descripcion: "Azules frescos con acento frambuesa." },
+  { id: "oceano", nombre: "Océano", descripcion: "Azul de medianoche con acento latón." },
   { id: "noche", nombre: "Noche", descripcion: "Fondo oscuro con acentos claros y elegantes." },
-  { id: "altiplano", nombre: "Altiplano", descripcion: "Violeta andino con acento carmín." },
+  { id: "altiplano", nombre: "Carta", descripcion: "Crema y madera con brasa, como una carta de restaurante." },
   { id: "jazmin", nombre: "Jazmín", descripcion: "Ciruela suave con acento dorado." },
   { id: "grafito", nombre: "Grafito", descripcion: "Gris carbón con acento rojo." },
   { id: "selva", nombre: "Selva", descripcion: "Verde bosque con acento ámbar." },
   { id: "cobre", nombre: "Cobre", descripcion: "Cobre cálido con acento petróleo." },
-  { id: "pizarra", nombre: "Pizarra", descripcion: "Fondo oscuro frío con acento durazno." },
+  { id: "pizarra", nombre: "Carta de noche", descripcion: "Madera oscura, crema y oro viejo." },
+  { id: "rosal", nombre: "Rosal", descripcion: "Rosa profundo sobre azúcar, con caramelo. Para pastelerías." },
+  { id: "amapola", nombre: "Amapola", descripcion: "Rojo de flor con ciruela. Para florerías." },
+  { id: "abeja", nombre: "Abeja", descripcion: "Negro con amarillo encendido." },
+  { id: "dorado", nombre: "Dorado", descripcion: "Negro con dorado y champán." },
 ];
