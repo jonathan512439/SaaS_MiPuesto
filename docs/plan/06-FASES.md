@@ -480,7 +480,7 @@ negocio ya atiende.
   | Hoy la lista **pagina**, y en esta fase pasa a cargar al desplazar | Un grupo no puede partirse entre dos tandas: el subtítulo aparecería dos veces |
   | Las esferas saltan al ancla `categoria-{id}` | El ancla sigue siendo de la categoría; los subgrupos no se la pueden quedar |
   | Elegir una categoría filtra a esa sola | Filtrada, sus subgrupos se siguen viendo |
-  | El anuncio va **a la mitad**, contado en categorías | Los subgrupos no cuentan: si contaran, el anuncio se correría de lugar según cómo el dueño subdivide |
+  | El anuncio va después de la segunda categoría, contado sobre **las categorías del negocio** | Los subgrupos no cuentan, y las tandas tampoco: contándolas, el anuncio se movía de lugar al bajar. Corregido el 17 de septiembre de 2026, ver `lib/plantillas/secciones.ts` |
   | «Otros» y la carta del día son categorías que el sistema inventa | No tienen subcategorías y no pueden quedar con un subtítulo vacío |
   | Una categoría puede tener productos **sueltos y en subcategorías a la vez** | Los sueltos van primero y **sin subtítulo**: inventarles uno —«Sin subcategoría»— le muestra al comprador un problema de organización que es del dueño |
 - ~~Repaso de contraste del panel con los tokens existentes.~~ **Adelantado**:
@@ -491,11 +491,55 @@ negocio ya atiende.
 - **Compra del dominio**, DNS comodín, certificado y paso de ruta a subdominio,
   con las direcciones viejas redirigiendo.
 
+- **Las fotos, servidas por Cloudflare y no por Supabase.** Va pegado a la compra
+  del dominio porque **depende** de ella, y porque es lo que paga el dominio.
+
+  Hoy el navegador pide cada fotografía directamente a `*.supabase.co`: la
+  dirección se arma en `lib/catalogo/imagenes-publicas.ts` y apunta al
+  almacenamiento. Cloudflare no participa, así que **cada visita nueva cuesta
+  tráfico de Supabase**.
+
+  Medido el 17 de septiembre de 2026 contra el proyecto real: la fotografía media
+  pesa **70 KB** —el redimensionado a 1200 px y el paso a WebP se hacen en el
+  teléfono antes de subir, y se nota— y una página de catálogo con doce productos
+  baja **0,82 MB**. Contra los 5 GB mensuales del nivel gratuito, eso son unas
+  **170 visitas por día sumando todos los negocios**: el techo llega alrededor de
+  los ocho o diez negocios con tráfico real, con el disco todavía al 7 %.
+
+  **Aprieta el tráfico, nunca el disco.** En 1 GB entran unos 110 negocios.
+
+  Lo que hay que construir:
+
+  - Una ruta propia que sirva la fotografía —el Worker la trae del almacenamiento
+    y la devuelve— y que `imagenes-publicas.ts` arme **esa** dirección.
+  - Caché larga, de un año: la dirección de una foto lleva su identificador
+    adentro, así que es inmutable y no hay nada que invalidar. Es lo que hace que
+    esto sea seguro y la caché del HTML no lo sea.
+  - Una medición antes y después, para saber cuánto bajó de verdad.
+
+  **Por qué necesita el dominio:** en `*.workers.dev` las respuestas del Worker no
+  se cachean en el borde. Comprobado el mismo día: un archivo estático responde
+  `cf-cache-status: REVALIDATED` y una página del Worker responde `BYPASS` en cada
+  visita. Con dominio propio hay zona, y con zona hay caché.
+
+  **Lo que NO resuelve:** el CPU de Cloudflare. El plan pago sigue haciendo falta
+  —una página que no está en caché hay que dibujarla igual, y el panel del
+  comerciante no se puede cachear nunca—. Esto corre la factura de Supabase, no
+  la de Cloudflare.
+
+  **La caché del HTML del catálogo queda afuera a propósito.** Es el mismo
+  mecanismo pero con un problema que las fotos no tienen: cuando el dueño cambia
+  un precio hay que invalidar, y un catálogo que muestra el precio de ayer es peor
+  que uno lento. Se hace después, con el tráfico que lo justifique y con la
+  invalidación pensada.
+
 **Pruebas**
 
 - La guardia de vocabulario falla con una palabra prohibida sembrada a propósito.
 - Las direcciones viejas (`/negocio`) redirigen al subdominio.
 - Ningún QR impreso queda muerto.
+- Una fotografía pedida dos veces responde desde la caché la segunda, y el
+  tráfico medido contra Supabase baja.
 
 **Criterio de salida:** los seis catálogos en `nombre.mipuesto.com`, las
 direcciones viejas redirigiendo, y todas las guardias en verde.

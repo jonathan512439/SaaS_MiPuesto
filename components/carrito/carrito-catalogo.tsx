@@ -267,12 +267,16 @@ export function CarritoCatalogo({
               Verificaremos precios y existencias. Después recibirás un código para continuar por WhatsApp.
             </p>
           </div>
+          {/* Cada campo va en su bloque, con el rótulo pegado a su casilla.
+              Sueltos en la rejilla, los rótulos y las casillas se acomodaban por
+              posición, y eso solo funcionaba mientras los campos fueran dos
+              exactos. */}
           <div className={styles.campos}>
             {/* Primero la mesa: es el único dato que el mozo necesita sí o sí
                 para llevar el pedido, y el único que el comprador tiene delante
                 de los ojos mientras completa el formulario. */}
             {datos.negocio.pideNumeroMesa ? (
-              <>
+              <div className={styles.campo}>
                 <label htmlFor="pedido-numero-mesa">
                   Número de mesa <span>Opcional</span>
                 </label>
@@ -283,32 +287,36 @@ export function CarritoCatalogo({
                   placeholder="Ej.: 5 o Terraza"
                   value={numeroMesa}
                 />
-              </>
+              </div>
             ) : null}
-            <label htmlFor="pedido-cliente-nombre">
-              Nombre <span>Opcional</span>
-            </label>
-            <input
-              autoComplete="name"
-              id="pedido-cliente-nombre"
-              maxLength={80}
-              onChange={(evento) => setClienteNombre(evento.target.value)}
-              placeholder="Ej.: Ana Pérez"
-              value={clienteNombre}
-            />
-            <label htmlFor="pedido-cliente-telefono">
-              Tu celular <span>Opcional</span>
-            </label>
-            <input
-              autoComplete="tel"
-              id="pedido-cliente-telefono"
-              inputMode="tel"
-              maxLength={20}
-              onChange={(evento) => setClienteTelefono(evento.target.value)}
-              placeholder="Ej.: 71234567"
-              type="tel"
-              value={clienteTelefono}
-            />
+            <div className={styles.campo}>
+              <label htmlFor="pedido-cliente-nombre">
+                Nombre <span>Opcional</span>
+              </label>
+              <input
+                autoComplete="name"
+                id="pedido-cliente-nombre"
+                maxLength={80}
+                onChange={(evento) => setClienteNombre(evento.target.value)}
+                placeholder="Ej.: Ana Pérez"
+                value={clienteNombre}
+              />
+            </div>
+            <div className={styles.campo}>
+              <label htmlFor="pedido-cliente-telefono">
+                Tu celular <span>Opcional</span>
+              </label>
+              <input
+                autoComplete="tel"
+                id="pedido-cliente-telefono"
+                inputMode="tel"
+                maxLength={20}
+                onChange={(evento) => setClienteTelefono(evento.target.value)}
+                placeholder="Ej.: 71234567"
+                type="tel"
+                value={clienteTelefono}
+              />
+            </div>
           </div>
 
           {datos.negocio.qrPagoUrl ? (

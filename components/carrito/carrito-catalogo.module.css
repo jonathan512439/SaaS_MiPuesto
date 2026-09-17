@@ -300,14 +300,44 @@
   line-height: 1.5;
 }
 
+/* Los datos del pedido: mesa, nombre y celular.
+ *
+ * Estaban acomodados por posición —los rótulos clavados en la fila 1, las
+ * casillas en la fila 2, la primera en la columna 1 y la última en la 2— y eso
+ * funcionaba mientras los campos fueran **exactamente dos**.
+ *
+ * Con el número de mesa son tres, y el del medio se quedaba sin columna: los
+ * tres rótulos terminaban apretados en un solo renglón —«Número de mesa»,
+ * «Nombre» y «Tu celular» uno al lado del otro en un teléfono— con las casillas
+ * debajo, cada una de un ancho distinto. En un restaurante, que es justo donde
+ * se pide la mesa, era el formulario con el que se cierra la venta.
+ *
+ * Ahora la rejilla acomoda **bloques**: cada campo se lleva su rótulo pegado. En
+ * un teléfono va uno debajo del otro, con aire; en una pantalla ancha entran de
+ * a dos. Con dos campos o con tres se ve igual de ordenado, y un cuarto no
+ * obligaría a tocar nada. */
 .campos {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-1) var(--spacing-3);
+  gap: var(--spacing-3);
+}
+
+.campo {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+/* De a dos recién cuando hay ancho de sobra. El corte va en el ancho de la
+   pantalla y no en el de la hoja porque la hoja mide lo que la pantalla le
+   deja: en un teléfono nunca hay lugar para dos casillas y su rótulo. */
+@media (min-width: 30rem) {
+  .campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3) var(--spacing-3);
+  }
 }
 
 .campos label {
   display: flex;
-  grid-row: 1;
   align-items: baseline;
   gap: var(--spacing-2);
   font-size: var(--text-sm);
@@ -321,7 +351,6 @@
 }
 
 .campos input {
-  grid-row: 2;
   min-width: 0;
   min-height: var(--control-alto);
   border: var(--borde-fino) solid var(--catalogo-borde);
@@ -332,15 +361,6 @@
   font: inherit;
 }
 
-.campos label:first-of-type,
-.campos input:first-of-type {
-  grid-column: 1;
-}
-
-.campos label:last-of-type,
-.campos input:last-of-type {
-  grid-column: 2;
-}
 
 .qr {
   display: grid;
