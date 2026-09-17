@@ -128,13 +128,16 @@ describe("dónde cae el banner de publicidad", () => {
      posición del anuncio no puede cambiar por eso. Antes cambiaba —se contaba
      desde el final— y el banner saltaba de lugar arrastrando las tarjetas. */
   it("no se mueve cuando llegan más secciones al bajar", () => {
+    /* Lo que ve el catálogo mientras la persona baja: primero una categoría,
+       después tres, después ocho. El número tiene que ser el mismo las tres
+       veces, porque lo decide el negocio y no la tanda. */
     const tandas = [2, 3, 4, 5, 8, 13].map((cantidad) => posicionDelAnuncio(cantidad));
     expect(new Set(tandas).size).toBe(1);
     expect(tandas[0]).toBe(1);
   });
 
-  it("con una sola sección va después de ella, y sin secciones no va", () => {
+  it("con una sola categoría va después de ella", () => {
     expect(posicionDelAnuncio(1)).toBe(0);
-    expect(posicionDelAnuncio(0)).toBe(-1);
+    expect(posicionDelAnuncio(0)).toBe(0);
   });
 });

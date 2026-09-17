@@ -68,20 +68,29 @@ export function armarSecciones(
 
 /* Después de cuál sección va el banner de publicidad.
  *
+ * Se decide con **las categorías que tiene el negocio**, no con las que hay
+ * dibujadas en ese momento. Esa es toda la corrección.
+ *
  * Contaba desde el final —«antes de la última categoría»— y eso lo hacía
- * saltar. Con la carga al desplazar, cada tanda que llega agrega secciones: el
+ * saltar: con la carga al desplazar, cada tanda que llega agrega secciones, el
  * final se corre, la cuenta da otro número, y el banner se muda de lugar
  * mientras la persona está mirando, empujando las tarjetas que tenía debajo. El
- * dueño lo vio y lo describió así: «el segundo banner se pasa brincando, a veces
- * está en un lado y luego se mueve a otro».
+ * dueño lo describió así: «el segundo banner se pasa brincando, a veces está en
+ * un lado y luego se mueve a otro».
  *
- * Contando desde el principio no puede pasar: las tandas se suman al final, así
- * que la segunda sección sigue siendo la segunda por más que lleguen diez más.
+ * Contar desde el principio no alcanzaba: un catálogo cuya primera tanda trae
+ * una sola categoría daba 0, y al llegar la segunda pasaba a 1. La lista de
+ * categorías del negocio, en cambio, está completa desde el primer dibujo y no
+ * la cambian ni las tandas ni un filtro —es la misma de la que salen las
+ * esferas—, así que el número sale igual siempre.
  *
- * Y va ahí —después de la segunda— porque el dueño además lo pidió más arriba:
- * una publicidad al pie la ve solo quien llegó hasta abajo. Con una sola
- * sección cae después de ella, que es lo único que hay; sin secciones no hay
- * dónde ponerlo. */
-export function posicionDelAnuncio(cantidadDeSecciones: number) {
-  return Math.min(1, cantidadDeSecciones - 1);
+ * Va después de la segunda porque el dueño lo pidió más arriba: una publicidad
+ * al pie la ve solo quien llegó hasta abajo. Con una sola categoría cae después
+ * de ella, que es lo único que hay.
+ *
+ * Lo que se acepta a cambio: si la segunda categoría no tiene nada visible, el
+ * anuncio espera a que aparezca en vez de acomodarse en otro lado. Es preferible
+ * a que se mueva, que es lo que se vino a arreglar. */
+export function posicionDelAnuncio(categoriasDelNegocio: number) {
+  return categoriasDelNegocio >= 2 ? 1 : 0;
 }

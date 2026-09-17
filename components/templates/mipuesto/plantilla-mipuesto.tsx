@@ -66,7 +66,7 @@ export function PlantillaMipuesto({
   /* Después de cuál va el anuncio. La regla vive en `secciones.ts` con el
      motivo escrito: acá adentro no se podía comprobar sin dibujar la pantalla
      entera, y es justo la que se rompió. */
-  const posicionAnuncio = posicionDelAnuncio(seccionesConProductos.length);
+  const posicionAnuncio = posicionDelAnuncio(esferas.length);
 
   const irA = (id: string) => {
     if (typeof document === "undefined") return;
