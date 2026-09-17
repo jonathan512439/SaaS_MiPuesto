@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Icono } from "../iconos/icono";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
 
@@ -10,12 +12,12 @@ import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
  * dicen lo mismo seis veces.
  *
  * El ícono es el mismo que usan los catálogos que el dueño ya conoce como
- * cliente: una bolsa para comprar, un calendario para reservar. Lo que se pierde
- * —la palabra— se recupera en dos lugares: el `aria-label` lo dice entero para
- * quien no ve el dibujo, y la cuenta de lo que ya está en el pedido va como
+ * cliente: un carrito para comprar, un calendario para reservar. Lo que se
+ * pierde —la palabra— se recupera en dos lugares: el `aria-label` lo dice entero
+ * para quien no ve el dibujo, y la cuenta de lo que ya está en el pedido va como
  * número encima, que es más claro que «Agregar otro (2 en el pedido)».
  *
- * Bolsa o calendario lo decide el producto y no la pantalla: `vendeTiempo` ya
+ * Carrito o calendario lo decide el producto y no la pantalla: `vendeTiempo` ya
  * viene resuelto desde el servidor, porque es su categoría la que lo sabe. */
 function IconoDeAccion({ producto }: { producto: ProductoPlantilla }) {
   return <Icono nombre={producto.vendeTiempo ? "calendario" : "carrito"} />;
@@ -29,8 +31,13 @@ type PropiedadesAccionProducto = {
   cantidad?: number;
   alAgregarProducto?: (productoId: string) => void;
   alAbrirWhatsapp?: (productoId: string | null) => void;
-  /* Para los servicios: la acción es abrir la ficha, que es donde vive el
-     calendario. Las tarjetas ya reciben esta función para la foto. */
+  /* La página del producto. Es la acción de las tarjetas que no venden desde el
+     catálogo: un servicio se agenda ahí —es donde vive el calendario— y un
+     catálogo de solo mostrar se mira ahí.
+
+     En `null` no hay adónde ir: las vistas previas del panel y de la portada. */
+  href?: string | null;
+  /* Se avisa al tocar, para la analítica del negocio. */
   alVerProducto?: (productoId: string) => void;
   /* Con ícono en la tarjeta y con palabras en la ficha.
 
@@ -53,48 +60,58 @@ export function AccionProducto({
   cantidad = 0,
   alAgregarProducto,
   alAbrirWhatsapp,
+  href,
   alVerProducto,
   presentacion = "completa",
 }: PropiedadesAccionProducto) {
   const soloIcono = presentacion === "icono";
+
   /* Un catálogo de solo mostrar no vende, pero sus productos **se miran**: la
-     ficha tiene todas las fotografías, la descripción entera y los datos de su
-     categoría, y hasta ahora la única forma de llegar era tocar la fotografía,
-     que no se ve que se pueda tocar.
+     página del producto tiene todas las fotografías, la descripción entera y los
+     datos de su categoría, y hasta que apareció este ojo la única forma de
+     llegar era tocar la fotografía, que no se ve que se pueda tocar.
 
      Así que la tarjeta lleva un ojo en el mismo lugar donde las otras
-     modalidades llevan el carrito. Adentro de la ficha no: ahí ya se está
+     modalidades llevan el carrito. Adentro de la página no: ahí ya se está
      mirando, y un botón que no hace nada es peor que ninguno. */
   if (modalidad === "solo_lectura") {
-    if (!soloIcono) return null;
+    if (!soloIcono || !href) return null;
     return (
-      <button
+      <Link
         aria-label={`Ver ${producto.nombre}`}
+        href={href}
         onClick={() => alVerProducto?.(producto.id)}
-        type="button"
       >
         <Icono nombre="ojo" />
-      </button>
+      </Link>
     );
   }
 
-  /* Un servicio no se agrega al carrito: se agenda. La tarjeta lleva a la ficha,
-     que es donde está el calendario, en vez de meter «1 consulta» en el carrito
-     sin día ni hora.
+  /* Un servicio no se agrega al carrito: se agenda. La tarjeta lleva a la página
+     del producto, que es donde está el calendario, en vez de meter «1 consulta»
+     en el carrito sin día ni hora.
 
      Dice solo «Agendar», sin adelantar el próximo horario: el dueño lo pidió
      así, y la disponibilidad se mira adentro, donde están todos los días. */
   if (producto.vendeTiempo) {
+    if (!href) {
+      return (
+        <button aria-label={`Agendar ${producto.nombre}`} disabled type="button">
+          <IconoDeAccion producto={producto} />
+          {soloIcono ? null : <span>Agendar</span>}
+        </button>
+      );
+    }
+
     return (
-      <button
+      <Link
         aria-label={`Agendar ${producto.nombre}`}
-        disabled={demostracion}
+        href={href}
         onClick={() => alVerProducto?.(producto.id)}
-        type="button"
       >
         <IconoDeAccion producto={producto} />
         {soloIcono ? null : <span>Agendar</span>}
-      </button>
+      </Link>
     );
   }
 

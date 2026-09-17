@@ -1,4 +1,5 @@
 import { formatearPrecioBolivianos } from "../../../lib/precios";
+import { rutaProductoPublico } from "../../../lib/url-sitio";
 import { AccionProducto } from "../accion-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import { FotoProducto } from "../foto-producto";
@@ -25,7 +26,13 @@ export function TarjetaMipuesto({
   alAgregarProducto,
   alAbrirWhatsapp,
   alVerProducto,
+  slug,
 }: PropiedadesTarjeta) {
+  /* Adónde lleva la tarjeta. Se arma una vez y la usan los dos lugares que se
+     tocan —la fotografía y el botón del pie— para que no puedan llevar a
+     direcciones distintas del mismo producto. */
+  const href = slug ? rutaProductoPublico(slug, producto.codigo) : null;
+
   return (
     <li
       className={styles.tarjeta}
@@ -35,6 +42,7 @@ export function TarjetaMipuesto({
       <FotoProducto
         alVerProducto={alVerProducto}
         ancho={640}
+        href={href}
         className={styles.tarjetaFoto}
         insignias={<InsigniaProducto producto={producto} />}
         producto={producto}
@@ -71,6 +79,7 @@ export function TarjetaMipuesto({
             alVerProducto={alVerProducto}
             cantidad={cantidadEnCarrito}
             demostracion={demostracion}
+            href={href}
             modalidad={modalidad}
             permiteAcciones={permiteAcciones}
             /* Solo el ícono: al lado del precio no entra una frase. La ficha,

@@ -31,6 +31,11 @@ export type ProductoEnTarjeta = ProductoPlantilla & {
  * accionar ahora— llega desarmado. */
 export type PropiedadesTarjeta = {
   producto: ProductoEnTarjeta;
+  /* El negocio al que pertenece, para armar el enlace a la página del producto.
+     Va en `null` en las vistas previas —la portada, el selector de apariencia,
+     el paso del alta—: ahí los productos son de mentira y un enlace llevaría a
+     una página que no existe. Sin él la tarjeta no enlaza, y no falla. */
+  slug: string | null;
   modalidad: ModoAccionCatalogo;
   permiteAcciones: boolean;
   demostracion: boolean;

@@ -1,48 +1,14 @@
 @reference "../../app/globals.css";
 
-.hoja {
-  position: relative;
-  width: 100%;
-  max-width: 40rem;
-  max-height: 94dvh;
-  margin: auto;
-  border: 0;
-  border-radius: var(--radius-sheet);
-  padding: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  background: var(--catalogo-superficie);
-  color: var(--catalogo-texto);
-  box-shadow: var(--catalogo-sombra-flotante);
-}
-
-.hoja[open] {
-  animation: aparecerHojaProducto 180ms ease-out;
-}
-
-.hoja::backdrop {
-  background: color-mix(in srgb, var(--color-texto) 82%, transparent);
-}
-
-/* Flota sobre la fotografía en vez de ocupar una cabecera propia: el alto de la
-   ventana es para la imagen, que es lo que se viene a ver. */
-.cerrar {
-  position: absolute;
-  z-index: 2;
-  top: var(--spacing-3);
-  right: var(--spacing-3);
+/* Las fotografías juntas: el lienzo grande y la tira de miniaturas.
+ *
+ * En el teléfono es una columna y no se nota. En una pantalla ancha es lo que
+ * le permite a la página poner las fotos de un lado y el detalle del otro sin
+ * que la tira de miniaturas se despegue de su imagen. */
+.galeria {
   display: grid;
-  width: var(--control-alto);
-  height: var(--control-alto);
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--catalogo-superficie) 90%, transparent);
-  color: var(--catalogo-texto);
-  font-size: var(--text-xl);
-  line-height: 1;
-  box-shadow: var(--catalogo-sombra);
-  cursor: pointer;
+  align-content: start;
+  gap: var(--spacing-3);
 }
 
 .lienzo {
@@ -257,29 +223,11 @@
   opacity: 1;
 }
 
-@keyframes aparecerHojaProducto {
-  from {
-    transform: translateY(var(--spacing-3));
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hoja[open] {
-    animation: none;
-  }
-}
-
 /* Las especificaciones del producto: los datos propios de su categoría.
  *
  * Dos columnas donde entran y una sola en el teléfono, con `auto-fit` en vez de
- * una consulta de medios: la hoja puede abrirse angosta y lo que decide es el
- * ancho que tiene, no el de la pantalla.
+ * una consulta de medios: en una pantalla ancha el detalle es media página, y
+ * lo que decide es el ancho que le tocó, no el de la pantalla.
  *
  * De uno a diez pares. No hay un número fijo a propósito: cada categoría declara
  * los suyos y una veterinaria no tiene los mismos que una ferretería. */

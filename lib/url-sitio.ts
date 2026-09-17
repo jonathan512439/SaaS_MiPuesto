@@ -13,11 +13,18 @@ export function construirUrlPublicaNegocio(slug: string, base?: string) {
   return new URL(`/${encodeURIComponent(slug)}`, obtenerUrlBaseSitio(base)).toString();
 }
 
-/* La ficha de un producto se comparte desde el panel y no desde el catálogo:
-   quien reparte el enlace es el dueño, no el cliente que está mirando. */
+/* Adónde lleva tocar un producto: a su página.
+ *
+ * Es relativa porque se usa **adentro** del catálogo, donde el navegador ya
+ * está en el sitio y una dirección completa obligaría a recargar entero.
+ * `construirUrlPublicaProducto` la envuelve para lo que sale afuera —el enlace
+ * que el dueño comparte por WhatsApp, la etiqueta canónica del buscador—, y así
+ * la forma de la dirección se escribe una sola vez: si mañana la página del
+ * producto se mueve, se mueve acá. */
+export function rutaProductoPublico(slug: string, codigo: string) {
+  return `/${encodeURIComponent(slug)}/p/${encodeURIComponent(codigo)}`;
+}
+
 export function construirUrlPublicaProducto(slug: string, codigo: string, base?: string) {
-  return new URL(
-    `/${encodeURIComponent(slug)}/p/${encodeURIComponent(codigo)}`,
-    obtenerUrlBaseSitio(base),
-  ).toString();
+  return new URL(rutaProductoPublico(slug, codigo), obtenerUrlBaseSitio(base)).toString();
 }

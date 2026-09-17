@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
@@ -10,6 +11,11 @@ type PropiedadesFotoProducto = {
   sizes: string;
   className?: string;
   respaldo: ReactNode;
+  /* Adónde lleva tocar la fotografía: a la página del producto. En `null` —las
+     vistas previas— la foto es solo una foto. */
+  href?: string | null;
+  /* Se avisa al tocarla, para la analítica del negocio. No decide nada: quien
+     navega es el enlace. */
   alVerProducto?: (productoId: string) => void;
   /* La pastilla que va sobre la esquina de la fotografía. Se recibe en vez de
      calcularse acá porque no todas las plantillas la quieren: Feria y Mínima
@@ -18,9 +24,14 @@ type PropiedadesFotoProducto = {
   insignias?: ReactNode;
 };
 
-/* La fotografía abre la ficha del producto, tenga una foto o cuatro: adentro
-   están la descripción entera, el precio y la acción, así que la ficha vale
-   incluso sin galería que recorrer.
+/* La fotografía lleva a la página del producto, tenga una foto o cuatro: ahí
+   están la descripción entera, la galería, las presentaciones y la acción.
+
+   Era un botón que abría una hoja encima del catálogo. Ahora es un enlace de
+   verdad, y eso cambia tres cosas que la hoja no podía dar: la dirección se
+   puede copiar y mandar por WhatsApp, el botón «atrás» del teléfono vuelve al
+   catálogo, y un buscador encuentra el producto.
+
    El rótulo dice qué hace al tocarla. Sin él sería un destino táctil invisible,
    que es exactamente lo que fallaba cuando el nombre era enlace. */
 export function FotoProducto({
@@ -29,6 +40,7 @@ export function FotoProducto({
   sizes,
   className,
   respaldo,
+  href,
   alVerProducto,
   insignias,
 }: PropiedadesFotoProducto) {
@@ -47,26 +59,26 @@ export function FotoProducto({
     />
   );
 
-  if (!alVerProducto) return conInsignias(foto, insignias);
+  if (!href) return conInsignias(foto, insignias);
 
   const total = producto.imagenes.length;
 
   return conInsignias(
-    <button
+    <Link
       aria-label={
         total > 1
           ? `Ver ${producto.nombre}, ${total} fotografías`
           : `Ver ${producto.nombre}`
       }
       className={styles.disparador}
-      onClick={() => alVerProducto(producto.id)}
-      type="button"
+      href={href}
+      onClick={() => alVerProducto?.(producto.id)}
     >
       {foto}
       <span aria-hidden="true" className={styles.rotulo}>
         {total > 1 ? `Ver · ${total} fotos` : "Ver"}
       </span>
-    </button>,
+    </Link>,
     insignias,
   );
 }

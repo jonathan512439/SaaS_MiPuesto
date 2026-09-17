@@ -7,11 +7,11 @@ import { COLUMNAS_PRODUCTO_PUBLICO } from "../../../../../lib/catalogo/columnas"
 import { obtenerNegocioPublico } from "../../../../../lib/catalogo/negocio-publico";
 import { consultarContextoPublico } from "../../../../../lib/catalogo/pagina-publica";
 import { construirCatalogoPublico } from "../../../../../lib/catalogo/publico";
-import { FichaProducto } from "../../../../../components/catalogo/ficha-producto";
+import { ProductoConPedido } from "../../../../../components/catalogo/producto-con-pedido";
 import { formatearPrecioBolivianos } from "../../../../../lib/precios";
 import { crearClienteSupabasePublico } from "../../../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../../../lib/supabase/variables";
-import { construirUrlPublicaNegocio } from "../../../../../lib/url-sitio";
+import { construirUrlPublicaProducto } from "../../../../../lib/url-sitio";
 import temaStyles from "../../../../../components/templates/tema-catalogo.module.css";
 import styles from "./producto.module.css";
 
@@ -104,7 +104,7 @@ export async function generateMetadata({ params }: PropiedadesPagina): Promise<M
   const descripcion =
     producto.descripcion.trim() ||
     `${producto.nombre} a ${formatearPrecioBolivianos(producto.precio)} en ${negocio.nombre}.`;
-  const urlProducto = `${construirUrlPublicaNegocio(negocio.slug)}/p/${producto.codigo}`;
+  const urlProducto = construirUrlPublicaProducto(negocio.slug, producto.codigo);
 
   return {
     title: titulo,
@@ -136,19 +136,9 @@ export default async function PaginaProducto({ params }: PropiedadesPagina) {
       </nav>
 
       <article className={styles.producto}>
-        <FichaProducto
-          /* En un negocio con carrito, el carrito vive en el catálogo: esta
-             página no puede agregar nada, y un botón que no agrega sería peor
-             que un enlace a donde sí se puede. En las otras modalidades la
-             acción es un enlace de WhatsApp, que funciona igual acá. */
-          accionAlternativa={
-            negocio.modalidad === "carrito" ? (
-              <Link className={styles.accion} href={`/${negocio.slug}`}>
-                Agregar desde el catálogo
-              </Link>
-            ) : undefined
-          }
+        <ProductoConPedido
           modalidad={negocio.modalidad}
+          negocioId={negocio.id}
           permiteAcciones={negocio.atencion.permiteAcciones}
           producto={producto}
           slug={negocio.slug}

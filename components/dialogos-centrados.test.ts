@@ -52,8 +52,10 @@ describe("diálogos", () => {
     );
 
     /* Si el recorrido dejara de encontrarlos, la prueba pasaría sin comprobar
-       nada. Los cuatro que hay son el piso. */
-    expect(conDialogo.length).toBeGreaterThanOrEqual(4);
+       nada. Los tres que hay son el piso: eran cuatro hasta que la hoja del
+       producto se retiró, porque tocar una tarjeta ahora lleva a la página del
+       producto en vez de abrir una ventana encima del catálogo. */
+    expect(conDialogo.length).toBeGreaterThanOrEqual(3);
 
     for (const archivo of conDialogo) {
       const fuente = readFileSync(archivo, "utf8");

@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { PaletaId } from "../../lib/apariencia";
 import { fusionarCategorias } from "../../lib/plantillas/fusionar";
@@ -20,12 +13,10 @@ import {
   type FiltrosCatalogo,
 } from "../../lib/catalogo/consulta-publica";
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
-import { guardarPedido, leerPedidoGuardado } from "../../lib/pedidos/pedido-guardado";
+import { usePedido } from "../../lib/pedidos/use-pedido";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
-import { limitarCantidadReserva } from "../../lib/reservas";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
-import { HojaProducto } from "./hoja-producto";
 import { HojaCatalogo } from "./hoja-catalogo";
 import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
 import { ColorNavegador } from "./color-navegador";
@@ -50,10 +41,6 @@ const ESPERA_BUSQUEDA = 350;
 /* El catálogo tiene un solo diseño: PlantillaMipuesto. Antes acá se elegía una
    de cinco plantillas; la elección se retiró en la fase 6. */
 
-function suscribirInmutable() {
-  return () => {};
-}
-
 function obtenerProductos(datos: DatosPlantilla): ProductoPlantilla[] {
   return datos.categorias.flatMap((categoria) => [
     ...categoria.productos,
@@ -73,19 +60,15 @@ export function CatalogoInteractivo({
   totalPaginas,
 }: PropiedadesCatalogoInteractivo) {
   const router = useRouter();
-  const [cantidades, setCantidades] = useState<Record<string, number>>({});
-  /* sessionStorage no existe al renderizar en el servidor; useSyncExternalStore
-     da esa distinción sin encender estado en un efecto. */
-  const montado = useSyncExternalStore(suscribirInmutable, () => true, () => false);
-  const [negocioLeido, setNegocioLeido] = useState("");
-  /* El carrito guarda su propia copia de cada producto agregado. Con la
-     paginación en el servidor, la página que se está viendo ya no contiene
-     necesariamente lo que el cliente eligió antes, y sin esta copia el pedido
-     perdería los artículos al pasar de página. */
-  const [elegidos, setElegidos] = useState<Record<string, ProductoPlantilla>>({});
+  /* El pedido no vive acá: lo lleva `usarPedido`, que es el mismo que usa la
+     página del producto. Desde que tocar una tarjeta lleva a esa página, el
+     cliente puede agregar desde las dos, y con dos copias de esta lógica el
+     mismo pedido terminaría diciendo dos cosas. */
+  const { cantidades, elegidos, cambiarCantidad: cambiarPedido, vaciar } = usePedido(
+    datos.negocio.id,
+  );
   const [firmaReservada, setFirmaReservada] = useState("");
   const [pedidoAbierto, setPedidoAbierto] = useState(false);
-  const [fichaDe, setFichaDe] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState(filtros.busqueda);
   const [busquedaDelServidor, setBusquedaDelServidor] = useState(filtros.busqueda);
   const temporizadorBusqueda = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -99,15 +82,6 @@ export function CatalogoInteractivo({
     setBusqueda(filtros.busqueda);
   }
 
-  /* El pedido sobrevive a la navegación y a una recarga. Con la paginación en
-     el servidor eso dejó de ser una comodidad: cambiar de página o buscar es
-     navegar, y sin esto el cliente perdería lo que ya había elegido. */
-  if (montado && negocioLeido !== datos.negocio.id) {
-    const guardado = leerPedidoGuardado(datos.negocio.id);
-    setNegocioLeido(datos.negocio.id);
-    setCantidades(guardado.cantidades);
-    setElegidos(guardado.elegidos);
-  }
   const productosPagina = useMemo(() => obtenerProductos(datos), [datos]);
 
   /* Los tramos que se fueron trayendo al bajar, sumados al que vino dibujado.
@@ -192,7 +166,7 @@ export function CatalogoInteractivo({
     observador.observe(marca);
     return () => observador.disconnect();
   }, [direccionActual, filtros.busqueda, filtros.categoria, hayMas, slug, totalPaginas, trayendo, ultimaTanda]);
-  const productosCarrito = useMemo(() => Object.values(elegidos), [elegidos]);
+  const productosCarrito = Object.values(elegidos);
   const productos = useMemo(() => {
     const porId = new Map(productosCarrito.map((producto) => [producto.id, producto]));
     for (const producto of productosPagina) porId.set(producto.id, producto);
@@ -226,11 +200,6 @@ export function CatalogoInteractivo({
   useEffect(() => {
     registrar("vista_catalogo");
   }, [registrar]);
-
-  useEffect(() => {
-    if (negocioLeido !== datos.negocio.id) return;
-    guardarPedido(datos.negocio.id, { cantidades, elegidos });
-  }, [cantidades, datos.negocio.id, elegidos, negocioLeido]);
 
   useEffect(
     () => () => {
@@ -267,29 +236,14 @@ export function CatalogoInteractivo({
     },
   };
 
+  /* El carrito de la hoja habla por identificador —es lo que tiene a mano en
+     cada fila—, y el pedido guarda el producto entero. Acá se traduce de uno al
+     otro, buscando entre lo de la página y lo ya elegido. */
   function cambiarCantidad(productoId: string, cantidad: number) {
     const producto = productos.find(({ id }) => id === productoId);
     if (!producto) return;
-    setCantidades((actuales) => {
-      const siguientes = { ...actuales };
-      if (cantidad <= 0) delete siguientes[productoId];
-      else siguientes[productoId] = limitarCantidadReserva(cantidad, producto.maximoCantidad);
-      return siguientes;
-    });
-    setElegidos((actuales) => {
-      if (cantidad <= 0) {
-        const siguientes = { ...actuales };
-        delete siguientes[productoId];
-        return siguientes;
-      }
-      return { ...actuales, [productoId]: producto };
-    });
+    cambiarPedido(producto, cantidad);
   }
-
-  /* La ficha se busca entre lo elegido además de la página: si el cliente
-     agregó algo y después buscó otra cosa, la ventana sigue abriendo bien. */
-  const productoEnFicha =
-    productos.find(({ id }) => id === fichaDe) ?? null;
 
   function agregarProducto(productoId: string) {
     registrar("clic_producto", productoId);
@@ -375,23 +329,12 @@ export function CatalogoInteractivo({
         }
         alAgregarProducto={agregarProducto}
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
-        alVerProducto={setFichaDe}
+        alVerProducto={(productoId) => registrar("clic_producto", productoId)}
         cantidadesCarrito={cantidades}
         datos={{ ...datos, categorias }}
         demostracion={false}
         navegacion={categoriasNavegacion.length > 0 ? navegacion : undefined}
         paleta={paleta}
-      />
-      <HojaProducto
-        alAgregarProducto={agregarProducto}
-        alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
-        cantidad={productoEnFicha ? (cantidades[productoEnFicha.id] ?? 0) : 0}
-        modalidad={datos.negocio.modalidad}
-        onCerrar={() => setFichaDe(null)}
-        paleta={paleta}
-        permiteAcciones={datos.negocio.atencion.permiteAcciones}
-        producto={productoEnFicha}
-        slug={slug}
       />
       {datos.negocio.modalidad === "carrito" ? (
         <>
@@ -413,8 +356,7 @@ export function CatalogoInteractivo({
                  carrito sabe distinguir «vacío» de «vacío porque ya pidió». */
               onAbrirWhatsapp={() => {
                 registrar("clic_whatsapp");
-                setCantidades({});
-                setElegidos({});
+                vaciar();
                 setFirmaReservada("");
               }}
               onPedidoReservado={(firma) => {

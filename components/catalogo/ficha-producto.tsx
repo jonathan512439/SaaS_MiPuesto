@@ -1,39 +1,35 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 
 import { formatearPrecioBolivianos } from "../../lib/precios";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { AccionProducto } from "../templates/accion-producto";
 import { EstadoStockProducto } from "../templates/estado-stock-producto";
 import { SelectorDeTurno } from "./selector-de-turno";
-import styles from "./hoja-producto.module.css";
+import styles from "./ficha-producto.module.css";
 
 /* La ficha de un producto: fotografías, precio, presentaciones, datos y acción.
  *
- * Vive suelta porque **se muestra en dos lugares**: la hoja que se abre al tocar
- * un producto dentro del catálogo, y la página propia del producto —la que se
- * comparte por WhatsApp y la que encuentra un buscador—.
+ * Es el cuerpo de la página del producto. Hasta hace poco tocar una tarjeta
+ * abría una hoja encima del catálogo, y esta ficha se dibujaba adentro de esa
+ * hoja **y** en la página; el dueño pidió que fuera una página de verdad, como
+ * en los catálogos de referencia, y la hoja se retiró.
  *
- * Estaban escritas por separado, y se notaba: la hoja sabía dibujar las
- * presentaciones y la galería con flechas, y la página no. El mismo producto
- * decía menos según por dónde se llegara, y quien recibía el enlace no podía
- * elegir la talla que su vecino sí veía. Dos fichas del mismo producto es, a la
- * larga, dos precios del mismo producto.
+ * Con eso se ganaron tres cosas que una ventana encima no puede dar: la
+ * dirección se copia y se manda por WhatsApp, el botón «atrás» del teléfono
+ * vuelve al catálogo, y el buscador encuentra el producto.
  *
- * Lo que cambia entre los dos sitios no es la ficha sino su marco: la hoja la
- * envuelve en un diálogo con su cruz de cerrar, y la página le pone un enlace
- * para volver. Eso queda afuera.
- */
+ * Sigue suelta del archivo de la página porque es cliente —galería, presentación
+ * elegida, agregar al pedido— y la página es servidor: lo que se separa acá es
+ * lo que se dibuja de nuevo al tocar algo. */
 export function FichaProducto({
   producto,
   modalidad,
   permiteAcciones,
   slug,
   cantidad = 0,
-  idTitulo,
-  accionAlternativa,
   alAgregarProducto,
   alAbrirWhatsapp,
 }: {
@@ -42,12 +38,6 @@ export function FichaProducto({
   permiteAcciones: boolean;
   slug: string;
   cantidad?: number;
-  idTitulo?: string;
-  /* Con qué se reemplaza el botón cuando este sitio no puede hacer la acción.
-     El caso real es la página del producto en un negocio con carrito: el carrito
-     vive en el catálogo, y un botón que no agrega nada sería peor que un enlace
-     que lleva a donde sí se puede. */
-  accionAlternativa?: ReactNode;
   alAgregarProducto?: (productoId: string) => void;
   alAbrirWhatsapp?: (productoId: string | null) => void;
 }) {
@@ -79,6 +69,10 @@ export function FichaProducto({
 
   return (
     <>
+      {/* Las fotografías, juntas en un bloque: en el teléfono van una debajo de
+          otra igual que antes, y en una pantalla ancha son la columna izquierda
+          de la página, con el detalle al lado. */}
+      <div className={styles.galeria}>
       {/* `contain` y no `cover`: acá se viene a ver la fotografía entera, que es
           justo lo que la miniatura de la tarjeta corta. */}
       <div className={styles.lienzo}>
@@ -135,11 +129,12 @@ export function FichaProducto({
           ))}
         </div>
       ) : null}
+      </div>
 
       <div className={styles.detalle}>
-        <h2 className={styles.titulo} id={idTitulo}>
-          {producto.nombre}
-        </h2>
+        {/* `h1` porque esta ficha es la página del producto, y la página es del
+            producto: su nombre es el título de todo lo que hay en pantalla. */}
+        <h1 className={styles.titulo}>{producto.nombre}</h1>
 
         <div className={styles.precio}>
           {producto.tienePromocion ? (
@@ -206,9 +201,7 @@ export function FichaProducto({
 
             Un catálogo de solo mostrar **no reserva**: esa modalidad existe para
             el negocio que publica lo que tiene y atiende por su cuenta. */}
-        {accionAlternativa ? (
-          <div className={styles.accion}>{accionAlternativa}</div>
-        ) : producto.vendeTiempo && modalidad !== "solo_lectura" ? (
+        {producto.vendeTiempo && modalidad !== "solo_lectura" ? (
           <SelectorDeTurno
             productoId={producto.id}
             productoNombre={producto.nombre}

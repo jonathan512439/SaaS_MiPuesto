@@ -29,7 +29,7 @@ const FUERA_DEL_PANEL = [
   "carrito",
   "catalogo-interactivo",
   "hoja-catalogo",
-  "hoja-producto",
+  "ficha-producto",
   "foto-producto",
   "selector-de-turno",
   "inicio",

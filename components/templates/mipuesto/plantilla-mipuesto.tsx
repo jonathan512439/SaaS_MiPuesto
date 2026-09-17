@@ -51,6 +51,11 @@ export function PlantillaMipuesto({
      juntos: quien pone el atributo consulta esta misma función. */
   const iconosPatron = negocio.patronFondo ? iconosDePatron(esferas) : [];
 
+  /* Una vista previa no navega. Es la misma plantilla que el catálogo de verdad,
+     y sin esta distinción tocar un producto de la portada sacaría al visitante
+     del sitio hacia el catálogo de un negocio inventado. */
+  const slugEnlazable = demostracion ? null : negocio.slug;
+
   /* Las secciones, con sus subgrupos. Las reglas de cómo se reparten viven en
      `lib/plantillas/secciones.ts` y no acá: son reglas y no dibujo, están
      escritas una por una en el plan con el problema que evita cada una, y una
@@ -293,6 +298,7 @@ export function PlantillaMipuesto({
                       modalidad={negocio.modalidad}
                       permiteAcciones={negocio.atencion.permiteAcciones}
                       producto={producto}
+                      slug={slugEnlazable}
                     />
                   ))}
                 </ul>
@@ -313,6 +319,7 @@ export function PlantillaMipuesto({
                         modalidad={negocio.modalidad}
                         permiteAcciones={negocio.atencion.permiteAcciones}
                         producto={producto}
+                        slug={slugEnlazable}
                       />
                     ))}
                   </ul>
