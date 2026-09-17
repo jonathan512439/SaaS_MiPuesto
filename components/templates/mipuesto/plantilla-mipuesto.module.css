@@ -152,6 +152,61 @@
   font-size: var(--text-base);
 }
 
+/* «Calificar» va relleno y «Cómo llegar» contorneado: al lado, dos botones
+   iguales se leen como un par de utilidades y no se mira ninguno.
+
+   El relleno son los mismos dos colores de la cabecera dados vuelta, y eso no es
+   una casualidad cómoda: el contraste es simétrico, así que la pareja que el
+   control ya comprueba —`sobre-navegador` sobre `navegador`— vale igual al
+   revés. Destacar no cuesta una excepción. */
+.botonCalificar {
+  border-color: var(--catalogo-sobre-navegador);
+  background: var(--catalogo-sobre-navegador);
+  color: var(--catalogo-navegador);
+}
+
+/* La invitación del final. Sobre la superficie y con borde de marca, que son dos
+   parejas ya comprobadas en las dieciséis paletas; el botón va del color de
+   acción, el que la paleta reserva para «esto se toca». */
+.invitacion {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-2);
+  margin: 0 var(--margen-lateral) var(--spacing-4);
+  border: var(--borde-fino) solid var(--catalogo-borde-marca);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-5) var(--spacing-4);
+  background: var(--catalogo-superficie);
+  text-align: center;
+}
+
+.invitacion svg {
+  color: var(--catalogo-marca);
+  font-size: var(--text-3xl);
+}
+
+.invitacion h3 {
+  margin: 0;
+  font-family: var(--font-marca);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.invitacion a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-6);
+  background: var(--catalogo-accion);
+  color: var(--catalogo-sobre-accion);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  text-decoration: none;
+}
+
 /* La lupa dentro del campo, a la izquierda, y el texto corrido para que no se
    monte encima. `pointer-events: none` porque tocar la lupa tiene que enfocar el
    campo que está debajo, no quedarse en el dibujo. */

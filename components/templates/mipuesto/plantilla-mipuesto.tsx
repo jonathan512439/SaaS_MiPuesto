@@ -170,7 +170,7 @@ export function PlantillaMipuesto({
           ) : null}
           {negocio.resenasUrl ? (
             <a
-              className={styles.botonMapa}
+              className={`${styles.botonMapa} ${styles.botonCalificar}`}
               href={negocio.resenasUrl}
               rel="noreferrer noopener"
               target="_blank"
@@ -364,6 +364,23 @@ export function PlantillaMipuesto({
           pie**: el paginador quedaba debajo de las redes del negocio y del
           enlace de MiPuesto, o sea al final de todo, donde nadie lo busca. */}
       {antesDelPie}
+
+      {/* La invitación a calificar, al final de todo.
+          El botón de la cabecera es un atajo para quien ya entró decidido a
+          dejar la reseña; esto es otra cosa: llega **después** de recorrer el
+          catálogo, que es cuando la persona ya se formó una opinión. Pedir una
+          calificación al llegar es pedirla antes de que haya pasado nada.
+          La pregunta es lo que hace que alguien se detenga; el botón solo, por
+          grande que sea, se lee como un cartel más. */}
+      {negocio.resenasUrl ? (
+        <section aria-labelledby="invitacion-calificar" className={styles.invitacion}>
+          <Icono nombre="mapa" />
+          <h3 id="invitacion-calificar">¿Te atendieron bien?</h3>
+          <a href={negocio.resenasUrl} rel="noreferrer noopener" target="_blank">
+            Calificar en Google
+          </a>
+        </section>
+      ) : null}
 
       <footer className={styles.pie}>
         <strong>WhatsApp {negocio.telefonoWhatsapp}</strong>
