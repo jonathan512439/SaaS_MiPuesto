@@ -39,6 +39,11 @@ const ICONOS = {
   corona: "crown",
   ojo: "eye",
   bolsa: "shopping-bag",
+  /* El carrito de la tarjeta de producto. Es el dibujo que usan los catálogos
+     que el comerciante ya conoce como cliente, y la bolsa no lo reemplaza: a
+     tamaño de ícono una bolsa se lee como una caja o una cartera. El dueño
+     probó el catálogo y no reconoció el botón. */
+  carrito: "shopping-cart",
   rayo: "zap",
   codigoQr: "qr-code",
   carpeta: "folder",

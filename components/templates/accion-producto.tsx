@@ -18,7 +18,7 @@ import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
  * Bolsa o calendario lo decide el producto y no la pantalla: `vendeTiempo` ya
  * viene resuelto desde el servidor, porque es su categoría la que lo sabe. */
 function IconoDeAccion({ producto }: { producto: ProductoPlantilla }) {
-  return <Icono nombre={producto.vendeTiempo ? "calendario" : "bolsa"} />;
+  return <Icono nombre={producto.vendeTiempo ? "calendario" : "carrito"} />;
 }
 
 type PropiedadesAccionProducto = {
@@ -57,7 +57,26 @@ export function AccionProducto({
   presentacion = "completa",
 }: PropiedadesAccionProducto) {
   const soloIcono = presentacion === "icono";
-  if (modalidad === "solo_lectura") return null;
+  /* Un catálogo de solo mostrar no vende, pero sus productos **se miran**: la
+     ficha tiene todas las fotografías, la descripción entera y los datos de su
+     categoría, y hasta ahora la única forma de llegar era tocar la fotografía,
+     que no se ve que se pueda tocar.
+
+     Así que la tarjeta lleva un ojo en el mismo lugar donde las otras
+     modalidades llevan el carrito. Adentro de la ficha no: ahí ya se está
+     mirando, y un botón que no hace nada es peor que ninguno. */
+  if (modalidad === "solo_lectura") {
+    if (!soloIcono) return null;
+    return (
+      <button
+        aria-label={`Ver ${producto.nombre}`}
+        onClick={() => alVerProducto?.(producto.id)}
+        type="button"
+      >
+        <Icono nombre="ojo" />
+      </button>
+    );
+  }
 
   /* Un servicio no se agrega al carrito: se agenda. La tarjeta lleva a la ficha,
      que es donde está el calendario, en vez de meter «1 consulta» en el carrito
