@@ -56,7 +56,13 @@ const ICONOS = {
   atras: "arrow-left",
   /* La estrella de calificar en Google, en la cabecera del catálogo y en la
      pantalla de pedido confirmado. */
-  estrella: "star",
+  /* El mapa con su marca: es el dibujo de Google Maps que se puede usar sin
+     traer el logotipo en sus colores. Ver la nota de `redes.tsx`: acá las
+     marcas van como siluetas y toman el color del negocio, porque un rojo
+     corporativo dentro de una paleta «Tierra» se lee como un error.
+     Y no es el mismo dibujo que `ubicacion`: ese es el alfiler solo, que
+     queda justo al lado en «Cómo llegar». Con el mapa detrás se distinguen. */
+  mapa: "map-pinned",
   /* El sitio web del negocio en el pie del catalogo. Un mundo se entiende sin
      leer, y ademas es lo unico de esa fila que no es una red social. */
   mundo: "globe",

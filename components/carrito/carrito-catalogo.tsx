@@ -392,7 +392,7 @@ export function CarritoCatalogo({
             {datos.negocio.resenasUrl ? (
               <p className={styles.resenas}>
                 <a href={datos.negocio.resenasUrl} rel="noreferrer" target="_blank">
-                  <Icono nombre="estrella" />
+                  <Icono nombre="mapa" />
                   Calificá a {datos.negocio.nombre} en Google
                 </a>
               </p>

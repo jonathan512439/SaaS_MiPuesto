@@ -175,7 +175,7 @@ export function PlantillaMipuesto({
               rel="noreferrer noopener"
               target="_blank"
             >
-              <Icono nombre="estrella" />
+              <Icono nombre="mapa" />
               <span>Calificar</span>
             </a>
           ) : null}
