@@ -54,6 +54,9 @@ const ICONOS = {
   /* El sitio web del negocio en el pie del catalogo. Un mundo se entiende sin
      leer, y ademas es lo unico de esa fila que no es una red social. */
   mundo: "globe",
+  /* La lupa del buscador del catálogo. Sin ella, el campo era una caja
+     vacía con un texto adentro: el dibujo dice qué hace antes de leerlo. */
+  lupa: "search",
 };
 
 /* Lucide dibuja sobre un lienzo de 24 con el trazo en `currentColor`. Se guarda

@@ -108,6 +108,7 @@
   /* La de los títulos de MiPuesto. Cae en la del texto y después en la del
      sistema: si la fuente no llega, el título sigue siendo un título. */
   --font-display: var(--fuente-titulo), var(--fuente-producto), system-ui, sans-serif;
+  --font-marca: var(--fuente-marca), var(--fuente-titulo), Georgia, serif;
 
   --text-*: initial;
   --text-xs: 0.75rem;

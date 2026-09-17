@@ -425,16 +425,6 @@
   box-shadow: var(--sombra-suave);
 }
 
-.etiquetaPlantilla {
-  justify-self: start;
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-marca-tenue);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-xs);
-  font-weight: 800;
-}
-
 .rubros h3 {
   font-size: var(--text-lg);
   font-weight: 800;

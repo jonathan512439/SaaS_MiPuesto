@@ -91,11 +91,25 @@
   min-width: 0;
 }
 
+/* El nombre del negocio es lo primero que se lee y lo único que no se repite
+   en ningún otro catálogo. Iba en la misma geométrica que los títulos del panel
+   y se leía como un rótulo de sistema; ahora lleva la letra de marca —una serif
+   de trazo marcado, con carácter— que además contrasta con Inter, que es la del
+   resto. Ese contraste es lo que lo hace destacar sin agrandarlo de más. */
 .identidadTexto h1 {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  letter-spacing: var(--tracking-titulo);
+  font-family: var(--font-marca);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: normal;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 48rem) {
+  .identidadTexto h1 {
+    font-size: var(--text-3xl);
+  }
 }
 
 .identidadTexto p {
@@ -125,6 +139,24 @@
   font-size: var(--text-base);
 }
 
+/* La lupa dentro del campo, a la izquierda, y el texto corrido para que no se
+   monte encima. `pointer-events: none` porque tocar la lupa tiene que enfocar el
+   campo que está debajo, no quedarse en el dibujo. */
+.buscador {
+  position: relative;
+  display: grid;
+}
+
+.buscador > svg {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-3);
+  color: var(--catalogo-texto-tenue);
+  font-size: var(--text-lg);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
 /* 2 y 3 · Barra que se pega arriba al desplazar: buscador y esferas juntos. */
 .barraFija {
   position: sticky;
@@ -141,7 +173,7 @@
 /* 2 · Buscador */
 .buscador input {
   width: 100%;
-  padding: var(--spacing-3) var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-3) var(--spacing-10);
   border: var(--borde-fino) solid var(--catalogo-borde);
   border-radius: var(--radius-control);
   background: var(--catalogo-superficie);

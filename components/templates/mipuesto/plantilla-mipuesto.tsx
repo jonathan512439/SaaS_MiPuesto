@@ -197,6 +197,10 @@ export function PlantillaMipuesto({
             <label className={styles.soloLectores} htmlFor="buscar-en-catalogo">
               Buscar en el catálogo
             </label>
+            {/* La lupa va antes del campo y no adentro del texto: se ve sin leer,
+                que es de lo que se trata. Decorativa a propósito —el rótulo de
+                arriba ya dice qué es— para no anunciarla dos veces. */}
+            <Icono nombre="lupa" />
             <input
               autoComplete="off"
               id="buscar-en-catalogo"

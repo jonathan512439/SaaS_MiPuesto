@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Fraunces, Inter, Outfit } from "next/font/google";
 import type { ReactNode } from "react";
 
 import "./globals.css";
@@ -36,6 +36,12 @@ const fuenteTitulo = Outfit({
   display: "swap",
   variable: "--fuente-titulo",
 });
+
+const fuenteMarca = Fraunces({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--fuente-marca",
+});
 import { obtenerUrlBaseSitio } from "../lib/url-sitio";
 
 export const metadata: Metadata = {
@@ -48,7 +54,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html className={`${fuenteProducto.variable} ${fuenteTitulo.variable}`} lang="es-BO">
+    <html
+      className={`${fuenteProducto.variable} ${fuenteTitulo.variable} ${fuenteMarca.variable}`}
+      lang="es-BO"
+    >
       <body>{children}</body>
     </html>
   );

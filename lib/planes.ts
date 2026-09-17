@@ -1,3 +1,4 @@
+import { PALETAS } from "./apariencia";
 import { PRECIO_MENSUAL_BS } from "./contacto";
 import { TOPE_FOTOS_POR_MES } from "./ia/limites";
 
@@ -36,7 +37,10 @@ export const PLANES: readonly Plan[] = [
       "Tu dirección web propia y tu código QR",
       "Hasta 300 productos con fotos",
       "Pedidos que se cierran por WhatsApp",
-      "Cuatro diseños y siete paletas de color",
+      /* Decía «cuatro diseños y siete paletas» y las dos cifras eran falsas:
+         las cuatro plantillas se retiraron en la fase 6 y las paletas son
+         diez. La cuenta sale del registro para que no vuelva a pasar. */
+      `${PALETAS.length} paletas de color y el fondo de tu oficio`,
       "Tu negocio en el directorio público",
       "10 lecturas de foto al mes",
     ],

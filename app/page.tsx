@@ -26,26 +26,24 @@ const GARANTIAS = [
   "Primer mes gratis",
 ];
 
+/* Sin etiqueta de plantilla: había cuatro —Clásica, Moderna, Mínima, Feria— y
+   se retiraron en la fase 6. El diseño es uno; lo que cambia es el contenido. */
 const RUBROS = [
   {
     titulo: "Restaurantes y comida",
-    detalle: "Carta por categorías, pedidos con carrito y aviso de si estás abierto.",
-    plantilla: "Clásica",
+    detalle: "Carta por categorías, carrito y aviso de si estás abierto.",
   },
   {
     titulo: "Tiendas y ropa",
-    detalle: "Vitrina con fotos grandes, tallas y colores como productos aparte.",
-    plantilla: "Moderna",
+    detalle: "Fotos grandes, con tallas y colores.",
   },
   {
     titulo: "Servicios con turno",
-    detalle: "Barberías, consultorios y talleres. En vez de carrito, tus clientes reservan.",
-    plantilla: "Mínima",
+    detalle: "Barberías, consultorios, talleres. Tus clientes reservan hora.",
   },
   {
     titulo: "Puestos de mercado",
-    detalle: "Lista de precios: cifras grandes y muchos productos en una sola pantalla.",
-    plantilla: "Feria",
+    detalle: "Lista de precios: cifras grandes, muchos productos de una vez.",
   },
 ];
 
@@ -56,11 +54,11 @@ const PASOS = [
   },
   {
     titulo: "Elegís cómo se ve",
-    detalle: `${TOTAL_PALETAS} colores y el fondo con los dibujos de tu oficio. Cambiarlo después no toca tus productos.`,
+    detalle: `${TOTAL_PALETAS} colores y el fondo de tu oficio. Cambiarlo no toca tus productos.`,
   },
   {
     titulo: "Compartís tu enlace",
-    detalle: "Un link y un código QR para imprimir. El pedido te llega por WhatsApp.",
+    detalle: "Tu enlace y tu código QR para imprimir. El pedido llega por WhatsApp.",
   },
 ];
 
@@ -80,31 +78,31 @@ const PREGUNTAS = [
   {
     pregunta: "¿Mis clientes necesitan instalar algo?",
     respuesta:
-      "No. Abren tu enlace en el navegador del celular, como cualquier página. Tampoco tienen que crear una cuenta.",
+      "No. Abren tu enlace en el navegador, como cualquier página. Tampoco crean una cuenta.",
   },
   {
     pregunta: "¿Cobran comisión por venta?",
-    respuesta: `No. Pagás Bs ${PRECIO_MENSUAL_BS} al mes y nada más. El dinero de tus ventas lo cobrás vos, por donde ya cobrás hoy.`,
+    respuesta: `No. Pagás Bs ${PRECIO_MENSUAL_BS} al mes y nada más. Tus ventas las cobrás vos, por donde ya cobrás.`,
   },
   {
     pregunta: "¿Qué pasa si un mes no pago?",
     respuesta:
-      "Tu catálogo deja de verse, pero no se borra nada. Seguís entrando a tu panel y ves tus productos y pedidos. Cuando reanudás, todo vuelve tal cual estaba.",
+      "Tu catálogo deja de verse, pero no se borra nada. Seguís entrando a tu panel, y al reanudar vuelve tal cual estaba.",
   },
   {
     pregunta: "¿Puedo usarlo si no vendo productos, sino servicios?",
     respuesta:
-      "Sí. Una de las estructuras está pensada para servicios con turno: barberías, consultorios, talleres. En vez de carrito, tus clientes reservan.",
+      "Sí. En vez de carrito, tus clientes reservan hora: barberías, consultorios, talleres.",
   },
   {
     pregunta: "¿Necesito saber de computación?",
     respuesta:
-      "No. Si sabés mandar una foto por WhatsApp, sabés cargar un producto. Y si algo no se entiende, escribinos y lo vemos juntos.",
+      "No. Si sabés mandar una foto por WhatsApp, sabés cargar un producto. Y si algo no se entiende, escribinos.",
   },
   {
     pregunta: "¿Qué datos guardan de mis clientes?",
     respuesta:
-      "Solo el nombre y el teléfono que ellos escriben al hacer un pedido, para que puedas atenderlos. No los usamos para otra cosa ni se los damos a nadie.",
+      "Solo el nombre y el teléfono que escriben al pedir, para que puedas atenderlos. Nada más, y no se los damos a nadie.",
   },
 ];
 
@@ -218,15 +216,13 @@ export default function Inicio() {
               <p className={styles.rotulo}>Un catálogo por oficio</p>
               <h2 id="rubros">Para quién es</h2>
               <p>
-                El diseño es uno y está hecho para vender. Lo que cambia entre una
-                veterinaria y una ferretería no es la forma de la página: son sus
-                categorías, los datos de cada producto y el botón que lleva al cliente.
+                El diseño es uno. Lo que cambia entre una veterinaria y una ferretería
+                son sus categorías, los datos de cada producto y su botón.
               </p>
             </div>
             <ul className={styles.rubros}>
-              {RUBROS.map(({ titulo, detalle, plantilla }) => (
+              {RUBROS.map(({ titulo, detalle }) => (
                 <li key={titulo}>
-                  <span className={styles.etiquetaPlantilla}>{plantilla}</span>
                   <h3>{titulo}</h3>
                   <p>{detalle}</p>
                 </li>
@@ -277,9 +273,9 @@ export default function Inicio() {
               <p className={styles.rotuloIa}>Herramientas con inteligencia artificial</p>
               <h2 id="herramientas-ia">Sacale una foto. El catálogo se escribe solo.</h2>
               <p>
-                Lo que más cuesta de un catálogo no es decidirse: es tipear doscientos
-                productos. Estas dos herramientas hacen ese trabajo y te dejan a vos lo
-                único que no puede hacer una máquina, que es revisar y poner el precio.
+                Lo que cuesta de un catálogo no es decidirse: es tipear doscientos
+                productos. Eso lo hacen estas dos herramientas. Vos revisás y ponés el
+                precio.
               </p>
             </div>
 
@@ -289,9 +285,9 @@ export default function Inicio() {
                   <p className={styles.numeroIa}>01</p>
                   <h3>De tu lista de precios al catálogo</h3>
                   <p>
-                    Fotografiá la lista que ya usás, escrita a mano o impresa. Se separa
-                    producto por producto, con su precio y su categoría, y aparece en una
-                    pantalla para que corrijas antes de publicar.
+                    Fotografiá la lista que ya usás, a mano o impresa. Sale separada
+                    producto por producto, con precio y categoría, para que la corrijas
+                    antes de publicar.
                   </p>
                   <p className={styles.datoIa}>
                     <strong>Un catálogo de 200 productos</strong> pasa de unas seis horas y
@@ -306,12 +302,11 @@ export default function Inicio() {
                   <h3>De la foto del producto a su ficha</h3>
                   <p>
                     Elegí la foto de un producto y se completan solos el nombre y la
-                    descripción. Esa misma foto queda adjunta como imagen del producto, sin
-                    que tengas que subirla dos veces.
+                    descripción. Esa misma foto queda como imagen del producto.
                   </p>
                   <p className={styles.datoIa}>
-                    <strong>El precio nunca sale de una foto.</strong> Ese lo ponés vos,
-                    siempre, porque ninguna máquina sabe cuánto cobrás.
+                    <strong>El precio nunca sale de una foto.</strong> Ese lo ponés vos:
+                    ninguna máquina sabe cuánto cobrás.
                   </p>
                 </div>
               </article>
