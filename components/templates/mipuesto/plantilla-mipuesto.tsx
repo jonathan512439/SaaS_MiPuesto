@@ -36,6 +36,7 @@ export function PlantillaMipuesto({
   alAbrirWhatsapp,
   alVerProducto,
   navegacion,
+  antesDelPie,
 }: PropiedadesPlantilla) {
   const { negocio } = datos;
   const esferas = navegacion?.categorias ?? datos.categorias;
@@ -303,6 +304,15 @@ export function PlantillaMipuesto({
       </div>
 
       {/* 9 · Pie: cómo contactar y cómo llegar. */}
+      {/* Lo que va pegado al final de los productos y antes del pie: el
+          paginador, y el aviso de que una búsqueda no encontró nada.
+          Llega desde afuera porque quien sabe cuántas páginas hay es el catálogo
+          interactivo, no la plantilla. Y entra acá y no después de la plantilla
+          —que es donde estaba— porque después de la plantilla es **después del
+          pie**: el paginador quedaba debajo de las redes del negocio y del
+          enlace de MiPuesto, o sea al final de todo, donde nadie lo busca. */}
+      {antesDelPie}
+
       <footer className={styles.pie}>
         <strong>WhatsApp {negocio.telefonoWhatsapp}</strong>
         <div className={styles.pieAcciones}>

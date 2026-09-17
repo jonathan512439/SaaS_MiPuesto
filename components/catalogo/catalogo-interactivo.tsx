@@ -230,6 +230,49 @@ export function CatalogoInteractivo({
     >
       <ColorNavegador paleta={paleta} />
       <PlantillaMipuesto
+        /* El paginador y el aviso de búsqueda sin resultados van adentro de la
+           plantilla, justo antes del pie. Dibujados acá afuera quedaban
+           **después** del pie: debajo de las redes del negocio y del enlace de
+           MiPuesto, o sea al final de todo, donde nadie los busca. */
+        antesDelPie={
+          <>
+          {totalProductos === 0 && filtros.busqueda.trim() ? (
+            <p className={styles.sinResultados} role="status">
+              No encontramos «{filtros.busqueda.trim()}». Probá con otra palabra o mirá todo
+              el catálogo.
+            </p>
+          ) : null}
+          {/* Las páginas son enlaces y no botones: así se pueden compartir, abrir en
+              otra pestaña y quedar en el historial. */}
+          {totalPaginas > 1 ? (
+            <nav aria-label="Páginas de productos" className={styles.paginacion}>
+              {filtros.pagina > 1 ? (
+                <Link
+                  href={construirRutaCatalogo(slug, { ...filtros, pagina: filtros.pagina - 1 })}
+                  scroll={false}
+                >
+                  Anterior
+                </Link>
+              ) : (
+                <span aria-hidden="true" />
+              )}
+              <span>
+                Página {filtros.pagina} de {totalPaginas}
+              </span>
+              {filtros.pagina < totalPaginas ? (
+                <Link
+                  href={construirRutaCatalogo(slug, { ...filtros, pagina: filtros.pagina + 1 })}
+                  scroll={false}
+                >
+                  Siguiente
+                </Link>
+              ) : (
+                <span aria-hidden="true" />
+              )}
+            </nav>
+          ) : null}
+          </>
+        }
         alAgregarProducto={agregarProducto}
         alAbrirWhatsapp={(productoId) => registrar("clic_whatsapp", productoId)}
         alVerProducto={setFichaDe}
@@ -250,41 +293,6 @@ export function CatalogoInteractivo({
         producto={productoEnFicha}
         slug={slug}
       />
-      {totalProductos === 0 && filtros.busqueda.trim() ? (
-        <p className={styles.sinResultados} role="status">
-          No encontramos «{filtros.busqueda.trim()}». Probá con otra palabra o mirá todo
-          el catálogo.
-        </p>
-      ) : null}
-      {/* Las páginas son enlaces y no botones: así se pueden compartir, abrir en
-          otra pestaña y quedar en el historial. */}
-      {totalPaginas > 1 ? (
-        <nav aria-label="Páginas de productos" className={styles.paginacion}>
-          {filtros.pagina > 1 ? (
-            <Link
-              href={construirRutaCatalogo(slug, { ...filtros, pagina: filtros.pagina - 1 })}
-              scroll={false}
-            >
-              Anterior
-            </Link>
-          ) : (
-            <span aria-hidden="true" />
-          )}
-          <span>
-            Página {filtros.pagina} de {totalPaginas}
-          </span>
-          {filtros.pagina < totalPaginas ? (
-            <Link
-              href={construirRutaCatalogo(slug, { ...filtros, pagina: filtros.pagina + 1 })}
-              scroll={false}
-            >
-              Siguiente
-            </Link>
-          ) : (
-            <span aria-hidden="true" />
-          )}
-        </nav>
-      ) : null}
       {datos.negocio.modalidad === "carrito" ? (
         <>
           <HojaCatalogo

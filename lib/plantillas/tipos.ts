@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 
 import type { PaletaId } from "../apariencia";
 import type { Banner } from "../negocios/banners";
@@ -129,6 +131,13 @@ export type NavegacionCatalogo = {
 };
 
 export type PropiedadesPlantilla = {
+  /* Lo que se dibuja pegado al final de los productos y antes del pie.
+     Hoy es el paginador y el aviso de «no encontramos eso». Llega desde afuera
+     porque quien sabe cuántas páginas hay es el catálogo interactivo, no la
+     plantilla, y entra como nodo y no como datos porque son enlaces con estado
+     de navegación: la plantilla no tiene por qué saber cómo se arma una
+     dirección de página. */
+  antesDelPie?: ReactNode;
   datos: DatosPlantilla;
   paleta?: PaletaId;
   demostracion?: boolean;

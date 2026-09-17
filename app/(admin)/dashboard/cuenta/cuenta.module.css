@@ -178,15 +178,21 @@
 .marca {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
+  gap: var(--spacing-3);
+  /* Con su propia franja y no como un renglon mas.
+     De quien es el servicio se dice una vez y en el lugar donde se habla de lo
+     que se paga: en letra chica al lado de los datos del negocio se leia como
+     una firma al pie, que es justo lo contrario. */
+  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
+  padding-bottom: var(--spacing-3);
   color: var(--color-marca-fuerte);
-  font-size: var(--text-base);
+  font-size: var(--text-2xl);
   font-weight: 900;
-  letter-spacing: var(--tracking-etiqueta);
+  letter-spacing: var(--tracking-titulo);
 }
 
 .isotipo {
   flex: 0 0 auto;
-  width: var(--spacing-8);
-  height: var(--spacing-8);
+  width: var(--spacing-12);
+  height: var(--spacing-12);
 }
