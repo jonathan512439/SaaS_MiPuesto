@@ -169,3 +169,24 @@
 .contenido > * {
   min-width: 0;
 }
+
+/* La marca de MiPuesto, arriba del plan.
+ *
+ * Con el color de marca y no en negro: es lo único de esta pantalla que no es
+ * del dueño, y el color lo separa de sus propios datos sin necesidad de una
+ * línea ni un recuadro. */
+.marca {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-base);
+  font-weight: 900;
+  letter-spacing: var(--tracking-etiqueta);
+}
+
+.isotipo {
+  flex: 0 0 auto;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+}

@@ -10,6 +10,7 @@ import {
 } from "../../../../lib/suscripcion";
 import styles from "./cuenta.module.css";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
+import { Isotipo } from "../../../../components/marca/isotipo";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 
 export const metadata: Metadata = {
@@ -86,6 +87,15 @@ export default async function PaginaCuenta() {
       </section>
 
       <section aria-labelledby="detalle-plan" className={styles.plan}>
+        {/* De quién es el servicio, dicho donde se habla de lo que se paga.
+            En el resto del panel todo es del dueño —su negocio, su catálogo, sus
+            productos— y está bien que así sea. Esta pantalla es la única que
+            habla de la otra punta: a quién le paga y qué contrató. Sin la marca,
+            «Tu plan» y «Bs al mes» quedan sin sujeto. */}
+        <div className={styles.marca}>
+          <Isotipo className={styles.isotipo} />
+          <span>MiPuesto</span>
+        </div>
         <h2 id="detalle-plan">Tu plan</h2>
         <dl className={styles.datos}>
           <div>

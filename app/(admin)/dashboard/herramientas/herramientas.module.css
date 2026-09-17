@@ -181,32 +181,49 @@
   list-style: none;
 }
 
+/* Cada herramienta es una opción que se elige, y tiene que verse así.
+ *
+ * Era un recuadro con un enlace adentro: borde tenue, sombra corta y el nombre
+ * subrayado. Eso se lee como información, y lo que uno hace con la información
+ * es leerla. Ahora la tarjeta entera es el destino, se levanta al pasar por
+ * encima, se hunde al presionarse —el mismo idioma que los botones— y lleva un
+ * galón a la derecha diciendo a dónde va. */
 .tarjeta {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
   gap: var(--spacing-1) var(--spacing-3);
-  border: var(--borde-fino) solid var(--color-borde);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
   border-radius: var(--radius-panel);
   padding: var(--spacing-4);
-  background: var(--color-superficie);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
+  text-decoration: none;
   box-shadow: var(--sombra-suave);
+  transition:
+    border-color var(--movimiento-rapido) ease,
+    box-shadow var(--movimiento-rapido) ease,
+    transform var(--movimiento-rapido) ease;
+}
+
+.tarjeta:hover {
+  border-color: var(--color-marca);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.tarjeta:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.tarjeta:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
 .tarjeta h2 {
-  align-self: center;
   font-size: var(--text-base);
   font-weight: 800;
-}
-
-/* El enlace toma el nombre entero y no se agrega un botón aparte: dos cosas que
-   tocar para lo mismo obligan a elegir entre ellas sin que haya diferencia. */
-.tarjeta h2 a {
-  color: var(--color-marca-fuerte);
-  text-decoration: none;
-}
-
-.tarjeta h2 a:hover {
-  text-decoration: underline;
 }
 
 .tarjeta p {
@@ -214,6 +231,14 @@
   max-width: var(--ancho-lectura);
   color: var(--color-texto-suave);
   font-size: var(--text-sm);
+}
+
+/* El galón apunta a la derecha: es «vas para allá», no «esto se abre». */
+.flecha {
+  grid-row: span 2;
+  color: var(--color-marca);
+  font-size: var(--text-lg);
+  transform: rotate(90deg);
 }
 
 .iconoHerramienta {

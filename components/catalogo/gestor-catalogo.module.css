@@ -376,6 +376,7 @@
   font: inherit;
 }
 
+/* La cabecera de la tarjeta de categoría: se toca entera para abrirla. */
 .filtro,
 .filtroActivo {
   display: flex;
@@ -386,7 +387,7 @@
   gap: var(--spacing-3);
   border: 0;
   border-left: var(--spacing-1) solid transparent;
-  padding: var(--spacing-3) var(--spacing-4);
+  padding: var(--spacing-3);
   background: transparent;
   color: var(--color-texto);
   font: inherit;
@@ -415,16 +416,32 @@
 /* Cerrada, el galón apunta hacia abajo y se ve apagado: «acá hay más». Abierta,
    gira hacia arriba y toma el color de marca. Es la misma seña que «Organizar
    categorías», para que las dos se aprendan de una sola vez. */
+/* El galón, con su propia caja.
+ *
+ * Suelto al final del renglón se leía como un adorno: el mismo gris del texto
+ * secundario y nada alrededor. Con su recuadro, su superficie y su relieve dice
+ * lo que es —algo que se toca para abrir—, que es la misma seña que ya tienen
+ * los botones del panel. */
 .flechaCategoria {
   flex-shrink: 0;
-  color: var(--color-texto-tenue);
-  font-size: var(--text-lg);
+  display: grid;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  place-items: center;
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  border-radius: var(--radius-control);
+  background: var(--control-segundo-fondo);
+  color: var(--color-marca);
+  font-size: var(--text-base);
+  box-shadow: var(--sombra-suave);
   transform: rotate(180deg);
   transition: transform var(--movimiento-rapido) ease;
 }
 
 .filtroActivo .flechaCategoria {
-  color: var(--color-marca);
+  border-color: var(--color-marca);
+  background: var(--color-marca);
+  color: var(--color-superficie);
   transform: rotate(0deg);
 }
 
@@ -446,11 +463,21 @@
   font-size: var(--text-xs);
 }
 
+/* Una categoría es una tarjeta, con la misma forma que un producto.
+ *
+ * Eran renglones separados por una línea dentro de un recuadro grande. Un
+ * producto es una tarjeta y una categoría también es una cosa del catálogo que
+ * se administra: que se vieran distinto obligaba a aprender dos lenguajes para
+ * el mismo trabajo, y el de la categoría era el que no se entendía —una lista de
+ * renglones no dice qué se puede hacer con cada uno—. */
 .categoria {
   display: grid;
+  overflow: hidden;
   gap: var(--spacing-2);
-  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-panel);
   background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
 }
 
 .accionesPequenas button,
@@ -1184,8 +1211,8 @@
    contenedor de la lista de categorías quedaba sin separación. */
 .listaCategorias {
   display: grid;
-  gap: var(--spacing-1);
-  padding: 0 var(--spacing-4) var(--spacing-4);
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
 }
 
 @media (max-width: 30rem) {

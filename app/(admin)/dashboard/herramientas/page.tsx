@@ -163,22 +163,36 @@ export default async function PaginaHerramientas() {
 
       <ul className={styles.lista}>
         {herramientas.map(({ descarga, explicacion, externa, href, icono, titulo }) => (
-          <li className={styles.tarjeta} key={href}>
-            <Icono className={styles.iconoHerramienta} nombre={icono} />
-            <h2>
-              {descarga ? (
-                <a href={href}>{titulo}</a>
-              ) : (
-                <Link
-                  href={href}
-                  rel={externa ? "noreferrer" : undefined}
-                  target={externa ? "_blank" : undefined}
-                >
-                  {titulo}
-                </Link>
-              )}
-            </h2>
-            <p>{explicacion}</p>
+          /* Se toca la tarjeta entera, no el nombre.
+             Antes el único destino era el título: una tarjeta grande con un
+             renglón subrayado adentro se lee como un recuadro informativo que
+             además tiene un enlace, y no como una opción que se elige. Y en un
+             teléfono obliga a apuntarle a dos palabras teniendo la tarjeta
+             entera disponible.
+             La descarga va con `a` común y no con el enlace de Next: el
+             enrutador intenta resolver el destino como una pantalla, y un
+             archivo no lo es. */
+          <li key={href}>
+            {descarga ? (
+              <a className={styles.tarjeta} href={href}>
+                <Icono className={styles.iconoHerramienta} nombre={icono} />
+                <h2>{titulo}</h2>
+                <p>{explicacion}</p>
+                <Icono aria-hidden="true" className={styles.flecha} nombre="flechaArriba" />
+              </a>
+            ) : (
+              <Link
+                className={styles.tarjeta}
+                href={href}
+                rel={externa ? "noreferrer" : undefined}
+                target={externa ? "_blank" : undefined}
+              >
+                <Icono className={styles.iconoHerramienta} nombre={icono} />
+                <h2>{titulo}</h2>
+                <p>{explicacion}</p>
+                <Icono aria-hidden="true" className={styles.flecha} nombre="flechaArriba" />
+              </Link>
+            )}
           </li>
         ))}
       </ul>
