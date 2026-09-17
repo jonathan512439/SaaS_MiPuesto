@@ -1,4 +1,4 @@
-import { COLUMNAS_CATEGORIA, COLUMNAS_PRODUCTO_PUBLICO } from "./columnas";
+import { COLUMNAS_CATEGORIA, COLUMNAS_PRODUCTO_PUBLICO_PAGINADO } from "./columnas";
 import { calcularRango, extraerTerminos, leerFiltrosCatalogo } from "./consulta-publica";
 import type { crearClienteSupabasePublico } from "../supabase/public";
 
@@ -32,7 +32,7 @@ export function consultarProductosPublicos(
 
   let consulta = supabase
     .from("productos")
-    .select(COLUMNAS_PRODUCTO_PUBLICO, { count: "exact" })
+    .select(COLUMNAS_PRODUCTO_PUBLICO_PAGINADO, { count: "exact" })
     .eq("negocio_id", negocioId)
     .eq("visible", true);
 
@@ -41,7 +41,33 @@ export function consultarProductosPublicos(
     consulta = consulta.ilike("texto_busqueda", `%${termino}%`);
   }
 
-  return consulta.order("orden").order("creado_en").range(desde, hasta);
+  /* **Primero por la categoría, después por el producto.**
+
+     Antes ordenaba solo por el orden del producto, y el corte de doce en doce
+     caía donde caía: en el medio de «Bebidas», por ejemplo. Entonces esa
+     categoría quedaba con ocho productos en la primera tanda y tres en la
+     segunda, y al bajar esos tres se metían **adentro** de la sección que ya
+     estaba dibujada arriba de todo. Desde afuera se veía como si un producto
+     saltara de la segunda página a la primera, y lo que el cliente estaba
+     leyendo se corría hacia abajo. El dueño lo vio: «algunos productos saltan
+     de la 2da página a la 1ra».
+
+     Ordenando así, cada tanda es un tramo continuo de categorías. El corte
+     sigue pudiendo caer dentro de una —una categoría con cincuenta productos no
+     entra en doce—, pero entonces lo que llega se suma **al final de la última
+     sección visible**, que es justo donde está mirando quien bajó hasta ahí.
+
+     Los productos sin categoría quedan al final, que es donde el catálogo
+     dibuja «Otros»: PostgREST ordena los nulos al último y ahí coinciden.
+
+     `creado_en` sigue de tercero para desempatar: dos productos con el mismo
+     orden en la misma categoría tienen que salir siempre en el mismo sitio, o
+     la paginación misma se vuelve inestable. */
+  return consulta
+    .order("categorias(orden)")
+    .order("orden")
+    .order("creado_en")
+    .range(desde, hasta);
 }
 
 /* Todo lo que no cambia entre páginas, en un solo viaje.

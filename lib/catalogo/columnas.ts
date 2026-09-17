@@ -18,6 +18,21 @@ export const COLUMNAS_PRODUCTO_PUBLICO =
 export const COLUMNAS_PRODUCTO_IMPRESO =
   "id,codigo,categoria_id,subcategoria_id,nombre,descripcion,precio,fotos,estado,visible,orden,en_carta_hasta" as const;
 
+/* Lo mismo, más el orden de la categoría a la que pertenece el producto.
+ *
+ * No es un dato que se muestre: es **por lo que se ordena**. La lista paginada
+ * tiene que entregar los productos agrupados por categoría y en el orden en que
+ * el dueño puso sus categorías, y PostgREST solo deja ordenar por una columna
+ * de otra tabla si esa tabla viaja en el `select` —lo dice con todas las letras
+ * cuando no está—.
+ *
+ * Es un número por producto. Va contra la regla de que el catálogo público pide
+ * lo mínimo, y se acepta porque sin él las páginas se cortan en el medio de una
+ * categoría y los productos de la segunda tanda aparecen más arriba de donde
+ * está mirando el cliente. */
+export const COLUMNAS_PRODUCTO_PUBLICO_PAGINADO =
+  `${COLUMNAS_PRODUCTO_PUBLICO},categorias(orden)` as const;
+
 /* La categoría dejó de ser un nombre con un orden: ahora lleva su ícono, si su
    esfera se muestra y qué vende. Escrita acá por el mismo motivo que las de
    producto —estaba repetida en cinco lugares y al agregar una columna se olvidó
