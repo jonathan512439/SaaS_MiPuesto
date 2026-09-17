@@ -148,17 +148,38 @@ export function PlantillaMipuesto({
             ) : null}
           </div>
         </div>
-        {negocio.ubicacionUrl ? (
-          <a
-            className={styles.botonMapa}
-            href={negocio.ubicacionUrl}
-            rel="noreferrer noopener"
-            target="_blank"
-          >
-            <Icono nombre="ubicacion" />
-            <span>Cómo llegar</span>
-          </a>
-        ) : null}
+        {/* Las dos cosas que se hacen con el negocio y no con sus productos:
+            llegar hasta él y calificarlo. Van juntas en la cabecera y no
+            enterradas en el pie.
+
+            Calificar estaba **solo** en la pantalla de «pedido confirmado», o
+            sea que un catálogo sin carrito nunca lo mostraba: el dueño llenaba
+            el campo, con su instructivo y todo, y el enlace no aparecía en
+            ninguna parte. Acá lo ve cualquiera, con carrito o sin él. */}
+        <div className={styles.accionesNegocio}>
+          {negocio.ubicacionUrl ? (
+            <a
+              className={styles.botonMapa}
+              href={negocio.ubicacionUrl}
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              <Icono nombre="ubicacion" />
+              <span>Cómo llegar</span>
+            </a>
+          ) : null}
+          {negocio.resenasUrl ? (
+            <a
+              className={styles.botonMapa}
+              href={negocio.resenasUrl}
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              <Icono nombre="estrella" />
+              <span>Calificar</span>
+            </a>
+          ) : null}
+        </div>
       </header>
 
       {/* 2 · Portada con hero encima: título, bajada y botón. Solo si el negocio

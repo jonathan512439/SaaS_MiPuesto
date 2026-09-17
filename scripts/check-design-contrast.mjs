@@ -176,7 +176,7 @@ function leerColoresPaleta(paleta) {
 
   if (!bloque) throw new Error(`No se encontró la paleta ${paleta}.`);
 
-  return Object.fromEntries(
+  const colores = Object.fromEntries(
     ["superficie", "texto", "marca", "sobre-marca", "accion", "sobre-accion", "exito", "alerta"].map(
       (token) => {
         const valor = bloque.match(
@@ -188,6 +188,33 @@ function leerColoresPaleta(paleta) {
       },
     ),
   );
+
+  /* La cabecera del catálogo, que es donde viven «Cómo llegar» y «Calificar».
+   *
+   * Sus dos colores no estaban en esta lista y **no los comprobaba nadie**. En la
+   * mayoría de las paletas coinciden con la marca, que sí se mira, pero no en
+   * todas: las oscuras los llevan a su superficie y «Día y noche» declara un azul
+   * propio para la barra. Ahí un botón de la cabecera podía quedar sin contraste
+   * y ninguna guardia se enteraba.
+   *
+   * Cada paleta puede declararlos como un hexadecimal, como `var(--catalogo-x)`
+   * apuntando a otro de sus colores, o no declararlos: en ese último caso rige el
+   * valor de omisión del tema, que es la marca. */
+  const deLaCabecera = (token, omision) => {
+    const valor = bloque.match(new RegExp(`--catalogo-${token}:\\s*([^;]+);`))?.[1]?.trim();
+    if (!valor) return colores[omision];
+    if (/^#[0-9a-fA-F]{6}$/.test(valor)) return valor;
+
+    const referencia = valor.match(/^var\(--catalogo-([a-z-]+)\)$/)?.[1];
+    if (referencia && colores[referencia]) return colores[referencia];
+
+    throw new Error(`No se pudo resolver --catalogo-${token} en ${paleta}: ${valor}`);
+  };
+
+  colores.navegador = deLaCabecera("navegador", "marca");
+  colores["sobre-navegador"] = deLaCabecera("sobre-navegador", "sobre-marca");
+
+  return colores;
 }
 
 const colores = Object.fromEntries(
@@ -443,6 +470,9 @@ for (const paleta of paletas) {
     ["sobre-accion", "accion"],
     ["exito", "superficie"],
     ["alerta", "superficie"],
+    /* La cabecera pintada y lo que va encima: el nombre del negocio, «Cómo
+       llegar» y «Calificar». */
+    ["sobre-navegador", "navegador"],
   ];
 
   for (const [frente, fondo] of pares) {

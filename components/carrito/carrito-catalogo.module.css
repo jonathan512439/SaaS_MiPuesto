@@ -251,10 +251,35 @@
 
 /* Discreto a propósito: es un favor que se pide, no una acción del pedido, y
    compitiendo en tamaño con «Continuar por WhatsApp» sería un estorbo. */
+/* El botón de calificar, después del pedido.
+ *
+ * Era un enlace subrayado en `texto-suave` **sobre el fondo tenue del aviso de
+ * éxito**, y esa pareja no la miraba nadie: el control comprueba el texto sobre
+ * la superficie, no sobre los fondos tenues. En varias paletas el gris quedaba
+ * casi encima del verde y la frase desaparecía. El dueño lo vio.
+ *
+ * Ahora es un botón con su propia superficie debajo, así que la pareja que
+ * decide es marca sobre superficie, que sí está comprobada en las dieciséis. */
 .resenas a {
-  color: var(--catalogo-texto-suave);
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  width: 100%;
+  border: var(--borde-fino) solid var(--catalogo-marca);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-marca);
   font-size: var(--text-sm);
-  text-decoration: underline;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.resenas svg {
+  flex-shrink: 0;
+  font-size: var(--text-base);
 }
 
 .confirmacion {

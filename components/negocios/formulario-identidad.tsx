@@ -308,10 +308,17 @@ export function FormularioIdentidad({
             Se lo mostramos a tu cliente al terminar el pedido, que es cuando está
             contento y con el teléfono en la mano.
           </small>
+          {/* «Desde una computadora» va primero y no como aclaración al final:
+              en el teléfono, Maps abre su aplicación en vez del navegador y no
+              hay barra de direcciones de donde copiar. Quien lo intente ahí se
+              queda trabado sin entender por qué. */}
           <ol className={styles.pasosResenas}>
-            <li>Abrí Google Maps y buscá tu negocio.</li>
-            <li>Tocá tu ficha y bajá hasta «Reseñas».</li>
-            <li>Tocá «Escribe una reseña».</li>
+            <li>
+              <strong>Desde una computadora</strong>, abrí Google Maps y buscá tu
+              negocio.
+            </li>
+            <li>Hacé clic en tu ficha y bajá hasta «Reseñas».</li>
+            <li>Hacé clic en «Escribe una reseña».</li>
             <li>Copiá la dirección que se abre y pegala acá.</li>
           </ol>
           <small className={styles.ayudaUbicacion}>

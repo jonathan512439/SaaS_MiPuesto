@@ -54,6 +54,9 @@ const ICONOS = {
   /* La flecha de volver, en la cabecera de la página de un producto. Sola,
      sin palabras: es el gesto que todo el mundo ya conoce del teléfono. */
   atras: "arrow-left",
+  /* La estrella de calificar en Google, en la cabecera del catálogo y en la
+     pantalla de pedido confirmado. */
+  estrella: "star",
   /* El sitio web del negocio en el pie del catalogo. Un mundo se entiende sin
      leer, y ademas es lo unico de esa fila que no es una red social. */
   mundo: "globe",

@@ -7,6 +7,7 @@ import { construirFirmaCarrito } from "../../lib/pedidos/firma";
 import { resumenSigueVigente } from "../../lib/pedidos/resumen-vigente";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
+import { Icono } from "../iconos/icono";
 import styles from "./carrito-catalogo.module.css";
 
 type PropiedadesCarrito = {
@@ -391,6 +392,7 @@ export function CarritoCatalogo({
             {datos.negocio.resenasUrl ? (
               <p className={styles.resenas}>
                 <a href={datos.negocio.resenasUrl} rel="noreferrer" target="_blank">
+                  <Icono nombre="estrella" />
                   Calificá a {datos.negocio.nombre} en Google
                 </a>
               </p>

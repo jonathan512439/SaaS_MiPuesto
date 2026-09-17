@@ -1707,6 +1707,124 @@ Commits de implementación: `e08d2b9`, `eafd11d`, `0659be1`, `06605f1`, `b69c57b
 
 ## Registro de verificaciones
 
+### Nota sobre el tramo del 5 al 17 de septiembre
+
+Este tramo se escribió el **17 de septiembre de 2026, de una sola vez**,
+reconstruyéndolo del repositorio. El registro se había quedado en el cierre de la
+Fase 3 del plan anterior, con 389 commits sin anotar y siete fases del plan de
+`docs/plan/06-FASES.md` sin cerrar acá.
+
+Se anota como es y no se disimula: **lo que sigue no es el registro que se fue
+tomando al cerrar cada fase**, sino lo que se puede comprobar hoy en el
+repositorio y en producción. Lo que sí es verificable de cada entrada son los
+commits que la sostienen, las guardias que corren en `npm test` y la marca de
+despliegue que quedó en `/api/salud`.
+
+Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a mano
+en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
+motivo por el que este archivo existe.
+
+### 2026-09-17
+
+- **Fase 9 empezada.** Subcategorías agrupadas en el catálogo, carga al
+  desplazar, y la portada del negocio revisada.
+- **La ficha del producto pasó a ser una página.** Tocar una tarjeta lleva a
+  `/negocio/p/codigo` en vez de abrir una hoja encima del catálogo: la dirección
+  se comparte, el botón «atrás» del teléfono vuelve, y el buscador la encuentra.
+  La hoja se retiró. La página toma la forma de los catálogos de referencia:
+  flecha sola, «Detalle del producto», título, descripción, precio, ficha técnica.
+- **El pedido quedó con un solo dueño** (`lib/pedidos/use-pedido.ts`), usado por
+  el catálogo y por la página del producto, con su guardia.
+- **La marca se presenta al abrir MiPuesto y cualquier catálogo**: 1,8 s, una vez
+  por sesión, sin bloquear y salteable al primer toque.
+- **Dieciséis paletas.** Se rehicieron «Océano», «Carta» (antes Altiplano),
+  «Carta de noche» (antes Pizarra), «Día y noche» (antes Noche) y «Sabor» (antes
+  Abeja); se sumaron «Rosal», «Amapola», «Dorado», «Rubí» y «Cielo». Las
+  dieciséis pasan contraste AA, y el control se extendió a la cabecera del
+  catálogo —`sobre-navegador` sobre `navegador`—, que hasta ahora no miraba nadie.
+- **Cuatro defectos reportados por el dueño y corregidos**, los cuatro del lado
+  del cliente y ninguno visto por la suite:
+  - el carrito no agregaba los productos que llegaban al desplazar, porque lo que
+    se dibujaba y lo que se podía pedir eran dos listas distintas;
+  - el segundo banner cambiaba de lugar al bajar, porque su posición se contaba
+    desde el final de una lista que crecía;
+  - los tres datos del pedido se apretaban en un renglón en el teléfono, porque
+    la rejilla estaba escrita para dos campos exactos;
+  - la animación de marca volvía al regresar de un producto, porque en la primera
+    visita se anotaba la sesión pero no el documento.
+- **Cada página del catálogo pasó a ser un tramo continuo de categorías**, para
+  que lo que llega al desplazar se sume al final de lo que se está mirando y no
+  más arriba.
+- **Google Cloudflare**: se descubrió que el Worker corre con el límite de CPU
+  del plan gratuito —10 ms— y que el promedio del sistema es 14,11 ms. Las
+  páginas que se dibujan en el servidor fallan de forma intermitente. Queda
+  pendiente el plan de 5 USD; está medido y documentado en la conversación.
+- Migraciones aplicadas en producción: `20261005090000_fase9_cuatro_paletas_mas`
+  y `20261005120000_fase9_rubi_y_cielo`.
+
+### 2026-09-16
+
+- **Fase 8.5 cerrada**: el panel toma el color del negocio en sus acentos. El
+  control de contraste pasó a comprobar el panel con cada paleta, no solo con la
+  de MiPuesto; dos paletas oscuras necesitaron un tono propio para el panel.
+- El QR del catálogo lleva el isotipo de MiPuesto de marca de agua, con su
+  prueba de contraste.
+- La plataforma se dividió en pestañas; «Inicio» volvió a llamarse «Resumen» y
+  muestra los topes y el uso de cada negocio.
+- Las redes del negocio pasaron a botones con su dibujo.
+
+### 2026-09-15
+
+- **Fase 8 cerrada**: alta guiada y siembra. Exportación a Excel —con
+  `xl/styles.xml`, sin el cual Excel «reparaba» el archivo y lo dejaba vacío—,
+  cambio de rubro con su función en la base, y lectura con IA con los campos de
+  categoría.
+- El repaso de contraste del panel se adelantó desde la Fase 9, a pedido del
+  dueño.
+
+### 2026-09-14
+
+- **Fases 6 y 7 cerradas.** El catálogo nuevo, con un solo diseño adaptado de
+  `Catalogos_Ejemplo/`: se retiraron las cuatro plantillas y las tarjetas por
+  rubro. Identidad y apariencia: hero, cabecera pintada, subnombre, patrón de
+  fondo por rubro y botón de mapa.
+
+### 2026-09-13
+
+- **Fase 5 cerrada**: agenda y citas, con la garantía contra doble agendamiento
+  en la base.
+
+### 2026-09-11
+
+- **Fase 4 cerrada**: las presentaciones de un producto.
+
+### 2026-09-10
+
+- **Fases 1, 2 y 3 del plan nuevo cerradas**: la categoría toma identidad, sus
+  campos, y esos campos cargados y visibles en el producto.
+
+### 2026-09-09
+
+- Los dos banners del catálogo, cargables desde el panel.
+- La tarjeta se separó de la plantilla, y la apariencia ganó ese eje. (Los dos
+  ejes se retiraron después, en la Fase 6.)
+
+### 2026-09-08
+
+- Un vigilante externo que consulta `/api/salud` cada cinco minutos.
+- Un solo encabezado y un solo bloque numerado para las once pantallas del panel.
+
+### 2026-09-07
+
+- Importar el Excel o el CSV que el negocio ya tiene, sin gastar cuota de IA.
+- Medición completa del uso de IA y reparto de la cuota diaria entre diez
+  negocios, con tope por negocio.
+- Patrón de fondo por rubro, dibujando el oficio.
+
+### 2026-09-05 y 2026-09-06
+
+- Preparación del catálogo público y del panel sobre la base de las fases 0 a 3.
+
 ### 2026-09-04
 
 - Fase 10 abierta sobre `fase-10-acabado-producto`, con los dos commits pendientes del árbol de trabajo incorporados primero: endurecimiento HTTPS y HSTS, y el alta de `CampoClave`.

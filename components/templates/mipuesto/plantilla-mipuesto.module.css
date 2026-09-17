@@ -125,6 +125,15 @@
 
 /* El botón para llegar, sobre la cabecera pintada: contorno claro sobre el color
    de marca. No se rellena para no competir con el nombre, que es lo principal. */
+/* Las acciones del negocio, en fila. En un teléfono angosto se envuelven en vez
+   de empujar el nombre: el nombre es lo principal de la cabecera. */
+.accionesNegocio {
+  display: flex;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  gap: var(--spacing-2);
+}
+
 .botonMapa {
   display: inline-flex;
   flex-shrink: 0;
