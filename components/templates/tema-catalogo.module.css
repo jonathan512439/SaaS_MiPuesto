@@ -225,14 +225,14 @@
    acento carmín»; el dueño pidió cambiarla por algo cálido y de carta. */
 .tema[data-paleta="altiplano"],
 .paleta[data-paleta="altiplano"] {
-  --catalogo-superficie: #faf7fc;
-  --catalogo-texto: #241a2b;
-  --catalogo-marca: #543279;
-  --catalogo-sobre-marca: #faf7fc;
-  --catalogo-accion: #a62a54;
-  --catalogo-sobre-accion: #faf7fc;
-  --catalogo-exito: #1e6a45;
-  --catalogo-alerta: #8a5500;
+  --catalogo-superficie: #fdf8f0;
+  --catalogo-texto: #3a2a1d;
+  --catalogo-marca: #8a3a1e;
+  --catalogo-sobre-marca: #fdf8f0;
+  --catalogo-accion: #9a5b12;
+  --catalogo-sobre-accion: #fdf8f0;
+  --catalogo-exito: #2f6b46;
+  --catalogo-alerta: #a02f14;
 }
 
 .tema[data-paleta="jazmin"],
@@ -286,16 +286,16 @@
  * No son «otro color»: son el mismo matiz llevado a donde se lee sobre claro,
  * que es lo que el dueño reconoce. El control de contraste los comprueba. */
 .paleta[data-paleta="pizarra"] {
-  --catalogo-marca-panel: #2a5f8f;
-  --catalogo-accion-panel: #9c5220;
-  --catalogo-superficie: #1a1f26;
-  --catalogo-texto: #eef1f5;
-  --catalogo-marca: #9ec5f0;
-  --catalogo-sobre-marca: #12202e;
-  --catalogo-accion: #f0a878;
-  --catalogo-sobre-accion: #2e1a0c;
-  --catalogo-exito: #8ecfa6;
-  --catalogo-alerta: #efc873;
+  --catalogo-marca-panel: #8a5a18;
+  --catalogo-accion-panel: #9c4a1e;
+  --catalogo-superficie: #1d1714;
+  --catalogo-texto: #f3e9db;
+  --catalogo-marca: #e2b478;
+  --catalogo-sobre-marca: #241a10;
+  --catalogo-accion: #e5906a;
+  --catalogo-sobre-accion: #2a170d;
+  --catalogo-exito: #86c79b;
+  --catalogo-alerta: #f0c36a;
   /* Oscura, igual que «noche»: la cabecera sigue al color del fondo para
      fundirse con la barra del navegador, con el texto claro. */
   --catalogo-navegador: var(--catalogo-superficie);
