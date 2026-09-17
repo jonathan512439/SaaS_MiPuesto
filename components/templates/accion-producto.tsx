@@ -1,4 +1,25 @@
+import { Icono } from "../iconos/icono";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
+
+/* La acción de la tarjeta es un ícono y no una frase.
+ *
+ * Las frases eran «Agregar al pedido», «Agendar», «Pedir o agendar por
+ * WhatsApp». Al lado del precio, en una tarjeta que en un teléfono mide media
+ * pantalla, cada una ocupaba dos o tres renglones y empujaba la tarjeta hacia
+ * abajo: con seis productos en pantalla, eso son doce renglones de texto que
+ * dicen lo mismo seis veces.
+ *
+ * El ícono es el mismo que usan los catálogos que el dueño ya conoce como
+ * cliente: una bolsa para comprar, un calendario para reservar. Lo que se pierde
+ * —la palabra— se recupera en dos lugares: el `aria-label` lo dice entero para
+ * quien no ve el dibujo, y la cuenta de lo que ya está en el pedido va como
+ * número encima, que es más claro que «Agregar otro (2 en el pedido)».
+ *
+ * Bolsa o calendario lo decide el producto y no la pantalla: `vendeTiempo` ya
+ * viene resuelto desde el servidor, porque es su categoría la que lo sabe. */
+function IconoDeAccion({ producto }: { producto: ProductoPlantilla }) {
+  return <Icono nombre={producto.vendeTiempo ? "calendario" : "bolsa"} />;
+}
 
 type PropiedadesAccionProducto = {
   producto: ProductoPlantilla;
@@ -39,7 +60,7 @@ export function AccionProducto({
         onClick={() => alVerProducto?.(producto.id)}
         type="button"
       >
-        Agendar
+        <IconoDeAccion producto={producto} />
       </button>
     );
   }
@@ -50,8 +71,8 @@ export function AccionProducto({
     const etiqueta = "Pedir o agendar por WhatsApp";
     if (demostracion || !producto.accionWhatsapp || !permiteAcciones || noDisponible) {
       return (
-        <button disabled={!demostracion || noDisponible} type="button">
-          {etiqueta}
+        <button aria-label={etiqueta} disabled={!demostracion || noDisponible} type="button">
+          <IconoDeAccion producto={producto} />
         </button>
       );
     }
@@ -64,23 +85,31 @@ export function AccionProducto({
         rel="noreferrer"
         target="_blank"
       >
-        {etiqueta}
+        <IconoDeAccion producto={producto} />
       </a>
     );
   }
 
   return (
     <button
-      aria-label={`Agregar ${producto.nombre} al pedido`}
+      /* El rótulo entero sigue existiendo para quien no ve el dibujo, y cambia
+         con el estado: sin él, un botón apagado no diría por qué. */
+      aria-label={
+        sinCantidad
+          ? `${producto.nombre}: ya agregaste el máximo disponible (${cantidad})`
+          : cantidad > 0
+            ? `Agregar otro ${producto.nombre} al pedido (${cantidad} ya agregados)`
+            : `Agregar ${producto.nombre} al pedido`
+      }
       disabled={noDisponible || sinCantidad || (!demostracion && !alAgregarProducto)}
       onClick={() => alAgregarProducto?.(producto.id)}
       type="button"
     >
-      {sinCantidad
-        ? `Máximo disponible (${cantidad})`
-        : cantidad > 0
-          ? `Agregar otro (${cantidad} en el pedido)`
-          : "Agregar al pedido"}
+      <IconoDeAccion producto={producto} />
+      {/* Cuántos lleva ya. Encima del ícono y no como palabras al lado: es el
+          mismo lugar donde lo pone el carrito de la cabecera, así que se lee sin
+          aprender nada nuevo. */}
+      {cantidad > 0 ? <b aria-hidden="true">{cantidad}</b> : null}
     </button>
   );
 }
