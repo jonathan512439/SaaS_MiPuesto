@@ -16,7 +16,11 @@
   align-items: center;
   gap: var(--spacing-2);
   border-top: var(--borde-fino) solid var(--catalogo-borde-suave);
-  padding: var(--spacing-4);
+  /* Menos aire abajo que arriba: lo que sigue es el pie, que ya trae su propio
+     relleno y su linea. Con el mismo relleno de los cuatro lados quedaba un
+     hueco del alto de un renglon entre «Pagina 1 de 3» y el pie, y ese hueco se
+     leia como si faltara algo ahi. */
+  padding: var(--spacing-4) var(--spacing-4) var(--spacing-2);
 }
 
 .paginacion span {

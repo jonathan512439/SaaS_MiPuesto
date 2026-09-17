@@ -6,6 +6,7 @@ import { Fragment, useEffect, useState } from "react";
 import { iconosDePatron } from "../../../lib/patrones-fondo";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { Icono } from "../../iconos/icono";
+import { IconoRed } from "../../iconos/redes";
 import { IconoCatalogo } from "../../iconos/icono-catalogo";
 import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
@@ -313,10 +314,17 @@ export function PlantillaMipuesto({
           ) : null}
         </div>
         {negocio.redesSociales.length ? (
+          /* Con el dibujo arriba y el nombre debajo.
+             Eran tres palabras subrayadas en fila, que a la altura del pie —donde
+             ya hay enlaces legales y el de MiPuesto— se perdían entre el resto.
+             La silueta se reconoce antes de leerse, y el nombre queda para
+             confirmar. Se mantiene el nombre y no se deja el dibujo solo: una
+             silueta simplificada se reconoce, pero no se lee en voz alta. */
           <nav aria-label="Enlaces del negocio" className={styles.redes}>
             {negocio.redesSociales.map((red) => (
               <a href={red.url} key={red.nombre} rel="noreferrer" target="_blank">
-                {red.nombre}
+                <IconoRed className={styles.iconoRed} nombre={red.nombre} />
+                <span>{red.nombre}</span>
               </a>
             ))}
           </nav>

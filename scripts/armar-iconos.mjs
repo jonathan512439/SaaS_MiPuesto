@@ -46,6 +46,9 @@ const ICONOS = {
   calendario: "calendar",
   ubicacion: "map-pin",
   flechaArriba: "chevron-up",
+  /* El sitio web del negocio en el pie del catalogo. Un mundo se entiende sin
+     leer, y ademas es lo unico de esa fila que no es una red social. */
+  mundo: "globe",
 };
 
 /* Lucide dibuja sobre un lienzo de 24 con el trazo en `currentColor`. Se guarda

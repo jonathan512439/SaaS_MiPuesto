@@ -596,7 +596,10 @@
 .pie {
   display: grid;
   gap: var(--spacing-3);
-  padding: var(--spacing-5) var(--spacing-4);
+  /* Menos arriba que abajo: encima queda la paginacion, que ya termina con su
+     propia linea. Dos rellenos grandes pegados dejaban un hueco vacio entre el
+     ultimo dato del catalogo y el pie. */
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-5);
   border-top: var(--borde-fino) solid var(--catalogo-borde);
   text-align: center;
 }
@@ -622,12 +625,50 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--spacing-3);
+  gap: var(--spacing-2);
 }
 
+/* Cada red es un botón: el dibujo arriba, el nombre debajo.
+ *
+ * Eran tres palabras subrayadas en fila, y a la altura del pie —donde ya están
+ * los enlaces legales y el de MiPuesto— se perdían entre el resto. Con su caja y
+ * su silueta se reconocen antes de leerlas, que es lo que hace que alguien entre
+ * al Instagram del negocio en vez de pasar de largo. */
 .redes a {
+  display: grid;
+  min-width: var(--spacing-16);
+  justify-items: center;
+  gap: var(--spacing-1);
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--catalogo-superficie);
   color: var(--catalogo-texto-suave);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--catalogo-sombra);
+  transition:
+    border-color var(--movimiento-rapido) ease,
+    color var(--movimiento-rapido) ease,
+    transform var(--movimiento-rapido) ease;
+}
+
+.redes a:hover {
+  border-color: var(--catalogo-marca);
+  color: var(--catalogo-marca);
+}
+
+/* Se hunde al presionar, igual que todo lo que se toca en el catálogo: en un
+   teléfono es la única confirmación de que el dedo dio en el blanco. */
+.redes a:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.iconoRed {
+  font-size: var(--text-xl);
+  color: var(--catalogo-marca);
 }
 
 /* Volver arriba: flota sobre la esquina, por encima de la barra inferior fija
