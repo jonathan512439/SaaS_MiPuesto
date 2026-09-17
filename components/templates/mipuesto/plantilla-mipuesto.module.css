@@ -382,7 +382,10 @@
 
 .seccion {
   display: grid;
-  gap: var(--spacing-3);
+  /* Un poco mas de aire que antes: ahora una seccion puede tener varios
+     subgrupos, y con la separacion de tres se pegaban entre si al punto de
+     parecer una sola lista con renglones de texto en el medio. */
+  gap: var(--spacing-4);
   scroll-margin-top: var(--spacing-4);
 }
 
@@ -590,6 +593,31 @@
   color: var(--catalogo-accion);
   font-size: var(--text-lg);
   font-weight: 800;
+}
+
+/* Los subgrupos de una categoría: «Bebidas» se abre en Gaseosas, Jugos, Aguas.
+ *
+ * El subtítulo va alineado a la izquierda y con una línea corta debajo, no con
+ * el peso de un título de categoría: tiene que leerse como una división de lo
+ * que ya se está mirando, no como una sección nueva. Si compitiera con el
+ * título de la categoría, el comprador perdería de vista en qué categoría está.
+ *
+ * Sin ancla propia: las esferas saltan a la categoría, y un subgrupo que se
+ * quedara con el ancla mandaría al comprador a la mitad de una sección. */
+.subgrupo {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.subgrupoTitulo {
+  margin: 0;
+  padding-bottom: var(--spacing-1);
+  border-bottom: var(--borde-fino) solid var(--catalogo-borde-suave);
+  color: var(--catalogo-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+  text-transform: uppercase;
 }
 
 /* 9 · Pie */

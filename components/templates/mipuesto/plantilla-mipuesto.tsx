@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 
 import { iconosDePatron } from "../../../lib/patrones-fondo";
+import { armarSecciones } from "../../../lib/plantillas/secciones";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
 import { Icono } from "../../iconos/icono";
 import { IconoRed } from "../../iconos/redes";
@@ -50,29 +51,12 @@ export function PlantillaMipuesto({
      juntos: quien pone el atributo consulta esta misma función. */
   const iconosPatron = negocio.patronFondo ? iconosDePatron(esferas) : [];
 
-  /* Las categorías que de verdad tienen algo que mostrar, aplanadas una sola vez.
-     Antes esto se calculaba dentro del `map` y se descartaba con un `return null`
-     a mitad de camino, lo que hacía imposible saber **cuántas** secciones iban a
-     dibujarse —y sin ese número no se puede poner nada «a la mitad». */
-  const seccionesConProductos = datos.categorias
-    .map((categoria) => ({
-      categoria,
-      productos: [
-        ...categoria.productos.map((producto) => ({
-          ...producto,
-          categoria: categoria.nombre,
-          subcategoria: null,
-        })),
-        ...(categoria.subcategorias ?? []).flatMap((subcategoria) =>
-          subcategoria.productos.map((producto) => ({
-            ...producto,
-            categoria: categoria.nombre,
-            subcategoria: subcategoria.nombre,
-          })),
-        ),
-      ],
-    }))
-    .filter(({ productos }) => productos.length > 0);
+  /* Las secciones, con sus subgrupos. Las reglas de cómo se reparten viven en
+     `lib/plantillas/secciones.ts` y no acá: son reglas y no dibujo, están
+     escritas una por una en el plan con el problema que evita cada una, y una
+     regla que solo existe adentro de un componente no se puede comprobar sin
+     dibujar la pantalla entera. */
+  const seccionesConProductos = armarSecciones(datos.categorias);
 
   /* Después de cuál va el anuncio: **antes de la última categoría**.
      
@@ -270,30 +254,56 @@ export function PlantillaMipuesto({
           quien le sirve una promoción. Pegado al pie lo ve solo el que llegó
           hasta abajo, y pegado arriba compite con la portada. */}
       <div className={styles.secciones} id="productos">
-        {seccionesConProductos.map(({ categoria, productos }, posicion) => (
+        {seccionesConProductos.map(({ categoria, sueltos, grupos, total }, posicion) => (
           <Fragment key={categoria.id}>
+            {/* El ancla sigue siendo la de la categoría: es a donde saltan las
+                esferas, y los subgrupos no se la pueden quedar. */}
             <section className={styles.seccion} id={`categoria-${categoria.id}`}>
               <div className={styles.seccionCabecera}>
                 <h3 className={styles.seccionTitulo}>{categoria.nombre}</h3>
                 <span className={styles.seccionCuenta}>
-                  {productos.length === 1 ? "1 producto" : `${productos.length} productos`}
+                  {total === 1 ? "1 producto" : `${total} productos`}
                 </span>
               </div>
-              <ul className={styles.rejilla}>
-                {productos.map((producto) => (
-                  <TarjetaMipuesto
-                    alAgregarProducto={alAgregarProducto}
-                    alAbrirWhatsapp={alAbrirWhatsapp}
-                    alVerProducto={alVerProducto}
-                    cantidadEnCarrito={cantidadesCarrito[producto.id]}
-                    demostracion={demostracion}
-                    key={producto.id}
-                    modalidad={negocio.modalidad}
-                    permiteAcciones={negocio.atencion.permiteAcciones}
-                    producto={producto}
-                  />
-                ))}
-              </ul>
+
+              {sueltos.length > 0 ? (
+                <ul className={styles.rejilla}>
+                  {sueltos.map((producto) => (
+                    <TarjetaMipuesto
+                      alAgregarProducto={alAgregarProducto}
+                      alAbrirWhatsapp={alAbrirWhatsapp}
+                      alVerProducto={alVerProducto}
+                      cantidadEnCarrito={cantidadesCarrito[producto.id]}
+                      demostracion={demostracion}
+                      key={producto.id}
+                      modalidad={negocio.modalidad}
+                      permiteAcciones={negocio.atencion.permiteAcciones}
+                      producto={producto}
+                    />
+                  ))}
+                </ul>
+              ) : null}
+
+              {grupos.map((grupo) => (
+                <div className={styles.subgrupo} key={grupo.nombre}>
+                  <h4 className={styles.subgrupoTitulo}>{grupo.nombre}</h4>
+                  <ul className={styles.rejilla}>
+                    {grupo.productos.map((producto) => (
+                      <TarjetaMipuesto
+                        alAgregarProducto={alAgregarProducto}
+                        alAbrirWhatsapp={alAbrirWhatsapp}
+                        alVerProducto={alVerProducto}
+                        cantidadEnCarrito={cantidadesCarrito[producto.id]}
+                        demostracion={demostracion}
+                        key={producto.id}
+                        modalidad={negocio.modalidad}
+                        permiteAcciones={negocio.atencion.permiteAcciones}
+                        producto={producto}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </section>
 
             {posicion === posicionDelAnuncio ? (
