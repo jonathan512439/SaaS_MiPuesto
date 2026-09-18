@@ -15,7 +15,7 @@ import type { SituacionDelNegocio } from "./alta";
  * otra. Esa clase de desacuerdo no se ve en las pruebas de ninguno de los dos.
  */
 const COLUMNAS =
-  "id,nombre,slug,activo,foto_ia_habilitada,nombre_admin,rubro,telefono_whatsapp,logo_url,alta_paso,alta_completada_en";
+  "id,nombre,slug,activo,foto_ia_habilitada,plan_id,nombre_admin,rubro,telefono_whatsapp,logo_url,alta_paso,alta_completada_en";
 
 export type NegocioEnSituacion = {
   id: string;
@@ -27,6 +27,10 @@ export type NegocioEnSituacion = {
      campo opcional que una consulta deja de pedir compila igual y desaparece en
      silencio, que es como se perdio una vez el bloque de la foto. */
   foto_ia_habilitada: boolean;
+  /* Qué plan paga. Obligatorio por el mismo motivo que el de arriba: de él sale
+     el cupo que el resumen le muestra al dueño, y si una consulta deja de
+     pedirlo el número que se ve deja de ser el suyo sin que nada avise. */
+  plan_id: string;
 };
 
 export async function leerSituacionDelNegocio(
@@ -66,6 +70,7 @@ export async function leerSituacionDelNegocio(
       slug: negocio.slug,
       activo: negocio.activo,
       foto_ia_habilitada: negocio.foto_ia_habilitada === true,
+      plan_id: negocio.plan_id,
     },
     situacion: {
       nombreAdmin: negocio.nombre_admin,

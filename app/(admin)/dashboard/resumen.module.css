@@ -133,11 +133,24 @@
   padding: 0 0 0 var(--spacing-5);
 }
 
+/* Cada fila: el nombre a la izquierda y la cuenta a la derecha.
+ *
+ * Se desbordaba de la tarjeta en un telefono y el numero terminaba fuera de la
+ * pantalla. Eran tres piezas que faltaban, y cada una sola no alcanzaba:
+ *
+ *   · `min-width: 0` en la fila, porque es un item de rejilla y por omision no
+ *     puede encogerse por debajo de su contenido;
+ *   · `flex: 1 1 auto` en el nombre, para que sea el que ceda y no el numero;
+ *   · `flex-shrink: 0` en el numero, para que no lo aprieten hasta sacarlo.
+ *
+ * Sin la tercera, el nombre largo empuja y el total sale de la tarjeta, que es
+ * exactamente lo que se veia. */
 .ranking li {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--spacing-4);
+  gap: var(--spacing-3);
+  min-width: 0;
   border-bottom: var(--borde-fino) solid var(--color-borde-suave);
   padding-bottom: var(--spacing-2);
 }
@@ -147,6 +160,7 @@
 }
 
 .ranking span {
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -154,6 +168,7 @@
 }
 
 .ranking strong {
+  flex-shrink: 0;
   color: var(--color-marca-fuerte);
   font-variant-numeric: tabular-nums;
 }

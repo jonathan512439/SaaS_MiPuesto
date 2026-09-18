@@ -9,9 +9,10 @@ import {
   MAXIMO_EVENTOS_LEIDOS,
   obtenerVentanasSemanales,
 } from "../../../lib/analitica-servidor";
-import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
+import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/limites";
 import { faltantesParaPublicar } from "../../../lib/negocios/alta";
 import { leerSituacionDelNegocio } from "../../../lib/negocios/situacion";
+import { cupoDelPlan } from "../../../lib/planes";
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./resumen.module.css";
@@ -51,6 +52,9 @@ export default async function PaginaDashboard() {
   const leido = await leerSituacionDelNegocio(supabase, idUsuario);
   if (!leido) redirect(RUTA_SIN_NEGOCIO);
   const { negocio } = leido;
+  /* Cuánto puede leer con la IA: sale del plan que paga, con el techo
+     técnico como límite duro. Es el mismo cálculo que aplica el servidor. */
+  const cupo = cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA);
 
   /* Lo que le falta al catálogo para servir, en la primera pantalla y no
      escondido en el alta.
@@ -207,12 +211,16 @@ export default async function PaginaDashboard() {
           <dl>
             <div>
               <dt>Lecturas con IA este mes</dt>
+              {/* El cupo del plan que paga, no el techo técnico del sistema.
+                  Decían 200 y 40 —lo que aguanta la cuota compartida— mientras
+                  el plan Catálogo da 10 al mes. El dueño leía un número que no
+                  era el suyo y que además no era el que lo iba a frenar. */}
               <dd>
-                <strong>{usoIa?.cantidad ?? 0}</strong> de {TOPE_FOTOS_POR_MES}
+                <strong>{usoIa?.cantidad ?? 0}</strong> de {cupo.mensual}
               </dd>
               {/* El tope diario también, porque es el que frena primero a quien
                   carga su catálogo entero en una tarde. */}
-              <p>Hasta {TOPE_FOTOS_POR_DIA} por día</p>
+              <p>Hasta {cupo.diario} por día</p>
             </div>
             <div>
               <dt>Productos</dt>
