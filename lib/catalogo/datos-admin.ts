@@ -34,7 +34,10 @@ function consultarAtributos(supabase: SupabaseClient<Database>, negocioId: strin
 function consultarRecursos(supabase: SupabaseClient<Database>, negocioId: string) {
   return supabase
     .from("recursos")
-    .select("id,nombre,activo")
+    /* La duración de su turno viene con él: el formulario del producto la
+       muestra como omisión, y sin el número ahí poner otra es una decisión a
+       ciegas. */
+    .select("id,nombre,activo,agenda_recurso(duracion_minutos)")
     .eq("negocio_id", negocioId)
     .order("orden")
     .order("nombre");

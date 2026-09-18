@@ -319,3 +319,58 @@
   font-size: var(--text-xs);
   font-weight: 800;
 }
+
+/* Los cierres de jornada: un renglón por recurso con su botón.
+ *
+ * Van debajo del día elegido y no adentro de cada recurso: la pregunta «¿quién
+ * no atiende hoy?» se hace mirando un día, no recorriendo la lista de personas.
+ */
+.cierres {
+  display: grid;
+  gap: var(--spacing-2);
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  padding-top: var(--spacing-3);
+}
+
+.cierre {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-1) var(--spacing-3);
+}
+
+.cierre > span {
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cierre button {
+  flex-shrink: 0;
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cierre button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* El motivo por el que el botón está apagado, a lo ancho de las dos columnas. */
+.cierre small {
+  grid-column: 1 / -1;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}

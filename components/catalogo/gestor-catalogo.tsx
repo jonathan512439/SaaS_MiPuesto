@@ -169,6 +169,17 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   /* El producto que se está editando, ya guardado. Las fotos se suben contra
      él y no contra el formulario: existe, tiene id, y es el mismo objeto que
      toca la lista. */
+  /* Cuánto dura un turno de quien atiende este producto, según su cronograma.
+     Es el número que el campo de duración usa de omisión. */
+  const duracionDeQuienAtiende = (() => {
+    const recurso = datosIniciales.recursos.find(({ id }) => id === formulario.recurso_id) as
+      | { agenda_recurso?: { duracion_minutos?: number | null } | { duracion_minutos?: number | null }[] }
+      | undefined;
+    const agenda = Array.isArray(recurso?.agenda_recurso)
+      ? recurso?.agenda_recurso[0]
+      : recurso?.agenda_recurso;
+    return agenda?.duracion_minutos ?? null;
+  })();
   const productoEnEdicion = productoEditando
     ? (productos.find(({ id }) => id === productoEditando) ?? null)
     : null;
@@ -1219,7 +1230,14 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   ))}
               </Selector>
               <Campo
-                ayuda="Vacío: la duración configurada para quien lo atiende."
+                /* Se dice el número, no «la que esté configurada»: sin verlo, poner
+                   otro es una decisión a ciegas. Con el número delante, dejarlo vacío
+                   o cambiarlo son las dos cosas que son. */
+                ayuda={
+                  duracionDeQuienAtiende
+                    ? `Vacío: ${duracionDeQuienAtiende} minutos, que es lo que dura su turno en Cronograma.`
+                    : "Vacío: la duración configurada para quien lo atiende."
+                }
                 error={erroresFormulario.duracion_minutos}
                 etiqueta="Cuánto dura (minutos)"
                 id="producto-duracion"

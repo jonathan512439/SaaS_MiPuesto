@@ -30,6 +30,10 @@ export type RecursoAdmin = {
   acepta_reservas: boolean;
   franjas: unknown;
   duracion_minutos: number | null;
+  /* Cuántos atiende a la vez. Decide cuántos bloqueos hacen falta para cerrar
+     un día: la base solo impide que se pisen dos citas del **mismo** cupo, así
+     que con dos consultorios hay que ocupar los dos. */
+  cupo_por_franja: number;
 };
 
 export type CitaAgenda = {
@@ -84,6 +88,10 @@ function instanteDe(fecha: string, hora: string): string {
     new Date(`${fecha}T${hora}:00Z`).getTime() + HORAS_DETRAS_DE_UTC * 3600_000,
   ).toISOString();
 }
+
+/* El motivo con el que se anota un día cerrado. Se ve en la agenda y en la
+   lista del día, así que dice algo y no un código. */
+const MOTIVO_CIERRE = "No atiende";
 
 function hoyEnBolivia(): string {
   return fechaDe(new Date().toISOString());
@@ -162,6 +170,115 @@ export function GestorAgenda({
   const pendientesDelDia = pendientes.filter(
     (cita) => fechaDe(cita.inicio) === diaElegido,
   ).length;
+
+  /* Un día cerrado es una cita sin producto que ocupa la jornada entera. Se lo
+     reconoce por eso y no por el texto: el motivo lo escribe el dueño y podría
+     ser cualquiera, pero una cita de veinticuatro horas sin nada que vender no
+     es otra cosa que un día cerrado. */
+  function esCierreDeJornada(cita: CitaAgenda) {
+    if (cita.producto !== null || cita.estado === "cancelada") return false;
+    const horas = (new Date(cita.fin).getTime() - new Date(cita.inicio).getTime()) / 3600_000;
+    return horas >= 23;
+  }
+
+  const cierresDelDia = citas.filter(
+    (cita) => fechaDe(cita.inicio) === diaElegido && esCierreDeJornada(cita),
+  );
+
+  function turnosTomados(recursoId: string) {
+    return citas.filter(
+      (cita) =>
+        cita.recurso_id === recursoId &&
+        fechaDe(cita.inicio) === diaElegido &&
+        cita.estado !== "cancelada" &&
+        !esCierreDeJornada(cita),
+    ).length;
+  }
+
+  /* Cerrar la jornada de un recurso: una cita por cada cupo, de la medianoche a
+     la medianoche.
+     **No cancela lo que ya está tomado**, y es a propósito: quien reservó espera
+     que lo atiendan, y borrarle el turno sin avisarle es peor que el problema
+     que se está resolviendo. Por eso el botón se apaga mientras haya turnos: el
+     dueño los cancela uno por uno —hablando con cada cliente— y recién entonces
+     cierra el día. */
+  async function cerrarJornada(recurso: RecursoAdmin) {
+    setOcupado(recurso.id);
+    try {
+      const creadas: CitaAgenda[] = [];
+      for (let cupo = 1; cupo <= Math.max(1, recurso.cupo_por_franja); cupo += 1) {
+        const inicio = instanteDe(diaElegido, "00:00");
+        const respuesta = await fetch("/api/catalogo/citas", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            recursoId: recurso.id,
+            productoId: null,
+            inicio,
+            duracionMinutos: 1440,
+            cupo,
+            nombre: MOTIVO_CIERRE,
+          }),
+        });
+        const datos = (await respuesta.json().catch(() => ({}))) as {
+          error?: string;
+          cita?: { id: string; codigo: string };
+        };
+        if (!respuesta.ok || !datos.cita) throw new Error(datos.error || "No se pudo cerrar el día.");
+
+        creadas.push({
+          id: datos.cita.id,
+          codigo: datos.cita.codigo,
+          recurso_id: recurso.id,
+          inicio,
+          fin: new Date(new Date(inicio).getTime() + 1440 * 60_000).toISOString(),
+          producto: null,
+          nombre_cliente: MOTIVO_CIERRE,
+          telefono_cliente: null,
+          nota: null,
+          nota_interna: null,
+          estado: "confirmada",
+          origen: "manual",
+        });
+      }
+      setCitas((actuales) => [...actuales, ...creadas]);
+      mostrarAviso({
+        titulo: `${recurso.nombre} no atiende ese día`,
+        mensaje: "Sus horarios dejaron de ofrecerse en el catálogo.",
+        variante: "exito",
+      });
+    } catch (error) {
+      informarError("No se pudo cerrar el día", error);
+    } finally {
+      setOcupado(null);
+    }
+  }
+
+  /* Reabrir: se cancelan los bloqueos. La restricción de la base no mira las
+     canceladas, así que con eso los horarios vuelven a ofrecerse. */
+  async function reabrirJornada(recurso: RecursoAdmin) {
+    setOcupado(recurso.id);
+    try {
+      for (const cierre of cierresDelDia.filter((cita) => cita.recurso_id === recurso.id)) {
+        const respuesta = await fetch("/api/catalogo/citas", {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: cierre.id, estado: "cancelada" }),
+        });
+        const datos = (await respuesta.json().catch(() => ({}))) as { error?: string };
+        if (!respuesta.ok) throw new Error(datos.error || "No se pudo reabrir el día.");
+      }
+      const ids = new Set(cierresDelDia.map(({ id }) => id));
+      setCitas((actuales) =>
+        actuales.map((cita) => (ids.has(cita.id) ? { ...cita, estado: "cancelada" } : cita)),
+      );
+      mostrarAviso({ titulo: `${recurso.nombre} vuelve a atender`, variante: "exito" });
+    } catch (error) {
+      informarError("No se pudo reabrir el día", error);
+    } finally {
+      setOcupado(null);
+    }
+  }
 
   function informarError(titulo: string, error: unknown) {
     mostrarAviso({
@@ -374,6 +491,41 @@ export function GestorAgenda({
             Cargar un turno a mano
           </Boton>
         </div>
+
+        {/* Cerrar el día de quien no va a atender: una emergencia, un viaje, una
+            mesa que hoy no se usa. Es por recurso y no por negocio porque lo
+            normal es que falte uno y el resto siga. */}
+        {recursos.some((recurso) => recurso.activo) ? (
+          <div className={styles.cierres}>
+            {recursos
+              .filter((recurso) => recurso.activo)
+              .map((recurso) => {
+                const cerrado = cierresDelDia.some((cita) => cita.recurso_id === recurso.id);
+                const tomados = turnosTomados(recurso.id);
+
+                return (
+                  <div className={styles.cierre} key={recurso.id}>
+                    <span>{recurso.nombre}</span>
+                    <button
+                      disabled={ocupado !== null || (!cerrado && tomados > 0)}
+                      onClick={() =>
+                        void (cerrado ? reabrirJornada(recurso) : cerrarJornada(recurso))
+                      }
+                      type="button"
+                    >
+                      {cerrado ? "Vuelve a atender" : "No atiende este día"}
+                    </button>
+                    {!cerrado && tomados > 0 ? (
+                      <small>
+                        Primero cancelá {tomados === 1 ? "el turno tomado" : `los ${tomados} turnos tomados`}: hay
+                        alguien esperando que le avises.
+                      </small>
+                    ) : null}
+                  </div>
+                );
+              })}
+          </div>
+        ) : null}
 
         {formulario?.abierto ? (
           <div className={styles.formulario}>

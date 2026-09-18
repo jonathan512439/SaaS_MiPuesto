@@ -50,9 +50,28 @@ export async function POST(solicitud: NextRequest) {
   if (Number.isNaN(inicio.getTime())) {
     return NextResponse.json({ error: "Elegí el día y la hora." }, { status: 400 });
   }
+  /* Un servicio dura hasta ocho horas; un bloqueo puede durar el día entero.
+     Son cosas distintas y por eso el tope no es el mismo: «ocho horas» existe
+     porque un servicio más largo que eso no es un turno, y un día en el que
+     alguien no atiende son veinticuatro. Un bloqueo se reconoce por no tener
+     producto: no es algo que se venda. */
+  const esBloqueo = !datos.productoId;
+  const topeDuracion = esBloqueo ? 1440 : 480;
   const duracion = typeof datos.duracionMinutos === "number" ? datos.duracionMinutos : Number(datos.duracionMinutos);
-  if (!Number.isInteger(duracion) || duracion < 5 || duracion > 480) {
-    return NextResponse.json({ error: "La duración va entre 5 y 480 minutos." }, { status: 400 });
+  if (!Number.isInteger(duracion) || duracion < 5 || duracion > topeDuracion) {
+    return NextResponse.json(
+      { error: `La duración va entre 5 y ${topeDuracion} minutos.` },
+      { status: 400 },
+    );
+  }
+
+  /* Cuál de los cupos del recurso ocupa. Un consultorio con dos cupos atiende a
+     dos a la vez, y la restricción de la base solo impide que se pisen dos citas
+     **del mismo** cupo. Por eso bloquear un día es ocupar todos sus cupos, y el
+     que los recorre es quien llama. */
+  const cupo = Number(datos.cupo ?? 1);
+  if (!Number.isInteger(cupo) || cupo < 1 || cupo > 20) {
+    return NextResponse.json({ error: "El cupo no es válido." }, { status: 400 });
   }
   const fin = new Date(inicio.getTime() + duracion * 60_000);
 
@@ -104,7 +123,7 @@ export async function POST(solicitud: NextRequest) {
       producto_id: productoId,
       categoria_id: categoriaId,
       rango: `[${inicio.toISOString()},${fin.toISOString()})`,
-      cupo: 1,
+      cupo,
       nombre_cliente: nombre,
       telefono_cliente: telefono,
       nota_interna: textoLimpio(datos.notaInterna, 300) || null,

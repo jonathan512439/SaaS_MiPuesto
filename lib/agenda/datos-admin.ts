@@ -40,7 +40,9 @@ export async function leerAgendaAdmin(
   const [resultadoRecursos, resultadoCitas, resultadoServicios] = await Promise.all([
     supabase
       .from("recursos")
-      .select("id,nombre,orden,activo,acepta_reservas,agenda_recurso(franjas,duracion_minutos)")
+      .select(
+      "id,nombre,orden,activo,acepta_reservas,agenda_recurso(franjas,duracion_minutos,cupo_por_franja)",
+    )
       .eq("negocio_id", negocioId)
       .order("orden")
       .order("nombre"),
@@ -88,6 +90,9 @@ export async function leerAgendaAdmin(
       acepta_reservas: fila.acepta_reservas,
       franjas: agenda?.franjas ?? [],
       duracion_minutos: agenda?.duracion_minutos ?? null,
+      /* Cuántos atiende a la vez. Sin agenda todavía, uno: es lo que la base
+         pone por omisión cuando se la crea. */
+      cupo_por_franja: Number(agenda?.cupo_por_franja ?? 1),
     };
   }) as RecursoAdmin[];
 
