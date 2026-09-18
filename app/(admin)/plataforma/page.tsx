@@ -13,7 +13,8 @@ import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
 import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
 import { nombreDeRubro } from "../../../lib/negocios/rubros";
 import type { UsoIa } from "../../../lib/ia/limites";
-import { TOPE_FOTOS_POR_MES } from "../../../lib/ia/servidor";
+import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/servidor";
+import { cupoDelPlan, planDe } from "../../../lib/planes";
 import { UsoIaPanel } from "../../../components/plataforma/uso-ia";
 import {
   ETIQUETAS_ESTADO,
@@ -68,7 +69,7 @@ export default async function PaginaPlataforma({
     supabase
       .from("negocios")
       .select(
-        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada,rubro",
+        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada,rubro,plan_id",
       )
       .order("nombre"),
     supabase
@@ -193,7 +194,8 @@ export default async function PaginaPlataforma({
                   </li>
                   {negocio.foto_ia_habilitada ? (
                     <li data-ia="si">
-                      IA · {fotosPorNegocio.get(negocio.id) ?? 0} de {TOPE_FOTOS_POR_MES} este
+                      IA · {fotosPorNegocio.get(negocio.id) ?? 0} de{" "}
+                      {cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual} este
                       mes
                     </li>
                   ) : null}
@@ -228,8 +230,9 @@ export default async function PaginaPlataforma({
                 fotosUsadas={fotosPorNegocio.get(negocio.id) ?? 0}
                 negocioId={negocio.id}
                 nombre={negocio.nombre}
+                planId={planDe(negocio.plan_id).id}
                 suspendidoPorPago={estado === "suspendido"}
-                topeFotos={TOPE_FOTOS_POR_MES}
+                topeFotos={cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual}
               />
 
               <CambioDeRubro

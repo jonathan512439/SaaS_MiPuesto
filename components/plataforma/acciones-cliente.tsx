@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { PLANES, planDe } from "../../lib/planes";
 import { useAvisos, useConfirmacion } from "../ui";
 import styles from "./acciones-cliente.module.css";
 
@@ -14,9 +15,10 @@ type PropiedadesAcciones = {
   fotoIaHabilitada: boolean;
   fotosUsadas: number;
   topeFotos: number;
+  planId: string;
 };
 
-type Accion = "renovar" | "publicar" | "despublicar" | "foto_ia";
+type Accion = "renovar" | "publicar" | "despublicar" | "foto_ia" | "plan";
 
 /* Usa los mismos avisos y confirmaciones que el panel del negocio: bajar un
    catálogo es destructivo para el comerciante, y esa confirmación tiene que
@@ -29,14 +31,16 @@ export function AccionesCliente({
   fotoIaHabilitada,
   fotosUsadas,
   topeFotos,
+  planId,
 }: PropiedadesAcciones) {
   const router = useRouter();
   const [meses, setMeses] = useState("1");
+  const [plan, setPlan] = useState(planDe(planId).id);
   const [ocupado, setOcupado] = useState<Accion | null>(null);
   const { mostrarAviso } = useAvisos();
   const confirmar = useConfirmacion();
 
-  async function ejecutar(accion: Accion) {
+  async function ejecutar(accion: Accion, plan?: string) {
     if (accion === "despublicar") {
       const aceptado = await confirmar({
         titulo: `Bajar el catálogo de ${nombre}`,
@@ -70,6 +74,7 @@ export function AccionesCliente({
           accion,
           meses: Number(meses),
           habilitada: !fotoIaHabilitada,
+          plan,
         }),
       });
       const datos = (await respuesta.json().catch(() => ({}))) as { error?: string };
@@ -109,6 +114,28 @@ export function AccionesCliente({
         >
           {ocupado === "renovar" ? "Renovando…" : "Renovar"}
         </button>
+      </div>
+
+      {/* El plan decide cuánto puede leer el negocio con la IA, así que se
+          cambia acá y no en el panel del dueño: si el dueño pudiera tocarlo, se
+          ascendería solo. La columna tampoco está concedida para escritura. */}
+      <div className={styles.renovar}>
+        <label htmlFor={`plan-${negocioId}`}>Plan</label>
+        <select
+          disabled={ocupado !== null}
+          id={`plan-${negocioId}`}
+          onChange={(evento) => {
+            setPlan(evento.target.value as typeof plan);
+            void ejecutar("plan", evento.target.value);
+          }}
+          value={plan}
+        >
+          {PLANES.map((opcion) => (
+            <option key={opcion.id} value={opcion.id}>
+              {opcion.nombre} — {opcion.lecturasPorMes}/mes
+            </option>
+          ))}
+        </select>
       </div>
 
       <button

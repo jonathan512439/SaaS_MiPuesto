@@ -489,6 +489,7 @@ export type Database = {
           patron_fondo: boolean
           patron_opacidad: number
           pide_numero_mesa: boolean
+          plan_id: string
           portada_url: string | null
           qr_pago_url: string | null
           redes_sociales: Json
@@ -537,6 +538,7 @@ export type Database = {
           patron_fondo?: boolean
           patron_opacidad?: number
           pide_numero_mesa?: boolean
+          plan_id?: string
           portada_url?: string | null
           qr_pago_url?: string | null
           redes_sociales?: Json
@@ -585,6 +587,7 @@ export type Database = {
           patron_fondo?: boolean
           patron_opacidad?: number
           pide_numero_mesa?: boolean
+          plan_id?: string
           portada_url?: string | null
           qr_pago_url?: string | null
           redes_sociales?: Json
@@ -1114,6 +1117,10 @@ export type Database = {
     Functions: {
       admin_cambiar_foto_ia: {
         Args: { p_cupo?: number; p_habilitada: boolean; p_negocio_id: string }
+        Returns: Json
+      }
+      admin_cambiar_plan: {
+        Args: { p_negocio_id: string; p_plan: string }
         Returns: Json
       }
       admin_cambiar_publicacion: {

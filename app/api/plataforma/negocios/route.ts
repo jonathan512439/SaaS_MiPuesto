@@ -10,7 +10,7 @@ import { NEGOCIOS_CON_HERRAMIENTA } from "../../../../lib/ia/limites";
  * quedar desincronizada; dejarlo solo en la base garantiza que ni una petición
  * armada a mano lo salte.
  */
-const ACCIONES = ["renovar", "publicar", "despublicar", "foto_ia"] as const;
+const ACCIONES = ["renovar", "publicar", "despublicar", "foto_ia", "plan"] as const;
 type Accion = (typeof ACCIONES)[number];
 
 function esAccion(valor: unknown): valor is Accion {
@@ -44,6 +44,13 @@ export async function POST(solicitud: NextRequest) {
           /* El cupo se manda desde acá y no vive en la base para que el número
              esté en un solo lugar, junto al cálculo del tope diario que lo usa. */
           p_cupo: NEGOCIOS_CON_HERRAMIENTA,
+        })
+      : datos.accion === "plan"
+      ? await supabase.rpc("admin_cambiar_plan", {
+          p_negocio_id: datos.negocio_id,
+          /* Se manda tal cual llega y la base decide si lo conoce: su
+             restricción es la que manda, no una lista repetida acá. */
+          p_plan: String(datos.plan ?? ""),
         })
       : datos.accion === "renovar"
       ? await supabase.rpc("admin_renovar_suscripcion", {

@@ -1,12 +1,16 @@
 import { crearClienteSupabaseAdmin } from "../supabase/admin";
 import { obtenerContextoAdminCatalogo } from "../catalogo/servidor";
 import { hayGemini } from "./gemini";
+import { cupoDelPlan } from "../planes";
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./limites";
 import { describirReinicio } from "./reinicio";
 
-/* Los dos topes se calculan en `limites.ts` a partir de la cuota real de Google
-   y de cuántos negocios pueden tener la herramienta encendida. Se reexportan
-   porque las rutas ya los importaban de acá. */
+/* Los dos topes de `limites.ts` son el **techo técnico**: lo que la cuota
+   compartida de Google aguanta por negocio, pase lo que pase. Se reexportan
+   porque las rutas ya los importaban de acá.
+
+   Lo que se autoriza de verdad es el cupo del plan que paga el negocio, que sale
+   de `lib/planes.ts` y nunca supera este techo. */
 export { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./limites";
 
 type Preparacion =
@@ -42,10 +46,22 @@ export async function prepararLecturaDeFoto(): Promise<Preparacion> {
     };
   }
 
+  /* El plan se lee con la clave privilegiada y no con la sesión del dueño: es el
+     dato que decide cuánto puede gastar, y leerlo por su propia sesión lo pondría
+     a un `update` de distancia de ascenderse solo. La columna, además, no está
+     concedida para escritura a nadie más que a la plataforma. */
+  const { data: negocio } = await admin
+    .from("negocios")
+    .select("plan_id")
+    .eq("id", contexto.negocio.id)
+    .maybeSingle();
+
+  const cupo = cupoDelPlan(negocio?.plan_id, TOPE_FOTOS_POR_DIA);
+
   const { data } = await admin.rpc("consumir_credito_ia", {
     p_negocio_id: contexto.negocio.id,
-    p_tope: TOPE_FOTOS_POR_MES,
-    p_tope_diario: TOPE_FOTOS_POR_DIA,
+    p_tope: Math.min(cupo.mensual, TOPE_FOTOS_POR_MES),
+    p_tope_diario: cupo.diario,
   });
   const credito = (data ?? {}) as {
     autorizado?: boolean;

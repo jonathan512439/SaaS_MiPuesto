@@ -1,6 +1,6 @@
 import { PALETAS } from "./apariencia";
 import { PRECIO_MENSUAL_BS } from "./contacto";
-import { TOPE_FOTOS_POR_MES } from "./ia/limites";
+import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./ia/limites";
 
 /* Los planes, en un solo lugar.
  *
@@ -12,8 +12,13 @@ import { TOPE_FOTOS_POR_MES } from "./ia/limites";
  * servicio están en dólares, así que el margen se mueve con el tipo de cambio:
  * eso se revisa una vez al año, no plan por plan.
  */
+/* El identificador que se guarda en `negocios.plan_id`. La restricción de la
+   base lista los mismos dos valores; si acá aparece un tercero sin migración, la
+   base lo rechaza al guardarlo. */
+export type PlanId = "catalogo" | "activo";
+
 export type Plan = {
-  id: "catalogo" | "activo";
+  id: PlanId;
   nombre: string;
   precioBs: number;
   /* Lecturas de foto incluidas por mes. Cero sería un plan sin la herramienta;
@@ -24,6 +29,25 @@ export type Plan = {
   destacado: boolean;
   incluye: readonly string[];
 };
+
+/* En cuántos días puede gastarse el cupo del mes.
+ *
+ * Cuatro, no uno y no treinta. Uno dejaría que un negocio se coma el mes entero
+ * en una tarde —que es justo lo que pasa al cargar un catálogo— y con eso
+ * arrastre la cuota diaria de Google que comparten todos. Treinta lo obligaría a
+ * usar exactamente una por día, que no es como trabaja nadie: se carga de golpe
+ * y después no se toca en dos semanas.
+ *
+ * Con cuatro, un negocio puede quemar una semana de cupo en un día y seguir
+ * teniendo mes. */
+const DIAS_PARA_GASTAR_EL_MES = 4;
+
+function topeDiario(mensual: number): number {
+  /* El techo técnico sigue mandando: ningún plan puede pedir en un día más de lo
+     que la cuota compartida aguanta. Hoy no se toca —quince contra cuarenta— y
+     está para que no se pueda tocar sin darse cuenta. */
+  return Math.min(Math.ceil(mensual / DIAS_PARA_GASTAR_EL_MES), TOPE_FOTOS_POR_DIA);
+}
 
 export const PLANES: readonly Plan[] = [
   {
@@ -42,7 +66,7 @@ export const PLANES: readonly Plan[] = [
          diez. La cuenta sale del registro para que no vuelva a pasar. */
       `${PALETAS.length} paletas de color y el fondo de tu oficio`,
       "Tu negocio en el directorio público",
-      "10 lecturas de foto al mes",
+      `10 lecturas de foto al mes, hasta ${topeDiario(10)} por día`,
     ],
   },
   {
@@ -54,7 +78,7 @@ export const PLANES: readonly Plan[] = [
     destacado: true,
     incluye: [
       "Todo lo del plan Catálogo",
-      "60 lecturas de foto al mes",
+      `60 lecturas de foto al mes, hasta ${topeDiario(60)} por día`,
       "Prioridad cuando escribís por WhatsApp",
     ],
   },
@@ -88,6 +112,29 @@ export function ahorroAnualBs(): number {
    restaurante carga su carta al principio y después suma tres platos al mes:
    cobrarle todos los meses por eso es la forma más rápida de perderlo en el
    tercero. */
+/* El plan de quien todavía no tiene ninguno. Es el de entrada: un negocio recién
+   dado de alta paga el básico hasta que alguien diga lo contrario. */
+export const PLAN_POR_OMISION: PlanId = "catalogo";
+
+export function planDe(id: string | null | undefined): Plan {
+  return PLANES.find((plan) => plan.id === id) ?? planDe(PLAN_POR_OMISION);
+}
+
+/* Cuánto puede leer un plan, al mes y en un día.
+ *
+ * **Esto es lo que aplica el servidor**, y sale del mismo sitio que la portada
+ * publica. Antes eran dos números distintos: la portada prometía 10 y el
+ * servidor autorizaba 200, porque el tope se repartía parejo entre diez negocios
+ * sin mirar quién pagó qué. */
+export function cupoDelPlan(id: string | null | undefined, techoDiario: number) {
+  const mensual = planDe(id).lecturasPorMes;
+
+  return {
+    mensual,
+    diario: Math.min(topeDiario(mensual), techoDiario),
+  };
+}
+
 export const CARGA_INICIAL = {
   precioBs: 250,
   productosMaximos: 150,

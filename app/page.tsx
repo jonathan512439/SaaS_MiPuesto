@@ -312,6 +312,14 @@ export default function Inicio() {
               </article>
             </div>
 
+            {/* Lo que un comerciante no puede adivinar: que las dos herramientas
+                gastan lo mismo por foto y traen cosas muy distintas. Sin esta
+                línea, el que tiene diez lecturas al mes las gasta de a una en
+                productos sueltos y se queda sin cupo el primer día. */}
+            <p className={styles.remateIa}>
+              <strong>Una foto es una lectura.</strong> La de tu lista de precios puede
+              traer veinte productos de una vez; la de un producto suelto trae ese.
+            </p>
             <p className={styles.remateIa}>
               Nada se publica sin que lo apruebes, y nada se envía sin que elijas la foto.{" "}
               <Link href="/privacidad">Cómo tratamos esas fotografías</Link>.
