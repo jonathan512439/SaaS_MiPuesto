@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import { rutaProductoPublico } from "../../../lib/url-sitio";
 import { AccionProducto } from "../accion-producto";
@@ -51,7 +53,23 @@ export function TarjetaMipuesto({
       />
 
       <div className={styles.tarjetaCuerpo}>
-        <h4 className={styles.tarjetaNombre}>{producto.nombre}</h4>
+        {/* El nombre es el enlace, y su área se estira sobre la tarjeta entera:
+            así se toca en cualquier parte —la foto, la descripción, el hueco— y
+            no solo sobre la fotografía, que era lo único que llevaba.
+
+            Se hace estirando un enlace y no envolviendo la tarjeta porque
+            adentro hay otro botón, el del carrito, y un botón dentro de un
+            enlace no es marcado válido ni se comporta bien en un teléfono. El
+            del pie se levanta por encima con `z-index` y sigue siendo suyo. */}
+        <h4 className={styles.tarjetaNombre}>
+          {href ? (
+            <Link className={styles.tarjetaEnlace} href={href} onClick={() => alVerProducto?.(producto.id)}>
+              {producto.nombre}
+            </Link>
+          ) : (
+            producto.nombre
+          )}
+        </h4>
         {producto.descripcion ? (
           <p className={styles.tarjetaDescripcion}>{producto.descripcion}</p>
         ) : null}

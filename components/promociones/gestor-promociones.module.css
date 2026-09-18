@@ -269,10 +269,30 @@
   font-size: var(--text-xs);
 }
 
+/* Las dos horas, una al lado de la otra.
+ *
+ * Se salían de la tarjeta: un `input type="time"` trae su propio ancho de
+ * fábrica —el reloj del navegador ocupa lo suyo— y sin decirle que ocupe su
+ * columna se queda con ese ancho y empuja. La columna ya podía encogerse; el que
+ * no cedía era el campo.
+ *
+ * Es la misma familia que el ranking del panel y los datos del pedido: un hijo
+ * que no cede dentro de un contenedor que sí. */
 .horas {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-2);
+}
+
+.horas label {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.horas input {
+  width: 100%;
+  min-width: 0;
 }
 
 .dias {

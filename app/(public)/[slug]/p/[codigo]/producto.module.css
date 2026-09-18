@@ -1,16 +1,30 @@
 @reference "../../../../globals.css";
 
-/* La página se acerca al borde de la pantalla.
+/* El fondo de la página, del color de la paleta que eligió el dueño.
+ *
+ * Se veía blanco: esta pantalla no declaraba fondo y heredaba el del sitio, que
+ * es el de MiPuesto y no el del negocio. En un catálogo con paleta oscura el
+ * salto era evidente —se tocaba un producto y la pantalla se ponía blanca— y en
+ * los claros igual quedaba fuera de tono.
+ *
+ * Va a todo el ancho y el contenido se centra adentro: pintar la caja del
+ * contenido dejaría dos franjas del color equivocado a los costados. */
+.pagina {
+  min-height: 100dvh;
+  background: var(--catalogo-fondo-suave);
+  color: var(--catalogo-texto);
+}
+
+/* El contenido se acerca al borde de la pantalla.
  *
  * Tenía el margen de una página de lectura, y esto no es una página de lectura:
  * en los catálogos de referencia la fotografía del producto llega casi al borde
  * y el texto respira apenas. En un teléfono cada milímetro de margen es un
  * milímetro menos de producto. */
-.pagina {
+.contenido {
   display: grid;
   align-content: start;
   gap: var(--spacing-4);
-  min-height: 100dvh;
   width: min(calc(100% - var(--spacing-4)), 68rem);
   margin: 0 auto;
   /* Abajo sobra sitio para la barra flotante del pedido: sin ese hueco, la

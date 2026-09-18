@@ -132,6 +132,7 @@ export default async function PaginaProducto({ params }: PropiedadesPagina) {
 
   return (
     <main className={`${temaStyles.tema} ${styles.pagina}`} data-paleta={paleta}>
+      <div className={styles.contenido}>
       {/* La cabecera de las referencias: la flecha sola a la izquierda y el
           rótulo de la pantalla al medio.
           Decía «Volver al catálogo de Pollos Broaster Saolito», que en un
@@ -154,6 +155,7 @@ export default async function PaginaProducto({ params }: PropiedadesPagina) {
           slug={negocio.slug}
         />
       </article>
+      </div>
     </main>
   );
 }
