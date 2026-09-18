@@ -125,13 +125,28 @@
 
 /* El botón para llegar, sobre la cabecera pintada: contorno claro sobre el color
    de marca. No se rellena para no competir con el nombre, que es lo principal. */
-/* Las acciones del negocio, en fila. En un teléfono angosto se envuelven en vez
-   de empujar el nombre: el nombre es lo principal de la cabecera. */
+/* Las acciones del negocio: **una debajo de la otra en el teléfono**.
+ *
+ * Iban en fila y se envolvían si no entraban, pero con las dos cargadas no se
+ * envolvían nunca: entraban justas, y al entrar juntas se quedaban con media
+ * cabecera. El nombre del negocio —que es lo principal, y lo único que no se
+ * repite en ningún otro catálogo— quedaba aplastado contra el logo y el conjunto
+ * se veía descentrado. El dueño lo describió así: «destroza el orden del
+ * título».
+ *
+ * En columna ocupan lo que mide la más ancha, que es menos que las dos sumadas,
+ * y el nombre recupera el lugar. Donde hay ancho de sobra vuelven a la fila. */
 .accionesNegocio {
-  display: flex;
-  flex-wrap: wrap;
-  flex-shrink: 0;
+  display: grid;
   gap: var(--spacing-2);
+  flex-shrink: 0;
+  justify-items: stretch;
+}
+
+@media (min-width: 48rem) {
+  .accionesNegocio {
+    grid-auto-flow: column;
+  }
 }
 
 /* Los dos botones de la cabecera van rellenos y no contorneados.
@@ -146,6 +161,10 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
+  /* Centrado: apilados uno sobre otro tienen el mismo ancho, y con el contenido
+     pegado a la izquierda «Calificar» quedaría descolgado debajo de «Cómo
+     llegar». */
+  justify-content: center;
   gap: var(--spacing-1);
   padding: var(--spacing-2) var(--spacing-3);
   border: var(--borde-fino) solid var(--catalogo-sobre-navegador);

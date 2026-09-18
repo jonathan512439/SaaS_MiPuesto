@@ -11,6 +11,10 @@ import {
 } from "../../../lib/analitica-servidor";
 import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/limites";
 import { faltantesParaPublicar } from "../../../lib/negocios/alta";
+import {
+  LIMITE_PRODUCTOS,
+  MAXIMO_FOTOS_POR_PRODUCTO,
+} from "../../../lib/catalogo/validacion";
 import { leerSituacionDelNegocio } from "../../../lib/negocios/situacion";
 import { cupoDelPlan } from "../../../lib/planes";
 import { formatearPrecioBolivianos } from "../../../lib/precios";
@@ -224,10 +228,14 @@ export default async function PaginaDashboard() {
             </div>
             <div>
               <dt>Productos</dt>
+              {/* Decía «Sin tope», y es falso: el servidor rechaza el producto
+                  número 301 desde que existe el límite. Un dueño que carga su
+                  catálogo entero creyendo que no hay techo se entera cuando le
+                  rebotan el que estaba cargando, que es el peor momento. */}
               <dd>
-                <strong>{leido.situacion.productos}</strong> cargados
+                <strong>{leido.situacion.productos}</strong> de {LIMITE_PRODUCTOS}
               </dd>
-              <p>Sin tope</p>
+              <p>Hasta {MAXIMO_FOTOS_POR_PRODUCTO} fotos en cada uno</p>
             </div>
             <div>
               <dt>Categorías</dt>
