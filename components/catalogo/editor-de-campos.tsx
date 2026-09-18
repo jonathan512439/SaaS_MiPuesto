@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import {
   DEFINICIONES_TIPOS,
+  ejemploDeTipo,
   LARGO_NOMBRE,
   LARGO_UNIDAD,
   MAXIMO_ATRIBUTOS,
@@ -77,9 +78,13 @@ function desdeFila(fila: FilaGuardada): CampoEnEdicion {
 export function EditorDeCampos({
   categoriaId,
   categoriaNombre,
+  rubro,
 }: {
   categoriaId: string;
   categoriaNombre: string;
+  /* Para que el ejemplo hable del oficio de quien está mirando. Sin rubro
+     —o con uno sin ejemplos propios— se muestra el general. */
+  rubro?: string | null;
 }) {
   const [campos, setCampos] = useState<CampoEnEdicion[] | null>(null);
   const [usos, setUsos] = useState<Record<string, number>>({});
@@ -261,10 +266,10 @@ export function EditorDeCampos({
                 ))}
               </select>
               {/* El ejemplo en vez de la explicación: se ve cómo va a quedar en
-                  lugar de leer qué significa el tipo. */}
-              <small>
-                {DEFINICIONES_TIPOS.find((definicion) => definicion.id === campo.tipo)?.ejemplo}
-              </small>
+                  lugar de leer qué significa el tipo. Y el ejemplo es del rubro
+                  del negocio: «Lista de opciones» con «Casquillo: E27» no le
+                  enseña nada a quien tiene un restaurante. */}
+              <small>{ejemploDeTipo(campo.tipo, rubro)}</small>
             </label>
           </div>
 

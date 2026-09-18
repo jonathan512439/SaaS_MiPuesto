@@ -63,6 +63,83 @@ export const DEFINICIONES_TIPOS: ReadonlyArray<{
   },
 ];
 
+/* El mismo tipo de campo, contado con el oficio de quien lo está leyendo.
+ *
+ * Los ejemplos de arriba están todos escritos desde una ferretería —«Potencia:
+ * 9 W», «Casquillo: E27»— y para el dueño de un restaurante o de una florería no
+ * significan nada: leen «Lista de opciones» y «Casquillo: E27» y siguen sin
+ * saber qué poner. El tipo de campo es abstracto por definición, y un ejemplo
+ * abstracto no explica nada; lo que enseña es ver el campo de **su** negocio.
+ *
+ * Solo se escribe lo que cambia. Un rubro que no esté acá, o un tipo que no esté
+ * en su rubro, cae en el ejemplo general, que sigue siendo mejor que ninguno. */
+const EJEMPLOS_POR_RUBRO: Partial<
+  Record<string, Partial<Record<TipoAtributo, string>>>
+> = {
+  restaurante: {
+    texto: "Acompañamiento: Arroz y papas",
+    numero: "Porción: 350 g",
+    opcion: "Picante: Suave · Medio · Fuerte",
+    si_no: "Vegetariano: sí",
+  },
+  tienda_barrio: {
+    texto: "Marca: Pil",
+    numero: "Contenido: 1 L",
+    opcion: "Presentación: Botella · Sachet · Caja",
+    si_no: "Refrigerado: sí",
+  },
+  ropa_y_calzado: {
+    texto: "Material: Cuero",
+    numero: "Talla: 38",
+    opcion: "Color: Negro · Blanco · Azul",
+    si_no: "Unisex: sí",
+  },
+  ferreteria: {
+    texto: "Material: Acero inoxidable",
+    numero: "Potencia: 9 W",
+    opcion: "Casquillo: E27 · E14 · GU10",
+    si_no: "Regulable: sí",
+  },
+  servicios: {
+    texto: "Incluye: Lavado y secado",
+    numero: "Duración: 45 min",
+    opcion: "Atiende: A domicilio · En el local",
+    si_no: "Con reserva: sí",
+  },
+  belleza: {
+    texto: "Incluye: Lavado, corte y peinado",
+    numero: "Duración: 30 min",
+    opcion: "Tipo de cabello: Liso · Ondulado · Rizado",
+    si_no: "Con turno: sí",
+  },
+  distribuidora: {
+    texto: "Marca: Coca-Cola",
+    numero: "Unidades por caja: 24",
+    opcion: "Venta: Por unidad · Por caja · Por pallet",
+    si_no: "Precio mayorista: sí",
+  },
+  repuestos: {
+    texto: "Código del fabricante: A9F74240",
+    numero: "Diámetro: 16 mm",
+    opcion: "Compatible con: Toyota · Nissan · Suzuki",
+    si_no: "Original: sí",
+  },
+  veterinaria: {
+    texto: "Principio activo: Ivermectina",
+    numero: "Peso del animal: 10 kg",
+    opcion: "Para: Perro · Gato · Ave",
+    si_no: "Necesita receta: sí",
+  },
+};
+
+/* El ejemplo de un tipo de campo para un rubro. Sin rubro —o con uno que no
+   tiene ejemplos propios— devuelve el general. */
+export function ejemploDeTipo(tipo: TipoAtributo, rubro?: string | null): string {
+  const general = DEFINICIONES_TIPOS.find(({ id }) => id === tipo)?.ejemplo ?? "";
+  if (!rubro) return general;
+  return EJEMPLOS_POR_RUBRO[rubro]?.[tipo] ?? general;
+}
+
 export function esTipoAtributo(valor: unknown): valor is TipoAtributo {
   return typeof valor === "string" && (TIPOS_ATRIBUTO as readonly string[]).includes(valor);
 }

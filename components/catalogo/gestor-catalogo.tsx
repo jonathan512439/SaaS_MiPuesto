@@ -166,6 +166,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   const { mostrarAviso } = useAvisos();
   const confirmar = useConfirmacion();
   const [productoEditando, setProductoEditando] = useState<string | null>(null);
+  /* El producto que se está editando, ya guardado. Las fotos se suben contra
+     él y no contra el formulario: existe, tiene id, y es el mismo objeto que
+     toca la lista. */
+  const productoEnEdicion = productoEditando
+    ? (productos.find(({ id }) => id === productoEditando) ?? null)
+    : null;
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
   const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
   /* Las miniaturas se crean en un efecto y no al dibujar: `createObjectURL`
@@ -1277,7 +1283,57 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               value={formulario.cantidad_stock}
             />
           ) : null}
-          {!productoEditando ? (
+          {/* Editando, las fotografías del producto, con las que ya tiene.
+              Este bloque **no existía**: el formulario de edición escondía las
+              fotos y solo se podían tocar desde la lista, abriendo la miniatura.
+              Quien entraba a «Editar» daba por hecho que ahí estaba todo lo del
+              producto, no encontraba las fotos, y concluía que no se podían
+              cambiar. El dueño lo reportó así.
+
+              Sube y borra contra el producto guardado —que existe, porque se lo
+              está editando— con las mismas funciones que usa la lista. */}
+          {productoEnEdicion ? (
+            <section className={styles.imagenesFormulario} aria-labelledby="fotos-producto-editado">
+              <div>
+                <h3 id="fotos-producto-editado">Fotografías</h3>
+                <p>
+                  {productoEnEdicion.fotos.length} de {MAXIMO_FOTOS_POR_PRODUCTO}. Se optimizan
+                  antes de subirlas.
+                </p>
+              </div>
+              {productoEnEdicion.fotos.length ? (
+                <div className={styles.fotos}>
+                  {productoEnEdicion.fotos.map((ruta, indice) => (
+                    <div className={styles.foto} key={ruta}>
+                      <Image
+                        alt={`${productoEnEdicion.nombre}, fotografía ${indice + 1}`}
+                        fill
+                        sizes="96px"
+                        src={obtenerUrlPublicaImagenProducto(urlSupabase, ruta)}
+                      />
+                      <button
+                        aria-label={`Borrar fotografía ${indice + 1} de ${productoEnEdicion.nombre}`}
+                        onClick={() => void borrarImagen(productoEnEdicion, ruta)}
+                        type="button"
+                      >
+                        Borrar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              <label className={styles.botonFoto}>
+                Agregar fotos
+                <input
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={ocupado || productoEnEdicion.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO}
+                  multiple
+                  onChange={(evento) => void subirImagenes(productoEnEdicion, evento)}
+                  type="file"
+                />
+              </label>
+            </section>
+          ) : (
             <section className={styles.imagenesFormulario} aria-labelledby="fotos-nuevo-producto">
               <div>
                 <h3 id="fotos-nuevo-producto">Fotografías</h3>
@@ -1325,7 +1381,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 {imagenesPendientes.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías seleccionadas
               </small>
             </section>
-          ) : null}
+          )}
           <div className={styles.accionesFormulario}>
             <Boton cargando={ocupado} type="submit">
               {productoEditando ? "Guardar cambios" : "Crear producto"}
@@ -1526,6 +1582,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                       <EditorDeCampos
                         categoriaId={categoria.id}
                         categoriaNombre={categoria.nombre}
+                        rubro={datosIniciales.negocio.rubro}
                       />
                     ) : null}
                     {categoriaActiva === categoria.id ? <div className={styles.subcategorias}>
