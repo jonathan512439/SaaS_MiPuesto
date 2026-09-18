@@ -8,6 +8,7 @@ import {
   porcentajeDeUso,
   type UsoIa,
 } from "../../lib/ia/limites";
+import { cupoDelPlan } from "../../lib/planes";
 import styles from "./uso-ia.module.css";
 
 /* Google no publica cuánto queda del nivel gratuito: la respuesta de la API no
@@ -64,7 +65,16 @@ function conFecha(valor: string | null): string {
   }).format(new Date(valor));
 }
 
-export function UsoIaPanel({ uso }: { uso: UsoIa | null }) {
+export function UsoIaPanel({
+  uso,
+  planes,
+}: {
+  uso: UsoIa | null;
+  /* Qué plan paga cada negocio, por su identificador. Sin esto la tabla mostraba
+     el techo técnico —«17 de 200»— para todos, que no es lo que ninguno compró:
+     el plan Catálogo da diez. */
+  planes: Record<string, string>;
+}) {
   if (!uso) {
     return (
       <section aria-labelledby="uso-ia" className={styles.panel}>
@@ -97,7 +107,20 @@ export function UsoIaPanel({ uso }: { uso: UsoIa | null }) {
   /* Lo que queda del día compartido después de lo ya gastado. Es la cifra que
      dice si entra otro negocio hoy, y no se deduce de ninguna barra. */
   const restanteHoy = Math.max(0, LIMITES_GEMINI.porDia - uso.dia_cuota.llamadas);
-  const repartido = TOPE_FOTOS_POR_DIA * NEGOCIOS_CON_HERRAMIENTA;
+
+  /* El cupo de cada negocio sale de su plan. Un negocio sin plan conocido cae en
+     el de entrada, que es lo que hace la base por omisión. */
+  const cupoDe = (negocioId: string) => cupoDelPlan(planes[negocioId], TOPE_FOTOS_POR_DIA);
+
+  /* El peor día posible con lo que hay vendido hoy: si todos los que tienen la
+     herramienta encendida gastaran su día entero.
+     Antes era `tope diario × 10`, un número fijo que no miraba lo vendido ni
+     cuántos hay. Ahora crece con los clientes, que es lo que hace que sirva de
+     alerta. */
+  const comprometidoPorDia = uso.por_negocio.reduce(
+    (suma, negocio) => suma + cupoDe(negocio.negocio_id).diario,
+    0,
+  );
 
   return (
     <section aria-labelledby="uso-ia" className={styles.panel}>
@@ -118,9 +141,9 @@ export function UsoIaPanel({ uso }: { uso: UsoIa | null }) {
         <strong>{restanteHoy.toLocaleString("es-BO")}</strong> pedidos de hoy, que alcanzan
         para{" "}
         <strong>
-          {Math.floor(restanteHoy / TOPE_FOTOS_POR_DIA).toLocaleString("es-BO")}
+          {Math.floor(restanteHoy / Math.max(1, TOPE_FOTOS_POR_DIA)).toLocaleString("es-BO")}
         </strong>{" "}
-        negocio(s) más usando su cupo entero.
+        negocio(s) más usando el cupo diario más grande que se vende.
       </p>
 
       <div className={styles.medidores}>
@@ -216,9 +239,11 @@ export function UsoIaPanel({ uso }: { uso: UsoIa | null }) {
         <h3 id="uso-por-negocio">Por negocio</h3>
         <p className={styles.nota}>
           {uso.negocios_habilitados} de {NEGOCIOS_CON_HERRAMIENTA} lugares ocupados. Cada uno
-          puede leer {TOPE_FOTOS_POR_DIA} fotos por día y {TOPE_FOTOS_POR_MES} por mes: entre
-          los {NEGOCIOS_CON_HERRAMIENTA} suman {repartido} de los {LIMITES_GEMINI.porDia}{" "}
-          diarios, y el resto queda de margen.
+          lee lo que le da su plan. Si todos gastaran hoy su día entero serían{" "}
+          <strong>{comprometidoPorDia}</strong> de los {LIMITES_GEMINI.porDia} que da Google
+          por día; el resto queda de margen. Ninguno puede pasar de{" "}
+          {TOPE_FOTOS_POR_DIA} por día ni de {TOPE_FOTOS_POR_MES} por mes, que es el techo
+          del sistema y está muy por encima de lo que se vende.
         </p>
         {uso.por_negocio.length === 0 ? (
           <p className={styles.vacio}>Ningún negocio tiene la herramienta habilitada.</p>
@@ -241,11 +266,11 @@ export function UsoIaPanel({ uso }: { uso: UsoIa | null }) {
                         registró el medidor. Difieren cuando una llamada falló y
                         se devolvió el crédito, y ver las dos es lo que permite
                         notarlo. */}
-                    <td data-nivel={nivelDeUsoIa(negocio.cantidad_dia, TOPE_FOTOS_POR_DIA)}>
-                      {negocio.cantidad_dia} de {TOPE_FOTOS_POR_DIA}
+                    <td data-nivel={nivelDeUsoIa(negocio.cantidad_dia, cupoDe(negocio.negocio_id).diario)}>
+                      {negocio.cantidad_dia} de {cupoDe(negocio.negocio_id).diario}
                     </td>
-                    <td data-nivel={nivelDeUsoIa(negocio.mes, TOPE_FOTOS_POR_MES)}>
-                      {negocio.mes} de {TOPE_FOTOS_POR_MES}
+                    <td data-nivel={nivelDeUsoIa(negocio.mes, cupoDe(negocio.negocio_id).mensual)}>
+                      {negocio.mes} de {cupoDe(negocio.negocio_id).mensual}
                     </td>
                     <td>{negocio.tokens_mes.toLocaleString("es-BO")}</td>
                   </tr>

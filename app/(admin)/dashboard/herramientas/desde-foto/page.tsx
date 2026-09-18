@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 
 import { CargaDesdeFoto } from "../../../../../components/catalogo/carga-desde-foto";
 import type { CategoriaCatalogo } from "../../../../../lib/catalogo/tipos";
-import { TOPE_FOTOS_POR_MES } from "../../../../../lib/ia/servidor";
+import { TOPE_FOTOS_POR_DIA } from "../../../../../lib/ia/servidor";
+import { cupoDelPlan } from "../../../../../lib/planes";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
@@ -26,7 +27,7 @@ export default async function PaginaCargaDesdeFoto() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("id,foto_ia_habilitada")
+    .select("id,foto_ia_habilitada,plan_id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
@@ -78,7 +79,7 @@ export default async function PaginaCargaDesdeFoto() {
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
         fotosUsadas={uso?.cantidad ?? 0}
         negocioLlevaStock={negocioLlevaStock}
-        topeFotos={TOPE_FOTOS_POR_MES}
+        topeFotos={cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual}
       />
     </main>
   );

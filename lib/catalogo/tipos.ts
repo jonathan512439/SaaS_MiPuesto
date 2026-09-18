@@ -78,6 +78,11 @@ export type DatosCatalogoAdmin = {
        protestó nadie. Un campo que una pantalla necesita para dibujarse no es
        opcional; que el dato sea `false` es otra cosa. */
     foto_ia_habilitada: boolean;
+    /* Qué plan paga, y por lo tanto cuántas lecturas tiene. Obligatorio por el
+       mismo motivo que el de arriba: el formulario dice «te quedan X de Y», y si
+       una consulta deja de pedirlo ese Y vuelve a ser un número que no es el
+       suyo. */
+    plan_id: string;
   };
   /* Cuántas lecturas con IA lleva el negocio este mes. Va al lado de la
      herramienta, en el formulario de producto: quien está por usarla es quien

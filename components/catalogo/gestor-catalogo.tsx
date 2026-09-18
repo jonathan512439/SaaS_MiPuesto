@@ -59,7 +59,8 @@ import {
   useConfirmacion,
 } from "../ui";
 import styles from "./gestor-catalogo.module.css";
-import { TOPE_FOTOS_POR_MES } from "../../lib/ia/limites";
+import { TOPE_FOTOS_POR_DIA } from "../../lib/ia/limites";
+import { cupoDelPlan } from "../../lib/planes";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import { normalizarBusqueda as normalizarTexto } from "../../lib/texto";
 
@@ -147,7 +148,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
      justo cuando se está por tocar, y una cuenta que hay que ir a buscar no la
      busca nadie. Nunca baja de cero: el servidor corta antes, y un número
      negativo se leería como una deuda. */
-  const lecturasQueQuedan = Math.max(0, TOPE_FOTOS_POR_MES - datosIniciales.fotosUsadasMes);
+  /* Lo que le queda **de su plan**. Decía «de 200», que es el techo técnico
+     del sistema y no lo que compró: el dueño del plan Catálogo leía que le
+     quedaban 190 cuando en realidad le quedaban cero a la décima lectura. */
+  const cupoDeLecturas = cupoDelPlan(datosIniciales.negocio.plan_id, TOPE_FOTOS_POR_DIA);
+  const lecturasQueQuedan = Math.max(0, cupoDeLecturas.mensual - datosIniciales.fotosUsadasMes);
   const [leyendoFoto, setLeyendoFoto] = useState(false);
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [paginaCategorias, setPaginaCategorias] = useState(1);
@@ -1134,7 +1139,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   números lo obligaría a calcular cuál lo frena antes. */}
               <p className={styles.usosIa}>
                 <span>
-                  Te quedan <strong>{lecturasQueQuedan}</strong> de {TOPE_FOTOS_POR_MES} lecturas
+                  Te quedan <strong>{lecturasQueQuedan}</strong> de {cupoDeLecturas.mensual} lecturas
                   este mes
                 </span>
                 {/* En cero no se esconde ni se cambia de color: se dice qué pasa

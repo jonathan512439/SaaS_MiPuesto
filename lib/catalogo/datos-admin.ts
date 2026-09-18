@@ -54,7 +54,7 @@ export async function leerCatalogoAdmin(
        Se cayó de esta consulta al separar Herramientas —donde vive la otra
        herramienta de IA, la que lee una lista entera— y el bloque desapareció
        sin que nada avisara, porque el campo era opcional en el tipo. */
-    .select("id,nombre,slug,rubro,foto_ia_habilitada")
+    .select("id,nombre,slug,rubro,foto_ia_habilitada,plan_id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) return null;

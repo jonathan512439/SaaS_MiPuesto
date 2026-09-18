@@ -5,6 +5,7 @@ import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../../../lib/contact
    el sistema, así que la página no puede prometer una cifra distinta de la que
    se cumple. Si mañana cambian, cambian en los dos lados a la vez. */
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
+import { PLANES, cupoDelPlan } from "../../../lib/planes";
 import styles from "../legal.module.css";
 
 export const metadata: Metadata = {
@@ -84,11 +85,31 @@ export default function PaginaTerminos() {
           escribir mal un nombre o inventar un detalle. Revisar antes de publicar es tu
           responsabilidad, igual que con cualquier texto que cargues a mano.
         </p>
+        {/* El tope que le toca a cada uno sale de su plan, no de un número
+            escrito acá: es la misma función que autoriza cada lectura en el
+            servidor. Antes esta página decía el techo técnico —200 al mes— que
+            es lo que el sistema aguanta, no lo que se vende. */}
         <p>
-          Tienen un tope de uso, para que el servicio alcance para todos los negocios que
-          las tienen habilitadas: <strong>{TOPE_FOTOS_POR_DIA} fotografías por día</strong>{" "}
-          y <strong>{TOPE_FOTOS_POR_MES} por mes</strong>. Al llegar al tope, la
-          herramienta te dice cuándo podés seguir. El resto de tu panel no se ve afectado.
+          Cuántas fotografías podés leer por mes depende de tu plan:{" "}
+          {PLANES.map((plan, indice) => {
+            const cupo = cupoDelPlan(plan.id, TOPE_FOTOS_POR_DIA);
+            return (
+              <span key={plan.id}>
+                {indice > 0 ? ", y " : ""}
+                <strong>
+                  {plan.nombre}, {cupo.mensual} al mes y hasta {cupo.diario} por día
+                </strong>
+              </span>
+            );
+          })}
+          . Al llegar al tope, la herramienta te dice cuándo podés seguir: el mensual
+          vuelve a cero el día 1 y el diario a la medianoche. El resto de tu panel no se
+          ve afectado, y tu catálogo tampoco.
+        </p>
+        <p>
+          Por encima de los planes hay un techo del sistema que ningún plan alcanza —
+          {TOPE_FOTOS_POR_DIA} fotografías por día y {TOPE_FOTOS_POR_MES} por mes— para
+          que un error nuestro no pueda gastar la cuota de todos.
         </p>
         <p>
           La lectura la hace un proveedor externo, Google, y eso trae dos consecuencias

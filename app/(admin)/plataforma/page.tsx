@@ -131,7 +131,12 @@ export default async function PaginaPlataforma({
 
       {pestana === "consumo" ? (
         <>
-          <UsoIaPanel uso={(consumoIa as UsoIa | null) ?? null} />
+          <UsoIaPanel
+            planes={Object.fromEntries(
+              (negocios ?? []).map((negocio) => [negocio.id, planDe(negocio.plan_id).id]),
+            )}
+            uso={(consumoIa as UsoIa | null) ?? null}
+          />
           <UsoAlmacenamientoPanel uso={(uso as UsoAlmacenamiento | null) ?? null} />
         </>
       ) : null}
