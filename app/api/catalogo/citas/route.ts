@@ -56,7 +56,9 @@ export async function POST(solicitud: NextRequest) {
      alguien no atiende son veinticuatro. Un bloqueo se reconoce por no tener
      producto: no es algo que se venda. */
   const esBloqueo = !datos.productoId;
-  const topeDuracion = esBloqueo ? 1440 : 480;
+  /* Treinta días: una pausa de reservas puede ser «hasta el lunes» o «hasta que
+     vuelva de viaje». Un servicio sigue durando ocho horas como mucho. */
+  const topeDuracion = esBloqueo ? 43_200 : 480;
   const duracion = typeof datos.duracionMinutos === "number" ? datos.duracionMinutos : Number(datos.duracionMinutos);
   if (!Number.isInteger(duracion) || duracion < 5 || duracion > topeDuracion) {
     return NextResponse.json(

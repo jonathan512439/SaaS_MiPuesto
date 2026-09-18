@@ -89,9 +89,9 @@ function instanteDe(fecha: string, hora: string): string {
   ).toISOString();
 }
 
-/* El motivo con el que se anota un día cerrado. Se ve en la agenda y en la
-   lista del día, así que dice algo y no un código. */
-const MOTIVO_CIERRE = "No atiende";
+/* El motivo con el que se anota una pausa. Se ve en la agenda y en la lista del
+   día, así que dice algo y no un código. */
+const MOTIVO_CIERRE = "Reservas en pausa";
 
 function hoyEnBolivia(): string {
   return fechaDe(new Date().toISOString());
@@ -122,7 +122,20 @@ export function GestorAgenda({
       .sort();
     return conTurnos.includes(hoy) ? hoy : (conTurnos[0] ?? hoy);
   });
+  /* El instante en que se abrió la pantalla. Se toma una vez y no en cada
+     dibujo: leer el reloj mientras se dibuja da resultados que cambian solos,
+     y React lo prohíbe por eso. El costo es que una pausa que vence con la
+     pantalla abierta se sigue viendo hasta recargar, que para algo que dura
+     horas o días no es un problema. */
+  const [abiertoEn] = useState(() => Date.now());
   const [ocupado, setOcupado] = useState<string | null>(null);
+  /* Qué recurso está eligiendo hasta cuándo pausar, con lo que lleva escrito.
+     Uno por vez: dos formularios abiertos invitan a confundir cuál se guarda. */
+  const [pausando, setPausando] = useState<{
+    recursoId: string;
+    fecha: string;
+    hora: string;
+  } | null>(null);
   const [cargando, setCargando] = useState(false);
   const [formulario, setFormulario] = useState<{
     abierto: boolean;
@@ -171,27 +184,40 @@ export function GestorAgenda({
     (cita) => fechaDe(cita.inicio) === diaElegido,
   ).length;
 
-  /* Un día cerrado es una cita sin producto que ocupa la jornada entera. Se lo
-     reconoce por eso y no por el texto: el motivo lo escribe el dueño y podría
-     ser cualquiera, pero una cita de veinticuatro horas sin nada que vender no
-     es otra cosa que un día cerrado. */
-  function esCierreDeJornada(cita: CitaAgenda) {
-    if (cita.producto !== null || cita.estado === "cancelada") return false;
-    const horas = (new Date(cita.fin).getTime() - new Date(cita.inicio).getTime()) / 3600_000;
-    return horas >= 23;
+  /* Una pausa es una cita sin producto y con el motivo de las pausas. Se mira el
+     motivo además de la falta de producto porque un bloqueo suelto —«Reunión»,
+     «Banco»— también es una cita sin producto, y esos no son pausas: los carga
+     el dueño a mano y los borra a mano. */
+  function esPausa(cita: CitaAgenda) {
+    return (
+      cita.producto === null &&
+      cita.estado !== "cancelada" &&
+      cita.nombre_cliente === MOTIVO_CIERRE
+    );
   }
 
-  const cierresDelDia = citas.filter(
-    (cita) => fechaDe(cita.inicio) === diaElegido && esCierreDeJornada(cita),
-  );
+  /* La pausa vigente de un recurso: la que todavía no terminó. Se mira contra
+     ahora y no contra el día elegido, porque una pausa cruza días. */
+  function pausaDe(recursoId: string) {
+    return (
+      citas.find(
+        (cita) =>
+          cita.recurso_id === recursoId && esPausa(cita) && new Date(cita.fin).getTime() > abiertoEn,
+      ) ?? null
+    );
+  }
 
-  function turnosTomados(recursoId: string) {
+  /* Los turnos tomados dentro del rango que se va a pausar. Si hay alguno, la
+     pausa chocaría con él en la base; y aunque no chocara, hay una persona
+     esperando que le avisen. */
+  function turnosEnRango(recursoId: string, desde: number, hasta: number) {
     return citas.filter(
       (cita) =>
         cita.recurso_id === recursoId &&
-        fechaDe(cita.inicio) === diaElegido &&
         cita.estado !== "cancelada" &&
-        !esCierreDeJornada(cita),
+        !esPausa(cita) &&
+        new Date(cita.inicio).getTime() < hasta &&
+        new Date(cita.fin).getTime() > desde,
     ).length;
   }
 
@@ -202,12 +228,36 @@ export function GestorAgenda({
      que se está resolviendo. Por eso el botón se apaga mientras haya turnos: el
      dueño los cancela uno por uno —hablando con cada cliente— y recién entonces
      cierra el día. */
-  async function cerrarJornada(recurso: RecursoAdmin) {
+  async function pausarReservas(recurso: RecursoAdmin, hastaFecha: string, hastaHora: string) {
+    const desde = new Date();
+    const hasta = new Date(instanteDe(hastaFecha, hastaHora));
+    const minutos = Math.ceil((hasta.getTime() - desde.getTime()) / 60_000);
+
+    if (minutos < 5) {
+      informarError("No se pudo pausar", new Error("Elegí un momento más adelante."));
+      return;
+    }
+    if (minutos > 43_200) {
+      informarError("No se pudo pausar", new Error("La pausa puede durar hasta treinta días."));
+      return;
+    }
+
+    const tomados = turnosEnRango(recurso.id, desde.getTime(), hasta.getTime());
+    if (tomados > 0) {
+      informarError(
+        "No se pudo pausar",
+        new Error(
+          `Hay ${tomados} turno(s) tomado(s) en ese rango. Cancelalos primero: hay alguien esperando que le avises.`,
+        ),
+      );
+      return;
+    }
+
     setOcupado(recurso.id);
     try {
       const creadas: CitaAgenda[] = [];
       for (let cupo = 1; cupo <= Math.max(1, recurso.cupo_por_franja); cupo += 1) {
-        const inicio = instanteDe(diaElegido, "00:00");
+        const inicio = desde.toISOString();
         const respuesta = await fetch("/api/catalogo/citas", {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -215,7 +265,7 @@ export function GestorAgenda({
             recursoId: recurso.id,
             productoId: null,
             inicio,
-            duracionMinutos: 1440,
+            duracionMinutos: minutos,
             cupo,
             nombre: MOTIVO_CIERRE,
           }),
@@ -224,14 +274,14 @@ export function GestorAgenda({
           error?: string;
           cita?: { id: string; codigo: string };
         };
-        if (!respuesta.ok || !datos.cita) throw new Error(datos.error || "No se pudo cerrar el día.");
+        if (!respuesta.ok || !datos.cita) throw new Error(datos.error || "No se pudo pausar.");
 
         creadas.push({
           id: datos.cita.id,
           codigo: datos.cita.codigo,
           recurso_id: recurso.id,
           inicio,
-          fin: new Date(new Date(inicio).getTime() + 1440 * 60_000).toISOString(),
+          fin: hasta.toISOString(),
           producto: null,
           nombre_cliente: MOTIVO_CIERRE,
           telefono_cliente: null,
@@ -242,13 +292,14 @@ export function GestorAgenda({
         });
       }
       setCitas((actuales) => [...actuales, ...creadas]);
+      setPausando(null);
       mostrarAviso({
-        titulo: `${recurso.nombre} no atiende ese día`,
-        mensaje: "Sus horarios dejaron de ofrecerse en el catálogo.",
+        titulo: `${recurso.nombre}: reservas en pausa`,
+        mensaje: `Sus horarios dejan de ofrecerse hasta el ${hastaFecha} a las ${hastaHora}.`,
         variante: "exito",
       });
     } catch (error) {
-      informarError("No se pudo cerrar el día", error);
+      informarError("No se pudo pausar", error);
     } finally {
       setOcupado(null);
     }
@@ -256,25 +307,26 @@ export function GestorAgenda({
 
   /* Reabrir: se cancelan los bloqueos. La restricción de la base no mira las
      canceladas, así que con eso los horarios vuelven a ofrecerse. */
-  async function reabrirJornada(recurso: RecursoAdmin) {
+  async function reanudarReservas(recurso: RecursoAdmin) {
+    const suyas = citas.filter((cita) => cita.recurso_id === recurso.id && esPausa(cita));
     setOcupado(recurso.id);
     try {
-      for (const cierre of cierresDelDia.filter((cita) => cita.recurso_id === recurso.id)) {
+      for (const cierre of suyas) {
         const respuesta = await fetch("/api/catalogo/citas", {
           method: "PATCH",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ id: cierre.id, estado: "cancelada" }),
         });
         const datos = (await respuesta.json().catch(() => ({}))) as { error?: string };
-        if (!respuesta.ok) throw new Error(datos.error || "No se pudo reabrir el día.");
+        if (!respuesta.ok) throw new Error(datos.error || "No se pudo reanudar.");
       }
-      const ids = new Set(cierresDelDia.map(({ id }) => id));
+      const ids = new Set(suyas.map(({ id }) => id));
       setCitas((actuales) =>
         actuales.map((cita) => (ids.has(cita.id) ? { ...cita, estado: "cancelada" } : cita)),
       );
-      mostrarAviso({ titulo: `${recurso.nombre} vuelve a atender`, variante: "exito" });
+      mostrarAviso({ titulo: `${recurso.nombre} vuelve a aceptar reservas`, variante: "exito" });
     } catch (error) {
-      informarError("No se pudo reabrir el día", error);
+      informarError("No se pudo reanudar", error);
     } finally {
       setOcupado(null);
     }
@@ -492,34 +544,97 @@ export function GestorAgenda({
           </Boton>
         </div>
 
-        {/* Cerrar el día de quien no va a atender: una emergencia, un viaje, una
-            mesa que hoy no se usa. Es por recurso y no por negocio porque lo
-            normal es que falte uno y el resto siga. */}
+        {/* Pausar las reservas de quien no va a atender: una emergencia, un
+            viaje, una mesa que hoy no se usa.
+
+            Es una pausa con vencimiento y no un «hoy no atiende» a secas porque
+            así es como se dice de verdad: «hasta las cuatro», «hasta el lunes».
+            Un botón que cierra el día entero obliga a acordarse de reabrirlo, y
+            lo que se olvida es justo eso: el catálogo sigue sin dar turnos el
+            martes porque nadie deshizo el bloqueo del lunes.
+
+            Va por recurso y no por negocio porque lo normal es que falte uno y
+            el resto siga. */}
         {recursos.some((recurso) => recurso.activo) ? (
           <div className={styles.cierres}>
             {recursos
               .filter((recurso) => recurso.activo)
               .map((recurso) => {
-                const cerrado = cierresDelDia.some((cita) => cita.recurso_id === recurso.id);
-                const tomados = turnosTomados(recurso.id);
+                const pausa = pausaDe(recurso.id);
+                const eligiendo = pausando?.recursoId === recurso.id ? pausando : null;
 
                 return (
                   <div className={styles.cierre} key={recurso.id}>
                     <span>{recurso.nombre}</span>
                     <button
-                      disabled={ocupado !== null || (!cerrado && tomados > 0)}
-                      onClick={() =>
-                        void (cerrado ? reabrirJornada(recurso) : cerrarJornada(recurso))
-                      }
+                      disabled={ocupado !== null}
+                      onClick={() => {
+                        if (pausa) {
+                          void reanudarReservas(recurso);
+                          return;
+                        }
+                        setPausando(
+                          eligiendo
+                            ? null
+                            : {
+                                recursoId: recurso.id,
+                                fecha: hoyEnBolivia(),
+                                /* Hasta el final del día, que es la pausa que más
+                                   se pide: «hoy ya no». Cambiarla es escribir otra
+                                   hora, no armar nada. */
+                                hora: "23:59",
+                              },
+                        );
+                      }}
                       type="button"
                     >
-                      {cerrado ? "Vuelve a atender" : "No atiende este día"}
+                      {pausa
+                        ? "Reanudar reservas"
+                        : eligiendo
+                          ? "Cancelar"
+                          : "Pausar reservas"}
                     </button>
-                    {!cerrado && tomados > 0 ? (
+
+                    {pausa ? (
                       <small>
-                        Primero cancelá {tomados === 1 ? "el turno tomado" : `los ${tomados} turnos tomados`}: hay
-                        alguien esperando que le avises.
+                        En pausa hasta el {rotuloDia(fechaDe(pausa.fin))} a las{" "}
+                        {horaDe(pausa.fin)}. Sus horarios no se ofrecen en el catálogo.
                       </small>
+                    ) : null}
+
+                    {eligiendo ? (
+                      <div className={styles.hastaCuando}>
+                        <label>
+                          Hasta el día
+                          <input
+                            min={hoyEnBolivia()}
+                            onChange={(evento) =>
+                              setPausando({ ...eligiendo, fecha: evento.target.value })
+                            }
+                            type="date"
+                            value={eligiendo.fecha}
+                          />
+                        </label>
+                        <label>
+                          A las
+                          <input
+                            onChange={(evento) =>
+                              setPausando({ ...eligiendo, hora: evento.target.value })
+                            }
+                            type="time"
+                            value={eligiendo.hora}
+                          />
+                        </label>
+                        <Boton
+                          cargando={ocupado === recurso.id}
+                          onClick={() =>
+                            void pausarReservas(recurso, eligiendo.fecha, eligiendo.hora)
+                          }
+                          type="button"
+                        >
+                          Pausar
+                        </Boton>
+                      </div>
                     ) : null}
                   </div>
                 );

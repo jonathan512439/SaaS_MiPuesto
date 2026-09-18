@@ -1,0 +1,16 @@
+-- El dueño puede **leer** su plan. No escribirlo.
+--
+-- `negocios` concede los permisos columna por columna, y una columna nueva no
+-- queda concedida sola. Al agregar `plan_id` se cuidó de no conceder el `update`
+-- —para que nadie se ascienda solo— y se pasó por alto el `select`: el panel lo
+-- pide para decir «te quedan 4 de 10», la base lo rechaza, y la consulta entera
+-- se cae con él. «Productos» y «Mi catálogo» dejaron de cargar.
+--
+-- Es la tercera vez que esta misma arista corta. Las dos anteriores están
+-- anotadas en `scripts/check-permisos-columnas.mjs`: la fase 7 con
+-- `patron_opacidad` y `subnombre` —ningún catálogo público cargó durante un
+-- despliegue entero— y la fase 8 con las columnas del alta.
+--
+-- Solo `authenticated`: el catálogo público no necesita saber qué plan paga el
+-- negocio, y lo que no viaja no se puede filtrar por error.
+grant select (plan_id) on table public.negocios to authenticated;

@@ -374,3 +374,38 @@
   font-size: var(--text-xs);
   line-height: 1.4;
 }
+
+/* El «hasta cuándo» de la pausa: el día, la hora y el botón que la aplica.
+   A lo ancho de las dos columnas, debajo del botón que lo abrió. */
+.hastaCuando {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
+  align-items: end;
+  gap: var(--spacing-2);
+  grid-column: 1 / -1;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  background: var(--color-fondo-suave);
+}
+
+.hastaCuando label {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.hastaCuando input {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-sm);
+}

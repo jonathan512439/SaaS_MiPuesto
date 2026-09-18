@@ -48,9 +48,49 @@ const DEL_DUENO = [
 ];
 
 /* Lo que el catálogo público lee. Se saca del propio archivo, no de una copia. */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { extname, join } from "node:path";
 const fuente = readFileSync(new URL("../lib/catalogo/negocio-publico.ts", import.meta.url), "utf8");
 const DEL_VISITANTE = /const CAMPOS =\s*"([^"]+)"/.exec(fuente)?.[1].split(",") ?? [];
+
+/* Lo que el **panel** lee de `negocios`, sacado de las consultas de verdad.
+ *
+ * Esta lista faltaba, y por eso `plan_id` tumbó «Productos» y «Mi catálogo»: se
+ * cuidó de no conceder su escritura —para que nadie se ascienda solo— y se pasó
+ * por alto la lectura. La consulta la pedía, la base la rechazaba, y se caía
+ * entera con ella.
+ *
+ * Se descubre recorriendo el código en vez de mantenerse a mano, por el mismo
+ * motivo que la del visitante: una lista escrita al lado de la consulta se
+ * desactualiza en cuanto alguien agrega una columna y no se acuerda de esto. */
+function archivosDeCodigo(carpeta) {
+  return readdirSync(carpeta).flatMap((nombre) => {
+    const ruta = join(carpeta, nombre);
+    if (statSync(ruta).isDirectory()) return archivosDeCodigo(ruta);
+    return [".ts", ".tsx"].includes(extname(nombre)) ? [ruta] : [];
+  });
+}
+
+const raiz = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+const DEL_PANEL = new Set();
+for (const carpeta of ["lib", "app", "components"]) {
+  for (const archivo of archivosDeCodigo(join(raiz, carpeta))) {
+    if (archivo.includes(".test.")) continue;
+    const codigo = readFileSync(archivo, "utf8");
+    /* `.from("negocios")` y, más adelante, su `.select("…")`. Se toma el primer
+       select que aparezca después: es el de esa consulta. */
+    for (const encuentro of codigo.matchAll(/\.from\("negocios"\)([\s\S]{0,400}?)\.select\(\s*"([^"]+)"/g)) {
+      for (const columna of encuentro[2].split(",")) {
+        const limpia = columna.trim().split("(")[0].trim();
+        /* Las relaciones embebidas —`agenda_recurso(...)`— no son columnas de
+           `negocios` y no se comprueban acá. */
+        if (limpia && !limpia.includes(")") && !encuentro[2].includes(`${limpia}(`)) {
+          DEL_PANEL.add(limpia);
+        }
+      }
+    }
+  }
+}
 
 const admin = createClient(url, claveServicio, {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -80,6 +120,11 @@ for (const columna of DEL_VISITANTE) {
     faltan.push(`anon no puede leer «${columna}», y el catálogo público la pide`);
   }
 }
+for (const columna of DEL_PANEL) {
+  if (!concedido.get("authenticated:SELECT")?.has(columna)) {
+    faltan.push(`authenticated no puede leer «${columna}», y una consulta del panel la pide`);
+  }
+}
 
 if (faltan.length > 0) {
   console.error("\nFaltan permisos de columna en `negocios`:");
@@ -87,6 +132,7 @@ if (faltan.length > 0) {
   console.error(
     "\nSe arregla con una migración:\n" +
       "  grant update (la_columna) on public.negocios to authenticated;\n" +
+      "  grant select (la_columna) on public.negocios to authenticated;\n" +
       "  grant select (la_columna) on public.negocios to anon;",
   );
   process.exit(1);
@@ -94,5 +140,6 @@ if (faltan.length > 0) {
 
 console.log(
   `Permisos de columna: correcto. ${DEL_DUENO.length} escribibles por el dueño, ` +
+  `${DEL_PANEL.size} legibles por el panel, ` +
     `${DEL_VISITANTE.length} legibles por un visitante.`,
 );
