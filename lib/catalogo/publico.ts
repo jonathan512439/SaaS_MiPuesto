@@ -2,6 +2,7 @@ import type { PaletaId } from "../apariencia";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import { leerBanners } from "../negocios/banners";
+import { leerTextoPortada } from "../negocios/texto-sobre-imagen";
 import type { DatosPlantilla } from "../plantillas/tipos";
 import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
 import { calcularCantidadDisponible } from "../reservas";
@@ -31,6 +32,7 @@ type NegocioPublico = {
   paleta_id: string;
   logo_url?: string | null;
   portada_url?: string | null;
+  portada_texto?: unknown;
   qr_pago_url?: string | null;
   ubicacion_url?: string | null;
   pide_numero_mesa?: boolean | null;
@@ -335,6 +337,9 @@ export function construirCatalogoPublico(
           negocio.portada_url ?? null,
           "portada",
         ),
+        /* Con el lector y no crudo, como los banners: lo que hay en esa columna
+           puede venir de una restauración o de un script. */
+        portadaTexto: leerTextoPortada(negocio.portada_texto),
         qrPagoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.qr_pago_url ?? null, "qr"),
         ubicacionUrl: negocio.ubicacion_url?.trim() || null,
         pideNumeroMesa: negocio.pide_numero_mesa === true,
@@ -360,8 +365,6 @@ export function construirCatalogoPublico(
         /* La ruta se convierte en dirección acá, como el logo y la portada: lo
            guardado es una ruta del depósito, no una dirección con el proyecto
            adentro. */
-        /* Los huecos viajan como huecos: el lugar de cada banner es su índice,
-           y compactarlos acá subiría el de abajo al lugar de arriba. */
         banners: leerBanners(negocio.banners).map((banner) =>
           banner
             ? {

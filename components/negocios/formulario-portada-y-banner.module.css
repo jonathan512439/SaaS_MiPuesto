@@ -78,13 +78,22 @@
   gap: var(--spacing-1);
 }
 
+/* El enlace a «Mi negocio» dentro de la explicación: del color de marca y
+   subrayado, para que se vea que se toca. */
+.paraQue a {
+  color: var(--color-marca);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
 .campo > span {
   font-size: var(--text-sm);
   font-weight: 800;
 }
 
 .campo input[type="text"],
-.campo input[type="url"] {
+.campo input[type="url"],
+.campo select {
   width: 100%;
   padding: var(--spacing-3);
   border: var(--borde-marcado) solid var(--color-borde-campo);

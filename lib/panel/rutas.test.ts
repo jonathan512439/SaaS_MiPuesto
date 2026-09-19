@@ -31,7 +31,11 @@ describe("las direcciones del panel", () => {
     /* Una cadena que empieza con `/dashboard`. Las rutas de los módulos de
        estilo también nombran la carpeta —`../../app/(admin)/dashboard/…`— pero
        empiezan con puntos, así que no entran acá. */
-    const sueltas = /"\/dashboard(\/[a-z0-9-]+)*"/;
+    /* Termine en comillas, en `?` o en `#`: una dirección con parámetros es
+       una dirección igual. Por ese hueco pasó `"/dashboard/catalogo?asistente=foto"`,
+       que llevaba a una pantalla que no leía el parámetro, y dos botones del alta
+       no hicieron nada durante semanas. */
+    const sueltas = /"\/dashboard(\/[a-z0-9-]+)*[?#"]/;
     const culpables = CARPETAS.flatMap((c) => archivosDeCodigo(join(RAIZ, c)))
       .filter((ruta) => ruta !== MODULO)
       .filter((ruta) => sueltas.test(readFileSync(ruta, "utf8")))

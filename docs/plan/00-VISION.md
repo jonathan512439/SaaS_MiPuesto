@@ -62,7 +62,7 @@ Ninguna función existente se pierde. Se reubican dentro del diseño nuevo:
 | 4 | La categoría declara **si vende cosas o vende tiempo**. Eso decide variantes o agenda |
 | 5 | El patrón de fondo se arma con los iconos de las categorías. Visibilidad y opacidad las decide el dueño |
 | 6 | Iconos en todo el sistema. Emoji en ninguna parte. El logo reemplaza al emoji junto al nombre |
-| 7 | Dos banners. El de abajo es opcional y lleva texto y botón |
+| 7 | Un banner de publicidad, opcional, con texto y botón. La portada lleva su propio cartel, también opcional (el banner de arriba se fue el 2026-09-19) |
 | 8 | Paletas cerradas y verificadas. Afectan cabecera, fondo y tarjetas. **No tocan los banners** |
 | 9 | El botón de Google Maps es opcional. Con clave configurada muestra la calificación; sin clave, solo el enlace |
 | 10 | La dirección es `mipuesto.com/nombre-del-negocio` durante el MVP. El subdominio llega en la fase final |

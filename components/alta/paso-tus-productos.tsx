@@ -69,13 +69,17 @@ export function PasoTusProductos({
 
       <ol className={styles.caminos}>
         <li>
-          <Link className={styles.camino} href="/dashboard/catalogo?asistente=foto">
+          {/* A las herramientas, que es donde viven. Apuntaban a «Mi catálogo» con
+              un `?asistente=` que ninguna pantalla leía —quedaron de antes de que
+              las dos herramientas se mudaran— y el dueño caía en la lista de
+              categorías sin entender qué pasó. */}
+          <Link className={styles.camino} href={RUTAS_PANEL.desdeFoto}>
             <strong>Sacale una foto a tu lista de precios</strong>
             <span>La leemos y armamos los productos. Es lo más rápido si ya la tenés escrita.</span>
           </Link>
         </li>
         <li>
-          <Link className={styles.camino} href="/dashboard/catalogo?asistente=importar">
+          <Link className={styles.camino} href={RUTAS_PANEL.importar}>
             <strong>Subí un Excel</strong>
             <span>Con la plantilla ya armada para tus categorías.</span>
           </Link>

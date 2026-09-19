@@ -1539,6 +1539,28 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                       <Icono className={styles.flechaCategoria} nombre="flechaArriba" />
                     </button>
                     <div className={styles.accionesPequenas} aria-label={`Acciones para ${categoria.nombre}`}>
+                      {/* El orden lo decide el dueño, no la siembra. La ruta y la
+                          función ya lo sabían hacer —las subcategorías se mueven
+                          desde hace tiempo— y a las categorías les faltaban los
+                          dos botones. El catálogo mostraba «Postres» antes que el
+                          plato de la casa porque así vino la plantilla, y no
+                          había forma de cambiarlo. */}
+                      <button
+                        aria-label={`Subir ${categoria.nombre}`}
+                        disabled={categorias[0]?.id === categoria.id}
+                        onClick={() => void cambiarCategoria(categoria.id, { direccion: "subir" })}
+                        type="button"
+                      >
+                        <Icono nombre="flechaArriba" /> Subir
+                      </button>
+                      <button
+                        aria-label={`Bajar ${categoria.nombre}`}
+                        disabled={categorias[categorias.length - 1]?.id === categoria.id}
+                        onClick={() => void cambiarCategoria(categoria.id, { direccion: "bajar" })}
+                        type="button"
+                      >
+                        <Icono nombre="flechaAbajo" /> Bajar
+                      </button>
                       <button onClick={() => pedirNuevoNombreCategoria(categoria)} type="button">Cambiar nombre</button>
                       <button onClick={() => void borrarCategoria(categoria)} type="button">Eliminar categoría</button>
                     </div>

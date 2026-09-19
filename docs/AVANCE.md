@@ -1724,6 +1724,62 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-09-19
+
+- **La portada es el primer cartel del negocio, y el banner de arriba se fue.**
+  Había tres franjas anchas seguidas —portada, banner de arriba, publicidad— y
+  las dos primeras iban casi pegadas. Lo que se podía escribir sobre el banner
+  (antetítulo, título, bajada, botón con destino) se escribe ahora **sobre la
+  portada**, desde «Apariencia», con la misma vista previa. Columna nueva
+  `portada_texto`; `banners` queda con un solo lugar, el de la mitad.
+  Migración `20261009090000_fase9_el_texto_de_la_portada` aplicada en
+  producción (ningún negocio tenía el banner de arriba cargado; el de la mitad
+  pasó al primer lugar).
+- **La cortina solo si hay texto.** El sombreado en degradé de la portada y del
+  banner existe para que la letra se lea, y sin letra no se dibuja: una foto
+  sin cartel se muestra entera. Los dos carteles son una sola pieza
+  (`components/templates/texto-sobre-imagen.tsx`), con una sola cortina y una
+  sola tipografía; antes eran dos, con opacidades distintas.
+- **En las paletas oscuras la cortina es el fondo y la letra clara.** Tokens
+  `--catalogo-cortina` y `--catalogo-sobre-cortina`; las cinco paletas oscuras
+  los declaran, y el control de contraste comprueba el par en las dieciséis.
+  Antes la cortina salía de la marca —naranja, dorado, coral— con letra oscura.
+- **El botón del cartel puede bajar a «Mis productos»**, que era lo que hacía el
+  botón fijo de la portada. Un destino dentro del catálogo se dibuja con su
+  ancla sola, en la misma página; antes abría otra pestaña del mismo catálogo.
+- **Las categorías se ordenan desde «Mi catálogo».** La ruta y la función ya lo
+  sabían hacer; faltaban los dos botones. Un negocio creado desde plantilla
+  mostraba «Postres» antes que el plato de la casa y no había forma de
+  cambiarlo.
+- **Los enlaces del alta a «cargar desde Excel» y «desde una foto» llevaban a un
+  parámetro que nadie leía.** Ahora llevan a las rutas del panel, y la guardia
+  de rutas rechaza cualquier `/dashboard/...` escrito a mano con `?` o `#`.
+- **«Agendar» habla la paleta del negocio**: el selector de turno usaba los
+  tokens del panel —cajas blancas con letra oscura dentro de un catálogo
+  oscuro— y sus emojis pasaron a íconos. Y todo control de formulario dentro
+  del tema toma el fondo de la paleta: `color-scheme: light` global dejaba
+  `input`, `select` y `button` con fondo blanco del navegador y letra clara
+  heredada en las paletas oscuras.
+- **La pausa de reservas puede durar hasta treinta días**: la regla de la base
+  cortaba en ocho horas cualquier cita, y una pausa es una cita sin producto.
+  La ruta ahora dice qué regla la rechazó.
+- **«Productos» y «Mi catálogo» se cayeron enteros** por un `const` que leía
+  otro declarado más abajo. Ni TypeScript ni el lint lo ven; se sumó la primera
+  prueba que **dibuja una pantalla del panel** con datos.
+
+### 2026-09-18
+
+- **Cada negocio tiene su plan**, y el plan es lo que el servidor aplica:
+  `negocios.plan_id`, solo cambiable con `admin_cambiar_plan`; cupo mensual y
+  diario por plan (`lib/planes.ts`); todas las pantallas dicen el cupo del plan
+  y no el techo del sistema, con su guardia.
+- **La guardia de permisos por columna ahora mira también las lecturas del
+  panel**: `plan_id` se concedió para escribir por nadie y se olvidó la lectura,
+  y «Productos» cayó con ella.
+- Editar un producto permite agregar fotos; los ejemplos de campos hablan del
+  rubro; la tarjeta entera lleva al producto; «no atiende» pasó a ser una pausa
+  con vencimiento.
+
 ### 2026-09-17
 
 - **Fase 9 empezada.** Subcategorías agrupadas en el catálogo, carga al

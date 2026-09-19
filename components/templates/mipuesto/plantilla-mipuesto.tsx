@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 
+import { tieneAlgoEncima } from "../../../lib/negocios/texto-sobre-imagen";
 import { iconosDePatron } from "../../../lib/patrones-fondo";
 import { armarSecciones, posicionDelAnuncio } from "../../../lib/plantillas/secciones";
 import type { PropiedadesPlantilla } from "../../../lib/plantillas/tipos";
@@ -13,6 +14,7 @@ import { AccionLlamar } from "../accion-llamar";
 import { AvisoHorario } from "../aviso-horario";
 import { BannerCatalogo } from "../banner-catalogo";
 import { PatronCategorias } from "../patron-categorias";
+import { TextoSobreImagen } from "../texto-sobre-imagen";
 import temaStyles from "../tema-catalogo.module.css";
 import { TarjetaMipuesto } from "./tarjeta-mipuesto";
 import styles from "./plantilla-mipuesto.module.css";
@@ -24,7 +26,7 @@ import styles from "./plantilla-mipuesto.module.css";
  * categorías, sus campos y sus acciones.
  *
  * Los bloques van en el orden del diseño de referencia. Cada bloque opcional
- * —portada, banners, esferas— **apagado no deja hueco**: no se dibuja, sin
+ * —portada, banner, esferas— **apagado no deja hueco**: no se dibuja, sin
  * margen fantasma. Lo que la maqueta traía inventado —calificaciones, reseñas,
  * pestañas de cuenta— no está: el sistema no muestra lo que no es cierto.
  */
@@ -55,6 +57,11 @@ export function PlantillaMipuesto({
      y sin esta distinción tocar un producto de la portada sacaría al visitante
      del sitio hacia el catálogo de un negocio inventado. */
   const slugEnlazable = demostracion ? null : negocio.slug;
+
+  /* Si la portada lleva su cartel. Lo decide el dueño escribiendo algo encima;
+     sin nada, la portada es la foto sola. La cabecera lo pregunta también, para
+     saber si la descripción tiene que ir ahí. */
+  const portadaConTexto = Boolean(negocio.portadaUrl) && tieneAlgoEncima(negocio.portadaTexto);
 
   /* Las secciones, con sus subgrupos. Las reglas de cómo se reparten viven en
      `lib/plantillas/secciones.ts` y no acá: son reglas y no dibujo, están
@@ -139,11 +146,13 @@ export function PlantillaMipuesto({
             <h1>{negocio.nombre}</h1>
             {/* El subnombre es el renglón hecho para este lugar —«Pollos a la
                 brasa», «Desde 1998»— así que gana cuando está. Sin él cae a la
-                descripción, y solo si no hay portada, porque con portada esa
-                misma descripción ya la lleva el hero. */}
+                descripción, salvo que la portada lleve su propio cartel: ahí lo
+                que el dueño escribió sobre la foto ya dice de qué se trata, y
+                dos renglones de presentación a cien píxeles uno del otro se
+                leen como una repetición. */}
             {negocio.subnombre ? (
               <p>{negocio.subnombre}</p>
-            ) : negocio.descripcion && !negocio.portadaUrl ? (
+            ) : negocio.descripcion && !portadaConTexto ? (
               <p>{negocio.descripcion}</p>
             ) : null}
           </div>
@@ -182,8 +191,16 @@ export function PlantillaMipuesto({
         </div>
       </header>
 
-      {/* 2 · Portada con hero encima: título, bajada y botón. Solo si el negocio
-          subió una imagen; apagada no deja hueco. */}
+      {/* 2 · Portada, con el cartel del dueño encima si escribió uno.
+          Solo si el negocio subió una imagen; apagada no deja hueco.
+
+          El cartel —antetítulo, título, bajada y botón— es el mismo que llevaba
+          el banner de arriba, que ya no existe: iba a cien píxeles de la
+          portada y eran dos franjas anchas con texto una sobre otra. Ahora la
+          portada es el primer cartel del negocio, y lo que dice lo escribe el
+          dueño desde «Apariencia». Sin texto, la foto va sola y **sin
+          cortina**: el sombreado existe para que la letra se lea, no para
+          decorar. */}
       {negocio.portadaUrl ? (
         <section className={styles.portada}>
           <Image
@@ -193,19 +210,7 @@ export function PlantillaMipuesto({
             sizes="(min-width: 60rem) 800px, 100vw"
             src={negocio.portadaUrl}
           />
-          <div className={styles.hero}>
-            {/* Sin el nombre: lo acaba de decir la cabecera, justo arriba. Lo que
-                va acá es lo que la cabecera no dice —de qué se trata el
-                negocio— y el botón que baja a los productos. Un negocio sin
-                descripción se queda con el botón solo, que es lo que el hero
-                existe para ofrecer. */}
-            {negocio.descripcion ? (
-              <p className={styles.heroTitulo}>{negocio.descripcion}</p>
-            ) : null}
-            <button className={styles.heroBoton} onClick={() => irA("productos")} type="button">
-              Ver productos
-            </button>
-          </div>
+          <TextoSobreImagen className={styles.hero} texto={negocio.portadaTexto} />
         </section>
       ) : null}
 
@@ -272,13 +277,6 @@ export function PlantillaMipuesto({
       {/* 5 · Franja de horario. Se dibuja sola solo cuando hay algo que decir. */}
       <AvisoHorario estado={negocio.atencion} />
 
-      {/* 6 · Banner de arriba, opcional.
-          Va acá y no pegado a la portada: dos franjas anchas seguidas empujaban
-          los productos abajo del pliegue, que fue el motivo de sacarlo de ese
-          lugar. Con el buscador y las esferas en el medio ya no se apilan.
-          Que se vea o no lo decide el dueño: sin banner cargado no hay hueco. */}
-      <BannerCatalogo banner={negocio.banners[0]} />
-
       {navegacion ? (
         <p aria-live="polite" className={styles.conteo}>
           {navegacion.totalProductos === 1
@@ -287,7 +285,7 @@ export function PlantillaMipuesto({
         </p>
       ) : null}
 
-      {/* 7 · Productos, agrupados por categoría, con la tarjeta única.
+      {/* 6 · Productos, agrupados por categoría, con la tarjeta única.
 
           El banner de publicidad se intercala entre dos categorías: ahí lo ve
           quien ya está recorriendo el catálogo, que es a quien le sirve una
@@ -349,13 +347,13 @@ export function PlantillaMipuesto({
             </section>
 
             {posicion === posicionAnuncio ? (
-              <BannerCatalogo banner={negocio.banners[1]} className={styles.anuncio} />
+              <BannerCatalogo banner={negocio.banners[0]} className={styles.anuncio} />
             ) : null}
           </Fragment>
         ))}
       </div>
 
-      {/* 9 · Pie: cómo contactar y cómo llegar. */}
+      {/* 7 · Pie: cómo contactar y cómo llegar. */}
       {/* Lo que va pegado al final de los productos y antes del pie: el
           paginador, y el aviso de que una búsqueda no encontró nada.
           Llega desde afuera porque quien sabe cuántas páginas hay es el catálogo

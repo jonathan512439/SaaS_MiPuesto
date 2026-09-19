@@ -394,103 +394,21 @@
   object-fit: cover;
 }
 
-/* El hero: título, bajada y botón sobre la portada.
+/* El cartel sobre la portada.
  *
- * El sombreado es una **cortina lateral**: arranca casi opaca contra el borde
- * izquierdo y se desvanece hacia el centro, dejando limpia la mitad derecha de
- * la imagen. La portada no siempre es una fotografía de ambiente —puede ser el
- * anuncio de una promoción— y velarla entera tapaba lo que el negocio quiere
- * mostrar; velarla de un lado deja lugar para las dos cosas.
+ * La cortina, la letra y el botón son los de `texto-sobre-imagen.module.css`,
+ * la misma pieza que lleva el banner de publicidad. Acá va solo lo que depende
+ * de estar **encima de la portada**: cubrirla entera y centrar el texto en su
+ * alto. El relleno lateral coincide con el de la cabecera, así el título
+ * arranca justo debajo del nombre del negocio en vez de quedar corrido.
  *
- * El arranque va casi opaco (92 %) y no al 78 % del velo: el contraste tiene que
- * darse **con cualquier imagen de fondo**, incluida una blanca, y eso no se
- * puede dejar librado a qué subió el negocio.
- *
- * La columna única del `grid` encierra el texto en esa mitad: sin ella, un
- * nombre largo cruzaba hasta la zona clara y perdía el fondo que lo sostiene. */
+ * Solo existe si el dueño escribió algo: sin texto no se dibuja, y con eso la
+ * foto va sin cortina. */
 .hero {
   position: absolute;
   inset: 0;
   z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 76%);
   align-content: center;
-  justify-items: start;
-  gap: var(--spacing-2);
-  /* El mismo relleno lateral que la cabecera: ahora que las dos llegan al borde
-     de la pantalla, el título del hero arranca justo debajo del nombre del
-     negocio en vez de quedar corrido unos píxeles. */
-  padding: var(--spacing-4);
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--catalogo-marca) 92%, transparent) 0%,
-    color-mix(in srgb, var(--catalogo-velo) 76%, transparent) 30%,
-    color-mix(in srgb, var(--catalogo-velo) 32%, transparent) 58%,
-    transparent 82%
-  );
-  color: var(--catalogo-sobre-marca);
-}
-
-/* En pantalla ancha la cortina se ciñe a la mitad justa: hay lugar de sobra
-   para el texto y la fotografía se luce del centro a la derecha. */
-@media (min-width: 48rem) {
-  .hero {
-    grid-template-columns: minmax(0, 50%);
-    padding: var(--spacing-6) var(--spacing-8);
-    background: linear-gradient(
-      to right,
-      color-mix(in srgb, var(--catalogo-marca) 94%, transparent) 0%,
-      color-mix(in srgb, var(--catalogo-velo) 78%, transparent) 26%,
-      color-mix(in srgb, var(--catalogo-velo) 30%, transparent) 50%,
-      transparent 66%
-    );
-  }
-}
-
-.heroTitulo {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: var(--tracking-titulo);
-  /* Una sola capa: el panel de atrás ya hace el contraste, y el halo queda solo
-     por si la imagen asoma a través del velo, que es traslucido. */
-  text-shadow: 0 0.0625rem 0.125rem color-mix(in srgb, var(--catalogo-marca) 85%, transparent);
-  text-wrap: balance;
-}
-
-.heroBajada {
-  margin: 0;
-  max-width: 40ch;
-  color: var(--catalogo-sobre-marca);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  line-height: 1.4;
-  text-shadow: 0 0.0625rem 0.25rem color-mix(in srgb, var(--catalogo-marca) 88%, transparent);
-  /* A dos líneas: una descripción larga no puede empujar el botón fuera de la
-     portada. */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-}
-
-.heroBoton {
-  margin-top: var(--spacing-1);
-  padding: var(--spacing-2) var(--spacing-4);
-  /* Relleno solido y sombra: sobre una fotografia, un boton plano del mismo
-     color que la letra se confunde con el texto y deja de leerse como algo que
-     se toca. */
-  border: none;
-  border-radius: var(--radius-control);
-  background: var(--catalogo-sobre-marca);
-  color: var(--catalogo-marca);
-  font: inherit;
-  font-size: var(--text-sm);
-  font-weight: 800;
-  box-shadow: var(--catalogo-sombra-flotante);
-  cursor: pointer;
 }
 
 .conteo {

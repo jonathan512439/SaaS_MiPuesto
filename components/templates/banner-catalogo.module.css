@@ -62,132 +62,17 @@ figure.banner .imagen {
   height: 100%;
 }
 
-/* El mismo velo que la portada: una cortina que entra desde la izquierda.
+/* Lo que el banner le agrega al texto de encima: la cortina, la letra y el
+ * botón viven en `texto-sobre-imagen.module.css`, que es la misma pieza que
+ * lleva la portada. Acá va solo lo que depende de ser una franja: el alto.
  *
- * Subía desde abajo y cubría el ancho entero. Eran dos idiomas para lo mismo
- * —texto claro sobre la fotografía de un negocio— en la misma pantalla, y el de
- * abajo además tapaba la franja completa: una publicidad es una imagen que el
- * negocio quiere mostrar, y velarla entera es taparle lo que puso.
- *
- * Velada de un lado hay lugar para las dos cosas: el texto sobre la cortina y la
- * imagen respirando a la derecha.
- *
- * El arranque iba casi opaco porque el contraste tiene que darse **con cualquier
- * fotografía**, incluida una blanca, y eso no se puede dejar librado a qué subió
- * el negocio. Ahora baja diez puntos —el dueño pidió ver más de la foto— y lo
- * que lo compensa es el contorno del texto: la letra se sostiene sola contra el
- * fondo que sea, así que la cortina no tiene que taparlo todo. Las dos cosas van
- * juntas; aclarar el velo sin el contorno dejaría un título ilegible sobre una
- * fotografía clara.
- *
- * La columna única encierra el texto en esa mitad: sin ella un título largo
- * cruza hasta la zona clara y pierde el fondo que lo sostiene. */
+ * La proporción entra como **piso y no como techo**. Fijarle el alto a la
+ * figura recortaría el texto: en un teléfono angosto, un título largo con
+ * bajada y botón mide más que la mitad del ancho, y una franja un poco más
+ * alta es mejor que una publicidad cortada por la mitad. */
 .contenido {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 76%);
-  justify-items: start;
-  gap: var(--spacing-1);
-  padding: var(--spacing-5) var(--spacing-4);
-  /* La proporción entra acá como **piso y no como techo**. Fijarle el alto a la
-     figura recortaría el texto: en un teléfono angosto, un título largo con
-     bajada y botón mide más que la mitad del ancho, y una franja un poco más
-     alta es mejor que una publicidad cortada por la mitad. */
   min-height: calc(100cqw * var(--banner-alto) / var(--banner-ancho));
   align-content: end;
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--catalogo-marca) 82%, transparent) 0%,
-    color-mix(in srgb, var(--catalogo-velo) 64%, transparent) 30%,
-    color-mix(in srgb, var(--catalogo-velo) 24%, transparent) 58%,
-    transparent 82%
-  );
-  color: var(--catalogo-sobre-marca);
-}
-
-/* En pantalla ancha la cortina se ciñe a la mitad justa, igual que la portada:
-   hay lugar de sobra para el texto y la fotografía se luce del centro a la
-   derecha. */
-@media (min-width: 48rem) {
-  .contenido {
-    grid-template-columns: minmax(0, 50%);
-    padding: var(--spacing-6) var(--spacing-8);
-    background: linear-gradient(
-      to right,
-      color-mix(in srgb, var(--catalogo-marca) 84%, transparent) 0%,
-      color-mix(in srgb, var(--catalogo-velo) 66%, transparent) 26%,
-      color-mix(in srgb, var(--catalogo-velo) 22%, transparent) 50%,
-      transparent 66%
-    );
-  }
-}
-
-/* El contorno de la letra, que es lo que permite aclarar la cortina.
- *
- * Va pintado **debajo** del relleno —`paint-order`— para que engorde la letra
- * hacia afuera en vez de comérsela desde el borde; sin eso, a cuerpo chico el
- * trazo se traga la mitad del palo de una «l».
- *
- * El color es el de marca, no un negro: el contorno tiene que pertenecer a la
- * paleta que eligió el dueño, igual que la cortina. */
-.eyebrow,
-.titulo,
-.copy {
-  -webkit-text-stroke: 0.035em var(--catalogo-marca);
-  paint-order: stroke fill;
-}
-
-.eyebrow {
-  margin: 0;
-  font-family: var(--font-marca);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: var(--tracking-etiqueta);
-  text-shadow: 0 0.0625rem 0.1875rem color-mix(in srgb, var(--catalogo-marca) 88%, transparent);
-  text-transform: uppercase;
-}
-
-.titulo {
-  margin: 0;
-  /* La misma letra de letrero que el nombre del negocio: un banner es un cartel,
-     y un cartel no se escribe con la tipografía de un formulario. */
-  font-family: var(--font-marca);
-  font-size: var(--text-xl);
-  font-weight: 800;
-  line-height: 1.15;
-  /* El halo va del color del velo, o sea el contrario del de la letra: funciona
-     igual en las siete paletas, tambien en la oscura, donde la letra va oscura
-     y el halo claro. */
-  text-shadow:
-    0 0.0625rem 0.125rem color-mix(in srgb, var(--catalogo-marca) 92%, transparent),
-    0 0 0.75rem color-mix(in srgb, var(--catalogo-marca) 72%, transparent);
-  text-wrap: balance;
-}
-
-.copy {
-  margin: 0;
-  max-width: 40ch;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--catalogo-sobre-marca);
-  text-shadow: 0 0.0625rem 0.25rem color-mix(in srgb, var(--catalogo-marca) 88%, transparent);
-}
-
-.boton {
-  margin-top: var(--spacing-2);
-  font-family: var(--font-marca);
-  padding: var(--spacing-3) var(--spacing-6);
-  /* Relleno solido, borde propio y sombra: sobre una fotografia, un boton plano
-     del mismo color que la letra se confunde con el texto y deja de leerse como
-     algo que se toca. */
-  border: var(--borde-fino) solid var(--catalogo-sobre-marca);
-  border-radius: var(--radius-control);
-  background: var(--catalogo-sobre-marca);
-  color: var(--catalogo-marca);
-  font-size: var(--text-base);
-  font-weight: 800;
-  box-shadow: var(--catalogo-sombra-flotante);
-  text-decoration: none;
 }

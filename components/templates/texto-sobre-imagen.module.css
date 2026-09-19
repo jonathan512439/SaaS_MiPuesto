@@ -1,0 +1,137 @@
+@reference "../../app/globals.css";
+
+/* El texto sobre una imagen ancha, y la cortina que lo sostiene.
+ *
+ * Es una sola hoja para la portada y para el banner de publicidad. Vivía en dos
+ * —la de la plantilla y la del banner— con la misma tipografía escrita dos
+ * veces y dos cortinas de distinta opacidad. Acá va una vez.
+ *
+ * **La cortina entra desde la izquierda** y se desvanece hacia el centro,
+ * dejando limpia la mitad derecha de la imagen: una portada o una publicidad es
+ * una imagen que el negocio quiere mostrar, y velarla entera es taparle lo que
+ * puso. Velada de un lado hay lugar para las dos cosas: el texto sobre la
+ * cortina y la imagen respirando a la derecha.
+ *
+ * **El color de la cortina es `--catalogo-cortina`, y la letra
+ * `--catalogo-sobre-cortina`.** No es la marca a secas: en las paletas claras
+ * la marca es oscura y la cortina sale de ella con letra clara; en las oscuras
+ * la marca es un color vivo y claro —naranja, dorado, coral— y una cortina de
+ * ese color con letra oscura encima era justo lo contrario de lo que el dueño
+ * pidió, «en paletas oscuras usar letras claras». Cada paleta oscura declara
+ * su cortina en su fondo y la letra en su texto; el control de contraste
+ * comprueba el par en las dieciséis.
+ *
+ * El arranque no va opaco: lo que compensa es el **contorno de la letra**, que
+ * se sostiene sola contra el fondo que sea. Las dos cosas van juntas; aclarar
+ * la cortina sin el contorno dejaría un título ilegible sobre una fotografía
+ * clara.
+ *
+ * La columna única encierra el texto en esa mitad: sin ella un título largo
+ * cruza hasta la zona clara y pierde el fondo que lo sostiene. */
+.contenido {
+  display: grid;
+  grid-template-columns: minmax(0, 76%);
+  justify-items: start;
+  gap: var(--spacing-1);
+  padding: var(--spacing-5) var(--spacing-4);
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--catalogo-cortina) 82%, transparent) 0%,
+    color-mix(in srgb, var(--catalogo-velo) 64%, transparent) 30%,
+    color-mix(in srgb, var(--catalogo-velo) 24%, transparent) 58%,
+    transparent 82%
+  );
+  color: var(--catalogo-sobre-cortina);
+}
+
+/* En pantalla ancha la cortina se ciñe a la mitad justa: hay lugar de sobra
+   para el texto y la fotografía se luce del centro a la derecha. */
+@media (min-width: 48rem) {
+  .contenido {
+    grid-template-columns: minmax(0, 50%);
+    padding: var(--spacing-6) var(--spacing-8);
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--catalogo-cortina) 84%, transparent) 0%,
+      color-mix(in srgb, var(--catalogo-velo) 66%, transparent) 26%,
+      color-mix(in srgb, var(--catalogo-velo) 22%, transparent) 50%,
+      transparent 66%
+    );
+  }
+}
+
+/* El contorno de la letra, que es lo que permite aclarar la cortina.
+ *
+ * Va pintado **debajo** del relleno —`paint-order`— para que engorde la letra
+ * hacia afuera en vez de comérsela desde el borde; sin eso, a cuerpo chico el
+ * trazo se traga la mitad del palo de una «l».
+ *
+ * El color es el de la cortina, no un negro: el contorno tiene que pertenecer a
+ * la paleta que eligió el dueño, igual que la cortina. */
+.eyebrow,
+.titulo,
+.copy {
+  -webkit-text-stroke: 0.035em var(--catalogo-cortina);
+  paint-order: stroke fill;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: var(--font-marca);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: var(--tracking-etiqueta);
+  text-shadow: 0 0.0625rem 0.1875rem color-mix(in srgb, var(--catalogo-cortina) 88%, transparent);
+  text-transform: uppercase;
+}
+
+.titulo {
+  margin: 0;
+  /* La misma letra de letrero que el nombre del negocio: un cartel no se
+     escribe con la tipografía de un formulario. */
+  font-family: var(--font-marca);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  line-height: 1.15;
+  /* El halo va del color de la cortina, o sea el contrario del de la letra:
+     funciona igual en todas las paletas, también en las oscuras, donde la
+     cortina es el fondo y el halo oscuro. */
+  text-shadow:
+    0 0.0625rem 0.125rem color-mix(in srgb, var(--catalogo-cortina) 92%, transparent),
+    0 0 0.75rem color-mix(in srgb, var(--catalogo-cortina) 72%, transparent);
+  text-wrap: balance;
+}
+
+.copy {
+  margin: 0;
+  max-width: 40ch;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  text-shadow: 0 0.0625rem 0.25rem color-mix(in srgb, var(--catalogo-cortina) 88%, transparent);
+  /* A tres líneas: una bajada larga no puede empujar el botón fuera de la
+     portada, que tiene el alto fijo de su imagen. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.boton {
+  margin-top: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-6);
+  /* Relleno sólido, borde propio y sombra: sobre una fotografía, un botón plano
+     del mismo color que la letra se confunde con el texto y deja de leerse como
+     algo que se toca. Va invertido respecto de la cortina —letra del color de
+     la cortina sobre el color de la letra—, que es el par que ya está
+     comprobado. */
+  border: var(--borde-fino) solid var(--catalogo-sobre-cortina);
+  border-radius: var(--radius-control);
+  background: var(--catalogo-sobre-cortina);
+  color: var(--catalogo-cortina);
+  font-family: var(--font-marca);
+  font-size: var(--text-base);
+  font-weight: 800;
+  box-shadow: var(--catalogo-sombra-flotante);
+  text-decoration: none;
+}

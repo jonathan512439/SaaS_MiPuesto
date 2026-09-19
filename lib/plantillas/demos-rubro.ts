@@ -1,6 +1,7 @@
 import type { PaletaId } from "../apariencia";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
+import { SIN_TEXTO } from "../negocios/texto-sobre-imagen";
 import type { DatosPlantilla, ProductoPlantilla } from "./tipos";
 
 /* La portada mostraba «cuatro estructuras y siete colores», que es una frase de
@@ -79,6 +80,7 @@ function negocio(
     atencion: evaluarHorario({ modo: "siempre_abierto", dias: {} }),
     logoUrl: null,
     portadaUrl: null,
+    portadaTexto: SIN_TEXTO,
     qrPagoUrl: null,
     ubicacionUrl: null,
     pideNumeroMesa: false,

@@ -213,6 +213,11 @@ function leerColoresPaleta(paleta) {
 
   colores.navegador = deLaCabecera("navegador", "marca");
   colores["sobre-navegador"] = deLaCabecera("sobre-navegador", "sobre-marca");
+  /* La cortina sobre la portada y el banner, y la letra que va encima. Las
+     paletas claras no la declaran y rige la marca; las oscuras la llevan a su
+     fondo con la letra clara. */
+  colores.cortina = deLaCabecera("cortina", "marca");
+  colores["sobre-cortina"] = deLaCabecera("sobre-cortina", "sobre-marca");
 
   return colores;
 }
@@ -473,6 +478,8 @@ for (const paleta of paletas) {
     /* La cabecera pintada y lo que va encima: el nombre del negocio, «Cómo
        llegar» y «Calificar». */
     ["sobre-navegador", "navegador"],
+    /* El texto sobre la cortina de la portada y del banner. */
+    ["sobre-cortina", "cortina"],
   ];
 
   for (const [frente, fondo] of pares) {

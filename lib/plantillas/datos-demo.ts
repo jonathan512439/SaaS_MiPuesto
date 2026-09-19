@@ -2,6 +2,7 @@ import type { DatosPlantilla } from "./tipos";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import type { TipoNegocio } from "../negocios/validacion";
+import { SIN_TEXTO, type TextoSobreImagen } from "../negocios/texto-sobre-imagen";
 import { OPACIDAD_PATRON_PREDETERMINADA } from "../patrones-fondo";
 
 type DatosNegocioDemo = {
@@ -15,6 +16,12 @@ type DatosNegocioDemo = {
   patronFondo?: boolean;
   patronOpacidad?: number;
   subnombre?: string | null;
+  /* La portada de verdad y lo que va escrito encima. La pantalla de apariencia
+     los pasa para que la muestra dibuje **la portada del negocio** mientras el
+     dueño escribe su texto; sin ellos, la muestra no tendría portada y el
+     texto no se vería en ninguna parte. */
+  portadaUrl?: string | null;
+  portadaTexto?: TextoSobreImagen;
 };
 
 export function crearDatosDemoPlantilla({
@@ -26,6 +33,8 @@ export function crearDatosDemoPlantilla({
   patronFondo = true,
   patronOpacidad = OPACIDAD_PATRON_PREDETERMINADA,
   subnombre = null,
+  portadaUrl = null,
+  portadaTexto = SIN_TEXTO,
 }: DatosNegocioDemo): DatosPlantilla {
   const modalidad = obtenerComportamientoModalidad(tipoNegocio);
   return {
@@ -41,7 +50,8 @@ export function crearDatosDemoPlantilla({
       descripcionModalidad: modalidad.descripcion,
       atencion: evaluarHorario({ modo: "siempre_abierto", dias: {} }),
       logoUrl: null,
-      portadaUrl: null,
+      portadaUrl,
+      portadaTexto,
       qrPagoUrl: null,
       ubicacionUrl: null,
     pideNumeroMesa: false,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { armarEnlace, leerDestino, type ContextoDestino } from "./destino-banner";
+import { anclaDelCatalogo, armarEnlace, leerDestino, type ContextoDestino } from "./destino-banner";
 
 const CONTEXTO: ContextoDestino = {
   urlCatalogo: "https://mipuesto.com/ferreteria-el-sol",
@@ -68,6 +68,7 @@ describe("a dónde lleva un banner", () => {
   it("cierra el circuito para todos los destinos", () => {
     for (const destino of [
       { tipo: "ninguno" } as const,
+      { tipo: "productos" } as const,
       { tipo: "categoria", categoriaId: "cat-1" } as const,
       { tipo: "whatsapp" } as const,
       { tipo: "ubicacion" } as const,
@@ -75,5 +76,22 @@ describe("a dónde lleva un banner", () => {
     ]) {
       expect(leerDestino(armarEnlace(destino, CONTEXTO), CONTEXTO)).toEqual(destino);
     }
+  });
+});
+
+/* Un destino dentro del catálogo se dibuja con su ancla sola: así el navegador
+   baja en la misma página en vez de abrir otra pestaña del mismo catálogo. */
+describe("anclaDelCatalogo", () => {
+  it("devuelve el ancla de los destinos que se quedan en el catálogo", () => {
+    expect(anclaDelCatalogo(armarEnlace({ tipo: "productos" }, CONTEXTO))).toBe("#productos");
+    expect(anclaDelCatalogo(armarEnlace({ tipo: "categoria", categoriaId: "cat-1" }, CONTEXTO))).toBe(
+      "#categoria-cat-1",
+    );
+  });
+
+  it("no toma por ancla un enlace que sale del catálogo", () => {
+    expect(anclaDelCatalogo(null)).toBeNull();
+    expect(anclaDelCatalogo("https://wa.me/59171234567")).toBeNull();
+    expect(anclaDelCatalogo("https://ejemplo.com/#seccion")).toBeNull();
   });
 });

@@ -25,9 +25,6 @@ describe("leerBanners", () => {
         boton: null,
         enlace: bueno.enlace,
       },
-      /* El segundo lugar, vacío: el arreglo tiene siempre dos y el hueco es
-         parte de la respuesta, no algo que se recorta. */
-      null,
     ]);
   });
 
@@ -62,20 +59,21 @@ describe("leerBanners", () => {
 
   /* Los descartes son en silencio a propósito: esta función lee lo que ya está
      guardado, y un banner mal formado no puede dejar el catálogo sin cargar.
-     Lo que se descarta deja su lugar **vacío**, no corre al de abajo. */
+     Lo que se descarta deja su lugar **vacío**: el arreglo tiene siempre la
+     misma cantidad de lugares y el hueco es parte de la respuesta. */
   it("descarta el que no tiene imagen o no tiene texto alternativo", () => {
-    expect(leerBanners([{ alt: "Sin imagen" }])).toEqual([null, null]);
-    expect(leerBanners([{ imagen: bueno.imagen }])).toEqual([null, null]);
-    expect(leerBanners([{ imagen: bueno.imagen, alt: "   " }])).toEqual([null, null]);
+    expect(leerBanners([{ alt: "Sin imagen" }])).toEqual([null]);
+    expect(leerBanners([{ imagen: bueno.imagen }])).toEqual([null]);
+    expect(leerBanners([{ imagen: bueno.imagen, alt: "   " }])).toEqual([null]);
   });
 
   /* La ruta se descarta si podría salirse del depósito. Que además sea de este
      negocio lo comprueba el servidor, que es donde se sabe cuál es. */
   it("descarta rutas que podrían salirse del depósito", () => {
-    expect(leerBanners([{ ...bueno, imagen: "../otro-negocio/banner/x.webp" }])).toEqual([null, null]);
-    expect(leerBanners([{ ...bueno, imagen: "/etc/passwd" }])).toEqual([null, null]);
-    expect(leerBanners([{ ...bueno, imagen: "carpeta\\archivo.webp" }])).toEqual([null, null]);
-    expect(leerBanners([{ ...bueno, imagen: "x".repeat(400) }])).toEqual([null, null]);
+    expect(leerBanners([{ ...bueno, imagen: "../otro-negocio/banner/x.webp" }])).toEqual([null]);
+    expect(leerBanners([{ ...bueno, imagen: "/etc/passwd" }])).toEqual([null]);
+    expect(leerBanners([{ ...bueno, imagen: "carpeta\\archivo.webp" }])).toEqual([null]);
+    expect(leerBanners([{ ...bueno, imagen: "x".repeat(400) }])).toEqual([null]);
   });
 
   it("descarta enlaces que no son https", () => {
@@ -88,9 +86,9 @@ describe("leerBanners", () => {
   });
 
   it("no rompe con lo que no es una lista", () => {
-    expect(leerBanners(null)).toEqual([null, null]);
-    expect(leerBanners("dos banners")).toEqual([null, null]);
-    expect(leerBanners([null, 7, "x"])).toEqual([null, null]);
+    expect(leerBanners(null)).toEqual([null]);
+    expect(leerBanners("dos banners")).toEqual([null]);
+    expect(leerBanners([null, 7, "x"])).toEqual([null]);
   });
 
   it("recorta un texto alternativo larguísimo en vez de descartarlo", () => {
@@ -105,27 +103,28 @@ describe("validarBanners", () => {
     expect(validarBanners(undefined)).toEqual({ correcto: true, banners: [] });
   });
 
-  it("acepta los dos bien formados", () => {
-    expect(validarBanners([bueno, { imagen: bueno.imagen, alt: "Aviso" }]).correcto).toBe(true);
+  it("acepta uno bien formado, y el lugar vacío", () => {
+    expect(validarBanners([bueno]).correcto).toBe(true);
+    expect(validarBanners([null]).correcto).toBe(true);
   });
 
-  /* Tres franjas de publicidad en un catálogo de barrio es un catálogo que no se
-     lee. El techo está acá y no solo en el formulario. */
-  it("rechaza el tercero", () => {
-    const resultado = validarBanners([bueno, bueno, bueno]);
+  /* Dos franjas de publicidad en un catálogo de barrio es un catálogo que no se
+     lee: el de arriba se sacó a pedido del dueño y lo que se escribía sobre él
+     va sobre la portada. El techo está acá y no solo en el formulario. */
+  it("rechaza el segundo", () => {
+    const resultado = validarBanners([bueno, bueno]);
     expect(resultado.correcto).toBe(false);
-    if (!resultado.correcto) expect(resultado.errores.banners).toContain("hasta 2");
+    if (!resultado.correcto) expect(resultado.errores.banners).toContain("un solo banner");
   });
 
   /* Acá sí se avisa, y con el índice adentro de la clave, para que el
-     formulario pueda marcar el banner exacto. */
-  it("dice cuál banner está mal y por qué", () => {
-    const resultado = validarBanners([bueno, { imagen: "", alt: "" }]);
+     formulario pueda marcar el campo exacto. */
+  it("dice qué está mal y por qué", () => {
+    const resultado = validarBanners([{ imagen: "", alt: "" }]);
     expect(resultado.correcto).toBe(false);
     if (!resultado.correcto) {
-      expect(resultado.errores["banners.1.imagen"]).toBeTruthy();
-      expect(resultado.errores["banners.1.alt"]).toBeTruthy();
-      expect(resultado.errores["banners.0.imagen"]).toBeUndefined();
+      expect(resultado.errores["banners.0.imagen"]).toBeTruthy();
+      expect(resultado.errores["banners.0.alt"]).toBeTruthy();
     }
   });
 

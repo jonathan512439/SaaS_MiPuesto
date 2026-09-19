@@ -374,6 +374,29 @@ migración de contenido**.
 `alt` sigue siendo obligatorio, y no es un campo opcional disfrazado: es lo que
 escucha quien usa lector de pantalla.
 
+### 8.1 Un solo banner, y el texto de la portada (2026-09-19)
+
+El banner de arriba —entre el horario y los productos— **se fue**: iba a cien
+píxeles de la portada y eran dos franjas anchas con texto una sobre otra. Lo que
+se escribía sobre él se escribe ahora **sobre la portada**, en una columna
+propia:
+
+```sql
+alter table public.negocios
+  add column portada_texto jsonb not null default '{}'::jsonb;
+-- { eyebrow, titulo, copy, boton, enlace }, todos opcionales
+```
+
+Columna propia y no `banners[0]` porque el texto de la portada no tiene imagen
+propia —la imagen es `portada_url`— ni `alt` que exigir. `banners` sigue siendo
+una lista, ahora de **un** lugar: el de la mitad. La migración corrió el segundo
+al primero (ningún negocio tenía el de arriba cargado) y bajó el techo de la
+columna a uno.
+
+Los dos comparten forma y lector: `lib/negocios/texto-sobre-imagen.ts`. Y los
+dos comparten la regla de la cortina: **el sombreado en degradé existe solo si
+hay algo escrito encima**; una foto sin texto se muestra entera.
+
 ## 9. La apariencia, después de la poda
 
 ```sql

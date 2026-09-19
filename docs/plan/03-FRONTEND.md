@@ -16,10 +16,10 @@ sistema y quién lo controla.
 | 3 | Botón de Google | `maps_*` | Dueño: aparece o no |
 | 4 | Buscador | Nombre, código y atributos | Siempre |
 | 5 | Esferas de categoría | `categorias` con `visible` | Dueño: cuáles muestra |
-| 6 | Portada | Imagen, título, bajada, botón | Dueño |
+| 6 | Portada | Imagen (`portada_url`) y su cartel (`portada_texto`: antetítulo, título, bajada, botón) | Dueño: el cartel es **opcional**; sin él, la foto va sola y sin cortina |
 | 7 | Franja de horario | `horario` del negocio | Automático |
 | 8 | Productos | `productos` | Dueño: orden y visibilidad |
-| 9 | Banner inferior | `banners[1]` | Dueño: **opcional** |
+| 9 | Banner de publicidad, entre dos categorías | `banners[0]` (el único lugar desde 2026-09-19; el de arriba se fue y su texto pasó a la portada) | Dueño: **opcional** |
 | ~~10~~ | ~~Franja de confianza~~ | **Nunca se construyó**: descartada en la fase 9, ver [`06-FASES.md`](06-FASES.md) | — |
 | 11 | Barra inferior | Según modalidad | Automático |
 

@@ -1,37 +1,42 @@
-/* Los dos banners del catálogo: dos franjas anchas, las dos opcionales.
+/* El banner de publicidad del catálogo: una franja ancha entre dos categorías.
  *
- * Sirven para una promoción, un aviso —«cerrado el 6 de agosto»— o publicidad
+ * Sirve para una promoción, un aviso —«cerrado el 6 de agosto»— o publicidad
  * propia, con la imagen y, encima, antetítulo, título, bajada y botón.
  *
- * **Van en `jsonb` y no en una tabla**, siguiendo a `redes_sociales`, que es la
+ * **Era dos.** Había uno arriba, entre el horario y los productos, y este a la
+ * mitad. El de arriba iba a cien píxeles de la portada —otra franja ancha con
+ * texto encima— y el dueño pidió sacarlo y pasar lo que se podía escribir sobre
+ * él a la portada, que ya estaba ahí y ya era el primer cartel. Lo que se
+ * escribe sobre la portada vive en `portada_texto` (`texto-sobre-imagen.ts`);
+ * acá queda el de la mitad, solo.
+ *
+ * **Va en `jsonb` y no en una tabla**, siguiendo a `redes_sociales`, que es la
  * misma clase de cosa: un dato corto, acotado, propio del negocio, que se lee
  * siempre junto con él y nunca se consulta por su cuenta. Una tabla sumaría una
  * política de RLS, una ida más a la base en el camino público y un `join` en la
  * consulta que más importa, a cambio de nada.
  *
- * **Son dos y no una lista libre.** Tres franjas de publicidad en un catálogo
- * de barrio es un catálogo que no se lee.
- *
- * La posición es la del arreglo: el primero va entre el horario y los productos,
- * y el segundo a la mitad. Sin campo `posicion`, que sería un dato más que puede
- * quedar en dos estados contradictorios.
- *
- * **Un hueco se guarda como hueco.** El arreglo tiene siempre dos lugares y el
- * vacío es `null`. Antes los vacíos se descartaban, así que un negocio que
- * quisiera solo el de abajo —la publicidad entre sus productos, sin el aviso de
- * arriba— se encontraba con que se le subía al principio. Era una regla
- * inventada por la forma de guardar, no una decisión de nadie: si el dueño elige
- * usar un solo lugar, usa el que eligió.
+ * **Sigue siendo una lista** aunque tenga un solo lugar: la columna ya era una
+ * lista, los negocios cargados ya la tienen así, y la migración que sacó el de
+ * arriba corrió el de la mitad al primer lugar. Cambiar la forma de la columna
+ * por un banner que se sacó sería tocar más de lo que se pidió.
  *
  * **Cuántos se ven lo decide el dueño, no el armazón**: un banner existe si
  * tiene imagen y texto alternativo, y se apaga borrándolo. El catálogo dibuja
- * los que haya y ninguno deja hueco si no está.
+ * el que haya y no deja hueco si no está.
  *
  * `imagen` es una ruta dentro del depósito de negocios, no una dirección: ver el
  * comentario de `imagenValida`.
  */
 
-export const MAXIMO_BANNERS = 2;
+import {
+  enlaceValido,
+  leerTextoSobreImagen,
+  textoDe,
+  type TextoSobreImagen,
+} from "./texto-sobre-imagen";
+
+export const MAXIMO_BANNERS = 1;
 
 /* La forma de la imagen del banner, en un solo lugar.
  *
@@ -50,55 +55,14 @@ export const PROPORCION_BANNER = {
   ejemplo: "1200 × 600 píxeles",
 } as const;
 const LARGO_MAXIMO_ALT = 120;
-/* El texto que el diseño de referencia pone sobre el banner: un antetítulo
-   corto, un título, una bajada y el rótulo del botón. Todos opcionales —un
-   banner que es solo imagen sigue siendo válido, y es lo que hoy tienen los
-   negocios cargados— y con techo, porque una franja no es un párrafo. */
-const LARGO_MAXIMO_EYEBROW = 40;
-const LARGO_MAXIMO_TITULO = 80;
-const LARGO_MAXIMO_COPY = 160;
-const LARGO_MAXIMO_BOTON = 32;
-
-export type Banner = {
+export type Banner = TextoSobreImagen & {
   imagen: string;
   /* Obligatorio y a propósito. Un banner sin texto alternativo es un hueco para
      quien navega con lector de pantalla, y en un catálogo donde el banner puede
      ser el aviso de que el negocio cierra por feriado, ese hueco es información
      perdida. */
   alt: string;
-  /* El texto que se dibuja encima de la imagen, como en las maquetas de
-     referencia. Nulo cuando el negocio no lo cargó: un banner sin texto es solo
-     su imagen, y sigue siendo válido. */
-  eyebrow: string | null;
-  titulo: string | null;
-  copy: string | null;
-  boton: string | null;
-  /* A dónde lleva al tocarlo. Opcional: un aviso no lleva a ninguna parte. */
-  enlace: string | null;
 };
-
-function textoDe(valor: unknown): string {
-  return typeof valor === "string" ? valor.trim() : "";
-}
-
-/* Un campo de texto opcional del banner: recortado al techo, o nulo si vacío. */
-function textoOpcional(valor: unknown, largoMaximo: number): string | null {
-  const texto = textoDe(valor).slice(0, largoMaximo);
-  return texto === "" ? null : texto;
-}
-
-/* Solo `https`. Un banner es lo más grande y lo más tentador de tocar en la
-   pantalla, y un enlace que sale del catálogo del negocio hacia una dirección
-   sin cifrar es exactamente el recorrido que no se quiere ofrecer. */
-function enlaceValido(valor: unknown): string | null {
-  const texto = textoDe(valor);
-  if (texto === "") return null;
-  try {
-    return new URL(texto).protocol === "https:" ? texto : null;
-  } catch {
-    return null;
-  }
-}
 
 /* La imagen es una **ruta dentro del depósito**, no una dirección completa.
  *
@@ -126,8 +90,8 @@ function imagenValida(valor: unknown): string | null {
 export function leerBanners(valor: unknown): Array<Banner | null> {
   const guardados = Array.isArray(valor) ? valor : [];
 
-  /* Siempre dos lugares, aunque no haya nada en ninguno: quien lo lee pregunta
-     por el lugar que le toca dibujar, no por cuántos hay. */
+  /* Siempre la misma cantidad de lugares, aunque no haya nada en ninguno: quien
+     lo lee pregunta por el lugar que le toca dibujar, no por cuántos hay. */
   return Array.from({ length: MAXIMO_BANNERS }, (_, indice) => {
     const crudo = guardados[indice];
     if (typeof crudo !== "object" || crudo === null) return null;
@@ -139,15 +103,7 @@ export function leerBanners(valor: unknown): Array<Banner | null> {
        mudo sería peor que no dibujarlo. El lugar queda vacío, no se corre. */
     if (!imagen || alt === "") return null;
 
-    return {
-      imagen,
-      alt,
-      eyebrow: textoOpcional(registro.eyebrow, LARGO_MAXIMO_EYEBROW),
-      titulo: textoOpcional(registro.titulo, LARGO_MAXIMO_TITULO),
-      copy: textoOpcional(registro.copy, LARGO_MAXIMO_COPY),
-      boton: textoOpcional(registro.boton, LARGO_MAXIMO_BOTON),
-      enlace: enlaceValido(registro.enlace),
-    };
+    return { imagen, alt, ...leerTextoSobreImagen(registro) };
   });
 }
 
@@ -167,7 +123,12 @@ export function validarBanners(valor: unknown): ResultadoBanners {
   if (valor.length > MAXIMO_BANNERS) {
     return {
       correcto: false,
-      errores: { banners: `Se pueden publicar hasta ${MAXIMO_BANNERS} banners.` },
+      errores: {
+        banners:
+          MAXIMO_BANNERS === 1
+            ? "Se puede publicar un solo banner."
+            : `Se pueden publicar hasta ${MAXIMO_BANNERS} banners.`,
+      },
     };
   }
 
@@ -175,9 +136,7 @@ export function validarBanners(valor: unknown): ResultadoBanners {
   const banners: Array<Banner | null> = [];
 
   valor.forEach((crudo, indice) => {
-    /* `null` es «este lugar queda vacío», y es una respuesta válida: el dueño
-       puede querer solo el de abajo. No se recorta el arreglo ni se corre nada
-       hacia arriba. */
+    /* `null` es «este lugar queda vacío», y es una respuesta válida. */
     if (crudo === null || crudo === undefined) {
       banners.push(null);
       return;
@@ -201,19 +160,10 @@ export function validarBanners(valor: unknown): ResultadoBanners {
     }
 
     if (imagen && alt !== "" && alt.length <= LARGO_MAXIMO_ALT) {
-      banners.push({
-        imagen,
-        alt,
-        eyebrow: textoOpcional(registro.eyebrow, LARGO_MAXIMO_EYEBROW),
-        titulo: textoOpcional(registro.titulo, LARGO_MAXIMO_TITULO),
-        copy: textoOpcional(registro.copy, LARGO_MAXIMO_COPY),
-        boton: textoOpcional(registro.boton, LARGO_MAXIMO_BOTON),
-        enlace,
-      });
+      banners.push({ imagen, alt, ...leerTextoSobreImagen(registro) });
     } else {
-      /* Quedó con errores: se ocupa el lugar igual para que el de abajo no se
-         corra. La respuesta no se usa —hay errores— pero el arreglo se mantiene
-         legible para quien lo lea. */
+      /* Quedó con errores: se ocupa el lugar igual. La respuesta no se usa —hay
+         errores— pero el arreglo se mantiene legible para quien lo lea. */
       banners.push(null);
     }
   });

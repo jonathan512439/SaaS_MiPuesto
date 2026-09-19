@@ -40,7 +40,7 @@ const claveServicio = await obtenerClaveServicioLocal();
 const DEL_DUENO = [
   "nombre", "slug", "descripcion", "subnombre", "telefono_whatsapp", "tipo_negocio",
   "horario", "reserva_minutos", "rubro", "ciudad", "zona", "pide_numero_mesa",
-  "logo_url", "portada_url", "qr_pago_url", "banners", "redes_sociales",
+  "logo_url", "portada_url", "portada_texto", "qr_pago_url", "banners", "redes_sociales",
   "ubicacion_url", "resenas_url", "direccion_manual",
   "paleta_id", "patron_fondo", "patron_opacidad",
   "nombre_admin", "alta_paso", "alta_completada_en", "rubro_bloqueado_en",

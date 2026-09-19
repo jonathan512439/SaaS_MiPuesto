@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import type { PaletaId } from "../apariencia";
 import type { Banner } from "../negocios/banners";
+import type { TextoSobreImagen } from "../negocios/texto-sobre-imagen";
 import type { EstadoAtencion } from "../horario";
 import type { ModoAccionCatalogo } from "../modalidades";
 
@@ -84,14 +85,15 @@ export type DatosPlantilla = {
     atencion: EstadoAtencion;
     logoUrl: string | null;
     portadaUrl: string | null;
+    /* Lo que va escrito sobre la portada: antetítulo, título, bajada y botón,
+       todo opcional. Sin nada, la portada es la foto sola, sin cortina. Nunca
+       nulo: «sin texto» es un valor, y quien dibuja pregunta `tieneAlgoEncima`. */
+    portadaTexto: TextoSobreImagen;
     qrPagoUrl: string | null;
     redesSociales: Array<{ nombre: string; url: string }>;
-    /* Hasta dos, en orden: el primero va debajo de la portada y el segundo antes
-       del pie. Vacío es lo normal, y es lo que ve un negocio recién dado de
-       alta: el armazón no dibuja nada en su lugar. */
-    /* Dos lugares fijos: el de arriba y el de la mitad. `null` es «este lugar
-       queda vacío», y no se compacta: si el dueño carga solo el de abajo, va
-       abajo. */
+    /* El banner de publicidad, entre dos categorías. Un solo lugar, y `null`
+       es «vacío», que es lo normal y lo que ve un negocio recién dado de alta:
+       el armazón no dibuja nada en su lugar. */
     banners: Array<Banner | null>;
     /* Vacío significa que el negocio no publicó su ubicación, no que no la
        tenga: el pie no dibuja nada en vez de mostrar un enlace roto. */

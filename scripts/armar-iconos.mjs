@@ -51,6 +51,7 @@ const ICONOS = {
   calendario: "calendar",
   ubicacion: "map-pin",
   flechaArriba: "chevron-up",
+  flechaAbajo: "chevron-down",
   /* La flecha de volver, en la cabecera de la página de un producto. Sola,
      sin palabras: es el gesto que todo el mundo ya conoce del teléfono. */
   atras: "arrow-left",

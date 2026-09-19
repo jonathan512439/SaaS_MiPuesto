@@ -5,6 +5,7 @@ import { PanelApariencia } from "../../../../components/plantillas/panel-aparien
 import { crearDatosDemoPlantilla } from "../../../../lib/plantillas/datos-demo";
 import { esTipoNegocio } from "../../../../lib/modalidades";
 import { leerBanners } from "../../../../lib/negocios/banners";
+import { leerTextoPortada } from "../../../../lib/negocios/texto-sobre-imagen";
 import { obtenerUrlPublicaImagenNegocio } from "../../../../lib/negocios/imagenes-publicas";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import { esPaletaId } from "../../../../lib/plantillas/validacion";
@@ -30,7 +31,7 @@ export default async function PaginaPlantilla() {
   const { data: negocio } = await supabase
     .from("negocios")
     .select(
-      "id,slug,nombre,descripcion,telefono_whatsapp,tipo_negocio,paleta_id,rubro,patron_fondo,patron_opacidad,subnombre,ubicacion_url,banners",
+      "id,slug,nombre,descripcion,telefono_whatsapp,tipo_negocio,paleta_id,rubro,patron_fondo,patron_opacidad,subnombre,ubicacion_url,banners,portada_url,portada_texto",
     )
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
@@ -54,6 +55,7 @@ export default async function PaginaPlantilla() {
     .order("orden");
 
   const bannersGuardados = leerBanners(negocio.banners);
+  const portadaGuardada = leerTextoPortada(negocio.portada_texto);
   const { url: urlSupabase } = obtenerVariablesPublicasSupabase();
   const urlPorRuta = Object.fromEntries(
     /* Los lugares vacíos no tienen imagen que resolver. */
@@ -75,6 +77,10 @@ export default async function PaginaPlantilla() {
     patronFondo: negocio.patron_fondo !== false,
     patronOpacidad: acotarOpacidad(negocio.patron_opacidad),
     subnombre: negocio.subnombre?.trim() || null,
+    /* La portada de verdad, para que la muestra dibuje el texto donde va a
+       quedar y no sobre una foto inventada. */
+    portadaUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.portada_url, "portada"),
+    portadaTexto: portadaGuardada,
   });
 
   return (
@@ -86,6 +92,7 @@ export default async function PaginaPlantilla() {
 
       <PanelApariencia
         bannersIniciales={bannersGuardados}
+        portadaInicial={portadaGuardada}
         destinos={{
           urlCatalogo: construirUrlPublicaNegocio(negocio.slug),
           telefonoWhatsapp: negocio.telefono_whatsapp,

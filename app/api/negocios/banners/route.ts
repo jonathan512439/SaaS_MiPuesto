@@ -8,18 +8,24 @@ import {
   validarBanners,
   type Banner,
 } from "../../../../lib/negocios/banners";
+import {
+  leerTextoPortada,
+  validarTextoPortada,
+} from "../../../../lib/negocios/texto-sobre-imagen";
 
-/* Los dos banners del catálogo.
+/* El cartel de la portada y el banner de publicidad.
  *
  * Sigue el camino de `/api/negocios/identidad`, que es el que ya sube el logo, la
- * portada y el QR: `POST` sube una imagen y devuelve su ruta, `PATCH` guarda el
- * conjunto. No se reusa aquella ruta porque un banner no es solo una imagen —
- * lleva texto alternativo y a veces un enlace— y porque allá cada tipo mapea a
- * una columna, mientras que acá los dos viven en un arreglo.
+ * portada y el QR: `POST` sube la imagen del banner y devuelve su ruta, `PATCH`
+ * guarda el conjunto. No se reusa aquella ruta porque un banner no es solo una
+ * imagen —lleva texto alternativo y a veces un enlace— y porque allá cada tipo
+ * mapea a una columna.
  *
- * **La posición es el índice**, y por eso el `PATCH` reemplaza el conjunto entero
- * en vez de parchear uno: mandar «el banner 2» cuando el 1 no existe dejaría un
- * hueco que el arreglo no puede representar.
+ * El `PATCH` guarda **las dos cosas juntas**: lo que va escrito sobre la
+ * portada (`portada_texto`) y el banner (`banners`). Se editan en la misma
+ * pantalla, con la misma vista previa, y se guardan con el mismo botón; dos
+ * rutas serían dos pedidos para un solo «Guardar». El texto de la portada es
+ * opcional en el cuerpo: quien no lo manda, no lo toca.
  */
 
 const CARPETA = "banner";
@@ -109,14 +115,22 @@ export async function PATCH(solicitud: NextRequest) {
     return NextResponse.json({ error: entrada.error }, { status: 400 });
   }
 
-  const crudos =
-    typeof entrada.datos === "object" && entrada.datos !== null && "banners" in entrada.datos
-      ? entrada.datos.banners
-      : [];
-  const validacion = validarBanners(crudos);
+  const cuerpo =
+    typeof entrada.datos === "object" && entrada.datos !== null
+      ? (entrada.datos as Record<string, unknown>)
+      : {};
+  const validacion = validarBanners("banners" in cuerpo ? cuerpo.banners : []);
   if (!validacion.correcto) {
     return NextResponse.json(
-      { error: "Revisa los banners.", errores: validacion.errores },
+      { error: "Revisa el banner.", errores: validacion.errores },
+      { status: 400 },
+    );
+  }
+  /* `undefined` es «no lo toques»; un objeto es lo que va a quedar. */
+  const portada = "portada" in cuerpo ? validarTextoPortada(cuerpo.portada) : null;
+  if (portada && !portada.correcto) {
+    return NextResponse.json(
+      { error: "Revisa el texto de la portada.", errores: portada.errores },
       { status: 400 },
     );
   }
@@ -147,13 +161,16 @@ export async function PATCH(solicitud: NextRequest) {
 
   const { data: guardado, error: errorGuardado } = await contexto.supabase
     .from("negocios")
-    .update({ banners: validacion.banners })
+    .update({
+      banners: validacion.banners,
+      ...(portada?.correcto ? { portada_texto: portada.texto } : {}),
+    })
     .eq("id", contexto.negocio.id)
     .eq("admin_user_id", contexto.idUsuario)
-    .select("banners")
+    .select("banners,portada_texto")
     .maybeSingle();
   if (errorGuardado || !guardado) {
-    return NextResponse.json({ error: "No se pudieron guardar los banners." }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo guardar." }, { status: 500 });
   }
 
   /* El archivo se borra **después** de guardar, y su fallo no revierte nada: un
@@ -168,5 +185,9 @@ export async function PATCH(solicitud: NextRequest) {
     await contexto.supabase.storage.from("negocios").remove(huerfanas);
   }
 
-  return NextResponse.json({ banners: leerBanners(guardado.banners), maximo: MAXIMO_BANNERS });
+  return NextResponse.json({
+    banners: leerBanners(guardado.banners),
+    portada: leerTextoPortada(guardado.portada_texto),
+    maximo: MAXIMO_BANNERS,
+  });
 }

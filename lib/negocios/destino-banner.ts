@@ -16,6 +16,10 @@ import { normalizarTelefonoWhatsappPublico } from "../whatsapp";
 
 export type DestinoBanner =
   | { tipo: "ninguno" }
+  /* Baja a los productos. Es lo que hacia el boton fijo de la portada —«Ver
+     productos»— antes de que el texto de la portada fuera del dueño: ahora lo
+     elige el, con el rotulo que quiera. */
+  | { tipo: "productos" }
   | { tipo: "categoria"; categoriaId: string }
   | { tipo: "whatsapp" }
   | { tipo: "ubicacion" }
@@ -29,11 +33,31 @@ export type ContextoDestino = {
   categorias: ReadonlyArray<{ id: string; nombre: string }>;
 };
 
+/* Las anclas que dibuja la plantilla. Si alguna vez cambian allá, esto queda
+   apuntando a un lugar que no existe y el banner lleva al principio del
+   catálogo: molesto, pero no roto. */
+const ANCLA_PRODUCTOS = "#productos";
+const ANCLA_CATEGORIA = "#categoria-";
+
 function enlaceDeCategoria(urlCatalogo: string, categoriaId: string): string {
-  /* El mismo ancla que dibuja la plantilla. Si alguna vez cambia allá, esto
-     queda apuntando a un lugar que no existe y el banner lleva al principio del
-     catálogo: molesto, pero no roto. */
-  return `${urlCatalogo}#categoria-${categoriaId}`;
+  return `${urlCatalogo}${ANCLA_CATEGORIA}${categoriaId}`;
+}
+
+/* Si el enlace se queda dentro del catálogo, devuelve solo su ancla.
+ *
+ * Un destino «una categoría» o «mis productos» se guarda como la dirección
+ * completa del catálogo con su ancla, para que el dato sea una URL como
+ * cualquier otra. Pero al dibujarlo, esa dirección completa abría **una pestaña
+ * nueva del mismo catálogo** —el banner y la portada abren sus enlaces aparte
+ * para no sacar al visitante del negocio—, y bajar a una categoría no es salir.
+ * Con el ancla sola, el navegador se desplaza en la misma página, también en la
+ * vista previa del panel, que no vive en la dirección del catálogo. */
+export function anclaDelCatalogo(enlace: string | null): string | null {
+  if (!enlace) return null;
+  const almohadilla = enlace.indexOf("#");
+  if (almohadilla === -1) return null;
+  const ancla = enlace.slice(almohadilla);
+  return ancla === ANCLA_PRODUCTOS || ancla.startsWith(ANCLA_CATEGORIA) ? ancla : null;
 }
 
 function enlaceDeWhatsapp(telefono: string): string {
@@ -44,6 +68,8 @@ export function armarEnlace(destino: DestinoBanner, contexto: ContextoDestino): 
   switch (destino.tipo) {
     case "ninguno":
       return null;
+    case "productos":
+      return `${contexto.urlCatalogo}${ANCLA_PRODUCTOS}`;
     case "categoria":
       return enlaceDeCategoria(contexto.urlCatalogo, destino.categoriaId);
     case "whatsapp":
@@ -69,9 +95,11 @@ export function leerDestino(enlace: string | null, contexto: ContextoDestino): D
   const url = enlace?.trim() ?? "";
   if (url === "") return { tipo: "ninguno" };
 
-  const conAncla = url.startsWith(`${contexto.urlCatalogo}#categoria-`);
+  if (url === `${contexto.urlCatalogo}${ANCLA_PRODUCTOS}`) return { tipo: "productos" };
+
+  const conAncla = url.startsWith(`${contexto.urlCatalogo}${ANCLA_CATEGORIA}`);
   if (conAncla) {
-    const categoriaId = url.slice(`${contexto.urlCatalogo}#categoria-`.length);
+    const categoriaId = url.slice(`${contexto.urlCatalogo}${ANCLA_CATEGORIA}`.length);
     /* Solo si la categoría todavía existe. Si el dueño la borró, el enlace
        apunta a un ancla muerta y conviene que lo vea como lo que es —una
        dirección cualquiera— en vez de como una categoría que ya no está. */

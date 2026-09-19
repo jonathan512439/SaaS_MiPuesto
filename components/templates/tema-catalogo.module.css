@@ -25,7 +25,16 @@
   --catalogo-borde-marca: color-mix(in srgb, var(--catalogo-marca) 32%, var(--catalogo-superficie));
   --catalogo-texto-suave: color-mix(in srgb, var(--catalogo-texto) 72%, var(--catalogo-superficie));
   --catalogo-texto-tenue: color-mix(in srgb, var(--catalogo-texto) 55%, var(--catalogo-superficie));
-  --catalogo-velo: color-mix(in srgb, var(--catalogo-marca) 78%, transparent);
+  /* La cortina: el sombreado en degradé sobre el que va el texto de la portada
+     y del banner, y el color de esa letra. En una paleta clara la cortina es
+     la marca —oscura— y la letra la que va sobre ella. Las paletas oscuras lo
+     redefinen más abajo: su marca es un color vivo y claro, y una cortina de
+     ese color con letra oscura era lo contrario de lo que pidió el dueño,
+     «en paletas oscuras usar letras claras». El control de contraste comprueba
+     el par en todas. */
+  --catalogo-cortina: var(--catalogo-marca);
+  --catalogo-sobre-cortina: var(--catalogo-sobre-marca);
+  --catalogo-velo: color-mix(in srgb, var(--catalogo-cortina) 78%, transparent);
   /* La misma física que la escala del panel: una sombra de contacto corta más
      una ambiental ancha. Se repite acá y no se reusa la del panel porque estas
      se tiñen con el color del negocio, no con el de MiPuesto: en la paleta
@@ -196,6 +205,9 @@
  * llevado a donde funciona. El control de contraste los comprueba. */
 .paleta[data-paleta="oceano"] {
   color-scheme: dark;
+  /* Oscura: la cortina es el fondo y la letra encima va clara. */
+  --catalogo-cortina: var(--catalogo-superficie);
+  --catalogo-sobre-cortina: var(--catalogo-texto);
   --catalogo-marca-panel: #1f5f8a;
   --catalogo-accion-panel: #9a5a1e;
   --catalogo-superficie: #0f1720;
@@ -228,6 +240,9 @@
  * que es lo que el dueño reconoce. El control de contraste los comprueba. */
 .paleta[data-paleta="noche"] {
   color-scheme: dark;
+  /* Oscura: la cortina es el fondo y la letra encima va clara. */
+  --catalogo-cortina: var(--catalogo-superficie);
+  --catalogo-sobre-cortina: var(--catalogo-texto);
   --catalogo-marca-panel: #9a4f00;
   --catalogo-accion-panel: #7a6a00;
   --catalogo-superficie: #011a27;
@@ -311,6 +326,9 @@
  * que es lo que el dueño reconoce. El control de contraste los comprueba. */
 .paleta[data-paleta="pizarra"] {
   color-scheme: dark;
+  /* Oscura: la cortina es el fondo y la letra encima va clara. */
+  --catalogo-cortina: var(--catalogo-superficie);
+  --catalogo-sobre-cortina: var(--catalogo-texto);
   --catalogo-marca-panel: #8a5a18;
   --catalogo-accion-panel: #9c4a1e;
   --catalogo-superficie: #1d1714;
@@ -392,6 +410,9 @@
  * llevado a donde funciona. El control de contraste los comprueba. */
 .paleta[data-paleta="dorado"] {
   color-scheme: dark;
+  /* Oscura: la cortina es el fondo y la letra encima va clara. */
+  --catalogo-cortina: var(--catalogo-superficie);
+  --catalogo-sobre-cortina: var(--catalogo-texto);
   --catalogo-marca-panel: #6b5416;
   --catalogo-accion-panel: #8a5a12;
   --catalogo-superficie: #121110;
@@ -418,6 +439,9 @@
  * llevado a donde funciona. El control de contraste los comprueba. */
 .paleta[data-paleta="rubi"] {
   color-scheme: dark;
+  /* Oscura: la cortina es el fondo y la letra encima va clara. */
+  --catalogo-cortina: var(--catalogo-superficie);
+  --catalogo-sobre-cortina: var(--catalogo-texto);
   --catalogo-marca-panel: #a3291a;
   --catalogo-accion-panel: #8f2418;
   --catalogo-superficie: #131011;
