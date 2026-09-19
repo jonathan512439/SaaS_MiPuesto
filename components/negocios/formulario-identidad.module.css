@@ -42,6 +42,14 @@
   font-size: var(--text-sm);
 }
 
+/* El enlace a «Apariencia» en la ayuda de la portada: del color de marca y
+   subrayado, para que se vea que se toca. */
+.imagenFila p a {
+  color: var(--color-marca);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
 /* Fachada editable: la portada es el unico foco visual de esta pantalla y
    conserva la misma proporcion y el mismo radio que el catalogo publico. */
 .portadaPrevia {

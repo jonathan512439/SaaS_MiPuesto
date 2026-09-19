@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
 import { prepararImagenParaSubir } from "../../lib/imagenes";
@@ -12,6 +13,7 @@ import { obtenerUrlPublicaImagenNegocio } from "../../lib/negocios/imagenes-publ
 import { Boton, useAvisos, useConfirmacion } from "../ui";
 import styles from "./formulario-identidad.module.css";
 import { AYUDA_LOGO, AYUDA_PORTADA, AYUDA_QR } from "../../lib/ayudas-formularios";
+import { RUTAS_PANEL } from "../../lib/panel/rutas";
 
 export type IdentidadNegocioInicial = {
   logo_url: string | null;
@@ -239,6 +241,16 @@ export function FormularioIdentidad({
             <div>
               <h3>{titulo}</h3>
               <p>{ayuda}</p>
+              {/* La portada se sube acá y su cartel se escribe en Apariencia,
+                  que es donde está la vista previa con la paleta. Sin esta
+                  línea, quien sube la foto no tiene cómo saber que puede
+                  escribirle un título encima. */}
+              {tipo === "portada" ? (
+                <p>
+                  El título, la bajada y el botón que van sobre la portada se escriben en{" "}
+                  <Link href={RUTAS_PANEL.apariencia}>Apariencia</Link>.
+                </p>
+              ) : null}
             </div>
             {tipo === "qr" && imagenes.qr.url ? (
               // eslint-disable-next-line @next/next/no-img-element
