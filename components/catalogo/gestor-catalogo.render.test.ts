@@ -1,4 +1,4 @@
-import { createElement } from "react";
+import { jsx } from "react/jsx-runtime";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
@@ -115,15 +115,17 @@ const datos = {
 } as unknown as DatosCatalogoAdmin;
 
 function dibujar(vista: "productos" | "categorias") {
-  const pantalla = createElement(GestorCatalogo, {
+  /* Con `jsx` y no con JSX: la suite solo incluye archivos `.ts`, y un `.ts`
+     no puede llevar etiquetas. Es la misma función a la que compila el JSX. */
+  const pantalla = jsx(GestorCatalogo, {
     datosIniciales: datos,
     urlSupabase: "https://prueba.supabase.co",
     vista,
   });
-  const conConfirmacion = createElement(ProveedorConfirmacion, { children: pantalla });
-  const conAvisos = createElement(ProveedorAvisos, { children: conConfirmacion });
+  const conConfirmacion = jsx(ProveedorConfirmacion, { children: pantalla });
+  const conAvisos = jsx(ProveedorAvisos, { children: conConfirmacion });
   return renderToString(
-    createElement(ProveedorSupabaseNavegador, {
+    jsx(ProveedorSupabaseNavegador, {
       clavePublica: "clave-de-prueba",
       url: "https://prueba.supabase.co",
       children: conAvisos,
