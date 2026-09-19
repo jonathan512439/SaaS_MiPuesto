@@ -55,6 +55,27 @@
   color: var(--catalogo-texto);
 }
 
+/* Los controles de formulario, con la paleta y no con el navegador.
+ *
+ * `globals.css` fija `color-scheme: light`, y con eso el navegador dibuja cada
+ * `input`, `select`, `textarea` y `button` **con su propio fondo blanco** salvo
+ * que alguien le diga otra cosa. En una paleta oscura el texto heredado es claro,
+ * y un control al que le faltó declarar el fondo mostraba letra clara sobre el
+ * blanco del navegador: la búsqueda, el nombre en el pedido, lo que fuera. El
+ * dueño lo vio en cinco lugares distintos, y eran el mismo agujero.
+ *
+ * Acá se cierra de una vez para todo lo que viva dentro del tema: cualquier
+ * control toma el fondo de la paleta y hereda su texto. Lo que quiera otra cosa
+ * lo dice, y ya lo dicen los botones de acción. */
+.tema input,
+.tema select,
+.tema textarea,
+.tema button {
+  background-color: var(--catalogo-superficie);
+  color: inherit;
+  font: inherit;
+}
+
 /* La plantilla pinta su propio fondo y taparía el patrón, así que lo pinta ella.
    El selector con atributo gana en especificidad sobre la clase de la plantilla
    sin que ninguna de las dos hojas tenga que conocer a la otra.
@@ -174,6 +195,7 @@
  * el lienzo claro del panel esos mismos colores no se leen. Son el mismo matiz
  * llevado a donde funciona. El control de contraste los comprueba. */
 .paleta[data-paleta="oceano"] {
+  color-scheme: dark;
   --catalogo-marca-panel: #1f5f8a;
   --catalogo-accion-panel: #9a5a1e;
   --catalogo-superficie: #0f1720;
@@ -205,6 +227,7 @@
  * No son «otro color»: son el mismo matiz llevado a donde se lee sobre claro,
  * que es lo que el dueño reconoce. El control de contraste los comprueba. */
 .paleta[data-paleta="noche"] {
+  color-scheme: dark;
   --catalogo-marca-panel: #9a4f00;
   --catalogo-accion-panel: #7a6a00;
   --catalogo-superficie: #011a27;
@@ -287,6 +310,7 @@
  * No son «otro color»: son el mismo matiz llevado a donde se lee sobre claro,
  * que es lo que el dueño reconoce. El control de contraste los comprueba. */
 .paleta[data-paleta="pizarra"] {
+  color-scheme: dark;
   --catalogo-marca-panel: #8a5a18;
   --catalogo-accion-panel: #9c4a1e;
   --catalogo-superficie: #1d1714;
@@ -367,6 +391,7 @@
  * el lienzo claro del panel esos mismos colores no se leen. Son el mismo matiz
  * llevado a donde funciona. El control de contraste los comprueba. */
 .paleta[data-paleta="dorado"] {
+  color-scheme: dark;
   --catalogo-marca-panel: #6b5416;
   --catalogo-accion-panel: #8a5a12;
   --catalogo-superficie: #121110;
@@ -392,6 +417,7 @@
  * el lienzo claro del panel esos mismos colores no se leen. Son el mismo matiz
  * llevado a donde funciona. El control de contraste los comprueba. */
 .paleta[data-paleta="rubi"] {
+  color-scheme: dark;
   --catalogo-marca-panel: #a3291a;
   --catalogo-accion-panel: #8f2418;
   --catalogo-superficie: #131011;

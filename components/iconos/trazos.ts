@@ -33,6 +33,8 @@ export const TRAZOS = {
   flechaArriba: `<path d="m18 15-6-6-6 6" />`,
   atras: `<path d="m12 19-7-7 7-7" /><path d="M19 12H5" />`,
   mapa: `<path d="M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0" /><circle cx="12" cy="8" r="2" /><path d="M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712" />`,
+  reloj: `<circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />`,
+  listo: `<path d="M20 6 9 17l-5-5" />`,
   mundo: `<circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" />`,
   lupa: `<path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" />`,
 } as const;

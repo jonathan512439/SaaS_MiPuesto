@@ -63,6 +63,11 @@ const ICONOS = {
      Y no es el mismo dibujo que `ubicacion`: ese es el alfiler solo, que
      queda justo al lado en «Cómo llegar». Con el mapa detrás se distinguen. */
   mapa: "map-pinned",
+  /* El reloj de «Elegí la hora» y el tilde de «tu turno quedó apartado», en el
+     selector de turno. Reemplazan a los emojis, que cada teléfono dibuja a su
+     manera —y algunos en colores que no son de ninguna paleta—. */
+  reloj: "clock",
+  listo: "check",
   /* El sitio web del negocio en el pie del catalogo. Un mundo se entiende sin
      leer, y ademas es lo unico de esa fila que no es una red social. */
   mundo: "globe",

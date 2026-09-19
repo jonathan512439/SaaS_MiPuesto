@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Boton } from "../ui";
+import { Icono } from "../iconos/icono";
 import styles from "./selector-de-turno.module.css";
 
 /* Elegir día y hora, y reservar.
@@ -94,7 +94,7 @@ export function SelectorDeTurno({
   if (dias === null) {
     return (
       <p className={styles.estado}>
-        <span aria-hidden="true">⏳</span> Buscando horarios…
+        Buscando horarios…
       </p>
     );
   }
@@ -103,13 +103,13 @@ export function SelectorDeTurno({
     return (
       <div className={styles.confirmacion}>
         <p className={styles.listo}>
-          <span aria-hidden="true">✅</span> Tu turno quedó apartado.
+          <Icono nombre="listo" /> Tu turno quedó apartado.
         </p>
         <p className={styles.cuando}>
-          <span aria-hidden="true">🗓️</span> {reserva.cuando}
+          <Icono nombre="calendario" /> {reserva.cuando}
         </p>
         <p className={styles.codigo}>
-          <span aria-hidden="true">🔖</span> Código {reserva.codigo}
+          <Icono nombre="etiqueta" /> Código {reserva.codigo}
         </p>
         {/* El WhatsApp después de reservar y no antes: el turno ya está guardado,
             así que el mensaje sirve para confirmar con el negocio, no para pedir.
@@ -131,7 +131,7 @@ export function SelectorDeTurno({
   if (dias.length === 0) {
     return (
       <p className={styles.estado}>
-        <span aria-hidden="true">📭</span> No hay horarios disponibles por ahora.
+        No hay horarios disponibles por ahora.
         Consultá al negocio directamente.
       </p>
     );
@@ -193,7 +193,7 @@ export function SelectorDeTurno({
   return (
     <section className={styles.seccion}>
       <h3 className={styles.titulo}>
-        <span aria-hidden="true">🗓️</span> Elegí tu turno
+        <Icono nombre="calendario" /> Elegí tu turno
       </h3>
 
       {/* Los emojis van decorativos —`aria-hidden`— y el rótulo dice lo mismo en
@@ -202,7 +202,7 @@ export function SelectorDeTurno({
           que antes eran dos hileras de botones iguales sin nada que las
           distinguiera. */}
       <p className={styles.rotulo}>
-        <span aria-hidden="true">📅</span> Elegí el día
+        <Icono nombre="calendario" /> Elegí el día
       </p>
 
       <div className={styles.dias}>
@@ -223,7 +223,7 @@ export function SelectorDeTurno({
       </div>
 
       <p className={styles.rotulo}>
-        <span aria-hidden="true">🕒</span> Elegí la hora
+        <Icono nombre="reloj" /> Elegí la hora
       </p>
 
       <div className={styles.horas}>
@@ -282,14 +282,14 @@ export function SelectorDeTurno({
 
           {error ? <strong className={styles.error}>{error}</strong> : null}
 
-          <Boton
-            cargando={reservando}
-            disabled={nombre.trim() === "" || telefono.trim() === ""}
+          <button
+            className={styles.confirmar}
+            disabled={reservando || nombre.trim() === "" || telefono.trim() === ""}
             onClick={() => void reservar()}
             type="button"
           >
-            Apartar este turno
-          </Boton>
+            {reservando ? "Apartando…" : "Apartar este turno"}
+          </button>
         </div>
       ) : null}
     </section>
