@@ -8,6 +8,11 @@ import {
 } from "../../../../../lib/agenda/horarios";
 import { obtenerOcupacion, obtenerProductoAgendable } from "../../../../../lib/agenda/servidor";
 import { esUuid } from "../../../../../lib/catalogo/validacion";
+import {
+  crearHuellaIp,
+  leerSecretoHuella,
+  obtenerIpSolicitud,
+} from "../../../../../lib/huella-ip";
 import { crearClienteSupabaseAdmin } from "../../../../../lib/supabase/admin";
 import { construirEnlaceWhatsapp } from "../../../../../lib/whatsapp";
 import { formatearPrecioBolivianos } from "../../../../../lib/precios";
@@ -31,6 +36,9 @@ const CHOQUE = "23P01";
 function textoLimpio(valor: unknown, tope: number): string {
   return typeof valor === "string" ? valor.trim().slice(0, tope) : "";
 }
+
+/* El mismo número que `crear_pedido_reservado` aplica a los pedidos. */
+const TOPE_INTENTOS_POR_VENTANA = 5;
 
 export async function POST(
   solicitud: NextRequest,
@@ -77,6 +85,25 @@ export async function POST(
     .maybeSingle();
   if (!negocio) {
     return NextResponse.json({ error: "Este negocio no está disponible." }, { status: 404 });
+  }
+
+  /* El mismo tope que los pedidos, por negocio y por huella de IP: cinco en
+     quince minutos. Sin esto, un script con idempotencias distintas llenaba la
+     agenda entera en un minuto. Se cuenta el intento antes de mirar el
+     horario, para que tantear horarios ocupados también cueste. */
+  const huellaIp = await crearHuellaIp(obtenerIpSolicitud(solicitud), leerSecretoHuella());
+  const { data: intentos, error: errorLimite } = await supabase.rpc("contar_intento_publico", {
+    p_negocio_id: negocio.id,
+    p_huella_ip: huellaIp,
+  });
+  if (errorLimite || typeof intentos !== "number") {
+    return NextResponse.json({ error: "No se pudo agendar. Probá de nuevo." }, { status: 500 });
+  }
+  if (intentos > TOPE_INTENTOS_POR_VENTANA) {
+    return NextResponse.json(
+      { error: "Llegaste al límite temporal de reservas. Intenta nuevamente en 15 minutos." },
+      { status: 429 },
+    );
   }
 
   const producto = await obtenerProductoAgendable(supabase, negocio.id, productoId);

@@ -1159,6 +1159,13 @@ export type Database = {
         }
         Returns: Json
       }
+      contar_intento_publico: {
+        Args: {
+          p_huella_ip: string
+          p_negocio_id: string
+        }
+        Returns: number
+      }
       crear_pedido_reservado: {
         Args: {
           p_cliente_nombre: string
