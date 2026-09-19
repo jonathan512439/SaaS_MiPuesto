@@ -174,6 +174,15 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   /* El producto que se está editando, ya guardado. Las fotos se suben contra
      él y no contra el formulario: existe, tiene id, y es el mismo objeto que
      toca la lista. */
+  const productoEnEdicion = productoEditando
+    ? (productos.find(({ id }) => id === productoEditando) ?? null)
+    : null;
+  const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
+  /* Va **después** de `formulario`, no antes: lee `formulario.recurso_id`, y
+     un `const` no existe hasta su línea. Estuvo arriba y tumbó «Productos» y
+     «Mi catálogo» enteros con un «Cannot access before initialization» que
+     ni el compilador ni el lint ven, porque el orden de dos `const` en la
+     misma función no es cosa de tipos. */
   /* Cuánto dura un turno de quien atiende este producto, según su cronograma.
      Es el número que el campo de duración usa de omisión. */
   const duracionDeQuienAtiende = (() => {
@@ -185,10 +194,6 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       : recurso?.agenda_recurso;
     return agenda?.duracion_minutos ?? null;
   })();
-  const productoEnEdicion = productoEditando
-    ? (productos.find(({ id }) => id === productoEditando) ?? null)
-    : null;
-  const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
   const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
   /* Las miniaturas se crean en un efecto y no al dibujar: `createObjectURL`
      reserva memoria del navegador y hay que devolverla. Sin el `revoke`, cada
