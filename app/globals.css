@@ -288,11 +288,18 @@ select,
  * pozo: hace falta que no parezca plano.
  *
  * Va acá y no en la hoja del campo compartido porque la mitad de las pantallas
- * escriben su `input` a mano. Como es un selector de elemento, cualquier hoja
- * que quiera decidir lo suyo le gana sin pelear. */
-input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
-textarea,
-select {
+ * escriben su `input` a mano, y va dentro de `:where()` para que **cualquier
+ * hoja que quiera decidir lo suyo le gane sin pelear**. Sin el `:where()`, los
+ * cuatro `:not([type])` le daban especificidad de cuatro atributos: le ganaba a
+ * `.buscador input`, a `.campos input` y a `.tema input`, y en las paletas
+ * oscuras del catálogo pintaba el fondo blanco del panel debajo de la letra
+ * clara de la paleta. El dueño lo vio en la búsqueda y en el nombre y celular
+ * del pedido con la paleta dorada: no se leía nada. */
+:where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+  textarea,
+  select
+) {
   border: var(--borde-marcado) solid var(--color-borde-campo);
   border-radius: var(--radius-control);
   background-color: var(--color-superficie);
