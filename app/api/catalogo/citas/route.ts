@@ -17,6 +17,9 @@ import { esUuid } from "../../../../lib/catalogo/validacion";
 
 const ESTADOS = ["confirmada", "cancelada", "cumplida"] as const;
 const CHOQUE = "23P01";
+/* Una regla de la tabla rechazó la fila: el rango, el teléfono, el estado. No es
+   un choque con otra cita y no es un fallo nuestro, así que no es 409 ni 500. */
+const REGLA_DE_LA_TABLA = "23514";
 
 function textoLimpio(valor: unknown, tope: number): string {
   return typeof valor === "string" ? valor.trim().slice(0, tope) : "";
@@ -142,7 +145,20 @@ export async function POST(solicitud: NextRequest) {
       { status: 409 },
     );
   }
+  /* Se dice **qué regla**, y no «no se pudo guardar». La pausa de reservas
+     estuvo rota un día entero detrás de ese mensaje: la base rechazaba el rango
+     por una regla que decía «ocho horas como mucho», y ni el dueño ni el registro
+     tenían forma de saberlo. Un error que no dice de dónde viene no se puede
+     arreglar, solo reintentar. */
+  if (error?.code === REGLA_DE_LA_TABLA) {
+    console.error("citas: la base rechazó la fila", error.message);
+    return NextResponse.json(
+      { error: `La base no aceptó el turno: ${error.message}` },
+      { status: 400 },
+    );
+  }
   if (error || !data) {
+    console.error("citas: no se pudo guardar", error?.code, error?.message);
     return NextResponse.json({ error: "No se pudo guardar el turno." }, { status: 500 });
   }
   return NextResponse.json({ cita: data }, { status: 201 });
