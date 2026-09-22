@@ -87,16 +87,23 @@ begin
     raise exception 'Auditoría de restricciones: falta la protección de slugs reservados';
   end if;
 
-  if not exists (
-    select 1 from pg_constraint
-    where conrelid = 'public.negocios'::regclass
-      and contype = 'c'
-      and pg_get_constraintdef(oid) like '%plantilla_id%'
-      and pg_get_constraintdef(oid) like '%clasica%'
-      and pg_get_constraintdef(oid) like '%moderna%'
-      and pg_get_constraintdef(oid) like '%minimal%'
+  -- Las cinco plantillas ya no existen: la fase 6 del plan nuevo las retiró y
+  -- dejó un solo diseño, y `20261001090000_fase6_poda_plantilla_y_tarjeta.sql`
+  -- borró la columna `plantilla_id` con su restricción. Esta auditoría siguió
+  -- exigiéndola y **falló desde entonces**, sin que nadie lo viera: al ser un
+  -- `raise` en el medio del bloque, se llevó por delante las seis
+  -- comprobaciones que venían después —paletas, contenido de productos,
+  -- coherencia de existencias, la política de productos y las dos de Storage—,
+  -- que dejaron de correr sin avisar.
+  --
+  -- Lo que hoy decide la presentación es la paleta, y su conjunto permitido se
+  -- comprueba en el bloque siguiente. Se anota en vez de borrarse en silencio:
+  -- la comprobación no sobra, la reemplazó otra.
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'negocios' and column_name = 'plantilla_id'
   ) then
-    raise exception 'Auditoría de restricciones: falta el conjunto permitido de plantillas';
+    raise exception 'Auditoría de restricciones: volvió la columna plantilla_id, que la fase 6 retiró';
   end if;
 
   if not exists (

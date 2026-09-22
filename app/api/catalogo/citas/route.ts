@@ -149,19 +149,60 @@ export async function POST(solicitud: NextRequest) {
      estuvo rota un día entero detrás de ese mensaje: la base rechazaba el rango
      por una regla que decía «ocho horas como mucho», y ni el dueño ni el registro
      tenían forma de saberlo. Un error que no dice de dónde viene no se puede
-     arreglar, solo reintentar. */
+     arreglar, solo reintentar.
+     Pero lo que se dice es **la regla traducida**, no el texto de Postgres: ese
+     texto trae el nombre de la restricción y de la columna, y eso es el esquema
+     de la base contado en una pantalla del panel. El original va al registro,
+     que es donde sirve. */
   if (error?.code === REGLA_DE_LA_TABLA) {
     console.error("citas: la base rechazó la fila", error.message);
-    return NextResponse.json(
-      { error: `La base no aceptó el turno: ${error.message}` },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: explicarRegla(error.message) }, { status: 400 });
   }
   if (error || !data) {
     console.error("citas: no se pudo guardar", error?.code, error?.message);
     return NextResponse.json({ error: "No se pudo guardar el turno." }, { status: 500 });
   }
   return NextResponse.json({ cita: data }, { status: 201 });
+}
+
+/* De la regla de la base a algo que el dueño pueda arreglar.
+ *
+ * Cada entrada nombra una restricción real de `citas`. Lo que no esté acá cae
+ * en el mensaje de abajo, que no promete saber qué pasó: preferible a repetirle
+ * al dueño una línea de Postgres que no le dice qué hacer. */
+const REGLAS: ReadonlyArray<{ restriccion: string; explicacion: string }> = [
+  {
+    restriccion: "citas_rango_razonable",
+    explicacion:
+      "Ese lapso no entra: un turno dura entre 5 minutos y 8 horas, y una pausa hasta 30 días.",
+  },
+  /* Los nombres que Postgres le pone solo a un `check` escrito en la columna:
+     `<tabla>_<columna>_check`. Se escriben tal cual porque es lo que llega en
+     el mensaje del error. */
+  {
+    restriccion: "citas_cupo_check",
+    explicacion: "El cupo va del 1 al 50.",
+  },
+  {
+    restriccion: "citas_nombre_cliente_check",
+    explicacion: "El nombre no puede ir vacío y admite hasta 80 caracteres.",
+  },
+  {
+    restriccion: "citas_telefono_cliente_check",
+    explicacion: "El celular tiene que ser boliviano de 8 dígitos, empezando con 6 o 7.",
+  },
+  {
+    restriccion: "citas_nota_check",
+    explicacion: "La nota admite hasta 300 caracteres.",
+  },
+];
+
+function explicarRegla(mensaje: string): string {
+  const conocida = REGLAS.find(({ restriccion }) => mensaje.includes(restriccion));
+  return (
+    conocida?.explicacion ??
+    "La base no aceptó el turno. Revisá la fecha, la hora y la duración."
+  );
 }
 
 export async function PATCH(solicitud: NextRequest) {
