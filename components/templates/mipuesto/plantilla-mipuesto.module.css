@@ -822,30 +822,70 @@
   object-fit: cover;
 }
 
-/* El cuerpo, pegado abajo y sobre la foto. El relleno de arriba es el lugar
-   donde la cortina se desvanece: sin él, el nombre arrancaría justo donde la
-   foto todavía está a plena luz. */
+/* El cuerpo, pegado abajo y sobre la foto, en **dos columnas**: el nombre y el
+ * precio a la izquierda, el botón a la derecha a la altura de los dos.
+ *
+ * Iba en tres renglones —nombre, y abajo precio con botón— y con el aire de
+ * arriba la cortina tapaba cerca del 60 % de la foto en un teléfono. El dueño
+ * pidió que tapara menos. Con el botón al costado desaparece un renglón entero,
+ * el aire de arriba baja de 40 a 16 píxeles, y la cortina se aclara antes: queda
+ * alrededor de un tercio de la foto cubierta.
+ *
+ * El pie se disuelve con `display: contents` para que el precio y el botón sean
+ * celdas de esta rejilla sin tocar el marcado, que es el mismo en las tres
+ * formas. */
 .tarjeta[data-forma="vitrina"] .tarjetaCuerpo {
   position: absolute;
   right: 0;
   bottom: 0;
   left: 0;
-  gap: 0;
-  padding: var(--spacing-10) var(--spacing-3) var(--spacing-3);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: var(--spacing-2);
+  row-gap: 0;
+  padding: var(--spacing-4) var(--spacing-2) var(--spacing-2) var(--spacing-3);
   background: linear-gradient(
     to top,
-    color-mix(in srgb, var(--catalogo-cortina) 92%, transparent) 0%,
-    color-mix(in srgb, var(--catalogo-cortina) 74%, transparent) 55%,
+    color-mix(in srgb, var(--catalogo-cortina) 88%, transparent) 0%,
+    color-mix(in srgb, var(--catalogo-cortina) 62%, transparent) 50%,
     transparent 100%
   );
   color: var(--catalogo-sobre-cortina);
   pointer-events: none;
 }
 
-/* Lo que se toca vuelve a recibir el dedo: el nombre —cuyo enlace se estira
-   sobre la tarjeta entera— y el botón del pie. */
-.tarjeta[data-forma="vitrina"] .tarjetaNombre,
 .tarjeta[data-forma="vitrina"] .tarjetaPie {
+  display: contents;
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaNombre {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaPrecio {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+/* El botón a la altura del nombre y el precio juntos, y en el mínimo táctil
+   de 44 px: más chico que el de la cuadrícula, que es lo que le deja la foto a
+   la vista, pero no menos de lo que se toca bien con un dedo. */
+.tarjeta[data-forma="vitrina"] .tarjetaPie button,
+.tarjeta[data-forma="vitrina"] .tarjetaPie a {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: var(--control-alto);
+  height: var(--control-alto);
+  font-size: var(--text-lg);
+}
+
+/* Lo que se toca vuelve a recibir el dedo: el nombre —cuyo enlace se estira
+   sobre la tarjeta entera— y el botón. */
+.tarjeta[data-forma="vitrina"] .tarjetaNombre,
+.tarjeta[data-forma="vitrina"] .tarjetaPie button,
+.tarjeta[data-forma="vitrina"] .tarjetaPie a {
   pointer-events: auto;
 }
 
@@ -861,10 +901,6 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-}
-
-.tarjeta[data-forma="vitrina"] .tarjetaPie {
-  padding-top: var(--spacing-1);
 }
 
 .tarjeta[data-forma="vitrina"] .tarjetaPrecio strong {
