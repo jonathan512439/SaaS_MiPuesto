@@ -25,9 +25,10 @@ la página, son sus categorías, sus campos y sus acciones.
 | [`03-FRONTEND.md`](03-FRONTEND.md) | Anatomía del catálogo, bloque por bloque |
 | [`04-PANEL.md`](04-PANEL.md) | El alta guiada y las siete correcciones de usabilidad |
 | [`05-RUBROS.md`](05-RUBROS.md) | Los seis rubros con sus categorías y campos precargados |
-| [`06-FASES.md`](06-FASES.md) | Nueve fases con criterio de salida verificable |
+| [`06-FASES.md`](06-FASES.md) | Doce fases con criterio de salida verificable |
 | [`07-PRUEBAS.md`](07-PRUEBAS.md) | Qué se prueba, con qué, y las guardias del build |
 | [`08-VOCABULARIO.md`](08-VOCABULARIO.md) | Cómo escribe el sistema. Lista de palabras prohibidas |
+| [`09-DIRECTORIO-Y-FORMAS.md`](09-DIRECTORIO-Y-FORMAS.md) | Fases 10 a 12: tres formas de tarjeta, ubicación y rubro público, y el directorio buscable |
 
 ## Las reglas que no se rompen
 

@@ -1,6 +1,6 @@
 # 06 · Fases
 
-Nueve fases. **Cada una se despliega a producción antes de empezar la
+Doce fases. **Cada una se despliega a producción antes de empezar la
 siguiente**, y ninguna se da por cerrada sin su criterio de salida verificado en
 el sitio publicado, no en local.
 
@@ -18,8 +18,13 @@ hay una fase que rompa el catálogo y otra que lo arregle.
 | 7 | Identidad y apariencia | 4 | Logo, banners, paletas, patrón, Google |
 | 8 | Alta guiada y siembra | 5 | Un dueño se da de alta solo |
 | 9 | Refinamiento y salida | 4 | Vocabulario, portada, dominio |
+| 10 | Tres formas de tarjeta | 2 | Cuadrícula, fila y lista de precios |
+| 11 | Dónde está y qué vende | 3½ | Pin en el mapa, zona automática, rubro público, permiso de aparecer |
+| 12 | El directorio buscable | 5 | Buscar productos y negocios por ciudad, zona y rubro |
 
-**40 días de trabajo efectivo.**
+**50½ días de trabajo efectivo.** Las fases 10 a 12 se sumaron el 22 de
+septiembre de 2026 y están detalladas en
+[`09-DIRECTORIO-Y-FORMAS.md`](09-DIRECTORIO-Y-FORMAS.md).
 
 ---
 
@@ -543,6 +548,28 @@ negocio ya atiende.
 
 **Criterio de salida:** los seis catálogos en `nombre.mipuesto.com`, las
 direcciones viejas redirigiendo, y todas las guardias en verde.
+
+---
+
+## Fases 10, 11 y 12 — Formas de tarjeta y directorio buscable
+
+El detalle completo —modelo, permisos, pruebas y criterio de salida de cada una—
+está en [`09-DIRECTORIO-Y-FORMAS.md`](09-DIRECTORIO-Y-FORMAS.md). Acá, lo que
+hace falta para ordenar el trabajo:
+
+- **Fase 10** no depende de nada y puede ir antes que la 9 si el dominio tarda.
+- **Fase 11** va antes que la 12 sin excepción: el buscador sin ubicación, zona
+  y rubro público devuelve vacío.
+- **Fase 12** funciona sin dominio, pero su caché y sus páginas para Google
+  rinden recién con él.
+
+**Criterios de salida, en una línea cada uno:**
+
+| Fase | Se cierra cuando |
+|---|---|
+| 10 | Un negocio real cambia de forma desde Apariencia y la ve en producción; las tres formas a 360 px sin desborde |
+| 11 | Alguien ajeno completa el paso 2 del alta con pin, sin ayuda; los seis negocios con zona; `anon` no puede leer coordenadas en producción |
+| 12 | «Restaurantes en Oruro, zona Centro» y «juguetes en Oruro» llegan a un catálogo filtrado, en un teléfono; 100 búsquedas simultáneas, 100 en 200 |
 
 ---
 

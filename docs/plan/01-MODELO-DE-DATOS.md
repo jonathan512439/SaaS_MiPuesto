@@ -427,6 +427,13 @@ y recién entonces borrar la columna.
 | 8 | `citas` y su exclusión | 7 |
 | 9 | Banners extendidos (solo comentario de columna) | — |
 | 10 | **Poda**: `plantilla`, `tarjeta_producto` | Fase 5 desplegada |
+| 11 | `negocios.forma_tarjeta` | — |
+| 12 | `zonas`, y en `negocios`: ubicación, zona, rubro público, `aparece_en_directorio` | — |
+| 13 | Búsqueda: `unaccent`, `tsvector`, sinónimos, búsquedas sin resultado y `buscar_en_directorio` | 12 |
+
+Las tres últimas se detallan en
+[`09-DIRECTORIO-Y-FORMAS.md`](09-DIRECTORIO-Y-FORMAS.md). **Las coordenadas del
+negocio son la única columna nueva que nunca se concede a `anon`.**
 
 Cada una lleva `grant` explícito por columna para `anon`, `authenticated` y
 `service_role`. El `service_role` se olvidó tres veces en este proyecto, y las
