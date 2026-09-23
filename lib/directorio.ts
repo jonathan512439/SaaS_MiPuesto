@@ -88,13 +88,20 @@ export function palabrasDeBusqueda(texto: string): string[] {
   ].slice(0, MAXIMO_PALABRAS);
 }
 
+/* La raíz de una palabra: sin la -s final y después sin la -e final, en las de
+   más de cuatro letras. «juguetes» y «juguete» dan «juguet»; «flores» y «flor»,
+   «flor». Es la misma regla que `public.raiz_de_palabra` en la base, y una
+   prueba las compara: si se separaran, un rubro y un producto se reconocerían
+   con reglas distintas. */
+export function raizDePalabra(palabra: string): string {
+  return palabra.length > 4 ? palabra.replace(/s$/, "").replace(/e$/, "") : palabra;
+}
+
 /* Los rubros públicos cuyo nombre contiene lo que se buscó: «restaurantes»
    encuentra «Restaurante», «juguetes» encuentra «Juguetería». Así un negocio
    aparece por lo que es, aunque ninguno de sus productos diga la palabra. */
 export function rubrosQueCoinciden(palabras: readonly string[]): RubroPublicoId[] {
-  const raices = palabras
-    .filter((palabra) => palabra.length >= 3)
-    .map((palabra) => (palabra.length > 4 ? palabra.replace(/(es|s)$/, "") : palabra));
+  const raices = palabras.filter((palabra) => palabra.length >= 3).map(raizDePalabra);
   if (raices.length === 0) return [];
   return RUBROS_PUBLICOS.filter(({ nombre }) => {
     const nombreNormalizado = normalizarBusqueda(nombre);

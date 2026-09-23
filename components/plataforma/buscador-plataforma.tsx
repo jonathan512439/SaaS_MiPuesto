@@ -9,9 +9,14 @@ import styles from "./zonas-plataforma.module.css";
 
 /* El buscador del directorio, visto desde la plataforma. Fase 12.
  *
- * Arriba, lo que la gente buscó y no encontró: es la lista de tareas. Una
- * palabra que se repite es un sinónimo que falta («polera» y no «remera») o un
- * rubro que todavía no tiene negocios en esa ciudad, que es un cliente para
+ * Arriba, lo que la gente buscó y no encontró: es la lista de tareas. **Se ven
+ * las veinte más repetidas**, no todas: con mil, las que importan son las que
+ * más clientes dejaron ir, y el total se dice arriba para saber el tamaño sin
+ * tener que recorrerlo. Lo atendido se descarta —a mano, o solo al cargarle un
+ * sinónimo— y deja lugar a la siguiente.
+ *
+ * Una palabra que se repite es un sinónimo que falta («polera» y no «remera») o
+ * un rubro que todavía no tiene negocios en esa ciudad, que es un cliente para
  * salir a buscar.
  *
  * Abajo, los sinónimos: cuando alguien busca la palabra de la izquierda, el
@@ -29,9 +34,12 @@ export type BusquedaSinResultado = {
 export function BuscadorPlataforma({
   sinonimos,
   sinResultado,
+  totalSinResultado,
 }: {
   sinonimos: Sinonimo[];
   sinResultado: BusquedaSinResultado[];
+  /* Cuántas hay en total, aunque se muestren veinte. */
+  totalSinResultado: number;
 }) {
   const router = useRouter();
   const { mostrarAviso } = useAvisos();
@@ -39,10 +47,15 @@ export function BuscadorPlataforma({
   const [equivalentes, setEquivalentes] = useState("");
   const [ocupado, setOcupado] = useState(false);
 
-  async function llamar(metodo: "POST" | "DELETE", cuerpo: Record<string, unknown>, exito: string) {
+  async function llamar(
+    metodo: "POST" | "DELETE",
+    cuerpo: Record<string, unknown>,
+    exito: string,
+    ruta = "/api/plataforma/sinonimos",
+  ) {
     setOcupado(true);
     try {
-      const respuesta = await fetch("/api/plataforma/sinonimos", {
+      const respuesta = await fetch(ruta, {
         method: metodo,
         headers: { "content-type": "application/json" },
         body: JSON.stringify(cuerpo),
@@ -83,6 +96,12 @@ export function BuscadorPlataforma({
 
       <div className={styles.pendientes}>
         <h3>Búsquedas sin resultado</h3>
+        {totalSinResultado > sinResultado.length ? (
+          <p className={styles.ayuda}>
+            Las {sinResultado.length} más buscadas, de {totalSinResultado.toLocaleString("es-BO")}.
+            Descartá las que ya atendiste y aparecen las siguientes.
+          </p>
+        ) : null}
         {sinResultado.length === 0 ? (
           <p className={styles.vacio}>Todavía nadie buscó algo que no estuviera.</p>
         ) : (
@@ -96,16 +115,33 @@ export function BuscadorPlataforma({
                     {busqueda.cantidad === 1 ? "1 vez" : `${busqueda.cantidad} veces`}
                   </small>
                 </span>
-                <Boton
-                  onClick={() => {
-                    setTermino(busqueda.termino);
-                    setEquivalentes("");
-                  }}
-                  type="button"
-                  variante="secundario"
-                >
-                  Darle sinónimos
-                </Boton>
+                <span className={styles.accionesZona}>
+                  <Boton
+                    onClick={() => {
+                      setTermino(busqueda.termino);
+                      setEquivalentes("");
+                    }}
+                    type="button"
+                    variante="secundario"
+                  >
+                    Darle sinónimos
+                  </Boton>
+                  <Boton
+                    disabled={ocupado}
+                    onClick={() =>
+                      void llamar(
+                        "DELETE",
+                        { termino: busqueda.termino, ciudad: busqueda.ciudad },
+                        "Búsqueda descartada",
+                        "/api/plataforma/busquedas-sin-resultado",
+                      )
+                    }
+                    type="button"
+                    variante="secundario"
+                  >
+                    Descartar
+                  </Boton>
+                </span>
               </li>
             ))}
           </ul>
@@ -145,8 +181,12 @@ export function BuscadorPlataforma({
         </div>
       </form>
 
-      <div className={styles.ciudad}>
-        <h3>Sinónimos cargados</h3>
+      {/* Plegada: son casi cien, y lo que se mira todos los días es la lista
+          de arriba. Se abre para editar uno. */}
+      <details className={styles.ciudad}>
+        <summary>
+          <h3>Sinónimos cargados ({sinonimos.length})</h3>
+        </summary>
         {sinonimos.length === 0 ? (
           <p className={styles.vacio}>No hay sinónimos cargados.</p>
         ) : (
@@ -181,7 +221,7 @@ export function BuscadorPlataforma({
             ))}
           </ul>
         )}
-      </div>
+      </details>
     </section>
   );
 }

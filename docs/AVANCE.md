@@ -1726,6 +1726,17 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Noventa sinónimos más** para lo que se busca en un catálogo boliviano
+  (comida, ropa, tiendas, construcción, belleza, mascotas): 96 en total, y los
+  que la plataforma edita no se pisan. Coinciden **por la raíz**, con una regla
+  nueva para los dos plurales —«juguetes» y «juguete» dan «juguet», «flores» y
+  «flor» dan «flor»— en una sola función de la base (`raiz_de_palabra`) que la
+  búsqueda, los sinónimos y los rubros comparten.
+- **La lista de búsquedas sin resultado se atiende**: se ven las 20 más
+  repetidas con el total arriba, cada una se puede descartar, y se descarta
+  sola al cargarle un sinónimo. El tope de 5000 frena solo las palabras nuevas;
+  antes, al llegar, dejaban de contar también las que ya estaban.
+
 - **Fase 12 desplegada: el directorio busca.** `/directorio` pasa a tener un
   buscador y filtros de ciudad, zona y rubro que solo ofrecen lo que tiene
   negocios, «Cerca de mí» (ubicación redondeada a ~1 km, pedida al tocar el

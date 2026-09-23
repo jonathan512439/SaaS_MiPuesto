@@ -659,6 +659,23 @@ try {
     .update({ activo: false, aparece_en_directorio: null })
     .in("id", negocios.map(({ id }) => id));
 
+  /* Lo que se buscó y no se encontró, y los sinónimos, son de la plataforma:
+     un dueño no los lee, no los descarta y no los cambia. */
+  await administrador.from("busquedas_sin_resultado").upsert({ termino: palabraSonda, ciudad: "" });
+  const { data: leidas } = await clienteA.from("busquedas_sin_resultado").select("termino");
+  comprobar(!leidas?.length, "un dueño pudo leer las búsquedas sin resultado");
+  const { data: descartadas } = await clienteA
+    .from("busquedas_sin_resultado")
+    .delete()
+    .eq("termino", palabraSonda)
+    .select("termino");
+  comprobar(!descartadas?.length, "un dueño pudo descartar una búsqueda sin resultado");
+  await administrador.from("busquedas_sin_resultado").delete().eq("termino", palabraSonda);
+  const { error: errorSinonimoDueno } = await clienteA
+    .from("sinonimos_busqueda")
+    .insert({ termino: palabraSonda, equivalentes: ["x"] });
+  comprobar(errorSinonimoDueno, "un dueño pudo cargar un sinónimo");
+
   console.log(
     "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, el buscador del directorio, y ambos buckets aislados correctamente.",
   );

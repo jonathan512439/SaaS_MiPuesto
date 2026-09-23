@@ -136,3 +136,11 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* La lista de sinónimos, plegada: el título es lo que se toca para abrirla. */
+details.ciudad > summary {
+  display: flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  cursor: pointer;
+}

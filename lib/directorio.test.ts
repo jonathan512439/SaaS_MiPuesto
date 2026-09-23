@@ -7,6 +7,7 @@ import {
   direccionDeBusqueda,
   leerFiltrosDirectorio,
   palabrasDeBusqueda,
+  raizDePalabra,
   rubrosQueCoinciden,
 } from "./directorio";
 import { redondearCerca } from "./directorio-cerca";
@@ -30,6 +31,42 @@ describe("palabrasDeBusqueda", () => {
 
   it("con nada escrito no busca nada", () => {
     expect(palabrasDeBusqueda("   ")).toEqual([]);
+  });
+});
+
+/* Los dos plurales del castellano: con -s después de vocal y con -es después
+   de consonante. La regla vieja —sacar «-es» o «-s»— dejaba «juguete» y
+   «juguetes» con raíces distintas, y un sinónimo en plural no se activaba con
+   el singular. */
+describe("raizDePalabra", () => {
+  it("da la misma raíz al singular y al plural", () => {
+    for (const [singular, plural] of [
+      ["juguete", "juguetes"],
+      ["flor", "flores"],
+      ["pantalon", "pantalones"],
+      ["casa", "casas"],
+      ["zapato", "zapatos"],
+    ]) {
+      expect(raizDePalabra(plural), plural).toBe(raizDePalabra(singular));
+    }
+  });
+
+  it("no toca las palabras cortas", () => {
+    expect(raizDePalabra("mes")).toBe("mes");
+    expect(raizDePalabra("cafe")).toBe("cafe");
+  });
+
+  /* La base tiene la misma regla en `public.raiz_de_palabra`. Si una cambia y la
+     otra no, un rubro y un producto se reconocerían distinto. */
+  it("es la misma regla que la de la base", () => {
+    const carpeta = join(import.meta.dirname, "..", "supabase", "migrations");
+    const definiciones = readdirSync(carpeta)
+      .sort()
+      .map((archivo) => readFileSync(join(carpeta, archivo), "utf8"))
+      .filter((sql) => sql.includes("function public.raiz_de_palabra("));
+    const ultima = definiciones.at(-1) ?? "";
+    expect(ultima).toContain("char_length(p_palabra) > 4");
+    expect(ultima).toContain("regexp_replace(regexp_replace(p_palabra, 's$', ''), 'e$', '')");
   });
 });
 

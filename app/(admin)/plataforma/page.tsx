@@ -69,7 +69,7 @@ export default async function PaginaPlataforma({
     { data: consumoIa },
     { data: zonas },
     { data: sinonimos },
-    { data: sinResultado },
+    { data: sinResultado, count: totalSinResultado },
   ] = await Promise.all([
     supabase
       .from("negocios")
@@ -102,7 +102,7 @@ export default async function PaginaPlataforma({
     /* Las más repetidas primero: son las que más clientes dejaron ir. */
     supabase
       .from("busquedas_sin_resultado")
-      .select("termino,ciudad,cantidad,ultima_vez")
+      .select("termino,ciudad,cantidad,ultima_vez", { count: "exact" })
       .order("cantidad", { ascending: false })
       .limit(20),
   ]);
@@ -171,7 +171,11 @@ export default async function PaginaPlataforma({
       ) : null}
 
       {pestana === "buscador" ? (
-        <BuscadorPlataforma sinResultado={sinResultado ?? []} sinonimos={sinonimos ?? []} />
+        <BuscadorPlataforma
+          sinResultado={sinResultado ?? []}
+          sinonimos={sinonimos ?? []}
+          totalSinResultado={totalSinResultado ?? 0}
+        />
       ) : null}
 
       {pestana === "zonas" ? (

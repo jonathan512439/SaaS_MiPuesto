@@ -42,6 +42,12 @@ export async function POST(solicitud: NextRequest) {
   if (error || !data?.length) {
     return NextResponse.json({ error: "No se pudo guardar el sinónimo." }, { status: 403 });
   }
+
+  /* La búsqueda que lo motivó ya está atendida: se saca de la lista, en todas
+     las ciudades. Si vuelve a no encontrar nada, vuelve a aparecer sola. Si
+     falla, el sinónimo ya quedó guardado y la búsqueda se descarta a mano. */
+  await supabase.from("busquedas_sin_resultado").delete().eq("termino", sinonimo.termino);
+
   return NextResponse.json({ guardado: sinonimo });
 }
 
