@@ -160,6 +160,27 @@ export type Database = {
           },
         ]
       }
+      busquedas_sin_resultado: {
+        Row: {
+          cantidad: number
+          ciudad: string
+          termino: string
+          ultima_vez: string
+        }
+        Insert: {
+          cantidad?: number
+          ciudad?: string
+          termino: string
+          ultima_vez?: string
+        }
+        Update: {
+          cantidad?: number
+          ciudad?: string
+          termino?: string
+          ultima_vez?: string
+        }
+        Relationships: []
+      }
       categorias: {
         Row: {
           icono: string
@@ -1006,6 +1027,24 @@ export type Database = {
           },
         ]
       }
+      sinonimos_busqueda: {
+        Row: {
+          creado_en: string
+          equivalentes: string[]
+          termino: string
+        }
+        Insert: {
+          creado_en?: string
+          equivalentes: string[]
+          termino: string
+        }
+        Update: {
+          creado_en?: string
+          equivalentes?: string[]
+          termino?: string
+        }
+        Relationships: []
+      }
       subcategorias: {
         Row: {
           categoria_id: string
@@ -1212,6 +1251,36 @@ export type Database = {
         Args: { p_meses?: number; p_negocio_id: string }
         Returns: Json
       }
+      buscar_en_directorio: {
+        Args: {
+          p_ciudad?: string
+          p_lat?: number
+          p_lng?: number
+          p_pagina?: number
+          p_palabras?: string[]
+          p_rubro?: string
+          p_rubros_que_coinciden?: string[]
+          p_zona_id?: string
+        }
+        Returns: {
+          ciudad: string
+          coincidencias: number
+          descripcion: string
+          distancia_km: number
+          horario: Json
+          id: string
+          logo_url: string
+          nombre: string
+          palabra: string
+          portada_url: string
+          productos: Json
+          puntaje: number
+          rubro_publico: string
+          slug: string
+          total: number
+          zona: string
+        }[]
+      }
       cambiar_estado_pedido_admin: {
         Args: {
           p_admin_user_id: string
@@ -1283,7 +1352,15 @@ export type Database = {
         }[]
       }
       purgar_analitica_vieja: { Args: { p_dias?: number }; Returns: number }
+      purgar_busquedas_sin_resultado: {
+        Args: { p_dias?: number }
+        Returns: number
+      }
       purgar_vigilancia_salud: { Args: never; Returns: number }
+      registrar_busqueda_sin_resultado: {
+        Args: { p_ciudad: string; p_termino: string }
+        Returns: undefined
+      }
       registrar_evento_analitica: {
         Args: {
           p_huella_ip: string

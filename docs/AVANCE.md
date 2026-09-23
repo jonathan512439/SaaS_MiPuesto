@@ -1724,6 +1724,23 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-09-23
+
+- **Fase 12 desplegada: el directorio busca.** `/directorio` pasa a tener un
+  buscador y filtros de ciudad, zona y rubro que solo ofrecen lo que tiene
+  negocios, «Cerca de mí» (ubicación redondeada a ~1 km, pedida al tocar el
+  botón y nunca guardada), y resultados con los productos que coinciden, que
+  llevan directo a la página del producto. Sin resultados ofrece lo que sí hay
+  en esa ciudad e invita a sumarse a MiPuesto. Páginas propias para Google:
+  `/directorio/{ciudad}` y `/directorio/{ciudad}/{rubro}`, en el mapa del sitio
+  solo si tienen negocios; y `robots.txt` que deja afuera el panel.
+  Una sola función en la base, `buscar_en_directorio`, con la raíz de cada
+  palabra, sinónimos curados y tolerancia a errores de tipeo. **Nunca devuelve
+  coordenadas**: lo vigilan una guardia sobre todas sus versiones y la prueba
+  de aislamiento contra la base real, con el peor caso armado a propósito.
+  Plataforma suma la pestaña «Buscador»: lo que se buscó y no se encontró, y los
+  sinónimos. Nueva tarea programada de purga, vigilada y recreable.
+
 ### 2026-09-22
 
 - **Fase 11 desplegada: dónde está y qué vende.** Migración `20261013090000`:

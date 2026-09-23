@@ -25,7 +25,8 @@ begin
       ('mipuesto-vigilar-salud',     '*/5 * * * *', 'select public.vigilar_salud();'),
       ('mipuesto-purgar-vigilancia', '30 4 * * *',  'select public.purgar_vigilancia_salud();'),
       ('mipuesto-purgar-analitica',  '30 8 * * *',  'select public.purgar_analitica_vieja();'),
-      ('mipuesto-suspender-vencidos','0 9 * * *',   'select public.suspender_suscripciones_vencidas();')
+      ('mipuesto-suspender-vencidos','0 9 * * *',   'select public.suspender_suscripciones_vencidas();'),
+      ('mipuesto-purgar-busquedas',  '45 8 * * *',  'select public.purgar_busquedas_sin_resultado();')
     ) as t(nombre, horario, sentencia)
   loop
     -- Idempotente: se puede correr dos veces sin duplicar la tarea. El ensayo

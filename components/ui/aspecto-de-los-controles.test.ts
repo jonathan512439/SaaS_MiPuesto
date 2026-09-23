@@ -70,6 +70,12 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
   { selector: ".opcion, .opcionElegida", motivo: "es un juego de opciones, y marca cuál está elegida" },
   { selector: ".tambien summary", motivo: "abre un bloque de campos opcionales: es un desplegable, no un botón" },
   { selector: ".nota a", motivo: "es un enlace, no un botón" },
+  { selector: ".identidad h2 a", motivo: "es un enlace, no un botón" },
+  { selector: ".coincidencias a", motivo: "es un enlace a un producto, no un botón" },
+  {
+    selector: ".sumate a",
+    motivo: "es el enlace a la portada desde el directorio público, que no es el panel y lleva el color de marca de MiPuesto",
+  },
   {
     selector: ".opcion, .opcionElegida, .paleta, .paletaElegida",
     motivo: "es un juego de opciones, y marca cuál está elegida",

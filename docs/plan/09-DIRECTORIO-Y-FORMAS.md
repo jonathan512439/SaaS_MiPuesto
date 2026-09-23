@@ -378,6 +378,27 @@ por las coordenadas, rechazada en producción.
 
 ## Fase 12 — El directorio buscable
 
+> **Desplegada el 23 de septiembre de 2026** (marca `fase-12-directorio-busca`).
+> Migraciones `20261015090000` y `20261015120000`.
+>
+> **Un cambio respecto de lo escrito abajo, a propósito:** no se sumó el
+> `tsvector` en español ni `unaccent`. `texto_busqueda` ya estaba en minúscula y
+> sin tildes, con índice de trigramas; la función busca la **raíz** de cada
+> palabra («juguet») por pedazo de texto, que encuentra «juguete», «juguetes» y
+> «juguetería» de una vez, y la similitud de trigramas cubre los errores de
+> tipeo. Una forma menos de buscar y ninguna columna nueva en `productos`.
+>
+> **Otro:** la función devuelve también la palabra que de verdad aparece en los
+> productos del negocio, para abrir su catálogo filtrado con algo que el filtro
+> del catálogo encuentre. Con lo que escribió el cliente, «juguetes» no
+> encontraba «juguete» y un error de tipeo llevaba a un catálogo vacío.
+>
+> **La caché de 60 segundos queda para el dominio**: en `workers.dev` no rinde.
+>
+> Queda para el dueño: probar los dos recorridos en el teléfono. El de juguetes
+> necesita un negocio que venda juguetes; hoy no hay ninguno, y la pantalla sin
+> resultados ofrece lo que sí hay.
+
 **Objetivo:** los dos recorridos del principio, funcionando en un teléfono.
 
 ### Cómo lo usa el cliente

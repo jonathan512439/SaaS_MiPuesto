@@ -16,6 +16,7 @@ import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/servidor";
 import { cupoDelPlan, planDe } from "../../../lib/planes";
 import { UsoIaPanel } from "../../../components/plataforma/uso-ia";
 import { ZonasPlataforma } from "../../../components/plataforma/zonas-plataforma";
+import { BuscadorPlataforma } from "../../../components/plataforma/buscador-plataforma";
 import { RubroPublicoPlataforma } from "../../../components/plataforma/rubro-publico-plataforma";
 import {
   ETIQUETAS_ESTADO,
@@ -67,6 +68,8 @@ export default async function PaginaPlataforma({
     { data: usoIa },
     { data: consumoIa },
     { data: zonas },
+    { data: sinonimos },
+    { data: sinResultado },
   ] = await Promise.all([
     supabase
       .from("negocios")
@@ -95,6 +98,13 @@ export default async function PaginaPlataforma({
     /* Todas, también las dadas de baja: la plataforma las tiene que ver para
        poder reactivarlas. La política de la tabla se lo permite solo a ella. */
     supabase.from("zonas").select("id,ciudad,nombre,latitud,longitud,activa").order("nombre"),
+    supabase.from("sinonimos_busqueda").select("termino,equivalentes").order("termino"),
+    /* Las más repetidas primero: son las que más clientes dejaron ir. */
+    supabase
+      .from("busquedas_sin_resultado")
+      .select("termino,ciudad,cantidad,ultima_vez")
+      .order("cantidad", { ascending: false })
+      .limit(20),
   ]);
   const fotosPorNegocio = new Map(
     (usoIa ?? []).map(({ negocio_id, cantidad }) => [negocio_id, cantidad]),
@@ -158,6 +168,10 @@ export default async function PaginaPlataforma({
             negocios={(negocios ?? []).map(({ id, nombre }) => ({ id, nombre }))}
           />
         </>
+      ) : null}
+
+      {pestana === "buscador" ? (
+        <BuscadorPlataforma sinResultado={sinResultado ?? []} sinonimos={sinonimos ?? []} />
       ) : null}
 
       {pestana === "zonas" ? (

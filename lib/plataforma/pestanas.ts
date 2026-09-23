@@ -33,6 +33,8 @@ export const PESTANAS_PLATAFORMA = [
      de Herramientas porque se mira distinto: se carga una vez por ciudad y
      después solo se atienden los pendientes. */
   { id: "zonas", titulo: "Zonas", pregunta: "Dónde están tus negocios" },
+  /* Fase 12: qué buscó la gente y no encontró, y los sinónimos. */
+  { id: "buscador", titulo: "Buscador", pregunta: "Qué busca la gente" },
 ] as const;
 
 export type PestanaPlataforma = (typeof PESTANAS_PLATAFORMA)[number]["id"];

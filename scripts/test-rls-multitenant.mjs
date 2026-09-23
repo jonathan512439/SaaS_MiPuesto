@@ -606,8 +606,61 @@ try {
     .eq("id", negocios[1].id);
   comprobar(errorAparecerSinPunto, "un negocio sin ubicación pudo aparecer en el buscador");
 
+  /* Fase 12: el buscador del directorio es la única puerta pública a esta
+     búsqueda, y la que sostiene las reglas. Se arma el peor caso a propósito:
+     el negocio A aparece, con un producto visible, uno oculto y uno en la
+     papelera; el B está activo pero **no eligió aparecer**. Los dos quedan
+     activos unos segundos, en la ciudad «otra», y el `finally` los borra. */
+  const palabraSonda = `sonda${marca.replace(/[^a-z0-9]/g, "")}`;
+  await administrador
+    .from("negocios")
+    .update({ activo: true, aparece_en_directorio: true, ciudad: "otra" })
+    .eq("id", negocios[0].id);
+  await administrador.from("negocios").update({ activo: true }).eq("id", negocios[1].id);
+  /* Todas las filas con las mismas columnas: en una inserción de varias, la
+     que no trae una columna que otra sí trae la recibe en nulo, no con su valor
+     por omisión. */
+  const producto = (negocio, categoria, nombre, visible, eliminado_en) => ({
+    negocio_id: negocio,
+    categoria_id: categoria,
+    nombre: `${nombre} ${palabraSonda}`,
+    precio: 1,
+    visible,
+    eliminado_en,
+  });
+  const { error: errorSonda } = await administrador.from("productos").insert([
+    producto(negocios[0].id, categoriaA.id, "Visible", true, null),
+    producto(negocios[0].id, categoriaA.id, "Oculto", false, null),
+    producto(negocios[0].id, categoriaA.id, "Borrado", true, new Date().toISOString()),
+    producto(negocios[1].id, categoriaB.id, "Ajeno", true, null),
+  ]);
+  comprobar(!errorSonda, `no se pudieron preparar los productos del buscador: ${errorSonda?.message}`);
+
+  const { data: encontrados, error: errorBuscar } = await publico.rpc("buscar_en_directorio", {
+    p_palabras: [palabraSonda],
+  });
+  comprobar(!errorBuscar, `el público no pudo usar el buscador: ${errorBuscar?.message}`);
+  comprobar(
+    encontrados?.length === 1 && encontrados[0].id === negocios[0].id,
+    "el buscador devolvió un negocio que no eligió aparecer, o no devolvió el que sí",
+  );
+  const nombresEncontrados = (encontrados?.[0]?.productos ?? []).map(({ nombre }) => nombre);
+  comprobar(
+    nombresEncontrados.length === 1 && nombresEncontrados[0].startsWith("Visible"),
+    `el buscador mostró un producto oculto o de la papelera: ${nombresEncontrados.join(", ")}`,
+  );
+  comprobar(
+    !/ubicacion|latitud|longitud/.test(JSON.stringify(encontrados)),
+    "el buscador devolvió coordenadas",
+  );
+
+  await administrador
+    .from("negocios")
+    .update({ activo: false, aparece_en_directorio: null })
+    .in("id", negocios.map(({ id }) => id));
+
   console.log(
-    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, el buscador del directorio, y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([

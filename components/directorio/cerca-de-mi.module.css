@@ -1,0 +1,29 @@
+@reference "../../app/globals.css";
+
+.cerca {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+/* Segundo nivel frente a «Buscar»: es un atajo, no la acción principal. */
+.boton {
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.boton:disabled {
+  cursor: progress;
+}
+
+.aviso {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
