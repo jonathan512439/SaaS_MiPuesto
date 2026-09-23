@@ -2,9 +2,11 @@
 
 /* El buscador: una sola pieza redonda y grande, con la lupa adentro y el botón
    pegado. Es lo primero que se toca en el directorio y tiene que parecerlo. */
+/* Por encima de la llamada fija al pie de la portada (15), que tapaba el final
+   de las sugerencias en el teléfono, y por debajo de la cabecera (30). */
 .buscador {
   position: relative;
-  z-index: 5;
+  z-index: 20;
   width: 100%;
 }
 
