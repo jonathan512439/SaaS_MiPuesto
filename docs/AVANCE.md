@@ -1726,6 +1726,19 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Décimo defecto del respaldo, corregido.** La restauración no copiaba los
+  permisos del **esquema** `private`: saltea las entradas SCHEMA del volcado y
+  crea el esquema a mano, sin el `usage` que producción le da a `service_role`.
+  Las tablas y funciones de adentro tenían sus permisos, pero no se podía entrar
+  al esquema, y ahí viven el cálculo de precios y el motor de pedidos: **una
+  restauración de producción habría dejado sin pedidos a todos los negocios.** Lo
+  encontró la prueba de humo de la fase 13 en la base de ensayo («permission
+  denied for schema private»). `generar-permisos.sql` ahora emite la revocación y
+  los permisos del esquema a partir de lo que tiene producción (comprobado en
+  solo lectura contra producción: emite `grant USAGE on schema private to
+  service_role`). La base de ensayo recibió ese permiso y creó un pedido por la
+  misma función que usa el catálogo.
+
 - **Fase 13, paso 1: el modelo de la talla.** Migración `20261018090000`, toda
   aditiva (ningún pedido cambia de forma de funcionar):
   `productos.tipo_presentacion` (talla, numero, tamano, presentacion); el número

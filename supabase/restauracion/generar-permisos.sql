@@ -48,6 +48,31 @@ select linea from (
   union all
   select 2, 'revoke all on all functions in schema public, private from public, anon, authenticated, service_role;'
 
+  -- Los permisos del ESQUEMA `private`. Faltaban, y fue el décimo defecto del
+  -- respaldo: lo encontró la prueba de humo de la fase 13 el 2026-09-23, con
+  -- «permission denied for schema private» al crear un pedido en la base de
+  -- ensayo. La restauración saltea las entradas SCHEMA del volcado y crea
+  -- `private` a mano en el preámbulo, así que el esquema quedaba sin el `usage`
+  -- que producción le da a `service_role`. Las tablas y las funciones de adentro
+  -- tenían sus permisos, pero no se podía entrar al esquema para llegar a ellas:
+  -- el cálculo de precios y el motor de pedidos viven ahí. **Una restauración de
+  -- producción habría dejado sin pedidos a todos los negocios.**
+  --
+  -- Solo `private`: `public` lo crea Supabase con sus permisos, y la restauración
+  -- no lo toca.
+  union all
+  select 1, 'revoke all on schema private from public, anon, authenticated, service_role;'
+  union all
+  select 3, format('grant %s on schema %I to %s;',
+                   a.privilege_type,
+                   n.nspname,
+                   case when a.grantee = 0 then 'public' else quote_ident(g.rolname) end)
+  from pg_namespace n
+  cross join lateral aclexplode(coalesce(n.nspacl, acldefault('n', n.nspowner))) a
+  left join pg_roles g on g.oid = a.grantee
+  where n.nspname = 'private'
+    and (a.grantee = 0 or g.rolname in ('anon', 'authenticated', 'service_role'))
+
   -- Los nombres se arman con el esquema y el objeto por separado, y **no** con
   -- `::regclass` ni `::regprocedure`. Esos dos omiten el esquema de lo que ya
   -- está visible en el camino de búsqueda, así que el guion salía calificado o
