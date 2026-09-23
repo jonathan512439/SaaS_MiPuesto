@@ -126,15 +126,31 @@ export function CargaDesdeFoto({
         titulo="Leyendo tu lista…"
       />
 
-      <label className={styles.cargar}>
-        {leyendo ? "Leyendo tu lista…" : "Elegir la foto o el PDF de la lista"}
-        <input
-          accept="image/jpeg,image/png,image/webp,application/pdf"
-          disabled={leyendo}
-          onChange={(evento) => void leerArchivo(evento)}
-          type="file"
-        />
-      </label>
+      {/* La cámara, para la lista que está pegada en la pared o en el cuaderno;
+          la galería, para la foto que ya se sacó o el PDF del proveedor. La
+          cámara solo se ofrece en pantallas táctiles: en una computadora
+          `capture` se ignora y los dos botones harían lo mismo. */}
+      <div className={styles.acciones}>
+        <label className={`${styles.cargar} ${styles.soloTactil}`}>
+          {leyendo ? "Leyendo tu lista…" : "Sacar foto a la lista"}
+          <input
+            accept="image/*"
+            capture="environment"
+            disabled={leyendo}
+            onChange={(evento) => void leerArchivo(evento)}
+            type="file"
+          />
+        </label>
+        <label className={styles.cargar}>
+          {leyendo ? "Leyendo tu lista…" : "Elegir la foto o el PDF de la lista"}
+          <input
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            disabled={leyendo}
+            onChange={(evento) => void leerArchivo(evento)}
+            type="file"
+          />
+        </label>
+      </div>
       <p className={styles.cupo}>
         Llevás {fotosUsadas} de {topeFotos} lecturas este mes.{" "}
         <strong>Importar un Excel o un CSV no gasta ninguna.</strong>

@@ -119,6 +119,20 @@
   box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+/* Con mouse, `capture` no abre ninguna cámara: el botón haría lo mismo que el
+   de elegir el archivo. */
+@media (hover: hover) and (pointer: fine) {
+  .soloTactil {
+    display: none;
+  }
+}
+
 .cupo {
   color: var(--color-texto-suave);
   font-size: var(--text-xs);

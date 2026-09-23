@@ -1339,6 +1339,20 @@
   filter: grayscale(0.4);
 }
 
+.accionesIa {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+/* Con mouse, `capture` no abre ninguna cámara: el botón haría lo mismo que
+   «Elegir una foto» y serían dos botones para una sola cosa. */
+@media (hover: hover) and (pointer: fine) {
+  .soloTactil {
+    display: none;
+  }
+}
+
 .tarjetaIa small {
   color: var(--color-texto-suave);
   font-size: var(--text-xs);

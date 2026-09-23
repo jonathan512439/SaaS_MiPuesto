@@ -1726,6 +1726,13 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **La cámara en las dos herramientas de IA.** En «Nuevo producto» y en
+  «Cargar desde una foto» hay un botón que abre la cámara de atrás
+  (`capture="environment"`) junto al de elegir el archivo. Solo en pantallas
+  táctiles: con mouse `capture` se ignora y serían dos botones para lo mismo.
+  Los dos llevan el degradado de IA porque los dos gastan una lectura. Ninguna
+  de las dos herramientas lee por lotes: una foto (o un PDF) por lectura.
+
 - **El catálogo público en tablet y computadora.** Desde 64rem el catálogo va
   en una columna centrada (`--ancho-catalogo`, 72rem): la cabecera y la barra de
   búsqueda siguen de borde a borde con su contenido alineado a la columna, la

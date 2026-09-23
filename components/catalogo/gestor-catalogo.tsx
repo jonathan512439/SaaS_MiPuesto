@@ -1115,7 +1115,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 <h3 id="titulo-ia-producto">Completá los campos con una foto del producto</h3>
                 <ol className={styles.pasosIa}>
                   <li>
-                    <b>1</b> Elegís la foto del producto
+                    <b>1</b> Sacás o elegís la foto del producto
                   </li>
                   <li>
                     <b>2</b> Se completan el nombre y la descripción
@@ -1126,15 +1126,32 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                     <b>3</b> Esa misma foto queda adjunta abajo
                   </li>
                 </ol>
-                <label className={styles.abrirIa}>
-                  {leyendoFoto ? "Mirando la foto…" : "Elegir la foto"}
-                  <input
-                    accept="image/jpeg,image/png,image/webp"
-                    disabled={leyendoFoto}
-                    onChange={(evento) => void completarConFoto(evento)}
-                    type="file"
-                  />
-                </label>
+                {/* Con el producto en la mano, sacarle la foto ahí mismo es un paso
+                    menos que buscarla en la galería. `capture` abre la cámara de
+                    atrás; en una computadora se ignora, y por eso ese botón solo
+                    aparece en pantallas táctiles. Las dos gastan una lectura y
+                    las dos llevan el degradado que lo avisa. */}
+                <div className={styles.accionesIa}>
+                  <label className={`${styles.abrirIa} ${styles.soloTactil}`}>
+                    {leyendoFoto ? "Mirando la foto…" : "Sacar una foto"}
+                    <input
+                      accept="image/*"
+                      capture="environment"
+                      disabled={leyendoFoto}
+                      onChange={(evento) => void completarConFoto(evento)}
+                      type="file"
+                    />
+                  </label>
+                  <label className={styles.abrirIa}>
+                    {leyendoFoto ? "Mirando la foto…" : "Elegir una foto"}
+                    <input
+                      accept="image/jpeg,image/png,image/webp"
+                      disabled={leyendoFoto}
+                      onChange={(evento) => void completarConFoto(evento)}
+                      type="file"
+                    />
+                  </label>
+                </div>
                 <small>{AYUDA_PRODUCTO.advertencia}</small>
               </div>
               {/* Cuántas quedan, en un renglón y pegado al botón que las gasta.
