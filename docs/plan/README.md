@@ -29,6 +29,7 @@ la página, son sus categorías, sus campos y sus acciones.
 | [`07-PRUEBAS.md`](07-PRUEBAS.md) | Qué se prueba, con qué, y las guardias del build |
 | [`08-VOCABULARIO.md`](08-VOCABULARIO.md) | Cómo escribe el sistema. Lista de palabras prohibidas |
 | [`09-DIRECTORIO-Y-FORMAS.md`](09-DIRECTORIO-Y-FORMAS.md) | Fases 10 a 12: tres formas de tarjeta, ubicación y rubro público, y el directorio buscable |
+| [`10-TALLAS-Y-PRESENTACIONES.md`](10-TALLAS-Y-PRESENTACIONES.md) | Fase 13: tallas, números de calzado y tamaños que se reservan, se cobran y llegan al pedido |
 
 ## Las reglas que no se rompen
 

@@ -148,7 +148,10 @@ esta.
 por WhatsApp dice cuál.
 
 **Lo que quedó fuera, y por qué está dicho en pantalla:** el carrito **todavía
-reserva sobre el total del producto**, no por presentación. Reservar por
+reserva sobre el total del producto**, no por presentación. **Se resuelve en la
+fase 13, [`10-TALLAS-Y-PRESENTACIONES.md`](10-TALLAS-Y-PRESENTACIONES.md)**,
+que además encontró que en los negocios con carrito la presentación elegida no
+llega al pedido y se cobra el precio base. Reservar por
 presentación toca cinco funciones de la base —la que crea el pedido y reserva,
 más las tres que devuelven lo reservado al confirmar, cancelar y expirar, más
 `pedido_items`—, que es el motor de compra completo. Eso es una fase en sí misma
