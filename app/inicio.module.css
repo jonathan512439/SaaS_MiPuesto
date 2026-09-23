@@ -516,7 +516,152 @@
   margin-top: var(--spacing-1);
 }
 
-/* ---- 5 · el directorio ---- */
+/* ---- 5 · las herramientas de IA ---- */
+
+/* El sello del apartado y la marca de cada ejemplo llevan el degradado de IA:
+   es el mismo que en el panel marca las funciones que usan la lectura de fotos,
+   así que quien lo vio acá lo reconoce allá. */
+.encabezado .selloSeccionIa {
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  gap: var(--spacing-1);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--ia-degradado);
+  color: var(--color-ia-sobre);
+  font-size: var(--text-sm);
+  font-weight: 900;
+}
+
+.ia {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.iaEjemplo {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-2);
+}
+
+.iaEjemplo h3 {
+  margin-top: var(--spacing-2);
+  font-size: var(--text-xl);
+}
+
+.iaEjemplo > p {
+  color: var(--color-texto-suave);
+}
+
+/* Lo que entra, la marca de IA y lo que sale, en una fila. En un teléfono
+   angosto se apila: el orden se lee igual de arriba hacia abajo. */
+.iaDibujo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-3);
+  min-height: calc(var(--spacing-32) + var(--spacing-12));
+  border-radius: var(--radius-sheet);
+  padding: var(--spacing-5);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+}
+
+.iaDibujo .papel {
+  width: 100%;
+  font-size: var(--text-sm);
+}
+
+.iaMarca {
+  display: grid;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  place-items: center;
+  border-radius: var(--radius-status);
+  background: var(--ia-degradado);
+  color: var(--color-ia-sobre);
+  font-size: var(--text-lg);
+}
+
+.iaProductos {
+  display: grid;
+  gap: var(--spacing-2);
+  padding: 0;
+  list-style: none;
+}
+
+.iaProductos li {
+  display: grid;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-fondo-hundido);
+  font-size: var(--text-xs);
+  line-height: 1.3;
+}
+
+.iaProductos strong {
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-sm);
+}
+
+.iaFoto {
+  justify-self: center;
+  width: 100%;
+  max-width: 7rem;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: var(--radius-panel);
+  object-fit: cover;
+}
+
+.iaFicha {
+  display: grid;
+  gap: var(--spacing-1);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  background: var(--color-fondo-hundido);
+  font-size: var(--text-sm);
+  line-height: 1.35;
+}
+
+.iaFicha span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.iaNota {
+  max-width: 48rem;
+  color: var(--color-texto-suave);
+}
+
+.iaNota strong {
+  color: var(--color-texto);
+}
+
+@media (max-width: 29.99rem) {
+  .iaDibujo {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+
+  .iaDibujo > * {
+    width: min(100%, 15rem);
+  }
+
+  .iaDibujo .iaMarca {
+    width: var(--spacing-10);
+  }
+}
+
+@media (min-width: 48rem) {
+  .ia {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-6);
+  }
+}
+
+/* ---- 6 · el directorio ---- */
 
 .encontrar {
   padding: var(--spacing-14) 0;

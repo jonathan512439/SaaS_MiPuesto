@@ -1726,6 +1726,26 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **El catálogo público en tablet y computadora.** Desde 64rem el catálogo va
+  en una columna centrada (`--ancho-catalogo`, 72rem): la cabecera y la barra de
+  búsqueda siguen de borde a borde con su contenido alineado a la columna, la
+  portada entra en ella a 3:1 con sus esquinas (a lo ancho de un monitor medía
+  ~580 px de alto), y las columnas de productos dejan de crecer con la pantalla
+  (vitrina 5, cuadrícula 5, fila 3). Desde 48rem las categorías son pastillas
+  con el nombre entero en vez de cuadraditos con «Perfum…». El teléfono no
+  cambia, ni el que dibuja la portada (`data-marco="telefono"` lo deja afuera).
+  **El banner estaba roto en producción**: `next/image` pasa por @unpic, que
+  con `width`/`height` le escribía al elemento un tope de 800 × 200 y pedía la
+  foto recortada a 4:1; ahora va con `fill` y la franja tiene su forma en el
+  CSS. El logo de la cabecera lleva su medida en el CSS por la misma razón.
+  La guardia de tokens acepta `max()`, `min()` y `clamp()` con la regla de
+  `calc()` (probada con dos casos rotos a propósito).
+- **Portada: las herramientas de IA en dos ejemplos** —la lista escrita que
+  sale producto por producto, la foto que completa nombre y descripción— con
+  las lecturas de cada plan leídas de `lib/planes.ts`; la pregunta frecuente
+  equivalente se quitó. **El nombre MiPuesto no se esconde más** en teléfonos
+  de 360 px: ahí «Ingresar» queda en su silueta.
+
 - **Portada y directorio, rediseñados: la noche y el sol.** El sitio público
   tiene su propia paleta —fondo noche, acento sol y la cinta de aguayo como
   firma— con tokens `--color-sitio-*` y `--aguayo` y sus pares en la guardia de

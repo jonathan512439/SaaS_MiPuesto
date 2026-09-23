@@ -35,8 +35,11 @@ export function CabeceraSitio({ actual }: { actual: "inicio" | "directorio" }) {
           <Link className={styles.secundario} href="/#precio">
             Precios
           </Link>
+          {/* En un teléfono angosto queda la silueta sola, y el nombre de MiPuesto
+              conserva su lugar: la marca no es lo que se esconde. */}
           <Link className={styles.ingresar} href="/login">
-            Ingresar
+            <Icono nombre="persona" />
+            <span>Ingresar</span>
           </Link>
         </nav>
       </div>

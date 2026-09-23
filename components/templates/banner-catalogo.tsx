@@ -31,18 +31,21 @@ export function BannerCatalogo({
 }) {
   if (!banner) return null;
 
-  /* La imagen lleva medidas y `sizes` porque es lo más ancho de la pantalla: sin
-     eso, el catálogo salta cuando el banner termina de bajar, y ese salto se
-     mide en el presupuesto de la fase 9. La proporción la fija el CSS, así que
-     acá alcanza con un par de números que mantengan la relación. */
+  /* La imagen llena la franja, y la franja tiene su forma en el CSS: así el
+     catálogo no salta cuando el banner termina de bajar.
+
+     Con `fill` y no con medidas. En producción, `next/image` pasa por @unpic,
+     que convierte `width` y `height` en un tope fijo —800 × 200— escrito en el
+     propio elemento: en una tablet o una computadora el banner quedaba en una
+     esquina de su franja, y además se pedía recortado a 4:1 cuando la franja es
+     2:1. */
   const imagen = (
     <Image
       alt={banner.alt}
       className={styles.imagen}
-      height={200}
-      sizes="(min-width: 60rem) 800px, 100vw"
+      fill
+      sizes="(min-width: 64rem) 832px, 100vw"
       src={banner.imagen}
-      width={800}
     />
   );
 

@@ -20,6 +20,7 @@
  * acá sería el único sitio del catálogo que tiene una.
  */
 .banner {
+  position: relative;
   display: block;
   overflow: hidden;
   width: 100%;
@@ -37,18 +38,19 @@
   --banner-alto: 1;
 }
 
-.imagen {
-  display: block;
-  width: 100%;
-  height: auto;
+/* Sin texto, la forma la tiene la franja y la imagen la llena (`fill`). */
+div.banner,
+a.banner {
   aspect-ratio: var(--banner-ancho) / var(--banner-alto);
+}
+
+.imagen {
   object-fit: cover;
 }
 
 /* Con texto encima, la franja es una figura: la imagen de fondo y el texto
    sobre un velo para que se lea sin depender de la foto. */
 figure.banner {
-  position: relative;
   margin: 0;
   /* Para medir el alto mínimo del texto contra el ancho de **esta** franja y no
      contra el de la pantalla: el banner tiene márgenes a los costados, y en

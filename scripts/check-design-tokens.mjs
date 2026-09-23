@@ -53,7 +53,10 @@ const MEDIDA_ABSOLUTA = /\d*\.?\d+\s*(?:px|rem|em|ch|vh|vw|pt)\b/;
 function valorDeEspaciadoValido(valor) {
   if (valor === "0" || valor === "auto") return true;
   if (valor.startsWith("var(")) return true;
-  if (valor.startsWith("calc(")) return !MEDIDA_ABSOLUTA.test(valor);
+  /* `max`, `min` y `clamp` con la misma regla que `calc`: sirven para combinar
+     tokens —«el margen del catálogo, o lo que sobre a los costados si es
+     más»— y siguen sin poder traer una medida escrita a mano. */
+  if (/^(?:calc|max|min|clamp)\(/.test(valor)) return !MEDIDA_ABSOLUTA.test(valor);
   return false;
 }
 

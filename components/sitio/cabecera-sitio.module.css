@@ -90,7 +90,13 @@
 }
 
 .ingresar {
+  gap: var(--spacing-2);
   border: var(--borde-fino) solid color-mix(in srgb, var(--color-sitio-sobre-noche) 45%, transparent);
+}
+
+.ingresar svg {
+  display: none;
+  font-size: var(--text-lg);
 }
 
 /* «Precios» cede el lugar en el teléfono: el directorio y la entrada son lo
@@ -118,8 +124,33 @@
   }
 }
 
+/* Donde no entran los tres, «Ingresar» queda en su silueta —el nombre sigue
+   ahí para quien usa lector de pantalla— y la marca conserva su nombre. */
 @media (max-width: 24rem) {
-  .marca span {
-    display: none;
+  .contenido {
+    gap: var(--spacing-2);
+  }
+
+  .marca {
+    font-size: var(--text-lg);
+  }
+
+  .ingresar {
+    justify-content: center;
+    min-width: var(--control-alto);
+    padding: var(--spacing-2);
+  }
+
+  .ingresar svg {
+    display: block;
+  }
+
+  .ingresar span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }

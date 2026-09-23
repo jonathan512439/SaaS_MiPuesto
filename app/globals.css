@@ -258,6 +258,11 @@
      una planilla: con el ancho del panel, el título quedaba pegado a un borde
      y el teléfono al otro, con un pasillo vacío en el medio. */
   --ancho-sitio: 76rem;
+  /* La columna del catálogo público en tablet y computadora. A lo ancho de un
+     monitor, las tarjetas quedaban del tamaño de una mano y la portada de media
+     pantalla de alto; la cabecera y la barra de búsqueda siguen de borde a
+     borde, con su contenido alineado a esta columna. */
+  --ancho-catalogo: 72rem;
   --ancho-lectura: 65ch;
   background: var(--color-superficie);
   color: var(--color-texto);

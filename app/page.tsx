@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import { BuscadorVivo } from "../components/directorio/buscador-vivo";
@@ -66,11 +67,6 @@ const PREGUNTAS = [
       "Sirve para pocos productos. Acá tenés dirección propia, QR, buscador, carrito con el total y promociones con fecha. La venta se sigue cerrando en tu WhatsApp.",
   },
   {
-    pregunta: "¿Qué hacen las herramientas de IA?",
-    respuesta:
-      "Le sacás foto a tu lista de precios y sale separada producto por producto para que la revises. O desde la foto de un producto se completan el nombre y la descripción. El precio lo ponés vos.",
-  },
-  {
     pregunta: "¿La tarjeta de acrílico incluye el catálogo?",
     respuesta: `No. La tarjeta se paga una vez, Bs ${TARJETA_ACRILICO.precioBs} cada una, con diseño, QR y NFC configurados. El catálogo es la suscripción mensual, aparte.`,
   },
@@ -84,6 +80,10 @@ const PREGUNTAS = [
     respuesta: "Sí. En vez de carrito, tus clientes reservan hora: barberías, consultorios, talleres.",
   },
 ];
+
+/* Las lecturas de foto de cada plan, del mismo lugar que las cobra el sistema:
+   si la portada dijera otro número, el reclamo llega por WhatsApp y con razón. */
+const LECTURAS = Object.fromEntries(PLANES.map((plan) => [plan.id, plan.lecturasPorMes]));
 
 /* La cinta de rubros: el nombre corto, sin la segunda mitad («Pollería y
    broaster» pasa a «Pollería»), que en una cinta que corre se lee de un vistazo. */
@@ -280,7 +280,74 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 5 · El directorio, con su buscador de verdad: se prueba acá mismo. */}
+        {/* 5 · Las herramientas de IA, en dos ejemplos: lo que entra y lo que
+            sale. El texto es el mínimo; lo explican los dibujos. */}
+        <section aria-labelledby="con-ia" className={styles.seccion}>
+          <div className={styles.seccionContenido}>
+            <div className={styles.encabezado}>
+              <p className={styles.selloSeccionIa}>
+                <Icono nombre="rayo" />
+                Herramientas de IA
+              </p>
+              <h2 id="con-ia">Una foto, y tu catálogo se carga solo</h2>
+            </div>
+            <div className={styles.ia}>
+              <article className={styles.iaEjemplo}>
+                <div aria-hidden="true" className={styles.iaDibujo}>
+                  <div className={styles.papel}>
+                    {LISTA_A_MANO.map(({ nombre, precio }) => (
+                      <p key={nombre}>
+                        <span>{nombre}</span>
+                        <span>{precio}</span>
+                      </p>
+                    ))}
+                  </div>
+                  <span className={styles.iaMarca}>
+                    <Icono nombre="rayo" />
+                  </span>
+                  <ul className={styles.iaProductos}>
+                    {LISTA_A_MANO.map(({ nombre, precio }) => (
+                      <li key={nombre}>
+                        <span>{nombre}</span>
+                        <strong>Bs {precio}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <h3>Tu lista de precios</h3>
+                <p>Escrita a mano o impresa: sale separada producto por producto.</p>
+              </article>
+              <article className={styles.iaEjemplo}>
+                <div aria-hidden="true" className={styles.iaDibujo}>
+                  <Image
+                    alt=""
+                    className={styles.iaFoto}
+                    height={112}
+                    src="/demo/productos/hamburguesa.webp"
+                    width={112}
+                  />
+                  <span className={styles.iaMarca}>
+                    <Icono nombre="rayo" />
+                  </span>
+                  <div className={styles.iaFicha}>
+                    <strong>Hamburguesa de la casa</strong>
+                    <span>Doble carne, queso, vegetales frescos y salsa de la casa.</span>
+                  </div>
+                </div>
+                <h3>La foto de un producto</h3>
+                <p>Se completan el nombre y la descripción.</p>
+              </article>
+            </div>
+            <p className={styles.iaNota}>
+              Revisás todo antes de publicar y el precio lo ponés vos.{" "}
+              <strong>
+                {LECTURAS.catalogo} fotos al mes en Catálogo, {LECTURAS.activo} en Catálogo Activo.
+              </strong>
+            </p>
+          </div>
+        </section>
+
+        {/* 6 · El directorio, con su buscador de verdad: se prueba acá mismo. */}
         <section aria-labelledby="te-encuentran" className={styles.encontrar}>
           <div className={styles.encontrarContenido}>
             <div className={styles.encabezadoNoche}>
@@ -301,7 +368,7 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 6 · El precio. Dos planes y, aparte, lo que se paga una sola vez. */}
+        {/* 7 · El precio. Dos planes y, aparte, lo que se paga una sola vez. */}
         <section aria-labelledby="precio" className={styles.seccion}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
@@ -386,7 +453,7 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 7 · La tarjeta: el catálogo sale del teléfono y se sienta en la mesa. */}
+        {/* 8 · La tarjeta: el catálogo sale del teléfono y se sienta en la mesa. */}
         <section aria-labelledby="tarjeta" className={styles.seccionTarjeta}>
           <div className={styles.tarjetaContenido}>
             <div className={styles.tarjetaTexto}>
@@ -458,7 +525,7 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 8 · Las dudas que quedan, donde las busca quien las tiene. */}
+        {/* 9 · Las dudas que quedan, donde las busca quien las tiene. */}
         <section aria-labelledby="preguntas" className={styles.seccionSuave}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
@@ -475,7 +542,7 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 9 · El cierre, con la misma acción que la portada. */}
+        {/* 10 · El cierre, con la misma acción que la portada. */}
         <section aria-labelledby="cierre" className={styles.cierre}>
           <div className={styles.cierreContenido}>
             <Isotipo className={styles.isotipoCierre} titulo="MiPuesto" />

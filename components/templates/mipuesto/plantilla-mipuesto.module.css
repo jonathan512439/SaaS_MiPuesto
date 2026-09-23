@@ -67,7 +67,13 @@
   min-width: 0;
 }
 
+/* Con su medida escrita acá y no solo en el elemento: un logo vertical se
+   estiraba a lo alto de la cabecera, y solo no pasaba en producción porque el
+   optimizador de imágenes le ponía un tope por su cuenta. */
 .logo {
+  flex-shrink: 0;
+  width: var(--spacing-14);
+  height: var(--spacing-14);
   border-radius: var(--radius-control);
   object-fit: cover;
 }
@@ -483,24 +489,12 @@
   }
 }
 
+/* Desde acá el catálogo tiene su columna (`--ancho-catalogo`), así que las
+   columnas ya no siguen creciendo con el monitor: cinco tarjetas de unos
+   doscientos píxeles es el tamaño en que una foto se reconoce y el nombre entra. */
 @media (min-width: 64rem) {
   .rejilla {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-/* Sin el tope de ancho, un monitor grande tiene lugar para más productos por
-   fila. Se suman columnas en vez de ensanchar las tarjetas, que es la misma
-   regla de siempre: la tarjeta tiene un tamaño bueno y no hay que estirarlo. */
-@media (min-width: 80rem) {
-  .rejilla {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 100rem) {
-  .rejilla {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
 
@@ -728,7 +722,7 @@
   }
 }
 
-@media (min-width: 80rem) {
+@media (min-width: 64rem) {
   .secciones[data-forma="fila"] .rejilla {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -795,9 +789,11 @@
   }
 }
 
-@media (min-width: 100rem) {
+/* Con la columna llena, cinco: a cuatro, cada vitrina medía trescientos por
+   cuatrocientos píxeles y la pantalla entera eran ocho productos. */
+@media (min-width: 80rem) {
   .secciones[data-forma="vitrina"] .rejilla {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
@@ -1069,6 +1065,129 @@
    bloque. Dos curvas enfrentadas dejarían un ojal de fondo en el medio. */
 .catalogo[data-con-portada="si"] .cabecera {
   border-radius: 0;
+}
+
+/* ---- Tablet y computadora ----
+ *
+ * Todo lo de abajo deja afuera al catálogo que va dentro de un teléfono
+ * dibujado (`data-marco="telefono"`): ese sigue siendo un teléfono aunque la
+ * ventana sea un monitor. */
+
+/* Las categorías pasan a ser pastillas con el nombre entero. Los cuadraditos
+   con el nombre cortado («Perfum…», «Consul…») son para un teléfono, donde el
+   ancho no alcanza; en una tablet sobra lugar y el nombre es lo que se busca. */
+@media (min-width: 48rem) {
+  .catalogo:not([data-marco="telefono"] *) .esfera,
+  .catalogo:not([data-marco="telefono"] *) .esferaActiva {
+    display: inline-flex;
+    width: auto;
+    align-items: center;
+    gap: var(--spacing-2);
+    min-height: var(--control-alto);
+    border: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
+    border-radius: var(--radius-status);
+    padding: var(--spacing-1) var(--spacing-4) var(--spacing-1) var(--spacing-1);
+    background: var(--catalogo-superficie);
+  }
+
+  .catalogo:not([data-marco="telefono"] *) .esferaActiva {
+    border-color: var(--catalogo-marca);
+    background: var(--catalogo-marca);
+    color: var(--catalogo-sobre-marca);
+  }
+
+  .catalogo:not([data-marco="telefono"] *) .esferaIcono {
+    width: var(--spacing-8);
+    height: var(--spacing-8);
+    border: 0;
+    border-radius: var(--radius-status);
+    background: var(--catalogo-fondo-suave);
+    box-shadow: none;
+    font-size: var(--text-base);
+  }
+
+  .catalogo:not([data-marco="telefono"] *) .esferaActiva .esferaIcono {
+    background: color-mix(in srgb, var(--catalogo-sobre-marca) 18%, transparent);
+    color: inherit;
+  }
+
+  .catalogo:not([data-marco="telefono"] *) .esferaNombre {
+    max-width: none;
+    overflow: visible;
+    font-size: var(--text-sm);
+  }
+
+  /* En una tablet la fila todavía se desliza; en Windows eso dibujaba una barra
+     gris gruesa debajo de las pastillas. */
+  .catalogo:not([data-marco="telefono"] *) .esferas {
+    scrollbar-color: var(--catalogo-borde) transparent;
+    scrollbar-width: thin;
+  }
+}
+
+/* En computadora el catálogo se ordena en una columna centrada. La cabecera y
+   la barra de búsqueda siguen de borde a borde —son la barra del negocio—, con
+   su contenido alineado a esa columna; todo lo demás va adentro. Con líneas de
+   la rejilla con nombre en vez de márgenes negativos, porque acá el costado ya
+   no es un margen fijo sino lo que sobre de la pantalla. */
+@media (min-width: 64rem) {
+  .catalogo:not([data-marco="telefono"] *) {
+    /* Los nombres terminan en `-start` y `-end` porque así los pide CSS para
+       que `grid-column: contenido` encuentre el área. */
+    /* La columna mide lo menor entre su tope y lo que queda después de los dos
+       márgenes; los costados se reparten el resto. Con `minmax(…, 1fr)` a los
+       costados, el reparto les daba de más y la portada quedaba corrida unos
+       píxeles respecto del buscador. */
+    grid-template-columns:
+      [borde-start] 1fr
+      [contenido-start] min(calc(100% - var(--margen-lateral) * 2), var(--ancho-catalogo))
+      [contenido-end] 1fr
+      [borde-end];
+    padding-inline: 0;
+  }
+
+  /* El dibujo de fondo (`aria-hidden`) queda afuera: va en posición absoluta y
+     tiene que cubrir la hoja entera, no solo la columna. */
+  .catalogo:not([data-marco="telefono"] *) > :not([aria-hidden="true"]) {
+    grid-column: contenido;
+  }
+
+  .catalogo:not([data-marco="telefono"] *) > .cabecera,
+  .catalogo:not([data-marco="telefono"] *) > .barraFija {
+    grid-column: borde;
+    margin-inline: 0;
+    padding-inline: max(var(--margen-lateral), calc((100% - var(--ancho-catalogo)) / 2));
+  }
+
+  /* Las categorías, todas a la vista: con el mouse una fila que se desliza de
+     costado no se descubre. */
+  .catalogo:not([data-marco="telefono"] *) .esferas {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+
+  /* La portada entra en la columna, con sus esquinas, y más apaisada: a lo
+     ancho de un monitor medía seiscientos píxeles de alto y recortaba la foto
+     por arriba y por abajo. */
+  .catalogo:not([data-marco="telefono"] *) > .portada {
+    aspect-ratio: 3 / 1;
+    margin: 0;
+    border-radius: var(--radius-panel);
+  }
+
+  .catalogo:not([data-marco="telefono"] *)[data-con-portada="si"] > .cabecera {
+    border-radius: 0 0 var(--radius-panel) var(--radius-panel);
+  }
+
+  /* El banner conserva su 2:1 —es la forma que el dueño preparó—, pero no a lo
+     ancho de toda la columna: seiscientos píxeles de alto de publicidad cortan
+     el catálogo en dos. */
+  .catalogo:not([data-marco="telefono"] *) .anuncio {
+    justify-self: center;
+    max-width: 52rem;
+  }
 }
 
 /* Dentro de un teléfono dibujado —la portada del sitio lo muestra en un marco
