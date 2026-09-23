@@ -16,16 +16,30 @@ import styles from "./editor-de-variantes.module.css";
  * «19»— no es un número todavía. Convertirlo en cada tecla haría que borrar el
  * último dígito mostrara otra cosa. Se convierten al guardar. */
 type VarianteEnEdicion = {
+  /* El de la base, o `null` si todavía no se guardó. Se reenvía al guardar para
+     que la presentación conserve su identidad: a ella apuntan las reservas y los
+     pedidos (fase 13). */
+  id: string | null;
   nombre: string;
   precio: string;
   cantidadStock: string;
 };
 
 type FilaGuardada = {
+  id: string;
   nombre: string;
   precio: number | null;
   cantidad_stock: number | null;
 };
+
+function aEdicion(fila: FilaGuardada): VarianteEnEdicion {
+  return {
+    id: fila.id,
+    nombre: fila.nombre,
+    precio: fila.precio === null ? "" : String(fila.precio),
+    cantidadStock: fila.cantidad_stock === null ? "" : String(fila.cantidad_stock),
+  };
+}
 
 /* Las presentaciones de un producto: talla, color, tamaño.
  *
@@ -56,13 +70,7 @@ export function EditorDeVariantes({
         const respuesta = await fetch(`/api/catalogo/productos/${productoId}/variantes`);
         const datos = (await respuesta.json()) as { variantes?: FilaGuardada[] };
         if (!vigente) return;
-        setVariantes(
-          (datos.variantes ?? []).map((fila) => ({
-            nombre: fila.nombre,
-            precio: fila.precio === null ? "" : String(fila.precio),
-            cantidadStock: fila.cantidad_stock === null ? "" : String(fila.cantidad_stock),
-          })),
-        );
+        setVariantes((datos.variantes ?? []).map(aEdicion));
       } catch {
         if (vigente) setVariantes([]);
       }
@@ -105,6 +113,7 @@ export function EditorDeVariantes({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           variantes: (variantes ?? []).map((variante) => ({
+            id: variante.id,
             nombre: variante.nombre,
             precio: variante.precio,
             cantidadStock: variante.cantidadStock,
@@ -120,6 +129,9 @@ export function EditorDeVariantes({
         setErrores(datos.errores ?? {});
         throw new Error(datos.error || "No se pudieron guardar las presentaciones.");
       }
+      /* Lo que quedó guardado, con los identificadores de las nuevas: el
+         próximo guardado tiene que actualizarlas, no crearlas de nuevo. */
+      setVariantes(datos.variantes.map(aEdicion));
       mostrarAviso({ titulo: "Presentaciones guardadas", variante: "exito" });
     } catch (error) {
       mostrarAviso({
@@ -228,7 +240,7 @@ export function EditorDeVariantes({
         <Boton
           disabled={variantes.length >= MAXIMO_VARIANTES || guardando}
           onClick={() =>
-            setVariantes([...variantes, { nombre: "", precio: "", cantidadStock: "" }])
+            setVariantes([...variantes, { id: null, nombre: "", precio: "", cantidadStock: "" }])
           }
           type="button"
           variante="secundario"

@@ -122,14 +122,18 @@ begin
     insert into public.variantes_producto (negocio_id, producto_id, nombre, orden)
     values (v_negocio, v_producto, '40', 1);
 
-    -- `40,0` es `40`: la unicidad lo reconoce como repetido.
+    -- `40,0` es `40`: la unicidad lo reconoce como repetido. Desde el paso 2
+    -- se comprueba al final de la transacción (para que el editor pueda
+    -- intercambiar nombres), así que acá se fuerza en el momento.
     begin
       insert into public.variantes_producto (negocio_id, producto_id, nombre, orden)
       values (v_negocio, v_producto, '40,0', 2);
+      set constraints public.variantes_nombre_unico immediate;
       raise exception 'FALLO: se aceptó «40,0» junto a «40».';
     exception
       when unique_violation then null;
     end;
+    set constraints public.variantes_nombre_unico deferred;
 
     -- 3.2 El tope es 24: la número 25 se rechaza.
     delete from public.variantes_producto where producto_id = v_producto;
@@ -158,13 +162,16 @@ begin
       raise exception 'FALLO: la talla «m» no se guardó como «M».';
     end if;
 
+    -- Desde el paso 2 lo comprueba la validación diferida del producto.
     begin
       update public.productos set tipo_presentacion = 'numero' where id = v_producto;
+      set constraints public.productos_existencias_coherentes immediate;
       raise exception 'FALLO: se pasó a «número» un producto con la talla «M».';
     exception
       when check_violation then
         if sqlerrm <> 'NUMERO_INVALIDO' then raise; end if;
     end;
+    set constraints public.productos_existencias_coherentes deferred;
 
     -- 3.4 Nunca más reservado que las existencias; la reservada no se borra.
     update public.variantes_producto set cantidad_stock = 10 where producto_id = v_producto;

@@ -829,6 +829,7 @@ export type Database = {
           cantidad_stock: number | null
           categoria_id: string | null
           codigo: string
+          con_presentaciones: boolean
           controla_stock: boolean
           creado_en: string
           descripcion: string | null
@@ -858,6 +859,7 @@ export type Database = {
           cantidad_stock?: number | null
           categoria_id?: string | null
           codigo?: string
+          con_presentaciones?: boolean
           controla_stock?: boolean
           creado_en?: string
           descripcion?: string | null
@@ -887,6 +889,7 @@ export type Database = {
           cantidad_stock?: number | null
           categoria_id?: string | null
           codigo?: string
+          con_presentaciones?: boolean
           controla_stock?: boolean
           creado_en?: string
           descripcion?: string | null
@@ -1356,6 +1359,32 @@ export type Database = {
       expirar_reservas_vencidas: {
         Args: { p_limite?: number }
         Returns: number
+      }
+      guardar_presentaciones: {
+        Args: {
+          p_existencias_producto?: number
+          p_presentaciones: Json
+          p_producto_id: string
+          p_tipo: string
+        }
+        Returns: {
+          cantidad_reservada: number
+          cantidad_stock: number | null
+          creado_en: string
+          id: string
+          negocio_id: string
+          nombre: string
+          orden: number
+          precio: number | null
+          producto_id: string
+          visible: boolean
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "variantes_producto"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       normalizar_numero_calzado: { Args: { p_texto: string }; Returns: string }
       normalizar_talla: { Args: { p_texto: string }; Returns: string }

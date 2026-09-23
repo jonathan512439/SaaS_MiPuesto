@@ -1726,6 +1726,41 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Fase 13, paso 2: la talla se reserva, se cobra y se descuenta.** Migración
+  `20261019090000`:
+  - **Fuente única de existencias sostenida por la base**: `productos.con_presentaciones`
+    (la calcula la base), un disparador que deja en nulo las existencias del
+    producto que las lleva por presentación y le calcula el estado
+    (`estado_por_presentaciones`), y una comprobación **diferida** al final de la
+    transacción (existencias coherentes y números de calzado válidos). Da igual
+    quién escriba: el formulario viejo, la API o el motor.
+  - **El motor de compra**: `crear_pedido_reservado` exige la presentación
+    (`PRESENTACION_REQUERIDA`), la valida (`PRESENTACION_NO_DISPONIBLE`), cobra
+    su precio —la propia sin promoción, o la del producto con promoción, la misma
+    regla que el catálogo— y reserva sobre ella; confirmar, cancelar y expirar
+    pasan por una sola función, `liberar_reservas_del_pedido`. Bloqueo en orden
+    fijo (productos y después presentaciones) contra interbloqueos. Sin tablas
+    temporales: una por pedido escribe en el catálogo de Postgres.
+  - **`guardar_presentaciones`** reemplaza al borrar-y-volver-a-crear del
+    editor: conserva los identificadores, se niega a borrar una presentación con
+    unidades apartadas, y guarda tipo y presentaciones en una transacción.
+  - La ruta de pedidos acepta `varianteId`, traduce los errores nuevos y el
+    mensaje de WhatsApp dice «Zapatilla Runner (N.º 40,5)»; el editor actual ya
+    reenvía los identificadores; «Marcar agotado» explica que un producto con
+    presentaciones se agota por presentación.
+  - **Pruebas** (todas en la base de ensayo): `fase13-motor.sql` (reservar,
+    confirmar, cancelar, expirar una sola vez, precios, agotados, fuente única,
+    permisos, regresión del pedido sin presentación), probada rompiendo la regla
+    de precio; `test-presentaciones-concurrencia.mjs`: 20 compradores por el último
+    par → gana 1; 50 pedidos mezclados → nunca de más; 30 cruzados → cero
+    interbloqueos; 5 expiraciones a la vez → una devolución. **Probada quitando
+    los bloqueos con la ventana de carrera abierta (0,2 s):** la restricción de la
+    tabla igual impide apartar de más, pero el comprador recibe un error técnico
+    en vez de «no alcanza», y la prueba lo detecta. Con los bloqueos pasa.
+    La prueba encontró dos errores propios antes de producción (`with ordinality`
+    con lista de columnas, y la limpieza en dos pasos que la fuente única rechaza).
+  - `test:rls:linked` en verde en producción.
+
 - **Décimo defecto del respaldo, corregido.** La restauración no copiaba los
   permisos del **esquema** `private`: saltea las entradas SCHEMA del volcado y
   crea el esquema a mano, sin el `usage` que producción le da a `service_role`.

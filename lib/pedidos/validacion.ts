@@ -5,6 +5,9 @@ export const LIMITE_CANTIDAD_ITEM = 99;
 
 export type ItemSolicitudPedido = {
   productoId: string;
+  /* La presentación elegida —la talla, el número, el tamaño—, o `null` si el
+     producto no tiene. Que corresponda a ese producto lo decide la base. */
+  varianteId: string | null;
   cantidad: number;
 };
 
@@ -64,18 +67,27 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
       return { correcto: false, error: "Hay un producto no válido en el pedido." };
     }
     const datosItem = item as Record<string, unknown>;
+    const sinVariante =
+      datosItem.varianteId === undefined || datosItem.varianteId === null || datosItem.varianteId === "";
+    if (!sinVariante && !esUuid(datosItem.varianteId)) {
+      return { correcto: false, error: "Revisa los productos y sus cantidades." };
+    }
+    const varianteId = sinVariante ? null : (datosItem.varianteId as string);
+    /* La M y la L del mismo producto son dos renglones; la M dos veces, no. */
+    const clave = `${String(datosItem.productoId)}:${varianteId ?? ""}`;
     if (
       !esUuid(datosItem.productoId) ||
       !Number.isInteger(datosItem.cantidad) ||
       Number(datosItem.cantidad) < 1 ||
       Number(datosItem.cantidad) > LIMITE_CANTIDAD_ITEM ||
-      identificadores.has(datosItem.productoId)
+      identificadores.has(clave)
     ) {
       return { correcto: false, error: "Revisa los productos y sus cantidades." };
     }
-    identificadores.add(datosItem.productoId);
+    identificadores.add(clave);
     items.push({
       productoId: datosItem.productoId,
+      varianteId,
       cantidad: Number(datosItem.cantidad),
     });
   }

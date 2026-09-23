@@ -186,13 +186,26 @@ export async function PATCH(solicitud: NextRequest) {
   ) {
     const { data: actual } = await contexto.supabase
       .from("productos")
-      .select("controla_stock,cantidad_stock,cantidad_reservada")
+      .select("controla_stock,cantidad_stock,cantidad_reservada,con_presentaciones")
       .eq("id", datos.id)
       .eq("negocio_id", contexto.negocio.id)
       .is("eliminado_en", null)
       .maybeSingle();
     if (!actual) {
       return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
+    }
+
+    /* Con existencias por presentación, el producto no tiene las suyas: ponerle
+       cero no significa nada y la base lo descartaría. Se agota talla por talla,
+       o se oculta el producto. */
+    if (actual.controla_stock && actual.con_presentaciones) {
+      return NextResponse.json(
+        {
+          error:
+            "Este producto lleva existencias por presentación. Cámbialas en cada talla, número o tamaño.",
+        },
+        { status: 409 },
+      );
     }
 
     /* Con control de existencias el estado lo decide el stock, así que marcar

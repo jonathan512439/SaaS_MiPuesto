@@ -4,6 +4,8 @@ import { normalizarTelefonoCliente, validarSolicitudPedido } from "./validacion"
 
 const PRODUCTO_ID = "50000000-0000-4000-8000-000000000002";
 const IDEMPOTENCIA = "90000000-0000-4000-8000-000000000001";
+const TALLA_M = "60000000-0000-4000-8000-000000000001";
+const TALLA_L = "60000000-0000-4000-8000-000000000002";
 
 describe("validación de pedidos", () => {
   it("normaliza los datos opcionales y acepta un pedido válido", () => {
@@ -21,7 +23,7 @@ describe("validación de pedidos", () => {
       datos: {
         numeroMesa: null,
       slug: "tienda-kantuta",
-        items: [{ productoId: PRODUCTO_ID, cantidad: 2 }],
+        items: [{ productoId: PRODUCTO_ID, varianteId: null, cantidad: 2 }],
         clienteNombre: "Ana Pérez",
         clienteTelefono: "59171234567",
         idempotencia: IDEMPOTENCIA,
@@ -59,6 +61,54 @@ describe("validación de pedidos", () => {
         idempotencia: IDEMPOTENCIA,
       }).correcto,
     ).toBe(false);
+  });
+
+  /* Fase 13: la presentación viaja en el renglón. Que sea de ese producto lo
+     decide la base; acá solo se exige que tenga forma de identificador. */
+  it("la M y la L del mismo producto son dos renglones; la M dos veces, no", () => {
+    const dos = validarSolicitudPedido({
+      slug: "tienda-kantuta",
+      items: [
+        { productoId: PRODUCTO_ID, varianteId: TALLA_M, cantidad: 1 },
+        { productoId: PRODUCTO_ID, varianteId: TALLA_L, cantidad: 2 },
+      ],
+      idempotencia: IDEMPOTENCIA,
+    });
+    expect(dos.correcto).toBe(true);
+    if (dos.correcto) {
+      expect(dos.datos.items).toEqual([
+        { productoId: PRODUCTO_ID, varianteId: TALLA_M, cantidad: 1 },
+        { productoId: PRODUCTO_ID, varianteId: TALLA_L, cantidad: 2 },
+      ]);
+    }
+
+    expect(
+      validarSolicitudPedido({
+        slug: "tienda-kantuta",
+        items: [
+          { productoId: PRODUCTO_ID, varianteId: TALLA_M, cantidad: 1 },
+          { productoId: PRODUCTO_ID, varianteId: TALLA_M, cantidad: 1 },
+        ],
+        idempotencia: IDEMPOTENCIA,
+      }).correcto,
+    ).toBe(false);
+  });
+
+  it("una presentación que no es un identificador se rechaza; vacía es «sin presentación»", () => {
+    expect(
+      validarSolicitudPedido({
+        slug: "tienda-kantuta",
+        items: [{ productoId: PRODUCTO_ID, varianteId: "M", cantidad: 1 }],
+        idempotencia: IDEMPOTENCIA,
+      }).correcto,
+    ).toBe(false);
+
+    const vacia = validarSolicitudPedido({
+      slug: "tienda-kantuta",
+      items: [{ productoId: PRODUCTO_ID, varianteId: "", cantidad: 1 }],
+      idempotencia: IDEMPOTENCIA,
+    });
+    expect(vacia.correcto && vacia.datos.items[0].varianteId).toBeNull();
   });
 
   it("valida celulares bolivianos solo cuando fueron informados", () => {

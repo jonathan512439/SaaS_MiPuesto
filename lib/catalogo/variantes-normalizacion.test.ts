@@ -8,6 +8,7 @@ import {
   normalizarNombreDePresentacion,
   normalizarNumeroCalzado,
   normalizarTalla,
+  nombreConPresentacion,
 } from "./variantes";
 
 const RAIZ = join(import.meta.dirname, "..", "..");
@@ -95,5 +96,25 @@ describe("la aplicación y la base dicen lo mismo", () => {
     const modelo = ultimaMigracionQueDefine("normalizar_numero_calzado");
     const lista = TIPOS_PRESENTACION.map((tipo) => `'${tipo}'`).join(", ");
     expect(modelo).toContain(`tipo_presentacion in (${lista})`);
+  });
+});
+
+describe("cómo se nombra la presentación al lado del producto", () => {
+  it("cada tipo con su palabra, y lo demás tal cual", () => {
+    expect(nombreConPresentacion("Zapatilla Runner", "numero", "40,5")).toBe(
+      "Zapatilla Runner (N.º 40,5)",
+    );
+    expect(nombreConPresentacion("Remera lisa", "talla", "M")).toBe("Remera lisa (Talla M)");
+    expect(nombreConPresentacion("Alimento adulto", "tamano", "7,5 kg")).toBe(
+      "Alimento adulto (7,5 kg)",
+    );
+    expect(nombreConPresentacion("Vaso de agua", "presentacion", "Grande")).toBe(
+      "Vaso de agua (Grande)",
+    );
+  });
+
+  it("sin presentación, el nombre solo", () => {
+    expect(nombreConPresentacion("Salteña", null, null)).toBe("Salteña");
+    expect(nombreConPresentacion("Salteña", "talla", "")).toBe("Salteña");
   });
 });

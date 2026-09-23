@@ -11,12 +11,16 @@ import { construirEnlaceWhatsapp, construirMensajePedido } from "../../../lib/wh
 import { crearClienteSupabaseAdmin } from "../../../lib/supabase/admin";
 import { leerAtributos, type Atributo } from "../../../lib/catalogo/atributos";
 import { valoresParaMostrar } from "../../../lib/catalogo/valores";
+import { nombreConPresentacion } from "../../../lib/catalogo/variantes";
 
 type ItemPedidoGuardado = {
   codigo: string;
   nombre: string;
   precio_unitario: number;
   cantidad: number;
+  /* La presentación elegida, copiada por la base: «40,5», «M», «7,5 kg». */
+  variante_nombre?: string | null;
+  tipo_presentacion?: string | null;
 };
 
 type PedidoGuardado = {
@@ -40,6 +44,16 @@ const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }> = {
   PRODUCTO_NO_DISPONIBLE: {
     estado: 409,
     mensaje: "Uno de los productos ya no está disponible. Actualiza el catálogo.",
+  },
+  /* Fase 13. Llegan cuando el catálogo que tiene abierto el comprador es
+     anterior a un cambio del dueño: una talla nueva, una que se ocultó. */
+  PRESENTACION_REQUERIDA: {
+    estado: 409,
+    mensaje: "Elige la talla, el número o el tamaño de cada producto antes de enviar el pedido.",
+  },
+  PRESENTACION_NO_DISPONIBLE: {
+    estado: 409,
+    mensaje: "Una de las opciones que elegiste ya no está disponible. Actualiza el catálogo.",
   },
   STOCK_INSUFICIENTE: {
     estado: 409,
@@ -191,6 +205,7 @@ export async function POST(solicitud: NextRequest) {
     p_slug: validacion.datos.slug,
     p_items: validacion.datos.items.map((item) => ({
       producto_id: item.productoId,
+      variante_id: item.varianteId,
       cantidad: item.cantidad,
     })),
     p_cliente_nombre: validacion.datos.clienteNombre as string,
@@ -226,7 +241,9 @@ export async function POST(solicitud: NextRequest) {
 
   const items = data.items.map((item) => ({
     codigo: item.codigo,
-    nombre: item.nombre,
+    /* El nombre con su presentación: el dueño tiene que leer «Zapatilla Runner
+       (N.º 40,5)» y no adivinar cuál de los números le pidieron. */
+    nombre: nombreConPresentacion(item.nombre, item.tipo_presentacion, item.variante_nombre),
     precio: Number(item.precio_unitario),
     cantidad: Number(item.cantidad),
     datos: datosPorCodigo.get(item.codigo),

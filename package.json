@@ -74,6 +74,8 @@
     "ensayo:rls": "node --env-file-if-exists=.env.local scripts/ensayo.mjs rls",
     "ensayo:verificar": "npm run ensayo:estructura && npm run ensayo:rls",
     "test:fase13:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/fase13-presentaciones.sql",
+    "test:fase13:motor:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/fase13-motor.sql",
+    "test:fase13:concurrencia": "node --env-file-if-exists=.env.local scripts/test-presentaciones-concurrencia.mjs",
     "test:tareas": "node scripts/check-tareas-programadas.mjs"
   },
   "dependencies": {

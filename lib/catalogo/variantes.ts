@@ -1,3 +1,5 @@
+import { esUuid } from "./validacion";
+
 /* Las presentaciones de un producto: talla, color, tamaño.
  *
  * Pura, como el resto de `lib/catalogo`. Lo que decide acá es qué es una
@@ -65,6 +67,10 @@ export function normalizarNombreDePresentacion(
 }
 
 export type Variante = {
+  /* El identificador de una presentación que ya existe, o `null` para una
+     nueva. Desde la fase 13 se conserva al guardar: a él apuntan las reservas y
+     los pedidos, y cambiarlo en cada guardado los dejaría huérfanos. */
+  id: string | null;
   nombre: string;
   /* Nulo significa «el mismo precio que el producto», que es el caso común: una
      remera en tres tallas cuesta lo mismo. */
@@ -136,6 +142,11 @@ export function validarVariantes(
     }
     const dato = cruda as Record<string, unknown>;
 
+    const sinId = dato.id === undefined || dato.id === null || dato.id === "";
+    if (!sinId && !esUuid(dato.id)) {
+      errores[campo("id")] = "No se pudo identificar esta presentación.";
+    }
+
     const nombre = textoLimpio(dato.nombre);
     if (nombre === "") {
       errores[campo("nombre")] = "Escribí cómo se llama.";
@@ -167,6 +178,7 @@ export function validarVariantes(
     }
 
     variantes.push({
+      id: sinId || !esUuid(dato.id) ? null : dato.id,
       nombre,
       precio: precio ?? null,
       cantidadStock: cantidadStock ?? null,
@@ -207,4 +219,27 @@ export function leerVariantes(filas: unknown): Array<Variante & { id: string }> 
    tienen que decir lo mismo. */
 export function precioDeVariante(precioProducto: number, variante: { precio: number | null }) {
   return variante.precio ?? precioProducto;
+}
+
+/* Cómo se nombra una presentación al lado de su producto: «N.º 40,5»,
+   «Talla M», «7,5 kg». Lo usan el mensaje de WhatsApp, el carrito y el panel,
+   y los tres tienen que decir lo mismo. */
+export function etiquetaDePresentacion(
+  tipo: string | null | undefined,
+  nombre: string,
+): string {
+  if (tipo === "numero") return `N.º ${nombre}`;
+  if (tipo === "talla") return `Talla ${nombre}`;
+  return nombre;
+}
+
+/* El nombre del producto con su presentación entre paréntesis, o el nombre solo
+   si no tiene: «Zapatilla Runner (N.º 40,5)». */
+export function nombreConPresentacion(
+  nombreProducto: string,
+  tipo: string | null | undefined,
+  nombrePresentacion: string | null | undefined,
+): string {
+  if (!nombrePresentacion) return nombreProducto;
+  return `${nombreProducto} (${etiquetaDePresentacion(tipo, nombrePresentacion)})`;
 }
