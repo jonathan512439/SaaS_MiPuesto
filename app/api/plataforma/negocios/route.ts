@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { esUuid } from "../../../../lib/catalogo/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { NEGOCIOS_CON_HERRAMIENTA } from "../../../../lib/ia/limites";
+import { esRubroPublicoId, siembraDeRubroPublico } from "../../../../lib/negocios/rubros-publicos";
 
 /* La autorización no se comprueba acá: la hacen las funciones de la base, que
  * exigen ser administrador de la plataforma y fallan con «no autorizado» si no.
@@ -10,7 +11,7 @@ import { NEGOCIOS_CON_HERRAMIENTA } from "../../../../lib/ia/limites";
  * quedar desincronizada; dejarlo solo en la base garantiza que ni una petición
  * armada a mano lo salte.
  */
-const ACCIONES = ["renovar", "publicar", "despublicar", "foto_ia", "plan"] as const;
+const ACCIONES = ["renovar", "publicar", "despublicar", "foto_ia", "plan", "rubro_publico"] as const;
 type Accion = (typeof ACCIONES)[number];
 
 function esAccion(valor: unknown): valor is Accion {
@@ -36,8 +37,38 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json({ error: "La acción no es válida." }, { status: 400 });
   }
 
+  /* El rubro público lo cambia la plataforma cuando el comerciante lo pide
+     (fase 11). Solo dentro del mismo tipo de catálogo: pasar de «Pollería» a
+     «Juguetería» cambiaría la siembra, y eso es «Cambiar rubro», que exporta y
+     reinicia. Esa comprobación vive acá porque la lista de siembras es de
+     TypeScript; que quien llama sea administrador lo exige la función. */
+  if (datos.accion === "rubro_publico") {
+    if (!esRubroPublicoId(datos.rubro_publico)) {
+      return NextResponse.json({ error: "Elegí un rubro de la lista." }, { status: 400 });
+    }
+    const { data: negocio } = await supabase
+      .from("negocios")
+      .select("rubro")
+      .eq("id", datos.negocio_id)
+      .maybeSingle();
+    if (negocio?.rubro && siembraDeRubroPublico(datos.rubro_publico) !== negocio.rubro) {
+      return NextResponse.json(
+        {
+          error:
+            "Ese rubro es de otro tipo de catálogo. Para pasar a él usá «Cambiar rubro», que exporta y reinicia el catálogo.",
+        },
+        { status: 409 },
+      );
+    }
+  }
+
   const resultado =
-    datos.accion === "foto_ia"
+    datos.accion === "rubro_publico"
+      ? await supabase.rpc("admin_cambiar_rubro_publico", {
+          p_negocio_id: datos.negocio_id,
+          p_rubro_publico: String(datos.rubro_publico),
+        })
+      : datos.accion === "foto_ia"
       ? await supabase.rpc("admin_cambiar_foto_ia", {
           p_negocio_id: datos.negocio_id,
           p_habilitada: datos.habilitada === true,

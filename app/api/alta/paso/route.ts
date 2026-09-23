@@ -3,7 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { PASOS_ALTA } from "../../../../lib/negocios/alta";
 import { cambiosDePresencia, validarPresencia } from "../../../../lib/negocios/presencia";
 import { comprobarZona } from "../../../../lib/negocios/presencia-servidor";
-import { siembraDeRubroPublico } from "../../../../lib/negocios/rubros-publicos";
+import {
+  MENSAJE_RUBRO_FIJO,
+  rubroQuedoFijo,
+  siembraDeRubroPublico,
+} from "../../../../lib/negocios/rubros-publicos";
 import { sembrarRubro } from "../../../../lib/rubros/sembrar";
 import { siembraDeRubro } from "../../../../lib/rubros/siembra";
 import { normalizarSlug, validarSlug } from "../../../../lib/negocios/validacion";
@@ -63,7 +67,7 @@ export async function PATCH(solicitud: NextRequest) {
 
   const { data: negocio, error: errorLectura } = await supabase
     .from("negocios")
-    .select("id,slug,rubro,rubro_bloqueado_en,alta_paso")
+    .select("id,slug,rubro,rubro_bloqueado_en,rubro_publico,alta_paso")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -120,17 +124,16 @@ export async function PATCH(solicitud: NextRequest) {
       const { presencia } = validacion;
       const rubro = siembraDeRubroPublico(presencia.rubroPublico);
 
-      if (negocio.rubro_bloqueado_en && negocio.rubro !== rubro) {
-        /* La siembra se elige una sola vez, y cambiarla reinicia el catálogo:
-           se borran categorías, productos y fotos. Por eso no lo puede hacer el
-           dueño desde acá aunque vuelva atrás en el alta; lo hace el equipo,
-           con la exportación previa. Cambiar a otro rubro público **del mismo
-           tipo** —de «Restaurante» a «Pollería»— sí se puede: no toca nada. */
+      /* El rubro se elige una sola vez. Volver atrás en el alta deja guardar
+         lo demás —si quiere aparecer, dónde está—, pero no cambiar el rubro:
+         eso lo hace el equipo, porque cambiar la siembra reinicia el catálogo y
+         se exporta antes. */
+      const cambiaRubro =
+        (rubroQuedoFijo(negocio.rubro_publico) && presencia.rubroPublico !== negocio.rubro_publico) ||
+        (negocio.rubro_bloqueado_en && negocio.rubro !== rubro);
+      if (cambiaRubro) {
         return NextResponse.json(
-          {
-            error:
-              "Ese rubro es de otro tipo y tu catálogo ya quedó armado. Para cambiarlo, escribinos: el catálogo se reinicia y te lo exportamos antes.",
-          },
+          { error: MENSAJE_RUBRO_FIJO, errores: { rubro_publico: MENSAJE_RUBRO_FIJO } },
           { status: 409 },
         );
       }

@@ -19,12 +19,19 @@ const politicaContenido = [
   "form-action 'self'",
   "frame-ancestors 'none'",
 ].join("; ");
-/* El permiso de ubicación, cerrado en todo el sitio y abierto solo donde se
-   pide a propósito: el alta y «Mi negocio», para el botón «Estoy en mi local».
-   Un catálogo público nunca pregunta dónde está quien lo mira. */
-const POLITICA_PERMISOS = "camera=(), microphone=(), geolocation=(), browsing-topics=()";
-const POLITICA_PERMISOS_CON_UBICACION =
-  "camera=(), microphone=(), geolocation=(self), browsing-topics=()";
+/* El permiso de ubicación queda **abierto a nuestro propio sitio** y cerrado
+   para todo lo demás (un iframe ajeno no puede pedirlo).
+
+   Estaba cerrado en todo el sitio y abierto solo en el alta y en «Mi negocio».
+   No alcanzaba: esta política se fija **una vez por documento**, y el panel
+   navega sin recargar. Quien entraba por `/login` se quedaba con la política de
+   `/login` —ubicación cerrada— al llegar a «Mi negocio», y el navegador
+   rechazaba «Estoy en mi local» sin siquiera preguntar. El dueño lo vio así.
+
+   Abrirla a `self` no hace que nadie pregunte nada: la ubicación la pide solo
+   el código que la llama, y en todo el sitio la llaman dos botones que el
+   usuario toca a propósito. */
+const POLITICA_PERMISOS = "camera=(), microphone=(), geolocation=(self), browsing-topics=()";
 
 const cabecerasSeguridad = [
   { key: "Content-Security-Policy", value: politicaContenido },
@@ -46,16 +53,6 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: cabecerasSeguridad,
-      },
-      /* Van después de la general: cuando dos reglas ponen la misma cabecera,
-         gana la última. */
-      {
-        source: "/alta/:path*",
-        headers: [{ key: "Permissions-Policy", value: POLITICA_PERMISOS_CON_UBICACION }],
-      },
-      {
-        source: "/dashboard/negocio",
-        headers: [{ key: "Permissions-Policy", value: POLITICA_PERMISOS_CON_UBICACION }],
       },
     ];
   },

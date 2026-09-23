@@ -16,6 +16,7 @@ import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/servidor";
 import { cupoDelPlan, planDe } from "../../../lib/planes";
 import { UsoIaPanel } from "../../../components/plataforma/uso-ia";
 import { ZonasPlataforma } from "../../../components/plataforma/zonas-plataforma";
+import { RubroPublicoPlataforma } from "../../../components/plataforma/rubro-publico-plataforma";
 import {
   ETIQUETAS_ESTADO,
   ordenarPorUrgencia,
@@ -70,7 +71,7 @@ export default async function PaginaPlataforma({
     supabase
       .from("negocios")
       .select(
-        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada,rubro,plan_id,ciudad,zona_id,zona_propuesta",
+        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada,rubro,plan_id,ciudad,zona_id,zona_propuesta,rubro_publico",
       )
       .order("nombre"),
     supabase
@@ -264,6 +265,12 @@ export default async function PaginaPlataforma({
                 planId={planDe(negocio.plan_id).id}
                 suspendidoPorPago={estado === "suspendido"}
                 topeFotos={cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual}
+              />
+
+              <RubroPublicoPlataforma
+                negocioId={negocio.id}
+                rubroPublicoActual={negocio.rubro_publico ?? null}
+                siembra={negocio.rubro ?? null}
               />
 
               <CambioDeRubro

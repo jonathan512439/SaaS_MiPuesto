@@ -17,6 +17,9 @@ export type NegocioPlataforma = {
   /* Opcional porque la fila puede ser vieja: hay negocios anteriores a que el
      rubro existiera, y son justamente los candidatos a que haya que cambiarlo. */
   rubro?: string | null;
+  /* El rubro con el que lo encuentra el cliente (fase 11). Opcional: los
+     negocios que nunca eligieron rubro no lo tienen. */
+  rubro_publico?: string | null;
 };
 
 export type EstadoCliente =

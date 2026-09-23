@@ -1200,6 +1200,10 @@ export type Database = {
         Args: { p_negocio_id: string; p_rubro: string; p_siembra?: Json }
         Returns: Json
       }
+      admin_cambiar_rubro_publico: {
+        Args: { p_negocio_id: string; p_rubro_publico: string }
+        Returns: Json
+      }
       admin_registrar_invitacion: {
         Args: { p_correo: string }
         Returns: undefined

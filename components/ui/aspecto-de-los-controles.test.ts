@@ -69,6 +69,7 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
   { selector: ".forma, .formaElegida", motivo: "es un juego de opciones, y marca cuál está elegida" },
   { selector: ".opcion, .opcionElegida", motivo: "es un juego de opciones, y marca cuál está elegida" },
   { selector: ".tambien summary", motivo: "abre un bloque de campos opcionales: es un desplegable, no un botón" },
+  { selector: ".nota a", motivo: "es un enlace, no un botón" },
   {
     selector: ".opcion, .opcionElegida, .paleta, .paletaElegida",
     motivo: "es un juego de opciones, y marca cuál está elegida",

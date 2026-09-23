@@ -7,6 +7,7 @@ import {
   type ProductoExportable,
 } from "../../../../../../lib/exportacion/catalogo";
 import { esRubroId } from "../../../../../../lib/negocios/rubros";
+import { RUBRO_PUBLICO_POR_SIEMBRA } from "../../../../../../lib/negocios/rubros-publicos";
 import { armarSiembra } from "../../../../../../lib/rubros/sembrar";
 import { crearClienteSupabaseServidor } from "../../../../../../lib/supabase/server";
 
@@ -142,6 +143,20 @@ export async function POST(
       { error: mensaje ?? "No se pudo cambiar el rubro. No se cambió nada." },
       { status: mensaje ? 400 : 500 },
     );
+  }
+
+  /* El rubro público sigue a la siembra nueva: el que tenía era de otro tipo
+     de catálogo —una «Pollería» que ahora es ferretería— y el buscador lo
+     mostraría donde no va. Queda el general del tipo nuevo, y se afina después
+     con «Rubro público» si el comerciante lo pide. Si esto fallara, el cambio de
+     siembra ya está hecho y no se deshace por una etiqueta: se avisa en el
+     registro y se corrige a mano. */
+  const { error: errorPublico } = await supabase.rpc("admin_cambiar_rubro_publico", {
+    p_negocio_id: id,
+    p_rubro_publico: RUBRO_PUBLICO_POR_SIEMBRA[rubro],
+  });
+  if (errorPublico) {
+    console.error("rubro: la siembra cambió y el rubro público no", errorPublico.message);
   }
 
   /* El resumen viaja en una cabecera y no en el cuerpo porque el cuerpo es la

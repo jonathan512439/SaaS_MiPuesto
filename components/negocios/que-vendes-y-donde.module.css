@@ -44,6 +44,14 @@
   font-size: var(--text-sm);
 }
 
+/* El enlace para escribirnos, a la vista: es la única salida que tiene quien
+   quiere cambiar su rubro. */
+.nota a {
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
 .error {
   color: var(--color-peligro);
   font-size: var(--text-sm);

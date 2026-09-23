@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "../supabase/database.types";
 import type { ZonaConCentro } from "./coordenadas";
-import { esRubroPublicoId } from "./rubros-publicos";
+import { esRubroPublicoId, rubroQuedoFijo } from "./rubros-publicos";
 
 /* Lo que necesita «Qué vendés y dónde» para dibujarse, leído una vez y de una
  * forma. Lo usan el paso 2 del alta y «Mi negocio»: si cada pantalla armara su
@@ -54,6 +54,6 @@ export async function leerPresenciaDelNegocio(
       }),
     ),
     enlaceMaps: negocio.ubicacion_url?.trim() || null,
-    rubroFijo: Boolean(negocio.rubro_bloqueado_en),
+    rubroFijo: rubroQuedoFijo(negocio.rubro_publico),
   };
 }

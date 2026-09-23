@@ -11,6 +11,7 @@ import {
   type Punto,
   type ZonaConCentro,
 } from "../../lib/negocios/coordenadas";
+import { construirEnlaceContacto } from "../../lib/contacto";
 import { CIUDADES, NOMBRES_CIUDADES } from "../../lib/negocios/lugares";
 import {
   MAXIMO_RUBROS_SECUNDARIOS,
@@ -65,7 +66,7 @@ export function QueVendesYDonde({
   zonas: ZonaConCentro[];
   /* El enlace de «Cómo llegar» que el negocio ya haya pegado, si lo hay. */
   enlaceMaps: string | null;
-  /* Si la siembra ya quedó fija. Solo cambia el aviso del alta. */
+  /* Si ya eligió rubro. Elegido, no se cambia desde acá: se nos escribe. */
   rubroFijo: boolean;
 }) {
   const router = useRouter();
@@ -151,11 +152,21 @@ export function QueVendesYDonde({
         setUbicacion({ lat: coords.latitude, lng: coords.longitude });
         setBuscandoPunto(false);
       },
-      () => {
+      (problema) => {
         setBuscandoPunto(false);
+        /* Cada motivo tiene su arreglo, y un mismo mensaje para los tres
+           mandaba a revisar un permiso que a veces estaba bien. */
+        const mensajes: Record<number, string> = {
+          [problema.PERMISSION_DENIED]:
+            "Le negaste el permiso al navegador. Para darlo, tocá el candado junto a la dirección y permití la ubicación. O marcá tu local tocando el mapa.",
+          [problema.POSITION_UNAVAILABLE]:
+            "Tu equipo no sabe dónde está: revisá que la ubicación del teléfono esté encendida. O marcá tu local tocando el mapa.",
+          [problema.TIMEOUT]:
+            "Tardó demasiado en encontrarte. Probá de nuevo al aire libre, o marcá tu local tocando el mapa.",
+        };
         mostrarAviso({
           titulo: "No pudimos saber dónde estás",
-          mensaje: "Revisá que el navegador tenga permiso de ubicación, o marcá tu local tocando el mapa.",
+          mensaje: mensajes[problema.code] ?? "Marcá tu local tocando el mapa.",
           variante: "error",
         });
       },
@@ -236,7 +247,10 @@ export function QueVendesYDonde({
     <form className={styles.formulario} onSubmit={guardar}>
       {/* 1 · Qué vendés */}
       <div className={styles.bloque}>
+        {/* Elegido, queda a la vista y apagado: el dueño ve cuál tiene, y el
+            cómo se cambia está al lado, no en una pantalla de ayuda. */}
         <Selector
+          disabled={rubroFijo}
           error={errores.rubro_publico}
           etiqueta="¿Qué vendés?"
           id="rubro-publico"
@@ -246,6 +260,19 @@ export function QueVendesYDonde({
         >
           {opcionesRubro("Elegí uno")}
         </Selector>
+        {rubroFijo ? (
+          <p className={styles.nota}>
+            Tu rubro quedó fijo al crear tu catálogo.{" "}
+            <a
+              href={construirEnlaceContacto("Hola, quiero cambiar el rubro de mi negocio en MiPuesto.")}
+              rel="noreferrer"
+              target="_blank"
+            >
+              Escribinos para cambiarlo
+            </a>
+            .
+          </p>
+        ) : null}
 
         <details className={styles.tambien} open={secundarios.some(Boolean)}>
           <summary>¿También vendés otra cosa? (opcional)</summary>
@@ -270,13 +297,13 @@ export function QueVendesYDonde({
           ) : null}
         </details>
 
-        {modo === "alta" ? (
+        {/* Breve y a la vista en el momento de decidir, no en un enlace: quien
+            tiene que leerlo es el que no va a abrir «más información». */}
+        {!rubroFijo ? (
           <div className={styles.advertencia} role="note">
             <p>
-              <strong>{rubroFijo ? "Tu tipo de catálogo ya quedó armado." : "Esto arma tu catálogo."}</strong>{" "}
-              {rubroFijo
-                ? "Podés cambiar a un rubro parecido —de Restaurante a Pollería—, pero no a uno de otro tipo sin escribirnos."
-                : "Con lo que elijas preparamos tus categorías y los datos de cada producto. Cambiar después a un rubro de otro tipo reinicia el catálogo."}
+              <strong>El rubro se elige una sola vez.</strong> Con él preparamos tus categorías
+              y los datos de cada producto. Para cambiarlo después hay que escribirnos.
             </p>
           </div>
         ) : null}

@@ -3,18 +3,23 @@ import { NextResponse, type NextRequest } from "next/server";
 import { leerJson, obtenerContextoAdminCatalogo } from "../../../../lib/catalogo/servidor";
 import { cambiosDePresencia, validarPresencia } from "../../../../lib/negocios/presencia";
 import { comprobarZona } from "../../../../lib/negocios/presencia-servidor";
-import { siembraDeRubroPublico } from "../../../../lib/negocios/rubros-publicos";
+import {
+  MENSAJE_RUBRO_FIJO,
+  rubroQuedoFijo,
+  siembraDeRubroPublico,
+} from "../../../../lib/negocios/rubros-publicos";
 
 /* «Qué vendés y dónde», desde «Mi negocio». Fase 11.
  *
- * Es lo mismo que el paso 2 del alta, con una diferencia: **acá no se siembra
- * ni se toca el rubro de siembra**. Cambiar de «Restaurante» a «Pollería» es una
- * etiqueta para el buscador; el catálogo ya está armado y no se reinicia por
- * eso.
+ * Es lo mismo que el paso 2 del alta, con dos diferencias:
  *
- * La única excepción es el negocio que nunca eligió siembra —los que se crearon
- * antes de que existiera el alta—: a ese se le anota la del rubro público que
- * elige, sin sembrar nada ni fijarla, para que el catálogo sepa de qué tipo es.
+ * - **El rubro no se cambia desde acá.** Se elige una vez; si el negocio ya
+ *   tiene uno y llega otro, se rechaza y se le dice que nos escriba. Lo cambia
+ *   la plataforma. Lo que sí se edita libremente es lo demás: los rubros extra,
+ *   si quiere aparecer y dónde está.
+ * - **Acá no se siembra.** El negocio que nunca eligió —los de antes del alta—
+ *   elige una vez, y se le anota la siembra de ese rubro y se la fija, sin
+ *   sembrar nada: su catálogo ya existe.
  */
 export async function PATCH(solicitud: NextRequest) {
   const contexto = await obtenerContextoAdminCatalogo();
@@ -47,16 +52,24 @@ export async function PATCH(solicitud: NextRequest) {
 
   const { data: actual, error: errorLectura } = await contexto.supabase
     .from("negocios")
-    .select("rubro")
+    .select("rubro,rubro_publico,rubro_bloqueado_en")
     .eq("id", contexto.negocio.id)
     .maybeSingle();
   if (errorLectura || !actual) {
     return NextResponse.json({ error: "No se pudo leer tu negocio." }, { status: 500 });
   }
 
+  if (rubroQuedoFijo(actual.rubro_publico) && presencia.rubroPublico !== actual.rubro_publico) {
+    return NextResponse.json(
+      { error: MENSAJE_RUBRO_FIJO, errores: { rubro_publico: MENSAJE_RUBRO_FIJO } },
+      { status: 409 },
+    );
+  }
+
   const cambios = {
     ...cambiosDePresencia(presencia),
     ...(actual.rubro ? {} : { rubro: siembraDeRubroPublico(presencia.rubroPublico) }),
+    ...(actual.rubro_bloqueado_en ? {} : { rubro_bloqueado_en: new Date().toISOString() }),
   };
 
   const { error } = await contexto.supabase

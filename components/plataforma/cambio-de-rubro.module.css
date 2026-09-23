@@ -41,6 +41,21 @@
   background: var(--color-alerta-tenue);
 }
 
+/* La del rubro público: no borra nada, así que no se pinta de alerta. */
+.cajaNeutra {
+  display: grid;
+  gap: var(--spacing-3);
+  border-left: var(--spacing-1) solid var(--color-marca);
+  border-radius: 0 var(--radius-panel) var(--radius-panel) 0;
+  padding: var(--spacing-4);
+  background: var(--color-marca-tenue);
+}
+
+.cajaNeutra p {
+  max-width: var(--ancho-lectura);
+  font-size: var(--text-sm);
+}
+
 .caja p {
   max-width: var(--ancho-lectura);
   font-size: var(--text-sm);

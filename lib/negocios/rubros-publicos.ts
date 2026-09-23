@@ -9,8 +9,8 @@ import type { RubroId } from "./rubros";
  * cada uno sabe qué siembra usar.
  *
  * Así el dueño elige **una sola vez y en su idioma**, y sumar un rubro público
- * es una línea acá, no una siembra nueva. Cambiarlo después, en «Mi negocio»,
- * no toca el catálogo: la siembra ya ocurrió.
+ * es una línea acá, no una siembra nueva. Elegido, el dueño no lo cambia: nos
+ * escribe y lo cambia la plataforma (`rubroQuedoFijo`, más abajo).
  *
  * La lista está repetida en la restricción de `negocios.rubro_publico` y una
  * prueba compara las dos. Quedan afuera a propósito, y por escrito en el plan:
@@ -70,6 +70,34 @@ export const RUBROS_PUBLICOS = [
 }>;
 
 export type RubroPublicoId = (typeof RUBROS_PUBLICOS)[number]["id"];
+
+/* El rubro público que corresponde a cada siembra cuando no hay otro dato: el
+   de mismo nombre, o el más general de su grupo. Es lo que la migración de la
+   fase 11 les puso a los negocios que ya existían, y lo que queda después de que
+   la plataforma cambia la siembra. */
+export const RUBRO_PUBLICO_POR_SIEMBRA: Record<RubroId, RubroPublicoId> = {
+  restaurante: "restaurante",
+  tienda_barrio: "tienda_barrio",
+  ropa_y_calzado: "ropa_y_calzado",
+  ferreteria: "ferreteria",
+  servicios: "otros_servicios",
+  belleza: "salon_belleza",
+  distribuidora: "distribuidora",
+  repuestos: "repuestos",
+  veterinaria: "veterinaria",
+  otro: "otro",
+};
+
+/* **El rubro se elige una vez.** Si el negocio ya tiene rubro público, el dueño
+   no lo cambia: nos escribe y lo cambia la plataforma. Era así con la siembra
+   desde la fase 8, y el dueño del proyecto pidió lo mismo para el rubro
+   público. Quien nunca eligió —los negocios de antes del alta— elige una vez. */
+export function rubroQuedoFijo(rubroPublicoActual: string | null | undefined): boolean {
+  return Boolean(rubroPublicoActual);
+}
+
+export const MENSAJE_RUBRO_FIJO =
+  "Tu rubro quedó fijo al crear tu catálogo. Para cambiarlo, escribinos por WhatsApp.";
 
 /* Cuántos rubros más puede declarar, aparte del principal. Dos y no más: con
    más, todos marcan todo y el filtro deja de filtrar. */

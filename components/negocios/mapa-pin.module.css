@@ -2,7 +2,15 @@
 
 /* El mapa: ancho completo y un alto que en un teléfono deja ver el mapa y el
    botón de guardar sin desplazar dos pantallas. */
+/* `isolation` encierra las capas del mapa en su propio apilado.
+   Leaflet les pone `z-index` de 400 a 1000 —mosaicos, pin, controles—, y la
+   cabecera del panel usa 30: sin esto, al desplazar la pantalla el mapa pasaba
+   por encima de la cabecera. Así los números de Leaflet solo compiten entre
+   ellos, adentro del mapa. */
 .mapa {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
   width: 100%;
   height: calc(var(--spacing-32) * 2.25);
   overflow: hidden;

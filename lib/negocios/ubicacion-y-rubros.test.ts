@@ -16,7 +16,9 @@ import { RUBROS } from "./rubros";
 import {
   MAXIMO_RUBROS_SECUNDARIOS,
   RUBROS_PUBLICOS,
+  RUBRO_PUBLICO_POR_SIEMBRA,
   leerRubrosSecundarios,
+  rubroQuedoFijo,
   siembraDeRubroPublico,
 } from "./rubros-publicos";
 
@@ -108,6 +110,23 @@ describe("los rubros públicos", () => {
   it("cada uno apunta a una siembra que existe", () => {
     for (const rubro of RUBROS_PUBLICOS) {
       expect(RUBROS as readonly string[], rubro.id).toContain(siembraDeRubroPublico(rubro.id));
+    }
+  });
+
+  /* Pedido del dueño del proyecto: el rubro se elige una vez. Quien ya tiene
+     uno no lo cambia desde el panel; quien nunca eligió, elige. */
+  it("queda fijo una vez elegido", () => {
+    expect(rubroQuedoFijo("polleria")).toBe(true);
+    expect(rubroQuedoFijo(null)).toBe(false);
+    expect(rubroQuedoFijo("")).toBe(false);
+  });
+
+  /* Al cambiar la siembra, la plataforma deja el rubro público general del
+     tipo nuevo. Si ese rubro fuera de otra siembra, el negocio aparecería en el
+     buscador como algo que su catálogo no es. */
+  it("el rubro público de cada siembra es de esa misma siembra", () => {
+    for (const siembra of RUBROS) {
+      expect(siembraDeRubroPublico(RUBRO_PUBLICO_POR_SIEMBRA[siembra]), siembra).toBe(siembra);
     }
   });
 
