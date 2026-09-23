@@ -98,7 +98,7 @@ export default function ImagenPortada() {
               fontWeight: 900,
             }}
           >
-            Bs {PRECIO_MENSUAL_BS} al mes
+            Desde Bs {PRECIO_MENSUAL_BS} al mes
           </span>
           <span style={{ fontSize: "30px", opacity: 0.86 }}>El primer mes es gratis</span>
         </div>

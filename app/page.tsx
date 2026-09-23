@@ -1,123 +1,117 @@
 import type { Metadata } from "next";
-import { PieSitio } from "../components/sitio/pie-sitio";
 import Link from "next/link";
 
-import { Introduccion } from "../components/marca/introduccion";
-import { Isotipo } from "../components/marca/isotipo";
+import { Icono } from "../components/iconos/icono";
 import { MuestraPlantillas } from "../components/inicio/muestra-plantillas";
 import { VitrinaPortada } from "../components/inicio/vitrina-portada";
-import { PALETAS } from "../lib/apariencia";
+import { Introduccion } from "../components/marca/introduccion";
+import { Isotipo } from "../components/marca/isotipo";
+import { PieSitio } from "../components/sitio/pie-sitio";
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
-import { CARGA_INICIAL, PLANES, PLAN_ANUAL, ahorroAnualBs } from "../lib/planes";
+import { CARGA_INICIAL, PLANES, TARJETA_ACRILICO } from "../lib/planes";
+import { qrComoSvg } from "../lib/qr-svg";
+import { obtenerUrlBaseSitio } from "../lib/url-sitio";
 import styles from "./inicio.module.css";
 
 export const metadata: Metadata = {
   title: "MiPuesto, tu catálogo digital por WhatsApp",
-  description: `Catálogo propio para tu negocio, con pedidos que se cierran por WhatsApp. Bs ${PRECIO_MENSUAL_BS} al mes y el primer mes gratis.`,
+  description: `Catálogo propio para tu negocio, con pedidos que se cierran por WhatsApp. Desde Bs ${PRECIO_MENSUAL_BS} al mes y el primer mes gratis.`,
 };
 
-/* Las cifras salen del registro y no de un texto escrito a mano: la portada ya
-   quedó desactualizada una vez cuando se sumaron plantillas y paletas. */
-const TOTAL_PALETAS = PALETAS.length;
+/* La portada es un embudo, no un folleto.
+ *
+ * La versión anterior explicaba todo: rubros, cifras, una sección entera de IA,
+ * una tabla contra el catálogo de WhatsApp y otra del directorio. Cada bloque era
+ * cierto y juntos eran once pantallas de teléfono antes de ver un precio. Quien
+ * llega acá decide en segundos si sigue bajando, y lo que lo hace seguir no es
+ * una característica más: es ver su propio negocio funcionando.
+ *
+ * El orden es el de la decisión: qué es y cuánto cuesta arriba del todo, la
+ * prueba en vivo enseguida, cómo se arma, lo que ningún otro ofrece —la tarjeta
+ * sobre la mesa—, el precio, y las dudas que quedan. Lo que salió no se perdió:
+ * la comparación con WhatsApp y la IA se contestan en las preguntas, que es
+ * donde las busca quien las tiene. */
 
 const GARANTIAS = [
-  "Sin comisión por venta",
-  "Sin app ni cuenta para tus clientes",
   "Primer mes gratis",
+  "Sin comisión por venta",
+  "Tus clientes no instalan nada",
 ];
 
-/* Sin etiqueta de plantilla: había cuatro —Clásica, Moderna, Mínima, Feria— y
-   se retiraron en la fase 6. El diseño es uno; lo que cambia es el contenido. */
-const RUBROS = [
-  {
-    titulo: "Restaurantes y comida",
-    detalle: "Carta por categorías, carrito y aviso de si estás abierto.",
-  },
-  {
-    titulo: "Tiendas y ropa",
-    detalle: "Fotos grandes, con tallas y colores.",
-  },
-  {
-    titulo: "Servicios con turno",
-    detalle: "Barberías, consultorios, talleres. Tus clientes reservan hora.",
-  },
-  {
-    titulo: "Puestos de mercado",
-    detalle: "Lista de precios: cifras grandes, muchos productos de una vez.",
-  },
-];
-
+/* Sí es una secuencia —es lo que pasa, en orden, desde que se escribe hasta que
+   llega el primer pedido—, así que los números están bien puestos. */
 const PASOS = [
   {
     titulo: "Cargás tus productos",
-    detalle: "Foto, nombre y precio. Desde el celular, entre cliente y cliente.",
-  },
-  {
-    titulo: "Elegís cómo se ve",
-    detalle: `${TOTAL_PALETAS} colores y el fondo de tu oficio. Cambiarlo no toca tus productos.`,
+    detalle: `Desde el celular, o nos mandás tu lista de precios y te lo dejamos cargado.`,
   },
   {
     titulo: "Compartís tu enlace",
-    detalle: "Tu enlace y tu código QR para imprimir. El pedido llega por WhatsApp.",
+    detalle: "En tu estado de WhatsApp, en tus redes, y con un QR en tu mostrador.",
+  },
+  {
+    titulo: "Te llegan los pedidos",
+    detalle: "Por WhatsApp, con el detalle y el total. Cobrás como cobrás hoy.",
   },
 ];
-
-/* La objeción real no es el precio: es que el catálogo de WhatsApp es gratis.
-   Contestarla de frente vale más que cualquier lista de características. */
-const COMPARACION = [
-  { que: "Dirección web propia para compartir", whatsapp: false },
-  { que: "Código QR para pegar en tu puesto", whatsapp: false },
-  { que: "Buscar entre cientos de productos", whatsapp: false },
-  { que: "Promociones con fecha y control de stock", whatsapp: false },
-  { que: "Saber cuántos te visitan cada semana", whatsapp: false },
-  { que: "Pedido con carrito y total calculado", whatsapp: false },
-];
-
 
 const PREGUNTAS = [
   {
-    pregunta: "¿Mis clientes necesitan instalar algo?",
+    pregunta: "¿Mis clientes tienen que instalar algo?",
     respuesta:
-      "No. Abren tu enlace en el navegador, como cualquier página. Tampoco crean una cuenta.",
+      "No. Abren tu enlace en el navegador del celular, como cualquier página, y tampoco crean una cuenta.",
+  },
+  {
+    pregunta: "¿Y el catálogo de WhatsApp Business, que es gratis?",
+    respuesta:
+      "Sirve para pocos productos. MiPuesto te da una dirección propia, un QR, búsqueda entre cientos de productos, carrito con el total calculado y promociones con fecha. La venta se sigue cerrando en tu WhatsApp: no te sacamos de ahí, te damos la vidriera que le falta.",
+  },
+  {
+    pregunta: "¿Qué hacen las herramientas de IA?",
+    respuesta:
+      "Le sacás una foto a tu lista de precios, escrita a mano o impresa, y sale separada producto por producto para que la revises antes de publicar. O elegís la foto de un producto y se completan el nombre y la descripción. El precio lo ponés siempre vos.",
+  },
+  {
+    pregunta: "¿La tarjeta de acrílico incluye el catálogo?",
+    respuesta: `No. La tarjeta se paga una vez, Bs ${TARJETA_ACRILICO.precioBs} cada una, y trae su diseño, el QR y el NFC ya configurados. El catálogo es la suscripción mensual, aparte.`,
   },
   {
     pregunta: "¿Cobran comisión por venta?",
-    respuesta: `No. Pagás Bs ${PRECIO_MENSUAL_BS} al mes y nada más. Tus ventas las cobrás vos, por donde ya cobrás.`,
+    respuesta:
+      "No. Pagás tu plan y nada más. Tus ventas las cobrás vos, por donde ya cobrás.",
   },
   {
     pregunta: "¿Qué pasa si un mes no pago?",
     respuesta:
-      "Tu catálogo deja de verse, pero no se borra nada. Seguís entrando a tu panel, y al reanudar vuelve tal cual estaba.",
+      "Tu catálogo deja de verse, pero no se borra nada durante noventa días. Al reanudar vuelve tal cual estaba.",
   },
   {
-    pregunta: "¿Puedo usarlo si no vendo productos, sino servicios?",
+    pregunta: "¿Sirve si vendo servicios y no productos?",
     respuesta:
       "Sí. En vez de carrito, tus clientes reservan hora: barberías, consultorios, talleres.",
-  },
-  {
-    pregunta: "¿Necesito saber de computación?",
-    respuesta:
-      "No. Si sabés mandar una foto por WhatsApp, sabés cargar un producto. Y si algo no se entiende, escribinos.",
-  },
-  {
-    pregunta: "¿Qué datos guardan de mis clientes?",
-    respuesta:
-      "Solo el nombre y el teléfono que escriben al pedir, para que puedas atenderlos. Nada más, y no se los damos a nadie.",
   },
 ];
 
 export default function Inicio() {
   const enlaceAlta = construirEnlaceContacto(
-    "Hola, quiero abrir mi catálogo en MiPuesto.",
+    "Hola, quiero probar MiPuesto el primer mes gratis.",
+  );
+  const enlaceTarjeta = construirEnlaceContacto(
+    "Hola, quiero la tarjeta de acrílico con QR y NFC para mi negocio.",
+  );
+
+  /* Un QR de verdad, no un dibujo: quien mira la portada en la computadora lo
+     escanea con el teléfono y termina recorriendo catálogos reales. Es la misma
+     jugada que hace la tarjeta en una mesa, hecha acá mismo. */
+  const qrDirectorio = qrComoSvg(
+    new URL("/directorio", obtenerUrlBaseSitio()).toString(),
+    "Código QR que abre el directorio de catálogos de MiPuesto",
   );
 
   return (
     <>
-      {/* La marca se presenta antes de la portada. Acá sale siempre que la
-          sesión no la haya visto todavía: es la página de MiPuesto, no hay un
-          catálogo ajeno detrás, y quien llega viene justamente a saber qué es
-          esto. Va fuera del `main` para que nada de adentro pueda encerrar su
-          posición fija. */}
+      {/* La marca se presenta antes de la portada, una vez por sesión. Va fuera
+          del `main` para que nada de adentro pueda encerrar su posición fija. */}
       <Introduccion />
 
       <main className={styles.pagina}>
@@ -131,39 +125,28 @@ export default function Inicio() {
               </span>
             </Link>
             <nav aria-label="Secciones de esta página" className={styles.enlaces}>
-              <a href="#rubros">Para quién es</a>
               <a href="#asi-se-ve">Así se ve</a>
-              <a href="#precio">Precio</a>
+              <a href="#tarjeta">Tarjeta con QR</a>
+              <a href="#precio">Precios</a>
               <a href="#preguntas">Preguntas</a>
             </nav>
-            <div className={styles.accionesBarra}>
-              {/* Las altas son por invitación, pero quien ya tiene su catálogo
-                  necesita volver a entrar, y no había por dónde: la única forma
-                  era saberse la dirección de memoria. */}
-              {/* «Quiero mi catálogo» no está acá a propósito: aparece cuatro
-                  veces en el cuerpo y una más fija al pie, que además viaja con
-                  la pantalla. Repetirlo en la barra le quitaba lugar al nombre
-                  sin agregar ninguna oportunidad de tocarlo. */}
-              <Link className={styles.enlaceIngresar} href="/login">
-                Ingresar
-              </Link>
-            </div>
+            {/* Las altas son por invitación, pero quien ya tiene su catálogo
+                necesita volver a entrar. «Probalo gratis» no va acá: está en la
+                portada, en el cierre y fijo al pie en el teléfono. */}
+            <Link className={styles.enlaceIngresar} href="/login">
+              Ingresar
+            </Link>
           </div>
         </header>
 
+        {/* 1 · Qué es y cuánto cuesta, en la primera pantalla. */}
         <section className={styles.portada}>
           <div className={styles.portadaContenido}>
             <div className={styles.discurso}>
-              <p className={styles.marcador}>
-                <Isotipo className={styles.marcaMarcador} />
-                Catálogos digitales para negocios de Bolivia
-              </p>
-              <h1>
-                Tu puesto, abierto en el celular de tus clientes
-              </h1>
+              <h1>Tu negocio, abierto en el celular de tus clientes</h1>
               <p className={styles.promesa}>
-                Un catálogo propio para mostrar lo que vendés, con precios al día y pedidos
-                que te llegan por WhatsApp. Seguís cobrando como cobrás hoy.
+                Un catálogo con tus productos y precios, un enlace para compartir y pedidos
+                que te llegan por WhatsApp.
               </p>
               <div className={styles.acciones}>
                 <a
@@ -172,15 +155,23 @@ export default function Inicio() {
                   rel="noreferrer"
                   target="_blank"
                 >
-                  Quiero mi catálogo
+                  Probalo gratis un mes
                 </a>
-                <Link className={styles.botonSecundario} href="/directorio">
-                  Ver negocios que ya lo usan
-                </Link>
+                <a className={styles.botonSecundario} href="#asi-se-ve">
+                  Ver cómo queda
+                </a>
               </div>
+              {/* El precio arriba y no escondido al final: quien no lo encuentra
+                  supone que es caro y se va a buscarlo a otra parte. */}
+              <p className={styles.precioAncla}>
+                Después, desde <strong>Bs {PRECIO_MENSUAL_BS} al mes</strong>. Sin contrato.
+              </p>
               <ul className={styles.garantias}>
                 {GARANTIAS.map((garantia) => (
-                  <li key={garantia}>{garantia}</li>
+                  <li key={garantia}>
+                    <Icono nombre="listo" />
+                    {garantia}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -188,55 +179,31 @@ export default function Inicio() {
           </div>
         </section>
 
-        <section aria-label="En resumen" className={styles.franja}>
-          <Isotipo className={styles.filigrana} />
-          <div className={styles.franjaContenido}>
-            <p>
-              <strong>Bs {PRECIO_MENSUAL_BS}</strong>
-              <span>al mes, sin contrato</span>
-            </p>
-            <p>
-              <strong>0 %</strong>
-              <span>de comisión por venta</span>
-            </p>
-            <p>
-              <strong>{TOTAL_PALETAS} colores</strong>
-              <span>y el fondo con los dibujos de tu oficio</span>
-            </p>
-            <p>
-              <strong>1 mes</strong>
-              <span>gratis para probar</span>
-            </p>
-          </div>
-        </section>
-
-        <section aria-labelledby="rubros" className={styles.seccion}>
+        {/* 2 · La prueba: el catálogo de verdad, con el rubro de quien mira. */}
+        <section aria-labelledby="asi-se-ve" className={styles.seccion}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
-              <p className={styles.rotulo}>Un catálogo por oficio</p>
-              <h2 id="rubros">Para quién es</h2>
+              <h2 id="asi-se-ve">Así lo ve tu cliente</h2>
               <p>
-                El diseño es uno. Lo que cambia entre una veterinaria y una ferretería
-                son sus categorías, los datos de cada producto y su botón.
+                Elegí tu rubro y probalo. No es una captura: es el mismo catálogo que va a
+                recibir quien te compra.
               </p>
             </div>
-            <ul className={styles.rubros}>
-              {RUBROS.map(({ titulo, detalle }) => (
-                <li key={titulo}>
-                  <h3>{titulo}</h3>
-                  <p>{detalle}</p>
-                </li>
-              ))}
-            </ul>
+            <MuestraPlantillas />
+            <p className={styles.nota}>
+              ¿Preferís ver negocios reales?{" "}
+              <Link href="/directorio">Abrí el directorio de catálogos</Link>.
+            </p>
           </div>
         </section>
 
+        {/* 3 · Cómo se arma. Corto: la duda acá es «¿me va a costar?», y la
+            respuesta es tres renglones. */}
         <section aria-labelledby="como-funciona" className={styles.seccionSuave}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
-              <p className={styles.rotulo}>Simple y rápido</p>
-              <h2 id="como-funciona">Cómo se pone en marcha</h2>
-              <p>Se hace en una tarde, y no hace falta que sepas de computación.</p>
+              <h2 id="como-funciona">Listo en una tarde</h2>
+              <p>No hace falta saber de computación. Si mandás fotos por WhatsApp, podés.</p>
             </div>
             <ol className={styles.pasos}>
               {PASOS.map(({ titulo, detalle }, indice) => (
@@ -244,145 +211,116 @@ export default function Inicio() {
                   <span aria-hidden="true" className={styles.numero}>
                     {indice + 1}
                   </span>
-                  <h3>{titulo}</h3>
-                  <p>{detalle}</p>
+                  <div>
+                    <h3>{titulo}</h3>
+                    <p>{detalle}</p>
+                  </div>
                 </li>
               ))}
             </ol>
           </div>
         </section>
 
-        <section aria-labelledby="asi-se-ve" className={styles.seccion}>
-          <div className={styles.seccionContenido}>
-            <div className={styles.encabezado}>
-              <p className={styles.rotulo}>Demostración en vivo</p>
-              <h2 id="asi-se-ve">Elegí tu rubro y miralo</h2>
-              <p>
-                Con productos y precios de tu oficio, y los {TOTAL_PALETAS} colores a
-                mano para probarlos. Lo que ves acá es exactamente lo que recibe tu
-                cliente, no una imagen de muestra.
+        {/* 4 · La tarjeta. Es el único lugar audaz de la página —fondo de
+            marca, pieza dibujada— porque es lo único que nadie más ofrece: el
+            catálogo sale del teléfono y se sienta en la mesa. */}
+        <section aria-labelledby="tarjeta" className={styles.seccionTarjeta}>
+          <div className={styles.tarjetaContenido}>
+            <div className={styles.tarjetaTexto}>
+              <h2 id="tarjeta">Tu catálogo, sobre la mesa</h2>
+              <p className={styles.tarjetaPromesa}>
+                Una tarjeta de acrílico con el diseño de tu negocio. Tu cliente escanea el QR
+                o acerca el celular, abre tu catálogo y, desde ahí, te califica en Google
+                Maps.
               </p>
+              <ul className={styles.tarjetaBeneficios}>
+                <li>
+                  <Icono nombre="codigoQr" />
+                  <span>
+                    <strong>QR y NFC</strong> que abren tu catálogo sin escribir nada.
+                  </span>
+                </li>
+                <li>
+                  <Icono nombre="mapa" />
+                  <span>
+                    <strong>Más calificaciones en Google Maps.</strong> Cuantas más tenés,
+                    más arriba aparecés cuando alguien busca cerca.
+                  </span>
+                </li>
+                <li>
+                  <Icono nombre="paleta" />
+                  <span>
+                    <strong>Diseño hecho para tu negocio</strong>, con tu nombre, tu logo y
+                    tus colores. Lo configuramos nosotros.
+                  </span>
+                </li>
+              </ul>
+              <div className={styles.tarjetaPrecio}>
+                <p>
+                  <strong>Bs {TARJETA_ACRILICO.precioBs}</strong> cada tarjeta
+                </p>
+                <p>{TARJETA_ACRILICO.medidas}. No incluye el mes del catálogo.</p>
+              </div>
+              <a
+                className={styles.botonTarjeta}
+                href={enlaceTarjeta}
+                rel="noreferrer"
+                target="_blank"
+              >
+                Quiero mi tarjeta
+              </a>
             </div>
-            <MuestraPlantillas />
-          </div>
-        </section>
 
-        <section aria-labelledby="herramientas-ia" className={styles.seccionIa}>
-          <div className={styles.seccionContenido}>
-            <div className={styles.encabezadoIa}>
-              <p className={styles.rotuloIa}>Herramientas con inteligencia artificial</p>
-              <h2 id="herramientas-ia">Sacale una foto. El catálogo se escribe solo.</h2>
-              <p>
-                Lo que cuesta de un catálogo no es decidirse: es tipear doscientos
-                productos. Eso lo hacen estas dos herramientas. Vos revisás y ponés el
-                precio.
-              </p>
-            </div>
-
-            <div className={styles.tarjetasIa}>
-              <article className={styles.tarjetaIa}>
-                <div className={styles.tarjetaIaCuerpo}>
-                  <p className={styles.numeroIa}>01</p>
-                  <h3>De tu lista de precios al catálogo</h3>
-                  <p>
-                    Fotografiá la lista que ya usás, a mano o impresa. Sale separada
-                    producto por producto, con precio y categoría, para que la corrijas
-                    antes de publicar.
+            {/* La tarjeta dibujada: un acrílico parado sobre su base, con lo que
+                lleva impreso. Se la describe entera para quien no la ve. */}
+            <figure className={styles.acrilico}>
+              <div className={styles.acrilicoPlaca}>
+                <div className={styles.impreso}>
+                  <p className={styles.impresoNegocio}>Tu negocio</p>
+                  <p className={styles.impresoLlamada}>Mirá nuestro catálogo</p>
+                  <div
+                    className={styles.impresoQr}
+                    dangerouslySetInnerHTML={{ __html: qrDirectorio }}
+                  />
+                  <p className={styles.impresoNfc}>
+                    <Icono nombre="nfc" />
+                    o acercá tu celular
                   </p>
-                  <p className={styles.datoIa}>
-                    <strong>Un catálogo de 200 productos</strong> pasa de unas seis horas y
-                    media de tipeo a hora y media de revisión.
+                  <div className={styles.impresoGoogle}>
+                    <Icono nombre="mapa" />
+                    <span>
+                      <span aria-hidden="true" className={styles.estrellas}>
+                        <Icono nombre="estrella" />
+                        <Icono nombre="estrella" />
+                        <Icono nombre="estrella" />
+                        <Icono nombre="estrella" />
+                        <Icono nombre="estrella" />
+                      </span>
+                      Calificanos en Google Maps
+                    </span>
+                  </div>
+                  <p className={styles.impresoMarca}>
+                    <Isotipo className={styles.impresoIsotipo} />
+                    MiPuesto
                   </p>
                 </div>
-              </article>
-
-              <article className={styles.tarjetaIa}>
-                <div className={styles.tarjetaIaCuerpo}>
-                  <p className={styles.numeroIa}>02</p>
-                  <h3>De la foto del producto a su ficha</h3>
-                  <p>
-                    Elegí la foto de un producto y se completan solos el nombre y la
-                    descripción. Esa misma foto queda como imagen del producto.
-                  </p>
-                  <p className={styles.datoIa}>
-                    <strong>El precio nunca sale de una foto.</strong> Ese lo ponés vos:
-                    ninguna máquina sabe cuánto cobrás.
-                  </p>
-                </div>
-              </article>
-            </div>
-
-            {/* Lo que un comerciante no puede adivinar: que las dos herramientas
-                gastan lo mismo por foto y traen cosas muy distintas. Sin esta
-                línea, el que tiene diez lecturas al mes las gasta de a una en
-                productos sueltos y se queda sin cupo el primer día. */}
-            <p className={styles.remateIa}>
-              <strong>Una foto es una lectura.</strong> La de tu lista de precios puede
-              traer veinte productos de una vez; la de un producto suelto trae ese.
-            </p>
-            <p className={styles.remateIa}>
-              Nada se publica sin que lo apruebes, y nada se envía sin que elijas la foto.{" "}
-              <Link href="/privacidad">Cómo tratamos esas fotografías</Link>.
-            </p>
+              </div>
+              <div aria-hidden="true" className={styles.acrilicoBase} />
+              <figcaption>
+                Escaneá este QR con tu celular: abre catálogos de negocios reales.
+              </figcaption>
+            </figure>
           </div>
         </section>
 
-        <section aria-labelledby="comparacion" className={styles.seccionSuave}>
-          <div className={styles.seccionContenido}>
-            <div className={styles.encabezado}>
-              <p className={styles.rotulo}>La pregunta honesta</p>
-              <h2 id="comparacion">¿Y el catálogo de WhatsApp?</h2>
-              <p>
-                Es gratis y sirve. Pero se queda corto apenas tu negocio crece, y nunca fue
-                una vidriera.
-              </p>
-            </div>
-            <div className={styles.tablaEnvoltorio}>
-              <table className={styles.comparacion}>
-              <thead>
-                <tr>
-                  <th scope="col">
-                    <span className={styles.ocultoVisual}>Función</span>
-                  </th>
-                  <th scope="col">Catálogo de WhatsApp</th>
-                  <th scope="col">MiPuesto</th>
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARACION.map(({ que }) => (
-                  <tr key={que}>
-                    <th scope="row">{que}</th>
-                    <td>
-                      <span className={styles.no}>No</span>
-                    </td>
-                    <td>
-                      <span className={styles.si}>Sí</span>
-                    </td>
-                  </tr>
-                ))}
-                <tr>
-                  <th scope="row">Dónde se cierra la venta</th>
-                  <td>WhatsApp</td>
-                  <td>WhatsApp</td>
-                </tr>
-              </tbody>
-              </table>
-            </div>
-            <p className={styles.remate}>
-              No te sacamos de WhatsApp. Te damos la vidriera que le falta.
-            </p>
-          </div>
-        </section>
-
+        {/* 5 · El precio. Dos planes y, aparte, lo que se paga una sola vez. */}
         <section aria-labelledby="precio" className={styles.seccion}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
-              <p className={styles.rotulo}>Precios en bolivianos, sin letra chica</p>
-              <h2 id="precio">Elegí cómo empezar</h2>
+              <h2 id="precio">Precios claros, en bolivianos</h2>
               <p>
-                Sin comisión por venta, sin contrato de permanencia y el primer mes gratis
-                en los dos planes. Se paga mes a mes, y si dejás de pagar tus datos te
-                esperan noventa días.
+                El primer mes es gratis en los dos planes. Sin contrato y sin comisión por
+                venta: se paga mes a mes.
               </p>
             </div>
 
@@ -392,128 +330,87 @@ export default function Inicio() {
                   className={plan.destacado ? styles.planDestacado : styles.plan}
                   key={plan.id}
                 >
-                  {plan.destacado ? (
-                    <p className={styles.selloPlan}>El que más eligen</p>
-                  ) : null}
+                  {plan.destacado ? <p className={styles.sello}>Con IA</p> : null}
                   <h3>{plan.nombre}</h3>
-                  <p className={styles.montoPlan}>
+                  <p className={styles.monto}>
                     Bs {plan.precioBs}
                     <span>al mes</span>
                   </p>
-                  {/* El pago por año va debajo del mensual y no como una tarjeta
-                      aparte: es la misma cosa con otra forma de pagarla, y una
-                      tarjeta más obligaría a comparar tres cuando hay dos. */}
-                  {plan.id === PLAN_ANUAL.planId ? (
-                    <p className={styles.pagoAnual}>
-                      o <strong>Bs {PLAN_ANUAL.precioBs} al año</strong> — te ahorrás Bs{" "}
-                      {ahorroAnualBs()}
-                    </p>
-                  ) : null}
                   <p className={styles.paraQuien}>{plan.para}</p>
                   <ul>
                     {plan.incluye.map((item) => (
-                      <li key={item}>{item}</li>
+                      <li key={item}>
+                        <Icono nombre="listo" />
+                        {item}
+                      </li>
                     ))}
                   </ul>
                   <a
                     className={plan.destacado ? styles.botonPlanFuerte : styles.botonPlan}
                     href={construirEnlaceContacto(
-                      `Hola, me interesa el plan ${plan.nombre} de MiPuesto.`,
+                      `Hola, quiero probar el plan ${plan.nombre} de MiPuesto.`,
                     )}
                     rel="noreferrer"
                     target="_blank"
                   >
-                    Quiero este
+                    Empezar con este
                   </a>
                 </article>
               ))}
-
-              {/* Se cobra una vez porque el trabajo se hace una vez. Va al lado de
-                  los planes y no escondido: es lo que resuelve el día uno. */}
-              <article className={styles.planCarga}>
-                <p className={styles.selloCarga}>Una sola vez</p>
-                <h3>Te lo dejamos cargado</h3>
-                <p className={styles.montoPlan}>
-                  Bs {CARGA_INICIAL.precioBs}
-                  <span>pago único</span>
-                </p>
-                <p className={styles.paraQuien}>
-                  Mandanos tu lista de precios y te entregamos el catálogo cargado,
-                  ordenado por categorías y listo para compartir.
-                </p>
-                <ul>
-                  <li>Hasta {CARGA_INICIAL.productosMaximos} productos</li>
-                  <li>Lo hacemos nosotros, no vos</li>
-                  <li>Revisado producto por producto antes de publicar</li>
-                  <li>Se suma a cualquiera de los dos planes</li>
-                </ul>
-                <a
-                  className={styles.botonPlan}
-                  href={construirEnlaceContacto(
-                    "Hola, quiero que me carguen el catálogo con mi lista de precios.",
-                  )}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Quiero que lo carguen
-                </a>
-              </article>
             </div>
 
-            <p className={styles.aclaracionPlanes}>
-              Las lecturas de foto no se acumulan de un mes al otro y el contador vuelve a
-              cero el día 1. Podés cambiar de plan cuando quieras, escribiendo.
-            </p>
+            {/* Filas y no tarjetas: son otra cosa —se pagan una vez— y
+                presentarlos como un tercer y cuarto plan obligaría a comparar
+                cuatro cuando la decisión es entre dos. */}
+            <div className={styles.extras}>
+              <h3>Aparte, y una sola vez</h3>
+              <ul>
+                <li>
+                  <div>
+                    <p className={styles.extraNombre}>Te cargamos el catálogo</p>
+                    <p>
+                      Nos mandás tu lista de precios y te lo entregamos ordenado, hasta{" "}
+                      {CARGA_INICIAL.productosMaximos} productos.
+                    </p>
+                  </div>
+                  <p className={styles.extraPrecio}>
+                    Bs {CARGA_INICIAL.precioBs}
+                    <span>pago único</span>
+                  </p>
+                  <a
+                    href={construirEnlaceContacto(
+                      "Hola, quiero que me carguen el catálogo con mi lista de precios.",
+                    )}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Pedirlo
+                  </a>
+                </li>
+                <li>
+                  <div>
+                    <p className={styles.extraNombre}>Tarjeta de acrílico con QR y NFC</p>
+                    <p>
+                      Diseño para tu negocio y configuración incluidos. {TARJETA_ACRILICO.medidas}.
+                    </p>
+                  </div>
+                  <p className={styles.extraPrecio}>
+                    Bs {TARJETA_ACRILICO.precioBs}
+                    <span>por tarjeta</span>
+                  </p>
+                  <a href={enlaceTarjeta} rel="noreferrer" target="_blank">
+                    Pedirla
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </section>
 
-        {/* El directorio existe desde hace meses y estaba en un solo botón de la
-            portada. Es la prueba más barata de que el servicio es real: catálogos
-            de negocios que se pueden abrir ahora mismo. */}
-        <section aria-labelledby="directorio" className={styles.seccionDirectorio}>
+        {/* 6 · Las dudas que quedan, donde las busca quien las tiene. */}
+        <section aria-labelledby="preguntas" className={styles.seccionSuave}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
-              <p className={styles.rotulo}>Negocios que ya lo usan</p>
-              <h2 id="directorio">Mirá catálogos de verdad, no capturas de pantalla</h2>
-              <p>
-                Todos los negocios activos aparecen en un directorio público, agrupado por
-                ciudad. Son catálogos reales, con sus productos y sus precios de hoy: los
-                abrís, los recorrés y ves exactamente lo que va a ver tu cliente.
-              </p>
-            </div>
-            <div className={styles.beneficiosDirectorio}>
-              <article>
-                <h3>Te encuentran sin buscarte</h3>
-                <p>
-                  Alguien que busca una barbería en tu zona llega a tu catálogo desde el
-                  directorio, sin conocerte y sin que le pases tu enlace.
-                </p>
-              </article>
-              <article>
-                <h3>Entrás el día que publicás</h3>
-                <p>
-                  No hay trámite ni espera. Tu negocio aparece en cuanto tu catálogo está
-                  activo, y sale el día que dejás de publicarlo.
-                </p>
-              </article>
-              <article>
-                <h3>Antes de decidir, comprobalo</h3>
-                <p>
-                  Abrí el catálogo de alguien de tu rubro y probá pedir algo. Es la forma
-                  más rápida de saber si esto le sirve a tu negocio.
-                </p>
-              </article>
-            </div>
-            <Link className={styles.botonDirectorio} href="/directorio">
-              Ver el directorio de negocios
-            </Link>
-          </div>
-        </section>
-
-        <section aria-labelledby="preguntas" className={styles.seccion}>
-          <div className={styles.seccionContenido}>
-            <div className={styles.encabezado}>
-              <p className={styles.rotulo}>Dudas resueltas</p>
               <h2 id="preguntas">Preguntas frecuentes</h2>
             </div>
             <div className={styles.preguntas}>
@@ -527,33 +424,25 @@ export default function Inicio() {
           </div>
         </section>
 
+        {/* 7 · El cierre, con la misma acción que la portada. */}
         <section aria-labelledby="cierre" className={styles.cierre}>
           <div className={styles.cierreContenido}>
-            {/* El isotipo grande y el nombre como texto, en vez del logotipo
-                completo en PNG: así el cierre hereda el color en vez de forzarlo
-                con un filtro, y se ve nítido en cualquier pantalla. */}
-            <p className={styles.marcaCierre}>
-              <Isotipo className={styles.isotipoCierre} titulo="MiPuesto" />
-              <span>MiPuesto</span>
-            </p>
-            <h2 id="cierre">Tu catálogo puede estar listo hoy</h2>
-            <p>
-              Escribinos por WhatsApp y lo armamos juntos. Si no te convence, el primer mes
-              no te costó nada.
-            </p>
+            <Isotipo className={styles.isotipoCierre} titulo="MiPuesto" />
+            <h2 id="cierre">Tu primer mes corre por nuestra cuenta</h2>
+            <p>Escribinos por WhatsApp y lo armamos juntos. Si no te convence, no pagás nada.</p>
             <a className={styles.botonCierre} href={enlaceAlta} rel="noreferrer" target="_blank">
-              Quiero mi catálogo
+              Probalo gratis un mes
             </a>
           </div>
         </section>
 
         <div className={styles.accionFija}>
           <a className={styles.botonFijo} href={enlaceAlta} rel="noreferrer" target="_blank">
-            Quiero mi catálogo
+            Probalo gratis un mes
           </a>
         </div>
       </main>
-        <PieSitio />
+      <PieSitio />
     </>
   );
 }

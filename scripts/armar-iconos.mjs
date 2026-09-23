@@ -75,6 +75,10 @@ const ICONOS = {
   /* La lupa del buscador del catálogo. Sin ella, el campo era una caja
      vacía con un texto adentro: el dibujo dice qué hace antes de leerlo. */
   lupa: "search",
+  /* La tarjeta de acrílico de la portada: se acerca el teléfono (NFC) y se
+     califica en Google Maps (estrellas). */
+  nfc: "nfc",
+  estrella: "star",
 };
 
 /* Lucide dibuja sobre un lienzo de 24 con el trazo en `currentColor`. Se guarda

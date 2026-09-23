@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../../../../lib/contacto";
+import { construirEnlaceContacto } from "../../../../lib/contacto";
+import { planDe } from "../../../../lib/planes";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import {
   describirDiasRestantes,
@@ -33,7 +34,7 @@ export default async function PaginaCuenta() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,slug,activo,suspendido_en,suscripcion_vence_en")
+    .select("nombre,slug,activo,suspendido_en,suscripcion_vence_en,plan_id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
@@ -109,7 +110,11 @@ export default async function PaginaCuenta() {
           </div>
           <div>
             <dt>Precio</dt>
-            <dd className={styles.monto}>Bs {PRECIO_MENSUAL_BS} al mes</dd>
+            {/* El de su plan, no el de entrada: el del plan Activo leía el precio
+                del básico y pagaba otro. */}
+            <dd className={styles.monto}>
+              Bs {planDe(negocio.plan_id).precioBs} al mes, plan {planDe(negocio.plan_id).nombre}
+            </dd>
           </div>
           <div>
             <dt>Publicación</dt>

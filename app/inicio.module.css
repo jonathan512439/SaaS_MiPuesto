@@ -1,28 +1,26 @@
 @reference "./globals.css";
 
-/* La portada del sitio es lo único que ve alguien que todavía no confía. Antes
-   era una columna angosta de cinco bloques idénticos donde el producto —que es
-   visual— no aparecía hasta la mitad. Ahora la página alterna fondos, respira a
-   lo ancho y muestra un catálogo de verdad en el primer golpe de vista. */
+/* La portada del sitio, pensada como embudo.
+ *
+ * Seis tiempos y una sola decisión por pantalla: qué es y cuánto cuesta, la
+ * prueba en vivo, cómo se arma, la tarjeta de acrílico, el precio y las dudas.
+ * Los fondos alternan entre la superficie y el lienzo para marcar dónde empieza
+ * cada tiempo sin dibujar un borde.
+ *
+ * La audacia va en un solo lugar (DESIGN.md §8): la tarjeta, en fondo de marca.
+ * Todo lo demás es disciplinado a propósito, para que ese bloque se note. */
 
 .pagina {
   display: grid;
   width: 100%;
-  background: var(--color-fondo-suave);
+  background: var(--color-lienzo);
 }
 
-/* Los títulos de la portada van con la tipografía de MiPuesto.
- *
- * El `:not([data-paleta] *)` excluye lo que está dentro de la muestra de
- * catálogo, que es un catálogo de verdad con la plantilla y la letra que elegiría
- * el dueño. Sin esa exclusión, nuestra fuente se metía dentro del ejemplo y la
- * demostración dejaba de mostrar lo que el cliente va a recibir. La raíz del
- * tema siempre lleva `data-paleta`, así que sirve de frontera sin que esta hoja
- * tenga que conocer las clases de la otra.
- *
- * Si un navegador viejo no entiende ese `:not`, descarta la regla entera y los
- * títulos salen con la fuente del texto. Se pierde el matiz y no se rompe nada,
- * que es la forma correcta de fallar. */
+/* Los títulos con la tipografía de MiPuesto, salvo dentro de la muestra de
+ * catálogo: esa es un catálogo de verdad, con la letra que elige el dueño, y la
+ * raíz de su tema siempre lleva `data-paleta`. Si un navegador viejo no entiende
+ * el `:not`, descarta la regla y los títulos salen con la letra del texto: se
+ * pierde el matiz y no se rompe nada. */
 .pagina h1:not([data-paleta] *),
 .pagina h2:not([data-paleta] *),
 .pagina h3:not([data-paleta] *) {
@@ -30,26 +28,19 @@
   letter-spacing: var(--tracking-titulo);
 }
 
-.nombreMarca strong,
-.marcaCierre span,
-.montoPlan {
-  font-family: var(--font-display);
-}
-
 .pagina h1,
 .pagina h2,
 .pagina h3,
 .pagina p,
 .pagina ol,
-.pagina ul,
-.pagina dl {
+.pagina ul {
   margin: 0;
 }
 
-.seccionContenido,
 .barraContenido,
 .portadaContenido,
-.franjaContenido,
+.seccionContenido,
+.tarjetaContenido,
 .cierreContenido {
   width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
   margin: 0 auto;
@@ -63,7 +54,7 @@
   top: 0;
   border-bottom: var(--borde-fino) solid var(--color-borde-suave);
   padding: var(--spacing-3) 0;
-  background: color-mix(in srgb, var(--color-superficie) 88%, transparent);
+  background: color-mix(in srgb, var(--color-superficie) 90%, transparent);
   backdrop-filter: blur(0.75rem);
 }
 
@@ -73,22 +64,6 @@
   gap: var(--spacing-3);
 }
 
-/* Red de seguridad: si algún día vuelve a faltar espacio, el nombre se recorta
-   en vez de pisar lo que tiene al lado. */
-.nombreMarca {
-  min-width: 0;
-  overflow: hidden;
-}
-
-.nombreMarca strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* La marca en color de marca y no en el color del texto. Era negra sobre crema,
-   que se lee como un logotipo provisional; el par marca/superficie es de los que
-   la guarda de contraste comprueba, así que se puede usar sin dudar. */
 .marca {
   display: flex;
   min-width: 0;
@@ -98,50 +73,33 @@
   text-decoration: none;
 }
 
-/* Más grande de lo que estaba: al sacar el botón de alta de la barra sobra
-   ancho, y el lugar más barato para ganar presencia es el que ya se está
-   mirando. */
 .isotipo {
   width: auto;
-  height: var(--spacing-12);
+  height: var(--spacing-10);
 }
 
+/* El nombre se recorta antes que pisar a «Ingresar» si algún día falta lugar. */
 .nombreMarca {
   display: grid;
-  gap: 0;
+  min-width: 0;
+  overflow: hidden;
   line-height: 1.05;
 }
 
 .nombreMarca strong {
-  font-size: var(--text-2xl);
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
   font-weight: 900;
   letter-spacing: -0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nombreMarca small {
-  color: color-mix(in srgb, var(--color-marca-fuerte) 70%, var(--color-superficie));
+  color: var(--color-texto-suave);
   font-size: var(--text-xs);
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-/* El isotipo hereda el color de la sección, así que acá sale blanco sin filtros
-   y sin una segunda copia del archivo. */
-.marcaCierre {
-  display: grid;
-  justify-items: center;
-  gap: var(--spacing-3);
-}
-
-.isotipoCierre {
-  height: var(--spacing-24);
-}
-
-.marcaCierre span {
-  font-size: var(--text-3xl);
-  font-weight: 900;
-  letter-spacing: -0.03em;
 }
 
 .enlaces {
@@ -163,24 +121,13 @@
   text-underline-offset: 0.25rem;
 }
 
-/* Los dos van juntos a la derecha: quien vuelve busca «Ingresar» y quien llega
-   por primera vez busca el otro. Separarlos por toda la barra obliga a los dos a
-   recorrerla entera. */
-.accionesBarra {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  margin: 0 0 0 auto;
-}
-
-/* Discreto contra el botón de alta: es la puerta de quien ya es cliente, no la
-   acción que la portada quiere provocar. */
-/* Con contorno porque quedó sola: un texto suelto al lado de un nombre grande no
-   se lee como algo que se pueda tocar. */
+/* Con contorno: un texto suelto al lado de un nombre grande no se lee como algo
+   que se pueda tocar. Discreto frente al botón de acción, que es otra cosa. */
 .enlaceIngresar {
   display: inline-flex;
-  min-height: var(--spacing-10);
+  min-height: var(--control-alto);
   align-items: center;
+  margin-left: auto;
   border: var(--borde-fino) solid var(--color-borde);
   border-radius: var(--radius-status);
   padding: var(--spacing-2) var(--spacing-4);
@@ -196,20 +143,12 @@
   background: var(--color-marca-tenue);
 }
 
-/* ---- portada ---- */
+/* ---- 1 · portada ---- */
 
 .portada {
   overflow: hidden;
-  padding: var(--spacing-12) 0 var(--spacing-14);
-  /* El degradado nace del verde de marca y muere en la superficie: da
-     profundidad sin inventar un color que no esté en el sistema. */
-  background:
-    radial-gradient(
-      120% 90% at 85% 0%,
-      var(--color-marca-tenue) 0%,
-      transparent 60%
-    ),
-    var(--color-superficie);
+  padding: var(--spacing-10) 0 var(--spacing-12);
+  background: var(--color-superficie);
 }
 
 .portadaContenido {
@@ -225,36 +164,16 @@
   min-width: 0;
 }
 
-.marcador {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-2);
-  border: var(--borde-fino) solid var(--color-marca-suave);
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-4);
-  background: var(--color-marca-tenue);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.marcaMarcador {
-  width: auto;
-  height: var(--spacing-5);
-}
-
 .discurso h1 {
-  max-width: 15ch;
+  max-width: 16ch;
+  color: var(--color-marca-fuerte);
   font-size: var(--text-3xl);
   font-weight: 900;
-  line-height: 1.03;
-  letter-spacing: -0.02em;
+  line-height: 1.04;
 }
 
 .promesa {
-  max-width: 46ch;
+  max-width: 44ch;
   color: var(--color-texto-suave);
   font-size: var(--text-lg);
   line-height: 1.5;
@@ -268,7 +187,8 @@
 
 .botonPrincipal,
 .botonSecundario,
-.botonCierre {
+.botonCierre,
+.botonTarjeta {
   display: inline-flex;
   min-height: var(--control-alto);
   align-items: center;
@@ -291,7 +211,17 @@
   border-color: var(--color-borde);
   background: transparent;
   color: var(--color-marca-fuerte);
-  box-shadow: none;
+}
+
+/* El precio de entrada debajo de la acción: responde la pregunta que frena el
+   toque sin competir con el botón. */
+.precioAncla {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.precioAncla strong {
+  color: var(--color-texto);
 }
 
 .garantias {
@@ -311,62 +241,11 @@
   font-weight: 700;
 }
 
-.garantias li::before {
-  content: "✓";
+.garantias svg,
+.plan li svg,
+.planDestacado li svg {
+  flex-shrink: 0;
   color: var(--color-exito);
-  font-weight: 900;
-}
-
-/* ---- franja de cifras ---- */
-
-.franja {
-  position: relative;
-  overflow: hidden;
-  padding: var(--spacing-8) 0;
-  background: var(--color-texto);
-  color: var(--color-superficie);
-}
-
-/* Marca de agua: el símbolo en grande y casi apagado. Suma presencia sin
-   quitarle una línea a las cifras, que son lo que la franja viene a decir. */
-.filigrana {
-  position: absolute;
-  z-index: 0;
-  right: calc(var(--spacing-4) * -1);
-  bottom: calc(var(--spacing-8) * -1);
-  width: auto;
-  height: var(--spacing-32);
-  opacity: 0.07;
-  pointer-events: none;
-}
-
-.franjaContenido {
-  position: relative;
-  z-index: 1;
-}
-
-.franjaContenido {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-5) var(--spacing-4);
-  text-align: center;
-}
-
-.franjaContenido p {
-  display: grid;
-  gap: var(--spacing-1);
-}
-
-.franjaContenido strong {
-  font-size: var(--text-2xl);
-  font-weight: 900;
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-}
-
-.franjaContenido span {
-  color: color-mix(in srgb, var(--color-superficie) 78%, transparent);
-  font-size: var(--text-sm);
 }
 
 /* ---- secciones ---- */
@@ -391,12 +270,10 @@
   max-width: 42rem;
 }
 
-.rotulo,
 .encabezado h2 {
   font-size: var(--text-2xl);
   font-weight: 900;
   line-height: 1.1;
-  letter-spacing: -0.01em;
 }
 
 .encabezado p {
@@ -405,43 +282,22 @@
   line-height: 1.5;
 }
 
-/* ---- rubros ---- */
-
-.rubros {
-  display: grid;
-  gap: var(--spacing-4);
-  padding: 0;
-  list-style: none;
-}
-
-.rubros li {
-  display: grid;
-  align-content: start;
-  gap: var(--spacing-2);
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-5);
-  background: var(--color-superficie);
-  box-shadow: var(--sombra-suave);
-}
-
-.rubros h3 {
-  font-size: var(--text-lg);
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.rubros p {
+.nota {
   color: var(--color-texto-suave);
   font-size: var(--text-sm);
-  line-height: 1.5;
 }
 
-/* ---- pasos ---- */
+.nota a {
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-underline-offset: 0.2rem;
+}
+
+/* ---- 3 · pasos ---- */
 
 .pasos {
   display: grid;
-  gap: var(--spacing-3);
+  gap: var(--spacing-5);
   padding: 0;
   list-style: none;
 }
@@ -449,25 +305,20 @@
 .pasos li {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  align-content: start;
-  gap: var(--spacing-1) var(--spacing-4);
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-4);
-  background: var(--color-superficie);
-  box-shadow: var(--sombra-suave);
+  align-items: start;
+  gap: var(--spacing-4);
 }
 
 .numero {
   display: grid;
-  grid-row: span 2;
   width: var(--spacing-10);
   height: var(--spacing-10);
   place-items: center;
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-status);
   background: var(--color-marca);
   color: var(--color-superficie);
-  font-size: var(--text-base);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
   font-weight: 900;
 }
 
@@ -477,101 +328,438 @@
 }
 
 .pasos p {
-  max-width: 34ch;
+  margin-top: var(--spacing-1);
   color: var(--color-texto-suave);
   line-height: 1.5;
 }
 
-/* ---- comparación ---- */
+/* ---- 4 · la tarjeta de acrílico ---- */
 
-/* En un celular angosto tres columnas no entran sin apretar el texto hasta
-   volverlo ilegible: antes que eso, la tabla se desplaza dentro de su caja. */
-.tablaEnvoltorio {
-  overflow-x: auto;
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-2) var(--spacing-4);
-  background: var(--color-superficie);
+/* El único bloque oscuro antes del cierre. El fondo es la marca llevada hacia
+   el texto: sigue siendo el teal de MiPuesto, y el par con la superficie es de
+   los que comprueba la guardia de contraste. */
+.seccionTarjeta {
+  padding: var(--spacing-14) 0;
+  background: var(--color-marca-fuerte);
+  color: var(--color-superficie);
 }
 
-.comparacion {
-  width: 100%;
-  min-width: 22rem;
-  border-collapse: collapse;
-  text-align: left;
+.tarjetaContenido {
+  display: grid;
+  align-items: center;
+  gap: var(--spacing-12);
 }
 
-.comparacion th,
-.comparacion td {
-  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-3) var(--spacing-2);
+.tarjetaTexto {
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-5);
+  min-width: 0;
+}
+
+.tarjetaTexto h2 {
+  font-size: var(--text-2xl);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.tarjetaPromesa {
+  max-width: 46ch;
+  color: color-mix(in srgb, var(--color-superficie) 88%, transparent);
+  font-size: var(--text-lg);
+  line-height: 1.5;
+}
+
+.tarjetaBeneficios {
+  display: grid;
+  gap: var(--spacing-4);
+  max-width: 46ch;
+  padding: 0;
+  list-style: none;
+}
+
+.tarjetaBeneficios li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-3);
+  line-height: 1.5;
+}
+
+.tarjetaBeneficios svg {
+  margin-top: var(--spacing-1);
+  font-size: var(--text-lg);
+}
+
+.tarjetaBeneficios span {
+  color: color-mix(in srgb, var(--color-superficie) 86%, transparent);
+}
+
+.tarjetaBeneficios strong {
+  color: var(--color-superficie);
+}
+
+.tarjetaPrecio {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.tarjetaPrecio p:first-child {
+  font-size: var(--text-lg);
+}
+
+.tarjetaPrecio strong {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 900;
+}
+
+.tarjetaPrecio p:last-child {
+  color: color-mix(in srgb, var(--color-superficie) 80%, transparent);
   font-size: var(--text-sm);
 }
 
-.comparacion thead th {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+/* Sobre el teal, el botón de acción va claro: el naranja sobre teal oscuro no
+   llega al contraste que pide un texto de botón. */
+.botonTarjeta {
+  border-color: var(--color-superficie);
+  background: var(--color-superficie);
+  color: var(--color-marca-fuerte);
+  box-shadow: var(--sombra-elevada);
 }
 
-.comparacion tbody th {
+/* La pieza dibujada: 12,5 × 17,5 cm son cinco por siete, y esa es la proporción
+   de la placa. El acrílico se sugiere con un borde claro y un reflejo en
+   diagonal, no con una foto: así pesa nada y no hay que mantener una imagen. */
+.acrilico {
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  margin: 0;
+}
+
+.acrilicoPlaca {
+  position: relative;
+  width: min(100%, 18rem);
+  aspect-ratio: 5 / 7;
+  border: var(--borde-marcado) solid color-mix(in srgb, var(--color-superficie) 55%, transparent);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  background: color-mix(in srgb, var(--color-superficie) 14%, transparent);
+  box-shadow: var(--sombra-flotante);
+}
+
+/* El reflejo del acrílico. Encima de todo y sin recibir toques. */
+.acrilicoPlaca::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--color-superficie) 22%, transparent) 0%,
+    transparent 38%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.impreso {
+  display: grid;
+  height: 100%;
+  align-content: space-between;
+  justify-items: center;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-4) var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  text-align: center;
+}
+
+.impresoNegocio {
+  color: var(--color-marca-fuerte);
+  font-family: var(--font-marca);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.impresoLlamada {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
   font-weight: 700;
 }
 
-.comparacion td {
-  width: var(--spacing-20);
-  text-align: center;
-  font-weight: 800;
+.impresoQr {
+  width: 62%;
+  color: var(--color-texto);
 }
 
-.comparacion tbody tr:last-child th,
-.comparacion tbody tr:last-child td {
-  border-bottom: 0;
-  color: var(--color-marca-fuerte);
+.impresoQr svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-.si,
-.no {
+.impresoNfc {
   display: inline-flex;
-  min-width: var(--spacing-10);
   align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
+  gap: var(--spacing-1);
+  color: var(--color-marca-fuerte);
   font-size: var(--text-xs);
   font-weight: 800;
 }
 
-.si {
-  background: var(--color-exito-tenue);
-  color: var(--color-exito);
+.impresoGoogle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  text-align: left;
 }
 
-.no {
-  background: var(--color-deshabilitado);
+.impresoGoogle > svg {
+  flex-shrink: 0;
+  font-size: var(--text-lg);
+}
+
+.impresoGoogle > span {
+  display: grid;
+  gap: 0;
+}
+
+/* Las estrellas rellenas: el ícono viene de contorno, y la propiedad de CSS le
+   gana al atributo del SVG. En el color de alerta —ámbar— porque es el que el
+   sistema ya tiene para el dorado de una calificación. */
+.estrellas {
+  display: flex;
+  gap: 0;
+  color: var(--color-alerta);
+}
+
+.estrellas svg {
+  fill: currentColor;
+}
+
+.impresoMarca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  color: var(--color-texto-tenue);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.impresoIsotipo {
+  width: auto;
+  height: var(--spacing-4);
+}
+
+/* La base: un bloque bajo y ancho, como el de un porta-carteles de mesa. */
+.acrilicoBase {
+  width: min(78%, 14rem);
+  height: var(--spacing-5);
+  margin-top: calc(var(--spacing-2) * -1);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--color-superficie) 30%, transparent);
+  box-shadow: var(--sombra-elevada);
+}
+
+.acrilico figcaption {
+  max-width: 28ch;
+  margin-top: var(--spacing-4);
+  color: color-mix(in srgb, var(--color-superficie) 80%, transparent);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ---- 5 · precios ---- */
+
+.planes {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.plan,
+.planDestacado {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-4);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-6);
+  background: var(--color-superficie);
+}
+
+/* El destacado se distingue por el borde de marca y el sello, no por una sombra
+   más: es el que trae la IA, y eso se dice con palabras. */
+.planDestacado {
+  border: var(--borde-marcado) solid var(--color-marca);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.sello {
+  justify-self: start;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.plan h3,
+.planDestacado h3 {
+  font-size: var(--text-xl);
+  font-weight: 900;
+}
+
+/* Los precios son contenido de primera clase (DESIGN.md §4). */
+.monto {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  color: var(--color-marca-fuerte);
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.monto span {
   color: var(--color-texto-suave);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 700;
 }
 
-.remate {
-  max-width: 40rem;
-  border-left: var(--spacing-1) solid var(--color-accion);
-  padding: 0 0 0 var(--spacing-4);
+.paraQuien {
+  color: var(--color-texto-suave);
+  line-height: 1.5;
+}
+
+.plan ul,
+.planDestacado ul {
+  display: grid;
+  gap: var(--spacing-2);
+  padding: 0;
+  list-style: none;
+}
+
+.plan li,
+.planDestacado li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-2);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.plan li svg,
+.planDestacado li svg {
+  margin-top: var(--spacing-1);
+}
+
+.botonPlan,
+.botonPlanFuerte {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  border: var(--borde-marcado) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.botonPlanFuerte {
+  border-color: var(--color-accion);
+  background: var(--color-accion);
+  color: var(--color-superficie);
+}
+
+.extras {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.extras h3 {
   font-size: var(--text-lg);
   font-weight: 800;
-  line-height: 1.4;
 }
 
-.ocultoVisual {
-  position: absolute;
-  width: var(--borde-fino);
-  height: var(--borde-fino);
-  overflow: hidden;
-  clip-path: inset(50%);
+.extras ul {
+  display: grid;
+  padding: 0;
+  list-style: none;
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
 }
 
-/* ---- preguntas ---- */
+/* En el teléfono cada fila apila nombre, precio y enlace; en pantalla ancha van
+   en una línea, con el precio alineado a la derecha como en una lista de
+   precios, que es exactamente lo que es. */
+.extras li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-2) var(--spacing-4);
+  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
+  padding: var(--spacing-4) 0;
+}
+
+.extras li > div {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: var(--spacing-1);
+}
+
+.extras li > div p:last-child {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.extraNombre {
+  font-weight: 800;
+}
+
+.extraPrecio {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  color: var(--color-marca-fuerte);
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 900;
+}
+
+.extraPrecio span {
+  color: var(--color-texto-suave);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.extras li > a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-self: end;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* ---- 6 · preguntas ---- */
 
 .preguntas {
   display: grid;
@@ -581,9 +769,8 @@
 
 .preguntas details {
   border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
+  border-radius: var(--radius-control);
   background: var(--color-superficie);
-  box-shadow: var(--sombra-suave);
 }
 
 .preguntas details[open] {
@@ -592,11 +779,11 @@
 
 .preguntas summary {
   display: flex;
+  min-height: var(--control-alto);
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-4);
-  padding: var(--spacing-4) var(--spacing-5);
-  font-size: var(--text-base);
+  padding: var(--spacing-3) var(--spacing-5);
   font-weight: 800;
   list-style: none;
   cursor: pointer;
@@ -607,9 +794,9 @@
 }
 
 .preguntas summary::after {
-  content: "+";
   flex: 0 0 auto;
   color: var(--color-marca-fuerte);
+  content: "+";
   font-size: var(--text-xl);
   font-weight: 700;
   line-height: 1;
@@ -620,12 +807,13 @@
 }
 
 .preguntas p {
+  max-width: var(--ancho-lectura);
   padding: 0 var(--spacing-5) var(--spacing-5);
   color: var(--color-texto-suave);
   line-height: 1.6;
 }
 
-/* ---- cierre ---- */
+/* ---- 7 · cierre ---- */
 
 .cierre {
   padding: var(--spacing-14) 0;
@@ -640,6 +828,11 @@
   text-align: center;
 }
 
+.isotipoCierre {
+  width: auto;
+  height: var(--spacing-16);
+}
+
 .cierre h2 {
   max-width: 20ch;
   font-size: var(--text-2xl);
@@ -648,17 +841,16 @@
 }
 
 .cierre p {
-  max-width: 46ch;
+  max-width: 44ch;
   color: color-mix(in srgb, var(--color-superficie) 80%, transparent);
   font-size: var(--text-lg);
   line-height: 1.5;
 }
 
-/* ---- llamada fija en el móvil ---- */
+/* ---- llamada fija en el teléfono ---- */
 
-/* Va al final del contenido con posición pegajosa y no fija a la ventana: así
-   se queda a la vista mientras se recorre la página y libera el pie cuando se
-   llega abajo, en vez de taparlo para siempre. */
+/* Pegajosa al final del contenido y no fija a la ventana: se queda a la vista
+   mientras se recorre la página y libera el pie al llegar abajo. */
 .accionFija {
   position: sticky;
   z-index: 15;
@@ -680,7 +872,6 @@
   padding: var(--spacing-2) var(--spacing-6);
   background: var(--color-accion);
   color: var(--color-superficie);
-  font-size: var(--text-base);
   font-weight: 800;
   text-decoration: none;
   box-shadow: var(--sombra-elevada);
@@ -688,26 +879,25 @@
 
 /* ---- adaptación ---- */
 
-@media (max-width: 26rem) {
-  /* Se achica, pero menos que antes: sin el botón de alta en la barra hay lugar
-     de sobra incluso a este ancho, y 26 rem son 416 px, o sea casi cualquier
-     teléfono. Encoger el nombre acá era encogerlo para la mayoría. */
-  .nombreMarca strong {
-    font-size: var(--text-xl);
+@media (min-width: 40rem) {
+  .extras li {
+    grid-template-columns: minmax(0, 1fr) auto auto;
   }
 
-  .isotipo {
-    height: var(--spacing-10);
+  .extras li > div {
+    grid-column: auto;
   }
 }
 
 @media (min-width: 48rem) {
-  .franjaContenido {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+  .discurso h1 {
+    font-size: var(--text-4xl);
   }
 
-  .rubros {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .encabezado h2,
+  .tarjetaTexto h2,
+  .cierre h2 {
+    font-size: var(--text-3xl);
   }
 
   .pasos {
@@ -715,22 +905,27 @@
     gap: var(--spacing-8);
   }
 
-  .discurso h1 {
-    font-size: var(--text-4xl);
+  .planes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 56rem;
   }
 
-  .encabezado h2 {
-    font-size: var(--text-3xl);
+  .isotipo {
+    height: var(--spacing-12);
   }
 
-  .cierre h2 {
-    font-size: var(--text-3xl);
+  .nombreMarca strong {
+    font-size: var(--text-2xl);
   }
 }
 
 @media (min-width: 64rem) {
   .enlaces {
     display: flex;
+  }
+
+  .enlaceIngresar {
+    margin-left: 0;
   }
 
   .accionFija {
@@ -746,384 +941,8 @@
     gap: var(--spacing-12);
   }
 
-  .rubros {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-/* ============ Herramientas con IA ============
-   Un fondo oscuro y el degradado violeta separan esta sección del resto de la
-   portada: es lo único que la competencia no tiene, y leída entre dos secciones
-   claras se pierde. El color no sale de la paleta del producto a propósito —es
-   de MiPuesto, no del catálogo de nadie— y son los dos tonos que la guarda de
-   contraste comprueba contra el blanco. */
-.seccionIa {
-  position: relative;
-  overflow: hidden;
-  padding: var(--spacing-16) var(--spacing-5);
-  background: var(--color-texto);
-  color: var(--color-superficie);
-}
-
-/* Dos resplandores muy abiertos, no un degradado plano: dan profundidad sin
-   dibujar nada que compita con el texto. */
-.seccionIa::before {
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  background:
-    radial-gradient(
-      60rem 30rem at 15% 0%,
-      color-mix(in srgb, var(--color-ia-inicio) 55%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      50rem 28rem at 90% 100%,
-      color-mix(in srgb, var(--color-ia-fin) 45%, transparent),
-      transparent
-    );
-  content: "";
-  pointer-events: none;
-}
-
-.seccionIa > * {
-  position: relative;
-  z-index: 1;
-}
-
-.encabezadoIa {
-  display: grid;
-  gap: var(--spacing-3);
-  max-width: 44rem;
-  margin-bottom: var(--spacing-8);
-}
-
-.encabezadoIa h2 {
-  font-size: var(--text-3xl);
-  font-weight: 900;
-  line-height: 1.1;
-}
-
-.encabezadoIa p:not(.rotuloIa) {
-  color: color-mix(in srgb, var(--color-superficie) 82%, transparent);
-  font-size: var(--text-base);
-  line-height: 1.6;
-}
-
-.rotuloIa {
-  justify-self: start;
-  border: var(--borde-fino) solid color-mix(in srgb, var(--color-superficie) 40%, transparent);
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-4);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.tarjetasIa {
-  display: grid;
-  gap: var(--spacing-4);
-}
-
-.tarjetaIa {
-  border-radius: var(--radius-panel);
-  padding: var(--borde-marcado);
-  background: var(--ia-degradado);
-}
-
-.tarjetaIaCuerpo {
-  display: grid;
-  gap: var(--spacing-3);
-  height: 100%;
-  border-radius: calc(var(--radius-panel) - var(--borde-marcado));
-  padding: var(--spacing-6);
-  background: var(--color-texto);
-}
-
-.numeroIa {
-  background: var(--ia-degradado);
-  background-clip: text;
-  color: transparent;
-  font-size: var(--text-3xl);
-  font-weight: 900;
-  line-height: 1;
-}
-
-.tarjetaIa h3 {
-  font-size: var(--text-xl);
-  font-weight: 800;
-}
-
-.tarjetaIa p:not(.numeroIa):not(.datoIa) {
-  color: color-mix(in srgb, var(--color-superficie) 78%, transparent);
-  font-size: var(--text-sm);
-  line-height: 1.6;
-}
-
-.datoIa {
-  margin-top: auto;
-  border-top: var(--borde-fino) solid color-mix(in srgb, var(--color-superficie) 22%, transparent);
-  padding-top: var(--spacing-3);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-}
-
-.remateIa {
-  margin-top: var(--spacing-6);
-  color: color-mix(in srgb, var(--color-superficie) 80%, transparent);
-  font-size: var(--text-sm);
-}
-
-.remateIa a {
-  color: var(--color-superficie);
-  font-weight: 700;
-}
-
-/* ============ Planes ============ */
-.planes {
-  display: grid;
-  gap: var(--spacing-4);
-  align-items: start;
-}
-
-.plan,
-.planDestacado,
-.planCarga {
-  display: grid;
-  gap: var(--spacing-3);
-  height: 100%;
-  align-content: start;
-  border: var(--borde-fino) solid var(--color-borde);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-6);
-  background: var(--color-superficie);
-}
-
-/* El destacado se marca con el borde y la sombra, no con otro color de fondo:
-   tres tarjetas de tres colores distintos se leen como tres productos sin
-   relación, y son variantes de lo mismo. */
-.planDestacado {
-  border: var(--borde-marcado) solid var(--color-marca);
-  box-shadow: var(--sombra-flotante);
-}
-
-.planCarga {
-  border-style: dashed;
-  background: var(--color-fondo-suave);
-}
-
-.selloPlan,
-.selloCarga {
-  justify-self: start;
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-marca);
-  color: var(--color-superficie);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.selloCarga {
-  background: var(--color-texto);
-}
-
-.plan h3,
-.planDestacado h3,
-.planCarga h3 {
-  font-size: var(--text-xl);
-  font-weight: 800;
-}
-
-.montoPlan {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-2);
-  font-size: var(--text-4xl);
-  font-weight: 900;
-  line-height: 1;
-}
-
-.montoPlan span {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-  font-weight: 700;
-}
-
-/* Pegado al monto mensual, sin recuadro ni color de aviso: es la misma oferta
-   con otra forma de pagarla, y destacarla la pondría a competir con el plan del
-   que cuelga. */
-.pagoAnual {
-  margin-top: calc(var(--spacing-1) * -1);
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-}
-
-.pagoAnual strong {
-  color: var(--color-texto);
-  font-weight: 800;
-}
-
-.paraQuien {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-}
-
-.plan ul,
-.planDestacado ul,
-.planCarga ul {
-  display: grid;
-  gap: var(--spacing-2);
-  margin: 0;
-  padding: 0;
-  font-size: var(--text-sm);
-  list-style: none;
-}
-
-.plan li,
-.planDestacado li,
-.planCarga li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--spacing-2);
-  line-height: 1.5;
-}
-
-.plan li::before,
-.planDestacado li::before,
-.planCarga li::before {
-  color: var(--color-marca);
-  content: "\2713";
-  font-weight: 900;
-}
-
-.botonPlan,
-.botonPlanFuerte {
-  display: inline-flex;
-  min-height: var(--control-alto);
-  align-items: center;
-  justify-content: center;
-  margin-top: var(--spacing-2);
-  border: var(--borde-marcado) solid var(--color-marca);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-5);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-base);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.botonPlanFuerte {
-  background: var(--color-marca);
-  color: var(--color-superficie);
-}
-
-.aclaracionPlanes {
-  margin-top: var(--spacing-5);
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-}
-
-/* ============ Directorio ============ */
-.seccionDirectorio {
-  padding: var(--spacing-16) var(--spacing-5);
-  background: var(--color-fondo-suave);
-}
-
-.beneficiosDirectorio {
-  display: grid;
-  gap: var(--spacing-4);
-  margin-top: var(--spacing-6);
-}
-
-.beneficiosDirectorio article {
-  display: grid;
-  gap: var(--spacing-2);
-  align-content: start;
-  border-left: var(--borde-marcado) solid var(--color-marca);
-  padding-left: var(--spacing-4);
-}
-
-.beneficiosDirectorio h3 {
-  font-size: var(--text-base);
-  font-weight: 800;
-}
-
-.beneficiosDirectorio p {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-  line-height: 1.6;
-}
-
-.botonDirectorio {
-  display: inline-flex;
-  min-height: var(--control-alto);
-  align-items: center;
-  justify-content: center;
-  justify-self: start;
-  margin-top: var(--spacing-6);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-3) var(--spacing-6);
-  background: var(--color-texto);
-  color: var(--color-superficie);
-  font-size: var(--text-base);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-@media (min-width: 48rem) {
-  .tarjetasIa,
-  .beneficiosDirectorio {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .beneficiosDirectorio {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .planes {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-/* ============ Aparición al desplazar ============
-   Con `animation-timeline: view()`, que es CSS puro: cero JavaScript, cero
-   observadores y cero salto de diseño. Va dentro de `@supports` porque el
-   navegador que no lo entiende **no aplica nada** y ve la página completa y
-   quieta, que es un resultado correcto y no una versión rota.
-
-   El estado inicial vive dentro del `@supports` a propósito: si estuviera
-   afuera, un navegador sin soporte dejaría el contenido invisible para siempre.
-   Es la forma clásica de esconder media portada sin darse cuenta. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .tarjetaIa,
-    .plan,
-    .planDestacado,
-    .planCarga,
-    .beneficiosDirectorio article,
-    .pasos li,
-    .rubros li {
-      animation: aparecer linear both;
-      animation-timeline: view();
-      /* Termina cuando la tarjeta lleva un cuarto de pantalla subida: si
-         terminara más tarde, se leería el texto todavía moviéndose. */
-      animation-range: entry 0% cover 25%;
-    }
-  }
-}
-
-@keyframes aparecer {
-  from {
-    opacity: 0;
-    transform: translateY(var(--spacing-6));
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
+  .tarjetaContenido {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--spacing-16);
   }
 }

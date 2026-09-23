@@ -10,7 +10,6 @@ import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
 import { UsoAlmacenamientoPanel } from "../../../components/plataforma/uso-almacenamiento";
 import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
-import { PRECIO_MENSUAL_BS } from "../../../lib/contacto";
 import { nombreDeRubro } from "../../../lib/negocios/rubros";
 import type { UsoIa } from "../../../lib/ia/limites";
 import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/servidor";
@@ -99,7 +98,11 @@ export default async function PaginaPlataforma({
   const clientes = ordenarPorUrgencia(
     (negocios ?? []).map((negocio) => resumirCliente(negocio)),
   );
-  const cobrables = clientes.filter(({ estado }) => estado !== "fuera_a_mano").length;
+  /* Cada negocio con el precio de su plan. Antes era la cantidad por el precio
+     de entrada, y un negocio en el Activo sumaba como si pagara el básico. */
+  const ingresoMensual = clientes
+    .filter(({ estado }) => estado !== "fuera_a_mano")
+    .reduce((suma, { negocio }) => suma + planDe(negocio.plan_id).precioBs, 0);
   const atencion = clientes.filter(({ estado }) =>
     ["suspendido", "vencida", "por_vencer"].includes(estado),
   ).length;
@@ -107,7 +110,7 @@ export default async function PaginaPlataforma({
   return (
     <main className={styles.pagina}>
       <EncabezadoPanel
-        descripcion={`${clientes.length} negocios · ${atencion} necesitan atención · Bs ${cobrables * PRECIO_MENSUAL_BS} al mes si todos pagan`}
+        descripcion={`${clientes.length} negocios · ${atencion} necesitan atención · Bs ${ingresoMensual} al mes si todos pagan`}
         rotulo="Administración"
         titulo="Plataforma"
       />

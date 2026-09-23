@@ -21,7 +21,7 @@ declare
 begin
   for v_tarea in
     select * from (values
-      ('mipuesto-expirar-reservas',  '*/5 * * * *', 'select public.expirar_reservas_vencidas();'),
+      ('mipuesto-expirar-reservas',  '* * * * *',   'select public.expirar_reservas_vencidas(500);'),
       ('mipuesto-vigilar-salud',     '*/5 * * * *', 'select public.vigilar_salud();'),
       ('mipuesto-purgar-vigilancia', '30 4 * * *',  'select public.purgar_vigilancia_salud();'),
       ('mipuesto-purgar-analitica',  '30 8 * * *',  'select public.purgar_analitica_vieja();'),

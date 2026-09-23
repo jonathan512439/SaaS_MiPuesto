@@ -4,6 +4,7 @@ import {
   CARGA_INICIAL,
   PLANES,
   PLAN_ANUAL,
+  TARJETA_ACRILICO,
   TOPE_TECNICO_MENSUAL,
   ahorroAnualBs,
   precioAnualSuelto,
@@ -38,6 +39,11 @@ describe("planes", () => {
 
   it("solo un plan está destacado", () => {
     expect(PLANES.filter(({ destacado }) => destacado)).toHaveLength(1);
+  });
+
+  it("la tarjeta de acrílico tiene precio y medidas", () => {
+    expect(TARJETA_ACRILICO.precioBs).toBeGreaterThan(0);
+    expect(TARJETA_ACRILICO.medidas).toMatch(/cm$/);
   });
 
   it("la carga inicial tiene precio y alcance", () => {

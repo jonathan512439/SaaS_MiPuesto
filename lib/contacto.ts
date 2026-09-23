@@ -3,7 +3,10 @@
    única vía de alta y de renovación que ve el usuario. */
 export const WHATSAPP_MIPUESTO = "59161832872";
 
-export const PRECIO_MENSUAL_BS = 80;
+/* El plan de entrada. Subió de 80 a 100 el 2026-09-22: a 11 Bs por dólar, 80
+   quedaba por debajo de 10 USD y no cubría el plan pago de Cloudflare más el
+   dominio con el primer puñado de clientes. */
+export const PRECIO_MENSUAL_BS = 100;
 
 /* Quien desarrolla el producto. Va en el pie de todas las pantallas, incluidos
    los catálogos públicos, donde funciona además como vía de contacto. */

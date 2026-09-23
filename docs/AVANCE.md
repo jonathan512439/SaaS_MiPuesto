@@ -1724,6 +1724,33 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-09-22
+
+- **Precios nuevos**: plan Catálogo **Bs 100** (antes 80) y Catálogo Activo, con
+  las herramientas de IA, **Bs 150** (antes 120). La carga del catálogo por
+  nosotros sigue en Bs 250. «Cuenta» y la cabecera de «Plataforma» ahora usan
+  el precio del plan de cada negocio: antes los dos multiplicaban por el precio
+  de entrada.
+- **Producto nuevo: tarjeta de acrílico** de 12,5 × 17,5 cm con diseño propio,
+  QR y NFC que llevan al catálogo —y de ahí a calificar en Google Maps—. Bs 100
+  por unidad, configuración incluida, sin el mes del catálogo
+  (`TARJETA_ACRILICO` en `lib/planes.ts`; también en los términos).
+- **Portada rehecha como embudo**: promesa y precio de entrada en la primera
+  pantalla, la muestra en vivo, tres pasos, la tarjeta (con un QR real dibujado
+  en el servidor, `lib/qr-svg.ts`), dos planes y los extras de una sola vez, y
+  las preguntas. Salieron la franja de cifras, los rubros, la sección de IA, la
+  tabla contra WhatsApp y el bloque del directorio: lo que decían pasó a las
+  preguntas o a una línea.
+- **El pago anual dejó de publicarse**: Bs 850 era un 11 % sobre 12 × 80 y
+  pasaba a ser un 29 % sobre 12 × 100 sin que nadie lo decidiera. Queda en
+  `PLAN_ANUAL` hasta que se fije el número nuevo.
+- **Auditoría previa al MVP.** Hallazgos corregidos: `test:rls:linked` estaba
+  rojo desde la fase 6 (exigía la columna `plantilla_id`, ya borrada) y tapaba
+  seis comprobaciones; la ruta de citas del panel devolvía el texto crudo de
+  Postgres; las citas públicas no tenían tope por IP (ahora 5 cada 15 minutos,
+  migración `20261010090000`); y la caducidad de reservas corría cada 5 minutos
+  de a 100 —ahora cada minuto de a 500, migración `20261011090000`—.
+
 ### 2026-09-19
 
 - **La portada es el primer cartel del negocio, y el banner de arriba se fue.**

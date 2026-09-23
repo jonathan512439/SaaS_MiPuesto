@@ -72,12 +72,13 @@ export const PLANES: readonly Plan[] = [
   {
     id: "activo",
     nombre: "Catálogo Activo",
-    precioBs: 120,
+    precioBs: 150,
     lecturasPorMes: 60,
-    para: "Para quien cambia mercadería seguido: ropa por temporada, ferretería, tienda que rota proveedores.",
+    para: "Con las herramientas de IA: para quien carga y cambia mercadería seguido.",
     destacado: true,
     incluye: [
       "Todo lo del plan Catálogo",
+      "Herramientas de IA: una foto de tu lista de precios se vuelve productos cargados",
       `60 lecturas de foto al mes, hasta ${topeDiario(60)} por día`,
       "Prioridad cuando escribís por WhatsApp",
     ],
@@ -138,6 +139,21 @@ export function cupoDelPlan(id: string | null | undefined, techoDiario: number) 
 export const CARGA_INICIAL = {
   precioBs: 250,
   productosMaximos: 150,
+} as const;
+
+/* La tarjeta de acrílico para el mostrador o la mesa.
+ *
+ * Es un producto físico y se cobra aparte, por unidad: **no incluye el mes del
+ * catálogo**. Lleva el diseño hecho para el negocio, un código QR y una etiqueta
+ * NFC —se acerca el teléfono y abre—, y las dos llevan al catálogo, donde está
+ * el botón de calificar en Google Maps. La configuración la hacemos nosotros y
+ * va incluida en el precio.
+ *
+ * Las medidas se publican porque son lo primero que pregunta quien tiene poco
+ * mostrador. */
+export const TARJETA_ACRILICO = {
+  precioBs: 100,
+  medidas: "12,5 × 17,5 cm",
 } as const;
 
 /* El tope técnico por negocio, que ningún plan puede superar. Está acá para que

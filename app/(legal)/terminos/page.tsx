@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
-import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../../../lib/contacto";
+import { construirEnlaceContacto } from "../../../lib/contacto";
 /* Los topes se importan y no se escriben acá: son los mismos números que aplica
    el sistema, así que la página no puede prometer una cifra distinta de la que
    se cumple. Si mañana cambian, cambian en los dos lados a la vez. */
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
-import { PLANES, cupoDelPlan } from "../../../lib/planes";
+import { CARGA_INICIAL, PLANES, TARJETA_ACRILICO, cupoDelPlan } from "../../../lib/planes";
 import styles from "../legal.module.css";
 
 export const metadata: Metadata = {
@@ -40,8 +40,21 @@ export default function PaginaTerminos() {
       <section className={styles.seccion}>
         <h2>Cuánto cuesta</h2>
         <p>
-          Bs {PRECIO_MENSUAL_BS} al mes. El primer mes es gratis. No cobramos comisión
-          por venta ni cargo de instalación.
+          {PLANES.map((plan, indice) => (
+            <span key={plan.id}>
+              {indice > 0 ? " o " : ""}
+              Bs {plan.precioBs} al mes con el plan {plan.nombre}
+            </span>
+          ))}
+          . El primer mes es gratis. No cobramos comisión por venta ni cargo de
+          instalación.
+        </p>
+        <p>
+          Aparte, y solo si los pedís: la carga del catálogo por nosotros, Bs{" "}
+          {CARGA_INICIAL.precioBs} por única vez, y la tarjeta de acrílico con QR y
+          NFC, Bs {TARJETA_ACRILICO.precioBs} por unidad. La tarjeta es un producto
+          físico: incluye su diseño y su configuración, y no incluye ningún mes
+          del catálogo.
         </p>
         <p>
           El cobro es mensual y se coordina con vos por WhatsApp. No hay contrato de
