@@ -61,6 +61,18 @@ Acordadas con el dueño del proyecto el 22 de septiembre de 2026.
 
 ## Fase 10 — Tres formas de tarjeta
 
+> **Desplegada el 22 de septiembre de 2026** (marca `fase-10-formas-de-tarjeta`).
+> Verificado en producción sobre `prueba-negocio`, cambiando la forma con la
+> clave de servicio y volviéndola a `cuadricula`: las tres dibujan las 12
+> tarjetas; la lista de precios baja una sola imagen (la portada) contra 11 de
+> las otras dos, y los botones de acción son los mismos en las tres.
+> **Queda para el dueño:** cambiar la forma desde Apariencia con su sesión, y
+> mirar las tres en un teléfono a 360 px. Ninguna de las dos cosas se puede
+> comprobar desde acá.
+>
+> AGENTS.md ya dice cuándo corresponden las pruebas de dibujo, así que la
+> excepción de abajo dejó de serlo.
+
 **Objetivo:** que el dueño elija cómo se ven sus productos, sin que el catálogo
 deje de ser uno solo.
 

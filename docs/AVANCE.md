@@ -1726,6 +1726,16 @@ motivo por el que este archivo existe.
 
 ### 2026-09-22
 
+- **Fase 10 desplegada: tres formas de tarjeta.** Cuadrícula, una por fila con
+  miniatura, y lista de precios sin fotos; se eligen en Apariencia. Un solo
+  componente con `data-forma`: la forma cambia el aspecto y nunca la acción.
+  Columna `negocios.forma_tarjeta` (migración `20261012090000`). Prueba de
+  dibujo 3 formas × 3 modalidades, con sus tres guardias probadas rompiéndolas.
+  Pendiente del dueño: probarlo desde Apariencia y en el teléfono.
+- **AGENTS.md**: las pruebas de dibujo dejan de estar prohibidas y la regla dice
+  cuándo corresponden.
+- **Plan de las fases 10 a 12** en `docs/plan/09-DIRECTORIO-Y-FORMAS.md`.
+
 - **Precios nuevos**: plan Catálogo **Bs 100** (antes 80) y Catálogo Activo, con
   las herramientas de IA, **Bs 150** (antes 120). La carga del catálogo por
   nosotros sigue en Bs 250. «Cuenta» y la cabecera de «Plataforma» ahora usan
