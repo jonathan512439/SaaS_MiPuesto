@@ -1,3 +1,4 @@
+import type { FormaTarjeta } from "../../../lib/apariencia";
 import type { ModoAccionCatalogo } from "../../../lib/modalidades";
 import type { ProductoPlantilla } from "../../../lib/plantillas/tipos";
 
@@ -36,6 +37,9 @@ export type PropiedadesTarjeta = {
      el paso del alta—: ahí los productos son de mentira y un enlace llevaría a
      una página que no existe. Sin él la tarjeta no enlaza, y no falla. */
   slug: string | null;
+  /* Cómo se dibuja. Cambia la disposición y si hay foto; nunca qué se puede
+     hacer con el producto, que lo sigue diciendo `modalidad`. */
+  forma: FormaTarjeta;
   modalidad: ModoAccionCatalogo;
   permiteAcciones: boolean;
   demostracion: boolean;

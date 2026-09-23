@@ -55,3 +55,44 @@ export const DEFINICIONES_PALETAS: ReadonlyArray<{
   { id: "rubi", nombre: "Rubí", descripcion: "Negro con rojo encendido." },
   { id: "cielo", nombre: "Cielo", descripcion: "Blanco con azul marino y azul cielo." },
 ];
+
+/* Cómo se dibujan los productos en el catálogo. Fase 10.
+ *
+ * Es **un eje de aspecto y nada más**: la forma decide la disposición de la
+ * tarjeta, y lo que se puede hacer con el producto —pedir, agendar, agregar al
+ * carrito— lo sigue decidiendo la modalidad del negocio. Una forma nunca
+ * esconde una acción.
+ *
+ * La restricción de `negocios.forma_tarjeta` lista los mismos tres valores, y
+ * una prueba los compara. */
+export const FORMAS_TARJETA = ["cuadricula", "fila", "lista_precios"] as const;
+
+export type FormaTarjeta = (typeof FORMAS_TARJETA)[number];
+
+export const FORMA_TARJETA_POR_OMISION: FormaTarjeta = "cuadricula";
+
+export const DEFINICIONES_FORMAS: ReadonlyArray<{
+  id: FormaTarjeta;
+  nombre: string;
+  descripcion: string;
+}> = [
+  {
+    id: "cuadricula",
+    nombre: "Cuadrícula",
+    descripcion: "Dos por fila, con la foto grande. Para lo que se elige mirando.",
+  },
+  {
+    id: "fila",
+    nombre: "Una por fila",
+    descripcion: "Foto chica al costado y más texto. Para lo que se elige leyendo.",
+  },
+  {
+    id: "lista_precios",
+    nombre: "Lista de precios",
+    descripcion: "Sin fotos, nombre y precio. Para una carta o una lista larga.",
+  },
+];
+
+export function esFormaTarjeta(valor: unknown): valor is FormaTarjeta {
+  return typeof valor === "string" && (FORMAS_TARJETA as readonly string[]).includes(valor);
+}

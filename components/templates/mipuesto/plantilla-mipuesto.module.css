@@ -709,6 +709,160 @@
   font-weight: 800;
 }
 
+/* ---- Las otras dos formas de la tarjeta (fase 10) ----
+ *
+ * Todo lo de arriba es la cuadrícula, que sigue siendo la forma por omisión.
+ * Lo de acá solo corrige lo que cambia en las otras dos, colgado de
+ * `data-forma`: el marcado es el mismo `li` en las tres. */
+
+/* Una por fila: miniatura al costado y el texto con lugar para leerse. En el
+   teléfono, una columna; en pantalla ancha se suman columnas, igual que en la
+   cuadrícula, para que la tarjeta no se estire a lo ancho del monitor. */
+.secciones[data-forma="fila"] .rejilla {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 48rem) {
+  .secciones[data-forma="fila"] .rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 80rem) {
+  .secciones[data-forma="fila"] .rejilla {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.tarjeta[data-forma="fila"] {
+  display: grid;
+  grid-template-columns: var(--spacing-24) minmax(0, 1fr);
+}
+
+/* La foto arriba a la izquierda y cuadrada. Arriba y no estirada: una tarjeta
+   con una descripción larga crece, y la miniatura no tiene por qué crecer con
+   ella. */
+.tarjeta[data-forma="fila"] > :first-child {
+  align-self: start;
+}
+
+.tarjeta[data-forma="fila"] .tarjetaFoto,
+.tarjeta[data-forma="fila"] .sinFoto {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  border-right: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
+  border-bottom: 0;
+}
+
+.tarjeta[data-forma="fila"] .tarjetaCuerpo {
+  padding: var(--spacing-3);
+}
+
+.tarjeta[data-forma="fila"] .tarjetaNombre {
+  font-size: var(--text-base);
+}
+
+/* Una línea más de descripción que en la cuadrícula: esta forma es para lo
+   que se elige leyendo. */
+.tarjeta[data-forma="fila"] .tarjetaDescripcion {
+  -webkit-line-clamp: 3;
+}
+
+/* Lista de precios: renglones dentro de una sola hoja, como una carta. Sin
+   foto, sin sombra por renglón y sin bordes redondeados en cada uno: la hoja
+   es la que tiene forma, los renglones solo se separan con una línea. */
+.secciones[data-forma="lista_precios"] .rejilla {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--catalogo-borde-suave);
+  border-radius: var(--radius-panel);
+  background: var(--catalogo-superficie);
+  box-shadow: var(--catalogo-sombra-flotante);
+}
+
+.tarjeta[data-forma="lista_precios"] {
+  border: 0;
+  border-bottom: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.tarjeta[data-forma="lista_precios"]:last-child {
+  border-bottom: 0;
+}
+
+/* El nombre y lo que lo acompaña a la izquierda; el precio y su botón a la
+   derecha, a la altura del nombre. El pie es el último hijo y se manda a la
+   segunda columna; los demás van a la primera.
+
+   Sin espacio entre filas de la rejilla: el pie ocupa varias filas, y un
+   espacio entre filas vacías se sumaría igual. El aire lo pone cada renglón. */
+.tarjeta[data-forma="lista_precios"] .tarjetaCuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--spacing-3);
+  row-gap: 0;
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+.tarjeta[data-forma="lista_precios"] .tarjetaCuerpo > * {
+  grid-column: 1;
+}
+
+.tarjeta[data-forma="lista_precios"] .tarjetaNombre ~ * {
+  margin-top: var(--spacing-1);
+}
+
+.tarjeta[data-forma="lista_precios"] .tarjetaPie {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+  align-self: start;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.tarjeta[data-forma="lista_precios"] .tarjetaNombre {
+  font-size: var(--text-base);
+}
+
+/* La pastilla que iba sobre la foto, como texto en el renglón. Los mismos
+   pares de color que sobre la foto, que la guarda de contraste ya comprueba. */
+.tarjetaInsignia {
+  justify-self: start;
+  border-radius: var(--radius-status);
+  padding: 0 var(--spacing-2);
+  background: var(--catalogo-texto);
+  color: var(--catalogo-superficie);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.tarjetaInsignia[data-tipo="oferta"] {
+  background: var(--catalogo-accion);
+  color: var(--catalogo-sobre-accion);
+}
+
+.tarjetaInsignia[data-tipo="ultimas"] {
+  background: var(--catalogo-alerta);
+  color: var(--catalogo-superficie);
+}
+
+@media (min-width: 64rem) {
+  .secciones[data-forma="lista_precios"] .rejilla {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-6);
+  }
+
+  /* En dos columnas, la línea de abajo del último de cada columna sobra; con
+     la cantidad impar, el último queda solo y tampoco la necesita. */
+  .tarjeta[data-forma="lista_precios"]:nth-last-child(2):nth-child(odd) {
+    border-bottom: 0;
+  }
+}
+
 /* Los subgrupos de una categoría: «Bebidas» se abre en Gaseosas, Jugos, Aguas.
  *
  * El subtítulo va alineado a la izquierda y con una línea corta debajo, no con

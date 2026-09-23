@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 
-import type { PaletaId } from "../apariencia";
+import type { FormaTarjeta, PaletaId } from "../apariencia";
 import type { Banner } from "../negocios/banners";
 import type { TextoSobreImagen } from "../negocios/texto-sobre-imagen";
 import type { EstadoAtencion } from "../horario";
@@ -89,6 +89,10 @@ export type DatosPlantilla = {
        todo opcional. Sin nada, la portada es la foto sola, sin cortina. Nunca
        nulo: «sin texto» es un valor, y quien dibuja pregunta `tieneAlgoEncima`. */
     portadaTexto: TextoSobreImagen;
+    /* Cómo se dibujan los productos. Viaja con el negocio y no como una prop
+       aparte, como la paleta, porque la vista previa del panel arma un negocio
+       de demostración y lo tiene que llevar adentro. */
+    formaTarjeta: FormaTarjeta;
     qrPagoUrl: string | null;
     redesSociales: Array<{ nombre: string; url: string }>;
     /* El banner de publicidad, entre dos categorías. Un solo lugar, y `null`

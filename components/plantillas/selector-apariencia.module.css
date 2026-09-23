@@ -356,3 +356,119 @@
   font-weight: 800;
   text-align: right;
 }
+
+/* ---- La forma de las tarjetas (fase 10) ----
+ *
+ * Una columna en el teléfono y tres en pantalla ancha: a diferencia de las
+ * paletas, cada forma lleva una frase que explica para qué sirve, y en dos
+ * columnas angostas esa frase se partía en cinco renglones. */
+.formas {
+  display: grid;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-3);
+}
+
+@media (min-width: 42rem) {
+  .formas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Las mismas reglas que una paleta: lo elegido se pinta, no se bordea. */
+.forma,
+.formaElegida {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-3);
+  min-width: 0;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+  cursor: pointer;
+  transition:
+    border-color var(--movimiento-rapido) ease,
+    box-shadow var(--movimiento-rapido) ease;
+}
+
+.formaElegida {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+  box-shadow: var(--sombra-panel);
+}
+
+.forma input,
+.formaElegida input {
+  position: absolute;
+  top: var(--spacing-4);
+  right: var(--spacing-4);
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  margin: 0;
+  accent-color: var(--color-marca);
+}
+
+.textoForma {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.textoForma strong {
+  padding-right: var(--spacing-8);
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.textoForma span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.sugerida {
+  width: fit-content;
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-xs);
+  font-style: normal;
+  font-weight: 800;
+}
+
+/* El dibujo de cada forma: tres bloques grises que se ordenan como se ordenan
+   las tarjetas. No es una captura: una captura habría que rehacerla cada vez
+   que cambia la tarjeta, y esto sale de la misma idea que la hoja real. */
+.muestraForma {
+  display: grid;
+  gap: var(--spacing-1);
+  width: calc(100% - var(--spacing-8));
+  height: var(--spacing-16);
+}
+
+.muestraForma i {
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+}
+
+.muestraForma[data-forma="cuadricula"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.muestraForma[data-forma="fila"] i {
+  border-left: var(--spacing-6) solid var(--color-marca-suave);
+}
+
+.muestraForma[data-forma="lista_precios"] {
+  gap: 0;
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-control);
+}
+
+.muestraForma[data-forma="lista_precios"] i {
+  border: 0;
+  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: 0;
+  background: var(--color-superficie);
+}

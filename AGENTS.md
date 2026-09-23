@@ -65,7 +65,21 @@ Next.js 16 (App Router, TypeScript) sobre Cloudflare Workers con vinext + Supaba
 - `npm run test:rls:linked` se corre al final de **cada** fase, sin excepción.
 - Las pruebas de concurrencia corren contra la base de ensayo, nunca contra producción.
 - **Toda guardia nueva se prueba rompiéndola a propósito** antes de darla por hecha.
-- Sin pruebas de render de componentes: se validan a mano y con el control de contraste.
+- **Pruebas de dibujo de componentes: solo donde el riesgo es que la pantalla no
+  cargue**, no para comprobar cómo se ve. Corresponden cuando se cumple una de
+  estas dos condiciones:
+  1. Es una pantalla grande del panel (Productos, Mi catálogo, Apariencia,
+     Cronograma, Promociones), donde un error que ni TypeScript ni el lint ven
+     —un `const` leído antes de declararse— la deja entera en blanco. Pasó con
+     «Productos» el 19 de septiembre de 2026.
+  2. Un componente se dibuja en varias combinaciones que nadie va a abrir a mano
+     —por ejemplo, las formas de tarjeta por las modalidades—.
+
+  Se escriben con `renderToString` y `jsx()` de `react/jsx-runtime` en un
+  archivo `.render.test.ts`, con datos inventados y los proveedores que la
+  pantalla necesita (ver `components/catalogo/gestor-catalogo.render.test.ts`).
+  Comprueban que se dibuja y qué elementos aparecen; **el aspecto se sigue
+  validando a mano y con el control de contraste**.
 
 ## Qué no hacer
 - No agregues dependencias nuevas sin justificarlo primero por escrito.

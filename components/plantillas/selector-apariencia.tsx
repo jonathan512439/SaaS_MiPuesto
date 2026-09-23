@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 
-import { DEFINICIONES_PALETAS, type PaletaId } from "../../lib/apariencia";
+import {
+  DEFINICIONES_FORMAS,
+  DEFINICIONES_PALETAS,
+  type FormaTarjeta,
+  type PaletaId,
+} from "../../lib/apariencia";
 import {
   OPACIDAD_PATRON_PREDETERMINADA,
   PASOS_OPACIDAD_PATRON,
@@ -21,6 +26,7 @@ type PropiedadesSelector = {
   paletaInicial: PaletaId;
   patronInicial: boolean;
   opacidadInicial: number;
+  formaInicial: FormaTarjeta;
 };
 
 export function SelectorApariencia({
@@ -28,6 +34,7 @@ export function SelectorApariencia({
   paletaInicial,
   patronInicial,
   opacidadInicial,
+  formaInicial,
 }: PropiedadesSelector) {
   const [paletaElegida, setPaletaElegida] = useState(paletaInicial);
   const [paletaGuardada, setPaletaGuardada] = useState(paletaInicial);
@@ -35,12 +42,28 @@ export function SelectorApariencia({
   const [patronGuardado, setPatronGuardado] = useState(patronInicial);
   const [opacidadElegida, setOpacidadElegida] = useState(opacidadInicial);
   const [opacidadGuardada, setOpacidadGuardada] = useState(opacidadInicial);
+  const [formaElegida, setFormaElegida] = useState(formaInicial);
+  const [formaGuardada, setFormaGuardada] = useState(formaInicial);
   const [guardando, setGuardando] = useState(false);
   const { mostrarAviso } = useAvisos();
 
-  /* El diseño del catálogo es único: lo editable es la paleta y el fondo. */
+  /* La vista previa con la forma que se está eligiendo, no con la guardada. */
+  const datosConForma = useMemo(
+    () => ({ ...datos, negocio: { ...datos.negocio, formaTarjeta: formaElegida } }),
+    [datos, formaElegida],
+  );
+
+  /* Un catálogo que solo muestra —sin carrito ni botón por producto— es una
+     carta o una lista de precios, y esa forma se le sugiere. No se le impone:
+     puede querer las fotos. */
+  const formaSugerida: FormaTarjeta | null =
+    datos.negocio.modalidad === "solo_lectura" ? "lista_precios" : null;
+
+  /* El diseño del catálogo es único: lo editable es la paleta, la forma de las
+     tarjetas y el fondo. */
   const hayCambioPendiente =
     paletaElegida !== paletaGuardada ||
+    formaElegida !== formaGuardada ||
     patronElegido !== patronGuardado ||
     opacidadElegida !== opacidadGuardada;
 
@@ -55,6 +78,7 @@ export function SelectorApariencia({
           paleta_id: paletaElegida,
           patron_fondo: patronElegido,
           patron_opacidad: opacidadElegida,
+          forma_tarjeta: formaElegida,
         }),
       });
       const resultado = (await respuesta.json()) as {
@@ -62,6 +86,7 @@ export function SelectorApariencia({
         paleta_id?: PaletaId;
         patron_fondo?: boolean;
         patron_opacidad?: number;
+        forma_tarjeta?: FormaTarjeta;
       };
 
       if (!respuesta.ok || !resultado.paleta_id) {
@@ -74,6 +99,9 @@ export function SelectorApariencia({
       const opacidad = resultado.patron_opacidad ?? OPACIDAD_PATRON_PREDETERMINADA;
       setOpacidadGuardada(opacidad);
       setOpacidadElegida(opacidad);
+      const forma = resultado.forma_tarjeta ?? formaElegida;
+      setFormaGuardada(forma);
+      setFormaElegida(forma);
       mostrarAviso({ titulo: "Apariencia guardada", variante: "exito" });
     } catch (causa) {
       mostrarAviso({
@@ -134,8 +162,51 @@ export function SelectorApariencia({
       </fieldset>
 
       <fieldset className={styles.grupo} disabled={guardando}>
+        <legend className={styles.leyendaOculta}>Cómo se ven tus productos</legend>
+        <PasoNumerado numero={2} titulo="Cómo se ven tus productos" />
+        <p className={styles.ayuda}>
+          Cambia solo el aspecto: lo que tus clientes pueden pedir es lo mismo en las tres.
+        </p>
+        <div className={styles.formas}>
+          {DEFINICIONES_FORMAS.map((forma) => {
+            const elegida = formaElegida === forma.id;
+            return (
+              <label
+                className={elegida ? styles.formaElegida : styles.forma}
+                htmlFor={`forma-${forma.id}`}
+                key={forma.id}
+              >
+                <input
+                  checked={elegida}
+                  id={`forma-${forma.id}`}
+                  name="forma_tarjeta"
+                  onChange={() => setFormaElegida(forma.id)}
+                  type="radio"
+                  value={forma.id}
+                />
+                {/* Un dibujo de la forma y no una captura: se elige mirando, y
+                    tres bloques bastan para ver la diferencia. */}
+                <span aria-hidden="true" className={styles.muestraForma} data-forma={forma.id}>
+                  <i />
+                  <i />
+                  <i />
+                </span>
+                <span className={styles.textoForma}>
+                  <strong>{forma.nombre}</strong>
+                  <span>{forma.descripcion}</span>
+                  {formaSugerida === forma.id ? (
+                    <em className={styles.sugerida}>Sugerida para tu catálogo</em>
+                  ) : null}
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      <fieldset className={styles.grupo} disabled={guardando}>
         <legend className={styles.leyendaOculta}>Elige el fondo</legend>
-        <PasoNumerado numero={2} titulo="Elige el fondo" />
+        <PasoNumerado numero={3} titulo="Elige el fondo" />
         <p className={styles.ayuda}>
           El catálogo lleva detrás un patrón de íconos tenue.
         </p>
@@ -193,7 +264,7 @@ export function SelectorApariencia({
           <PasoNumerado
             descripcion="Así se verá la experiencia de tus clientes."
             idTitulo="titulo-demostracion"
-            numero={3}
+            numero={4}
             titulo="Revisa el resultado"
           />
           <span>Vista completa de demostración</span>
@@ -213,7 +284,7 @@ export function SelectorApariencia({
           }
           data-patron-opacidad={patronElegido ? opacidadElegida : undefined}
         >
-          <PlantillaMipuesto datos={datos} paleta={paletaElegida} />
+          <PlantillaMipuesto datos={datosConForma} paleta={paletaElegida} />
         </div>
       </section>
 

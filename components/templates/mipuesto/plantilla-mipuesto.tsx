@@ -291,7 +291,9 @@ export function PlantillaMipuesto({
           quien ya está recorriendo el catálogo, que es a quien le sirve una
           promoción. Pegado al pie lo ve solo el que llegó hasta abajo, y pegado
           arriba compite con la portada. */}
-      <div className={styles.secciones} id="productos">
+      {/* La forma va en el contenedor además de en cada tarjeta: es la rejilla
+          la que decide cuántas columnas hay, y eso depende de la forma. */}
+      <div className={styles.secciones} data-forma={negocio.formaTarjeta} id="productos">
         {seccionesConProductos.map(({ categoria, sueltos, grupos, total }, posicion) => (
           <Fragment key={categoria.id}>
             {/* El ancla sigue siendo la de la categoría: es a donde saltan las
@@ -313,6 +315,7 @@ export function PlantillaMipuesto({
                       alVerProducto={alVerProducto}
                       cantidadEnCarrito={cantidadesCarrito[producto.id]}
                       demostracion={demostracion}
+                      forma={negocio.formaTarjeta}
                       key={producto.id}
                       modalidad={negocio.modalidad}
                       permiteAcciones={negocio.atencion.permiteAcciones}
@@ -334,6 +337,7 @@ export function PlantillaMipuesto({
                         alVerProducto={alVerProducto}
                         cantidadEnCarrito={cantidadesCarrito[producto.id]}
                         demostracion={demostracion}
+                        forma={negocio.formaTarjeta}
                         key={producto.id}
                         modalidad={negocio.modalidad}
                         permiteAcciones={negocio.atencion.permiteAcciones}

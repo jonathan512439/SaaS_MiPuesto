@@ -9,6 +9,7 @@ import { leerTextoPortada } from "../../../../lib/negocios/texto-sobre-imagen";
 import { obtenerUrlPublicaImagenNegocio } from "../../../../lib/negocios/imagenes-publicas";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import { esPaletaId } from "../../../../lib/plantillas/validacion";
+import { FORMA_TARJETA_POR_OMISION, esFormaTarjeta } from "../../../../lib/apariencia";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { acotarOpacidad } from "../../../../lib/patrones-fondo";
@@ -31,7 +32,7 @@ export default async function PaginaPlantilla() {
   const { data: negocio } = await supabase
     .from("negocios")
     .select(
-      "id,slug,nombre,descripcion,telefono_whatsapp,tipo_negocio,paleta_id,rubro,patron_fondo,patron_opacidad,subnombre,ubicacion_url,banners,portada_url,portada_texto",
+      "id,slug,nombre,descripcion,telefono_whatsapp,tipo_negocio,paleta_id,rubro,patron_fondo,patron_opacidad,subnombre,ubicacion_url,banners,portada_url,portada_texto,forma_tarjeta",
     )
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
@@ -39,6 +40,9 @@ export default async function PaginaPlantilla() {
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   const paletaInicial = esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado";
+  const formaInicial = esFormaTarjeta(negocio.forma_tarjeta)
+    ? negocio.forma_tarjeta
+    : FORMA_TARJETA_POR_OMISION;
 
   /* La dirección de cada imagen se arma acá, en el servidor, que es quien conoce
      la del proyecto. Pasarle la regla al navegador sería repetirla en un segundo
@@ -81,6 +85,7 @@ export default async function PaginaPlantilla() {
        quedar y no sobre una foto inventada. */
     portadaUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.portada_url, "portada"),
     portadaTexto: portadaGuardada,
+    formaTarjeta: formaInicial,
   });
 
   return (
@@ -100,6 +105,7 @@ export default async function PaginaPlantilla() {
           categorias: categorias ?? [],
         }}
         datos={datos}
+        formaInicial={formaInicial}
         opacidadInicial={acotarOpacidad(negocio.patron_opacidad)}
         paletaInicial={paletaInicial}
         patronInicial={negocio.patron_fondo !== false}

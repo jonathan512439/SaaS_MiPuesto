@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import type { PaletaId } from "../../lib/apariencia";
+import type { FormaTarjeta, PaletaId } from "../../lib/apariencia";
 import type { Banner } from "../../lib/negocios/banners";
 import type { ContextoDestino } from "../../lib/negocios/destino-banner";
 import type { TextoSobreImagen } from "../../lib/negocios/texto-sobre-imagen";
@@ -30,6 +30,7 @@ export function PanelApariencia({
   paletaInicial,
   patronInicial,
   opacidadInicial,
+  formaInicial,
   portadaInicial,
   bannersIniciales,
   urlPorRuta,
@@ -39,6 +40,7 @@ export function PanelApariencia({
   paletaInicial: PaletaId;
   patronInicial: boolean;
   opacidadInicial: number;
+  formaInicial: FormaTarjeta;
   portadaInicial: TextoSobreImagen;
   bannersIniciales: Array<Banner | null>;
   urlPorRuta: Record<string, string>;
@@ -67,6 +69,7 @@ export function PanelApariencia({
     <>
       <SelectorApariencia
         datos={datosConCartel}
+        formaInicial={formaInicial}
         opacidadInicial={opacidadInicial}
         paletaInicial={paletaInicial}
         patronInicial={patronInicial}

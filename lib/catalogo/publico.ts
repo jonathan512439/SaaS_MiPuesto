@@ -1,4 +1,8 @@
-import type { PaletaId } from "../apariencia";
+import {
+  FORMA_TARJETA_POR_OMISION,
+  esFormaTarjeta,
+  type PaletaId,
+} from "../apariencia";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import { leerBanners } from "../negocios/banners";
@@ -33,6 +37,7 @@ type NegocioPublico = {
   logo_url?: string | null;
   portada_url?: string | null;
   portada_texto?: unknown;
+  forma_tarjeta?: string | null;
   qr_pago_url?: string | null;
   ubicacion_url?: string | null;
   pide_numero_mesa?: boolean | null;
@@ -340,6 +345,11 @@ export function construirCatalogoPublico(
         /* Con el lector y no crudo, como los banners: lo que hay en esa columna
            puede venir de una restauración o de un script. */
         portadaTexto: leerTextoPortada(negocio.portada_texto),
+        /* Una forma desconocida cae en la de omisión: la columna tiene su
+           restricción, pero esta fila puede venir de una restauración. */
+        formaTarjeta: esFormaTarjeta(negocio.forma_tarjeta)
+          ? negocio.forma_tarjeta
+          : FORMA_TARJETA_POR_OMISION,
         qrPagoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.qr_pago_url ?? null, "qr"),
         ubicacionUrl: negocio.ubicacion_url?.trim() || null,
         pideNumeroMesa: negocio.pide_numero_mesa === true,

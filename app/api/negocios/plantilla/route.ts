@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 
+import { esFormaTarjeta } from "../../../../lib/apariencia";
 import { esPaletaId } from "../../../../lib/plantillas/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 
@@ -34,6 +35,18 @@ export async function PATCH(solicitud: NextRequest) {
     typeof entrada === "object" && entrada !== null && "patron_opacidad" in entrada
       ? entrada.patron_opacidad
       : undefined;
+
+  const formaTarjeta =
+    typeof entrada === "object" && entrada !== null && "forma_tarjeta" in entrada
+      ? entrada.forma_tarjeta
+      : undefined;
+
+  /* Opcional: quien no la manda no la toca. Si la manda, tiene que ser una de
+     las tres; una forma desconocida la rechazaría la base con un error que el
+     dueño no entendería. */
+  if (formaTarjeta !== undefined && !esFormaTarjeta(formaTarjeta)) {
+    return NextResponse.json({ error: "La forma de las tarjetas no es válida." }, { status: 400 });
+  }
 
   /* Se rechaza en vez de acotarse, al revés que en el catalogo público: allá el
      dato ya está guardado y no se puede dejar de dibujar la página por un número
@@ -71,9 +84,10 @@ export async function PATCH(solicitud: NextRequest) {
       paleta_id: paletaId,
       patron_fondo: patronFondo,
       patron_opacidad: patronOpacidad,
+      ...(formaTarjeta !== undefined ? { forma_tarjeta: formaTarjeta } : {}),
     })
     .eq("admin_user_id", idUsuario)
-    .select("slug,paleta_id,patron_fondo,patron_opacidad")
+    .select("slug,paleta_id,patron_fondo,patron_opacidad,forma_tarjeta")
     .maybeSingle();
 
   if (error) {
@@ -95,5 +109,6 @@ export async function PATCH(solicitud: NextRequest) {
     paleta_id: negocio.paleta_id,
     patron_fondo: negocio.patron_fondo,
     patron_opacidad: negocio.patron_opacidad,
+    forma_tarjeta: negocio.forma_tarjeta,
   });
 }

@@ -2,6 +2,7 @@ import type { DatosPlantilla } from "./tipos";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import type { TipoNegocio } from "../negocios/validacion";
+import { FORMA_TARJETA_POR_OMISION, type FormaTarjeta } from "../apariencia";
 import { SIN_TEXTO, type TextoSobreImagen } from "../negocios/texto-sobre-imagen";
 import { OPACIDAD_PATRON_PREDETERMINADA } from "../patrones-fondo";
 
@@ -22,6 +23,9 @@ type DatosNegocioDemo = {
      texto no se vería en ninguna parte. */
   portadaUrl?: string | null;
   portadaTexto?: TextoSobreImagen;
+  /* La forma guardada, para que la vista previa de Apariencia arranque en la
+     que el negocio tiene y no en la de omisión. */
+  formaTarjeta?: FormaTarjeta;
 };
 
 export function crearDatosDemoPlantilla({
@@ -35,6 +39,7 @@ export function crearDatosDemoPlantilla({
   subnombre = null,
   portadaUrl = null,
   portadaTexto = SIN_TEXTO,
+  formaTarjeta = FORMA_TARJETA_POR_OMISION,
 }: DatosNegocioDemo): DatosPlantilla {
   const modalidad = obtenerComportamientoModalidad(tipoNegocio);
   return {
@@ -52,6 +57,7 @@ export function crearDatosDemoPlantilla({
       logoUrl: null,
       portadaUrl,
       portadaTexto,
+      formaTarjeta,
       qrPagoUrl: null,
       ubicacionUrl: null,
     pideNumeroMesa: false,

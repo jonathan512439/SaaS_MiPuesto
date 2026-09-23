@@ -467,6 +467,7 @@ export type Database = {
           alta_completada_en: string | null
           alta_paso: number
           banners: Json
+          forma_tarjeta: string
           portada_texto: Json
           ciudad: string | null
           creado_en: string
@@ -517,6 +518,7 @@ export type Database = {
           alta_completada_en?: string | null
           alta_paso?: number
           banners?: Json
+          forma_tarjeta?: string
           portada_texto?: Json
           ciudad?: string | null
           creado_en?: string
@@ -567,6 +569,7 @@ export type Database = {
           alta_completada_en?: string | null
           alta_paso?: number
           banners?: Json
+          forma_tarjeta?: string
           portada_texto?: Json
           ciudad?: string | null
           creado_en?: string

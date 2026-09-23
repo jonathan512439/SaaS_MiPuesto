@@ -1,4 +1,4 @@
-import type { PaletaId } from "../apariencia";
+import { FORMA_TARJETA_POR_OMISION, type PaletaId } from "../apariencia";
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import { SIN_TEXTO } from "../negocios/texto-sobre-imagen";
@@ -81,6 +81,7 @@ function negocio(
     logoUrl: null,
     portadaUrl: null,
     portadaTexto: SIN_TEXTO,
+    formaTarjeta: FORMA_TARJETA_POR_OMISION,
     qrPagoUrl: null,
     ubicacionUrl: null,
     pideNumeroMesa: false,

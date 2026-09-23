@@ -422,7 +422,7 @@ export function FormularioPortadaYBanner({
       {/* El mismo encabezado que los tres pasos de arriba: esta sección vive en
           la misma pantalla y con un `h2` suelto se leía como si fuera de otra. */}
       <header className={styles.cabecera}>
-        <PasoNumerado numero={4} titulo="Portada y publicidad" />
+        <PasoNumerado numero={5} titulo="Portada y publicidad" />
         <p>
           Lo que va escrito sobre tu portada y, más abajo, un banner de publicidad. Los dos son
           opcionales: sin texto la portada se ve limpia, y sin banner no queda hueco.

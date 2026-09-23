@@ -66,6 +66,7 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
      está elegida, y eso se dice con el color de marca. */
   { selector: ".dia, .diaActivo", motivo: "es un juego de opciones, y marca cuál está elegida" },
   { selector: ".paleta, .paletaElegida", motivo: "es un juego de opciones, y marca cuál está elegida" },
+  { selector: ".forma, .formaElegida", motivo: "es un juego de opciones, y marca cuál está elegida" },
   {
     selector: ".opcion, .opcionElegida, .paleta, .paletaElegida",
     motivo: "es un juego de opciones, y marca cuál está elegida",

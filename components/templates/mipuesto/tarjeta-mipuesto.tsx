@@ -10,15 +10,35 @@ import { LineaAtributos } from "../linea-atributos";
 import type { PropiedadesTarjeta } from "./tipos";
 import styles from "./plantilla-mipuesto.module.css";
 
-/* La tarjeta única del catálogo nuevo.
+/* La tarjeta del catálogo, en sus tres formas.
  *
- * Reemplaza a las seis formas anteriores. Lo que distinguía una ferretería de
- * una veterinaria no era la estructura de la tarjeta —eran los datos que
- * mostraba—, así que hay una sola forma y la `LineaAtributos` hace el resto:
- * «9 W · E27 · Cálida» debajo del nombre.
+ * Reemplazó a las seis formas anteriores, que eran seis componentes. Desde la
+ * fase 10 vuelve a haber formas, pero **es un solo componente**: el mismo `li`
+ * con `data-forma`, y la hoja de estilos decide la disposición. Así ninguna
+ * forma puede quedarse sin un dato que las otras sí muestran, y el contenedor
+ * es siempre un `ul`, que fue lo que rompió las combinaciones de la fase 6.
+ *
+ * Lo único que la forma cambia en el marcado es **la foto**:
+ *
+ * - `cuadricula`: arriba, a lo ancho de la tarjeta.
+ * - `fila`: una miniatura al costado. Chica a propósito: a lo ancho bajaría el
+ *   doble de imagen, y el tráfico de fotos es el primer techo del sistema.
+ * - `lista_precios`: ninguna. No se dibuja, en vez de esconderse con CSS: una
+ *   imagen escondida igual puede bajarse, y la gracia de esta forma es que no
+ *   baje nada. La pastilla que iba sobre la foto pasa a ser texto en el renglón.
+ *
+ * La acción —pedir, agendar, agregar— **no depende de la forma**: la decide la
+ * modalidad del negocio, igual en las tres.
  *
  * Devuelve un `li`: el catálogo la lista dentro de un `ul` por categoría.
  */
+
+/* El tamaño que ocupa la foto en pantalla, por forma, para que el navegador
+   baje la del tamaño justo y no la de la cuadrícula. */
+const FOTO_POR_FORMA = {
+  cuadricula: { ancho: 640, sizes: "(min-width: 64rem) 240px, (min-width: 40rem) 30vw, 45vw" },
+  fila: { ancho: 256, sizes: "96px" },
+} as const;
 export function TarjetaMipuesto({
   producto,
   modalidad,
@@ -29,28 +49,34 @@ export function TarjetaMipuesto({
   alAbrirWhatsapp,
   alVerProducto,
   slug,
+  forma,
 }: PropiedadesTarjeta) {
   /* Adónde lleva la tarjeta. Se arma una vez y la usan los dos lugares que se
      tocan —la fotografía y el botón del pie— para que no puedan llevar a
      direcciones distintas del mismo producto. */
   const href = slug ? rutaProductoPublico(slug, producto.codigo) : null;
+  const insignia = insigniaDe(producto);
+  const conFoto = forma !== "lista_precios";
 
   return (
     <li
       className={styles.tarjeta}
       data-agotado={producto.estado === "agotado" ? "si" : undefined}
+      data-forma={forma}
       id={producto.anclaCategoria}
     >
-      <FotoProducto
-        alVerProducto={alVerProducto}
-        ancho={640}
-        href={href}
-        className={styles.tarjetaFoto}
-        insignias={<InsigniaProducto producto={producto} />}
-        producto={producto}
-        respaldo={<span className={styles.sinFoto} aria-hidden="true">Sin foto</span>}
-        sizes="(min-width: 64rem) 240px, (min-width: 40rem) 30vw, 45vw"
-      />
+      {conFoto ? (
+        <FotoProducto
+          alVerProducto={alVerProducto}
+          ancho={FOTO_POR_FORMA[forma].ancho}
+          href={href}
+          className={styles.tarjetaFoto}
+          insignias={<InsigniaProducto producto={producto} />}
+          producto={producto}
+          respaldo={<span className={styles.sinFoto} aria-hidden="true">Sin foto</span>}
+          sizes={FOTO_POR_FORMA[forma].sizes}
+        />
+      ) : null}
 
       <div className={styles.tarjetaCuerpo}>
         {/* El nombre es el enlace, y su área se estira sobre la tarjeta entera:
@@ -78,9 +104,17 @@ export function TarjetaMipuesto({
             cada rubro se vea distinto sin cambiar una regla de estilo. */}
         <LineaAtributos linea={producto.lineaAtributos} />
 
-        {/* La pastilla sobre la foto ya dice si está agotado o reservado; no se
-            repite el estado debajo cuando esa pastilla está. */}
-        {insigniaDe(producto) === null ? (
+        {/* Sin foto no hay dónde apoyar la pastilla: va como texto, en el mismo
+            color que tendría encima de la imagen. */}
+        {!conFoto && insignia ? (
+          <span className={styles.tarjetaInsignia} data-tipo={insignia.tipo}>
+            {insignia.texto}
+          </span>
+        ) : null}
+
+        {/* La pastilla ya dice si está agotado o reservado; no se repite el
+            estado debajo cuando esa pastilla está. */}
+        {insignia === null ? (
           <EstadoStockProducto className={styles.tarjetaStock} producto={producto} />
         ) : null}
 
