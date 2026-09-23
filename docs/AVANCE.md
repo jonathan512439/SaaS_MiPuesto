@@ -1726,6 +1726,11 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **«Salir» en Plataforma.** En el encabezado, del lado derecho, con borde para
+  que se encuentre sobre el fondo; y al pie del segundo factor, «Salir y entrar
+  con otra cuenta», para quien no tiene el teléfono a mano. Es el mismo
+  `CerrarSesion` del panel, que ahora acepta la variante.
+
 - **La foto de un producto elige la categoría entre las del negocio.**
   `/api/ia/producto` lee las categorías del negocio de la sesión (no las acepta
   del navegador) y se las pasa al modelo como lista cerrada: el esquema solo

@@ -91,3 +91,9 @@
   border-left: var(--spacing-1) solid var(--color-alerta);
   padding-left: var(--spacing-3);
 }
+
+/* Al pie y a la izquierda, sin estirarse: es la salida, no la acción de esta
+   pantalla, que es confirmar el código. */
+.salir {
+  justify-self: start;
+}

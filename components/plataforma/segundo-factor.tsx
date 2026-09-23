@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 
+import { CerrarSesion } from "../negocios/cerrar-sesion";
 import { useClienteSupabaseNavegador } from "../supabase/proveedor-supabase-navegador";
 import { useAvisos } from "../ui";
 import styles from "./segundo-factor.module.css";
@@ -176,6 +177,10 @@ export function SegundoFactor() {
         Guardá la aplicación de autenticación en un lugar seguro. Sin ella no vas a
         poder entrar a esta pantalla.
       </p>
+
+      {/* La salida también acá: quien no tiene el teléfono a mano, o entró con
+          la cuenta equivocada, no tiene otra forma de irse que borrar cookies. */}
+      <CerrarSesion className={styles.salir} texto="Salir y entrar con otra cuenta" />
     </section>
   );
 }

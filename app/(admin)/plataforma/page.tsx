@@ -9,6 +9,7 @@ import type { EtiquetaPlataforma } from "../../../components/plataforma/etiqueta
 import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
 import { UsoAlmacenamientoPanel } from "../../../components/plataforma/uso-almacenamiento";
 import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
+import { CerrarSesion } from "../../../components/negocios/cerrar-sesion";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
 import { nombreDeRubro } from "../../../lib/negocios/rubros";
 import type { UsoIa } from "../../../lib/ia/limites";
@@ -125,7 +126,12 @@ export default async function PaginaPlataforma({
 
   return (
     <main className={styles.pagina}>
+      {/* Salir, arriba y a la vista: esta cuenta administra a todos los negocios,
+          y dejarla abierta en una computadora prestada es el riesgo más grande
+          que tiene. Plataforma no tiene la barra del panel, que es donde vive
+          el «Salir» del dueño. */}
       <EncabezadoPanel
+        accion={<CerrarSesion texto="Salir" variante="secundario" />}
         descripcion={`${clientes.length} negocios · ${atencion} necesitan atención · Bs ${ingresoMensual} al mes si todos pagan`}
         rotulo="Administración"
         titulo="Plataforma"

@@ -9,9 +9,16 @@ import { Boton } from "../ui/boton";
 type PropiedadesCerrarSesion = {
   className?: string;
   texto?: string;
+  /* Discreto en la barra del panel, que ya le pone su propio aspecto; con borde
+     donde va suelto sobre el fondo, como en Plataforma, para que se encuentre. */
+  variante?: "discreto" | "secundario";
 };
 
-export function CerrarSesion({ className, texto = "Cerrar sesión" }: PropiedadesCerrarSesion) {
+export function CerrarSesion({
+  className,
+  texto = "Cerrar sesión",
+  variante = "discreto",
+}: PropiedadesCerrarSesion) {
   const supabase = useClienteSupabaseNavegador();
   const [cerrando, setCerrando] = useState(false);
   const router = useRouter();
@@ -29,7 +36,7 @@ export function CerrarSesion({ className, texto = "Cerrar sesión" }: Propiedade
       cargando={cerrando}
       className={className}
       onClick={cerrarSesion}
-      variante="discreto"
+      variante={variante}
     >
       {texto}
     </Boton>
