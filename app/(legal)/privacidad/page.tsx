@@ -61,11 +61,11 @@ export default function PaginaPrivacidad() {
       <section className={styles.seccion}>
         <h2>Las herramientas que leen fotos</h2>
         <p>
-          Algunos negocios tienen habilitadas dos herramientas que leen una fotografía y
-          proponen texto: una completa el nombre y la descripción de un producto a partir
-          de su foto, y la otra arma un borrador de catálogo a partir de la foto de una
-          lista de precios. <strong>Solo funcionan si te las habilitamos</strong>; si no
-          las ves en tu panel, nada de lo que sigue te afecta.
+          Tu panel trae dos herramientas que leen una fotografía y proponen texto: una
+          completa el nombre y la descripción de un producto a partir de su foto, y la
+          otra arma un borrador de catálogo a partir de la foto de una lista de precios.{" "}
+          <strong>Solo se usan si vos las usás</strong>: si nunca elegís una foto para
+          leer, nada de lo que sigue te afecta.
         </p>
         <p>
           Nunca se envía nada solo. Vos elegís cada fotografía, una por una, y hasta que
@@ -115,8 +115,8 @@ export default function PaginaPrivacidad() {
         <p>
           La información se almacena en <strong>Supabase</strong> y el sitio se sirve
           desde <strong>Cloudflare</strong>, ambos proveedores de infraestructura con
-          servidores fuera de Bolivia. Si tenés habilitadas las herramientas que leen
-          fotos, las fotografías que elijas para eso pasan además por{" "}
+          servidores fuera de Bolivia. Si usás las herramientas que leen fotos, las
+          fotografías que elijas para eso pasan además por{" "}
           <strong>Google</strong>, también fuera de Bolivia, como se explica más arriba.
         </p>
         <p>

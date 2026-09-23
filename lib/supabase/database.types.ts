@@ -1224,7 +1224,7 @@ export type Database = {
         Returns: Json
       }
       admin_cambiar_foto_ia: {
-        Args: { p_cupo?: number; p_habilitada: boolean; p_negocio_id: string }
+        Args: { p_habilitada: boolean; p_negocio_id: string }
         Returns: Json
       }
       admin_cambiar_plan: {
@@ -1357,6 +1357,7 @@ export type Database = {
         Returns: number
       }
       purgar_vigilancia_salud: { Args: never; Returns: number }
+      raiz_de_palabra: { Args: { p_palabra: string }; Returns: string }
       registrar_busqueda_sin_resultado: {
         Args: { p_ciudad: string; p_termino: string }
         Returns: undefined

@@ -39,23 +39,26 @@ export const LIMITES_GEMINI = {
  * el diario. */
 export const TOKENS_MEDIDOS_POR_LECTURA = 1_339;
 
-/* Cuántos negocios pueden tener la herramienta encendida a la vez. No es un
- * límite técnico: es la cifra con la que se reparte la cuota diaria, y por eso
- * está acá y no en la cabeza de nadie. Subirla sin subir la cuota baja el tope
- * de cada uno, que es exactamente lo que tiene que pasar. */
-export const NEGOCIOS_CON_HERRAMIENTA = 10;
-
 /* Se reparte el 80 % del día y no el 100 %: el resto queda para los reintentos,
  * para las pruebas del operador en AI Studio —que gastan la misma cuota sin
  * pasar por acá— y para no quedar exactamente al borde. */
 const PARTE_REPARTIDA = 0.8;
 
-/* Cuarenta fotos por día y por negocio, calculadas y no elegidas: diez negocios
- * por cuarenta son cuatrocientos, debajo de los quinientos del nivel gratuito.
- * Si algún día cambia el límite de Google, este número cambia solo. */
-export const TOPE_FOTOS_POR_DIA = Math.floor(
-  (LIMITES_GEMINI.porDia * PARTE_REPARTIDA) / NEGOCIOS_CON_HERRAMIENTA,
-);
+/* Lo que se puede comprometer por día sumando todos los negocios: el 80 % de la
+ * cuota de Google. Es contra este número que Plataforma mide «si todos gastaran
+ * hoy su día entero», y el que avisa cuándo hay que pasar al nivel pago.
+ *
+ * Reemplaza al tope de diez negocios con la herramienta. La lectura de fotos
+ * viene con el plan desde el 23 de septiembre de 2026, así que no se puede
+ * bloquear al undécimo cliente: lo que se controla es la suma de lo vendido. */
+export const CUOTA_REPARTIBLE_POR_DIA = Math.floor(LIMITES_GEMINI.porDia * PARTE_REPARTIDA);
+
+/* El techo diario de un solo negocio, sea cual sea su plan: cuarenta. Era la
+ * cuota repartida entre diez negocios; quedó fijo porque ya no hay un número de
+ * negocios que la divida. Está muy por encima de lo que se vende —Catálogo lee
+ * tres por día y Activo quince— y existe para acotar un accidente: un negocio
+ * con un bucle no puede llevarse la décima parte del día de todos. */
+export const TOPE_FOTOS_POR_DIA = 40;
 
 /* El mensual es una promesa comercial, no una restricción técnica: diez negocios
  * por doscientas son dos mil al mes contra las quince mil que da el nivel

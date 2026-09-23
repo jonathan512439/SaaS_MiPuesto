@@ -1726,6 +1726,20 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **La lectura de fotos viene con el plan.** Migración `20261017090000`:
+  `foto_ia_habilitada` pasa a ser «la plataforma no la apagó», con valor por
+  omisión `true`, y los cuatro negocios en plan Catálogo —que pagaban diez
+  lecturas al mes y no veían la herramienta— la reciben. Se retira el tope de
+  diez negocios con IA: estaba calculado para 40 fotos diarias por negocio y los
+  planes topan en 3 (Catálogo) y 15 (Activo), así que la cuota gratuita alcanza
+  para unos 130 negocios en Catálogo o 26 en Activo. En su lugar, Plataforma
+  muestra «Cuota comprometida por día» contra `CUOTA_REPARTIBLE_POR_DIA` (400) y
+  avisa desde el 60 %. `admin_cambiar_foto_ia` ya no recibe cupo: apagar es para
+  el abuso. Términos y privacidad corregidos («vienen incluidas en los dos
+  planes»). Pruebas de reparto reescritas: al menos veinte negocios del plan más
+  caro en la cuota gratuita, y ningún plan por encima del techo de 40 por día.
+  `test:rls:linked` en verde.
+
 - **«Salir» en Plataforma.** En el encabezado, del lado derecho, con borde para
   que se encuentre sobre el fondo; y al pie del segundo factor, «Salir y entrar
   con otra cuenta», para quien no tiene el teléfono a mano. Es el mismo

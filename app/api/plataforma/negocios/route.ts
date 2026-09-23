@@ -2,7 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { esUuid } from "../../../../lib/catalogo/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
-import { NEGOCIOS_CON_HERRAMIENTA } from "../../../../lib/ia/limites";
 import { esRubroPublicoId, siembraDeRubroPublico } from "../../../../lib/negocios/rubros-publicos";
 
 /* La autorización no se comprueba acá: la hacen las funciones de la base, que
@@ -72,9 +71,6 @@ export async function POST(solicitud: NextRequest) {
       ? await supabase.rpc("admin_cambiar_foto_ia", {
           p_negocio_id: datos.negocio_id,
           p_habilitada: datos.habilitada === true,
-          /* El cupo se manda desde acá y no vive en la base para que el número
-             esté en un solo lugar, junto al cálculo del tope diario que lo usa. */
-          p_cupo: NEGOCIOS_CON_HERRAMIENTA,
         })
       : datos.accion === "plan"
       ? await supabase.rpc("admin_cambiar_plan", {
@@ -98,17 +94,6 @@ export async function POST(solicitud: NextRequest) {
     /* El mensaje de la base se traduce acá: «NO_AUTORIZADO» no le dice nada a
        quien lee la pantalla, y devolver el error crudo filtra detalle interno. */
     const noAutorizado = resultado.error.message.includes("NO_AUTORIZADO");
-
-    /* Este no es un fallo: es el sistema haciendo lo que tiene que hacer, y hay
-       que decir por qué y qué hacer, no «no se pudo». */
-    if (resultado.error.message.includes("CUPO_IA_LLENO")) {
-      return NextResponse.json(
-        {
-          error: `Ya hay ${NEGOCIOS_CON_HERRAMIENTA} negocios con la lectura de fotos encendida, que es lo que aguanta la cuota diaria. Apagá uno para habilitar otro.`,
-        },
-        { status: 409 },
-      );
-    }
 
     return NextResponse.json(
       {

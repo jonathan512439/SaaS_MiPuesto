@@ -84,8 +84,9 @@ export default function PaginaTerminos() {
         <p>
           Son dos: una completa el nombre y la descripción de un producto mirando su
           fotografía, y la otra arma un borrador de catálogo a partir de la foto de una
-          lista de precios. <strong>No vienen incluidas</strong>: se habilitan negocio por
-          negocio y te avisamos cuando las tenés.
+          lista de precios. <strong>Vienen incluidas en los dos planes</strong>, con la
+          cantidad de lecturas que da cada uno. Podemos suspenderlas en una cuenta que
+          las use para algo distinto de cargar su catálogo.
         </p>
         <p>
           <strong>Son una ayuda para escribir, no una fuente de verdad.</strong> Lo que

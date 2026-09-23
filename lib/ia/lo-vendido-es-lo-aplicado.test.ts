@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { PLANES, cupoDelPlan, planDe } from "../planes";
-import { LIMITES_GEMINI, NEGOCIOS_CON_HERRAMIENTA, TOPE_FOTOS_POR_DIA } from "./limites";
+import { CUOTA_REPARTIBLE_POR_DIA, TOPE_FOTOS_POR_DIA } from "./limites";
 
 const servidor = readFileSync(join(import.meta.dirname, "servidor.ts"), "utf8");
 
@@ -66,17 +66,19 @@ describe("el cupo de lectura de fotos", () => {
     }
   });
 
-  /* El peor día imaginable: todos los negocios con la herramienta encendida,
-     todos en el plan más caro, todos gastando su día entero. Tiene que caber en
-     lo que Google regala, o la herramienta falla para el que llegue último. */
-  it("el peor día de todos juntos cabe en la cuota de Google", () => {
+  /* La lectura de fotos viene con el plan, así que ya no hay un número fijo de
+     negocios con la herramienta: el peor día depende de cuántos clientes haya,
+     y eso lo mide Plataforma con «Cuota comprometida por día». Lo que se puede
+     comprobar acá es que el plan más caro no achique esa cuenta a un puñado de
+     negocios: con la cuota gratuita tienen que entrar al menos veinte. */
+  it("la cuota gratuita alcanza para veinte negocios del plan más caro", () => {
     const masCaro = Math.max(
       ...PLANES.map((plan) => cupoDelPlan(plan.id, TOPE_FOTOS_POR_DIA).diario),
     );
-    const peorDia = masCaro * NEGOCIOS_CON_HERRAMIENTA;
 
-    expect(peorDia, "el peor día se pasa de la cuota diaria de Google").toBeLessThanOrEqual(
-      LIMITES_GEMINI.porDia,
-    );
+    expect(
+      Math.floor(CUOTA_REPARTIBLE_POR_DIA / masCaro),
+      "el plan más caro deja lugar para muy pocos negocios",
+    ).toBeGreaterThanOrEqual(20);
   });
 });

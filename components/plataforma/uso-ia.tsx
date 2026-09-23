@@ -1,6 +1,6 @@
 import {
+  CUOTA_REPARTIBLE_POR_DIA,
   LIMITES_GEMINI,
-  NEGOCIOS_CON_HERRAMIENTA,
   TOPE_FOTOS_POR_DIA,
   TOPE_FOTOS_POR_MES,
   faltaParaReinicio,
@@ -237,13 +237,32 @@ export function UsoIaPanel({
           termina temprano. */}
       <section aria-labelledby="uso-por-negocio" className={styles.porNegocio}>
         <h3 id="uso-por-negocio">Por negocio</h3>
+        {/* La lectura de fotos viene con el plan: ya no hay lugares que ocupar.
+            Lo que hay que mirar es cuánto de la cuota diaria está vendido, y
+            este medidor es el que avisa cuándo pasar al nivel pago de Google. */}
+        <div className={styles.medidores}>
+          <Medidor
+            detalle="si todos gastaran hoy su día entero"
+            limite={CUOTA_REPARTIBLE_POR_DIA}
+            titulo="Cuota comprometida por día"
+            unidad="lecturas"
+            valor={comprometidoPorDia}
+          />
+        </div>
+        {nivelDeUsoIa(comprometidoPorDia, CUOTA_REPARTIBLE_POR_DIA) !== "holgado" ? (
+          <p
+            className={styles.titular}
+            data-nivel={nivelDeUsoIa(comprometidoPorDia, CUOTA_REPARTIBLE_POR_DIA)}
+          >
+            Lo vendido ya ocupa buena parte de la cuota gratuita de Google. Antes de sumar
+            muchos clientes más, conviene pasar al nivel pago.
+          </p>
+        ) : null}
         <p className={styles.nota}>
-          {uso.negocios_habilitados} de {NEGOCIOS_CON_HERRAMIENTA} lugares ocupados. Cada uno
-          lee lo que le da su plan. Si todos gastaran hoy su día entero serían{" "}
-          <strong>{comprometidoPorDia}</strong> de los {LIMITES_GEMINI.porDia} que da Google
-          por día; el resto queda de margen. Ninguno puede pasar de{" "}
-          {TOPE_FOTOS_POR_DIA} por día ni de {TOPE_FOTOS_POR_MES} por mes, que es el techo
-          del sistema y está muy por encima de lo que se vende.
+          {uso.negocios_habilitados} negocio(s) con la herramienta, cada uno con lo que da su
+          plan. Ninguno puede pasar de {TOPE_FOTOS_POR_DIA} por día ni de{" "}
+          {TOPE_FOTOS_POR_MES} por mes, que es el techo del sistema y está muy por encima de
+          lo que se vende.
         </p>
         {uso.por_negocio.length === 0 ? (
           <p className={styles.vacio}>Ningún negocio tiene la herramienta habilitada.</p>
