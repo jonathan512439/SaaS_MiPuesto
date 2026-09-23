@@ -5,16 +5,65 @@ import type { CampoDeCategoria } from "./cobertura";
    más que cualquier refactor, así que conviene poder leerlas juntas, verlas en
    el commit y probarlas sin levantar el servidor. */
 
-export const ESQUEMA_PRODUCTO = {
-  type: "object",
-  properties: {
-    nombre: { type: "string" },
-    descripcion: { type: "string" },
-    categoria: { type: "string" },
-    confianza: { type: "string", enum: ["alta", "media", "baja"] },
-  },
-  required: ["nombre", "descripcion", "categoria", "confianza"],
-} as const;
+/* La respuesta del modelo cuando ninguna categoría del negocio le corresponde
+   al producto. Entre paréntesis para que no se confunda con el nombre de una
+   categoría de verdad; si un negocio tuviera una llamada así, se la deja afuera
+   de la lista antes de mandarla. */
+export const NINGUNA_CATEGORIA = "(ninguna)";
+
+/* Cuántos nombres de categoría se mandan como máximo. Un catálogo real tiene
+   entre cinco y treinta; el tope está para que un negocio con cientos no
+   convierta cada lectura en una lista interminable. Van en el orden en que el
+   dueño las acomodó. */
+export const MAXIMO_CATEGORIAS_PARA_IA = 80;
+
+/* Los nombres que se le ofrecen al modelo: sin repetidos, sin vacíos y sin el
+   que choca con la respuesta de «ninguna». */
+export function categoriasParaElegir(nombres: readonly string[]): string[] {
+  const vistos = new Set<string>();
+  const elegibles: string[] = [];
+  for (const nombre of nombres) {
+    const limpio = nombre.trim();
+    const clave = limpio.toLowerCase();
+    if (!limpio || clave === NINGUNA_CATEGORIA || vistos.has(clave)) continue;
+    vistos.add(clave);
+    elegibles.push(limpio);
+    if (elegibles.length === MAXIMO_CATEGORIAS_PARA_IA) break;
+  }
+  return elegibles;
+}
+
+/* El esquema se arma con las categorías del negocio: el campo `categoria` solo
+   admite una de ellas o «ninguna». Así el modelo no puede proponer una
+   categoría inventada que después no coincide con nada. Sin categorías no hay
+   de dónde elegir y el campo queda libre, pero la respuesta se descarta igual. */
+export function esquemaProducto(categorias: readonly string[]) {
+  return {
+    type: "object",
+    properties: {
+      nombre: { type: "string" },
+      descripcion: { type: "string" },
+      categoria: categorias.length
+        ? { type: "string", enum: [...categorias, NINGUNA_CATEGORIA] }
+        : { type: "string" },
+      confianza: { type: "string", enum: ["alta", "media", "baja"] },
+    },
+    required: ["nombre", "descripcion", "categoria", "confianza"],
+  } as const;
+}
+
+/* Qué categoría eligió, entre las del negocio. La coincidencia se hace sin
+   mayúsculas ni espacios de más aunque el esquema ya la obligue a ser exacta:
+   si el modelo se sale de la lista, la respuesta se ignora y el producto queda
+   sin categoría, que es lo mismo que decir «ninguna». */
+export function categoriaQueEligio<T extends { nombre: string }>(
+  respuesta: string | undefined,
+  categorias: readonly T[],
+): T | null {
+  const clave = (respuesta ?? "").trim().toLowerCase();
+  if (!clave || clave === NINGUNA_CATEGORIA) return null;
+  return categorias.find((categoria) => categoria.nombre.trim().toLowerCase() === clave) ?? null;
+}
 
 export type ProductoLeido = {
   nombre: string;
@@ -23,15 +72,31 @@ export type ProductoLeido = {
   confianza: "alta" | "media" | "baja";
 };
 
+/* La categoría se elige de las que el negocio ya tiene, nunca se inventa.
+   Antes el modelo proponía una o dos palabras sin conocer el catálogo, y solo
+   servían si coincidían letra por letra con una categoría existente: «Bebidas»
+   no entraba en «Refrescos». Crear una categoría sigue sin ser algo que decida
+   una foto; si ninguna corresponde, el producto queda sin categoría y el dueño
+   elige. */
+function reglaDeCategoria(categorias: readonly string[]): string {
+  if (!categorias.length) {
+    return `- categoria: devolvé "" (el negocio todavía no tiene categorías).`;
+  }
+  return `- categoria: elegí UNA de estas categorías que el negocio ya tiene, la que mejor le corresponda al producto:
+${categorias.map((nombre) => `  - ${nombre}`).join("\n")}
+  Devolvé el nombre exactamente como está escrito. Si ninguna le corresponde de verdad, devolvé "${NINGUNA_CATEGORIA}": un producto en una categoría equivocada se pierde en el catálogo, y es mejor dejarlo sin categoría. No inventes una categoría nueva.`;
+}
+
 /* Se le prohíbe explícitamente inventar marca, peso y sabor. Sin esa
    prohibición el modelo completa con lo más probable —«Aceite Fino 900 ml»
    cuando la etiqueta no se lee— y el dueño publica algo que no vende. */
-export const INSTRUCCION_PRODUCTO = `Mirás la fotografía de un producto que un comerciante boliviano quiere publicar en su catálogo.
+export function instruccionProducto(categorias: readonly string[]): string {
+  return `Mirás la fotografía de un producto que un comerciante boliviano quiere publicar en su catálogo.
 
 Devolvé:
 - nombre: cómo lo llamaría el vendedor. Corto y concreto, en español de Bolivia. Máximo 60 caracteres.
 - descripcion: una sola oración de venta, máximo 20 palabras.
-- categoria: una o dos palabras que sirvan como categoría del catálogo.
+${reglaDeCategoria(categorias)}
 - confianza: "alta" si se ve con claridad qué es; "media" si dudás; "baja" si no estás seguro.
 
 Reglas que no se rompen:
@@ -39,6 +104,7 @@ Reglas que no se rompen:
 - No inventes precios. Nunca menciones un precio.
 - Si no reconocés el producto, devolvé nombre vacío y confianza "baja".
 - Escribí en español, sin emojis y sin signos de admiración.`;
+}
 
 export const ESQUEMA_LISTA = {
   type: "object",

@@ -870,19 +870,28 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     try {
       const foto = await prepararFotoParaLectura(archivo);
       const { propuesta } = await solicitarJson<{
-        propuesta: { nombre: string; descripcion: string; categoria: string; confianza: string };
+        propuesta: {
+          nombre: string;
+          descripcion: string;
+          categoriaId: string | null;
+          categoria: string;
+          confianza: string;
+        };
       }>("/api/ia/producto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imagen: foto.base64, tipo: foto.tipo }),
       });
 
-      /* Si el título que propone coincide con una categoría que ya existe, se
-         elige sola. Crear una categoría nueva desde acá no: eso es una decisión
-         de cómo se organiza el catálogo y no la toma una fotografía. */
-      const categoriaSugerida = categorias.find(
-        (categoria) => categoria.nombre.toLowerCase() === propuesta.categoria.toLowerCase(),
-      );
+      /* La categoría la elige el modelo entre las del negocio, o ninguna si no
+         corresponde. Crear una categoría nueva desde acá no: eso es una
+         decisión de cómo se organiza el catálogo y no la toma una fotografía.
+         Se busca igual en la lista de esta pantalla por si alguien la borró
+         mientras la foto se leía. */
+      const categoriaSugerida = propuesta.categoriaId
+        ? categorias.find((categoria) => categoria.id === propuesta.categoriaId)
+        : undefined;
+      const habiaCategoria = formulario.categoria_id !== "";
 
       const habiaNombre = formulario.nombre.trim().length > 0;
       const habiaDescripcion = formulario.descripcion.trim().length > 0;
@@ -911,6 +920,17 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
          servía a nadie, y el archivo ya está acá. */
       const guardada = await guardarFotoDelProducto(archivo);
 
+      /* Dónde quedó, dicho con el nombre: el selector de categoría está más
+         abajo en el formulario y en el teléfono no se ve al mismo tiempo. Si ya
+         había una elegida no se toca y no hace falta decir nada. */
+      const sobreLaCategoria = habiaCategoria
+        ? ""
+        : categoriaSugerida
+          ? `La pusimos en «${categoriaSugerida.nombre}».`
+          : categorias.length
+            ? "Ninguna de tus categorías le corresponde: elegila vos."
+            : "";
+
       informarExito(
         habiaNombre && habiaDescripcion ? "No había campos vacíos" : "Campos completados",
         [
@@ -918,6 +938,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             (propuesta.confianza === "alta"
               ? "Revisá el texto y poné tu precio."
               : "No estamos seguros de qué es. Revisá bien antes de guardar."),
+          sobreLaCategoria,
           guardada,
         ]
           .filter(Boolean)

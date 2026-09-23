@@ -1,12 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { COLUMNAS_CATEGORIA } from "../../../../lib/catalogo/columnas";
 import { leerJson } from "../../../../lib/catalogo/servidor";
 import { analizarArchivo } from "../../../../lib/ia/gemini";
 import {
-  ESQUEMA_PRODUCTO,
-  INSTRUCCION_PRODUCTO,
+  categoriaQueEligio,
+  categoriasParaElegir,
+  esquemaProducto,
+  instruccionProducto,
   type ProductoLeido,
 } from "../../../../lib/ia/instrucciones";
+import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { TIPOS_FOTO, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
 import {
   devolverCredito,
@@ -31,9 +35,16 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json({ error: "La fotografía no es válida." }, { status: 400 });
   }
 
+  /* Las categorías se leen acá, del negocio de la sesión, y no se aceptan del
+     navegador: lo que llega en el pedido podría nombrar categorías de otro
+     negocio o inventarlas. Si la consulta falla, la lectura sigue sin
+     categorías: el nombre y la descripción valen igual. */
+  const categorias = await leerCategorias(preparacion.negocioId);
+  const nombres = categoriasParaElegir(categorias.map(({ nombre }) => nombre));
+
   const lectura = await analizarArchivo<ProductoLeido>(
-    INSTRUCCION_PRODUCTO,
-    ESQUEMA_PRODUCTO,
+    instruccionProducto(nombres),
+    esquemaProducto(nombres),
     { base64: foto.base64, tipo: foto.tipo },
   );
 
@@ -73,12 +84,26 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
+  const elegida = nombres.length ? categoriaQueEligio(lectura.datos.categoria, categorias) : null;
+
   return NextResponse.json({
     propuesta: {
       nombre: nombre.slice(0, 80),
       descripcion: (lectura.datos.descripcion ?? "").trim().slice(0, 300),
-      categoria: (lectura.datos.categoria ?? "").trim().slice(0, 40),
+      categoriaId: elegida?.id ?? null,
+      categoria: elegida?.nombre ?? "",
       confianza: lectura.datos.confianza ?? "baja",
     },
   });
+}
+
+async function leerCategorias(negocioId: string): Promise<Array<{ id: string; nombre: string }>> {
+  const supabase = await crearClienteSupabaseServidor();
+  const { data, error } = await supabase
+    .from("categorias")
+    .select(COLUMNAS_CATEGORIA)
+    .eq("negocio_id", negocioId)
+    .order("orden");
+  if (error || !data) return [];
+  return data.map(({ id, nombre }) => ({ id, nombre }));
 }

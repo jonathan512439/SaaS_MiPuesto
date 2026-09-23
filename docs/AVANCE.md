@@ -1726,6 +1726,17 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **La foto de un producto elige la categoría entre las del negocio.**
+  `/api/ia/producto` lee las categorías del negocio de la sesión (no las acepta
+  del navegador) y se las pasa al modelo como lista cerrada: el esquema solo
+  admite una de ellas o «(ninguna)». Antes proponía una o dos palabras sin
+  conocer el catálogo y solo servían si coincidían letra por letra. Nunca crea
+  una categoría y no pisa una ya elegida; el aviso dice dónde quedó o que
+  ninguna corresponde. Probado contra Gemini real con las fotos de muestra:
+  hamburguesa → «Hamburguesas», limonada → «Bebidas frías» (sin coincidir el
+  nombre), papas fritas en una ferretería → «(ninguna)». Pruebas nuevas en
+  `lib/ia/categoria-desde-foto.test.ts`, verificadas rompiendo la coincidencia.
+
 - **La cámara en las dos herramientas de IA.** En «Nuevo producto» y en
   «Cargar desde una foto» hay un botón que abre la cámara de atrás
   (`capture="environment"`) junto al de elegir el archivo. Solo en pantallas
