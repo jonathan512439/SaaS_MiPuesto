@@ -316,6 +316,7 @@ export function PlantillaMipuesto({
                       cantidadEnCarrito={cantidadesCarrito[producto.id]}
                       demostracion={demostracion}
                       forma={negocio.formaTarjeta}
+                      iconoCategoria={categoria.icono}
                       key={producto.id}
                       modalidad={negocio.modalidad}
                       permiteAcciones={negocio.atencion.permiteAcciones}
@@ -338,6 +339,7 @@ export function PlantillaMipuesto({
                         cantidadEnCarrito={cantidadesCarrito[producto.id]}
                         demostracion={demostracion}
                         forma={negocio.formaTarjeta}
+                        iconoCategoria={categoria.icono}
                         key={producto.id}
                         modalidad={negocio.modalidad}
                         permiteAcciones={negocio.atencion.permiteAcciones}

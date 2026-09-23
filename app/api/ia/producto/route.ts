@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { COLUMNAS_CATEGORIA } from "../../../../lib/catalogo/columnas";
 import { leerJson } from "../../../../lib/catalogo/servidor";
 import { analizarArchivo } from "../../../../lib/ia/gemini";
 import {
@@ -10,10 +9,10 @@ import {
   instruccionProducto,
   type ProductoLeido,
 } from "../../../../lib/ia/instrucciones";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { TIPOS_FOTO, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
 import {
   devolverCredito,
+  leerCategoriasDelNegocio,
   prepararLecturaDeFoto,
   registrarLlamada,
 } from "../../../../lib/ia/servidor";
@@ -39,7 +38,7 @@ export async function POST(solicitud: NextRequest) {
      navegador: lo que llega en el pedido podría nombrar categorías de otro
      negocio o inventarlas. Si la consulta falla, la lectura sigue sin
      categorías: el nombre y la descripción valen igual. */
-  const categorias = await leerCategorias(preparacion.negocioId);
+  const categorias = await leerCategoriasDelNegocio(preparacion.negocioId);
   const nombres = categoriasParaElegir(categorias.map(({ nombre }) => nombre));
 
   const lectura = await analizarArchivo<ProductoLeido>(
@@ -97,13 +96,3 @@ export async function POST(solicitud: NextRequest) {
   });
 }
 
-async function leerCategorias(negocioId: string): Promise<Array<{ id: string; nombre: string }>> {
-  const supabase = await crearClienteSupabaseServidor();
-  const { data, error } = await supabase
-    .from("categorias")
-    .select(COLUMNAS_CATEGORIA)
-    .eq("negocio_id", negocioId)
-    .order("orden");
-  if (error || !data) return [];
-  return data.map(({ id, nombre }) => ({ id, nombre }));
-}

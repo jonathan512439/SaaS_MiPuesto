@@ -106,7 +106,15 @@ Reglas que no se rompen:
 - Escribí en español, sin emojis y sin signos de admiración.`;
 }
 
-export const ESQUEMA_LISTA = {
+/* El esquema de la lista se arma con las categorías del negocio, igual que el
+   de la foto de un producto: `categoria_del_negocio` solo admite una de ellas o
+   «ninguna». Sin categorías el campo no existe, y el título de sección sigue
+   siendo la única pista, como antes. */
+export function esquemaLista(categorias: readonly string[]) {
+  const propiedadesExtra = categorias.length
+    ? { categoria_del_negocio: { type: "string", enum: [...categorias, NINGUNA_CATEGORIA] } }
+    : {};
+  return {
   type: "object",
   properties: {
     productos: {
@@ -118,6 +126,7 @@ export const ESQUEMA_LISTA = {
           precio: { type: "number" },
           descripcion: { type: "string" },
           categoria: { type: "string" },
+          ...propiedadesExtra,
           confianza: { type: "string", enum: ["alta", "media", "baja"] },
           /* Los datos que la categoría del negocio pide: la marca de un
              repuesto, el volumen de una gaseosa. Van como lista de pares y no
@@ -140,13 +149,31 @@ export const ESQUEMA_LISTA = {
         /* `datos` queda fuera de los obligatorios: un negocio sin campos
            declarados no tiene nada que completar, y exigirle al modelo una lista
            vacía en cada renglón es gastar tokens en nada. */
-        required: ["nombre", "precio", "descripcion", "categoria", "confianza"],
+        required: categorias.length
+          ? ["nombre", "precio", "descripcion", "categoria", "categoria_del_negocio", "confianza"]
+          : ["nombre", "precio", "descripcion", "categoria", "confianza"],
       },
     },
     es_lista_de_precios: { type: "boolean" },
   },
   required: ["productos", "es_lista_de_precios"],
-} as const;
+  };
+}
+
+/* Cómo se le pide al modelo que ubique cada renglón en una categoría que el
+   negocio ya tiene. Es la misma regla que en la foto de un producto: elegir la
+   más parecida aunque el nombre no coincida —«BEBIDAS» va a «Refrescos»— y
+   decir «ninguna» antes que forzar. El título de sección sigue viajando aparte,
+   en `categoria`, porque es lo que el dueño escribió y la revisión lo muestra. */
+export function instruccionDeCategoriasDelNegocio(categorias: readonly string[]): string {
+  if (!categorias.length) return "";
+  return `
+
+El negocio ya tiene estas categorías:
+${categorias.map((nombre) => `- ${nombre}`).join("\n")}
+
+En "categoria_del_negocio" elige, para cada producto, la categoría de esa lista que mejor le corresponda. Si el renglón está bajo un título de sección, guíate por el título; si la lista no tiene títulos, por lo que es el producto. Devuelve el nombre exactamente como está escrito. Si ninguna le corresponde de verdad, devuelve "${NINGUNA_CATEGORIA}": un producto en una categoría equivocada se pierde en el catálogo.`;
+}
 
 export type ListaLeida = {
   productos: Array<{
@@ -154,6 +181,7 @@ export type ListaLeida = {
     precio: number;
     descripcion: string;
     categoria: string;
+    categoria_del_negocio?: string;
     confianza: "alta" | "media" | "baja";
     datos?: Array<{ clave: string; valor: string }>;
   }>;

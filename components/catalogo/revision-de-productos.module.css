@@ -118,6 +118,16 @@
   background: var(--color-fondo-suave);
 }
 
+/* La sugerencia de la lectura, en la letra de marca y no en la de aviso: no es
+   un problema, es una ayuda que conviene revisar. */
+.sugerencia {
+  border-left: var(--borde-marcado) solid var(--color-marca);
+  padding-left: var(--spacing-3);
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
 .titulos h3 {
   font-size: var(--text-base);
   font-weight: 800;

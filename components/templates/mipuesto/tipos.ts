@@ -44,6 +44,9 @@ export type PropiedadesTarjeta = {
   permiteAcciones: boolean;
   demostracion: boolean;
   cantidadEnCarrito?: number;
+  /* El dibujo de la categoría donde está la tarjeta. Sin fotografía, es lo que
+     ocupa su lugar: dice qué clase de producto es sin un recuadro vacío. */
+  iconoCategoria?: string;
   alAgregarProducto?: (productoId: string) => void;
   alAbrirWhatsapp?: (productoId: string | null) => void;
   alVerProducto?: (productoId: string) => void;

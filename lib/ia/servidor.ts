@@ -1,4 +1,6 @@
+import { COLUMNAS_CATEGORIA } from "../catalogo/columnas";
 import { crearClienteSupabaseAdmin } from "../supabase/admin";
+import { crearClienteSupabaseServidor } from "../supabase/server";
 import { obtenerContextoAdminCatalogo } from "../catalogo/servidor";
 import { hayGemini } from "./gemini";
 import { cupoDelPlan } from "../planes";
@@ -127,4 +129,22 @@ export async function registrarLlamada(
   } catch {
     /* Medir no puede romper la función que mide. */
   }
+}
+
+/* Las categorías del negocio de la sesión, para ofrecérselas al modelo como
+   lista cerrada. Se leen acá y no se aceptan del navegador: lo que llega en el
+   pedido podría nombrar categorías de otro negocio o inventarlas. Si la
+   consulta falla, la lectura sigue sin categorías: el nombre, el precio y la
+   descripción valen igual. */
+export async function leerCategoriasDelNegocio(
+  negocioId: string,
+): Promise<Array<{ id: string; nombre: string }>> {
+  const supabase = await crearClienteSupabaseServidor();
+  const { data, error } = await supabase
+    .from("categorias")
+    .select(COLUMNAS_CATEGORIA)
+    .eq("negocio_id", negocioId)
+    .order("orden");
+  if (error || !data) return [];
+  return data.map(({ id, nombre }) => ({ id, nombre }));
 }

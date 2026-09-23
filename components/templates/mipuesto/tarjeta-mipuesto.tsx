@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { formatearPrecioBolivianos } from "../../../lib/precios";
+import { IconoCatalogo } from "../../iconos/icono-catalogo";
 import { rutaProductoPublico } from "../../../lib/url-sitio";
 import { AccionProducto } from "../accion-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
@@ -52,6 +53,7 @@ export function TarjetaMipuesto({
   alVerProducto,
   slug,
   forma,
+  iconoCategoria,
 }: PropiedadesTarjeta) {
   /* Adónde lleva la tarjeta. Se arma una vez y la usan los dos lugares que se
      tocan —la fotografía y el botón del pie— para que no puedan llevar a
@@ -73,7 +75,15 @@ export function TarjetaMipuesto({
         className={styles.tarjetaFoto}
         insignias={<InsigniaProducto producto={producto} />}
         producto={producto}
-        respaldo={<span className={styles.sinFoto} aria-hidden="true">Sin foto</span>}
+        /* Sin fotografía, el dibujo de su categoría sobre el color del negocio,
+           en vez de un recuadro vacío con «Sin foto»: una fila de esos
+           recuadros oscuros se leía como un catálogo roto. Es decorado, y el
+           nombre del producto sigue diciendo qué es. */
+        respaldo={
+          <span className={styles.sinFoto} aria-hidden="true">
+            <IconoCatalogo className={styles.sinFotoIcono} nombre={iconoCategoria} />
+          </span>
+        }
         sizes={FOTO_POR_FORMA[forma].sizes}
       />
 

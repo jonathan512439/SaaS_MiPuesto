@@ -3,6 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
+import {
+  CREAR,
+  SIN_CATEGORIA,
+  SIN_TITULO,
+  proponerDestinos,
+} from "../../lib/catalogo/destinos-de-lista";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
 import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
@@ -33,6 +39,10 @@ export type ProductoLeido = {
      un repuesto, el volumen de una gaseosa. Vienen ya filtrados contra las
      claves que la categoría declaró de verdad. */
   datos?: Array<{ clave: string; valor: string }>;
+  /* La categoría del negocio que la lectura encontró más parecida, aunque el
+     título de la sección no coincida. Solo la trae la lectura con IA; la
+     planilla no. */
+  categoriaSugeridaId?: string | null;
 };
 
 type ImagenPendiente = { archivo: File; vistaPrevia: string };
@@ -52,9 +62,6 @@ type Fila = Omit<ProductoLeido, "cantidad"> & {
 /* Qué hacer con cada título de sección: crearlo como categoría nueva, mandarlo
    a una que ya existe, o dejar esos productos sin categoría. Se decide una vez
    por título y no producto por producto. */
-const CREAR = "crear";
-const SIN_CATEGORIA = "";
-const SIN_TITULO = "__sin_titulo__";
 
 export function RevisionDeProductos({
   categorias,
@@ -98,24 +105,11 @@ export function RevisionDeProductos({
       imagenes: [],
     })),
   );
-  const [destinos, setDestinos] = useState<Record<string, string>>(() => {
-    const propuestas: Record<string, string> = {};
-    for (const producto of productos) {
-      const titulo = producto.categoria || SIN_TITULO;
-      if (propuestas[titulo] !== undefined) continue;
-      if (titulo === SIN_TITULO) {
-        propuestas[titulo] = SIN_CATEGORIA;
-        continue;
-      }
-      /* Se propone la categoría existente si ya hay una con ese nombre: crear
-         una segunda «Bebidas» es el error más fácil de cometer acá. */
-      const existente = categorias.find(
-        (categoria) => categoria.nombre.toLowerCase() === titulo.toLowerCase(),
-      );
-      propuestas[titulo] = existente ? existente.id : CREAR;
-    }
-    return propuestas;
-  });
+  /* El destino de cada sección se propone una sola vez, al montar: la categoría
+     que se llama igual, o la más parecida que sugirió la lectura, o crear una.
+     Lo que el dueño cambie después manda. */
+  const [propuesta] = useState(() => proponerDestinos(productos, categorias));
+  const [destinos, setDestinos] = useState<Record<string, string>>(propuesta.destinos);
 
   /* Cada vista previa es una dirección que el navegador reserva hasta que se le
      diga que ya no hace falta. Con veintiocho productos y cuatro fotos cada uno
@@ -413,6 +407,16 @@ export function RevisionDeProductos({
         <div className={styles.titulos}>
           <h3>Las secciones de tu lista</h3>
           <p>Decidí qué hacer con cada una.</p>
+          {/* Cuando la propuesta no es la categoría que se llama igual sino la
+              más parecida, se dice: si no, el dueño ve «Poner en Refrescos» al
+              lado de «BEBIDAS» y no sabe de dónde salió. */}
+          {propuesta.sugeridas.size > 0 ? (
+            <p className={styles.sugerencia}>
+              Te sugerimos tu categoría más parecida en{" "}
+              {propuesta.sugeridas.size === 1 ? "una sección" : `${propuesta.sugeridas.size} secciones`}.
+              Revísalas antes de confirmar.
+            </p>
+          ) : null}
           {titulos
             .filter((titulo) => titulo !== SIN_TITULO)
             .map((titulo) => (

@@ -4,15 +4,19 @@ import { leerJson } from "../../../../lib/catalogo/servidor";
 import { analizarArchivo } from "../../../../lib/ia/gemini";
 import { informeDeCobertura, type CampoDeCategoria } from "../../../../lib/ia/cobertura";
 import {
-  ESQUEMA_LISTA,
   INSTRUCCION_LISTA,
+  categoriaQueEligio,
+  categoriasParaElegir,
+  esquemaLista,
   instruccionDeCamposDeCategoria,
+  instruccionDeCategoriasDelNegocio,
   type ListaLeida,
 } from "../../../../lib/ia/instrucciones";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { TIPOS_LISTA, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
 import {
   devolverCredito,
+  leerCategoriasDelNegocio,
   prepararLecturaDeFoto,
   registrarLlamada,
 } from "../../../../lib/ia/servidor";
@@ -48,11 +52,20 @@ export async function POST(solicitud: NextRequest) {
      Si la consulta falla no se corta la lectura: la importación sin campos sigue
      sirviendo, y negarle al dueño su lista entera porque no pudimos leer una
      tabla auxiliar sería cambiar un problema chico por uno grande. */
-  const camposPorCategoria = await leerCamposPorCategoria(preparacion.negocioId);
+  const [camposPorCategoria, categorias] = await Promise.all([
+    leerCamposPorCategoria(preparacion.negocioId),
+    leerCategoriasDelNegocio(preparacion.negocioId),
+  ]);
+  /* Las categorías que ya tiene el negocio viajan como lista cerrada: el modelo
+     ubica cada renglón en la más parecida —«BEBIDAS» en «Refrescos»— o dice que
+     ninguna corresponde. No gasta una lectura más: va en la misma consulta. */
+  const nombresDeCategorias = categoriasParaElegir(categorias.map(({ nombre }) => nombre));
 
   const lectura = await analizarArchivo<ListaLeida>(
-    INSTRUCCION_LISTA + instruccionDeCamposDeCategoria(camposPorCategoria),
-    ESQUEMA_LISTA,
+    INSTRUCCION_LISTA +
+      instruccionDeCamposDeCategoria(camposPorCategoria) +
+      instruccionDeCategoriasDelNegocio(nombresDeCategorias),
+    esquemaLista(nombresDeCategorias),
     { base64: archivo.base64, tipo: archivo.tipo },
   );
 
@@ -91,24 +104,35 @@ export async function POST(solicitud: NextRequest) {
   }
 
   const productos = (lectura.datos.productos ?? [])
-    .map((producto) => ({
-      nombre: (producto.nombre ?? "").trim().slice(0, 80),
-      precio: Number(producto.precio),
-      descripcion: (producto.descripcion ?? "").trim().slice(0, 300),
-      /* La categoría sale del título de sección de la propia lista. Antes se
-         descartaba, y era un desperdicio: esa lista ya trae la estructura del
-         catálogo escrita por el dueño, y le pedíamos que la volviera a armar. */
-      categoria: (producto.categoria ?? "").trim().slice(0, 60),
-      confianza: producto.confianza ?? "baja",
-      /* Solo las claves que la categoría declaró de verdad. El modelo puede
-         devolver una clave inventada o la de otra categoría, y guardarla sería
-         meterle al producto un campo que su categoría no tiene: el panel no
-         sabría dibujarlo y el dueño no sabría de dónde salió. */
-      datos: clavesValidas(
-        producto.datos,
-        camposPorCategoria.get((producto.categoria ?? "").trim().toLowerCase()),
-      ),
-    }))
+    .map((producto) => {
+      const titulo = (producto.categoria ?? "").trim().slice(0, 60);
+      const sugerida = nombresDeCategorias.length
+        ? categoriaQueEligio(producto.categoria_del_negocio, categorias)
+        : null;
+      return {
+        nombre: (producto.nombre ?? "").trim().slice(0, 80),
+        precio: Number(producto.precio),
+        descripcion: (producto.descripcion ?? "").trim().slice(0, 300),
+        /* La categoría sale del título de sección de la propia lista: esa lista
+           ya trae la estructura del catálogo escrita por el dueño. Si el renglón
+           no tiene título, se usa la categoría del negocio que eligió el modelo,
+           y así el renglón llega agrupado bajo ella en vez de suelto. */
+        categoria: titulo || sugerida?.nombre || "",
+        /* La categoría del negocio más parecida, aunque el título no coincida.
+           La pantalla de revisión la propone para toda la sección. */
+        categoriaSugeridaId: sugerida?.id ?? null,
+        confianza: producto.confianza ?? "baja",
+        /* Solo las claves que la categoría declaró de verdad. El modelo puede
+           devolver una clave inventada o la de otra categoría, y guardarla sería
+           meterle al producto un campo que su categoría no tiene: el panel no
+           sabría dibujarlo y el dueño no sabría de dónde salió. */
+        datos: clavesValidas(
+          producto.datos,
+          camposPorCategoria.get(titulo.toLowerCase()) ??
+            (sugerida ? camposPorCategoria.get(sugerida.nombre.trim().toLowerCase()) : undefined),
+        ),
+      };
+    })
     /* Se descarta acá lo que la base rechazaría igual, pero con la ventaja de
        que el dueño nunca ve un renglón que no podría guardar. */
     .filter(

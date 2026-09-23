@@ -1726,6 +1726,22 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **La lista de precios ubica cada sección en la categoría más parecida.**
+  `/api/ia/lista` recibe las categorías del negocio como lista cerrada
+  (`categoria_del_negocio`, con «(ninguna)»), en la misma consulta. La revisión
+  propone para cada sección: la categoría que se llama igual, o la que la lectura
+  sugirió para la mayoría de sus productos, o crear una (`lib/catalogo/
+  destinos-de-lista.ts`, 8 pruebas, verificadas rompiendo el desempate). Los
+  renglones sin título llegan agrupados bajo la categoría sugerida. Un aviso dice
+  cuándo la propuesta es una sugerencia. Probado contra Gemini real: «BEBIDAS» →
+  Refrescos, «ALMUERZOS» → Comidas, «DULCES» → Postres y tortas; sin títulos,
+  cada producto a la suya y un martillo en «(ninguna)». La lectura de categorías
+  del negocio quedó compartida en `lib/ia/servidor.ts`.
+- **La tarjeta sin foto muestra el dibujo de su categoría** sobre el color del
+  negocio, con la proporción de una foto, en vez del recuadro oscuro «Sin foto».
+- Los textos nuevos van en español neutro; la revisión del resto queda para la
+  depuración de la fase 9.
+
 - **La lectura de fotos viene con el plan.** Migración `20261017090000`:
   `foto_ia_habilitada` pasa a ser «la plataforma no la apagó», con valor por
   omisión `true`, y los cuatro negocios en plan Catálogo —que pagaban diez
