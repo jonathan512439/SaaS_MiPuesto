@@ -768,99 +768,111 @@
   -webkit-line-clamp: 3;
 }
 
-/* Lista de precios: renglones dentro de una sola hoja, como una carta. Sin
-   foto, sin sombra por renglón y sin bordes redondeados en cada uno: la hoja
-   es la que tiene forma, los renglones solo se separan con una línea. */
-.secciones[data-forma="lista_precios"] .rejilla {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0;
-  overflow: hidden;
-  border: var(--borde-fino) solid var(--catalogo-borde-suave);
-  border-radius: var(--radius-panel);
-  background: var(--catalogo-superficie);
-  box-shadow: var(--catalogo-sombra-flotante);
-}
-
-.tarjeta[data-forma="lista_precios"] {
-  border: 0;
-  border-bottom: var(--borde-fino) solid var(--catalogo-borde-tarjeta);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.tarjeta[data-forma="lista_precios"]:last-child {
-  border-bottom: 0;
-}
-
-/* El nombre y lo que lo acompaña a la izquierda; el precio y su botón a la
-   derecha, a la altura del nombre. El pie es el último hijo y se manda a la
-   segunda columna; los demás van a la primera.
-
-   Sin espacio entre filas de la rejilla: el pie ocupa varias filas, y un
-   espacio entre filas vacías se sumaría igual. El aire lo pone cada renglón. */
-.tarjeta[data-forma="lista_precios"] .tarjetaCuerpo {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--spacing-3);
-  row-gap: 0;
-  padding: var(--spacing-3) var(--spacing-4);
-}
-
-.tarjeta[data-forma="lista_precios"] .tarjetaCuerpo > * {
-  grid-column: 1;
-}
-
-.tarjeta[data-forma="lista_precios"] .tarjetaNombre ~ * {
-  margin-top: var(--spacing-1);
-}
-
-.tarjeta[data-forma="lista_precios"] .tarjetaPie {
-  grid-column: 2;
-  grid-row: 1 / span 4;
-  align-self: start;
-  margin-top: 0;
-  padding-top: 0;
-}
-
-.tarjeta[data-forma="lista_precios"] .tarjetaNombre {
-  font-size: var(--text-base);
-}
-
-/* La pastilla que iba sobre la foto, como texto en el renglón. Los mismos
-   pares de color que sobre la foto, que la guarda de contraste ya comprueba. */
-.tarjetaInsignia {
-  justify-self: start;
-  border-radius: var(--radius-status);
-  padding: 0 var(--spacing-2);
-  background: var(--catalogo-texto);
-  color: var(--catalogo-superficie);
-  font-size: var(--text-xs);
-  font-weight: 800;
-  line-height: 1.6;
-}
-
-.tarjetaInsignia[data-tipo="oferta"] {
-  background: var(--catalogo-accion);
-  color: var(--catalogo-sobre-accion);
-}
-
-.tarjetaInsignia[data-tipo="ultimas"] {
-  background: var(--catalogo-alerta);
-  color: var(--catalogo-superficie);
+/* Vitrina: la foto es la tarjeta.
+ *
+ * Vertical y ocupando todo, con el nombre, el precio y el botón encima, sobre
+ * una cortina que sube desde abajo. Es la forma de lo que se vende por los
+ * ojos —una torta, una prenda, un plato—, donde la foto convence y el texto
+ * solo confirma.
+ *
+ * La cortina es la misma de la portada y el banner (`--catalogo-cortina`), con
+ * su letra (`--catalogo-sobre-cortina`): el par está comprobado en las dieciséis
+ * paletas, así que el texto se lee sobre cualquier foto sin elegir colores
+ * nuevos. En las oscuras la cortina es el fondo y la letra, clara.
+ *
+ * Lo que no entra en una vitrina —la descripción, los atributos, el stock— no
+ * se dibuja acá: se lee en la página del producto, a un toque. La pastilla de
+ * «Agotado» u «Oferta» sigue arriba a la izquierda, sobre la foto. */
+@media (min-width: 48rem) {
+  .secciones[data-forma="vitrina"] .rejilla {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 64rem) {
-  .secciones[data-forma="lista_precios"] .rejilla {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--spacing-6);
+  .secciones[data-forma="vitrina"] .rejilla {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
 
-  /* En dos columnas, la línea de abajo del último de cada columna sobra; con
-     la cantidad impar, el último queda solo y tampoco la necesita. */
-  .tarjeta[data-forma="lista_precios"]:nth-last-child(2):nth-child(odd) {
-    border-bottom: 0;
+@media (min-width: 100rem) {
+  .secciones[data-forma="vitrina"] .rejilla {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
+}
+
+.tarjeta[data-forma="vitrina"] {
+  display: block;
+  aspect-ratio: 3 / 4;
+  background: var(--catalogo-fondo-hundido);
+}
+
+/* La foto —o su marco con la pastilla, o su enlace— cubre la tarjeta. */
+.tarjeta[data-forma="vitrina"] > :first-child {
+  position: absolute;
+  inset: 0;
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaFoto,
+.tarjeta[data-forma="vitrina"] .sinFoto {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-bottom: 0;
+  object-fit: cover;
+}
+
+/* El cuerpo, pegado abajo y sobre la foto. El relleno de arriba es el lugar
+   donde la cortina se desvanece: sin él, el nombre arrancaría justo donde la
+   foto todavía está a plena luz. */
+.tarjeta[data-forma="vitrina"] .tarjetaCuerpo {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  gap: 0;
+  padding: var(--spacing-10) var(--spacing-3) var(--spacing-3);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--catalogo-cortina) 92%, transparent) 0%,
+    color-mix(in srgb, var(--catalogo-cortina) 74%, transparent) 55%,
+    transparent 100%
+  );
+  color: var(--catalogo-sobre-cortina);
+  pointer-events: none;
+}
+
+/* Lo que se toca vuelve a recibir el dedo: el nombre —cuyo enlace se estira
+   sobre la tarjeta entera— y el botón del pie. */
+.tarjeta[data-forma="vitrina"] .tarjetaNombre,
+.tarjeta[data-forma="vitrina"] .tarjetaPie {
+  pointer-events: auto;
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaCuerpo > :not(.tarjetaNombre):not(.tarjetaPie) {
+  display: none;
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaNombre {
+  overflow: hidden;
+  font-family: var(--font-marca);
+  font-size: var(--text-base);
+  text-shadow: 0 0.0625rem 0.25rem color-mix(in srgb, var(--catalogo-cortina) 80%, transparent);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaPie {
+  padding-top: var(--spacing-1);
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaPrecio strong {
+  color: var(--catalogo-sobre-cortina);
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaPrecio s {
+  color: color-mix(in srgb, var(--catalogo-sobre-cortina) 78%, transparent);
 }
 
 /* Los subgrupos de una categoría: «Bebidas» se abre en Gaseosas, Jugos, Aguas.

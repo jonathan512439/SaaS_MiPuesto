@@ -65,7 +65,7 @@ export const DEFINICIONES_PALETAS: ReadonlyArray<{
  *
  * La restricción de `negocios.forma_tarjeta` lista los mismos tres valores, y
  * una prueba los compara. */
-export const FORMAS_TARJETA = ["cuadricula", "fila", "lista_precios"] as const;
+export const FORMAS_TARJETA = ["cuadricula", "fila", "vitrina"] as const;
 
 export type FormaTarjeta = (typeof FORMAS_TARJETA)[number];
 
@@ -86,10 +86,13 @@ export const DEFINICIONES_FORMAS: ReadonlyArray<{
     nombre: "Una por fila",
     descripcion: "Foto chica al costado y más texto. Para lo que se elige leyendo.",
   },
+  /* Reemplazó a la «lista de precios» sin fotos el mismo día que salió: el
+     dueño la vio y pidió una tercera forma que llevara la foto, con otra manera
+     de presentarla. */
   {
-    id: "lista_precios",
-    nombre: "Lista de precios",
-    descripcion: "Sin fotos, nombre y precio. Para una carta o una lista larga.",
+    id: "vitrina",
+    nombre: "Vitrina",
+    descripcion: "La foto ocupa toda la tarjeta, con el nombre y el precio encima. Para lo que entra por los ojos.",
   },
 ];
 

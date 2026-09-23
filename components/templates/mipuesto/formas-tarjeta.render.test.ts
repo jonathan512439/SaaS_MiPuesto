@@ -14,8 +14,8 @@ import { PlantillaMipuesto } from "./plantilla-mipuesto";
  *
  * Son nueve combinaciones que nadie va a abrir a mano, y la regla que las
  * sostiene es una sola: **la forma cambia el aspecto, nunca lo que se puede
- * hacer**. Un negocio con carrito que elige la lista de precios tiene que seguir
- * pudiendo agregar al carrito. Si una forma se come un botón, el dueño no lo ve
+ * hacer**. Un negocio con carrito que elige la vitrina tiene que seguir pudiendo
+ * agregar al carrito, aunque el botón quede encima de la foto. Si una forma se come un botón, el dueño no lo ve
  * —mira su catálogo con la forma que eligió y no sabe que faltaba algo— y quien
  * lo nota es el cliente que no puede pedir.
  *
@@ -40,8 +40,8 @@ function dibujar(forma: FormaTarjeta, tipoNegocio: TipoNegocio) {
 }
 
 /* Las acciones de cada tarjeta: los `aria-label` que aparecen en su cuerpo. Se
-   corta en el cuerpo porque la foto también lleva un «Ver …», y la foto es lo
-   único que una forma sí puede sacar. */
+   corta en el cuerpo porque la foto también lleva un «Ver …», que no es una
+   acción sobre el producto. */
 function accionesDe(productos: string): string[] {
   return productos
     .split("<li ")
@@ -81,14 +81,12 @@ describe("las formas de la tarjeta", () => {
         }
       });
 
-      /* La gracia de la lista de precios es que no baja ninguna foto. Se
-         comprueba que no las dibuja, no que las esconde: una imagen escondida
-         con CSS igual puede bajarse. */
-      it("la lista de precios no dibuja fotos, y las otras sí", () => {
+      /* Las tres llevan la foto del producto: lo que cambia es dónde. */
+      it("las tres dibujan la foto", () => {
         const dibujos = dibujarTodas();
-        expect(dibujos.lista_precios.productos).not.toContain("<img");
-        expect(dibujos.cuadricula.productos).toContain("<img");
-        expect(dibujos.fila.productos).toContain("<img");
+        for (const forma of FORMAS_TARJETA) {
+          expect(dibujos[forma].productos, forma).toContain("<img");
+        }
       });
     });
   }
@@ -97,6 +95,14 @@ describe("las formas de la tarjeta", () => {
      bajaría la imagen grande para mostrarla chica. */
   it("la fila pide la foto del tamaño que muestra", () => {
     expect(dibujar("fila", "tienda_virtual").productos).toContain('sizes="96px"');
+  });
+
+  /* La vitrina tiene el ancho de una tarjeta de la cuadrícula: si pidiera la
+     foto «a pantalla completa», cada visita bajaría una imagen el doble de
+     grande para mostrarla en media pantalla. */
+  it("la vitrina no pide fotos más grandes que la tarjeta", () => {
+    const productos = dibujar("vitrina", "tienda_virtual").productos;
+    expect(productos).toContain('sizes="(min-width: 64rem) 240px, (min-width: 48rem) 33vw, 50vw"');
   });
 });
 

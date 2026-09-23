@@ -72,6 +72,14 @@ Acordadas con el dueño del proyecto el 22 de septiembre de 2026.
 >
 > AGENTS.md ya dice cuándo corresponden las pruebas de dibujo, así que la
 > excepción de abajo dejó de serlo.
+>
+> **La lista de precios se reemplazó por la vitrina el mismo día.** El dueño la
+> vio y pidió una tercera forma que llevara la foto, presentada de otra manera:
+> la foto ocupa la tarjeta, vertical, con el nombre, el precio y el botón encima
+> sobre la cortina de la paleta. Migración `20261012120000`. La tabla y las
+> reglas de abajo describen el diseño original; donde dicen `lista_precios`,
+> hoy es `vitrina`, y la regla 3 (sugerir la lista a los catálogos de solo
+> lectura) se retiró con ella.
 
 **Objetivo:** que el dueño elija cómo se ven sus productos, sin que el catálogo
 deje de ser uno solo.
@@ -82,7 +90,7 @@ deje de ser uno solo.
 |---|---|---|
 | `cuadricula` | La de hoy: dos por fila en el teléfono, foto arriba | Ropa, tiendas: lo que se elige mirando |
 | `fila` | **Una por fila.** Miniatura a la izquierda, nombre, descripción en dos líneas, atributos, y precio con su botón | Ferretería, repuestos, distribuidora: lo que se elige leyendo |
-| `lista_precios` | **Sin foto.** Un renglón por producto: nombre y precio, con la descripción debajo si la hay | Cartas de restaurante, listas de precios, catálogos sin stock ni carrito |
+| ~~`lista_precios`~~ → **`vitrina`** | **La foto es la tarjeta**, vertical, con nombre, precio y botón encima. La descripción y los atributos se leen en la página del producto | Pastelería, ropa, comida: lo que se vende por los ojos |
 
 `fila` lleva miniatura y no una foto a lo ancho **a propósito**: a lo ancho,
 cada visita bajaría el doble o el triple de imagen, y el tráfico de fotos es el

@@ -1732,6 +1732,9 @@ motivo por el que este archivo existe.
   Columna `negocios.forma_tarjeta` (migración `20261012090000`). Prueba de
   dibujo 3 formas × 3 modalidades, con sus tres guardias probadas rompiéndolas.
   Pendiente del dueño: probarlo desde Apariencia y en el teléfono.
+- **La tercera forma pasó de «lista de precios» a «vitrina»**, a pedido del
+  dueño: la foto ocupa la tarjeta y el nombre, el precio y el botón van encima,
+  sobre la cortina de la paleta. Migración `20261012120000`.
 - **AGENTS.md**: las pruebas de dibujo dejan de estar prohibidas y la regla dice
   cuándo corresponden.
 - **Plan de las fases 10 a 12** en `docs/plan/09-DIRECTORIO-Y-FORMAS.md`.

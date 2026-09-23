@@ -53,12 +53,6 @@ export function SelectorApariencia({
     [datos, formaElegida],
   );
 
-  /* Un catálogo que solo muestra —sin carrito ni botón por producto— es una
-     carta o una lista de precios, y esa forma se le sugiere. No se le impone:
-     puede querer las fotos. */
-  const formaSugerida: FormaTarjeta | null =
-    datos.negocio.modalidad === "solo_lectura" ? "lista_precios" : null;
-
   /* El diseño del catálogo es único: lo editable es la paleta, la forma de las
      tarjetas y el fondo. */
   const hayCambioPendiente =
@@ -194,9 +188,6 @@ export function SelectorApariencia({
                 <span className={styles.textoForma}>
                   <strong>{forma.nombre}</strong>
                   <span>{forma.descripcion}</span>
-                  {formaSugerida === forma.id ? (
-                    <em className={styles.sugerida}>Sugerida para tu catálogo</em>
-                  ) : null}
                 </span>
               </label>
             );
