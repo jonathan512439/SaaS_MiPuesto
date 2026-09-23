@@ -1726,6 +1726,28 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Portada y directorio, rediseñados: la noche y el sol.** El sitio público
+  tiene su propia paleta —fondo noche, acento sol y la cinta de aguayo como
+  firma— con tokens `--color-sitio-*` y `--aguayo` y sus pares en la guardia de
+  contraste; el teal de MiPuesto queda para el panel y la tarjeta de acrílico.
+  Una cabecera común (`CabeceraSitio`) con **«Directorio · Buscá negocios»** en
+  el menú principal, visible también en el teléfono. **Buscador vivo**: a partir
+  de dos letras muestra negocios y productos con su foto
+  (`/api/directorio/sugerencias`), con ejemplos que rotan en el campo; sin
+  JavaScript busca igual con Enter. La portada cuenta con ejemplos en vez de
+  párrafos: el pedido que llega junto al teléfono, la cinta de rubros que corre
+  (quieta con movimiento reducido), los tres pasos dibujados —la lista a mano,
+  el enlace, el chat del pedido— y el buscador del directorio para probarlo
+  ahí. Precios sin cambios (100, 150, 250 y 100 por tarjeta). El directorio:
+  lo más buscado en baldosas, ciudades como pestañas, filtros que se aplican
+  solos, rubros con su dibujo y cada negocio como puesto (portada, logo encima,
+  abierto o cerrado, productos que coinciden).
+  De paso: el teléfono de la portada ponía seis tarjetas en 300 px porque la
+  plantilla sigue al ancho de la ventana; ahora el marco lo avisa con
+  `data-marco="telefono"`. Y `next.config` admite las fotos achicadas de
+  Supabase (`/render/image/`), que en local rompían el directorio. Revisado en
+  Chromium a 390 y 1366 px, con el buscador escribiendo de verdad.
+
 - **Noventa sinónimos más** para lo que se busca en un catálogo boliviano
   (comida, ropa, tiendas, construcción, belleza, mascotas): 96 en total, y los
   que la plataforma edita no se pisan. Coinciden **por la raíz**, con una regla

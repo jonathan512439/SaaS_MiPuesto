@@ -56,7 +56,7 @@ export function VitrinaPortada() {
           <span className={styles.muesca} />
           <span className={styles.bateria} />
         </div>
-        <div className={styles.pantalla}>
+        <div className={styles.pantalla} data-marco="telefono">
           <Catalogo datos={PUESTO} paleta="mercado" />
         </div>
       </div>
@@ -66,7 +66,7 @@ export function VitrinaPortada() {
           <span className={styles.muesca} />
           <span className={styles.bateria} />
         </div>
-        <div className={styles.pantalla}>
+        <div className={styles.pantalla} data-marco="telefono">
           <Catalogo datos={TIENDA} paleta="noche" />
         </div>
       </div>

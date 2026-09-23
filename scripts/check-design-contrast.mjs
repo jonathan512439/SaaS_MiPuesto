@@ -250,6 +250,14 @@ const colores = Object.fromEntries(
        recuadro de suscripción y el de cambiar precios, o sea los dos lugares
        donde hay que leer antes de tocar. */
     "alerta-tenue",
+    /* El verde tenue: la pastilla «Abierto» del buscador y el globo de la
+       respuesta del dueño en la portada. */
+    "exito-tenue",
+    /* El sitio público: la noche con su texto, y el sol con el suyo. */
+    "sitio-noche",
+    "sitio-sobre-noche",
+    "sitio-sol",
+    "sitio-sobre-sol",
   ].map((token) => [token, leerColor(token)]),
 );
 
@@ -288,6 +296,16 @@ const combinaciones = [
   ["superficie", "accion", 4.5],
   ["superficie", "exito", 4.5],
   ["superficie", "alerta", 4.5],
+  /* El sitio público: el texto sobre la noche y sobre el sol, y el sol como
+     botón sobre la noche. */
+  ["sitio-sobre-noche", "sitio-noche", 4.5],
+  ["sitio-sobre-sol", "sitio-sol", 4.5],
+  ["sitio-sol", "sitio-noche", 4.5],
+  ["texto", "exito-tenue", 4.5],
+  ["exito", "exito-tenue", 4.5],
+  /* La tarjeta de acrílico, en teal, con su botón claro. */
+  ["superficie", "marca-fuerte", 4.5],
+  ["marca-fuerte", "superficie", 4.5],
 ];
 
 const combinacionesFoco = [

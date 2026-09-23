@@ -1,0 +1,553 @@
+@reference "../../app/globals.css";
+
+/* El directorio: una feria que se recorre buscando.
+ *
+ * La audacia va en un solo lugar (DESIGN.md §8): la noche de arriba, con el
+ * buscador y el sol. Lo de abajo es claro y ordenado, para que la foto de cada
+ * puesto sea lo que llama la atención. */
+
+.pagina {
+  display: grid;
+  background: var(--color-lienzo);
+}
+
+.pagina h1,
+.pagina h2,
+.pagina h3,
+.pagina p,
+.pagina ul {
+  margin: 0;
+}
+
+/* ---- la noche ---- */
+
+.portada {
+  position: relative;
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+}
+
+.portadaContenido {
+  display: grid;
+  gap: var(--spacing-5);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-sitio));
+  margin: 0 auto;
+  padding: var(--spacing-12) 0 var(--spacing-10);
+}
+
+/* Alineado con la lista de abajo, pero sin estirarse: un buscador de todo el
+   ancho de un monitor se lee como una barra, no como una pregunta. */
+.portadaContenido > * {
+  max-width: 48rem;
+}
+
+.bajada {
+  color: color-mix(in srgb, var(--color-sitio-sobre-noche) 78%, transparent);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.portada h1 {
+  font-family: var(--font-marca);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* Lo más buscado: baldosas chicas que se tocan, con su dibujo. */
+.populares {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  padding: 0;
+  list-style: none;
+}
+
+.populares a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid color-mix(in srgb, var(--color-sitio-sobre-noche) 28%, transparent);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-4);
+  background: color-mix(in srgb, var(--color-sitio-sobre-noche) 8%, transparent);
+  color: var(--color-sitio-sobre-noche);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background var(--movimiento-rapido) ease;
+}
+
+.populares a:hover {
+  background: color-mix(in srgb, var(--color-sitio-sobre-noche) 18%, transparent);
+}
+
+.populares svg {
+  color: var(--color-sitio-sol);
+}
+
+/* La cinta de aguayo, al pie de la noche. */
+.cinta {
+  height: var(--spacing-2);
+  background: var(--aguayo);
+}
+
+/* ---- el cuerpo claro ---- */
+
+.cuerpo {
+  display: grid;
+  gap: var(--spacing-6);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-sitio));
+  margin: 0 auto;
+  padding: var(--spacing-6) 0 var(--spacing-12);
+}
+
+/* Las ciudades como pestañas: una fila que se desliza de costado. */
+.ciudades {
+  display: flex;
+  gap: var(--spacing-2);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-1);
+  scrollbar-width: none;
+}
+
+.ciudad {
+  display: inline-flex;
+  flex-shrink: 0;
+  min-height: var(--control-alto);
+  align-items: center;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ciudad[aria-current="page"] {
+  border-color: var(--color-sitio-noche);
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+}
+
+.barra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.filtros label {
+  display: grid;
+  gap: var(--spacing-1);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.filtros select {
+  min-height: var(--control-alto);
+  min-width: calc(var(--spacing-32) + var(--spacing-8));
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-8) var(--spacing-2) var(--spacing-4);
+}
+
+.quitarCerca {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+}
+
+/* Los rubros como baldosas con su dibujo grande: se elige mirando. */
+.rubros {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.rubros h2,
+.vacio h2 {
+  font-family: var(--font-marca);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.rubros ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--spacing-32) + var(--spacing-4)), 1fr));
+  gap: var(--spacing-3);
+  padding: 0;
+  list-style: none;
+}
+
+.rubros a {
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-3);
+  min-height: 100%;
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: var(--sombra-suave);
+}
+
+.rubros a:hover {
+  background: var(--color-marca-tenue);
+}
+
+.baldosaIcono {
+  display: grid;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  place-items: center;
+  border-radius: var(--radius-control);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+  font-size: var(--text-xl);
+}
+
+/* ---- los puestos ---- */
+
+.resultados {
+  display: grid;
+  gap: var(--spacing-4);
+}
+
+.conteo {
+  color: var(--color-texto-suave);
+}
+
+.conteo strong {
+  color: var(--color-texto);
+}
+
+.puestos {
+  display: grid;
+  gap: var(--spacing-5);
+  padding: 0;
+  list-style: none;
+}
+
+.puestos > li {
+  min-width: 0;
+}
+
+.puesto {
+  display: grid;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.foto {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-sitio-noche);
+}
+
+.foto img {
+  object-fit: cover;
+}
+
+/* Sin portada, la noche con la cinta: nunca un hueco gris. */
+.fotoVacia {
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--spacing-2);
+  background: var(--aguayo);
+}
+
+.abierto,
+.cerrado,
+.distancia {
+  position: absolute;
+  top: var(--spacing-3);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--text-xs);
+  font-weight: 900;
+}
+
+.abierto {
+  left: var(--spacing-3);
+  background: var(--color-exito);
+  color: var(--color-superficie);
+}
+
+.cerrado {
+  left: var(--spacing-3);
+  background: var(--color-texto);
+  color: var(--color-superficie);
+}
+
+.distancia {
+  right: var(--spacing-3);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+}
+
+.puestoCuerpo {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-4) var(--spacing-4);
+}
+
+/* El logo, montado sobre el borde de la foto: es lo que dice de quién es el
+   puesto. */
+.logo,
+.logoVacio {
+  position: relative;
+  z-index: 1;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  margin-top: calc(var(--spacing-8) * -1);
+  border: var(--borde-marcado) solid var(--color-superficie);
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
+  object-fit: cover;
+  box-shadow: var(--sombra-suave);
+}
+
+.logoVacio {
+  display: grid;
+  place-items: center;
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-family: var(--font-marca);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+}
+
+.puestoCuerpo h3 {
+  font-family: var(--font-marca);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.puestoCuerpo h3 a {
+  color: var(--color-texto);
+  text-decoration: none;
+}
+
+.donde,
+.descripcion {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.descripcion {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* Lo que tiene de lo que se buscó: una tira que se desliza. */
+.productos {
+  display: flex;
+  gap: var(--spacing-2);
+  overflow-x: auto;
+  padding: var(--spacing-1) 0;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.productos a {
+  display: grid;
+  width: calc(var(--spacing-20) + var(--spacing-4));
+  gap: var(--spacing-1);
+  color: var(--color-texto);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.productos img,
+.productoVacio {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+  object-fit: cover;
+}
+
+.productos a span:last-child {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.verCatalogo {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--spacing-2);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.paginacion {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.paginacion a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--color-superficie);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: var(--sombra-suave);
+}
+
+.paginacion a:last-child {
+  justify-self: end;
+}
+
+.paginacion p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+/* ---- sin resultados ---- */
+
+.vacio {
+  display: grid;
+  justify-items: start;
+  gap: var(--spacing-4);
+}
+
+.vacioIcono {
+  display: grid;
+  width: var(--spacing-16);
+  height: var(--spacing-16);
+  place-items: center;
+  border-radius: var(--radius-panel);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+  font-size: var(--text-2xl);
+}
+
+.vacio > p {
+  color: var(--color-texto-suave);
+}
+
+.vacio .puestos {
+  width: 100%;
+}
+
+.botonClaro {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* ---- súmate ---- */
+
+.sumate {
+  padding-block: var(--spacing-10);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+}
+
+.sumateContenido {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-5);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-sitio));
+  margin: 0 auto;
+}
+
+.sumate h2 {
+  font-family: var(--font-marca);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.sumateAcciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.botonNoche {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-6);
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.enlaceNoche {
+  color: var(--color-sitio-sobre-sol);
+  font-weight: 800;
+}
+
+@media (min-width: 40rem) {
+  .puestos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .portada h1 {
+    font-size: var(--text-4xl);
+  }
+}
+
+@media (min-width: 64rem) {
+  .puestos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .portadaContenido {
+    padding: var(--spacing-16) 0 var(--spacing-14);
+  }
+}

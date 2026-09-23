@@ -1,0 +1,197 @@
+@reference "../../app/globals.css";
+
+/* El buscador: una sola pieza redonda y grande, con la lupa adentro y el botón
+   pegado. Es lo primero que se toca en el directorio y tiene que parecerlo. */
+.buscador {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+}
+
+.campo {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-marcado) solid transparent;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) var(--spacing-5);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-flotante);
+  transition: border-color var(--movimiento-rapido) ease;
+}
+
+.campo:focus-within {
+  border-color: var(--color-sitio-sol);
+}
+
+.campo > svg {
+  flex-shrink: 0;
+  color: var(--color-marca);
+  font-size: var(--text-xl);
+}
+
+/* Sin el hundido de los campos del panel: acá el campo es la pastilla entera. */
+.campo input {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--control-alto);
+  border: 0;
+  padding: var(--spacing-2) 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-texto);
+  font-size: var(--text-lg);
+  outline: none;
+}
+
+.campo input::placeholder {
+  color: var(--color-texto-tenue);
+}
+
+.boton {
+  min-height: var(--control-alto);
+  border: 0;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-6);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.buscador[data-tamano="grande"] .campo {
+  padding-block: var(--spacing-2);
+}
+
+.buscador[data-tamano="grande"] .campo input {
+  font-size: var(--text-xl);
+}
+
+/* La lista de sugerencias, flotando debajo del campo. */
+.lista {
+  position: absolute;
+  top: calc(100% + var(--spacing-2));
+  right: 0;
+  left: 0;
+  display: grid;
+  gap: var(--spacing-3);
+  max-height: min(70vh, calc(var(--spacing-32) * 4));
+  overflow-y: auto;
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  box-shadow: var(--sombra-flotante);
+}
+
+.grupo {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.rotulo {
+  margin: 0;
+  padding: 0 var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.opcion {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--spacing-3);
+  min-height: var(--control-alto);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2);
+  color: var(--color-texto);
+  text-decoration: none;
+}
+
+.opcion:hover,
+.opcion:focus-visible {
+  background: var(--color-marca-tenue);
+}
+
+.logo,
+.inicial {
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  border-radius: var(--radius-control);
+  object-fit: cover;
+}
+
+.inicial {
+  display: grid;
+  place-items: center;
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-family: var(--font-marca);
+  font-weight: 800;
+}
+
+.textos {
+  display: grid;
+  min-width: 0;
+}
+
+.textos strong,
+.textos small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.textos small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.abierto {
+  border-radius: var(--radius-status);
+  padding: 0 var(--spacing-2);
+  background: var(--color-exito-tenue);
+  color: var(--color-exito);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.nada {
+  margin: 0;
+  padding: var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.verTodo {
+  min-height: var(--control-alto);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+  color: var(--color-marca-fuerte);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.soloLectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 30rem) {
+  .boton {
+    padding-inline: var(--spacing-4);
+  }
+
+  .buscador[data-tamano="grande"] .campo input {
+    font-size: var(--text-lg);
+  }
+}

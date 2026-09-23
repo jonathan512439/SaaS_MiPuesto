@@ -69,6 +69,14 @@ const nextConfig: NextConfig = {
             hostname: new URL(urlSupabase).hostname,
             pathname: "/storage/v1/object/public/negocios/**",
           },
+          /* Las mismas fotos achicadas por Supabase: el directorio pide la
+             portada a 800 de ancho y no el original. Producción no lo exigía,
+             `next dev` sí, y el directorio daba error en local. */
+          {
+            protocol: "https",
+            hostname: new URL(urlSupabase).hostname,
+            pathname: "/storage/v1/render/image/public/**",
+          },
         ]
       : [],
   },

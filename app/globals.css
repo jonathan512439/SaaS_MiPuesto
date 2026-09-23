@@ -103,6 +103,35 @@
   --color-peligro-tenue: color-mix(in srgb, var(--color-peligro) 10%, var(--color-superficie));
   --color-foco: var(--color-texto);
 
+  /* El sitio público de MiPuesto —la portada y el directorio—, no el panel ni el
+     catálogo de un negocio.
+
+     Una feria boliviana en el celular: la noche es el teal de la marca llevado
+     casi a tinta, y encima el sol de la feria para lo que se toca. Las franjas
+     de aguayo son **solo adorno** —una cinta, nunca un fondo de texto—, por eso
+     no entran en el control de contraste; la noche, el sol y lo que va sobre
+     ellos, sí. */
+  --color-sitio-noche: #0c2e33;
+  --color-sitio-noche-suave: color-mix(in srgb, var(--color-sitio-noche) 82%, var(--color-marca));
+  --color-sitio-sobre-noche: #f7f4ec;
+  --color-sitio-sol: #ffc93c;
+  --color-sitio-sobre-sol: #1d1a10;
+  --color-aguayo-magenta: #d6336c;
+  --color-aguayo-naranja: #f76707;
+  --color-aguayo-sol: #fcc419;
+  --color-aguayo-verde: #2f9e44;
+  --color-aguayo-turquesa: #1098ad;
+  /* La cinta de aguayo, lista para usar como fondo de una franja fina. */
+  --aguayo: linear-gradient(
+    90deg,
+    var(--color-aguayo-magenta) 0 18%,
+    var(--color-aguayo-naranja) 18% 34%,
+    var(--color-aguayo-sol) 34% 52%,
+    var(--color-aguayo-verde) 52% 70%,
+    var(--color-aguayo-turquesa) 70% 86%,
+    var(--color-aguayo-magenta) 86% 100%
+  );
+
   --font-*: initial;
   --font-sans: var(--fuente-producto), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   /* La de los títulos de MiPuesto. Cae en la del texto y después en la del
@@ -225,6 +254,10 @@
      fila de formulario de dos mil píxeles obliga a barrer la cabeza de un lado al
      otro para relacionar un rótulo con su campo. */
   --ancho-panel: 120rem;
+  /* El sitio público —portada, directorio— se lee como una revista y no como
+     una planilla: con el ancho del panel, el título quedaba pegado a un borde
+     y el teléfono al otro, con un pasillo vacío en el medio. */
+  --ancho-sitio: 76rem;
   --ancho-lectura: 65ch;
   background: var(--color-superficie);
   color: var(--color-texto);

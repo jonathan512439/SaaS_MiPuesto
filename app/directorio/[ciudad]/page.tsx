@@ -33,8 +33,9 @@ export default async function PaginaCiudad({ params, searchParams }: Propiedades
   const filtros = leerFiltrosDirectorio(await searchParams, { ciudad });
   return (
     <PantallaDirectorio
-      bajada={`Los catálogos de negocios de ${nombreDeCiudad(ciudad)}. Buscá un producto o elegí tu zona y el rubro.`}
+      bajada={`Negocios de ${nombreDeCiudad(ciudad)} con su catálogo`}
       filtros={filtros}
+      ruta={`/directorio/${ciudad}`}
       titulo={tituloDeDirectorio(filtros)}
     />
   );

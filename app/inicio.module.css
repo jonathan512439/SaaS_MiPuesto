@@ -1,14 +1,16 @@
 @reference "./globals.css";
 
-/* La portada del sitio, pensada como embudo.
+/* La portada del sitio, contada con ejemplos.
  *
- * Seis tiempos y una sola decisión por pantalla: qué es y cuánto cuesta, la
- * prueba en vivo, cómo se arma, la tarjeta de acrílico, el precio y las dudas.
- * Los fondos alternan entre la superficie y el lienzo para marcar dónde empieza
- * cada tiempo sin dibujar un borde.
+ * Tres fondos que se turnan para marcar dónde empieza cada tiempo sin dibujar
+ * bordes: la noche (portada y directorio), el sol (la cinta de rubros y el
+ * cierre) y el claro (la muestra, los pasos, los precios y las dudas). La
+ * tarjeta de acrílico va en el teal de la marca: es una pieza de MiPuesto
+ * sobre la mesa de otro.
  *
- * La audacia va en un solo lugar (DESIGN.md §8): la tarjeta, en fondo de marca.
- * Todo lo demás es disciplinado a propósito, para que ese bloque se note. */
+ * Los títulos van en la letra de la marca, grande y apretada. Los radios
+ * cambian con la jerarquía: pastilla para lo que se toca, panel para lo que
+ * contiene. */
 
 .pagina {
   display: grid;
@@ -16,16 +18,15 @@
   background: var(--color-lienzo);
 }
 
-/* Los títulos con la tipografía de MiPuesto, salvo dentro de la muestra de
+/* Los títulos con la letra de MiPuesto, salvo dentro de la muestra de
  * catálogo: esa es un catálogo de verdad, con la letra que elige el dueño, y la
- * raíz de su tema siempre lleva `data-paleta`. Si un navegador viejo no entiende
- * el `:not`, descarta la regla y los títulos salen con la letra del texto: se
- * pierde el matiz y no se rompe nada. */
+ * raíz de su tema siempre lleva `data-paleta`. */
 .pagina h1:not([data-paleta] *),
 .pagina h2:not([data-paleta] *),
 .pagina h3:not([data-paleta] *) {
-  font-family: var(--font-display);
-  letter-spacing: var(--tracking-titulo);
+  font-family: var(--font-marca);
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .pagina h1,
@@ -37,144 +38,87 @@
   margin: 0;
 }
 
-.barraContenido,
 .portadaContenido,
 .seccionContenido,
+.encontrarContenido,
 .tarjetaContenido,
 .cierreContenido {
-  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-sitio));
   margin: 0 auto;
 }
 
-/* ---- barra ---- */
+/* ---- botones del sitio ---- */
 
-.barra {
-  position: sticky;
-  z-index: 20;
-  top: 0;
-  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-3) 0;
-  background: color-mix(in srgb, var(--color-superficie) 90%, transparent);
-  backdrop-filter: blur(0.75rem);
-}
-
-.barraContenido {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-}
-
-.marca {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: var(--spacing-3);
-  color: var(--color-marca-fuerte);
-  text-decoration: none;
-}
-
-.isotipo {
-  width: auto;
-  height: var(--spacing-10);
-}
-
-/* El nombre se recorta antes que pisar a «Ingresar» si algún día falta lugar. */
-.nombreMarca {
-  display: grid;
-  min-width: 0;
-  overflow: hidden;
-  line-height: 1.05;
-}
-
-.nombreMarca strong {
-  overflow: hidden;
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.nombreMarca small {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-  font-weight: 700;
-}
-
-.enlaces {
-  display: none;
-  margin: 0 auto;
-  gap: var(--spacing-6);
-}
-
-.enlaces a {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.enlaces a:hover {
-  color: var(--color-marca-fuerte);
-  text-decoration: underline;
-  text-underline-offset: 0.25rem;
-}
-
-/* Con contorno: un texto suelto al lado de un nombre grande no se lee como algo
-   que se pueda tocar. Discreto frente al botón de acción, que es otra cosa. */
-.enlaceIngresar {
+.botonSol,
+.botonNoche,
+.botonContorno,
+.botonClaro {
   display: inline-flex;
   min-height: var(--control-alto);
   align-items: center;
-  margin-left: auto;
-  border: var(--borde-fino) solid var(--color-borde);
+  justify-content: center;
+  border: var(--borde-marcado) solid transparent;
   border-radius: var(--radius-status);
-  padding: var(--spacing-2) var(--spacing-4);
-  color: var(--color-marca-fuerte);
-  font-size: var(--text-sm);
-  font-weight: 800;
-  white-space: nowrap;
+  padding: var(--spacing-2) var(--spacing-6);
+  font-weight: 900;
   text-decoration: none;
 }
 
-.enlaceIngresar:hover {
-  border-color: var(--color-marca);
-  background: var(--color-marca-tenue);
+.botonSol {
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+}
+
+.botonNoche {
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+}
+
+.botonContorno {
+  border-color: color-mix(in srgb, var(--color-sitio-sobre-noche) 40%, transparent);
+  color: var(--color-sitio-sobre-noche);
+}
+
+.botonContorno:hover {
+  border-color: var(--color-sitio-sobre-noche);
+}
+
+.botonClaro {
+  background: var(--color-superficie);
+  color: var(--color-marca-fuerte);
 }
 
 /* ---- 1 · portada ---- */
 
 .portada {
   overflow: hidden;
-  padding: var(--spacing-10) 0 var(--spacing-12);
-  background: var(--color-superficie);
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
 }
 
 .portadaContenido {
   display: grid;
-  align-items: center;
-  gap: var(--spacing-10);
+  gap: var(--spacing-12);
+  padding: var(--spacing-12) 0 var(--spacing-14);
 }
 
 .discurso {
   display: grid;
+  align-content: center;
   justify-items: start;
   gap: var(--spacing-5);
   min-width: 0;
 }
 
 .discurso h1 {
-  max-width: 16ch;
-  color: var(--color-marca-fuerte);
+  max-width: 14ch;
   font-size: var(--text-3xl);
-  font-weight: 900;
-  line-height: 1.04;
+  line-height: 0.98;
 }
 
 .promesa {
-  max-width: 44ch;
-  color: var(--color-texto-suave);
+  max-width: 36ch;
+  color: color-mix(in srgb, var(--color-sitio-sobre-noche) 80%, transparent);
   font-size: var(--text-lg);
   line-height: 1.5;
 }
@@ -185,43 +129,15 @@
   gap: var(--spacing-3);
 }
 
-.botonPrincipal,
-.botonSecundario,
-.botonCierre,
-.botonTarjeta {
-  display: inline-flex;
-  min-height: var(--control-alto);
-  align-items: center;
-  justify-content: center;
-  border: var(--borde-marcado) solid var(--color-accion);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-6);
-  background: var(--color-accion);
-  color: var(--color-superficie);
-  font-size: var(--text-base);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.botonPrincipal {
-  box-shadow: var(--sombra-elevada);
-}
-
-.botonSecundario {
-  border-color: var(--color-borde);
-  background: transparent;
-  color: var(--color-marca-fuerte);
-}
-
-/* El precio de entrada debajo de la acción: responde la pregunta que frena el
-   toque sin competir con el botón. */
 .precioAncla {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
+  color: color-mix(in srgb, var(--color-sitio-sobre-noche) 80%, transparent);
 }
 
 .precioAncla strong {
-  color: var(--color-texto);
+  color: var(--color-sitio-sol);
+  font-family: var(--font-marca);
+  font-size: var(--text-2xl);
+  font-weight: 800;
 }
 
 .garantias {
@@ -233,29 +149,158 @@
 }
 
 .garantias li {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-2);
-  color: var(--color-texto-suave);
   font-size: var(--text-sm);
   font-weight: 700;
 }
 
-.garantias svg,
-.plan li svg,
-.planDestacado li svg {
-  flex-shrink: 0;
-  color: var(--color-exito);
+.garantias svg {
+  color: var(--color-sitio-sol);
 }
 
-/* ---- secciones ---- */
+/* El teléfono con dos avisos alrededor: lo que ve el cliente y lo que le llega
+   al dueño, en la misma escena. */
+.escena {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  padding: var(--spacing-6) 0;
+}
+
+.avisoPedido,
+.avisoBusqueda {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-3) var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  box-shadow: var(--sombra-flotante);
+}
+
+.avisoPedido {
+  top: var(--spacing-16);
+  left: 0;
+}
+
+.avisoBusqueda {
+  right: 0;
+  bottom: var(--spacing-16);
+}
+
+.avisoPedido > span:last-child,
+.avisoBusqueda > span:last-child {
+  display: grid;
+}
+
+.avisoPedido small,
+.avisoBusqueda small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.avisoIcono {
+  display: grid;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  place-items: center;
+  border-radius: var(--radius-status);
+  background: var(--color-exito);
+  color: var(--color-superficie);
+  font-size: var(--text-lg);
+}
+
+.avisoBusqueda .avisoIcono {
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+}
+
+/* La cinta de aguayo, al pie de la noche. */
+.cinta {
+  height: var(--spacing-2);
+  background: var(--aguayo);
+}
+
+/* ---- 2 · la cinta de rubros ---- */
+
+/* Dos copias iguales una detrás de otra, corridas la mitad del total: cuando
+   la primera termina de pasar, la segunda está exactamente donde empezó. */
+.rubros {
+  overflow: hidden;
+  padding: var(--spacing-4) 0;
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+}
+
+.pista {
+  display: flex;
+  width: max-content;
+  animation: cinta 60s linear infinite;
+}
+
+.rubros:hover .pista {
+  animation-play-state: paused;
+}
+
+.pista ul {
+  display: flex;
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-4);
+  list-style: none;
+}
+
+.pista li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-family: var(--font-marca);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.pista svg {
+  font-size: var(--text-xl);
+}
+
+@keyframes cinta {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Sin movimiento: la cinta se vuelve una lista que se desliza a mano. */
+@media (prefers-reduced-motion: reduce) {
+  .rubros {
+    overflow-x: auto;
+  }
+
+  .pista {
+    animation: none;
+  }
+
+  .pista ul[aria-hidden="true"] {
+    display: none;
+  }
+}
+
+/* ---- secciones claras ---- */
 
 .seccion,
 .seccionSuave {
-  padding: var(--spacing-12) 0;
+  padding: var(--spacing-14) 0;
 }
 
 .seccion {
+  background: var(--color-lienzo);
+}
+
+.seccionSuave {
   background: var(--color-superficie);
 }
 
@@ -267,46 +312,182 @@
 .encabezado {
   display: grid;
   gap: var(--spacing-2);
-  max-width: 42rem;
+  max-width: 40rem;
 }
 
-.encabezado h2 {
+.encabezado h2,
+.encabezadoNoche h2,
+.tarjetaTexto h2,
+.cierre h2 {
   font-size: var(--text-2xl);
-  font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.02;
+}
+
+/* La cabecera del sitio queda pegada arriba: sin este margen, los enlaces
+   «Precios» y «Verla» dejarían el título escondido debajo de ella. */
+.pagina h2[id] {
+  scroll-margin-top: var(--spacing-24);
 }
 
 .encabezado p {
   color: var(--color-texto-suave);
   font-size: var(--text-lg);
-  line-height: 1.5;
 }
 
-.nota {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-}
-
-.nota a {
-  color: var(--color-marca-fuerte);
-  font-weight: 800;
-  text-underline-offset: 0.2rem;
-}
-
-/* ---- 3 · pasos ---- */
+/* ---- 4 · los pasos, dibujados ---- */
 
 .pasos {
   display: grid;
-  gap: var(--spacing-5);
+  gap: var(--spacing-8);
   padding: 0;
   list-style: none;
 }
 
-.pasos li {
+.pasos > li {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-4);
+}
+
+/* El ejemplo de cada paso, sobre un fondo hundido del mismo alto en los tres:
+   se leen como tres cuadros de una historieta. */
+.ejemplo {
+  display: grid;
+  min-height: calc(var(--spacing-32) + var(--spacing-16));
+  place-items: center;
+  border-radius: var(--radius-sheet);
+  padding: var(--spacing-5);
+  background: var(--color-fondo-hundido);
+}
+
+/* 1 · La lista escrita en un papel, con el sello de que se carga sola. */
+.papel {
+  position: relative;
+  display: grid;
+  width: min(100%, 15rem);
+  gap: var(--spacing-2);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-4) var(--spacing-4) var(--spacing-6);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+  transform: rotate(-2deg);
+}
+
+.papel p {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  border-bottom: var(--borde-fino) dashed var(--color-borde);
+  padding-bottom: var(--spacing-1);
+  font-style: italic;
+  font-weight: 600;
+}
+
+.papel p span:last-child {
+  font-style: normal;
+  font-weight: 800;
+}
+
+.selloIa {
+  position: absolute;
+  right: calc(var(--spacing-3) * -1);
+  bottom: calc(var(--spacing-4) * -1);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--ia-degradado);
+  color: var(--color-ia-sobre);
+  font-size: var(--text-xs);
+  font-weight: 900;
+  transform: rotate(4deg);
+}
+
+/* 2 · El enlace y por dónde sale. */
+.compartir {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-4);
+  width: 100%;
+}
+
+.enlaceMuestra {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: var(--spacing-2);
+  overflow: hidden;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.canales {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-2);
+}
+
+.canales span {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-1);
+  width: var(--spacing-16);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) 0;
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.canales svg {
+  color: var(--color-sitio-sol);
+  font-size: var(--text-xl);
+}
+
+/* 3 · El pedido que llega, como se ve en el chat. */
+.chat {
+  display: grid;
+  width: min(100%, 16rem);
+  gap: var(--spacing-2);
+}
+
+.globo,
+.globoDueno {
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3) var(--spacing-4);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  box-shadow: var(--sombra-suave);
+}
+
+.globo {
+  justify-self: start;
+  border-top-left-radius: 0;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+
+.globoDueno {
+  justify-self: end;
+  border-top-right-radius: 0;
+  background: var(--color-exito-tenue);
+  color: var(--color-texto);
+  font-weight: 700;
+}
+
+.pasoTexto {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
-  gap: var(--spacing-4);
+  gap: var(--spacing-3);
 }
 
 .numero {
@@ -315,29 +496,289 @@
   height: var(--spacing-10);
   place-items: center;
   border-radius: var(--radius-status);
-  background: var(--color-marca);
-  color: var(--color-superficie);
-  font-family: var(--font-display);
-  font-size: var(--text-lg);
-  font-weight: 900;
-}
-
-.pasos h3 {
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sol);
+  font-family: var(--font-marca);
   font-size: var(--text-lg);
   font-weight: 800;
 }
 
+.pasos h3 {
+  font-size: var(--text-xl);
+  line-height: 1.1;
+}
+
 .pasos p {
-  margin-top: var(--spacing-1);
   color: var(--color-texto-suave);
+}
+
+.pasoTexto p {
+  margin-top: var(--spacing-1);
+}
+
+/* ---- 5 · el directorio ---- */
+
+.encontrar {
+  padding: var(--spacing-14) 0;
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+}
+
+.encontrarContenido {
+  display: grid;
+  justify-items: center;
+  gap: var(--spacing-6);
+  max-width: 48rem;
+  text-align: center;
+}
+
+.encabezadoNoche {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.encabezadoNoche p {
+  color: color-mix(in srgb, var(--color-sitio-sobre-noche) 80%, transparent);
+  font-size: var(--text-lg);
+}
+
+/* El buscador centra su texto con el resto de la sección; sus sugerencias no. */
+.encontrarContenido form {
+  text-align: left;
+}
+
+.atajos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: 0;
+  list-style: none;
+}
+
+.atajos a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid color-mix(in srgb, var(--color-sitio-sobre-noche) 28%, transparent);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-4);
+  color: var(--color-sitio-sobre-noche);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.atajos a:hover {
+  background: color-mix(in srgb, var(--color-sitio-sobre-noche) 12%, transparent);
+}
+
+.atajos svg {
+  color: var(--color-sitio-sol);
+}
+
+/* ---- 6 · precios ---- */
+
+.planes {
+  display: grid;
+  gap: var(--spacing-5);
+}
+
+.plan,
+.planDestacado {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-4);
+  border-radius: var(--radius-sheet);
+  padding: var(--spacing-8) var(--spacing-6);
+}
+
+.plan {
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  background: var(--color-superficie);
+}
+
+/* El destacado es de noche: el mismo fondo que la portada, para que se lea
+   como el plan de la casa sin necesitar otra sombra. */
+.planDestacado {
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+}
+
+.sello {
+  justify-self: start;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+  font-size: var(--text-xs);
+  font-weight: 900;
+}
+
+.plan h3,
+.planDestacado h3 {
+  font-size: var(--text-xl);
+}
+
+/* Los precios son contenido de primera clase (DESIGN.md §4). */
+.monto {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  font-family: var(--font-marca);
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.plan .monto {
+  color: var(--color-marca-fuerte);
+}
+
+.planDestacado .monto {
+  color: var(--color-sitio-sol);
+}
+
+.monto span {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: normal;
+}
+
+.plan .monto span,
+.plan .paraQuien {
+  color: var(--color-texto-suave);
+}
+
+.planDestacado .monto span,
+.planDestacado .paraQuien {
+  color: color-mix(in srgb, var(--color-sitio-sobre-noche) 80%, transparent);
+}
+
+.paraQuien {
   line-height: 1.5;
 }
 
-/* ---- 4 · la tarjeta de acrílico ---- */
+.plan ul,
+.planDestacado ul {
+  display: grid;
+  gap: var(--spacing-2);
+  padding: 0;
+  list-style: none;
+}
 
-/* El único bloque oscuro antes del cierre. El fondo es la marca llevada hacia
-   el texto: sigue siendo el teal de MiPuesto, y el par con la superficie es de
-   los que comprueba la guardia de contraste. */
+.plan li,
+.planDestacado li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--spacing-2);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.plan li svg,
+.planDestacado li svg {
+  margin-top: var(--spacing-1);
+}
+
+.plan li svg {
+  color: var(--color-exito);
+}
+
+.planDestacado li svg {
+  color: var(--color-sitio-sol);
+}
+
+.extras {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.extras h3 {
+  font-size: var(--text-lg);
+}
+
+.extras ul {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: 0;
+  list-style: none;
+}
+
+/* En el teléfono cada fila apila nombre, precio y enlace; en pantalla ancha van
+   en una línea, con el precio a la derecha como en una lista de precios, que es
+   exactamente lo que es. */
+.extras li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+.extraIcono {
+  display: grid;
+  width: var(--spacing-12);
+  height: var(--spacing-12);
+  place-items: center;
+  border-radius: var(--radius-control);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+  font-size: var(--text-xl);
+}
+
+.extras li > div {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.extras li > div p:last-child {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.extraNombre {
+  font-weight: 800;
+}
+
+.extraPrecio {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  color: var(--color-marca-fuerte);
+  font-family: var(--font-marca);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+}
+
+.extraPrecio span {
+  color: var(--color-texto-suave);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.extras li > a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-self: end;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-5);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+/* ---- 7 · la tarjeta de acrílico ---- */
+
 .seccionTarjeta {
   padding: var(--spacing-14) 0;
   background: var(--color-marca-fuerte);
@@ -357,23 +798,10 @@
   min-width: 0;
 }
 
-.tarjetaTexto h2 {
-  font-size: var(--text-2xl);
-  font-weight: 900;
-  line-height: 1.1;
-}
-
-.tarjetaPromesa {
-  max-width: 46ch;
-  color: color-mix(in srgb, var(--color-superficie) 88%, transparent);
-  font-size: var(--text-lg);
-  line-height: 1.5;
-}
-
 .tarjetaBeneficios {
   display: grid;
   gap: var(--spacing-4);
-  max-width: 46ch;
+  max-width: 44ch;
   padding: 0;
   list-style: none;
 }
@@ -408,9 +836,9 @@
 }
 
 .tarjetaPrecio strong {
-  font-family: var(--font-display);
+  font-family: var(--font-marca);
   font-size: var(--text-3xl);
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .tarjetaPrecio p:last-child {
@@ -418,18 +846,9 @@
   font-size: var(--text-sm);
 }
 
-/* Sobre el teal, el botón de acción va claro: el naranja sobre teal oscuro no
-   llega al contraste que pide un texto de botón. */
-.botonTarjeta {
-  border-color: var(--color-superficie);
-  background: var(--color-superficie);
-  color: var(--color-marca-fuerte);
-  box-shadow: var(--sombra-elevada);
-}
-
 /* La pieza dibujada: 12,5 × 17,5 cm son cinco por siete, y esa es la proporción
    de la placa. El acrílico se sugiere con un borde claro y un reflejo en
-   diagonal, no con una foto: así pesa nada y no hay que mantener una imagen. */
+   diagonal, no con una foto. */
 .acrilico {
   display: grid;
   justify-items: center;
@@ -533,8 +952,7 @@
 }
 
 /* Las estrellas rellenas: el ícono viene de contorno, y la propiedad de CSS le
-   gana al atributo del SVG. En el color de alerta —ámbar— porque es el que el
-   sistema ya tiene para el dorado de una calificación. */
+   gana al atributo del SVG. */
 .estrellas {
   display: flex;
   gap: 0;
@@ -577,204 +995,16 @@
   text-align: center;
 }
 
-/* ---- 5 · precios ---- */
-
-.planes {
-  display: grid;
-  gap: var(--spacing-5);
-}
-
-.plan,
-.planDestacado {
-  display: grid;
-  align-content: start;
-  gap: var(--spacing-4);
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-6);
-  background: var(--color-superficie);
-}
-
-/* El destacado se distingue por el borde de marca y el sello, no por una sombra
-   más: es el que trae la IA, y eso se dice con palabras. */
-.planDestacado {
-  border: var(--borde-marcado) solid var(--color-marca);
-  box-shadow: var(--sombra-tarjeta);
-}
-
-.sello {
-  justify-self: start;
-  border-radius: var(--radius-status);
-  padding: var(--spacing-1) var(--spacing-3);
-  background: var(--color-marca);
-  color: var(--color-superficie);
-  font-size: var(--text-xs);
-  font-weight: 800;
-}
-
-.plan h3,
-.planDestacado h3 {
-  font-size: var(--text-xl);
-  font-weight: 900;
-}
-
-/* Los precios son contenido de primera clase (DESIGN.md §4). */
-.monto {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-2);
-  color: var(--color-marca-fuerte);
-  font-family: var(--font-display);
-  font-size: var(--text-4xl);
-  font-weight: 900;
-  line-height: 1;
-}
-
-.monto span {
-  color: var(--color-texto-suave);
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  font-weight: 700;
-}
-
-.paraQuien {
-  color: var(--color-texto-suave);
-  line-height: 1.5;
-}
-
-.plan ul,
-.planDestacado ul {
-  display: grid;
-  gap: var(--spacing-2);
-  padding: 0;
-  list-style: none;
-}
-
-.plan li,
-.planDestacado li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--spacing-2);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-}
-
-.plan li svg,
-.planDestacado li svg {
-  margin-top: var(--spacing-1);
-}
-
-.botonPlan,
-.botonPlanFuerte {
-  display: inline-flex;
-  min-height: var(--control-alto);
-  align-items: center;
-  justify-content: center;
-  border: var(--borde-marcado) solid var(--color-borde);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-5);
-  color: var(--color-marca-fuerte);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.botonPlanFuerte {
-  border-color: var(--color-accion);
-  background: var(--color-accion);
-  color: var(--color-superficie);
-}
-
-.extras {
-  display: grid;
-  gap: var(--spacing-3);
-}
-
-.extras h3 {
-  font-size: var(--text-lg);
-  font-weight: 800;
-}
-
-.extras ul {
-  display: grid;
-  padding: 0;
-  list-style: none;
-  border-top: var(--borde-fino) solid var(--color-borde-suave);
-}
-
-/* En el teléfono cada fila apila nombre, precio y enlace; en pantalla ancha van
-   en una línea, con el precio alineado a la derecha como en una lista de
-   precios, que es exactamente lo que es. */
-.extras li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--spacing-2) var(--spacing-4);
-  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-4) 0;
-}
-
-.extras li > div {
-  display: grid;
-  grid-column: 1 / -1;
-  gap: var(--spacing-1);
-}
-
-.extras li > div p:last-child {
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-  line-height: 1.5;
-}
-
-.extraNombre {
-  font-weight: 800;
-}
-
-.extraPrecio {
-  display: flex;
-  align-items: baseline;
-  gap: var(--spacing-2);
-  color: var(--color-marca-fuerte);
-  font-family: var(--font-display);
-  font-size: var(--text-2xl);
-  font-weight: 900;
-}
-
-.extraPrecio span {
-  color: var(--color-texto-suave);
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  font-weight: 700;
-}
-
-.extras li > a {
-  display: inline-flex;
-  min-height: var(--control-alto);
-  align-items: center;
-  justify-self: end;
-  border: var(--borde-fino) solid var(--color-borde);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-5);
-  color: var(--color-marca-fuerte);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-/* ---- 6 · preguntas ---- */
+/* ---- 8 · preguntas ---- */
 
 .preguntas {
   display: grid;
-  gap: var(--spacing-2);
   max-width: 48rem;
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
 }
 
 .preguntas details {
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-control);
-  background: var(--color-superficie);
-}
-
-.preguntas details[open] {
-  border-color: var(--color-marca-suave);
+  border-bottom: var(--borde-fino) solid var(--color-borde-suave);
 }
 
 .preguntas summary {
@@ -783,7 +1013,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-4);
-  padding: var(--spacing-3) var(--spacing-5);
+  padding: var(--spacing-4) 0;
+  font-size: var(--text-lg);
   font-weight: 800;
   list-style: none;
   cursor: pointer;
@@ -794,11 +1025,17 @@
 }
 
 .preguntas summary::after {
+  display: grid;
   flex: 0 0 auto;
-  color: var(--color-marca-fuerte);
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  place-items: center;
+  border-radius: var(--radius-status);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
   content: "+";
-  font-size: var(--text-xl);
-  font-weight: 700;
+  font-size: var(--text-lg);
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -808,17 +1045,17 @@
 
 .preguntas p {
   max-width: var(--ancho-lectura);
-  padding: 0 var(--spacing-5) var(--spacing-5);
+  padding: 0 0 var(--spacing-5);
   color: var(--color-texto-suave);
   line-height: 1.6;
 }
 
-/* ---- 7 · cierre ---- */
+/* ---- 9 · cierre ---- */
 
 .cierre {
-  padding: var(--spacing-14) 0;
-  background: var(--color-texto);
-  color: var(--color-superficie);
+  padding: var(--spacing-16) 0;
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
 }
 
 .cierreContenido {
@@ -834,15 +1071,11 @@
 }
 
 .cierre h2 {
-  max-width: 20ch;
-  font-size: var(--text-2xl);
-  font-weight: 900;
-  line-height: 1.1;
+  max-width: 18ch;
 }
 
 .cierre p {
   max-width: 44ch;
-  color: color-mix(in srgb, var(--color-superficie) 80%, transparent);
   font-size: var(--text-lg);
   line-height: 1.5;
 }
@@ -855,37 +1088,38 @@
   position: sticky;
   z-index: 15;
   bottom: 0;
-  border-top: var(--borde-fino) solid var(--color-borde-suave);
-  padding: var(--spacing-3) 0 var(--spacing-4);
-  background: color-mix(in srgb, var(--color-superficie) 92%, transparent);
-  backdrop-filter: blur(0.75rem);
-}
-
-.botonFijo {
-  display: flex;
-  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
-  min-height: var(--control-alto);
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-6);
-  background: var(--color-accion);
-  color: var(--color-superficie);
-  font-weight: 800;
-  text-decoration: none;
-  box-shadow: var(--sombra-elevada);
+  display: grid;
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-4);
+  background: var(--color-sitio-noche);
 }
 
 /* ---- adaptación ---- */
 
 @media (min-width: 40rem) {
   .extras li {
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .extraPrecio {
+    grid-column: 2;
   }
 
-  .extras li > div {
-    grid-column: auto;
+  .extras li > a {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    justify-content: center;
+  }
+
+  /* En el teléfono, los avisos se apoyan sobre el borde del teléfono en vez de
+     taparle la mitad. */
+  .avisoPedido {
+    top: 0;
+  }
+
+  .avisoBusqueda {
+    bottom: 0;
   }
 }
 
@@ -895,6 +1129,7 @@
   }
 
   .encabezado h2,
+  .encabezadoNoche h2,
   .tarjetaTexto h2,
   .cierre h2 {
     font-size: var(--text-3xl);
@@ -902,43 +1137,23 @@
 
   .pasos {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--spacing-8);
+    gap: var(--spacing-6);
   }
 
   .planes {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: 56rem;
   }
-
-  .isotipo {
-    height: var(--spacing-12);
-  }
-
-  .nombreMarca strong {
-    font-size: var(--text-2xl);
-  }
 }
 
 @media (min-width: 64rem) {
-  .enlaces {
-    display: flex;
-  }
-
-  .enlaceIngresar {
-    margin-left: 0;
-  }
-
   .accionFija {
     display: none;
   }
 
-  .portada {
-    padding: var(--spacing-16) 0;
-  }
-
   .portadaContenido {
     grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-    gap: var(--spacing-12);
+    padding: var(--spacing-16) 0 var(--spacing-20);
   }
 
   .tarjetaContenido {

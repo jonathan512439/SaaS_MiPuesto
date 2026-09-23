@@ -36,8 +36,10 @@ export default async function PaginaCiudadRubro({ params, searchParams }: Propie
   const filtros = leerFiltrosDirectorio(await searchParams, { ciudad, rubro });
   return (
     <PantallaDirectorio
-      bajada={`Los catálogos de ${nombreDeRubroPublico(rubro)?.toLowerCase()} en ${nombreDeCiudad(ciudad)}. Abrí uno y pedí por WhatsApp.`}
+      bajada="Mirá su catálogo y pedí por WhatsApp"
       filtros={filtros}
+      rubroEnRuta
+      ruta={`/directorio/${ciudad}/${rubro}`}
       titulo={tituloDeDirectorio(filtros)}
     />
   );

@@ -1070,3 +1070,15 @@
 .catalogo[data-con-portada="si"] .cabecera {
   border-radius: 0;
 }
+
+/* Dentro de un teléfono dibujado —la portada del sitio lo muestra en un marco
+   de 20rem— las columnas no pueden seguir al ancho de la ventana: en un monitor
+   ponían seis tarjetas en trescientos píxeles. Quien dibuja el marco lo avisa
+   con `data-marco="telefono"`, y acá se vuelve a las columnas del teléfono. */
+:global([data-marco="telefono"]) .secciones .rejilla {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+:global([data-marco="telefono"]) .secciones[data-forma="fila"] .rejilla {
+  grid-template-columns: minmax(0, 1fr);
+}

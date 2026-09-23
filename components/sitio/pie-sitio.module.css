@@ -3,7 +3,7 @@
 .pie {
   display: grid;
   gap: var(--spacing-3);
-  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-sitio));
   margin: 0 auto;
   border-top: var(--borde-fino) solid var(--color-borde-suave);
   padding: var(--spacing-6) 0 var(--spacing-8);
@@ -93,6 +93,6 @@
 
 @media (max-width: 24rem) {
   .pie {
-    width: min(calc(100% - var(--spacing-6)), var(--ancho-panel));
+    width: min(calc(100% - var(--spacing-6)), var(--ancho-sitio));
   }
 }

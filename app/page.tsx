@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { BuscadorVivo } from "../components/directorio/buscador-vivo";
+import {
+  BUSQUEDAS_POPULARES,
+  EJEMPLOS_DE_BUSQUEDA,
+  ICONO_DE_RUBRO,
+} from "../components/directorio/iconos-rubro";
 import { Icono } from "../components/iconos/icono";
+import { IconoCatalogo } from "../components/iconos/icono-catalogo";
 import { MuestraPlantillas } from "../components/inicio/muestra-plantillas";
 import { VitrinaPortada } from "../components/inicio/vitrina-portada";
 import { Introduccion } from "../components/marca/introduccion";
 import { Isotipo } from "../components/marca/isotipo";
+import { CabeceraSitio } from "../components/sitio/cabecera-sitio";
 import { PieSitio } from "../components/sitio/pie-sitio";
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
+import { RUBROS_PUBLICOS } from "../lib/negocios/rubros-publicos";
 import { CARGA_INICIAL, PLANES, TARJETA_ACRILICO } from "../lib/planes";
 import { qrComoSvg } from "../lib/qr-svg";
 import { obtenerUrlBaseSitio } from "../lib/url-sitio";
@@ -18,91 +27,81 @@ export const metadata: Metadata = {
   description: `Catálogo propio para tu negocio, con pedidos que se cierran por WhatsApp. Desde Bs ${PRECIO_MENSUAL_BS} al mes y el primer mes gratis.`,
 };
 
-/* La portada es un embudo, no un folleto.
+/* La portada, contada con ejemplos y no con párrafos.
  *
- * La versión anterior explicaba todo: rubros, cifras, una sección entera de IA,
- * una tabla contra el catálogo de WhatsApp y otra del directorio. Cada bloque era
- * cierto y juntos eran once pantallas de teléfono antes de ver un precio. Quien
- * llega acá decide en segundos si sigue bajando, y lo que lo hace seguir no es
- * una característica más: es ver su propio negocio funcionando.
+ * Arriba la noche: qué es, cuánto cuesta y el catálogo funcionando en el
+ * teléfono, con el pedido que llega. Debajo, una cinta con los rubros que corre
+ * sola —quien pasa encuentra el suyo sin leer una lista—, la muestra que se
+ * toca, los tres pasos dibujados como lo que se ve en cada uno, el directorio
+ * con su buscador de verdad, los precios, la tarjeta y las dudas.
  *
- * El orden es el de la decisión: qué es y cuánto cuesta arriba del todo, la
- * prueba en vivo enseguida, cómo se arma, lo que ningún otro ofrece —la tarjeta
- * sobre la mesa—, el precio, y las dudas que quedan. Lo que salió no se perdió:
- * la comparación con WhatsApp y la IA se contestan en las preguntas, que es
- * donde las busca quien las tiene. */
+ * La paleta del sitio es la noche y el sol, con la cinta de aguayo como firma.
+ * La de MiPuesto —el teal— queda para el panel y la tarjeta de acrílico, que es
+ * una pieza de la marca sobre la mesa de un cliente. */
 
-const GARANTIAS = [
-  "Primer mes gratis",
-  "Sin comisión por venta",
-  "Tus clientes no instalan nada",
+const GARANTIAS = ["Primer mes gratis", "Sin comisión por venta", "Sin contrato"];
+
+/* Una secuencia de verdad: lo que pasa, en orden, hasta el primer pedido. */
+const PASOS = [
+  { titulo: "Sacale foto a tu lista", detalle: "O cargá producto por producto." },
+  { titulo: "Compartí tu enlace", detalle: "En tu estado, tus redes y tu mostrador." },
+  { titulo: "Recibí el pedido", detalle: "Con el detalle y el total, en tu WhatsApp." },
 ];
 
-/* Sí es una secuencia —es lo que pasa, en orden, desde que se escribe hasta que
-   llega el primer pedido—, así que los números están bien puestos. */
-const PASOS = [
-  {
-    titulo: "Cargás tus productos",
-    detalle: `Desde el celular, o nos mandás tu lista de precios y te lo dejamos cargado.`,
-  },
-  {
-    titulo: "Compartís tu enlace",
-    detalle: "En tu estado de WhatsApp, en tus redes, y con un QR en tu mostrador.",
-  },
-  {
-    titulo: "Te llegan los pedidos",
-    detalle: "Por WhatsApp, con el detalle y el total. Cobrás como cobrás hoy.",
-  },
+/* La lista escrita a mano que se vuelve catálogo: el ejemplo del primer paso. */
+const LISTA_A_MANO = [
+  { nombre: "Salteña de pollo", precio: 7 },
+  { nombre: "Api con pastel", precio: 10 },
+  { nombre: "Tucumana", precio: 6 },
 ];
 
 const PREGUNTAS = [
   {
     pregunta: "¿Mis clientes tienen que instalar algo?",
-    respuesta:
-      "No. Abren tu enlace en el navegador del celular, como cualquier página, y tampoco crean una cuenta.",
+    respuesta: "No. Abren tu enlace en el navegador del celular, sin crear cuenta.",
   },
   {
     pregunta: "¿Y el catálogo de WhatsApp Business, que es gratis?",
     respuesta:
-      "Sirve para pocos productos. MiPuesto te da una dirección propia, un QR, búsqueda entre cientos de productos, carrito con el total calculado y promociones con fecha. La venta se sigue cerrando en tu WhatsApp: no te sacamos de ahí, te damos la vidriera que le falta.",
+      "Sirve para pocos productos. Acá tenés dirección propia, QR, buscador, carrito con el total y promociones con fecha. La venta se sigue cerrando en tu WhatsApp.",
   },
   {
     pregunta: "¿Qué hacen las herramientas de IA?",
     respuesta:
-      "Le sacás una foto a tu lista de precios, escrita a mano o impresa, y sale separada producto por producto para que la revises antes de publicar. O elegís la foto de un producto y se completan el nombre y la descripción. El precio lo ponés siempre vos.",
+      "Le sacás foto a tu lista de precios y sale separada producto por producto para que la revises. O desde la foto de un producto se completan el nombre y la descripción. El precio lo ponés vos.",
   },
   {
     pregunta: "¿La tarjeta de acrílico incluye el catálogo?",
-    respuesta: `No. La tarjeta se paga una vez, Bs ${TARJETA_ACRILICO.precioBs} cada una, y trae su diseño, el QR y el NFC ya configurados. El catálogo es la suscripción mensual, aparte.`,
-  },
-  {
-    pregunta: "¿Cobran comisión por venta?",
-    respuesta:
-      "No. Pagás tu plan y nada más. Tus ventas las cobrás vos, por donde ya cobrás.",
+    respuesta: `No. La tarjeta se paga una vez, Bs ${TARJETA_ACRILICO.precioBs} cada una, con diseño, QR y NFC configurados. El catálogo es la suscripción mensual, aparte.`,
   },
   {
     pregunta: "¿Qué pasa si un mes no pago?",
     respuesta:
-      "Tu catálogo deja de verse, pero no se borra nada durante noventa días. Al reanudar vuelve tal cual estaba.",
+      "Tu catálogo deja de verse, pero no se borra nada durante noventa días. Al reanudar vuelve tal cual.",
   },
   {
-    pregunta: "¿Sirve si vendo servicios y no productos?",
-    respuesta:
-      "Sí. En vez de carrito, tus clientes reservan hora: barberías, consultorios, talleres.",
+    pregunta: "¿Sirve si vendo servicios?",
+    respuesta: "Sí. En vez de carrito, tus clientes reservan hora: barberías, consultorios, talleres.",
   },
 ];
 
+/* La cinta de rubros: el nombre corto, sin la segunda mitad («Pollería y
+   broaster» pasa a «Pollería»), que en una cinta que corre se lee de un vistazo. */
+const RUBROS_EN_CINTA = RUBROS_PUBLICOS.filter(({ id }) => id !== "otro").map(({ id, nombre }) => ({
+  id,
+  nombre: nombre.split(" y ")[0],
+  icono: ICONO_DE_RUBRO[id],
+}));
+
 export default function Inicio() {
-  const enlaceAlta = construirEnlaceContacto(
-    "Hola, quiero probar MiPuesto el primer mes gratis.",
-  );
+  const enlaceAlta = construirEnlaceContacto("Hola, quiero probar MiPuesto el primer mes gratis.");
   const enlaceTarjeta = construirEnlaceContacto(
     "Hola, quiero la tarjeta de acrílico con QR y NFC para mi negocio.",
   );
 
-  /* Un QR de verdad, no un dibujo: quien mira la portada en la computadora lo
-     escanea con el teléfono y termina recorriendo catálogos reales. Es la misma
-     jugada que hace la tarjeta en una mesa, hecha acá mismo. */
+  /* Un QR de verdad: quien mira la portada en la computadora lo escanea y
+     termina recorriendo catálogos reales, que es lo que hace la tarjeta en una
+     mesa. */
   const qrDirectorio = qrComoSvg(
     new URL("/directorio", obtenerUrlBaseSitio()).toString(),
     "Código QR que abre el directorio de catálogos de MiPuesto",
@@ -113,58 +112,29 @@ export default function Inicio() {
       {/* La marca se presenta antes de la portada, una vez por sesión. Va fuera
           del `main` para que nada de adentro pueda encerrar su posición fija. */}
       <Introduccion />
+      <CabeceraSitio actual="inicio" />
 
       <main className={styles.pagina}>
-        <header className={styles.barra}>
-          <div className={styles.barraContenido}>
-            <Link className={styles.marca} href="/">
-              <Isotipo className={styles.isotipo} />
-              <span className={styles.nombreMarca}>
-                <strong>MiPuesto</strong>
-                <small>Bolivia</small>
-              </span>
-            </Link>
-            <nav aria-label="Secciones de esta página" className={styles.enlaces}>
-              <a href="#asi-se-ve">Así se ve</a>
-              <a href="#tarjeta">Tarjeta con QR</a>
-              <a href="#precio">Precios</a>
-              <a href="#preguntas">Preguntas</a>
-            </nav>
-            {/* Las altas son por invitación, pero quien ya tiene su catálogo
-                necesita volver a entrar. «Probalo gratis» no va acá: está en la
-                portada, en el cierre y fijo al pie en el teléfono. */}
-            <Link className={styles.enlaceIngresar} href="/login">
-              Ingresar
-            </Link>
-          </div>
-        </header>
-
-        {/* 1 · Qué es y cuánto cuesta, en la primera pantalla. */}
+        {/* 1 · Qué es y cuánto cuesta, con el catálogo funcionando al lado. */}
         <section className={styles.portada}>
           <div className={styles.portadaContenido}>
             <div className={styles.discurso}>
               <h1>Tu negocio, abierto en el celular de tus clientes</h1>
               <p className={styles.promesa}>
-                Un catálogo con tus productos y precios, un enlace para compartir y pedidos
-                que te llegan por WhatsApp.
+                Tus productos con foto y precio. Te eligen, y el pedido te llega por WhatsApp.
               </p>
               <div className={styles.acciones}>
-                <a
-                  className={styles.botonPrincipal}
-                  href={enlaceAlta}
-                  rel="noreferrer"
-                  target="_blank"
-                >
+                <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
                   Probalo gratis un mes
                 </a>
-                <a className={styles.botonSecundario} href="#asi-se-ve">
-                  Ver cómo queda
-                </a>
+                <Link className={styles.botonContorno} href="/directorio">
+                  Ver negocios reales
+                </Link>
               </div>
               {/* El precio arriba y no escondido al final: quien no lo encuentra
-                  supone que es caro y se va a buscarlo a otra parte. */}
+                  supone que es caro y se va. */}
               <p className={styles.precioAncla}>
-                Después, desde <strong>Bs {PRECIO_MENSUAL_BS} al mes</strong>. Sin contrato.
+                Desde <strong>Bs {PRECIO_MENSUAL_BS}</strong> al mes
               </p>
               <ul className={styles.garantias}>
                 {GARANTIAS.map((garantia) => (
@@ -175,45 +145,134 @@ export default function Inicio() {
                 ))}
               </ul>
             </div>
-            <VitrinaPortada />
+
+            <div className={styles.escena}>
+              <VitrinaPortada />
+              {/* Lo que le pasa al dueño mientras el cliente mira: dos avisos de
+                  ejemplo, flotando junto al teléfono. Son decorado: lo mismo
+                  está dicho en texto en los pasos. */}
+              <div aria-hidden="true" className={styles.avisoPedido}>
+                <span className={styles.avisoIcono}>
+                  <Icono nombre="carrito" />
+                </span>
+                <span>
+                  <strong>Nuevo pedido</strong>
+                  <small>2 salteñas y 1 api, Bs 24</small>
+                </span>
+              </div>
+              <div aria-hidden="true" className={styles.avisoBusqueda}>
+                <span className={styles.avisoIcono}>
+                  <Icono nombre="lupa" />
+                </span>
+                <span>
+                  <strong>Te encontraron</strong>
+                  <small>buscando «salteñas»</small>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div aria-hidden="true" className={styles.cinta} />
+        </section>
+
+        {/* 2 · Para quién es, sin decirlo: los rubros pasando. La segunda copia
+            es la que hace que la cinta no tenga fin, y no se lee dos veces. */}
+        <section aria-label="Rubros que ya pueden tener su catálogo" className={styles.rubros}>
+          <div className={styles.pista}>
+            <ul>
+              {RUBROS_EN_CINTA.map(({ id, nombre, icono }) => (
+                <li key={id}>
+                  <IconoCatalogo nombre={icono} />
+                  {nombre}
+                </li>
+              ))}
+            </ul>
+            <ul aria-hidden="true">
+              {RUBROS_EN_CINTA.map(({ id, nombre, icono }) => (
+                <li key={id}>
+                  <IconoCatalogo nombre={icono} />
+                  {nombre}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 
-        {/* 2 · La prueba: el catálogo de verdad, con el rubro de quien mira. */}
+        {/* 3 · La prueba: el catálogo de verdad, con el rubro de quien mira. */}
         <section aria-labelledby="asi-se-ve" className={styles.seccion}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
               <h2 id="asi-se-ve">Así lo ve tu cliente</h2>
-              <p>
-                Elegí tu rubro y probalo. No es una captura: es el mismo catálogo que va a
-                recibir quien te compra.
-              </p>
+              <p>Tocá tu rubro. No es una captura: es el catálogo de verdad.</p>
             </div>
             <MuestraPlantillas />
-            <p className={styles.nota}>
-              ¿Preferís ver negocios reales?{" "}
-              <Link href="/directorio">Abrí el directorio de catálogos</Link>.
-            </p>
           </div>
         </section>
 
-        {/* 3 · Cómo se arma. Corto: la duda acá es «¿me va a costar?», y la
-            respuesta es tres renglones. */}
+        {/* 4 · Cómo se arma, con lo que se ve en cada paso en vez de explicarlo. */}
         <section aria-labelledby="como-funciona" className={styles.seccionSuave}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
               <h2 id="como-funciona">Listo en una tarde</h2>
-              <p>No hace falta saber de computación. Si mandás fotos por WhatsApp, podés.</p>
             </div>
             <ol className={styles.pasos}>
               {PASOS.map(({ titulo, detalle }, indice) => (
                 <li key={titulo}>
-                  <span aria-hidden="true" className={styles.numero}>
-                    {indice + 1}
-                  </span>
-                  <div>
-                    <h3>{titulo}</h3>
-                    <p>{detalle}</p>
+                  <div aria-hidden="true" className={styles.ejemplo}>
+                    {indice === 0 ? (
+                      <div className={styles.papel}>
+                        {LISTA_A_MANO.map(({ nombre, precio }) => (
+                          <p key={nombre}>
+                            <span>{nombre}</span>
+                            <span>{precio}</span>
+                          </p>
+                        ))}
+                        <span className={styles.selloIa}>
+                          <Icono nombre="rayo" />
+                          Se carga sola
+                        </span>
+                      </div>
+                    ) : indice === 1 ? (
+                      <div className={styles.compartir}>
+                        <p className={styles.enlaceMuestra}>
+                          <Icono nombre="enlace" />
+                          mipuesto.com/dona-rosa
+                        </p>
+                        <div className={styles.canales}>
+                          <span>
+                            <Icono nombre="codigoQr" />
+                            QR
+                          </span>
+                          <span>
+                            <Icono nombre="telefono" />
+                            Estado
+                          </span>
+                          <span>
+                            <Icono nombre="mundo" />
+                            Redes
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={styles.chat}>
+                        <p className={styles.globo}>
+                          Hola, quiero:
+                          <br />2 × Salteña de pollo, Bs 14
+                          <br />1 × Api con pastel, Bs 10
+                          <br />
+                          <strong>Total: Bs 24</strong>
+                        </p>
+                        <p className={styles.globoDueno}>¡Listo, en 20 minutos!</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.pasoTexto}>
+                    <span aria-hidden="true" className={styles.numero}>
+                      {indice + 1}
+                    </span>
+                    <div>
+                      <h3>{titulo}</h3>
+                      <p>{detalle}</p>
+                    </div>
                   </div>
                 </li>
               ))}
@@ -221,37 +280,134 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 4 · La tarjeta. Es el único lugar audaz de la página —fondo de
-            marca, pieza dibujada— porque es lo único que nadie más ofrece: el
-            catálogo sale del teléfono y se sienta en la mesa. */}
+        {/* 5 · El directorio, con su buscador de verdad: se prueba acá mismo. */}
+        <section aria-labelledby="te-encuentran" className={styles.encontrar}>
+          <div className={styles.encontrarContenido}>
+            <div className={styles.encabezadoNoche}>
+              <h2 id="te-encuentran">Y te encuentran por lo que vendés</h2>
+              <p>Todos los catálogos aparecen en el directorio. Probá buscar algo:</p>
+            </div>
+            <BuscadorVivo ejemplos={EJEMPLOS_DE_BUSQUEDA} tamano="grande" />
+            <ul className={styles.atajos}>
+              {BUSQUEDAS_POPULARES.map(({ texto, icono }) => (
+                <li key={texto}>
+                  <Link href={`/directorio?q=${encodeURIComponent(texto)}`}>
+                    <IconoCatalogo nombre={icono} />
+                    {texto}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* 6 · El precio. Dos planes y, aparte, lo que se paga una sola vez. */}
+        <section aria-labelledby="precio" className={styles.seccion}>
+          <div className={styles.seccionContenido}>
+            <div className={styles.encabezado}>
+              <h2 id="precio">Precios claros, en bolivianos</h2>
+              <p>El primer mes es gratis en los dos planes. Se paga mes a mes.</p>
+            </div>
+
+            <div className={styles.planes}>
+              {PLANES.map((plan) => (
+                <article className={plan.destacado ? styles.planDestacado : styles.plan} key={plan.id}>
+                  {plan.destacado ? <p className={styles.sello}>Con IA</p> : null}
+                  <h3>{plan.nombre}</h3>
+                  <p className={styles.monto}>
+                    Bs {plan.precioBs}
+                    <span>al mes</span>
+                  </p>
+                  <p className={styles.paraQuien}>{plan.para}</p>
+                  <ul>
+                    {plan.incluye.map((item) => (
+                      <li key={item}>
+                        <Icono nombre="listo" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    className={plan.destacado ? styles.botonSol : styles.botonNoche}
+                    href={construirEnlaceContacto(`Hola, quiero probar el plan ${plan.nombre} de MiPuesto.`)}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Empezar con este
+                  </a>
+                </article>
+              ))}
+            </div>
+
+            {/* Filas y no tarjetas: se pagan una vez, y presentarlos como un
+                tercer y cuarto plan obligaría a comparar cuatro cuando la
+                decisión es entre dos. */}
+            <div className={styles.extras}>
+              <h3>Aparte, y una sola vez</h3>
+              <ul>
+                <li>
+                  <span className={styles.extraIcono}>
+                    <Icono nombre="documento" />
+                  </span>
+                  <div>
+                    <p className={styles.extraNombre}>Te cargamos el catálogo</p>
+                    <p>Nos mandás tu lista, hasta {CARGA_INICIAL.productosMaximos} productos.</p>
+                  </div>
+                  <p className={styles.extraPrecio}>
+                    Bs {CARGA_INICIAL.precioBs}
+                    <span>pago único</span>
+                  </p>
+                  <a
+                    href={construirEnlaceContacto(
+                      "Hola, quiero que me carguen el catálogo con mi lista de precios.",
+                    )}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Pedirlo
+                  </a>
+                </li>
+                <li>
+                  <span className={styles.extraIcono}>
+                    <Icono nombre="nfc" />
+                  </span>
+                  <div>
+                    <p className={styles.extraNombre}>Tarjeta de acrílico con QR y NFC</p>
+                    <p>Con tu diseño. {TARJETA_ACRILICO.medidas}.</p>
+                  </div>
+                  <p className={styles.extraPrecio}>
+                    Bs {TARJETA_ACRILICO.precioBs}
+                    <span>por tarjeta</span>
+                  </p>
+                  <a href="#tarjeta">Verla</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* 7 · La tarjeta: el catálogo sale del teléfono y se sienta en la mesa. */}
         <section aria-labelledby="tarjeta" className={styles.seccionTarjeta}>
           <div className={styles.tarjetaContenido}>
             <div className={styles.tarjetaTexto}>
               <h2 id="tarjeta">Tu catálogo, sobre la mesa</h2>
-              <p className={styles.tarjetaPromesa}>
-                Una tarjeta de acrílico con el diseño de tu negocio. Tu cliente escanea el QR
-                o acerca el celular, abre tu catálogo y, desde ahí, te califica en Google
-                Maps.
-              </p>
               <ul className={styles.tarjetaBeneficios}>
                 <li>
                   <Icono nombre="codigoQr" />
                   <span>
-                    <strong>QR y NFC</strong> que abren tu catálogo sin escribir nada.
+                    <strong>Escanean o acercan el celular</strong> y abren tu catálogo.
                   </span>
                 </li>
                 <li>
-                  <Icono nombre="mapa" />
+                  <Icono nombre="estrella" />
                   <span>
-                    <strong>Más calificaciones en Google Maps.</strong> Cuantas más tenés,
-                    más arriba aparecés cuando alguien busca cerca.
+                    <strong>Te califican en Google Maps</strong> y aparecés más arriba.
                   </span>
                 </li>
                 <li>
                   <Icono nombre="paleta" />
                   <span>
-                    <strong>Diseño hecho para tu negocio</strong>, con tu nombre, tu logo y
-                    tus colores. Lo configuramos nosotros.
+                    <strong>Con tu logo y tus colores.</strong> La configuramos nosotros.
                   </span>
                 </li>
               </ul>
@@ -261,12 +417,7 @@ export default function Inicio() {
                 </p>
                 <p>{TARJETA_ACRILICO.medidas}. No incluye el mes del catálogo.</p>
               </div>
-              <a
-                className={styles.botonTarjeta}
-                href={enlaceTarjeta}
-                rel="noreferrer"
-                target="_blank"
-              >
+              <a className={styles.botonClaro} href={enlaceTarjeta} rel="noreferrer" target="_blank">
                 Quiero mi tarjeta
               </a>
             </div>
@@ -278,13 +429,9 @@ export default function Inicio() {
                 <div className={styles.impreso}>
                   <p className={styles.impresoNegocio}>Tu negocio</p>
                   <p className={styles.impresoLlamada}>Mirá nuestro catálogo</p>
-                  <div
-                    className={styles.impresoQr}
-                    dangerouslySetInnerHTML={{ __html: qrDirectorio }}
-                  />
+                  <div className={styles.impresoQr} dangerouslySetInnerHTML={{ __html: qrDirectorio }} />
                   <p className={styles.impresoNfc}>
-                    <Icono nombre="nfc" />
-                    o acercá tu celular
+                    <Icono nombre="nfc" />o acercá tu celular
                   </p>
                   <div className={styles.impresoGoogle}>
                     <Icono nombre="mapa" />
@@ -306,108 +453,12 @@ export default function Inicio() {
                 </div>
               </div>
               <div aria-hidden="true" className={styles.acrilicoBase} />
-              <figcaption>
-                Escaneá este QR con tu celular: abre catálogos de negocios reales.
-              </figcaption>
+              <figcaption>Escaneá este QR: abre catálogos de negocios reales.</figcaption>
             </figure>
           </div>
         </section>
 
-        {/* 5 · El precio. Dos planes y, aparte, lo que se paga una sola vez. */}
-        <section aria-labelledby="precio" className={styles.seccion}>
-          <div className={styles.seccionContenido}>
-            <div className={styles.encabezado}>
-              <h2 id="precio">Precios claros, en bolivianos</h2>
-              <p>
-                El primer mes es gratis en los dos planes. Sin contrato y sin comisión por
-                venta: se paga mes a mes.
-              </p>
-            </div>
-
-            <div className={styles.planes}>
-              {PLANES.map((plan) => (
-                <article
-                  className={plan.destacado ? styles.planDestacado : styles.plan}
-                  key={plan.id}
-                >
-                  {plan.destacado ? <p className={styles.sello}>Con IA</p> : null}
-                  <h3>{plan.nombre}</h3>
-                  <p className={styles.monto}>
-                    Bs {plan.precioBs}
-                    <span>al mes</span>
-                  </p>
-                  <p className={styles.paraQuien}>{plan.para}</p>
-                  <ul>
-                    {plan.incluye.map((item) => (
-                      <li key={item}>
-                        <Icono nombre="listo" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <a
-                    className={plan.destacado ? styles.botonPlanFuerte : styles.botonPlan}
-                    href={construirEnlaceContacto(
-                      `Hola, quiero probar el plan ${plan.nombre} de MiPuesto.`,
-                    )}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    Empezar con este
-                  </a>
-                </article>
-              ))}
-            </div>
-
-            {/* Filas y no tarjetas: son otra cosa —se pagan una vez— y
-                presentarlos como un tercer y cuarto plan obligaría a comparar
-                cuatro cuando la decisión es entre dos. */}
-            <div className={styles.extras}>
-              <h3>Aparte, y una sola vez</h3>
-              <ul>
-                <li>
-                  <div>
-                    <p className={styles.extraNombre}>Te cargamos el catálogo</p>
-                    <p>
-                      Nos mandás tu lista de precios y te lo entregamos ordenado, hasta{" "}
-                      {CARGA_INICIAL.productosMaximos} productos.
-                    </p>
-                  </div>
-                  <p className={styles.extraPrecio}>
-                    Bs {CARGA_INICIAL.precioBs}
-                    <span>pago único</span>
-                  </p>
-                  <a
-                    href={construirEnlaceContacto(
-                      "Hola, quiero que me carguen el catálogo con mi lista de precios.",
-                    )}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    Pedirlo
-                  </a>
-                </li>
-                <li>
-                  <div>
-                    <p className={styles.extraNombre}>Tarjeta de acrílico con QR y NFC</p>
-                    <p>
-                      Diseño para tu negocio y configuración incluidos. {TARJETA_ACRILICO.medidas}.
-                    </p>
-                  </div>
-                  <p className={styles.extraPrecio}>
-                    Bs {TARJETA_ACRILICO.precioBs}
-                    <span>por tarjeta</span>
-                  </p>
-                  <a href={enlaceTarjeta} rel="noreferrer" target="_blank">
-                    Pedirla
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* 6 · Las dudas que quedan, donde las busca quien las tiene. */}
+        {/* 8 · Las dudas que quedan, donde las busca quien las tiene. */}
         <section aria-labelledby="preguntas" className={styles.seccionSuave}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
@@ -424,20 +475,20 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 7 · El cierre, con la misma acción que la portada. */}
+        {/* 9 · El cierre, con la misma acción que la portada. */}
         <section aria-labelledby="cierre" className={styles.cierre}>
           <div className={styles.cierreContenido}>
             <Isotipo className={styles.isotipoCierre} titulo="MiPuesto" />
             <h2 id="cierre">Tu primer mes corre por nuestra cuenta</h2>
-            <p>Escribinos por WhatsApp y lo armamos juntos. Si no te convence, no pagás nada.</p>
-            <a className={styles.botonCierre} href={enlaceAlta} rel="noreferrer" target="_blank">
+            <p>Escribinos y lo armamos juntos. Si no te convence, no pagás nada.</p>
+            <a className={styles.botonNoche} href={enlaceAlta} rel="noreferrer" target="_blank">
               Probalo gratis un mes
             </a>
           </div>
         </section>
 
         <div className={styles.accionFija}>
-          <a className={styles.botonFijo} href={enlaceAlta} rel="noreferrer" target="_blank">
+          <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
             Probalo gratis un mes
           </a>
         </div>

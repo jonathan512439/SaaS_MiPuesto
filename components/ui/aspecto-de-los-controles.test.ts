@@ -38,6 +38,11 @@ const FUERA_DEL_PANEL = [
   "selector-de-turno",
   "inicio",
   "muestra-plantillas",
+  /* El sitio público —la cabecera y el directorio— tiene su propia paleta, la
+     noche y el sol, y lo recorre un comprador, no el dueño en su panel. Sus
+     botones no tienen por qué parecerse a los del panel. */
+  "components/sitio/",
+  "components/directorio/",
 ];
 
 const ASPECTOS = ["--control-principal", "--control-segundo", "--control-peligro"];

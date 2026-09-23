@@ -1,0 +1,125 @@
+@reference "../../app/globals.css";
+
+.cabecera {
+  position: sticky;
+  z-index: 30;
+  top: 0;
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+}
+
+.contenido {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-sitio));
+  min-height: var(--spacing-16);
+  margin: 0 auto;
+}
+
+.marca {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-sitio-sobre-noche);
+  font-family: var(--font-marca);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.isotipo {
+  width: auto;
+  height: var(--spacing-8);
+}
+
+.enlaces {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-left: auto;
+}
+
+/* El directorio es el enlace que más se ve: pastilla del sol, con lo que se
+   hace ahí debajo del nombre. */
+.directorio {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-4) var(--spacing-1) var(--spacing-3);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+  text-decoration: none;
+}
+
+.directorio span {
+  display: grid;
+  line-height: 1.1;
+}
+
+.directorio strong {
+  font-size: var(--text-sm);
+  font-weight: 900;
+}
+
+.directorio small {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.directorio[aria-current="page"] {
+  box-shadow: 0 0 0 var(--borde-marcado) var(--color-sitio-sobre-noche);
+}
+
+.secundario,
+.ingresar {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-3);
+  color: var(--color-sitio-sobre-noche);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ingresar {
+  border: var(--borde-fino) solid color-mix(in srgb, var(--color-sitio-sobre-noche) 45%, transparent);
+}
+
+/* «Precios» cede el lugar en el teléfono: el directorio y la entrada son lo
+   que no puede faltar. */
+.secundario {
+  display: none;
+}
+
+.cinta {
+  height: var(--spacing-1);
+  background: var(--aguayo);
+}
+
+@media (min-width: 40rem) {
+  .secundario {
+    display: inline-flex;
+  }
+}
+
+/* En un teléfono angosto, la pastilla dice solo «Directorio» con su lupa: la
+   segunda línea partida en dos empujaba «Ingresar» fuera del borde. */
+@media (max-width: 27rem) {
+  .directorio small {
+    display: none;
+  }
+}
+
+@media (max-width: 24rem) {
+  .marca span {
+    display: none;
+  }
+}
