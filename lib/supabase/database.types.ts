@@ -466,13 +466,13 @@ export type Database = {
           admin_user_id: string
           alta_completada_en: string | null
           alta_paso: number
+          aparece_en_directorio: boolean | null
           banners: Json
-          forma_tarjeta: string
-          portada_texto: Json
           ciudad: string | null
           creado_en: string
           descripcion: string | null
           direccion_manual: string | null
+          forma_tarjeta: string
           foto_ia_habilitada: boolean
           foto_ia_habilitada_en: string | null
           horario: Json
@@ -492,6 +492,7 @@ export type Database = {
           patron_opacidad: number
           pide_numero_mesa: boolean
           plan_id: string
+          portada_texto: Json
           portada_url: string | null
           qr_pago_url: string | null
           redes_sociales: Json
@@ -499,15 +500,21 @@ export type Database = {
           reserva_minutos: number
           rubro: string | null
           rubro_bloqueado_en: string | null
+          rubro_publico: string | null
+          rubros_secundarios: string[]
           slug: string
           subnombre: string | null
           suscripcion_vence_en: string
           suspendido_en: string | null
           telefono_whatsapp: string
           tipo_negocio: string
+          ubicacion_lat: number | null
+          ubicacion_lng: number | null
           ubicacion_url: string | null
           verificado: boolean
           zona: string | null
+          zona_id: string | null
+          zona_propuesta: string | null
         }
         Insert: {
           activo?: boolean
@@ -517,13 +524,13 @@ export type Database = {
           admin_user_id: string
           alta_completada_en?: string | null
           alta_paso?: number
+          aparece_en_directorio?: boolean | null
           banners?: Json
-          forma_tarjeta?: string
-          portada_texto?: Json
           ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
           direccion_manual?: string | null
+          forma_tarjeta?: string
           foto_ia_habilitada?: boolean
           foto_ia_habilitada_en?: string | null
           horario?: Json
@@ -543,6 +550,7 @@ export type Database = {
           patron_opacidad?: number
           pide_numero_mesa?: boolean
           plan_id?: string
+          portada_texto?: Json
           portada_url?: string | null
           qr_pago_url?: string | null
           redes_sociales?: Json
@@ -550,15 +558,21 @@ export type Database = {
           reserva_minutos?: number
           rubro?: string | null
           rubro_bloqueado_en?: string | null
+          rubro_publico?: string | null
+          rubros_secundarios?: string[]
           slug: string
           subnombre?: string | null
           suscripcion_vence_en?: string
           suspendido_en?: string | null
           telefono_whatsapp: string
           tipo_negocio: string
+          ubicacion_lat?: number | null
+          ubicacion_lng?: number | null
           ubicacion_url?: string | null
           verificado?: boolean
           zona?: string | null
+          zona_id?: string | null
+          zona_propuesta?: string | null
         }
         Update: {
           activo?: boolean
@@ -568,13 +582,13 @@ export type Database = {
           admin_user_id?: string
           alta_completada_en?: string | null
           alta_paso?: number
+          aparece_en_directorio?: boolean | null
           banners?: Json
-          forma_tarjeta?: string
-          portada_texto?: Json
           ciudad?: string | null
           creado_en?: string
           descripcion?: string | null
           direccion_manual?: string | null
+          forma_tarjeta?: string
           foto_ia_habilitada?: boolean
           foto_ia_habilitada_en?: string | null
           horario?: Json
@@ -594,6 +608,7 @@ export type Database = {
           patron_opacidad?: number
           pide_numero_mesa?: boolean
           plan_id?: string
+          portada_texto?: Json
           portada_url?: string | null
           qr_pago_url?: string | null
           redes_sociales?: Json
@@ -601,17 +616,31 @@ export type Database = {
           reserva_minutos?: number
           rubro?: string | null
           rubro_bloqueado_en?: string | null
+          rubro_publico?: string | null
+          rubros_secundarios?: string[]
           slug?: string
           subnombre?: string | null
           suscripcion_vence_en?: string
           suspendido_en?: string | null
           telefono_whatsapp?: string
           tipo_negocio?: string
+          ubicacion_lat?: number | null
+          ubicacion_lng?: number | null
           ubicacion_url?: string | null
           verificado?: boolean
           zona?: string | null
+          zona_id?: string | null
+          zona_propuesta?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "negocios_zona_id_fkey"
+            columns: ["zona_id"]
+            isOneToOne: false
+            referencedRelation: "zonas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pedido_items: {
         Row: {
@@ -1116,11 +1145,45 @@ export type Database = {
         }
         Relationships: []
       }
+      zonas: {
+        Row: {
+          activa: boolean
+          ciudad: string
+          creado_en: string
+          id: string
+          latitud: number
+          longitud: number
+          nombre: string
+        }
+        Insert: {
+          activa?: boolean
+          ciudad: string
+          creado_en?: string
+          id?: string
+          latitud: number
+          longitud: number
+          nombre: string
+        }
+        Update: {
+          activa?: boolean
+          ciudad?: string
+          creado_en?: string
+          id?: string
+          latitud?: number
+          longitud?: number
+          nombre?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_asignar_zona: {
+        Args: { p_negocio_id: string; p_zona_id: string }
+        Returns: Json
+      }
       admin_cambiar_foto_ia: {
         Args: { p_cupo?: number; p_habilitada: boolean; p_negocio_id: string }
         Returns: Json
@@ -1163,10 +1226,7 @@ export type Database = {
         Returns: Json
       }
       contar_intento_publico: {
-        Args: {
-          p_huella_ip: string
-          p_negocio_id: string
-        }
+        Args: { p_huella_ip: string; p_negocio_id: string }
         Returns: number
       }
       crear_pedido_reservado: {

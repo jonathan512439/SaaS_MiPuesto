@@ -28,8 +28,6 @@ describe("validación del perfil de negocio", () => {
         telefono_whatsapp: "59171234567",
         rubro: null,
         pide_numero_mesa: false,
-        ciudad: null,
-        zona: null,
       },
     });
   });
@@ -134,7 +132,10 @@ describe("rubro del negocio", () => {
   });
 });
 
-describe("ciudad y zona", () => {
+/* Desde la fase 11 la ciudad y la zona las guarda «Qué vendés y dónde». El
+   perfil no las toca, y esto lo fija: si volviera a devolverlas, guardar el
+   teléfono borraría la ciudad del negocio. */
+describe("el perfil no toca la ciudad ni la zona", () => {
   const base = {
     nombre: "Café Illimani",
     slug: "cafe-illimani",
@@ -143,24 +144,12 @@ describe("ciudad y zona", () => {
     telefono_whatsapp: "71234567",
   };
 
-  it("guarda la ciudad de la lista y la zona libre", () => {
-    const resultado = validarDatosNegocio({
-      ...base,
-      ciudad: "cochabamba",
-      zona: " Cala Cala ",
-    });
-    expect(resultado.correcto && resultado.datos.ciudad).toBe("cochabamba");
-    expect(resultado.correcto && resultado.datos.zona).toBe("Cala Cala");
-  });
-
-  it("rechaza una ciudad fuera de la lista", () => {
-    const resultado = validarDatosNegocio({ ...base, ciudad: "beni" });
-    expect(resultado.correcto).toBe(false);
-  });
-
-  it("trata el vacío como no informado", () => {
-    const resultado = validarDatosNegocio({ ...base, ciudad: "", zona: "" });
-    expect(resultado.correcto && resultado.datos.ciudad).toBe(null);
-    expect(resultado.correcto && resultado.datos.zona).toBe(null);
+  it("no las devuelve aunque lleguen", () => {
+    const resultado = validarDatosNegocio({ ...base, ciudad: "oruro", zona: "Centro" });
+    expect(resultado.correcto).toBe(true);
+    if (resultado.correcto) {
+      expect("ciudad" in resultado.datos).toBe(false);
+      expect("zona" in resultado.datos).toBe(false);
+    }
   });
 });

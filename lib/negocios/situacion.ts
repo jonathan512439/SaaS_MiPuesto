@@ -15,7 +15,7 @@ import type { SituacionDelNegocio } from "./alta";
  * otra. Esa clase de desacuerdo no se ve en las pruebas de ninguno de los dos.
  */
 const COLUMNAS =
-  "id,nombre,slug,activo,foto_ia_habilitada,plan_id,nombre_admin,rubro,telefono_whatsapp,logo_url,alta_paso,alta_completada_en";
+  "id,nombre,slug,activo,foto_ia_habilitada,plan_id,nombre_admin,rubro,aparece_en_directorio,telefono_whatsapp,logo_url,alta_paso,alta_completada_en";
 
 export type NegocioEnSituacion = {
   id: string;
@@ -77,6 +77,7 @@ export async function leerSituacionDelNegocio(
       nombre: negocio.nombre,
       slug: negocio.slug,
       rubro: negocio.rubro,
+      apareceEnDirectorio: negocio.aparece_en_directorio,
       telefonoWhatsapp: negocio.telefono_whatsapp,
       logoUrl: negocio.logo_url,
       productos: productos ?? 0,

@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { PASOS_ALTA } from "../../../../lib/negocios/alta";
-import { esRubroId } from "../../../../lib/negocios/rubros";
+import { cambiosDePresencia, validarPresencia } from "../../../../lib/negocios/presencia";
+import { comprobarZona } from "../../../../lib/negocios/presencia-servidor";
+import { siembraDeRubroPublico } from "../../../../lib/negocios/rubros-publicos";
 import { sembrarRubro } from "../../../../lib/rubros/sembrar";
 import { siembraDeRubro } from "../../../../lib/rubros/siembra";
 import { normalizarSlug, validarSlug } from "../../../../lib/negocios/validacion";
@@ -107,24 +109,39 @@ export async function PATCH(solicitud: NextRequest) {
   }
 
   if (paso === 2) {
-    const rubro = leerTexto(objeto, "rubro");
+    /* «Qué vendés y dónde» (fase 11). El dueño elige un rubro **público** —en
+       sus palabras— y de ahí sale la siembra; y responde si quiere que lo
+       encuentren en el buscador, que es obligatorio. */
+    const validacion = validarPresencia(objeto);
 
-    if (!esRubroId(rubro)) {
-      errores.rubro = "Elegí a qué se dedica tu negocio.";
-    } else if (negocio.rubro_bloqueado_en && negocio.rubro !== rubro) {
-      /* El rubro se elige una sola vez, y cambiarlo reinicia el catálogo: se
-         borran categorías, productos y fotos. Por eso no lo puede hacer el
-         dueño desde acá aunque vuelva atrás en el alta; lo hace el equipo, con
-         la exportación previa. */
-      return NextResponse.json(
-        {
-          error:
-            "Tu rubro ya quedó fijo. Para cambiarlo, escribinos: el catálogo se reinicia y te lo exportamos antes.",
-        },
-        { status: 409 },
-      );
+    if (!validacion.correcto) {
+      Object.assign(errores, validacion.errores);
     } else {
-      Object.assign(cambios, { rubro, rubro_bloqueado_en: new Date().toISOString() });
+      const { presencia } = validacion;
+      const rubro = siembraDeRubroPublico(presencia.rubroPublico);
+
+      if (negocio.rubro_bloqueado_en && negocio.rubro !== rubro) {
+        /* La siembra se elige una sola vez, y cambiarla reinicia el catálogo:
+           se borran categorías, productos y fotos. Por eso no lo puede hacer el
+           dueño desde acá aunque vuelva atrás en el alta; lo hace el equipo,
+           con la exportación previa. Cambiar a otro rubro público **del mismo
+           tipo** —de «Restaurante» a «Pollería»— sí se puede: no toca nada. */
+        return NextResponse.json(
+          {
+            error:
+              "Ese rubro es de otro tipo y tu catálogo ya quedó armado. Para cambiarlo, escribinos: el catálogo se reinicia y te lo exportamos antes.",
+          },
+          { status: 409 },
+        );
+      }
+
+      const errorZona = await comprobarZona(supabase, presencia);
+      if (errorZona) {
+        errores.zona_id = errorZona;
+      } else {
+        Object.assign(cambios, cambiosDePresencia(presencia), { rubro });
+        if (!negocio.rubro_bloqueado_en) cambios.rubro_bloqueado_en = new Date().toISOString();
+      }
     }
   }
 

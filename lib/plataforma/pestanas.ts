@@ -29,6 +29,10 @@ export const PESTANAS_PLATAFORMA = [
   },
   { id: "consumo", titulo: "Consumo", pregunta: "Cuánto se está gastando" },
   { id: "herramientas", titulo: "Herramientas", pregunta: "Invitar y etiquetar" },
+  /* Fase 11: las zonas de cada ciudad y los negocios que esperan una. Va aparte
+     de Herramientas porque se mira distinto: se carga una vez por ciudad y
+     después solo se atienden los pendientes. */
+  { id: "zonas", titulo: "Zonas", pregunta: "Dónde están tus negocios" },
 ] as const;
 
 export type PestanaPlataforma = (typeof PESTANAS_PLATAFORMA)[number]["id"];

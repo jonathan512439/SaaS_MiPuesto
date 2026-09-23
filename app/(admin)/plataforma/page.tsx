@@ -15,6 +15,7 @@ import type { UsoIa } from "../../../lib/ia/limites";
 import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/servidor";
 import { cupoDelPlan, planDe } from "../../../lib/planes";
 import { UsoIaPanel } from "../../../components/plataforma/uso-ia";
+import { ZonasPlataforma } from "../../../components/plataforma/zonas-plataforma";
 import {
   ETIQUETAS_ESTADO,
   ordenarPorUrgencia,
@@ -64,11 +65,12 @@ export default async function PaginaPlataforma({
     { data: uso },
     { data: usoIa },
     { data: consumoIa },
+    { data: zonas },
   ] = await Promise.all([
     supabase
       .from("negocios")
       .select(
-        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada,rubro,plan_id",
+        "id,slug,nombre,activo,suspendido_en,suscripcion_vence_en,creado_en,foto_ia_habilitada,rubro,plan_id,ciudad,zona_id,zona_propuesta",
       )
       .order("nombre"),
     supabase
@@ -89,6 +91,9 @@ export default async function PaginaPlataforma({
     /* Las ventanas por minuto y por día que Google usa para limitar. Se cuentan
        de este lado porque su API no dice cuánto queda. */
     supabase.rpc("uso_ia"),
+    /* Todas, también las dadas de baja: la plataforma las tiene que ver para
+       poder reactivarlas. La política de la tabla se lo permite solo a ella. */
+    supabase.from("zonas").select("id,ciudad,nombre,latitud,longitud,activa").order("nombre"),
   ]);
   const fotosPorNegocio = new Map(
     (usoIa ?? []).map(({ negocio_id, cantidad }) => [negocio_id, cantidad]),
@@ -152,6 +157,24 @@ export default async function PaginaPlataforma({
             negocios={(negocios ?? []).map(({ id, nombre }) => ({ id, nombre }))}
           />
         </>
+      ) : null}
+
+      {pestana === "zonas" ? (
+        <ZonasPlataforma
+          sinZona={(negocios ?? [])
+            .filter((negocio) => negocio.ciudad && !negocio.zona_id)
+            .map(({ id, nombre, ciudad, zona_propuesta }) => ({
+              id,
+              nombre,
+              ciudad: ciudad as string,
+              zona_propuesta,
+            }))}
+          zonas={(zonas ?? []).map((zona) => ({
+            ...zona,
+            latitud: Number(zona.latitud),
+            longitud: Number(zona.longitud),
+          }))}
+        />
       ) : null}
 
       {pestana !== "negocios" ? null : clientes.length === 0 ? (

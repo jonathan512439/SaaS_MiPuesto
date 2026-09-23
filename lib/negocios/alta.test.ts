@@ -15,6 +15,7 @@ const RECIEN_LLEGADO: SituacionDelNegocio = {
   nombre: "Ferretería El Sol",
   slug: "ferreteria-el-sol",
   rubro: null,
+  apareceEnDirectorio: null,
   telefonoWhatsapp: null,
   logoUrl: null,
   productos: 0,
@@ -28,6 +29,7 @@ const LISTO: SituacionDelNegocio = {
   nombre: "Ferretería El Sol",
   slug: "ferreteria-el-sol",
   rubro: "ferreteria",
+  apareceEnDirectorio: true,
   telefonoWhatsapp: "59170000000",
   logoUrl: "negocio/logo/sol.webp",
   productos: 12,
@@ -57,9 +59,24 @@ describe("en qué paso del alta está", () => {
       ...RECIEN_LLEGADO,
       nombreAdmin: "Jonathan",
       rubro: "ferreteria",
+      apareceEnDirectorio: false,
       altaPaso: 3,
     });
     expect(estado.paso.id).toBe("tu-marca");
+  });
+
+  /* El paso 2 pregunta dos cosas —qué vende y si quiere que lo encuentren— y
+     no queda cumplido con una sola. Sin esto, un negocio que eligió el rubro
+     antes de la fase 11 saltaría la pregunta del buscador para siempre. */
+  it("con el rubro pero sin responder lo del buscador, sigue en el paso 2", () => {
+    const estado = estadoDeAlta({
+      ...RECIEN_LLEGADO,
+      nombreAdmin: "Jonathan",
+      rubro: "ferreteria",
+      apareceEnDirectorio: null,
+      altaPaso: 3,
+    });
+    expect(estado.paso.id).toBe("que-vendes");
   });
 
   it("con la marca hecha, pasa a cargar productos", () => {
@@ -67,6 +84,7 @@ describe("en qué paso del alta está", () => {
       ...RECIEN_LLEGADO,
       nombreAdmin: "Jonathan",
       rubro: "ferreteria",
+      apareceEnDirectorio: true,
       altaPaso: 4,
     });
     expect(estado.paso.id).toBe("tus-productos");
@@ -98,7 +116,7 @@ describe("en qué paso del alta está", () => {
 describe("lo que falta para publicar", () => {
   it("el recién llegado tiene todo por hacer", () => {
     const claves = faltantesParaPublicar(RECIEN_LLEGADO).map(({ clave }) => clave);
-    expect(claves).toEqual(["telefono", "rubro", "categorias", "productos", "logo"]);
+    expect(claves).toEqual(["telefono", "rubro", "categorias", "productos", "directorio", "logo"]);
   });
 
   it("el que está listo no tiene nada pendiente", () => {
@@ -114,7 +132,9 @@ describe("lo que falta para publicar", () => {
     const sugerencias = faltantes.filter(({ impide }) => !impide).map(({ clave }) => clave);
 
     expect(impiden).toEqual(["telefono", "rubro", "categorias", "productos"]);
-    expect(sugerencias).toEqual(["logo"]);
+    /* Aparecer en el buscador es una decisión, no un requisito: el catálogo
+       funciona igual. Se recuerda, pero no frena. */
+    expect(sugerencias).toEqual(["directorio", "logo"]);
   });
 
   /* Es lo que separa una tarea de una queja: cada faltante sabe a dónde ir. */

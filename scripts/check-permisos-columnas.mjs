@@ -42,9 +42,12 @@ const DEL_DUENO = [
   "horario", "reserva_minutos", "rubro", "ciudad", "zona", "pide_numero_mesa",
   "logo_url", "portada_url", "portada_texto", "qr_pago_url", "banners", "redes_sociales",
   "ubicacion_url", "resenas_url", "direccion_manual",
-  "paleta_id", "patron_fondo", "patron_opacidad", "forma_tarjeta",
+  "paleta_id", "patron_fondo", "patron_opacidad",
   "nombre_admin", "alta_paso", "alta_completada_en", "rubro_bloqueado_en",
-  "maps_visible",
+  "maps_visible", "forma_tarjeta",
+  /* Fase 11: qué vende y si quiere que lo encuentren, con su ubicación. */
+  "aparece_en_directorio", "ubicacion_lat", "ubicacion_lng", "zona_id", "zona_propuesta",
+  "rubro_publico", "rubros_secundarios",
 ];
 
 /* Lo que el catálogo público lee. Se saca del propio archivo, no de una copia. */
@@ -77,14 +80,24 @@ for (const carpeta of ["lib", "app", "components"]) {
   for (const archivo of archivosDeCodigo(join(raiz, carpeta))) {
     if (archivo.includes(".test.")) continue;
     const codigo = readFileSync(archivo, "utf8");
-    /* `.from("negocios")` y, más adelante, su `.select("…")`. Se toma el primer
-       select que aparezca después: es el de esa consulta. */
-    for (const encuentro of codigo.matchAll(/\.from\("negocios"\)([\s\S]{0,400}?)\.select\(\s*"([^"]+)"/g)) {
-      for (const columna of encuentro[2].split(",")) {
+    /* Las constantes de texto del archivo, para resolver `select(COLUMNAS)`.
+       Sin esto, toda consulta que nombra sus columnas en una constante —las de
+       `situacion.ts` y `presencia-pagina.ts`— quedaba sin revisar. */
+    const constantes = new Map(
+      [...codigo.matchAll(/const\s+([A-Z_][A-Z0-9_]*)\s*=\s*"([^"]+)"/g)].map(([, nombre, valor]) => [nombre, valor]),
+    );
+    /* `.from("negocios")` y, más adelante, su `.select(…)`: el primero que
+       aparezca **sin cruzar otro `.from(`**. Sin esa condición, una consulta a
+       `negocios` con las columnas en una constante seguida de otra a `zonas`
+       tomaba las columnas de `zonas` como si fueran de `negocios`. */
+    const patron = /\.from\("negocios"\)((?:(?!\.from\()[\s\S]){0,400}?)\.select\(\s*(?:"([^"]+)"|([A-Z_][A-Z0-9_]*)\s*[,)])/g;
+    for (const encuentro of codigo.matchAll(patron)) {
+      const lista = encuentro[2] ?? constantes.get(encuentro[3]) ?? "";
+      for (const columna of lista.split(",")) {
         const limpia = columna.trim().split("(")[0].trim();
-        /* Las relaciones embebidas —`agenda_recurso(...)`— no son columnas de
-           `negocios` y no se comprueban acá. */
-        if (limpia && !limpia.includes(")") && !encuentro[2].includes(`${limpia}(`)) {
+        /* Las relaciones embebidas —`agenda_recurso(...)`, `zona:zonas(nombre)`—
+           no son columnas de `negocios` y no se comprueban acá. */
+        if (limpia && !limpia.includes(")") && !limpia.includes(":") && !lista.includes(`${limpia}(`)) {
           DEL_PANEL.add(limpia);
         }
       }

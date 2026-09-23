@@ -1726,6 +1726,21 @@ motivo por el que este archivo existe.
 
 ### 2026-09-22
 
+- **Fase 11 desplegada: dónde está y qué vende.** Migración `20261013090000`:
+  tabla `zonas` (de la plataforma), y en `negocios` la ubicación, la zona, el
+  rubro público en dos capas y la decisión de aparecer en el buscador —nula
+  hasta que el dueño responde—. **Las coordenadas nunca se conceden al
+  público**: lo vigilan una guardia sobre las migraciones y
+  `test:rls:multitenant` contra la base real, y las dos se probaron rompiéndolas
+  (la segunda abriendo el permiso unos segundos en producción, sin coordenadas
+  cargadas).
+  El paso 2 del alta pasa a ser «Qué vendés y dónde», con el mismo bloque que
+  «Mi negocio»: rubro público, hasta dos secundarios, la pregunta obligatoria y,
+  si dice que sí, ciudad y pin en un mapa (Leaflet + OpenStreetMap, solo en esas
+  dos pantallas). Plataforma suma la pestaña «Zonas». El directorio lista solo
+  a quienes eligieron aparecer, así que **hoy está vacío** hasta que los
+  negocios respondan.
+
 - **Fase 10 desplegada: tres formas de tarjeta.** Cuadrícula, una por fila con
   miniatura, y lista de precios sin fotos; se eligen en Apariencia. Un solo
   componente con `data-forma`: la forma cambia el aspecto y nunca la acción.

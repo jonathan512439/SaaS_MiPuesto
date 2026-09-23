@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 
 import { PasoQueVendes } from "../../../../components/alta/paso-que-vendes";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { leerPresenciaDelNegocio } from "../../../../lib/negocios/presencia-pagina";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
+import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 
 export default async function PaginaQueVendes() {
   const supabase = await crearClienteSupabaseServidor();
@@ -10,13 +11,8 @@ export default async function PaginaQueVendes() {
   const idUsuario = datosClaims?.claims.sub;
   if (!idUsuario) redirect("/login");
 
-  const { data: negocio } = await supabase
-    .from("negocios")
-    .select("rubro")
-    .eq("admin_user_id", idUsuario)
-    .maybeSingle();
+  const presencia = await leerPresenciaDelNegocio(supabase, idUsuario);
+  if (!presencia) redirect(RUTA_SIN_NEGOCIO);
 
-  if (!negocio) redirect(RUTA_SIN_NEGOCIO);
-
-  return <PasoQueVendes rubroInicial={negocio.rubro ?? ""} />;
+  return <PasoQueVendes {...presencia} />;
 }

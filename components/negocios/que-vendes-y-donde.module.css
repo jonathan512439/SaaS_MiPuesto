@@ -1,0 +1,182 @@
+@reference "../../app/globals.css";
+
+/* «Qué vendés y dónde»: tres bloques separados por aire, no por cajas. Vive
+   adentro de la tarjeta del alta y de una sección de «Mi negocio», que ya
+   ponen su borde; otra caja adentro sería un marco dentro de un marco. */
+.formulario {
+  display: grid;
+  gap: var(--spacing-6);
+  min-width: 0;
+}
+
+.bloque {
+  display: grid;
+  gap: var(--spacing-3);
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.pregunta {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  letter-spacing: var(--tracking-titulo);
+}
+
+.explicacion {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.explicacion strong {
+  color: var(--color-texto);
+}
+
+.nota {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.error {
+  color: var(--color-peligro);
+  font-size: var(--text-sm);
+}
+
+.tambien {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.tambien summary {
+  min-height: var(--control-alto);
+  display: flex;
+  align-items: center;
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tambien p {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.advertencia {
+  border-left: var(--spacing-1) solid var(--color-alerta);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-alerta-tenue);
+}
+
+.advertencia p {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+/* Las dos respuestas, como tarjetas elegibles: lo elegido se pinta, no se
+   bordea, igual que las paletas y las formas en Apariencia. */
+.opciones {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+@media (min-width: 36rem) {
+  .opciones {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.opcion,
+.opcionElegida {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+  cursor: pointer;
+}
+
+.opcionElegida {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+}
+
+.opcion input,
+.opcionElegida input {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  margin: 0;
+  accent-color: var(--color-marca);
+}
+
+.opcion span,
+.opcionElegida span {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.opcion small,
+.opcionElegida small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.ubicacion {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.atajos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.zona {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.zonaDetectada {
+  margin: 0;
+  border-left: var(--spacing-1) solid var(--color-exito);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-exito-tenue);
+  font-size: var(--text-sm);
+}
+
+.campoPropio {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.campoPropio span {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.campoPropio input {
+  width: 100%;
+  padding: var(--spacing-3);
+  font-size: var(--text-base);
+}
+
+.campoPropio small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}

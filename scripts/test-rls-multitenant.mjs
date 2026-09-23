@@ -566,8 +566,48 @@ try {
     "un dueño común pudo leer el conteo de límites por IP",
   );
 
+  /* Fase 11: el punto exacto de un negocio no se publica nunca.
+     El dueño A se ubica; el público y el dueño B no pueden leer ese punto. */
+  const { error: errorUbicarA } = await clienteA
+    .from("negocios")
+    .update({ ciudad: "oruro", ubicacion_lat: -17.9647, ubicacion_lng: -67.1064 })
+    .eq("id", negocios[0].id);
+  comprobar(!errorUbicarA, `el dueño no pudo guardar su ubicación: ${errorUbicarA?.message}`);
+
+  const publico = createClient(url, clavePublica, opcionesAuth);
+  const { error: errorPublicoPunto } = await publico
+    .from("negocios")
+    .select("ubicacion_lat,ubicacion_lng")
+    .limit(1);
+  comprobar(errorPublicoPunto, "el público pudo pedir las coordenadas de los negocios");
+
+  const { data: puntoAjeno } = await clienteB
+    .from("negocios")
+    .select("ubicacion_lat")
+    .eq("id", negocios[0].id);
+  comprobar(!puntoAjeno?.length, "un dueño pudo leer la ubicación de otro negocio");
+
+  /* Las zonas son de la plataforma: un dueño no las crea ni se las asigna. */
+  const { error: errorZonaDueno } = await clienteA
+    .from("zonas")
+    .insert({ ciudad: "oruro", nombre: `Zona ${marca}`, latitud: -17.96, longitud: -67.1 });
+  comprobar(errorZonaDueno, "un dueño pudo crear una zona");
+
+  const { error: errorAsignar } = await clienteA.rpc("admin_asignar_zona", {
+    p_negocio_id: negocios[0].id,
+    p_zona_id: randomUUID(),
+  });
+  comprobar(errorAsignar, "un dueño pudo usar la función que asigna zonas");
+
+  /* Y la base exige estar ubicado para aparecer en el buscador. */
+  const { error: errorAparecerSinPunto } = await clienteB
+    .from("negocios")
+    .update({ aparece_en_directorio: true })
+    .eq("id", negocios[1].id);
+  comprobar(errorAparecerSinPunto, "un negocio sin ubicación pudo aparecer en el buscador");
+
   console.log(
-    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([

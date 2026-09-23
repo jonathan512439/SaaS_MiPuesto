@@ -1,0 +1,34 @@
+@reference "../../app/globals.css";
+
+/* El mapa: ancho completo y un alto que en un teléfono deja ver el mapa y el
+   botón de guardar sin desplazar dos pantallas. */
+.mapa {
+  width: 100%;
+  height: calc(var(--spacing-32) * 2.25);
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+}
+
+/* El pin, dibujado con CSS: una gota con la punta abajo, en el color de acción,
+   que es el de «esto se toca» en todo el panel. `.pin` es el contenedor que
+   Leaflet posiciona; hay que quitarle el fondo blanco que le da por omisión. */
+.pin {
+  border: 0;
+  background: transparent;
+}
+
+.cabeza {
+  position: absolute;
+  top: 0;
+  left: calc(50% - var(--spacing-4));
+  display: block;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  border: var(--borde-marcado) solid var(--color-superficie);
+  border-radius: 50% 50% 50% 0;
+  background: var(--color-accion);
+  box-shadow: var(--sombra-elevada);
+  transform: rotate(-45deg);
+}

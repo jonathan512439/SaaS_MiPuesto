@@ -27,7 +27,7 @@ export const PASOS_ALTA = [
   {
     numero: 2,
     id: "que-vendes",
-    titulo: "Qué vendés",
+    titulo: "Qué vendés y dónde",
     ruta: "/alta/que-vendes",
   },
   {
@@ -55,6 +55,8 @@ export type SituacionDelNegocio = {
   nombre: string | null;
   slug: string | null;
   rubro: string | null;
+  /* Si respondió si quiere aparecer en el buscador. Nulo: no respondió. */
+  apareceEnDirectorio: boolean | null;
   telefonoWhatsapp: string | null;
   logoUrl: string | null;
   /* Cuántos productos visibles tiene. Cero significa catálogo vacío: se puede
@@ -139,6 +141,17 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
     });
   }
 
+  /* No impide: el catálogo funciona igual sin aparecer en el buscador. Pero es
+     una decisión del dueño, y hasta que la tome se la recordamos. */
+  if (situacion.apareceEnDirectorio === null) {
+    faltantes.push({
+      clave: "directorio",
+      titulo: "Decidí si querés que te encuentren en el buscador de MiPuesto",
+      ruta: RUTAS_PANEL.negocio,
+      impide: false,
+    });
+  }
+
   /* El logo no impide: un catálogo sin logo se ve peor, pero vende. Ponerlo como
      bloqueante frenaría a quien todavía no lo tiene hecho, que es justamente el
      negocio chico al que esto apunta. */
@@ -163,7 +176,8 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
 function pasosCumplidos(situacion: SituacionDelNegocio): boolean[] {
   return [
     !vacio(situacion.nombreAdmin) && !vacio(situacion.nombre) && !vacio(situacion.slug),
-    !vacio(situacion.rubro),
+    /* El paso 2 pregunta las dos cosas, y queda cumplido con las dos. */
+    !vacio(situacion.rubro) && situacion.apareceEnDirectorio !== null,
     situacion.altaPaso > 3,
     situacion.productos > 0,
   ];

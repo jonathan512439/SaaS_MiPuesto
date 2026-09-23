@@ -35,10 +35,13 @@ export async function obtenerDirectorio(
   let consulta = supabase
     .from("negocios")
     .select(
-      "id,slug,nombre,descripcion,tipo_negocio,logo_url,portada_url,horario,ciudad,zona",
+      "id,slug,nombre,descripcion,tipo_negocio,logo_url,portada_url,horario,ciudad,zona:zonas(nombre)",
       { count: "exact" },
     )
-    .eq("activo", true);
+    .eq("activo", true)
+    /* Solo los que eligieron aparecer (fase 11). Un negocio que no respondió
+       todavía no está: nadie decidió por él. */
+    .eq("aparece_en_directorio", true);
 
   if (esCiudadId(ciudad)) consulta = consulta.eq("ciudad", ciudad);
 
@@ -59,7 +62,9 @@ export async function obtenerDirectorio(
       portadaUrl: obtenerUrlPublicaImagenNegocio(url, negocio.portada_url, "portada"),
       estadoAtencion: evaluarHorario(negocio.horario, fecha),
       ciudad: esCiudadId(negocio.ciudad) ? negocio.ciudad : null,
-      zona: negocio.zona?.trim() || null,
+      /* La zona de la lista, no el texto libre de antes: ese se usaba como
+         dirección y pasó a `direccion_manual`. */
+      zona: negocio.zona?.nombre ?? null,
     })),
     ciudad: esCiudadId(ciudad) ? ciudad : null,
     pagina: paginaSegura,

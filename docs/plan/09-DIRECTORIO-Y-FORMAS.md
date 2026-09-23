@@ -171,6 +171,24 @@ desborde horizontal.
 
 ## Fase 11 — Dónde está y qué vende
 
+> **Desplegada el 22 de septiembre de 2026** (marca `fase-11-donde-esta`),
+> con la lista de rubros públicos tal como está abajo: el dueño la aprobó y pidió
+> dejar para más adelante los rubros que faltan (frutas y verduras, carnicería,
+> florería, reparación de celulares y los demás que se conversaron).
+>
+> Lo que queda **para cerrar el criterio de salida**, y no depende del código:
+> cargar las zonas de Oruro desde Plataforma → Zonas, asignarlas a los negocios
+> con ciudad, y que alguien ajeno complete el paso 2 en un teléfono.
+>
+> Dos cosas que cambiaron al construirlo:
+>
+> - **La guardia de permisos por columna ahora lee las columnas guardadas en
+>   constantes** (`select(COLUMNAS)`) y no cruza a otra consulta. Antes esas
+>   consultas no las revisaba nadie; pasó de 36 a 43 columnas del panel.
+> - **El perfil dejó de escribir la ciudad y la zona.** Las guarda «Qué vendés y
+>   dónde»; si el perfil las siguiera mandando, guardar el teléfono borraría la
+>   ciudad.
+
 **Objetivo:** que cada negocio tenga datos con los que se lo pueda encontrar, y
 que haya decidido si quiere serlo.
 

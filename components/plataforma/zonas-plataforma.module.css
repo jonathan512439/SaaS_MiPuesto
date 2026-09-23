@@ -1,0 +1,138 @@
+@reference "../../app/globals.css";
+
+.zonas {
+  display: grid;
+  gap: var(--spacing-6);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-6);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+}
+
+.cabecera {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.cabecera h2,
+.formulario h3,
+.ciudad h3,
+.pendientes h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-titulo);
+}
+
+.cabecera h2 {
+  font-size: var(--text-xl);
+}
+
+.formulario h3,
+.ciudad h3,
+.pendientes h3 {
+  font-size: var(--text-lg);
+}
+
+.cabecera p,
+.ayuda,
+.vacio {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.formulario {
+  display: grid;
+  gap: var(--spacing-3);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-lienzo);
+}
+
+.fila {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+@media (min-width: 40rem) {
+  .fila {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  }
+}
+
+.acciones,
+.accionesZona,
+.asignar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.error {
+  color: var(--color-peligro);
+  font-size: var(--text-sm);
+}
+
+.ciudad,
+.pendientes {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.lista {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zona,
+.zonaDeBaja,
+.pendiente {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+.zona > span:first-child,
+.zonaDeBaja > span:first-child,
+.pendiente > span:first-child {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.zonaDeBaja {
+  background: var(--color-fondo-hundido);
+  color: var(--color-texto-suave);
+}
+
+.zona small,
+.zonaDeBaja small,
+.pendiente small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.asignar select {
+  min-height: var(--control-alto);
+  padding: var(--spacing-2) var(--spacing-8) var(--spacing-2) var(--spacing-3);
+}
+
+.soloLectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
