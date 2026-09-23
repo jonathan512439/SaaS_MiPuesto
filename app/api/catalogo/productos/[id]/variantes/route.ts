@@ -10,7 +10,7 @@ import { esUuid } from "../../../../../../lib/catalogo/validacion";
 /* Las presentaciones de un producto.
  *
  * `PUT` y no `PATCH` por presentación, por lo mismo que los campos de categoría:
- * dos de las reglas —hasta doce, sin nombres repetidos— son sobre el conjunto, y
+ * dos de las reglas —el tope, sin nombres repetidos— son sobre el conjunto, y
  * el editor guarda todo junto.
  */
 
@@ -90,7 +90,7 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
   /* Borra primero y agrega después, con la misma dependencia de orden que los
      campos de categoría: el disparador del tope cuenta las filas que hay en ese
      momento, y al insertar antes un reemplazo legítimo pasaría por un estado con
-     trece. La migración dice lo mismo del otro lado. */
+     una de más. La migración dice lo mismo del otro lado. */
   const { error: errorBorrado } = await contexto.supabase
     .from("variantes_producto")
     .delete()

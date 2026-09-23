@@ -4,8 +4,65 @@
  * presentación válida; quién puede guardarla lo decide la ruta.
  */
 
-export const MAXIMO_VARIANTES = 12;
+/* Veinticuatro y no doce desde la fase 13: de 35 a 45 con medios números son
+   veintiuno. El mismo número está en el disparador `limitar_variantes_por_producto`
+   de la base, y una prueba compara los dos. */
+export const MAXIMO_VARIANTES = 24;
 export const LARGO_NOMBRE_VARIANTE = 40;
+
+/* Qué son las presentaciones de un producto. Decide cómo se pregunta, cómo se
+   ordena y qué se acepta; la base tiene la misma lista en su `check`. */
+export const TIPOS_PRESENTACION = ["talla", "numero", "tamano", "presentacion"] as const;
+export type TipoPresentacion = (typeof TIPOS_PRESENTACION)[number];
+
+export function esTipoPresentacion(valor: unknown): valor is TipoPresentacion {
+  return typeof valor === "string" && (TIPOS_PRESENTACION as readonly string[]).includes(valor);
+}
+
+/* El número de calzado, escrito siempre igual: `38.5`, `38½` y `38,5` son
+   `38,5`, y `40,0` es `40`. De 16 a 50, en numeración europea, que es la que se
+   usa en Bolivia. Devuelve `null` si no es un número de calzado.
+
+   Es la misma regla que `public.normalizar_numero_calzado` en la base. Los casos
+   que las comparan viven en `supabase/tests/remote/fase13-presentaciones.sql`:
+   Vitest los corre contra esta función y la base de ensayo contra la suya. */
+export function normalizarNumeroCalzado(texto: string | null | undefined): string | null {
+  if (texto === null || texto === undefined) return null;
+  const limpio = texto.trim().replaceAll("½", ",5").replaceAll(".", ",").replaceAll(" ", "");
+  const coincidencia = /^([0-9]{2})(,([05]))?$/.exec(limpio);
+  if (!coincidencia) return null;
+
+  const entero = Number(coincidencia[1]);
+  if (entero < 16 || entero > 50) return null;
+  if (entero === 50 && coincidencia[3] === "5") return null;
+
+  return coincidencia[3] === "5" ? `${entero},5` : String(entero);
+}
+
+/* Las tallas de siempre, en el orden en que se eligen. */
+export const TALLAS_CANONICAS = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL", "Única"] as const;
+
+/* La talla en mayúsculas cuando es una de las de siempre; lo demás —«2 años»—
+   queda como lo escribió el dueño. Misma regla que `public.normalizar_talla`. */
+export function normalizarTalla(texto: string | null | undefined): string | null {
+  if (texto === null || texto === undefined) return null;
+  const limpio = texto.trim();
+  const mayusculas = limpio.toUpperCase();
+  if (["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"].includes(mayusculas)) return mayusculas;
+  if (["unica", "única"].includes(limpio.toLowerCase())) return "Única";
+  return limpio;
+}
+
+/* El nombre como lo va a guardar la base, según el tipo del producto. `null`
+   solo para un número de calzado que no lo es. */
+export function normalizarNombreDePresentacion(
+  nombre: string,
+  tipo: TipoPresentacion,
+): string | null {
+  if (tipo === "numero") return normalizarNumeroCalzado(nombre);
+  if (tipo === "talla") return normalizarTalla(nombre);
+  return nombre.trim();
+}
 
 export type Variante = {
   nombre: string;
@@ -29,7 +86,7 @@ function numeroONulo(valor: unknown): number | null | undefined {
 
 /* Valida el conjunto entero, no una suelta.
  *
- * Dos de las reglas son sobre el conjunto: el tope de doce y que no se repita el
+ * Dos de las reglas son sobre el conjunto: el tope de presentaciones y que no se repita el
  * nombre. Y el editor guarda todo de una vez, igual que los campos de categoría.
  */
 export function validarVariantes(

@@ -53,13 +53,13 @@ describe("validarVariantes", () => {
     if (!resultado.correcto) expect(resultado.errores["variantes.1.nombre"]).toBeTruthy();
   });
 
-  it("rechaza la trece", () => {
+  it("rechaza una de más que el tope", () => {
     const muchas = Array.from({ length: MAXIMO_VARIANTES + 1 }, (_, i) => ({
       nombre: `Talla ${i}`,
     }));
     const resultado = validarVariantes(muchas, SIN_STOCK);
     expect(resultado.correcto).toBe(false);
-    if (!resultado.correcto) expect(resultado.errores.variantes).toContain("12");
+    if (!resultado.correcto) expect(resultado.errores.variantes).toContain(String(MAXIMO_VARIANTES));
   });
 
   /* Un servicio no tiene presentaciones: tiene horarios, y esos los da la

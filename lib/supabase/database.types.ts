@@ -676,6 +676,9 @@ export type Database = {
           producto_id: string | null
           reserva_activa: boolean
           subtotal: number
+          tipo_presentacion: string | null
+          variante_id: string | null
+          variante_nombre: string | null
         }
         Insert: {
           cantidad: number
@@ -689,6 +692,9 @@ export type Database = {
           producto_id?: string | null
           reserva_activa?: boolean
           subtotal: number
+          tipo_presentacion?: string | null
+          variante_id?: string | null
+          variante_nombre?: string | null
         }
         Update: {
           cantidad?: number
@@ -702,6 +708,9 @@ export type Database = {
           producto_id?: string | null
           reserva_activa?: boolean
           subtotal?: number
+          tipo_presentacion?: string | null
+          variante_id?: string | null
+          variante_nombre?: string | null
         }
         Relationships: [
           {
@@ -717,6 +726,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "productos"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedido_items_variante_del_producto"
+            columns: ["variante_id", "producto_id"]
+            isOneToOne: false
+            referencedRelation: "variantes_producto"
+            referencedColumns: ["id", "producto_id"]
           },
         ]
       }
@@ -833,6 +849,7 @@ export type Database = {
           reservado_hasta: string | null
           subcategoria_id: string | null
           texto_busqueda: string | null
+          tipo_presentacion: string
           visible: boolean
         }
         Insert: {
@@ -861,6 +878,7 @@ export type Database = {
           reservado_hasta?: string | null
           subcategoria_id?: string | null
           texto_busqueda?: string | null
+          tipo_presentacion?: string
           visible?: boolean
         }
         Update: {
@@ -889,6 +907,7 @@ export type Database = {
           reservado_hasta?: string | null
           subcategoria_id?: string | null
           texto_busqueda?: string | null
+          tipo_presentacion?: string
           visible?: boolean
         }
         Relationships: [
@@ -1108,6 +1127,7 @@ export type Database = {
       }
       variantes_producto: {
         Row: {
+          cantidad_reservada: number
           cantidad_stock: number | null
           creado_en: string
           id: string
@@ -1119,6 +1139,7 @@ export type Database = {
           visible: boolean
         }
         Insert: {
+          cantidad_reservada?: number
           cantidad_stock?: number | null
           creado_en?: string
           id?: string
@@ -1130,6 +1151,7 @@ export type Database = {
           visible?: boolean
         }
         Update: {
+          cantidad_reservada?: number
           cantidad_stock?: number | null
           creado_en?: string
           id?: string
@@ -1335,6 +1357,8 @@ export type Database = {
         Args: { p_limite?: number }
         Returns: number
       }
+      normalizar_numero_calzado: { Args: { p_texto: string }; Returns: string }
+      normalizar_talla: { Args: { p_texto: string }; Returns: string }
       ocupacion_recurso: {
         Args: { p_desde: string; p_hasta: string; p_recurso_id: string }
         Returns: {

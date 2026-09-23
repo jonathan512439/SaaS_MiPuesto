@@ -114,8 +114,8 @@ begin
     raise exception 'Fase 4: la base aceptó un precio negativo';
   end if;
 
-  -- 8. El tope de doce, que lo hace cumplir el disparador.
-  for i in 1..11 loop
+  -- 8. El tope de 24 (12 hasta la fase 13), que lo hace cumplir el disparador.
+  for i in 1..23 loop
     insert into public.variantes_producto (negocio_id, producto_id, nombre)
     values (negocio, producto, 'Presentación ' || i);
   end loop;
@@ -123,12 +123,12 @@ begin
   fallo := false;
   begin
     insert into public.variantes_producto (negocio_id, producto_id, nombre)
-    values (negocio, producto, 'Presentación 13');
+    values (negocio, producto, 'Presentación 25');
   exception when check_violation then
     fallo := true;
   end;
   if not fallo then
-    raise exception 'Fase 4: la base aceptó la presentación trece';
+    raise exception 'Fase 4: la base aceptó la presentación 25';
   end if;
 
   -- 9. Una presentación del negocio A no puede colgar de un producto del B.

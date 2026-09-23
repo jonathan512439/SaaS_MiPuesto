@@ -73,6 +73,7 @@
     "ensayo:estructura": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura",
     "ensayo:rls": "node --env-file-if-exists=.env.local scripts/ensayo.mjs rls",
     "ensayo:verificar": "npm run ensayo:estructura && npm run ensayo:rls",
+    "test:fase13:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/fase13-presentaciones.sql",
     "test:tareas": "node scripts/check-tareas-programadas.mjs"
   },
   "dependencies": {

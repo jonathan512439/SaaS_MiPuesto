@@ -1726,6 +1726,30 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Fase 13, paso 1: el modelo de la talla.** Migración `20261018090000`, toda
+  aditiva (ningún pedido cambia de forma de funcionar):
+  `productos.tipo_presentacion` (talla, numero, tamano, presentacion); el número
+  de calzado normalizado por la base (`normalizar_numero_calzado`: `38.5`, `38½`
+  y `38,5` son `38,5`; de 16 a 50) y la talla en mayúsculas (`normalizar_talla`),
+  aplicados por disparador al guardar; el tope sube de 12 a 24; las
+  presentaciones suman `cantidad_reservada` —que el dueño ya no puede escribir: el
+  permiso pasó a ser por columna—, la pareja `(id, producto_id)` y una guardia
+  que impide borrar una presentación con unidades apartadas; `pedido_items` suma
+  la presentación (identificador, nombre y tipo copiados) con clave compuesta que
+  exige que sea **de ese producto**, y la unicidad pasa a
+  `(pedido_id, producto_codigo, variante_nombre)`: la M y la L son dos renglones.
+  Pruebas: `supabase/tests/remote/fase13-presentaciones.sql` contra la **base de
+  ensayo** (`npm run test:fase13:ensayo`), un único bloque que deshace todo lo que
+  escribe; probada rompiéndola dos veces (un caso equivocado y la guardia de
+  borrado desactivada). Los casos de normalización los lee también Vitest y los
+  corre contra `lib/catalogo/variantes.ts`: las dos reglas no pueden separarse.
+  La base de ensayo se puso al día (29 migraciones) y pasó el aislamiento.
+  `test:rls:linked` en verde en producción.
+  **Encontrado al diseñar el paso 2:** el editor de presentaciones borra todas y
+  las vuelve a crear, así que sus identificadores cambian en cada guardado. Con
+  reservas eso rompería pedidos pendientes, por eso el editor que conserva los
+  identificadores sale junto con el motor de compra.
+
 - **La lista de precios ubica cada sección en la categoría más parecida.**
   `/api/ia/lista` recibe las categorías del negocio como lista cerrada
   (`categoria_del_negocio`, con «(ninguna)»), en la misma consulta. La revisión
