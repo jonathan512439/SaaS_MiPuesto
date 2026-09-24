@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { evaluarHorario } from "../../../lib/horario";
+import { responderErrorPedido } from "../../../lib/pedidos/errores-pedido";
 import {
   MENSAJE_VERIFICACION_FALLIDA,
   decidirConTurnstile,
@@ -39,50 +40,6 @@ type PedidoGuardado = {
   repetido: boolean;
 };
 
-const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }> = {
-  NEGOCIO_NO_DISPONIBLE: {
-    estado: 404,
-    mensaje: "Este negocio no está disponible para recibir pedidos.",
-  },
-  MODALIDAD_NO_PERMITE_PEDIDOS: {
-    estado: 409,
-    mensaje: "Este catálogo no usa pedidos con carrito.",
-  },
-  PRODUCTO_NO_DISPONIBLE: {
-    estado: 409,
-    mensaje: "Uno de los productos ya no está disponible. Actualiza el catálogo.",
-  },
-  /* Fase 13. Llegan cuando el catálogo que tiene abierto el comprador es
-     anterior a un cambio del dueño: una talla nueva, una que se ocultó. */
-  PRESENTACION_REQUERIDA: {
-    estado: 409,
-    mensaje: "Elige la talla, el número o el tamaño de cada producto antes de enviar el pedido.",
-  },
-  PRESENTACION_NO_DISPONIBLE: {
-    estado: 409,
-    mensaje: "Una de las opciones que elegiste ya no está disponible. Actualiza el catálogo.",
-  },
-  STOCK_INSUFICIENTE: {
-    estado: 409,
-    mensaje: "Cambió la cantidad disponible. Revisa tu pedido e intenta nuevamente.",
-  },
-  LIMITE_PEDIDOS: {
-    estado: 429,
-    mensaje: "Llegaste al límite temporal de pedidos. Intenta nuevamente en 15 minutos.",
-  },
-  TELEFONO_INVALIDO: {
-    estado: 400,
-    mensaje: "Escribe un celular boliviano válido de 8 dígitos.",
-  },
-  MESA_NO_PERMITIDA: {
-    estado: 400,
-    mensaje: "Este negocio no atiende por mesa.",
-  },
-  MESA_INVALIDA: {
-    estado: 400,
-    mensaje: "El número de mesa admite hasta 10 caracteres.",
-  },
-};
 
 /* Los datos propios de cada producto, listos para el mensaje, indexados por su
    código —que es lo que el pedido guarda de vuelta—.
@@ -146,15 +103,6 @@ function esPedidoGuardado(valor: unknown): valor is PedidoGuardado {
   );
 }
 
-function responderErrorBase(mensaje: string) {
-  const coincidencia = Object.entries(ERRORES_PEDIDO).find(([codigo]) =>
-    mensaje.includes(codigo),
-  );
-  return coincidencia?.[1] ?? {
-    estado: 500,
-    mensaje: "No se pudo reservar el pedido. Intenta nuevamente.",
-  };
-}
 
 export async function POST(solicitud: NextRequest) {
   let entrada: unknown;
@@ -237,7 +185,7 @@ export async function POST(solicitud: NextRequest) {
   });
 
   if (error) {
-    const respuesta = responderErrorBase(error.message);
+    const respuesta = responderErrorPedido(error.message);
     return NextResponse.json({ error: respuesta.mensaje }, { status: respuesta.estado });
   }
   if (!esPedidoGuardado(data)) {

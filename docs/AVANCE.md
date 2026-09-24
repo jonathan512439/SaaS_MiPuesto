@@ -1726,6 +1726,23 @@ motivo por el que este archivo existe.
 
 ### 2026-09-24
 
+- **El nombre al pedir volvió a ser opcional** (regresión de la fase 13). En la
+  segunda prueba real, `/api/pedidos` respondió 500 tres veces. La reescritura
+  de `crear_pedido_reservado` en `20261019090000` había endurecido sin querer la
+  validación del nombre —de «si viene, hasta 80» a «obligatorio»— y el carrito
+  dice «Nombre · Opcional»: todo pedido sin nombre fallaba con
+  `NOMBRE_INVALIDO`, que la ruta no traducía. Las pruebas de la fase 13 siempre
+  mandaban nombre.
+  - Migración `20261025090000`: la misma función con la regla de antes.
+  - `lib/pedidos/errores-pedido.ts`: la lista de errores salió de la ruta, sumó
+    `NOMBRE_INVALIDO` y `PEDIDO_INVALIDO`, y un error sin traducir se anota en
+    el registro del Worker. **Guardia:** la prueba lee la última migración que
+    define la función y exige un mensaje para cada código que lanza. Rota dos
+    veces a propósito.
+  - `fase13-motor.sql` sección 10: pedido sin nombre, con nombre en blanco y con
+    81 caracteres. Falló con la función vieja en ensayo y pasa con la nueva.
+  - Verificado en producción dentro de un bloque que se deshace.
+
 - **Un pedido creado ya no se muestra como fallido.** Prueba real del dueño en
   Brasa Urbana: cuatro pedidos, los dos primeros con «No se pudo reservar el
   pedido» en pantalla y creados igual en la base. Turnstile los verificó a

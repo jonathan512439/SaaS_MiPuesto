@@ -518,6 +518,39 @@ begin
     end;
     set constraints all deferred;
 
+    -- -----------------------------------------------------------------------
+    -- 10. El nombre es opcional, como dice el formulario. La reescritura de la
+    --     fase 13 lo había vuelto obligatorio y todo pedido sin nombre fallaba
+    --     (2026-09-24). Con nombre vacío y con nulo.
+    -- -----------------------------------------------------------------------
+    v_pedido := public.crear_pedido_reservado(
+      v_slug, jsonb_build_array(jsonb_build_object('producto_id', v_suelto, 'cantidad', 1)),
+      null, null, gen_random_uuid(),
+      encode(sha256(convert_to(gen_random_uuid()::text, 'UTF8')), 'hex')
+    );
+    if v_pedido->>'codigo' is null then
+      raise exception 'FALLO: un pedido sin nombre ni teléfono no se creó.';
+    end if;
+    v_pedido := public.crear_pedido_reservado(
+      v_slug, jsonb_build_array(jsonb_build_object('producto_id', v_suelto, 'cantidad', 1)),
+      '   ', '59170000000', gen_random_uuid(),
+      encode(sha256(convert_to(gen_random_uuid()::text, 'UTF8')), 'hex')
+    );
+    if v_pedido->>'codigo' is null then
+      raise exception 'FALLO: un pedido con el nombre en blanco no se creó.';
+    end if;
+    begin
+      perform public.crear_pedido_reservado(
+        v_slug, jsonb_build_array(jsonb_build_object('producto_id', v_suelto, 'cantidad', 1)),
+        repeat('x', 81), null, gen_random_uuid(),
+        encode(sha256(convert_to(gen_random_uuid()::text, 'UTF8')), 'hex')
+      );
+      raise exception 'FALLO: se aceptó un nombre de 81 caracteres.';
+    exception
+      when raise_exception then
+        if sqlerrm <> 'NOMBRE_INVALIDO' then raise; end if;
+    end;
+
     raise exception using errcode = 'P0001', message = 'FASE13_TODO_EN_VERDE';
   exception
     when raise_exception then
