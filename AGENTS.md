@@ -103,7 +103,7 @@ npm run lint
 npm run verificar        # tipos, lint y todas las pruebas, en ese orden
 npm run build:vinext     # corre antes `verificar`; cerrá wrangler dev antes, o falla con EBUSY
 npm run test:rls:linked
-npm run types:db:linked  # después de cualquier migración
+npm run types:db:linked  # después de cualquier migración (supabase:push ya lo corre)
 ```
 
 `supabase/seed.sql` carga negocios de prueba, uno por modalidad. **Solo contra la base
