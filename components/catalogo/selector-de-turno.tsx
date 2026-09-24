@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import {
+  MENSAJE_SIN_RESPUESTA_TURNO,
+  enviarConReintento,
+} from "../../lib/pedidos/enviar-con-reintento";
 import { useVerificacionHumana } from "../../lib/turnstile-cliente";
 import { Icono } from "../iconos/icono";
 import styles from "./selector-de-turno.module.css";
@@ -59,6 +63,7 @@ export function SelectorDeTurno({
      está eligiendo un turno tiene que leerlo junto al botón que apretó. */
   const [error, setError] = useState<string | null>(null);
   const { contenedor: contenedorVerificacion, obtenerToken } = useVerificacionHumana();
+  const intentoTurno = useRef<{ firma: string; id: string } | null>(null);
 
   /* El reinicio va durante el render y no dentro del efecto, que es el patrón
      que ya usa la hoja de producto: poner estado en un efecto dibuja una vez con
@@ -145,34 +150,48 @@ export function SelectorDeTurno({
     if (!horarioElegido) return;
     setError(null);
     setReservando(true);
+
+    /* El mismo identificador mientras la reserva sea la misma —turno, nombre y
+       teléfono—: un doble toque, un reintento después de un corte o un segundo
+       intento a mano devuelven la cita que ya se creó en vez de apartar otra.
+       Cambiar algo de eso es otra reserva, con otro identificador. */
+    const firma = `${productoId}|${horarioElegido}|${nombre.trim()}|${telefono.trim()}`;
+    if (!intentoTurno.current || intentoTurno.current.firma !== firma) {
+      intentoTurno.current = { firma, id: crypto.randomUUID() };
+    }
+    const idempotencia = intentoTurno.current.id;
+
     try {
-      /* Que la reserva la haga una persona: sin esto, un programa podía tomar
-         todos los turnos de la agenda sin venir a ninguno. */
-      const tokenVerificacion = await obtenerToken();
-      const respuesta = await fetch(`/api/publico/${slug}/citas`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          productoId,
-          inicio: horarioElegido,
-          nombre,
-          telefono,
-          nota,
-          /* Se genera acá y viaja con el pedido: un doble toque en un teléfono
-             lento manda dos veces lo mismo, y la clave repetida hace que el
-             servidor devuelva la cita que ya creó en vez de crear otra. */
-          idempotencia: crypto.randomUUID(),
-          verificacion: tokenVerificacion,
-        }),
-      });
-      const datos = (await respuesta.json().catch(() => ({}))) as {
+      /* Que la reserva la haga una persona —cada intento pide un token nuevo— y
+         que un corte no se lea como «falló»: `enviar-con-reintento.ts`. */
+      const resultado = await enviarConReintento<{
         error?: string;
         dias?: Dia[];
         cita?: { codigo: string; cuando: string };
         enlaceWhatsapp?: string | null;
-      };
+      }>(async () =>
+        fetch(`/api/publico/${slug}/citas`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            productoId,
+            inicio: horarioElegido,
+            nombre,
+            telefono,
+            nota,
+            idempotencia,
+            verificacion: await obtenerToken(),
+          }),
+        }),
+      );
 
-      if (respuesta.ok && datos.cita) {
+      if (resultado.tipo === "sin_respuesta") {
+        setError(MENSAJE_SIN_RESPUESTA_TURNO);
+        return;
+      }
+
+      const datos = resultado.datos;
+      if (resultado.estado < 400 && datos.cita) {
         setReserva({
           codigo: datos.cita.codigo,
           cuando: datos.cita.cuando,

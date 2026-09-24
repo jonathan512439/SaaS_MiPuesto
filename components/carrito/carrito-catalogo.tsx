@@ -5,6 +5,7 @@ import { useRef, useState, type FormEvent } from "react";
 
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
 import { useVerificacionHumana } from "../../lib/turnstile-cliente";
+import { MENSAJE_SIN_RESPUESTA, enviarConReintento } from "../../lib/pedidos/enviar-con-reintento";
 import { itemDeRenglon } from "../../lib/pedidos/linea";
 import { resumenSigueVigente } from "../../lib/pedidos/resumen-vigente";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
@@ -104,26 +105,36 @@ export function CarritoCatalogo({
       intento.current = { firma: firmaCarrito, id: crypto.randomUUID() };
     }
 
+    const idempotencia = intento.current.id;
     try {
-      /* Un token nuevo en cada envío: sirven una sola vez. */
-      const tokenVerificacion = await obtenerToken();
-      const respuesta = await fetch("/api/pedidos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug: datos.negocio.slug,
-          /* Un renglón de una presentación manda el producto y la presentación
-             por separado; el precio no viaja nunca, lo pone la base. */
-          items: items.map(({ producto, cantidad }) => itemDeRenglon(producto, cantidad)),
-          clienteNombre,
-          clienteTelefono,
-          numeroMesa,
-          idempotencia: intento.current.id,
-          verificacion: tokenVerificacion,
+      /* Ante un corte se pregunta de nuevo con el mismo identificador: si el
+         pedido ya se había creado, vuelve ese mismo y no se duplica. Cada
+         intento pide un token de verificación nuevo, porque sirven una vez.
+         `lib/pedidos/enviar-con-reintento.ts` cuenta por qué. */
+      const resultado = await enviarConReintento<RespuestaPedido>(async () =>
+        fetch("/api/pedidos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            slug: datos.negocio.slug,
+            /* Un renglón de una presentación manda el producto y la presentación
+               por separado; el precio no viaja nunca, lo pone la base. */
+            items: items.map(({ producto, cantidad }) => itemDeRenglon(producto, cantidad)),
+            clienteNombre,
+            clienteTelefono,
+            numeroMesa,
+            idempotencia,
+            verificacion: await obtenerToken(),
+          }),
         }),
-      });
-      const contenido = (await respuesta.json().catch(() => ({}))) as RespuestaPedido;
+      );
 
+      if (resultado.tipo === "sin_respuesta") {
+        setError(MENSAJE_SIN_RESPUESTA);
+        return;
+      }
+
+      const contenido = resultado.datos;
       if (contenido.pedido) {
         setPedido({
           ...contenido.pedido,
@@ -132,11 +143,19 @@ export function CarritoCatalogo({
         });
         /* La reserva ya descontó unidades en la base. Avisamos al catálogo para
            que recargue el stock y retire el acceso flotante, que a esta altura
-           ofreceria "ver un pedido" que en realidad ya fue reservado. */
-        onPedidoReservado(firmaCarrito);
+           ofreceria "ver un pedido" que en realidad ya fue reservado.
+           Aparte y a prueba de fallos: el pedido ya existe, y nada de lo que
+           pase al recargar puede mostrarlo como fallido. */
+        try {
+          onPedidoReservado(firmaCarrito);
+        } catch {
+          /* El catálogo se actualiza en la próxima visita. */
+        }
       }
-      if (!respuesta.ok || !contenido.pedido) {
-        throw new Error(contenido.error || "No se pudo reservar el pedido.");
+      /* Un 409 puede traer el pedido y un aviso a la vez —la reserva se creó
+         pero el WhatsApp del negocio está mal—: se muestran los dos. */
+      if (resultado.estado >= 400 || !contenido.pedido) {
+        setError(contenido.error || "No se pudo reservar el pedido.");
       }
     } catch (motivo) {
       setError(

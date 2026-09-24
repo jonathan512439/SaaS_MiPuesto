@@ -1726,6 +1726,36 @@ motivo por el que este archivo existe.
 
 ### 2026-09-24
 
+- **Un pedido creado ya no se muestra como fallido.** Prueba real del dueño en
+  Brasa Urbana: cuatro pedidos, los dos primeros con «No se pudo reservar el
+  pedido» en pantalla y creados igual en la base. Turnstile los verificó a
+  todos. El registro del Worker mostró pedidos de **6 a 12 ms de CPU** contra
+  el límite de 10 del plan gratuito: si Cloudflare corta después de que la base
+  creó el pedido, el navegador recibe una página de error y no sabe qué pasó.
+  El plan pago se deja para el primer cliente (decisión del dueño), así que se
+  resolvió del lado del navegador:
+  - `lib/pedidos/enviar-con-reintento.ts`: ante red caída, 5xx, cuerpo que no
+    es JSON o 403 de la verificación, repite hasta tres veces **con el mismo
+    identificador** y un token nuevo. La base devuelve el mismo pedido marcado
+    como repetido —antes del tope por IP, así que no gasta cupo—. Un 4xx de la
+    aplicación no se repite. Si nunca hay respuesta, dice que reintentar no
+    duplica, en vez de «falló».
+  - El aviso al catálogo después de reservar quedó aislado: nada de lo que pase
+    al recargar puede marcar como fallido un pedido que existe.
+  - **Selector de turnos:** generaba un identificador nuevo en cada toque, y un
+    reintento apartaba otro turno. Ahora es el mismo mientras la reserva sea la
+    misma (turno, nombre, teléfono). Y la ruta de citas busca el identificador
+    **antes** de todo: el reintento chocaba con su propia cita y podía decir «se
+    ocupó» con el turno ya tomado.
+  - `partirRango` pasó a `lib/agenda/rango.ts`, con prueba, para leer el rango de
+    la cita en los dos lugares.
+  - **Probado en el navegador** interceptando `/api/pedidos` sin crear nada:
+    con el primer envío cortado (HTML 503), dos envíos con el mismo
+    identificador y el código en pantalla; con todos cortados, tres intentos y el
+    mensaje correcto. Siete pruebas de la lógica, rotas dos veces a propósito.
+  - Un pedido de prueba (PED-3BC400F3) se creó sin querer: un Chrome automatizado
+    quedó vivo y envió al vencer la espera del token. Se dejó vencer solo.
+
 - **Etapa 2 de las correcciones: el stock, el dinero y los datos de los
   clientes.**
   - **Seis meses para nombres y teléfonos** (decisión del dueño). La política de

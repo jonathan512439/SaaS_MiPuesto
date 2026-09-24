@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { CitaAgenda, RecursoAdmin, ServicioAgendable } from "../../components/agenda/gestor-agenda";
 import type { Database } from "../supabase/database.types";
+import { partirRango } from "./rango";
 
 /* Lo que hace falta para dibujar la agenda del dueño.
  *
@@ -9,15 +10,6 @@ import type { Database } from "../supabase/database.types";
  * pantalla propia: los turnos del día se ven junto con los pedidos, que es donde
  * el dueño mira «qué tengo que resolver hoy».
  */
-
-/* Del rango de Postgres —«["2026-09-14 14:00:00+00","2026-09-14 15:00:00+00")»—
-   a dos instantes. Se parte acá para que el cliente no tenga que conocer cómo la
-   base escribe un rango. */
-function partirRango(rango: unknown): { inicio: string; fin: string } {
-  const texto = String(rango).replace(/^[[(]/, "").replace(/[\])]$/, "");
-  const [inicio, fin] = texto.split(",").map((parte) => parte.replace(/"/g, "").trim());
-  return { inicio: new Date(inicio).toISOString(), fin: new Date(fin).toISOString() };
-}
 
 export type AgendaAdmin = {
   recursos: RecursoAdmin[];

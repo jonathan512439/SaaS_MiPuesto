@@ -6,6 +6,7 @@ import {
   proximosDias,
   rangoDeCita,
 } from "../../../../../lib/agenda/horarios";
+import { partirRango } from "../../../../../lib/agenda/rango";
 import { obtenerOcupacion, obtenerProductoAgendable } from "../../../../../lib/agenda/servidor";
 import { esUuid } from "../../../../../lib/catalogo/validacion";
 import {
@@ -112,6 +113,30 @@ export async function POST(
     .maybeSingle();
   if (!negocio) {
     return NextResponse.json({ error: "Este negocio no está disponible." }, { status: 404 });
+  }
+
+  /* Si esta misma reserva ya se creó, se devuelve sin mirar nada más.
+     Es lo que pasa cuando el navegador reintenta después de un corte —ver
+     `lib/pedidos/enviar-con-reintento.ts`—: antes, el reintento chocaba con
+     su propia cita, la franja figuraba ocupada y la persona leía «se ocupó»
+     con el turno ya a su nombre. Y va antes del tope por IP: preguntar por
+     una reserva hecha no es un intento nuevo. */
+  const { data: yaCreada } = await supabase
+    .from("citas")
+    .select("codigo,rango")
+    .eq("negocio_id", negocio.id)
+    .eq("idempotencia", idempotencia)
+    .maybeSingle();
+  if (yaCreada) {
+    const { inicio: inicioExistente } = partirRango(yaCreada.rango);
+    return NextResponse.json({
+      cita: {
+        codigo: yaCreada.codigo,
+        inicio: inicioExistente,
+        cuando: describirCita(inicioExistente),
+      },
+      repetido: true,
+    });
   }
 
   /* El mismo tope que los pedidos, por negocio y por huella de IP: cinco en
