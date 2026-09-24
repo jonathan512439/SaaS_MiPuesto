@@ -1726,6 +1726,38 @@ motivo por el que este archivo existe.
 
 ### 2026-09-24
 
+- **Etapa 2 de las correcciones: el stock, el dinero y los datos de los
+  clientes.**
+  - **Seis meses para nombres y teléfonos** (decisión del dueño). La política de
+    privacidad ya lo prometía y nada lo hacía. Migración `20261024090000`:
+    tarea diaria `mipuesto-borrar-datos-clientes` (08:15 UTC) que deja sin
+    nombre ni teléfono los pedidos cerrados de más de seis meses, y sin nombre,
+    teléfono ni nota las citas cuyo turno pasó hace más de seis meses; el
+    registro queda, con `datos_cliente_borrados_en`. Para el cliente que lo pide
+    antes: `npm run privacidad:borrar-cliente -- <celular> [--confirmar]`.
+    Vigilada y en la restauración. Prueba `test:privacidad:ensayo`, probada
+    rompiendo el plazo y la excepción de los pendientes. En producción no había
+    nada que borrar todavía.
+  - **La huella de IP con secreto propio** (`HUELLA_IP_SECRETO`), no con la
+    clave de servicio; obligatorio en `wrangler.jsonc`. La ruta pública de citas
+    ya no da 500 si falta. `/api/salud` ya tenía memoria de 15 s y `SECURITY.md`
+    no lo decía: corregido.
+  - **Cloudflare Turnstile en pedidos y reservas**, en modo gestionado:
+    invisible para casi todos y una casilla solo si Cloudflare duda. El script
+    se carga recién al enviar. Sin token o con uno inválido se rechaza; si
+    Cloudflare no contesta, pasa con el tope por IP. Arrancó en
+    **`TURNSTILE_MODO=observar`**: un navegador automatizado no obtiene token
+    —Turnstile lo reconoce, se comprobó con Chrome con y sin ventana—, así que
+    el camino de una persona real no se pudo probar desde acá. En producción, con
+    `wrangler tail`: sin token y con uno inventado se anotan «se habría
+    rechazado» y siguen. **Pendiente: un pedido real desde un celular; si
+    aparece «verificado» en el registro, pasar a `exigir`.**
+  - **Las fotos, respaldadas** (`scripts/respaldar-fotos.sh`, en el respaldo
+    diario): 114 fotografías (9,4 MB) copiadas a R2 en la primera corrida, cero
+    en la segunda (incremental), cinco al azar comparadas por SHA-256 en cada
+    corrida. Probada corrompiendo la copia en una rama descartable: falló como
+    debía.
+
 - **Etapa 1 de las correcciones: nada roto llega a producción.**
   - **El freno:** `prebuild:vinext` corre `npm run verificar` —tipos, lint y
     todas las pruebas— antes de cada build, también en Cloudflare, que publica

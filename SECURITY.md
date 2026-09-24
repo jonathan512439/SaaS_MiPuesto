@@ -270,6 +270,7 @@ conteo de límites por IP — y que sí pueda guardar lo suyo.
 | `'unsafe-inline'` en `script-src` | Quitarlo exige nonces y hay que ver si vinext los soporta. No renderizamos HTML de usuario |
 | Sin tope de almacenamiento por negocio | El techo existe —2 MB por foto, 4 por producto, 300 productos— pero nadie avisa al acercarse |
 | Invitaciones sin límite | Exige una cuenta con segundo factor ya comprometida |
+| Acaparar stock o turnos con un programa que cambia de IP | **Mitigado el 2026-09-24** con Cloudflare Turnstile en pedidos y reservas (`lib/turnstile.ts`). Arrancó en `TURNSTILE_MODO=observar` hasta confirmar con un pedido real que las personas pasan; después, `exigir`. El tope de 5 por IP sigue, y todavía no se midió si choca con la IP compartida de las redes móviles |
 
 ## Recuperación de contraseña — corregido el 2026-09-07
 
