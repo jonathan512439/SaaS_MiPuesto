@@ -35,7 +35,6 @@ export function ProductoConPedido({
 }) {
   const { cantidades, elegidos, cambiarCantidad } = usePedido(negocioId);
 
-  const cantidad = cantidades[producto.id] ?? 0;
   const articulos = Object.values(cantidades).reduce((total, unidades) => total + unidades, 0);
   const total = Object.entries(cantidades).reduce(
     (suma, [id, unidades]) => suma + (elegidos[id]?.precio ?? 0) * unidades,
@@ -46,11 +45,11 @@ export function ProductoConPedido({
     <>
       <FichaProducto
         alAbrirWhatsapp={() => registrarEventoAnalitica(negocioId, "clic_whatsapp", producto.id)}
-        alAgregarProducto={() => {
+        alAgregarRenglon={(renglon) => {
           registrarEventoAnalitica(negocioId, "clic_producto", producto.id);
-          cambiarCantidad(producto, cantidad + 1);
+          cambiarCantidad(renglon, (cantidades[renglon.id] ?? 0) + 1);
         }}
-        cantidad={cantidad}
+        cantidadDe={(renglonId) => cantidades[renglonId] ?? 0}
         modalidad={modalidad}
         permiteAcciones={permiteAcciones}
         producto={producto}

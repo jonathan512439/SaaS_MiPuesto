@@ -12,6 +12,7 @@ import {
 } from "../../lib/pedidos/estado";
 import { formatearPrecioBolivianos } from "../../lib/precios";
 import { normalizarTelefonoWhatsappPublico } from "../../lib/whatsapp";
+import { nombreConPresentacion } from "../../lib/catalogo/variantes";
 import { Boton, EstadoVacio, useAvisos, useConfirmacion } from "../ui";
 import styles from "./gestor-pedidos.module.css";
 
@@ -23,6 +24,9 @@ export type ItemPedidoAdmin = {
   cantidad: number;
   subtotal: number;
   controla_stock: boolean;
+  /* La presentación pedida, copiada por la base (fase 13). */
+  variante_nombre?: string | null;
+  tipo_presentacion?: string | null;
 };
 
 export type PedidoAdmin = {
@@ -65,7 +69,7 @@ function ResumenPedido({ pedido }: { pedido: PedidoAdmin }) {
             <li key={item.id}>
               <div>
                 <strong>
-                  {item.cantidad} × {item.nombre}
+                  {item.cantidad} × {nombreConPresentacion(item.nombre, item.tipo_presentacion, item.variante_nombre)}
                 </strong>
               </div>
               <span>{formatearPrecioBolivianos(Number(item.subtotal))}</span>
@@ -255,7 +259,7 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
                         <li key={item.id}>
                           <div>
                             <strong>
-                              {item.cantidad} × {item.nombre}
+                              {item.cantidad} × {nombreConPresentacion(item.nombre, item.tipo_presentacion, item.variante_nombre)}
                             </strong>
                             <small>
                               {item.producto_codigo}

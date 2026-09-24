@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 
+import { TEXTOS_DE_PRESENTACION } from "../../lib/catalogo/variantes";
+import { renglonDePresentacion } from "../../lib/pedidos/linea";
 import { formatearPrecioBolivianos } from "../../lib/precios";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { AccionProducto } from "../templates/accion-producto";
@@ -29,16 +31,20 @@ export function FichaProducto({
   modalidad,
   permiteAcciones,
   slug,
-  cantidad = 0,
-  alAgregarProducto,
+  cantidadDe = () => 0,
+  alAgregarRenglon,
   alAbrirWhatsapp,
 }: {
   producto: ProductoPlantilla;
   modalidad: "solo_lectura" | "accion_individual" | "carrito";
   permiteAcciones: boolean;
   slug: string;
-  cantidad?: number;
-  alAgregarProducto?: (productoId: string) => void;
+  /* Cuántas hay en el pedido de un renglón: el producto, o una presentación
+     suya («p1:v40»). */
+  cantidadDe?: (renglonId: string) => number;
+  /* Recibe el renglón entero: con presentación elegida es una copia del
+     producto con su nombre, su precio y su máximo (`lib/pedidos/linea.ts`). */
+  alAgregarRenglon?: (renglon: ProductoPlantilla) => void;
   alAbrirWhatsapp?: (productoId: string | null) => void;
 }) {
   const [actual, setActual] = useState(0);
@@ -61,6 +67,15 @@ export function FichaProducto({
      WhatsApp y el número de arriba no puedan decir cosas distintas. */
   const variante = producto.variantes.find(({ id }) => id === varianteElegida) ?? null;
   const precioMostrado = variante ? variante.precio : producto.precio;
+  const textosPresentacion = TEXTOS_DE_PRESENTACION[producto.tipoPresentacion ?? "presentacion"];
+  /* Lo que se agrega: la presentación elegida como su propio renglón, o el
+     producto si no tiene presentaciones. Con presentaciones y ninguna elegida
+     no hay nada que agregar todavía. */
+  const renglon = variante
+    ? renglonDePresentacion(producto, variante.id)
+    : producto.variantes.length === 0
+      ? producto
+      : null;
 
   const imagenes = producto.imagenes;
   const total = imagenes.length;
@@ -166,24 +181,36 @@ export function FichaProducto({
           </div>
         </div>
 
+        {/* Botones y no un desplegable: todas las tallas a la vista, que es
+            como se elige un número de calzado. Lo agotado se ve tachado **y**
+            dice «Agotado» —el color no es el único aviso— y no se puede elegir.
+            Nada viene elegido: preseleccionar haría que quien no mira pida la
+            primera sin saberlo. */}
         {producto.variantes.length > 0 ? (
           <fieldset className={styles.variantes}>
-            <legend>Presentación</legend>
-            {producto.variantes.map((opcion) => (
-              <label key={opcion.id}>
-                <input
-                  checked={varianteElegida === opcion.id}
-                  name="presentacion"
-                  onChange={() => setVarianteElegida(opcion.id)}
-                  type="radio"
-                  value={opcion.id}
-                />
-                <span>{opcion.nombre}</span>
-                {opcion.precio !== producto.precio ? (
-                  <small>{formatearPrecioBolivianos(opcion.precio)}</small>
-                ) : null}
-              </label>
-            ))}
+            <legend>{textosPresentacion.elegir}</legend>
+            {producto.variantes.map((opcion) => {
+              const agotada = opcion.disponibles === 0;
+              const pocas =
+                typeof opcion.disponibles === "number" && opcion.disponibles > 0 && opcion.disponibles <= 3;
+              return (
+                <label className={agotada ? styles.varianteAgotada : undefined} key={opcion.id}>
+                  <input
+                    checked={varianteElegida === opcion.id}
+                    disabled={agotada}
+                    name="presentacion"
+                    onChange={() => setVarianteElegida(opcion.id)}
+                    type="radio"
+                    value={opcion.id}
+                  />
+                  <span className={styles.varianteNombre}>{opcion.nombre}</span>
+                  {opcion.precio !== producto.precio ? (
+                    <small>{formatearPrecioBolivianos(opcion.precio)}</small>
+                  ) : null}
+                  {agotada ? <small>Agotado</small> : pocas ? <small>Quedan {opcion.disponibles}</small> : null}
+                </label>
+              );
+            })}
           </fieldset>
         ) : null}
 
@@ -230,25 +257,27 @@ export function FichaProducto({
         ) : producto.vendeTiempo ? (
           <p className={styles.soloMuestra}>Consultá al negocio para agendar.</p>
         ) : (
+          /* Con presentaciones, primero se elige: el botón aparece recién con
+             una elegida, y mientras tanto se dice qué falta en vez de mostrar
+             un botón apagado sin explicación. */
+          renglon === null ? (
+            <p className={styles.eligeAntes}>
+              {textosPresentacion.elegir}{" "}
+              {modalidad === "carrito" ? "para agregarlo al pedido." : "para pedirlo."}
+            </p>
+          ) : (
           <div className={styles.accion}>
             <AccionProducto
-              alAgregarProducto={alAgregarProducto}
+              alAgregarProducto={() => alAgregarRenglon?.(renglon)}
               alAbrirWhatsapp={alAbrirWhatsapp}
-              cantidad={cantidad}
+              cantidad={cantidadDe(renglon.id)}
               demostracion={false}
               modalidad={modalidad}
               permiteAcciones={permiteAcciones}
-              /* Con una presentación elegida, la acción es la suya: su precio y
-                 su nombre. Sin ninguna, la del producto. Se reemplazan los dos
-                 campos juntos para que el botón no pueda quedar con el precio de
-                 una y el mensaje de otra. */
-              producto={
-                variante
-                  ? { ...producto, precio: variante.precio, accionWhatsapp: variante.accionWhatsapp }
-                  : producto
-              }
+              producto={renglon}
             />
           </div>
+          )
         )}
       </div>
     </>

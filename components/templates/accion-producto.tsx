@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Icono } from "../iconos/icono";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
+import { TEXTOS_DE_PRESENTACION } from "../../lib/catalogo/variantes";
 
 /* La acción de la tarjeta es un ícono y no una frase.
  *
@@ -111,6 +112,29 @@ export function AccionProducto({
       >
         <IconoDeAccion producto={producto} />
         {soloIcono ? null : <span>Agendar</span>}
+      </Link>
+    );
+  }
+
+  /* Con presentaciones, primero hay que elegir la talla, el número o el tamaño,
+     y eso se hace en la página del producto. La tarjeta lleva ahí en vez de
+     agregar el producto sin presentación, que es justamente lo que la fase 13
+     vino a impedir: un pedido que no dice qué talla. */
+  if (producto.variantes.length > 0) {
+    const textos = TEXTOS_DE_PRESENTACION[producto.tipoPresentacion ?? "presentacion"];
+    const etiqueta = `${textos.boton} de ${producto.nombre}`;
+    if (!href) {
+      return (
+        <button aria-label={etiqueta} disabled type="button">
+          <Icono nombre="etiqueta" />
+          {soloIcono ? null : <span>{textos.boton}</span>}
+        </button>
+      );
+    }
+    return (
+      <Link aria-label={etiqueta} href={href} onClick={() => alVerProducto?.(producto.id)}>
+        <Icono nombre="etiqueta" />
+        {soloIcono ? null : <span>{textos.boton}</span>}
       </Link>
     );
   }

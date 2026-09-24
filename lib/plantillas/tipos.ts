@@ -45,10 +45,20 @@ export type ProductoPlantilla = {
      vez del selector de cantidad: son dos formas de comprar distintas y ninguna
      pantalla tiene que decidirlo mirando otra cosa. */
   vendeTiempo: boolean;
+  /* Qué son sus presentaciones: decide cómo se pregunta («Elige tu número») y
+     cómo se nombra la elegida («N.º 40,5»). Opcional para los datos de muestra,
+     que no la necesitan; sin ella es «una opción». */
+  tipoPresentacion?: "talla" | "numero" | "tamano" | "presentacion";
+  /* Solo en un renglón del carrito que es una presentación: qué producto y qué
+     presentación se piden. El renglón tiene su propio `id` —producto y
+     presentación juntos— para que la M y la L sean dos renglones. */
+  seleccion?: { productoId: string; varianteId: string };
   variantes: Array<{
     id: string;
     nombre: string;
     precio: number;
+    /* Cuántas quedan para pedir, o `null` si el producto no lleva la cuenta. */
+    disponibles?: number | null;
     /* Su propio enlace, armado en el servidor con su nombre y su precio. Se
        manda resuelto en vez de rearmar el mensaje en el navegador: el texto lo
        escribe `construirMensajeProducto` y tenerlo en dos lugares haría que un

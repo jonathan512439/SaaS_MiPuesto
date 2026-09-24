@@ -1209,6 +1209,13 @@
   }
 }
 
+/* El «Desde» del precio de un producto con presentaciones de precios
+   distintos: más chico, para que el número siga siendo lo que se lee. */
+.desde {
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
 /* Dentro de un teléfono dibujado —la portada del sitio lo muestra en un marco
    de 20rem— las columnas no pueden seguir al ancho de la ventana: en un monitor
    ponían seis tarjetas en trescientos píxeles. Quien dibuja el marco lo avisa

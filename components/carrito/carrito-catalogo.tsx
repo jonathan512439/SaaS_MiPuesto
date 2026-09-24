@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState, type FormEvent } from "react";
 
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
+import { itemDeRenglon } from "../../lib/pedidos/linea";
 import { resumenSigueVigente } from "../../lib/pedidos/resumen-vigente";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
@@ -105,10 +106,9 @@ export function CarritoCatalogo({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           slug: datos.negocio.slug,
-          items: items.map(({ producto, cantidad }) => ({
-            productoId: producto.id,
-            cantidad,
-          })),
+          /* Un renglón de una presentación manda el producto y la presentación
+             por separado; el precio no viaja nunca, lo pone la base. */
+          items: items.map(({ producto, cantidad }) => itemDeRenglon(producto, cantidad)),
           clienteNombre,
           clienteTelefono,
           numeroMesa,

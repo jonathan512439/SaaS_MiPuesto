@@ -1726,6 +1726,30 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Fase 13, pasos 5 y 6: el catálogo y los pedidos del panel.**
+  - **Página del producto:** botones con la pregunta del tipo («Elige tu
+    número»), lo agotado tachado y con la palabra, «Quedan 2» cuando quedan
+    pocas, nada elegido de entrada, y sin presentación elegida no hay botón:
+    se dice qué falta. Con una elegida se agrega **su renglón**
+    (`lib/pedidos/linea.ts`): el producto con su propio id («p1:v40»), el
+    nombre con la presentación, su precio y su máximo, y `seleccion` con el
+    producto y la presentación por separado, que es lo único que viaja. El
+    resto del carrito no tuvo que cambiar y los carritos guardados de antes
+    siguen abriendo.
+  - **Tarjeta:** un producto con presentaciones no se agrega directo: lleva a su
+    página con «Elegir número» (o talla, tamaño, opción), en las tres formas; el
+    precio dice «Desde» el menor si cuestan distinto.
+  - **Datos del catálogo:** cada presentación trae cuántas quedan; lo disponible
+    del producto es la suma de las suyas; el orden sigue al tipo; el mensaje de
+    la modalidad individual dice «Remera lisa (Talla M)».
+  - **Panel de pedidos:** cada renglón con su presentación.
+  - El título del selector estaba en mayúsculas espaciadas, que DESIGN.md §3
+    prohíbe: pasó a letra normal.
+  - **Pruebas:** 6 del renglón del carrito y 16 de dibujo (la tarjeta en tres
+    modalidades por tres formas, la página con los cuatro tipos, los agotados,
+    nada elegido de entrada); probadas desactivando el desvío de la tarjeta,
+    que tumbó las seis combinaciones que venden.
+
 - **Fase 13, paso 4: el editor del panel.** El tipo arriba (Talla, Número de
   calzado, Tamaño, Otra opción), atajos que cargan la lista de una vez («S a XXL»,
   «Varón 38 a 45», con o sin medios números), orden automático de tallas y

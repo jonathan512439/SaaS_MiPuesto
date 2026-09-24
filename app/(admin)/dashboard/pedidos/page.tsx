@@ -40,7 +40,7 @@ export default async function PaginaPedidos() {
     supabase
       .from("pedidos")
       .select(
-        "id,codigo,cliente_nombre,cliente_telefono,numero_mesa,total,estado,creado_en,expira_en,confirmado_en,confirmado_por,cancelado_en,cancelado_por,pedido_items(id,producto_codigo,nombre,precio_unitario,cantidad,subtotal,controla_stock)",
+        "id,codigo,cliente_nombre,cliente_telefono,numero_mesa,total,estado,creado_en,expira_en,confirmado_en,confirmado_por,cancelado_en,cancelado_por,pedido_items(id,producto_codigo,nombre,precio_unitario,cantidad,subtotal,controla_stock,variante_nombre,tipo_presentacion)",
       )
       .eq("negocio_id", negocio.id)
       .order("creado_en", { ascending: false })

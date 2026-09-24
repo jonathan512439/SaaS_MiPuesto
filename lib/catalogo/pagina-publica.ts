@@ -88,7 +88,9 @@ export function consultarContextoPublico(supabase: Cliente, negocioId: string) {
        no dependa de dos lugares. */
     supabase
       .from("variantes_producto")
-      .select("id,producto_id,nombre,precio,cantidad_stock,visible,orden")
+      /* Con lo apartado: desde la fase 13 cada presentación lleva sus
+         existencias, y el catálogo dice cuántas quedan de cada una. */
+      .select("id,producto_id,nombre,precio,cantidad_stock,cantidad_reservada,visible,orden")
       .eq("negocio_id", negocioId)
       .order("orden"),
     /* Las definiciones de campos de todas las categorías, en una sola consulta.

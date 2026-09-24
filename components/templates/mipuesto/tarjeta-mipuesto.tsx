@@ -60,6 +60,9 @@ export function TarjetaMipuesto({
      direcciones distintas del mismo producto. */
   const href = slug ? rutaProductoPublico(slug, producto.codigo) : null;
   const insignia = insigniaDe(producto);
+  const precios = producto.variantes.map(({ precio }) => precio);
+  const desde =
+    precios.length > 0 && Math.min(...precios) !== Math.max(...precios) ? Math.min(...precios) : null;
 
   return (
     <li
@@ -121,10 +124,16 @@ export function TarjetaMipuesto({
 
         <div className={styles.tarjetaPie}>
           <div className={styles.tarjetaPrecio}>
-            {producto.tienePromocion ? (
+            {producto.tienePromocion && !desde ? (
               <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
             ) : null}
-            <strong>{formatearPrecioBolivianos(producto.precio)}</strong>
+            {/* Con presentaciones de precios distintos, el menor con «Desde»:
+                mostrar el del producto prometería un precio que la talla
+                elegida quizás no tiene. */}
+            <strong>
+              {desde ? <small className={styles.desde}>Desde </small> : null}
+              {formatearPrecioBolivianos(desde ?? producto.precio)}
+            </strong>
           </div>
           <AccionProducto
             alAgregarProducto={alAgregarProducto}

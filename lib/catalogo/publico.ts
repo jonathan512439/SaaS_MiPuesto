@@ -22,6 +22,7 @@ import { obtenerUrlPublicaImagenNegocio } from "../negocios/imagenes-publicas";
 import { leerAtributos, type Atributo } from "./atributos";
 import { ICONO_PREDETERMINADO, normalizarIcono } from "./categorias";
 import { lineaDeTarjeta, valoresParaMostrar } from "./valores";
+import { esTipoPresentacion, nombreConPresentacion, ordenarPresentaciones } from "./variantes";
 import { esPaletaId } from "../plantillas/validacion";
 import { acotarOpacidad } from "../patrones-fondo";
 
@@ -86,6 +87,7 @@ export type VariantePublica = {
   nombre: string;
   precio: number | null;
   cantidad_stock: number | null;
+  cantidad_reservada?: number;
   visible: boolean;
   orden: number;
 };
@@ -114,6 +116,9 @@ type ProductoPublico = {
   en_carta_hasta?: string | null;
   /* Cuánto dura este servicio. Nulo: la de su categoría. */
   duracion_minutos?: number | null;
+  /* Fase 13. */
+  con_presentaciones?: boolean;
+  tipo_presentacion?: string;
 };
 
 export function obtenerTextoHorario(horario: unknown) {
@@ -183,11 +188,29 @@ export function construirCatalogoPublico(
       fecha,
     );
     const precio = precioCalculado.precioFinal;
-    const cantidadDisponible = calcularCantidadDisponible({
-      controlaStock: producto.controla_stock === true,
-      cantidadStock: producto.cantidad_stock ?? null,
-      cantidadReservada: producto.cantidad_reservada ?? 0,
-    });
+    const presentaciones = variantesPorProducto.get(producto.id) ?? [];
+    const tipoPresentacion = esTipoPresentacion(producto.tipo_presentacion)
+      ? producto.tipo_presentacion
+      : "presentacion";
+    /* Con presentaciones y control de existencias, las del producto están en
+       nulo (fase 13): lo que queda es la suma de lo que queda de cada una. */
+    const cantidadDisponible =
+      producto.controla_stock === true && presentaciones.length > 0
+        ? presentaciones.reduce(
+            (suma, variante) =>
+              suma +
+              (calcularCantidadDisponible({
+                controlaStock: true,
+                cantidadStock: variante.cantidad_stock ?? null,
+                cantidadReservada: variante.cantidad_reservada ?? 0,
+              }) ?? 0),
+            0,
+          )
+        : calcularCantidadDisponible({
+            controlaStock: producto.controla_stock === true,
+            cantidadStock: producto.cantidad_stock ?? null,
+            cantidadReservada: producto.cantidad_reservada ?? 0,
+          });
     const estado =
       cantidadDisponible === 0 && producto.estado === "disponible"
         ? "reservado"
@@ -238,21 +261,27 @@ export function construirCatalogoPublico(
          promociones**, así que un descuento del catálogo alcanza a las
          presentaciones que no fijaron precio propio, y no a las que sí. Es lo
          esperable: quien puso un precio fijo para «7,5 kg» puso ese precio. */
-      variantes: (variantesPorProducto.get(producto.id) ?? []).map((variante) => {
+      tipoPresentacion,
+      variantes: ordenarPresentaciones(tipoPresentacion, presentaciones).map((variante) => {
         const precioVariante = variante.precio === null ? precio : Number(variante.precio);
         return {
           id: variante.id,
           nombre: variante.nombre,
           precio: precioVariante,
+          disponibles: calcularCantidadDisponible({
+            controlaStock: producto.controla_stock === true,
+            cantidadStock: variante.cantidad_stock ?? null,
+            cantidadReservada: variante.cantidad_reservada ?? 0,
+          }),
           accionWhatsapp:
             modalidad.accion === "accion_individual"
               ? construirEnlaceWhatsapp(
                   negocio.telefono_whatsapp,
                   construirMensajeProducto(negocio.nombre, {
                     /* El nombre lleva la presentación pegada: quien recibe el
-                       mensaje tiene que leer «Remera lisa (M)» y no adivinar
-                       cuál de las tres tallas le pidieron. */
-                    nombre: `${producto.nombre} (${variante.nombre})`,
+                       mensaje tiene que leer «Remera lisa (Talla M)» y no
+                       adivinar cuál de las tres tallas le pidieron. */
+                    nombre: nombreConPresentacion(producto.nombre, tipoPresentacion, variante.nombre),
                     precio: precioVariante,
                     datos: valoresParaMostrar(definiciones, producto.atributos, "resumen"),
                   }),
