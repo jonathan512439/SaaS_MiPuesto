@@ -99,6 +99,14 @@ begin
 
     delete from public.variantes_producto where producto_id = v_producto;
 
+    -- El banco de pruebas no controla existencias: estos casos prueban nombres,
+    -- tope y reservas de la presentación, no el reparto de existencias (eso lo
+    -- prueba fase13-motor.sql). Sin fijarlo, la prueba dependía de cómo
+    -- estuviera el primer producto de ensayo. Todo se revierte al final.
+    update public.productos
+    set controla_stock = false, cantidad_stock = null, cantidad_reservada = 0
+    where id = v_producto;
+
     -- 3.1 Un producto «número» normaliza al guardar y rechaza lo que no es.
     update public.productos set tipo_presentacion = 'numero' where id = v_producto;
     insert into public.variantes_producto (negocio_id, producto_id, nombre, orden)

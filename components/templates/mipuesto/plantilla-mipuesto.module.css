@@ -1212,8 +1212,12 @@
 /* El «Desde» del precio de un producto con presentaciones de precios
    distintos: más chico, para que el número siga siendo lo que se lee. */
 .desde {
+  /* En su propio renglón, encima del número: pegado al lado, en una tarjeta
+     angosta partía el precio en «Desde Bs» y «120». */
+  display: block;
   font-size: var(--text-xs);
   font-weight: 700;
+  line-height: 1.2;
 }
 
 /* Dentro de un teléfono dibujado —la portada del sitio lo muestra en un marco

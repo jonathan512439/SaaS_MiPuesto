@@ -131,7 +131,7 @@ export function TarjetaMipuesto({
                 mostrar el del producto prometería un precio que la talla
                 elegida quizás no tiene. */}
             <strong>
-              {desde ? <small className={styles.desde}>Desde </small> : null}
+              {desde ? <small className={styles.desde}>Desde</small> : null}
               {formatearPrecioBolivianos(desde ?? producto.precio)}
             </strong>
           </div>

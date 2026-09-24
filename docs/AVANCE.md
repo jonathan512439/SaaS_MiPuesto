@@ -1726,6 +1726,42 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Fase 13, paso 7: de punta a punta en producción. Fase 13 cerrada.**
+  - **En producción, en Tienda Kantuta (con carrito):** se crearon productos
+    «PRUEBA F13» —una zapatilla con 40, 40,5 y 42 a precios distintos, una
+    remera con tallas y una bolsa de 3 kg y 7,5 kg— y se comprobó:
+    - la página del producto y la tarjeta, en el HTML servido: «Elige tu
+      número», «Desde» el menor, nada elegido de entrada;
+    - un pedido real por `/api/pedidos` con dos números de la misma zapatilla,
+      una talla y un tamaño: total **Bs 1210**, recalculado por la base; el
+      WhatsApp dice «(N.º 40,5)», «(N.º 42)», «(Talla M)», «(7,5 kg)» con su
+      precio;
+    - sin presentación, el pedido se rechaza (`PRESENTACION_REQUERIDA`);
+    - la reserva cae en cada presentación y no en el producto; el 40,5 con su
+      única unidad apartada aparece agotado y no se puede elegir;
+    - cancelar devuelve la reserva sin tocar las existencias.
+  - El horario de Kantuta se cambió para poder pedir fuera de hora y se
+    devolvió idéntico (`{"lunes":{"abre":"09:00","cierra":"18:30"}}`); los
+    productos de prueba y sus pedidos se borraron (0 «PRUEBA F13»).
+  - **Confirmar descuenta de cada presentación** se verificó en ensayo
+    (`test:fase13:motor:ensayo`, sección 3), no en producción: confirmar un
+    pedido real habría movido existencias de un negocio que funciona.
+  - En un teléfono de 360 px el «Desde» se montaba sobre el precio en la
+    tarjeta: pasó a su propio renglón, encima del número.
+  - Las dos pruebas de base de la fase dependían de cómo estuviera el primer
+    producto de ensayo (una elegía un producto «ajeno» con `limit 1` sin orden);
+    cuando ese producto pasó a controlar existencias, fallaron con
+    `EXISTENCIAS_POR_PRESENTACION` —la guardia hacía bien su trabajo—. Ahora
+    fijan el estado de su banco de pruebas dentro de la transacción que
+    deshacen.
+  - **Cierre:** `test:rls:linked`, `test:fase13:ensayo`,
+    `test:fase13:motor:ensayo` y `test:fase13:concurrencia` en verde; 870
+    pruebas de `npm test`, tipos, lint y build correctos. Marca
+    `fase13-cierre`.
+  - **Queda a mano:** el editor del panel (tipos, atajos, reparto de
+    existencias) no se revisó con capturas en un teléfono; está cubierto por
+    las pruebas de dibujo y de ruta, no por una revisión visual.
+
 - **Fase 13, pasos 5 y 6: el catálogo y los pedidos del panel.**
   - **Página del producto:** botones con la pregunta del tipo («Elige tu
     número»), lo agotado tachado y con la palabra, «Quedan 2» cuando quedan

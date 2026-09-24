@@ -69,7 +69,7 @@ begin
     limit 1;
 
     -- Otro producto cualquiera, para las presentaciones ajenas.
-    select id into v_ajeno from public.productos where id not in (v_producto, v_suelto) limit 1;
+    select id into v_ajeno from public.productos where id not in (v_producto, v_suelto) order by id limit 1;
 
     -- Los pedidos pendientes de la copia no pueden estorbar: se cierran.
     update public.pedido_items set reserva_activa = false where reserva_activa = true;
@@ -155,8 +155,13 @@ begin
     perform set_config('request.jwt.claims', json_build_object('sub', v_duenio, 'role', 'authenticated')::text, true);
 
     -- 1.3 Una presentación de otro producto no se puede traer por este camino.
-    insert into public.variantes_producto (negocio_id, producto_id, nombre, orden)
-    select negocio_id, id, 'Ajena de prueba', 20 from public.productos where id = v_ajeno;
+    -- Coherente con su producto: si controla existencias, lleva las suyas.
+    -- Sin eso, la comprobación diferida la rechazaba con razón, y la prueba
+    -- dependía de cuál producto de ensayo saliera primero.
+    insert into public.variantes_producto (negocio_id, producto_id, nombre, orden, cantidad_stock)
+    select negocio_id, id, 'Ajena de prueba', 20, case when controla_stock then 1 end
+    from public.productos where id = v_ajeno;
+    update public.productos set tipo_presentacion = 'presentacion' where id = v_ajeno;
     begin
       perform public.guardar_presentaciones(
         v_producto, 'numero',

@@ -324,6 +324,9 @@ Un commit por paso, y cada paso desplegado antes del siguiente:
 
 ## 7. Criterio de salida
 
+**Cumplido el 23 de septiembre de 2026** (ver `docs/AVANCE.md`, paso 13.7).
+Confirmar se verificó en ensayo; en producción, cancelar.
+
 En producción, en un negocio con carrito:
 
 - Un pedido con dos números distintos de la misma zapatilla y una talla de
