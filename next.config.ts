@@ -4,7 +4,10 @@ const urlSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const desarrollo = process.env.NODE_ENV === "development";
 const politicaContenido = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${desarrollo ? " 'unsafe-eval'" : ""}`,
+  /* Cloudflare Turnstile: su script y el marco donde verifica, al enviar un
+     pedido o una reserva. `lib/turnstile-cliente.ts`. */
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${desarrollo ? " 'unsafe-eval'" : ""}`,
+  "frame-src https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   /* Los mosaicos del mapa de la fase 11. Se ven solo en el alta y en «Mi
      negocio», pero la política es una sola para todo el sitio. Si se cambia de

@@ -2,6 +2,13 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { evaluarHorario } from "../../../lib/horario";
 import {
+  MENSAJE_VERIFICACION_FALLIDA,
+  decidirConTurnstile,
+  leerModoTurnstile,
+  leerSecretoTurnstile,
+  verificarTurnstile,
+} from "../../../lib/turnstile";
+import {
   crearHuellaIp,
   leerSecretoHuella,
   obtenerIpSolicitud,
@@ -164,14 +171,28 @@ export async function POST(solicitud: NextRequest) {
 
   let supabase;
   let secreto: string;
+  let secretoTurnstile: string;
   try {
     supabase = crearClienteSupabaseAdmin();
     secreto = leerSecretoHuella();
+    secretoTurnstile = leerSecretoTurnstile();
   } catch {
     return NextResponse.json(
       { error: "Los pedidos todavía no están habilitados en este entorno." },
       { status: 503 },
     );
+  }
+
+  /* Que lo pida una persona, antes de tocar la base: un programa que cambia
+     de IP podía apartar todo el stock de una tienda sin comprar nada. Va antes
+     del horario a propósito, para que tantear horarios también cueste. */
+  const verificacion = await verificarTurnstile(
+    (entrada as { verificacion?: unknown }).verificacion,
+    obtenerIpSolicitud(solicitud),
+    secretoTurnstile,
+  );
+  if (!decidirConTurnstile(verificacion, leerModoTurnstile(), "pedido")) {
+    return NextResponse.json({ error: MENSAJE_VERIFICACION_FALLIDA }, { status: 403 });
   }
 
   const { data: negocio, error: errorNegocio } = await supabase

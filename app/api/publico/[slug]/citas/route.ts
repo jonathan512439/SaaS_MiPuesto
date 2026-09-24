@@ -9,6 +9,13 @@ import {
 import { obtenerOcupacion, obtenerProductoAgendable } from "../../../../../lib/agenda/servidor";
 import { esUuid } from "../../../../../lib/catalogo/validacion";
 import {
+  MENSAJE_VERIFICACION_FALLIDA,
+  decidirConTurnstile,
+  leerModoTurnstile,
+  leerSecretoTurnstile,
+  verificarTurnstile,
+} from "../../../../../lib/turnstile";
+import {
   crearHuellaIp,
   leerSecretoHuella,
   obtenerIpSolicitud,
@@ -74,6 +81,26 @@ export async function POST(
   const idempotencia = typeof cuerpo.idempotencia === "string" ? cuerpo.idempotencia : "";
   if (!esUuid(idempotencia)) {
     return NextResponse.json({ error: "El pedido no es válido." }, { status: 400 });
+  }
+
+  /* Que la pida una persona, antes de tocar la base: un programa podía tomar
+     todos los turnos de una agenda sin venir a ninguno. */
+  let secretoTurnstile: string;
+  try {
+    secretoTurnstile = leerSecretoTurnstile();
+  } catch {
+    return NextResponse.json(
+      { error: "Las reservas todavía no están habilitadas en este entorno." },
+      { status: 503 },
+    );
+  }
+  const verificacion = await verificarTurnstile(
+    cuerpo.verificacion,
+    obtenerIpSolicitud(solicitud),
+    secretoTurnstile,
+  );
+  if (!decidirConTurnstile(verificacion, leerModoTurnstile(), "reserva")) {
+    return NextResponse.json({ error: MENSAJE_VERIFICACION_FALLIDA }, { status: 403 });
   }
 
   const supabase = crearClienteSupabaseAdmin();

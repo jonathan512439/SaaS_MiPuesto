@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState, type FormEvent } from "react";
 
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
+import { useVerificacionHumana } from "../../lib/turnstile-cliente";
 import { itemDeRenglon } from "../../lib/pedidos/linea";
 import { resumenSigueVigente } from "../../lib/pedidos/resumen-vigente";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
@@ -67,6 +68,9 @@ export function CarritoCatalogo({
   const [entregado, setEntregado] = useState(false);
   const [qrDescargado, setQrDescargado] = useState(false);
   const intento = useRef<{ firma: string; id: string } | null>(null);
+  /* Que el pedido lo haga una persona: sin esto, un programa que cambia de IP
+     podía apartar todo el stock sin comprar nada. */
+  const { contenedor: contenedorVerificacion, obtenerToken } = useVerificacionHumana();
   const items = productos
     .map((producto) => ({ producto, cantidad: cantidades[producto.id] ?? 0 }))
     .filter(({ cantidad }) => cantidad > 0);
@@ -101,6 +105,8 @@ export function CarritoCatalogo({
     }
 
     try {
+      /* Un token nuevo en cada envío: sirven una sola vez. */
+      const tokenVerificacion = await obtenerToken();
       const respuesta = await fetch("/api/pedidos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,6 +119,7 @@ export function CarritoCatalogo({
           clienteTelefono,
           numeroMesa,
           idempotencia: intento.current.id,
+          verificacion: tokenVerificacion,
         }),
       });
       const contenido = (await respuesta.json().catch(() => ({}))) as RespuestaPedido;
@@ -329,6 +336,9 @@ export function CarritoCatalogo({
               </figcaption>
             </figure>
           ) : null}
+
+          {/* Donde Cloudflare dibuja la verificación: invisible, no ocupa lugar. */}
+          <div ref={contenedorVerificacion} />
 
           <button disabled={!puedeConfirmar || enviando} type="submit">
             {enviando ? "Verificando pedido…" : "Reservar pedido"}

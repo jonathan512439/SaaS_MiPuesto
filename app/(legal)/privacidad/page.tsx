@@ -56,6 +56,12 @@ export default function PaginaPrivacidad() {
           constancia de qué se reservó y a qué precio. No los vendemos, no los usamos
           para publicidad y no los compartimos con terceros.
         </p>
+        <p>
+          Para que nadie aparte productos o turnos con un programa, al enviar un pedido o
+          una reserva el navegador pasa por Cloudflare Turnstile, una verificación
+          invisible. Cloudflare analiza señales técnicas del navegador en ese momento; no
+          recibe el nombre, el teléfono ni lo que se pidió.
+        </p>
       </section>
 
       <section className={styles.seccion}>

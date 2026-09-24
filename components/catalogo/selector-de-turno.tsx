@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { useVerificacionHumana } from "../../lib/turnstile-cliente";
 import { Icono } from "../iconos/icono";
 import styles from "./selector-de-turno.module.css";
 
@@ -57,6 +58,7 @@ export function SelectorDeTurno({
      mensaje de recargar. Además, el error pertenece a este formulario: quien
      está eligiendo un turno tiene que leerlo junto al botón que apretó. */
   const [error, setError] = useState<string | null>(null);
+  const { contenedor: contenedorVerificacion, obtenerToken } = useVerificacionHumana();
 
   /* El reinicio va durante el render y no dentro del efecto, que es el patrón
      que ya usa la hoja de producto: poner estado en un efecto dibuja una vez con
@@ -144,6 +146,9 @@ export function SelectorDeTurno({
     setError(null);
     setReservando(true);
     try {
+      /* Que la reserva la haga una persona: sin esto, un programa podía tomar
+         todos los turnos de la agenda sin venir a ninguno. */
+      const tokenVerificacion = await obtenerToken();
       const respuesta = await fetch(`/api/publico/${slug}/citas`, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -157,6 +162,7 @@ export function SelectorDeTurno({
              lento manda dos veces lo mismo, y la clave repetida hace que el
              servidor devuelva la cita que ya creó en vez de crear otra. */
           idempotencia: crypto.randomUUID(),
+          verificacion: tokenVerificacion,
         }),
       });
       const datos = (await respuesta.json().catch(() => ({}))) as {
@@ -281,6 +287,9 @@ export function SelectorDeTurno({
           </label>
 
           {error ? <strong className={styles.error}>{error}</strong> : null}
+
+          {/* Donde Cloudflare dibuja la verificación: invisible, no ocupa lugar. */}
+          <div ref={contenedorVerificacion} />
 
           <button
             className={styles.confirmar}

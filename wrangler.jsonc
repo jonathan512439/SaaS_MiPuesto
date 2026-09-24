@@ -9,7 +9,8 @@
   "secrets": {
     "required": [
       "SUPABASE_SERVICE_ROLE_KEY",
-      "HUELLA_IP_SECRETO"
+      "HUELLA_IP_SECRETO",
+      "TURNSTILE_SECRET_KEY"
     ]
   },
   "main": "vinext/server/fetch-handler",
