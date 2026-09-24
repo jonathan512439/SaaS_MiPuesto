@@ -1724,6 +1724,37 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-09-24
+
+- **Etapa 1 de las correcciones: nada roto llega a producción.**
+  - **El freno:** `prebuild:vinext` corre `npm run verificar` —tipos, lint y
+    todas las pruebas— antes de cada build, también en Cloudflare, que publica
+    con `npm run build:vinext`. Si algo falla, el build falla y producción sigue
+    con la versión anterior. Advertencia agregada en
+    `docs/CONFIGURACION-MANUAL.md`: no cambiar ese comando por `vinext build`.
+  - **Probado rompiéndolo en producción:** un commit con una prueba que fallaba
+    a propósito y la marca `etapa1-rota`. Cloudflare rechazó el build y la
+    marca nunca apareció; se revirtió en el commit siguiente.
+  - **Lo que atrapó en su primera corrida:** el lint fallaba en Linux y pasaba
+    en Windows. Dos `eslint-disable` de `no-img-element` en las imágenes para
+    redes sobraban en Linux, porque la regla de Next reconoce esos archivos por
+    la ruta con «/». La excepción pasó a `eslint.config.mjs`.
+  - **La misma verificación en GitHub Actions** (`verificar.yml`), en Ubuntu y
+    con el registro legible: el de Workers Builds solo se lee en el panel de
+    Cloudflare. Tarda un minuto y medio. No frena la publicación; la de
+    Cloudflare sí.
+  - **Versiones fijas:** `scripts/check-versiones-fijas.mjs`, dentro de
+    `npm test`, falla si una dependencia usa un rango o si el candado no pide lo
+    mismo que `package.json`. Probada con un `^` y con una versión desacordada.
+    `.npmrc` ya tenía `save-exact=true`.
+  - **Regla para actualizar vinext** y las demás dependencias de base:
+    `docs/ACTUALIZAR-DEPENDENCIAS.md`, con el motivo, el orden, la revisión a
+    mano y la vuelta atrás con `wrangler rollback`. Referida desde `AGENTS.md`.
+  - Tiempo límite de las pruebas en 20 s, para que una máquina lenta no frene
+    una publicación correcta.
+  - Verificado también en una copia limpia del repositorio, sin `.env.local`:
+    1021 pruebas en verde.
+
 ### 2026-09-23
 
 - **Plantilla de Excel por rubro, y un importador que la entiende entera.**

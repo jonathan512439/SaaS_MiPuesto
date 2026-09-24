@@ -11,6 +11,10 @@ name: Verificar
 #
 # Sin secretos: las pruebas no tocan ninguna base ni ningún servicio. Las que
 # escriben corren aparte, contra la base de ensayo y a mano.
+#
+# Cuesta poco: con la caché de npm tarda un minuto y medio, que GitHub cobra
+# como dos. Con diez publicaciones por día son unos 600 de los 2000 minutos
+# mensuales del plan gratuito para repositorios privados.
 
 on:
   push:
