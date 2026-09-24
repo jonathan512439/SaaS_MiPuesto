@@ -35,6 +35,13 @@ export const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }>
     estado: 409,
     mensaje: "Cambió la cantidad disponible. Revisa tu pedido e intenta nuevamente.",
   },
+  /* El máximo de unidades que puso el dueño. El carrito ya avisa antes de
+     enviar; esto llega si el dueño lo bajó con el catálogo abierto. */
+  TOPE_UNIDADES: {
+    estado: 409,
+    mensaje:
+      "Tu pedido pasa el máximo de unidades que acepta este negocio. Quita algunas e intenta nuevamente.",
+  },
   LIMITE_PEDIDOS: {
     estado: 429,
     mensaje: "Llegaste al límite temporal de pedidos. Intenta nuevamente en 15 minutos.",

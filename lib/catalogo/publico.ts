@@ -10,6 +10,7 @@ import { leerTextoPortada } from "../negocios/texto-sobre-imagen";
 import type { DatosPlantilla } from "../plantillas/tipos";
 import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
 import { calcularCantidadDisponible } from "../reservas";
+import { leerTopeUnidades } from "../pedidos/tope-unidades";
 import { calcularPrecioProducto, type PromocionPrecio } from "../precios";
 import {
   CATEGORIA_CARTA_DEL_DIA,
@@ -42,6 +43,7 @@ type NegocioPublico = {
   qr_pago_url?: string | null;
   ubicacion_url?: string | null;
   pide_numero_mesa?: boolean | null;
+  tope_unidades_pedido?: number | null;
   resenas_url?: string | null;
   rubro?: string | null;
   patron_fondo?: boolean | null;
@@ -382,6 +384,7 @@ export function construirCatalogoPublico(
         qrPagoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.qr_pago_url ?? null, "qr"),
         ubicacionUrl: negocio.ubicacion_url?.trim() || null,
         pideNumeroMesa: negocio.pide_numero_mesa === true,
+        topeUnidadesPedido: leerTopeUnidades(negocio.tope_unidades_pedido),
         resenasUrl: negocio.resenas_url?.trim() || null,
         rubro: negocio.rubro ?? null,
         /* Solo `false` apaga. Un negocio anterior a la columna llega sin el dato

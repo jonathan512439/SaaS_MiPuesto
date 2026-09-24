@@ -15,16 +15,21 @@ import {
   type ModoHorario,
 } from "../../lib/horario";
 import { validarOperacionNegocio } from "../../lib/negocios/operacion";
+import { TOPE_UNIDADES_MAXIMO } from "../../lib/pedidos/tope-unidades";
 import { Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "./formulario-operacion.module.css";
 
 export type OperacionNegocioInicial = {
   horario: unknown;
   reserva_minutos: number;
+  tope_unidades_pedido: number | null;
 };
 
 type PropiedadesFormularioOperacion = {
   operacionInicial: OperacionNegocioInicial;
+  /* El tope de unidades solo tiene sentido con carrito: en un catálogo que
+     agenda turnos o solo muestra, el control se oculta y el dato queda. */
+  conCarrito: boolean;
 };
 
 const NOMBRES_DIAS: Record<DiaSemana, string> = {
@@ -65,10 +70,20 @@ function formatearFechaLegible(fecha: string) {
   }).format(new Date(`${fecha}T00:00:00Z`));
 }
 
-export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioOperacion) {
+function textoTope(valor: number | null | undefined) {
+  return typeof valor === "number" ? String(valor) : "";
+}
+
+export function FormularioOperacion({
+  operacionInicial,
+  conCarrito,
+}: PropiedadesFormularioOperacion) {
   const [horario, setHorario] = useState(() => horarioInicial(operacionInicial.horario));
   const [reservaMinutos, setReservaMinutos] = useState(
     String(operacionInicial.reserva_minutos),
+  );
+  const [topeUnidades, setTopeUnidades] = useState(() =>
+    textoTope(operacionInicial.tope_unidades_pedido),
   );
   const [errores, setErrores] = useState<Record<string, string>>({});
   const { mostrarAviso } = useAvisos();
@@ -161,6 +176,7 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
     const validacion = validarOperacionNegocio({
       horario,
       reserva_minutos: reservaMinutos,
+      tope_unidades_pedido: topeUnidades,
     });
     if (!validacion.correcto) {
       setErrores(validacion.errores);
@@ -186,6 +202,7 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
       }
       setHorario(horarioInicial(datos.negocio.horario));
       setReservaMinutos(String(datos.negocio.reserva_minutos));
+      setTopeUnidades(textoTope(datos.negocio.tope_unidades_pedido));
       mostrarAviso({ titulo: "Atención guardada", variante: "exito" });
     } catch (error) {
       mostrarAviso({
@@ -237,6 +254,22 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
           type="number"
           value={reservaMinutos}
         />
+        {conCarrito ? (
+          <Campo
+            ayuda="Cuenta todas las unidades del pedido. Déjalo vacío para no poner tope."
+            error={errores.tope_unidades_pedido}
+            etiqueta="Máximo de unidades por pedido"
+            id="tope-unidades"
+            inputMode="numeric"
+            max={String(TOPE_UNIDADES_MAXIMO)}
+            min="1"
+            onChange={(evento) => setTopeUnidades(evento.target.value)}
+            placeholder="Sin tope"
+            step="1"
+            type="number"
+            value={topeUnidades}
+          />
+        ) : null}
       </div>
 
       {horario.modo === "programado" ? (

@@ -532,6 +532,7 @@ export type Database = {
           suspendido_en: string | null
           telefono_whatsapp: string
           tipo_negocio: string
+          tope_unidades_pedido: number | null
           ubicacion_lat: number | null
           ubicacion_lng: number | null
           ubicacion_url: string | null
@@ -590,6 +591,7 @@ export type Database = {
           suspendido_en?: string | null
           telefono_whatsapp: string
           tipo_negocio: string
+          tope_unidades_pedido?: number | null
           ubicacion_lat?: number | null
           ubicacion_lng?: number | null
           ubicacion_url?: string | null
@@ -648,6 +650,7 @@ export type Database = {
           suspendido_en?: string | null
           telefono_whatsapp?: string
           tipo_negocio?: string
+          tope_unidades_pedido?: number | null
           ubicacion_lat?: number | null
           ubicacion_lng?: number | null
           ubicacion_url?: string | null

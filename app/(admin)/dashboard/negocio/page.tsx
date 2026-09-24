@@ -38,7 +38,7 @@ export default async function PaginaConfiguracion() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("nombre,slug,descripcion,subnombre,rubro_bloqueado_en,tipo_negocio,telefono_whatsapp,horario,reserva_minutos,logo_url,portada_url,qr_pago_url,redes_sociales,ubicacion_url,resenas_url,rubro,pide_numero_mesa")
+    .select("nombre,slug,descripcion,subnombre,rubro_bloqueado_en,tipo_negocio,telefono_whatsapp,horario,reserva_minutos,tope_unidades_pedido,logo_url,portada_url,qr_pago_url,redes_sociales,ubicacion_url,resenas_url,rubro,pide_numero_mesa")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -76,6 +76,7 @@ export default async function PaginaConfiguracion() {
             />
           </section>
           <FormularioOperacion
+            conCarrito={negocio.tipo_negocio === "tienda_virtual"}
             operacionInicial={negocio as OperacionNegocioInicial}
           />
           <FormularioIdentidad

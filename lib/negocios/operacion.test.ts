@@ -36,4 +36,20 @@ describe("validarOperacionNegocio", () => {
       expect(resultado.errores.horario).toBeTruthy();
     }
   });
+
+  /* Sin el campo —un negocio que nunca lo tocó, o una modalidad sin carrito—
+     queda sin tope, que es lo de siempre. */
+  it("el tope de unidades es opcional, y fuera de rango se rechaza", () => {
+    const base = { reserva_minutos: 30, horario: { modo: "siempre_abierto" } };
+
+    const sinTope = validarOperacionNegocio(base);
+    expect(sinTope.correcto && sinTope.datos.tope_unidades_pedido).toBeNull();
+
+    const conTope = validarOperacionNegocio({ ...base, tope_unidades_pedido: "12" });
+    expect(conTope.correcto && conTope.datos.tope_unidades_pedido).toBe(12);
+
+    const malo = validarOperacionNegocio({ ...base, tope_unidades_pedido: "0" });
+    expect(malo.correcto).toBe(false);
+    if (!malo.correcto) expect(malo.errores.tope_unidades_pedido).toBeTruthy();
+  });
 });

@@ -115,6 +115,10 @@ export type DatosPlantilla = {
     /* Solo donde se atiende en el local: pedirle la mesa a quien compra ropa
        por WhatsApp es un campo más entre él y el pedido. */
     pideNumeroMesa: boolean;
+    /* El máximo de unidades por pedido que puso el dueño. `null`: sin tope
+       propio, que es lo normal. El carrito avisa antes de enviar; quien decide
+       es `crear_pedido_reservado`. */
+    topeUnidadesPedido: number | null;
     /* Se ofrece recién después de pedir, que es cuando el cliente está contento
        y todavía tiene el teléfono en la mano. Vacío: no se muestra nada. */
     resenasUrl: string | null;

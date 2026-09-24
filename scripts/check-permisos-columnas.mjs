@@ -48,6 +48,8 @@ const DEL_DUENO = [
   /* Fase 11: qué vende y si quiere que lo encuentren, con su ubicación. */
   "aparece_en_directorio", "ubicacion_lat", "ubicacion_lng", "zona_id", "zona_propuesta",
   "rubro_publico", "rubros_secundarios",
+  /* El máximo de unidades por pedido, desde «Atención y reservas». */
+  "tope_unidades_pedido",
 ];
 
 /* Lo que el catálogo público lee. Se saca del propio archivo, no de una copia. */

@@ -8,6 +8,7 @@ import { useVerificacionHumana } from "../../lib/turnstile-cliente";
 import { MENSAJE_SIN_RESPUESTA, enviarConReintento } from "../../lib/pedidos/enviar-con-reintento";
 import { itemDeRenglon } from "../../lib/pedidos/linea";
 import { resumenSigueVigente } from "../../lib/pedidos/resumen-vigente";
+import { avisoDeTopeUnidades } from "../../lib/pedidos/tope-unidades";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { Icono } from "../iconos/icono";
@@ -100,8 +101,15 @@ export function CarritoCatalogo({
     items.map(({ producto, cantidad }) => ({ precio: producto.precio, cantidad })),
   );
   const unidades = items.reduce((total, { cantidad }) => total + cantidad, 0);
+  /* El tope de unidades del dueño, avisado antes de enviar. Quien decide es la
+     base; esto evita que el comprador se entere con un error. */
+  const topeUnidades = datos.negocio.topeUnidadesPedido;
+  const avisoTope = avisoDeTopeUnidades(unidades, topeUnidades);
   const puedeConfirmar =
-    items.length > 0 && datos.negocio.atencion.permiteAcciones && Boolean(datos.negocio.slug);
+    items.length > 0 &&
+    !avisoTope &&
+    datos.negocio.atencion.permiteAcciones &&
+    Boolean(datos.negocio.slug);
 
   /* La verificación empieza al abrir el pedido, no al tocar «Reservar»: así el
      token suele estar listo al enviar. Solo con algo para pedir, y no con un
@@ -269,7 +277,10 @@ export function CarritoCatalogo({
                 <span>{cantidad}</span>
                 <button
                   aria-label={`Aumentar cantidad de ${producto.nombre}`}
-                  disabled={cantidad >= producto.maximoCantidad}
+                  disabled={
+                    cantidad >= producto.maximoCantidad ||
+                    (topeUnidades !== null && unidades >= topeUnidades)
+                  }
                   onClick={() => onCambiarCantidad(producto.id, cantidad + 1)}
                   type="button"
                 >
@@ -376,7 +387,17 @@ export function CarritoCatalogo({
           {/* Donde Cloudflare dibuja la verificación: invisible, no ocupa lugar. */}
           <div ref={contenedorVerificacion} />
 
-          <button disabled={!puedeConfirmar || enviando} type="submit">
+          {avisoTope ? (
+            <p className={styles.error} id="aviso-tope-unidades">
+              {avisoTope}
+            </p>
+          ) : null}
+
+          <button
+            aria-describedby={avisoTope ? "aviso-tope-unidades" : undefined}
+            disabled={!puedeConfirmar || enviando}
+            type="submit"
+          >
             {enviando ? "Verificando pedido…" : "Reservar pedido"}
           </button>
         </form>
