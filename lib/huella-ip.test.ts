@@ -40,3 +40,29 @@ describe("la firma de la IP", () => {
     );
   });
 });
+
+/* La clave importada se guarda entre pedidos para ahorrar CPU. Lo que no puede
+   pasar es que, al cambiar el secreto, se siga firmando con la clave vieja: la
+   firma tiene que ser siempre la de una importación hecha en el momento. */
+describe("la clave guardada entre pedidos", () => {
+  async function firmaDeReferencia(ip: string, secreto: string) {
+    const codificar = new TextEncoder();
+    const clave = await crypto.subtle.importKey(
+      "raw",
+      codificar.encode(secreto),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    );
+    const firma = await crypto.subtle.sign("HMAC", clave, codificar.encode(ip));
+    return Array.from(new Uint8Array(firma), (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  it("firma con el secreto de cada llamada, aunque se alternen", async () => {
+    for (const secreto of ["s".repeat(64), "t".repeat(64), "s".repeat(64), "u".repeat(40)]) {
+      expect(await crearHuellaIp("190.129.4.8", secreto)).toBe(
+        await firmaDeReferencia("190.129.4.8", secreto),
+      );
+    }
+  });
+});

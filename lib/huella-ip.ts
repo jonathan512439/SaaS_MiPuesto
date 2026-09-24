@@ -10,14 +10,32 @@ export function obtenerIpSolicitud(solicitud: Request): string {
   return (primeraIp || "entorno-local").slice(0, 64);
 }
 
+/* La clave HMAC importada, guardada mientras viva el isolate. Importarla en
+   cada pedido costaba un cuarto de milisegundo de CPU, y en el plan gratuito de
+   Cloudflare cada pedido tiene diez. Se guarda junto con el secreto del que
+   salió: si el secreto cambia, se vuelve a importar. */
+let claveGuardada: { secreto: string; clave: Promise<CryptoKey> } | null = null;
+
+function claveHmac(secreto: string): Promise<CryptoKey> {
+  if (claveGuardada?.secreto !== secreto) {
+    const clave = crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secreto),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    );
+    /* Una importación que falla no se queda guardada. */
+    clave.catch(() => {
+      if (claveGuardada?.clave === clave) claveGuardada = null;
+    });
+    claveGuardada = { secreto, clave };
+  }
+  return claveGuardada.clave;
+}
+
 export async function crearHuellaIp(ip: string, secreto: string): Promise<string> {
-  const clave = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secreto),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
+  const clave = await claveHmac(secreto);
   const firma = await crypto.subtle.sign("HMAC", clave, new TextEncoder().encode(ip));
   return Array.from(new Uint8Array(firma), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
