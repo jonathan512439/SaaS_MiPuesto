@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
 import { useVerificacionHumana } from "../../lib/turnstile-cliente";
@@ -20,6 +20,9 @@ type PropiedadesCarrito = {
   onCambiarCantidad: (productoId: string, cantidad: number) => void;
   onAbrirWhatsapp: () => void;
   onPedidoReservado: (firmaCarrito: string) => void;
+  /* Si la hoja del pedido está a la vista. Con ella abierta y algo para
+     pedir, la verificación empieza de antemano. */
+  abierto?: boolean;
 };
 
 type RespuestaPedido = {
@@ -53,6 +56,7 @@ export function CarritoCatalogo({
   onCambiarCantidad,
   onAbrirWhatsapp,
   onPedidoReservado,
+  abierto = false,
 }: PropiedadesCarrito) {
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
@@ -71,7 +75,11 @@ export function CarritoCatalogo({
   const intento = useRef<{ firma: string; id: string } | null>(null);
   /* Que el pedido lo haga una persona: sin esto, un programa que cambia de IP
      podía apartar todo el stock sin comprar nada. */
-  const { contenedor: contenedorVerificacion, obtenerToken } = useVerificacionHumana();
+  const {
+    contenedor: contenedorVerificacion,
+    obtenerToken,
+    preparar: prepararVerificacion,
+  } = useVerificacionHumana();
   const items = productos
     .map((producto) => ({ producto, cantidad: cantidades[producto.id] ?? 0 }))
     .filter(({ cantidad }) => cantidad > 0);
@@ -94,6 +102,15 @@ export function CarritoCatalogo({
   const unidades = items.reduce((total, { cantidad }) => total + cantidad, 0);
   const puedeConfirmar =
     items.length > 0 && datos.negocio.atencion.permiteAcciones && Boolean(datos.negocio.slug);
+
+  /* La verificación empieza al abrir el pedido, no al tocar «Reservar»: así el
+     token suele estar listo al enviar. Solo con algo para pedir, y no con un
+     pedido ya reservado a la vista. Quien solo mira el catálogo no descarga
+     nada de Cloudflare. */
+  const hayReservaALaVista = pedidoVigente !== null;
+  useEffect(() => {
+    if (abierto && puedeConfirmar && !hayReservaALaVista) prepararVerificacion();
+  }, [abierto, puedeConfirmar, hayReservaALaVista, prepararVerificacion]);
 
   async function reservarPedido(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();

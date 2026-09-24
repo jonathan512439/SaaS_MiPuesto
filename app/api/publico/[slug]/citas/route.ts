@@ -95,22 +95,22 @@ export async function POST(
       { status: 503 },
     );
   }
-  const verificacion = await verificarTurnstile(
-    cuerpo.verificacion,
-    obtenerIpSolicitud(solicitud),
-    secretoTurnstile,
-  );
+  /* La verificación y el negocio en paralelo: no dependen uno del otro, y en
+     fila sumaban sus esperas. Sin verificación se rechaza igual antes de
+     escribir nada. */
+  const supabase = crearClienteSupabaseAdmin();
+  const [verificacion, { data: negocio }] = await Promise.all([
+    verificarTurnstile(cuerpo.verificacion, obtenerIpSolicitud(solicitud), secretoTurnstile),
+    supabase
+      .from("negocios")
+      .select("id,nombre,telefono_whatsapp")
+      .eq("slug", slug)
+      .eq("activo", true)
+      .maybeSingle(),
+  ]);
   if (!decidirConTurnstile(verificacion, leerModoTurnstile(), "reserva")) {
     return NextResponse.json({ error: MENSAJE_VERIFICACION_FALLIDA }, { status: 403 });
   }
-
-  const supabase = crearClienteSupabaseAdmin();
-  const { data: negocio } = await supabase
-    .from("negocios")
-    .select("id,nombre,telefono_whatsapp")
-    .eq("slug", slug)
-    .eq("activo", true)
-    .maybeSingle();
   if (!negocio) {
     return NextResponse.json({ error: "Este negocio no está disponible." }, { status: 404 });
   }

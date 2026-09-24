@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { CLAVE_SITIO_TURNSTILE } from "./turnstile-publico";
 
@@ -77,9 +77,16 @@ function cargarTurnstile(): Promise<Turnstile> {
   return cargando;
 }
 
+/* Un token vale 300 segundos. Uno preparado se usa si tiene menos de 240: el
+   margen cubre lo que tarda el envío en llegar al servidor. */
+const VIDA_UTIL_PREPARADO_MS = 240_000;
+
 export function useVerificacionHumana() {
   const contenedor = useRef<HTMLDivElement | null>(null);
   const widget = useRef<string | null>(null);
+  /* El token pedido de antemano —mientras la persona llena el formulario—, y
+     cuándo se pidió. Se usa una sola vez. */
+  const preparado = useRef<{ token: Promise<string | null>; desde: number } | null>(null);
 
   useEffect(() => {
     return () => {
@@ -87,7 +94,14 @@ export function useVerificacionHumana() {
     };
   }, []);
 
-  async function obtenerToken(): Promise<string | null> {
+  /* Empieza a verificar antes del envío: al abrir el pedido o al elegir el
+     turno. Así el token suele estar listo cuando la persona toca el botón, y si
+     Cloudflare duda, la casilla aparece mientras escribe y no después. El
+     dueño notó que reservar «tardaba un poco demás»: era esta espera, que
+     empezaba recién al tocar «Reservar». */
+  /* Estables entre dibujos —solo usan referencias—, para que quien las use
+     en un efecto no lo dispare en cada dibujo. */
+  const pedirToken = useCallback(async (): Promise<string | null> => {
     try {
       const turnstile = await cargarTurnstile();
       const lugar = contenedor.current;
@@ -123,7 +137,23 @@ export function useVerificacionHumana() {
     } catch {
       return null;
     }
-  }
+  }, []);
 
-  return { contenedor, obtenerToken };
+  const preparar = useCallback(() => {
+    if (preparado.current && Date.now() - preparado.current.desde < VIDA_UTIL_PREPARADO_MS) return;
+    preparado.current = { token: pedirToken(), desde: Date.now() };
+  }, [pedirToken]);
+
+  /* El token para un envío: el preparado si sigue vigente, o uno nuevo. */
+  const obtenerToken = useCallback(async (): Promise<string | null> => {
+    const listo = preparado.current;
+    preparado.current = null;
+    if (listo && Date.now() - listo.desde < VIDA_UTIL_PREPARADO_MS) {
+      const token = await listo.token;
+      if (token) return token;
+    }
+    return pedirToken();
+  }, [pedirToken]);
+
+  return { contenedor, obtenerToken, preparar };
 }

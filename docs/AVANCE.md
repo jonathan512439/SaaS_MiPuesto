@@ -1726,6 +1726,21 @@ motivo por el que este archivo existe.
 
 ### 2026-09-24
 
+- **Turnstile exigiendo, y reservar más rápido.** Tercera prueba real del dueño:
+  pedido sin nombre y con nombre, los dos con su código; cancelados con el stock
+  liberado. Con eso, `TURNSTILE_MODO=exigir`; comprobado en producción que sin
+  token y con uno inventado responde 403. El dueño notó que reservar «tardaba un
+  poco demás»:
+  - **En el navegador**, la verificación empezaba recién al tocar «Reservar».
+    Ahora empieza al abrir el pedido (con algo para pedir) o al elegir el turno,
+    y el token preparado se usa si tiene menos de 240 s. Medido con un Turnstile
+    que tarda 3 s: del toque al envío, **52 ms** con el token listo. Quien solo
+    mira el catálogo sigue sin descargar nada de Cloudflare (medido: cero).
+  - **En el servidor**, la verificación, la lectura del negocio y la firma de la
+    IP corren en paralelo, y los datos de los productos para el mensaje se piden
+    mientras la base crea el pedido. El orden de las decisiones no cambió: sin
+    verificación se rechaza antes de escribir.
+
 - **El nombre al pedir volvió a ser opcional** (regresión de la fase 13). En la
   segunda prueba real, `/api/pedidos` respondió 500 tres veces. La reescritura
   de `crear_pedido_reservado` en `20261019090000` había endurecido sin querer la

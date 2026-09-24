@@ -62,8 +62,17 @@ export function SelectorDeTurno({
      mensaje de recargar. Además, el error pertenece a este formulario: quien
      está eligiendo un turno tiene que leerlo junto al botón que apretó. */
   const [error, setError] = useState<string | null>(null);
-  const { contenedor: contenedorVerificacion, obtenerToken } = useVerificacionHumana();
+  const {
+    contenedor: contenedorVerificacion,
+    obtenerToken,
+    preparar: prepararVerificacion,
+  } = useVerificacionHumana();
   const intentoTurno = useRef<{ firma: string; id: string } | null>(null);
+  /* Elegido el horario, la verificación empieza mientras la persona escribe su
+     nombre: al tocar «Apartar» el token suele estar listo. */
+  useEffect(() => {
+    if (horarioElegido) prepararVerificacion();
+  }, [horarioElegido, prepararVerificacion]);
 
   /* El reinicio va durante el render y no dentro del efecto, que es el patrón
      que ya usa la hoja de producto: poner estado en un efecto dibuja una vez con

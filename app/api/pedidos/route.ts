@@ -131,24 +131,29 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  /* Que lo pida una persona, antes de tocar la base: un programa que cambia
-     de IP podía apartar todo el stock de una tienda sin comprar nada. Va antes
-     del horario a propósito, para que tantear horarios también cueste. */
-  const verificacion = await verificarTurnstile(
-    (entrada as { verificacion?: unknown }).verificacion,
-    obtenerIpSolicitud(solicitud),
-    secretoTurnstile,
-  );
+  /* Tres cosas que no dependen una de otra, **en paralelo**: la verificación
+     con Cloudflare, el negocio y la firma de la IP. En fila sumaban sus
+     esperas —la de Cloudflare sola son un par de décimas— y el dueño lo notó
+     como un pedido que «tarda un poco demás».
+
+     El orden de las decisiones no cambia: sin verificación se rechaza antes de
+     escribir nada —leer el negocio no es escribir—, y antes del horario, para
+     que tantear horarios también cueste. Un programa que cambia de IP podía
+     apartar todo el stock de una tienda sin comprar nada. */
+  const ip = obtenerIpSolicitud(solicitud);
+  const [verificacion, { data: negocio, error: errorNegocio }, huellaIp] = await Promise.all([
+    verificarTurnstile((entrada as { verificacion?: unknown }).verificacion, ip, secretoTurnstile),
+    supabase
+      .from("negocios")
+      .select("id,nombre,telefono_whatsapp,tipo_negocio,horario,activo")
+      .eq("slug", validacion.datos.slug)
+      .eq("activo", true)
+      .maybeSingle(),
+    crearHuellaIp(ip, secreto),
+  ]);
   if (!decidirConTurnstile(verificacion, leerModoTurnstile(), "pedido")) {
     return NextResponse.json({ error: MENSAJE_VERIFICACION_FALLIDA }, { status: 403 });
   }
-
-  const { data: negocio, error: errorNegocio } = await supabase
-    .from("negocios")
-    .select("id,nombre,telefono_whatsapp,tipo_negocio,horario,activo")
-    .eq("slug", validacion.datos.slug)
-    .eq("activo", true)
-    .maybeSingle();
 
   if (errorNegocio || !negocio) {
     return NextResponse.json(
@@ -169,7 +174,15 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  const huellaIp = await crearHuellaIp(obtenerIpSolicitud(solicitud), secreto);
+  /* Los datos de cada producto para el mensaje se piden **mientras** la base
+     crea el pedido: son solo lecturas y no dependen de él. Si el pedido falla,
+     se descartan. */
+  const datosDeProductos = obtenerDatosDeProductos(
+    supabase,
+    negocio.id,
+    validacion.datos.items.map((item) => item.productoId),
+  ).catch(() => new Map<string, Array<{ nombre: string; texto: string }>>());
+
   const { data, error } = await supabase.rpc("crear_pedido_reservado", {
     p_slug: validacion.datos.slug,
     p_items: validacion.datos.items.map((item) => ({
@@ -196,17 +209,14 @@ export async function POST(solicitud: NextRequest) {
   }
 
   /* Los datos propios de cada producto, para que el pedido llegue listo para
-     preparar. Se consultan acá y **no se guardan en el pedido**: el pedido
-     conserva su copia de nombre y precio porque son los que se cobran, mientras
+     preparar. Se pidieron junto con el pedido, más arriba, y **no se guardan en
+     el pedido**: el pedido conserva su copia de nombre y precio porque son los
+     que se cobran, mientras
      que estos son descripción. Guardarlos también obligaría a rehacer
      `crear_pedido_reservado`, que es la función que reserva existencias, y no
      vale ese riesgo por un renglón de un mensaje que se manda al instante.
      Si fallan, el pedido sale igual sin ellos: ya está creado y cobrado. */
-  const datosPorCodigo = await obtenerDatosDeProductos(
-    supabase,
-    negocio.id,
-    validacion.datos.items.map((item) => item.productoId),
-  );
+  const datosPorCodigo = await datosDeProductos;
 
   const items = data.items.map((item) => ({
     codigo: item.codigo,

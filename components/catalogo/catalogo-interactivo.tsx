@@ -357,6 +357,7 @@ export function CatalogoInteractivo({
             titulo="Tu pedido"
           >
             <CarritoCatalogo
+              abierto={pedidoAbierto}
               cantidades={cantidades}
               datos={datos}
               onCambiarCantidad={cambiarCantidad}
