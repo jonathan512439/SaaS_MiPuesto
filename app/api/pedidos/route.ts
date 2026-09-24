@@ -140,16 +140,21 @@ export async function POST(solicitud: NextRequest) {
      escribir nada —leer el negocio no es escribir—, y antes del horario, para
      que tantear horarios también cueste. Un programa que cambia de IP podía
      apartar todo el stock de una tienda sin comprar nada. */
-  const ip = obtenerIpSolicitud(solicitud);
   const [verificacion, { data: negocio, error: errorNegocio }, huellaIp] = await Promise.all([
-    verificarTurnstile((entrada as { verificacion?: unknown }).verificacion, ip, secretoTurnstile),
+    verificarTurnstile(
+      (entrada as { verificacion?: unknown }).verificacion,
+      obtenerIpSolicitud(solicitud),
+      secretoTurnstile,
+    ),
     supabase
       .from("negocios")
       .select("id,nombre,telefono_whatsapp,tipo_negocio,horario,activo")
       .eq("slug", validacion.datos.slug)
       .eq("activo", true)
       .maybeSingle(),
-    crearHuellaIp(ip, secreto),
+    /* Escrita así a propósito: la IP sale de la solicitud y no de nada que
+       mande el cliente, y `las-citas-publicas-tienen-tope.test.ts` lo exige. */
+    crearHuellaIp(obtenerIpSolicitud(solicitud), secreto),
   ]);
   if (!decidirConTurnstile(verificacion, leerModoTurnstile(), "pedido")) {
     return NextResponse.json({ error: MENSAJE_VERIFICACION_FALLIDA }, { status: 403 });
