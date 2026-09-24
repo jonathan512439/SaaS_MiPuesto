@@ -238,7 +238,7 @@ export default async function PaginaCatalogoPublico({
             <section className={styles.vacio} aria-labelledby="catalogo-vacio">
               <h2 id="catalogo-vacio">El catálogo se está preparando</h2>
               <p>
-                Este negocio todavía no publicó productos. Puedes consultarle
+                Este negocio todavía no publicó productos. Podés consultarle
                 por WhatsApp.
               </p>
             </section>

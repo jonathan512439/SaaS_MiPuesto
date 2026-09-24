@@ -172,8 +172,8 @@ export default function PaginaPrivacidad() {
           dato equivocado o el borrado completo de tu cuenta. Escribinos y lo resolvemos.
         </p>
         <p>
-          Si le hiciste un pedido o reservaste un turno a un negocio de MiPuesto y quieres
-          que borremos tu nombre y tu teléfono antes de los seis meses, escríbenos desde
+          Si le hiciste un pedido o reservaste un turno a un negocio de MiPuesto y querés
+          que borremos tu nombre y tu teléfono antes de los seis meses, escribinos desde
           ese número. Los borramos en todos los negocios.
         </p>
         <a

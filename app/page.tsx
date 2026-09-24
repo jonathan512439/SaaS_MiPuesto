@@ -119,7 +119,7 @@ export default function Inicio() {
         <section className={styles.portada}>
           <div className={styles.portadaContenido}>
             <div className={styles.discurso}>
-              <h1>Tu negocio, abierto en el celular de tus clientes</h1>
+              <h1>Tu negocio, abierto en el celular de tus caseros</h1>
               <p className={styles.promesa}>
                 Tus productos con foto y precio. Te eligen, y el pedido te llega por WhatsApp.
               </p>

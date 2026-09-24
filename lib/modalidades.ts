@@ -17,12 +17,12 @@ const COMPORTAMIENTOS: Record<TipoNegocio, ComportamientoModalidad> = {
   catalogo_cta: {
     tipo: "catalogo_cta",
     accion: "accion_individual",
-    descripcion: "Puedes pedir o agendar cada opción directamente por WhatsApp.",
+    descripcion: "Podés pedir o agendar cada opción directamente por WhatsApp.",
   },
   tienda_virtual: {
     tipo: "tienda_virtual",
     accion: "carrito",
-    descripcion: "Agrega varias opciones y prepara un solo pedido por WhatsApp.",
+    descripcion: "El cliente agrega varias opciones y prepara un solo pedido por WhatsApp.",
   },
 };
 

@@ -49,7 +49,7 @@ export async function POST(solicitud: NextRequest) {
     .eq("negocio_id", contexto.negocio.id);
   if ((count ?? 0) >= LIMITE_CATEGORIAS) {
     return NextResponse.json(
-      { error: `Puedes crear hasta ${LIMITE_CATEGORIAS} categorías.` },
+      { error: `Podés crear hasta ${LIMITE_CATEGORIAS} categorías.` },
       { status: 409 },
     );
   }
@@ -163,7 +163,7 @@ export async function PATCH(solicitud: NextRequest) {
   }
 
   if (datos.direccion !== "subir" && datos.direccion !== "bajar") {
-    return NextResponse.json({ error: "Indica un cambio válido." }, { status: 400 });
+    return NextResponse.json({ error: "Indicá un cambio válido." }, { status: 400 });
   }
   const { data: categorias, error: errorLista } = await contexto.supabase
     .from("categorias")

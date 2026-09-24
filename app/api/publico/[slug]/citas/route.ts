@@ -162,7 +162,7 @@ export async function POST(
   }
   if (intentos > TOPE_INTENTOS_POR_VENTANA) {
     return NextResponse.json(
-      { error: "Llegaste al límite temporal de reservas. Intenta nuevamente en 15 minutos." },
+      { error: "Llegaste al límite temporal de reservas. Intentá nuevamente en 15 minutos." },
       { status: 429 },
     );
   }

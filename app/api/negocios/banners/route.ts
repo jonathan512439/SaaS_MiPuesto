@@ -79,7 +79,7 @@ export async function POST(solicitud: NextRequest) {
 
   const archivo = formulario.get("archivo");
   if (!(archivo instanceof File)) {
-    return NextResponse.json({ error: "Selecciona una imagen." }, { status: 400 });
+    return NextResponse.json({ error: "Seleccioná una imagen." }, { status: 400 });
   }
 
   const bytes = new Uint8Array(await archivo.arrayBuffer());
@@ -135,7 +135,7 @@ export async function PATCH(solicitud: NextRequest) {
   const validacion = validarBanners("banners" in cuerpo ? cuerpo.banners : []);
   if (!validacion.correcto) {
     return NextResponse.json(
-      { error: "Revisa el banner.", errores: validacion.errores },
+      { error: "Revisá el banner.", errores: validacion.errores },
       { status: 400 },
     );
   }
@@ -143,7 +143,7 @@ export async function PATCH(solicitud: NextRequest) {
   const portada = "portada" in cuerpo ? validarTextoPortada(cuerpo.portada) : null;
   if (portada && !portada.correcto) {
     return NextResponse.json(
-      { error: "Revisa el texto de la portada.", errores: portada.errores },
+      { error: "Revisá el texto de la portada.", errores: portada.errores },
       { status: 400 },
     );
   }

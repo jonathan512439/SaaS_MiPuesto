@@ -73,7 +73,7 @@ export const AYUDA_PRODUCTO = {
     "Buena luz. La foto que ya subís al catálogo sirve igual.",
   ],
   advertencia:
-    "Escribe el nombre y la descripción, y la foto queda como imagen del producto. El precio nunca: ninguna foto sabe cuánto cobrás vos.",
+    "La herramienta escribe el nombre y la descripción, y la foto queda como imagen del producto. El precio nunca: ninguna foto sabe cuánto cobrás vos.",
   ejemplo: {
     entrada: "Foto de un plato de hamburguesa con papas",
     nombre: "Hamburguesa doble con queso",

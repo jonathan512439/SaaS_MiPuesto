@@ -55,6 +55,36 @@ correctos. Ya nos pasó dos veces con guardias que afirmaban de más.
 **4. Palabras del negocio, no del sistema.** La tabla completa está en
 [`04-PANEL.md`](04-PANEL.md), sección 3.7.
 
+**5. Nada de tuteo.** Agregada el 2026-09-24. Durante unas semanas los textos
+nuevos se escribieron con «elige», «tienes», «escríbenos» por una regla
+equivocada, y quedaron mezclados con el voseo. Decisión del dueño del proyecto:
+**español neutro, con vos y algo de jerga boliviana.** Se convirtieron 180
+textos en 64 archivos.
+
+| Sí | No |
+|---|---|
+| Elegí tu número | Elige tu número |
+| Podés cancelarlo | Puedes cancelarlo |
+| Escribinos | Escríbenos |
+| Poné «Talla» | Pon «Talla» |
+
+Ojo con lo que no es una orden: «Abre el lunes a las 09:00» habla del negocio,
+y «el cliente elige» es tercera persona. Esas se quedan como están.
+
+## 3 bis. La jerga boliviana que sí va
+
+Poca y donde suma. No es para hacerse el gracioso: es hablar como habla el
+mercado.
+
+| Palabra | Qué es | Dónde se usa |
+|---|---|---|
+| casero, casera | El cliente de siempre | La portada («el celular de tus caseros»), los pedidos vacíos, las promociones |
+| yapa | El extra de regalo | Las promociones vacías («la yapa que hace volver a tus caseros») |
+| wawa | Bebé | La guía de juguetería («Para wawas») |
+
+Y los nombres de siempre de la comida y los productos —salteña, silpancho, pique
+macho, llajua, cuñapé, api—, que no son jerga: son lo que se vende.
+
 ## 4. Palabras prohibidas
 
 Se buscan como palabra completa, sin distinguir mayúsculas ni tildes. **Están
@@ -103,6 +133,26 @@ como mucho. Un sistema que se entusiasma con cada guardado cansa en el segundo
 día de uso.
 
 ## 5. La guardia
+
+**Hecha el 2026-09-24.** `scripts/check-vocabulario.mjs`, dentro de `npm test`,
+que corre también antes de cada publicación en Cloudflare. Probada rompiéndola
+con «Elige otro filtro, che: tienes más pedidos»: marcó las tres cosas.
+
+Cómo quedó, además de lo que decía el plan:
+
+- **Tuteo, con tilde.** «vendes» es tuteo y «vendés» es voseo: la tilde es lo
+  único que las separa, así que estas se comparan con tilde. La primera versión
+  comparaba sin tildes y marcaba el voseo como error.
+- **Imperativos de tú solo al comienzo de una frase** («Elige…»). A mitad de
+  frase también cabe la tercera persona, así que no se rechazan:
+  `npm run vocabulario:auditar` los lista para revisarlos a mano.
+- **Muletillas que son español corriente** —«de una», «tal cual», «literal»—
+  solo cuando van solas («¡De una!»): buscarlas en cualquier lugar marcaba «de
+  una vez» y hasta «de uña».
+- **Excepciones con motivo, por archivo:** «plata» cuando es el metal, «joya» y
+  «birra» como palabras para buscar un ícono, `<Default>` del XML de Excel.
+
+Lo que decía el plan antes de hacerla:
 
 `scripts/check-vocabulario.mjs`, en el `prebuild`, junto a las otras cinco.
 

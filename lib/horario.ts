@@ -167,7 +167,7 @@ function validarExcepciones(valor: unknown):
   if (valor.length > MAXIMO_EXCEPCIONES) {
     return {
       correcto: false,
-      error: `Puedes guardar hasta ${MAXIMO_EXCEPCIONES} fechas especiales.`,
+      error: `Podés guardar hasta ${MAXIMO_EXCEPCIONES} fechas especiales.`,
     };
   }
 
@@ -299,7 +299,7 @@ export function validarHorario(valor: unknown): ResultadoValidacionHorario {
         ? []
         : [intervalosSinValidar];
     if (lista.length > 3) {
-      return { correcto: false, error: `Puedes configurar hasta tres intervalos en ${clave}.` };
+      return { correcto: false, error: `Podés configurar hasta tres intervalos en ${clave}.` };
     }
     const intervalos = lista.map(normalizarIntervalo);
     if (intervalos.some((intervalo) => intervalo === null)) {
@@ -426,7 +426,7 @@ function cerradoPorExcepcion(excepcion: ExcepcionHorario) {
   return excepcion.motivo ? "Cerrado hoy · " + excepcion.motivo : "Cerrado hoy";
 }
 
-const AVISO_PAUSADO = "Puedes seguir navegando; los pedidos están pausados.";
+const AVISO_PAUSADO = "Podés seguir navegando; los pedidos están pausados.";
 
 const ESTADO_INVALIDO: EstadoAtencion = {
   modo: "programado",

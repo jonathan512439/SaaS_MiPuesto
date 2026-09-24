@@ -167,7 +167,7 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
         mensaje:
           motivo instanceof Error
             ? motivo.message
-            : "Revisa tu conexión e intenta nuevamente.",
+            : "Revisá tu conexión e intentá nuevamente.",
         variante: "error",
       });
     } finally {
@@ -202,8 +202,8 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
         <EstadoVacio
           descripcion={
             filtro === "todos"
-              ? "Cuando llegue uno, aparecerá aquí con su código, vencimiento y acciones disponibles."
-              : "Prueba con otro filtro para ver los pedidos que ya resolviste."
+              ? "Cuando un casero haga su pedido, aparece acá con su código, vencimiento y acciones disponibles."
+              : "Probá con otro filtro para ver los pedidos que ya resolviste."
           }
           titulo={
             filtro === "todos"

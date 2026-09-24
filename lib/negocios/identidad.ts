@@ -73,7 +73,7 @@ export function normalizarRedesSociales(valor: unknown) {
   for (const campo of CAMPOS_REDES) {
     const url = normalizarUrl(entrada[campo]);
     if (url === undefined) {
-      errores[campo] = "Escribe un enlace HTTPS válido de hasta 300 caracteres.";
+      errores[campo] = "Escribí un enlace HTTPS válido de hasta 300 caracteres.";
     } else if (url) {
       redes[campo] = url;
     }

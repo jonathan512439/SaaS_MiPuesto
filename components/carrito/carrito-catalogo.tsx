@@ -178,7 +178,7 @@ export function CarritoCatalogo({
       setError(
         motivo instanceof Error
           ? motivo.message
-          : "No se pudo reservar el pedido. Intenta nuevamente.",
+          : "No se pudo reservar el pedido. Intentá nuevamente.",
       );
     } finally {
       setEnviando(false);
@@ -234,7 +234,7 @@ export function CarritoCatalogo({
           se muestra abajo. */}
       {items.length === 0 && !pedidoVigente ? (
         <p className={styles.vacio}>
-          Todavía no agregaste productos. Elige una opción del catálogo para preparar tu pedido.
+          Todavía no agregaste productos. Elegí una opción del catálogo para preparar tu pedido.
         </p>
       ) : items.length === 0 ? null : (
         <ul aria-live="polite">
@@ -405,7 +405,7 @@ export function CarritoCatalogo({
                   Continuar por WhatsApp
                 </a>
               ) : (
-                <p>Guarda el código y comunícate con el negocio por otro medio.</p>
+                <p>Guardá el código y comunicate con el negocio por otro medio.</p>
               )}
               {datos.negocio.qrPagoUrl ? (
                 <button

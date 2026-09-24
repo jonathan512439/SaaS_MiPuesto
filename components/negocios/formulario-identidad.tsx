@@ -44,7 +44,7 @@ const TIPOS: Array<{
   },
   {
     tipo: "logo",
-    titulo: "Logo o foto de perfil",
+    titulo: "Logo",
     ayuda: AYUDA_LOGO,
   },
   {
@@ -126,7 +126,7 @@ export function FormularioIdentidad({
       mostrarAviso({
         titulo: "No se pudo guardar la imagen",
         mensaje:
-          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
+          error instanceof Error ? error.message : "Revisá tu conexión e intentá nuevamente.",
         variante: "error",
       });
     } finally {
@@ -137,7 +137,7 @@ export function FormularioIdentidad({
   async function borrarImagen(tipo: TipoImagenIdentidad) {
     const aceptado = await confirmar({
       titulo: "Quitar esta imagen",
-      descripcion: "Deja de verse en tu catálogo público.",
+      descripcion: "Ya no se ve en tu catálogo público.",
       destructiva: true,
       textoAccion: "Quitar imagen",
     });
@@ -157,7 +157,7 @@ export function FormularioIdentidad({
       mostrarAviso({
         titulo: "No se pudo quitar la imagen",
         mensaje:
-          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
+          error instanceof Error ? error.message : "Revisá tu conexión e intentá nuevamente.",
         variante: "error",
       });
     } finally {
@@ -200,7 +200,7 @@ export function FormularioIdentidad({
       mostrarAviso({
         titulo: "No se pudieron guardar los enlaces",
         mensaje:
-          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
+          error instanceof Error ? error.message : "Revisá tu conexión e intentá nuevamente.",
         variante: "error",
       });
     } finally {
@@ -330,7 +330,7 @@ export function FormularioIdentidad({
               negocio.
             </li>
             <li>Hacé clic en tu ficha y bajá hasta «Reseñas».</li>
-            <li>Hacé clic en «Escribe una reseña».</li>
+            <li>Hacé clic en «Escribir una reseña».</li>
             <li>Copiá la dirección que se abre y pegala acá.</li>
           </ol>
           <small className={styles.ayudaUbicacion}>

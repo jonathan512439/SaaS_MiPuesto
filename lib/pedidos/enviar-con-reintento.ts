@@ -74,7 +74,7 @@ export async function enviarConReintento<T>(
    una respuesta legible. No dice «falló»: no se sabe, y lo que tiene que saber
    es que volver a intentar no duplica nada. */
 export const MENSAJE_SIN_RESPUESTA =
-  "No pudimos confirmar tu pedido por un problema de conexión. Vuelve a intentarlo: si ya se había reservado, verás el mismo código, sin duplicarlo.";
+  "No pudimos confirmar tu pedido por un problema de conexión. Volvé a intentarlo: si ya se había reservado, verás el mismo código, sin duplicarlo.";
 
 export const MENSAJE_SIN_RESPUESTA_TURNO =
-  "No pudimos confirmar tu turno por un problema de conexión. Vuelve a intentarlo: si ya se había apartado, verás el mismo, sin duplicarlo.";
+  "No pudimos confirmar tu turno por un problema de conexión. Volvé a intentarlo: si ya se había apartado, verás el mismo, sin duplicarlo.";

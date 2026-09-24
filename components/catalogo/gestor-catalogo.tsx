@@ -210,7 +210,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
   /* Las miniaturas se crean en un efecto y no al dibujar: `createObjectURL`
      reserva memoria del navegador y hay que devolverla. Sin el `revoke`, cada
-     foto elegida queda retenida hasta que se recarga la página. */
+     foto elegida queda retenida hasta que se recargá la página. */
   const previasPendientes = useMemo(
     () => imagenesPendientes.map((archivo) => URL.createObjectURL(archivo)),
     [imagenesPendientes],
@@ -313,7 +313,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     mostrarAviso({
       titulo,
       mensaje:
-        error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
+        error instanceof Error ? error.message : "Revisá tu conexión e intentá nuevamente.",
       variante: "error",
     });
   }
@@ -643,7 +643,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     if (imagenesPendientes.length + archivos.length > MAXIMO_FOTOS_POR_PRODUCTO) {
       informarError(
         "Demasiadas fotografías",
-        new Error(`Puedes seleccionar ${MAXIMO_FOTOS_POR_PRODUCTO - imagenesPendientes.length} más.`),
+        new Error(`Podés seleccionar ${MAXIMO_FOTOS_POR_PRODUCTO - imagenesPendientes.length} más.`),
       );
       return;
     }
@@ -812,7 +812,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
         actuales.map((item) => (item.id === producto.id ? actualizado : item)),
       );
       informarExito(
-        agotado ? "Marcado como agotado" : "Vuelve a estar disponible",
+        agotado ? "Marcado como agotado" : "Disponible otra vez",
         agotado && producto.controla_stock
           ? "Sus existencias quedaron en cero. Para reponer, editá la cantidad."
           : agotado
@@ -1006,7 +1006,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       categoria_id: ajusteCategoria || null,
     });
     if (!validacion.correcto) {
-      informarError("Revisa el ajuste", new Error(validacion.error));
+      informarError("Revisá el ajuste", new Error(validacion.error));
       return;
     }
 
@@ -1433,7 +1433,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             <section className={styles.imagenesFormulario} aria-labelledby="fotos-nuevo-producto">
               <div>
                 <h3 id="fotos-nuevo-producto">Fotografías</h3>
-                <p>Selecciona hasta cuatro. Se optimizan antes de subirlas.</p>
+                <p>Seleccioná hasta cuatro. Se optimizan antes de subirlas.</p>
               </div>
               <label className={styles.botonFoto}>
                 Seleccionar fotografías
@@ -1885,7 +1885,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 }
                 descripcion={
                   productos.length === 0
-                    ? "Empieza por el primero."
+                    ? "Empezá por el primero."
                     : "Probá con otra palabra o quitá los filtros."
                 }
                 titulo={

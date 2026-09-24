@@ -29,7 +29,7 @@ export async function POST(solicitud: NextRequest) {
     ? validarProducto(entrada.datos)
     : { correcto: false as const, errores: { general: entrada.error } };
   if (!validacion.correcto) {
-    return NextResponse.json({ error: "Revisa los datos del producto.", errores: validacion.errores }, { status: 400 });
+    return NextResponse.json({ error: "Revisá los datos del producto.", errores: validacion.errores }, { status: 400 });
   }
 
   const { count, error: errorConteo } = await contexto.supabase
@@ -42,7 +42,7 @@ export async function POST(solicitud: NextRequest) {
   }
   if ((count ?? 0) >= LIMITE_PRODUCTOS) {
     return NextResponse.json(
-      { error: `Puedes registrar hasta ${LIMITE_PRODUCTOS} productos.` },
+      { error: `Podés registrar hasta ${LIMITE_PRODUCTOS} productos.` },
       { status: 409 },
     );
   }
@@ -63,7 +63,7 @@ export async function POST(solicitud: NextRequest) {
   );
   if (!atributos.correcto) {
     return NextResponse.json(
-      { error: "Revisa los datos del producto.", errores: atributos.errores },
+      { error: "Revisá los datos del producto.", errores: atributos.errores },
       { status: 400 },
     );
   }
@@ -248,7 +248,7 @@ export async function PATCH(solicitud: NextRequest) {
     existenciasPorPresentacion: conPresentaciones?.con_presentaciones === true,
   });
   if (!validacion.correcto) {
-    return NextResponse.json({ error: "Revisa los datos del producto.", errores: validacion.errores }, { status: 400 });
+    return NextResponse.json({ error: "Revisá los datos del producto.", errores: validacion.errores }, { status: 400 });
   }
   const errorJerarquia = await validarJerarquiaProducto(
     contexto.supabase,
@@ -266,7 +266,7 @@ export async function PATCH(solicitud: NextRequest) {
   );
   if (!atributos.correcto) {
     return NextResponse.json(
-      { error: "Revisa los datos del producto.", errores: atributos.errores },
+      { error: "Revisá los datos del producto.", errores: atributos.errores },
       { status: 400 },
     );
   }

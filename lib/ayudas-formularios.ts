@@ -33,4 +33,4 @@ export const AYUDA_SUBCATEGORIA =
 /* Desde la fase 13 cada talla, número o tamaño puede tener su propio precio,
    y eso se carga en el producto ya creado, no duplicándolo. */
 export const AYUDA_PRECIO =
-  "Solo el número, en bolivianos. Si cambia por talla o tamaño, después de crear el producto le agregas sus presentaciones, cada una con su precio.";
+  "Solo el número, en bolivianos. Si cambia por talla o tamaño, después de crear el producto le agregás sus presentaciones, cada una con su precio.";

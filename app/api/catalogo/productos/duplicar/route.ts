@@ -54,7 +54,7 @@ export async function POST(solicitud: NextRequest) {
   }
   if ((count ?? 0) >= LIMITE_PRODUCTOS) {
     return NextResponse.json(
-      { error: `Puedes registrar hasta ${LIMITE_PRODUCTOS} productos.` },
+      { error: `Podés registrar hasta ${LIMITE_PRODUCTOS} productos.` },
       { status: 409 },
     );
   }

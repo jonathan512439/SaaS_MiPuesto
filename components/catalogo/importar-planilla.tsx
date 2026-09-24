@@ -151,10 +151,10 @@ export function ImportarPlanilla({
           desordenada, le ahorra el paso de adivinar qué columnas poner. */}
       {plantillas.length > 0 ? (
         <section aria-labelledby="titulo-plantilla" className={styles.plantilla}>
-          <h2 id="titulo-plantilla">Empieza con la plantilla de tu rubro</h2>
+          <h2 id="titulo-plantilla">Empezá con la plantilla de tu rubro</h2>
           <p>
-            Trae tus categorías, los datos que pide cada una y ejemplos para copiar. Llénala en
-            Excel o en Google Sheets y súbela aquí: todo cae en su lugar sin que tengas que decir qué
+            Trae tus categorías, los datos que pide cada una y ejemplos para copiar. Llenala en
+            Excel o en Google Sheets y subila aquí: todo cae en su lugar sin que tengas que decir qué
             columna es cuál.
           </p>
           <div className={styles.descargas}>
@@ -332,7 +332,7 @@ export function ImportarPlanilla({
               </Selector>
               {mapeo.presentacion !== null ? (
                 <Selector
-                  ayuda="Talla, Número, Tamaño u Opción. Si no la tienes, lo deducimos de lo que escribiste."
+                  ayuda="Talla, Número, Tamaño u Opción. Si no la tenés, lo deducimos de lo que escribiste."
                   etiqueta="Cómo se elige está en (opcional)"
                   id="columna-tipo-presentacion"
                   onChange={(evento) => cambiarMapeo("tipoPresentacion", evento.target.value)}

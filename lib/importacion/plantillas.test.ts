@@ -197,12 +197,15 @@ describe("qué plantillas le sirven a un negocio", () => {
   });
 });
 
-describe("español neutro, sin voseo", () => {
-  const VOSEO =
-    /(?<!\p{L})(vos|podés|tenés|querés|sabés|escribís|elegí|cargá|agregá|usá|poné|borralas|completalos|guardá|subí|dejá|fijate|mirá|decí)(?!\p{L})/iu;
+describe("con vos, nunca tuteo", () => {
+  /* Decisión del dueño, 2026-09-24: voseo y español neutro. Las plantillas se
+     escribieron primero con tuteo; esta prueba y `check-vocabulario.mjs` lo
+     cuidan. */
+  const TUTEO =
+    /(?<!\p{L})(tú|tienes|puedes|vendes|llevas|escríbenos|súbela|bórralas|déjala|dilo|ponle|pon)(?!\p{L})/u;
 
   it.each(rubrosConPlantilla())("%s", (rubro) => {
-    const texto = [...filasDeInstrucciones(rubro), ...filasDeProductos(rubro)].flat().join("\n");
-    expect(texto).not.toMatch(VOSEO);
+    const texto = [...filasDeInstrucciones(rubro), ...filasDeProductos(rubro)].flat().join(" ");
+    expect(texto).not.toMatch(TUTEO);
   });
 });

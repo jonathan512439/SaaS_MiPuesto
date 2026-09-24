@@ -66,18 +66,18 @@ export function validarPromocion(entrada: unknown): ResultadoValidacion {
   const errores: Record<string, string> = {};
 
   if (tipo !== "porcentaje" && tipo !== "monto_fijo") {
-    errores.tipo = "Elige un tipo de descuento válido.";
+    errores.tipo = "Elegí un tipo de descuento válido.";
   }
   if (!Number.isFinite(valor) || valor <= 0) {
-    errores.valor = "Escribe un descuento mayor a cero.";
+    errores.valor = "Escribí un descuento mayor a cero.";
   } else if (tipo === "porcentaje" && valor > 100) {
     errores.valor = "El porcentaje no puede superar 100 %.";
   } else if (Math.round(valor * 100) !== valor * 100) {
-    errores.valor = "Usa como máximo dos decimales.";
+    errores.valor = "Usá como máximo dos decimales.";
   }
 
   if ((destino !== "producto" && destino !== "categoria") || !esUuid(destinoId)) {
-    errores.destino_id = "Elige un producto o una categoría de tu negocio.";
+    errores.destino_id = "Elegí un producto o una categoría de tu negocio.";
   }
   if (fechaInicio === undefined) errores.fecha_inicio = "La fecha de inicio no es válida.";
   if (fechaFin === undefined) errores.fecha_fin = "La fecha de finalización no es válida.";

@@ -45,7 +45,7 @@ const ETIQUETAS_MODALIDAD: Record<TipoNegocio, string> = {
 
 const EXPLICACIONES_MODALIDAD: Record<TipoNegocio, { titulo: string; descripcion: string }> = {
   catalogo_estatico: {
-    titulo: "Para mostrar lo que ofreces",
+    titulo: "Para mostrar lo que ofrecés",
     descripcion:
       "Es una buena opción para menús, vitrinas y listas de servicios. Tus clientes verán la información y se comunicarán contigo por WhatsApp.",
   },
@@ -144,7 +144,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
     }
 
     if (estadoSlugVisible === "ocupado" || estadoSlugVisible === "invalido") {
-      setErrores({ slug: "Elige una dirección disponible antes de guardar." });
+      setErrores({ slug: "Elegí una dirección disponible antes de guardar." });
       return;
     }
 
@@ -189,7 +189,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   }
 
   const mensajeSlug = {
-    inicial: "La dirección se comprobará mientras escribes.",
+    inicial: "La dirección se comprobará mientras escribís.",
     revisando: "Comprobando disponibilidad…",
     disponible: "Disponible para tu catálogo.",
     ocupado: "Ese nombre ya está en uso.",
@@ -257,7 +257,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           id="descripcion"
           maxLength={500}
           onChange={(evento) => setDescripcion(evento.target.value)}
-          placeholder="Describe brevemente lo que ofreces y qué hace especial a tu negocio."
+          placeholder="Describí brevemente lo que ofrecés y qué hace especial a tu negocio."
           rows={4}
           value={descripcion}
         />
@@ -309,7 +309,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
 
       <section className={styles.bloqueFormulario} aria-labelledby="atencion-negocio">
         <PasoNumerado
-          descripcion="Elige cómo usarás el catálogo y dónde recibirás consultas."
+          descripcion="Elegí cómo usarás el catálogo y dónde recibirás consultas."
           idTitulo="atencion-negocio"
           numero={3}
           titulo="Atención y modalidad"
@@ -334,7 +334,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         <div className={styles.modalidadExplicacion} aria-live="polite">
           <h3>{EXPLICACIONES_MODALIDAD[tipo].titulo}</h3>
           <p>{EXPLICACIONES_MODALIDAD[tipo].descripcion}</p>
-          <p>Puedes cambiar esta modalidad más adelante si tu negocio lo necesita.</p>
+          <p>Podés cambiar esta modalidad más adelante si tu negocio lo necesita.</p>
         </div>
         {/* Aparece pegado al rubro porque solo tiene sentido ahí: pedirle la
             mesa a quien compra ropa por WhatsApp es un campo más entre él y el
@@ -359,7 +359,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         ) : null}
         <Campo
           autoComplete="tel"
-          ayuda="Puedes escribir 71234567 o +591 71234567."
+          ayuda="Podés escribir 71234567 o +591 71234567."
           error={errores.telefono_whatsapp}
           etiqueta="WhatsApp del negocio"
           id="telefono-whatsapp"
@@ -376,7 +376,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         <Boton cargando={guardando} type="submit">
           {negocioInicial ? "Guardar cambios" : "Crear mi negocio"}
         </Boton>
-        <p>Solo tú puedes ver y modificar los datos de este negocio.</p>
+        <p>Solo vos podés ver y modificar los datos de este negocio.</p>
       </div>
     </form>
   );

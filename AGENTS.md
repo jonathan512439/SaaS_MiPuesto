@@ -12,7 +12,8 @@
 SaaS de catálogos digitales para negocios locales en Bolivia. Los pedidos se cierran por
 WhatsApp. No hay pasarela de pago. Moneda: bolivianos (Bs), con dólares donde el rubro lo
 exige. Zona horaria: `America/La_Paz`. Todo el texto de interfaz va en español boliviano
-natural.
+natural: **con vos, nunca tú ni usted**, sin jerga rioplatense y con algo de jerga
+boliviana (`docs/plan/08-VOCABULARIO.md`; lo verifica `check-vocabulario.mjs`).
 
 ## Stack
 Next.js 16 (App Router, TypeScript) sobre Cloudflare Workers con vinext + Supabase

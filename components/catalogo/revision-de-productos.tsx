@@ -386,11 +386,11 @@ export function RevisionDeProductos({
             if (!guardado.ok) {
               const respuesta = (await guardado.json().catch(() => ({}))) as { error?: string };
               advertencias.push(
-                `${producto.nombre}: se creó sin sus presentaciones. ${respuesta.error ?? "Agrégalas desde Productos."}`,
+                `${producto.nombre}: se creó sin sus presentaciones. ${respuesta.error ?? "Agregalas desde Productos."}`,
               );
             }
           } catch {
-            advertencias.push(`${producto.nombre}: se creó sin sus presentaciones. Agrégalas desde Productos.`);
+            advertencias.push(`${producto.nombre}: se creó sin sus presentaciones. Agregalas desde Productos.`);
           }
         }
 
@@ -509,7 +509,7 @@ export function RevisionDeProductos({
             ? "1 producto ya está en tu catálogo con el mismo nombre y quedó sin marcar."
             : `${yaExistentes} productos ya están en tu catálogo con el mismo nombre y quedaron sin marcar.`}{" "}
           Si una importación anterior se cortó, sigue desde aquí sin duplicar. Si es otro
-          producto con el mismo nombre, márcalo.
+          producto con el mismo nombre, marcalo.
         </p>
       ) : null}
 
@@ -539,7 +539,7 @@ export function RevisionDeProductos({
             <p className={styles.sugerencia}>
               Te sugerimos tu categoría más parecida en{" "}
               {propuesta.sugeridas.size === 1 ? "una sección" : `${propuesta.sugeridas.size} secciones`}.
-              Revísalas antes de confirmar.
+              Revisalas antes de confirmar.
             </p>
           ) : null}
           {titulos

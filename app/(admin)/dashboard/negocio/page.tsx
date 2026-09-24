@@ -49,7 +49,7 @@ export default async function PaginaConfiguracion() {
     <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Configurá la información de tu negocio para que tus clientes te encuentren en el catálogo."
-        titulo={negocio ? "Tu negocio" : "Crea el perfil de tu negocio"}
+        titulo={negocio ? "Tu negocio" : "Creá el perfil de tu negocio"}
       />
 
       <div className={styles.rejilla}>

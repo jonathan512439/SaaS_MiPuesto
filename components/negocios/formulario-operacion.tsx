@@ -190,7 +190,7 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo guardar la atención",
-        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
         variante: "error",
       });
     } finally {

@@ -215,7 +215,7 @@ export function EditorDeVariantes({
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudieron guardar",
-        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
         variante: "error",
       });
     } finally {
@@ -228,12 +228,12 @@ export function EditorDeVariantes({
       <header className={styles.cabecera}>
         <h3>Presentaciones</h3>
         <p>
-          Tallas, números de calzado o tamaños. Deja el precio vacío si cuesta lo mismo que el
+          Tallas, números de calzado o tamaños. Dejá el precio vacío si cuesta lo mismo que el
           producto ({formatearPrecioBolivianos(precioProducto)}).
         </p>
       </header>
 
-      {/* Qué son: decide cómo se pregunta en el catálogo («Elige tu número»),
+      {/* Qué son: decide cómo se pregunta en el catálogo («Elegí tu número»),
           cómo se ordenan y qué se acepta. */}
       <fieldset className={styles.tipos} disabled={guardando}>
         <legend>¿Qué son?</legend>
@@ -287,7 +287,7 @@ export function EditorDeVariantes({
 
       {variantes.length === 0 ? (
         <p className={styles.noAplica}>
-          Este producto se vende de una sola forma. Agrega presentaciones si viene en varias.
+          Este producto se vende de una sola forma. Agregá presentaciones si viene en varias.
         </p>
       ) : null}
 
@@ -360,7 +360,7 @@ export function EditorDeVariantes({
                 se le confirme. Se dice por qué, en vez de un botón gris mudo. */}
             {variante.reservadas > 0 ? (
               <small className={styles.nota}>
-                Tiene pedidos pendientes: ocúltala si ya no la vendes.
+                Tiene pedidos pendientes: ocultala si ya no la vendés.
               </small>
             ) : (
               <Boton

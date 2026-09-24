@@ -19,7 +19,7 @@ import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Plantilla del catálogo | MiPuesto",
-  description: "Compara y elige la presentación visual de tu catálogo.",
+  description: "Compará y elegí la presentación visual de tu catálogo.",
 };
 
 export default async function PaginaPlantilla() {

@@ -59,20 +59,20 @@ const ERRORES_PRESENTACIONES: Record<string, { estado: number; mensaje: string }
   PRESENTACION_RESERVADA: {
     estado: 409,
     mensaje:
-      "Una de las presentaciones que sacaste tiene unidades apartadas en pedidos pendientes. Ocúltala en vez de borrarla, o espera a que se confirmen o venzan.",
+      "Una de las presentaciones que sacaste tiene unidades apartadas en pedidos pendientes. Ocultala en vez de borrarla, o esperá a que se confirmen o venzan.",
   },
   PRODUCTO_RESERVADO: {
     estado: 409,
     mensaje:
-      "Este producto tiene unidades apartadas en pedidos pendientes. Espera a que se confirmen o venzan antes de agregarle presentaciones.",
+      "Este producto tiene unidades apartadas en pedidos pendientes. Esperá a que se confirmen o venzan antes de agregarle presentaciones.",
   },
   EXISTENCIAS_POR_PRESENTACION: {
     estado: 400,
-    mensaje: "Este producto controla existencias: indica cuántas unidades hay de cada presentación.",
+    mensaje: "Este producto controla existencias: indicá cuántas unidades hay de cada presentación.",
   },
   EXISTENCIAS_REQUERIDAS: {
     estado: 400,
-    mensaje: "Sin presentaciones, el producto vuelve a llevar sus existencias: indica cuántas unidades hay.",
+    mensaje: "Sin presentaciones, el producto vuelve a llevar sus existencias: indicá cuántas unidades hay.",
   },
   NUMERO_INVALIDO: {
     estado: 400,
@@ -89,11 +89,11 @@ const ERRORES_PRESENTACIONES: Record<string, { estado: number; mensaje: string }
   variantes_reserva_consistente: {
     estado: 409,
     mensaje:
-      "No puedes dejar menos existencias que las unidades ya apartadas en pedidos pendientes.",
+      "No podés dejar menos existencias que las unidades ya apartadas en pedidos pendientes.",
   },
   PRESENTACION_NO_ENCONTRADA: {
     estado: 409,
-    mensaje: "Las presentaciones cambiaron mientras las editabas. Vuelve a abrir el producto.",
+    mensaje: "Las presentaciones cambiaron mientras las editabas. Volvé a abrir el producto.",
   },
 };
 
@@ -157,7 +157,7 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
   });
   if (!validacion.correcto) {
     return NextResponse.json(
-      { error: "Revisa las presentaciones.", errores: validacion.errores },
+      { error: "Revisá las presentaciones.", errores: validacion.errores },
       { status: 400 },
     );
   }

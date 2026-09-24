@@ -1726,6 +1726,31 @@ motivo por el que este archivo existe.
 
 ### 2026-09-24
 
+- **Etapa 5, primera parte: todo el sistema habla con vos.** Decisión del dueño:
+  español neutro, con voseo y algo de jerga boliviana. Los textos nuevos de las
+  últimas semanas estaban en tuteo por una regla equivocada que yo había
+  anotado; quedaron mezclados con el voseo del resto.
+  - `scripts/check-vocabulario.mjs` (la guardia de `08-VOCABULARIO.md`), dentro
+    de `npm test`: palabras prohibidas, tuteo, usted y muletillas sueltas, con
+    archivo, línea y reemplazo. Encontró 214 textos; se convirtieron 180 en 64
+    archivos. Probada rompiéndola.
+  - Tres ajustes que salieron al hacerla: el tuteo se compara **con tilde**
+    («vendes» contra «vendés»); los imperativos y el usted solo al comienzo de
+    una frase («el casero haga su pedido» es subjuntivo); las muletillas que son
+    español corriente —«de una vez», «tal cual»— solo cuando van solas.
+  - El script de conversión se equivocó en dos frentes y se corrigió a mano:
+    cambió rutas —`que-vendes-y-donde` → `que-vendés-y-donde`, que rompía los
+    imports y la URL del alta— y pasó a orden frases en tercera persona («Abre
+    el lunes a las 09:00», «Deja de verse»). Se revisaron uno por uno los 110
+    imperativos que agregó.
+  - `npm run vocabulario:auditar` lista los imperativos a mitad de frase, que la
+    guardia no puede rechazar sola; los 25 que encontró se revisaron a mano.
+  - Jerga boliviana, poca y donde suma: «caseros» en la portada, los pedidos y
+    las promociones; «yapa» en las promociones; «wawas» en la guía de
+    juguetería. Documentado en `08-VOCABULARIO.md` §3 bis.
+  - Los correos de Supabase (confirmación, contraseña) no están en el
+    repositorio: se revisan en su panel.
+
 - **Etapa 4 de las correcciones: robustez de la operación.**
   - **Tipos de la base al día:** `scripts/check-tipos-al-dia.mjs`, dentro de
     `npm test`, exige que cada tabla y columna creada por una migración esté en

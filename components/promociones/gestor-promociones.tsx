@@ -93,7 +93,7 @@ function obtenerEstado(promocion: PromocionAdmin, ahora: Date) {
      Marcarla en rojo como «Revisar» haría que el dueño entrara a arreglar algo
      que no está roto —o peor, que la borrara—. */
   if (promocion.hora_inicio || (promocion.dias?.length ?? 0) > 0) {
-    return { texto: "Espera su horario", clase: styles.programada };
+    return { texto: "Fuera de su horario", clase: styles.programada };
   }
   return { texto: "Revisar", clase: styles.vencida };
 }
@@ -305,7 +305,7 @@ export function GestorPromociones({
             <p>Nueva oferta</p>
             <h2>Define el descuento</h2>
           </div>
-          <p>Puedes pausarlo o borrarlo después sin cambiar el precio normal.</p>
+          <p>Podés pausarlo o borrarlo después sin cambiar el precio normal.</p>
         </header>
 
         <div className={styles.campos}>
@@ -472,7 +472,7 @@ export function GestorPromociones({
         </header>
         {promociones.length === 0 ? (
           <EstadoVacio
-            descripcion="Usa el formulario de arriba para destacar tu primera oferta."
+            descripcion="Usá el formulario de arriba para destacar tu primera oferta: la yapa que hace volver a tus caseros."
             titulo="Todavía no creaste promociones"
           />
         ) : (
@@ -500,7 +500,7 @@ export function GestorPromociones({
                         ? ` hasta ${FORMATEADOR_FECHA.format(new Date(promocion.fecha_fin))}`
                         : ", sin vencimiento"}
                     </small>
-                    {/* Sin esto, «Espera su horario» no dice qué horario, y el
+                    {/* Sin esto, «Fuera de su horario» no dice qué horario, y el
                         dueño tiene que abrir el formulario para recordarlo. */}
                     {describirHorario(promocion) ? (
                       <small>{describirHorario(promocion)}</small>

@@ -73,7 +73,7 @@ export default async function ImagenCatalogo({
           </div>
         </div>
         <div style={{ display: "flex", color: COLORES_MIPUESTO.superficie, fontSize: 28 }}>
-          Abre el catálogo y comunícate directamente con el negocio
+          Abrí el catálogo y comunicate directamente con el negocio
         </div>
       </div>
     ),

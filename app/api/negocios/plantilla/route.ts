@@ -92,7 +92,7 @@ export async function PATCH(solicitud: NextRequest) {
 
   if (error) {
     return NextResponse.json(
-      { error: "No se pudo guardar la apariencia. Intenta nuevamente." },
+      { error: "No se pudo guardar la apariencia. Intentá nuevamente." },
       { status: 500 },
     );
   }

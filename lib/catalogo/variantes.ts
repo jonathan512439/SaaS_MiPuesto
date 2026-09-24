@@ -178,7 +178,7 @@ export function validarVariantes(
     } else if (cantidadStock === null && contexto.controlaStock) {
       /* Desde la fase 13 las existencias de un producto con presentaciones
          viven en cada una: sin el número, esa talla no se podría pedir. */
-      errores[campo("cantidadStock")] = "Indica cuántas unidades hay de esta presentación.";
+      errores[campo("cantidadStock")] = "Indicá cuántas unidades hay de esta presentación.";
     } else if (cantidadStock !== null && !contexto.controlaStock) {
       /* Se avisa en vez de guardarlo callado: un número de existencias en un
          producto que no las controla no se muestra en ninguna parte, y el dueño
@@ -347,8 +347,8 @@ export const TEXTOS_DE_PRESENTACION: Record<
   TipoPresentacion,
   { nombre: string; elegir: string; boton: string }
 > = {
-  talla: { nombre: "Talla", elegir: "Elige tu talla", boton: "Elegir talla" },
-  numero: { nombre: "Número de calzado", elegir: "Elige tu número", boton: "Elegir número" },
-  tamano: { nombre: "Tamaño", elegir: "Elige el tamaño", boton: "Elegir tamaño" },
-  presentacion: { nombre: "Otra opción", elegir: "Elige una opción", boton: "Elegir opción" },
+  talla: { nombre: "Talla", elegir: "Elegí tu talla", boton: "Elegir talla" },
+  numero: { nombre: "Número de calzado", elegir: "Elegí tu número", boton: "Elegir número" },
+  tamano: { nombre: "Tamaño", elegir: "Elegí el tamaño", boton: "Elegir tamaño" },
+  presentacion: { nombre: "Otra opción", elegir: "Elegí una opción", boton: "Elegir opción" },
 };

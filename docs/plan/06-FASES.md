@@ -436,8 +436,10 @@ negocio ya atiende.
 
 **Entregables**
 
-- `scripts/check-vocabulario.mjs` y la lista de palabras prohibidas.
-- Todo el texto del sistema revisado según [`08-VOCABULARIO.md`](08-VOCABULARIO.md).
+- ~~`scripts/check-vocabulario.mjs` y la lista de palabras prohibidas.~~
+- ~~Todo el texto del sistema revisado según [`08-VOCABULARIO.md`](08-VOCABULARIO.md).~~
+  **Hecho el 2026-09-24**: voseo en todo el sistema, sin tuteo ni jerga
+  rioplatense, con algo de jerga boliviana. La guardia corre en `npm test`.
 - ~~**La portada, menos saturada**: fundir la franja de horario con la de
   confianza, cargar los productos al desplazar, revisar qué bloque sobra.~~
   **Hecho el 17 de septiembre de 2026, con una corrección al enunciado.**

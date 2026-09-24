@@ -30,7 +30,7 @@ export default async function PaginaDirectorio({ searchParams }: Propiedades) {
   const filtros = leerFiltrosDirectorio(await searchParams);
   return (
     <PantallaDirectorio
-      bajada="Negocios de Bolivia con su catálogo, a un toque de WhatsApp"
+      bajada="Negocios de Bolivia con su catálogo, a un mensaje de WhatsApp"
       filtros={filtros}
       ruta="/directorio"
       titulo={tituloDeDirectorio(filtros)}

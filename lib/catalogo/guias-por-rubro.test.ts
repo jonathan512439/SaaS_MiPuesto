@@ -76,15 +76,20 @@ describe("lo que sugerimos, el sistema lo acepta", () => {
   });
 });
 
-describe("español neutro, sin voseo", () => {
-  /* Con límites de letra Unicode y no `\b`: para `\b` la «á» no es letra, y
-     «contá» —que termina en tilde— no coincidía nunca. Lo mostró la prueba de
-     romper esta guardia. */
-  const VOSEO =
-    /(?<!\p{L})(vos|podés|tenés|querés|sabés|escribís|elegí|cargá|agregá|usá|poné|agrupá|guardás|hacelo|fijate|mirá|dejá|contá|decí)(?!\p{L})/iu;
+describe("con vos, nunca tuteo", () => {
+  /* Decisión del dueño, 2026-09-24: voseo y español neutro. La guardia
+     `check-vocabulario.mjs` revisa todo el sistema; esta, las guías en
+     particular, porque se escribieron primero con tuteo. Con límites Unicode:
+     los de palabra de JavaScript no cuentan la «á» como letra. */
+  const TUTEO =
+    /(?<!\p{L})(tú|tienes|puedes|quieres|vendes|guardas|cobras|escríbenos|súbela|márcalo|elige|revisa|agrupa)(?!\p{L})/u;
 
   it.each(GUIAS.map((guia) => [guia.id, guia] as const))("%s", (_, guia) => {
-    for (const texto of textosDe(guia)) expect(texto).not.toMatch(VOSEO);
+    for (const texto of textosDe(guia)) expect(texto).not.toMatch(TUTEO);
+  });
+
+  it("y la ayuda de categorías habla de vos", () => {
+    expect(ayudaCategoria({ rubro_publico: "polleria" })).toContain("Agrupá como busca tu cliente");
   });
 });
 

@@ -291,7 +291,7 @@ function Galeria() {
           />
           <EstadoVacio
             accion={<Boton>Agregar primer producto</Boton>}
-            descripcion="Empieza con el primero para preparar tu catálogo."
+            descripcion="Empezá con el primero para preparar tu catálogo."
             titulo="Todavía no cargaste ningún producto"
           />
         </section>

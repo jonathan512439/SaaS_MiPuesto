@@ -30,7 +30,7 @@ export async function POST(solicitud: NextRequest) {
   const productoId = formulario.get("producto_id");
   const archivo = formulario.get("archivo");
   if (!esUuid(productoId) || !(archivo instanceof File)) {
-    return NextResponse.json({ error: "Selecciona un producto y una imagen válidos." }, { status: 400 });
+    return NextResponse.json({ error: "Seleccioná un producto y una imagen válidos." }, { status: 400 });
   }
 
   const { data: producto, error: errorProducto } = await contexto.supabase
@@ -129,7 +129,7 @@ export async function DELETE(solicitud: NextRequest) {
     .eq("negocio_id", contexto.negocio.id);
   if (error) {
     return NextResponse.json(
-      { error: "La imagen se borró, pero no se pudo actualizar el producto. Recarga la página." },
+      { error: "La imagen se borró, pero no se pudo actualizar el producto. Recargá la página." },
       { status: 500 },
     );
   }
