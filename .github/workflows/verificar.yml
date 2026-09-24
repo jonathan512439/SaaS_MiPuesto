@@ -1,0 +1,43 @@
+name: Verificar
+
+# La misma verificación que Cloudflare corre antes de cada build
+# (`prebuild:vinext` → `npm run verificar`), en una máquina Linux y con el
+# registro a la vista.
+#
+# **No es la que frena la publicación**: esa es la de Cloudflare, que corre en
+# el mismo build que publica. Esta existe porque el registro de Workers Builds
+# solo se lee desde el panel de Cloudflare, y cuando un build falla hace falta
+# saber por qué sin entrar ahí. Además marca el commit en GitHub con ✓ o ✗.
+#
+# Sin secretos: las pruebas no tocan ninguna base ni ningún servicio. Las que
+# escriben corren aparte, contra la base de ensayo y a mano.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verificar-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Instalar desde el candado
+        run: npm ci --no-audit --no-fund
+
+      - name: Tipos, lint y pruebas
+        run: npm run verificar
