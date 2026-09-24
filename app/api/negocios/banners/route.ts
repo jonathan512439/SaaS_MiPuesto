@@ -1,3 +1,8 @@
+import {
+  MENSAJE_SIN_ESPACIO,
+  esRechazoPorEspacio,
+  sinEspacioParaFotos,
+} from "../../../../lib/catalogo/almacenamiento";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { leerJson, obtenerContextoAdminCatalogo } from "../../../../lib/catalogo/servidor";
@@ -86,6 +91,11 @@ export async function POST(solicitud: NextRequest) {
   /* La imagen se sube y se devuelve la ruta, sin tocar la columna. El banner se
      guarda recién en el `PATCH`, con su texto alternativo: una imagen vinculada
      sin texto sería un banner mudo, que es justo lo que el modelo no admite. */
+  /* El espacio de fotos del negocio: si ya no hay lugar, se dice antes de
+     subir y con palabras. La regla de la base lo hace cumplir igual. */
+  if (await sinEspacioParaFotos(contexto.supabase, contexto.negocio.id)) {
+    return NextResponse.json({ error: MENSAJE_SIN_ESPACIO }, { status: 409 });
+  }
   const ruta = `${contexto.negocio.id}/${CARPETA}/${crypto.randomUUID()}.${extensionPorTipo(
     validacion.tipo,
   )}`;
@@ -97,6 +107,9 @@ export async function POST(solicitud: NextRequest) {
       upsert: false,
     });
   if (errorSubida) {
+    if (esRechazoPorEspacio(errorSubida.message)) {
+      return NextResponse.json({ error: MENSAJE_SIN_ESPACIO }, { status: 409 });
+    }
     return NextResponse.json({ error: "No se pudo subir la imagen." }, { status: 500 });
   }
 

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "../supabase/database.types";
+import { leerEspacioUsado } from "./almacenamiento";
 import {
   COLUMNAS_ATRIBUTO_CATEGORIA,
   COLUMNAS_CATEGORIA,
@@ -65,7 +66,7 @@ export async function leerCatalogoAdmin(
     .maybeSingle();
   if (!negocio) return null;
 
-  const [categorias, atributos, recursos, subcategorias, productos, usoIa] = await Promise.all([
+  const [categorias, atributos, recursos, subcategorias, productos, usoIa, espacioUsado] = await Promise.all([
     supabase
       .from("categorias")
       .select(COLUMNAS_CATEGORIA)
@@ -95,6 +96,7 @@ export async function leerCatalogoAdmin(
       .eq("negocio_id", negocio.id)
       .eq("mes", `${new Date().toISOString().slice(0, 8)}01`)
       .maybeSingle(),
+    leerEspacioUsado(supabase, negocio.id),
   ]);
 
   return {
@@ -112,5 +114,6 @@ export async function leerCatalogoAdmin(
     atributos: atributos.data ?? [],
     recursos: recursos.data ?? [],
     fotosUsadasMes: usoIa.data?.cantidad ?? 0,
+    espacioUsado,
   };
 }

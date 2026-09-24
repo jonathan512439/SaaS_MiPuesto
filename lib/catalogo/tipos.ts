@@ -97,6 +97,9 @@ export type DatosCatalogoAdmin = {
      herramienta, en el formulario de producto: quien está por usarla es quien
      tiene que saber cuántas le quedan, y no se entera abriendo otra pantalla. */
   fotosUsadasMes: number;
+  /* Lo que ocupan las fotos del negocio, en bytes; `null` si no se pudo saber.
+     El formulario lo muestra junto a las fotos y avisa antes del tope. */
+  espacioUsado: number | null;
   categorias: CategoriaCatalogo[];
   subcategorias: SubcategoriaCatalogo[];
   productos: ProductoCatalogo[];

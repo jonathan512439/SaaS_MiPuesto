@@ -1469,7 +1469,12 @@ export type Database = {
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }
       suspender_suscripciones_vencidas: { Args: never; Returns: number }
       texto_datos_borrados: { Args: never; Returns: string }
+      tope_almacenamiento_negocio: { Args: never; Returns: number }
       uso_almacenamiento: { Args: never; Returns: Json }
+      uso_almacenamiento_negocio: {
+        Args: { p_carpeta: string }
+        Returns: number
+      }
       uso_almacenamiento_servicio: { Args: never; Returns: Json }
       uso_ia: { Args: never; Returns: Json }
       uso_ia_servicio: { Args: never; Returns: Json }

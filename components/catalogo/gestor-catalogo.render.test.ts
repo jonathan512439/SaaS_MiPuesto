@@ -114,6 +114,7 @@ const datos = {
     { id: RECURSO, nombre: "Dra. Pérez", activo: true, agenda_recurso: [{ duracion_minutos: 60 }] },
   ],
   fotosUsadasMes: 3,
+  espacioUsado: 5 * 1024 * 1024,
 } as unknown as DatosCatalogoAdmin;
 
 function dibujar(vista: "productos" | "categorias") {

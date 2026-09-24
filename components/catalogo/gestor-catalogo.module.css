@@ -1584,3 +1584,12 @@
   color: var(--color-texto);
   font-size: var(--text-sm);
 }
+
+/* El aviso de poco espacio: con palabras y con el borde, no solo con color. */
+.avisoEspacio {
+  display: block;
+  border-left: var(--borde-marcado) solid var(--color-peligro);
+  padding-left: var(--spacing-2);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+}

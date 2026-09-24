@@ -1,3 +1,8 @@
+import {
+  MENSAJE_SIN_ESPACIO,
+  esRechazoPorEspacio,
+  sinEspacioParaFotos,
+} from "../../../../lib/catalogo/almacenamiento";
 import { NextResponse, type NextRequest } from "next/server";
 
 
@@ -125,6 +130,11 @@ export async function POST(solicitud: NextRequest) {
 
   const campo = CAMPO_POR_TIPO_IMAGEN[tipo];
   const anterior = negocioActual[campo];
+  /* El espacio de fotos del negocio: si ya no hay lugar, se dice antes de
+     subir y con palabras. La regla de la base lo hace cumplir igual. */
+  if (await sinEspacioParaFotos(contexto.supabase, contexto.negocio.id)) {
+    return NextResponse.json({ error: MENSAJE_SIN_ESPACIO }, { status: 409 });
+  }
   const ruta = `${contexto.negocio.id}/${tipo}/${crypto.randomUUID()}.${extensionPorTipo(validacion.tipo)}`;
   const { error: errorSubida } = await contexto.supabase.storage
     .from("negocios")
@@ -134,6 +144,9 @@ export async function POST(solicitud: NextRequest) {
       upsert: false,
     });
   if (errorSubida) {
+    if (esRechazoPorEspacio(errorSubida.message)) {
+      return NextResponse.json({ error: MENSAJE_SIN_ESPACIO }, { status: 409 });
+    }
     return NextResponse.json({ error: "No se pudo subir la imagen." }, { status: 500 });
   }
 

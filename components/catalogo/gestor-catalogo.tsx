@@ -15,6 +15,12 @@ import { leerAtributos, type Atributo } from "../../lib/catalogo/atributos";
 import { leerValores, type ValorAtributo } from "../../lib/catalogo/valores";
 import { CamposDeProducto } from "./campos-de-producto";
 import {
+  MENSAJE_POCO_ESPACIO,
+  MENSAJE_SIN_ESPACIO,
+  describirEspacio,
+  nivelDeEspacio,
+} from "../../lib/catalogo/almacenamiento";
+import {
   ayudaCategoria,
   ejemploDeCategoria,
   guiaDelNegocio,
@@ -1466,6 +1472,25 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 </ul>
               ) : null}
               <small className={styles.ayudaCampo}>{AYUDA_FOTO_PRODUCTO}</small>
+              {/* Cuánto ocupan las fotos del negocio, y el aviso antes del
+                  tope: llegar sin saberlo es encontrarse con una foto que no
+                  sube en el peor momento. */}
+              {datosIniciales.espacioUsado !== null ? (
+                <small
+                  className={
+                    nivelDeEspacio(datosIniciales.espacioUsado) === "holgado"
+                      ? styles.ayudaCampo
+                      : styles.avisoEspacio
+                  }
+                >
+                  Espacio de fotos del negocio: {describirEspacio(datosIniciales.espacioUsado)}.
+                  {nivelDeEspacio(datosIniciales.espacioUsado) === "lleno"
+                    ? ` ${MENSAJE_SIN_ESPACIO}`
+                    : nivelDeEspacio(datosIniciales.espacioUsado) === "poco"
+                      ? ` ${MENSAJE_POCO_ESPACIO}`
+                      : ""}
+                </small>
+              ) : null}
               <small>
                 {imagenesPendientes.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías seleccionadas
               </small>
