@@ -1,7 +1,8 @@
 name: Respaldo diario de la base
 
-# Un volcado por día a R2. La base es lo irreemplazable: los productos, los
-# pedidos y los vencimientos de cada negocio. Sin esto, cobrar por custodiar
+# Un volcado por día a R2, y desde el 2026-09-24 también las fotografías
+# (`scripts/respaldar-fotos.sh`). La base es lo irreemplazable: los productos,
+# los pedidos y los vencimientos de cada negocio. Sin esto, cobrar por custodiar
 # datos que no se respaldan es un riesgo que se paga una sola vez y caro.
 #
 # Corre a las 07:00 UTC —03:00 en Bolivia—, antes de la purga de analítica
@@ -20,7 +21,8 @@ concurrency:
 jobs:
   respaldar:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 30 y no 20 desde que se respaldan las fotos: la primera copia sube todas.
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
@@ -411,3 +413,15 @@ jobs:
               --remote
           done
           echo "Respaldo del $FECHA subido a $BALDE."
+
+      # Las fotografías, después de la base: si esto falla, el volcado del día
+      # ya está a salvo y GitHub avisa igual. Qué hace y por qué, en el guion.
+      - name: Respaldar las fotografías
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BALDE: ${{ vars.R2_BUCKET_RESPALDOS }}
+          PSQL: /usr/lib/postgresql/17/bin/psql
+        run: bash scripts/respaldar-fotos.sh

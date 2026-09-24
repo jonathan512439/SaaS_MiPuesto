@@ -7,17 +7,42 @@ Escrito el 2026-09-05, al cerrar la etapa 5 del plan de crecimiento.
 | | Estado |
 |---|---|
 | **Base de datos** — negocios, productos, pedidos, promociones, suscripciones | **Automático, diario** |
-| **Fotografías** — logo, portada, QR y fotos de producto | **No respaldado todavía** |
+| **Fotografías** — logo, portada, QR y fotos de producto | **Automático, diario, desde el 2026-09-24** |
 
 La base es lo irreemplazable: si se pierde, se pierden los pedidos, los precios
 y hasta cuándo pagó cada negocio. Las fotografías son recuperables pidiéndoselas
 al dueño, con molestia pero sin pérdida definitiva. Por eso se automatizó
 primero la base.
 
-**El respaldo de fotografías queda pendiente y conviene no olvidarlo**: un dueño
-que subió 300 fotos desde su celular hace seis meses probablemente ya no las
-tenga. La opción más simple cuando se encare es sincronizar el depósito de
-Supabase a R2 con un cliente compatible con S3, en el mismo flujo diario.
+### Las fotografías
+
+`scripts/respaldar-fotos.sh`, en el mismo flujo diario y después del volcado:
+
+- Lista las fotos desde `storage.objects` y las baja por su dirección pública
+  (los dos depósitos son públicos), así que **no necesita la clave de servicio en
+  GitHub**: solo `SUPABASE_DB_URL`, que ya estaba, y la variable `SUPABASE_URL`.
+- Van a `R2/<balde>/fotos/<depósito>/<ruta>`, con un manifiesto
+  (`fotos/manifiesto.tsv`) que anota cada una con su eTag: cada día se suben solo
+  las nuevas o cambiadas.
+- **Aditivo:** lo que se borra en Supabase se queda en R2, para poder recuperar
+  una foto borrada por error.
+- **Comprobado en cada corrida:** baja de R2 cinco fotos al azar y compara su
+  SHA-256 con el original. Si una falla, el paso falla y GitHub avisa.
+
+Lo que **no** hace todavía: el ensayo de restauración no sube las fotos a la
+base de ensayo —eso pediría la clave de servicio de ensayo en GitHub—; la
+comprobación de cada corrida es la que garantiza que la copia se lee.
+
+**Para restaurarlas** en un proyecto nuevo:
+
+1. Bajar la carpeta: `npx wrangler r2 object get <balde>/fotos/<depósito>/<ruta>`
+   una por una siguiendo el manifiesto, o con cualquier cliente S3 apuntado a R2
+   (`rclone copy r2:<balde>/fotos ./fotos`).
+2. Subirlas con la misma ruta al depósito del mismo nombre:
+   `npx supabase storage cp -r ./fotos/productos ss:///productos --experimental`
+   (y lo mismo con `negocios`). Las rutas llevan el identificador del negocio y
+   del producto, que son los de la base restaurada: por eso tienen que ir
+   exactamente al mismo lugar.
 
 ## Cómo funciona
 
