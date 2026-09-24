@@ -330,3 +330,40 @@
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
 }
+
+/* Las tallas de un producto de la planilla, en una línea debajo del nombre. */
+.presentaciones {
+  grid-column: 1 / -1;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+/* Lo raro de una fila se dice con palabras y con el borde: el color no es el
+   único indicador. */
+.avisoFila {
+  grid-column: 1 / -1;
+  border-left: var(--borde-marcado) solid var(--color-peligro);
+  padding-left: var(--spacing-2);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+}
+
+.advertencias {
+  display: grid;
+  gap: var(--spacing-2);
+  border-left: var(--borde-marcado) solid var(--color-peligro);
+  padding-left: var(--spacing-3);
+}
+
+.advertencias h3 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.advertencias ul {
+  display: grid;
+  gap: var(--spacing-1);
+  padding-left: var(--spacing-4);
+  font-size: var(--text-sm);
+  list-style: disc;
+}

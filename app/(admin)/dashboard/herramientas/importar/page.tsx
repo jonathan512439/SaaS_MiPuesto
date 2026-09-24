@@ -6,7 +6,12 @@ import { ImportarPlanilla } from "../../../../../components/catalogo/importar-pl
 import type { CategoriaCatalogo } from "../../../../../lib/catalogo/tipos";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
-import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
+import {
+  COLUMNAS_ATRIBUTO_CATEGORIA,
+  COLUMNAS_CATEGORIA,
+} from "../../../../../lib/catalogo/columnas";
+import { leerAtributos } from "../../../../../lib/catalogo/atributos";
+import { nombreDeRubro, plantillasDelNegocio } from "../../../../../lib/importacion/plantillas";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../../lib/panel/rutas";
 import panel from "../../panel.module.css";
 
@@ -29,17 +34,31 @@ export default async function PaginaImportarPlanilla() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("id")
+    /* El rubro y los secundarios deciden qué plantillas se ofrecen. */
+    .select("id,rubro,rubro_publico,rubros_secundarios")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
-  const { data: categorias } = await supabase
-    .from("categorias")
-    .select(COLUMNAS_CATEGORIA)
-    .eq("negocio_id", negocio.id)
-    .order("orden")
-    .order("nombre");
+  /* Los campos de cada categoría, para guardar los datos que trae la planilla
+     —«Color», «Potencia (W)»— en la categoría donde termine cada producto. */
+  const [{ data: categorias }, { data: filasAtributos }] = await Promise.all([
+    supabase
+      .from("categorias")
+      .select(COLUMNAS_CATEGORIA)
+      .eq("negocio_id", negocio.id)
+      .order("orden")
+      .order("nombre"),
+    supabase
+      .from("atributos_categoria")
+      .select(COLUMNAS_ATRIBUTO_CATEGORIA)
+      .eq("negocio_id", negocio.id)
+      .order("orden"),
+  ]);
+  const atributosPorCategoria: Record<string, ReturnType<typeof leerAtributos>> = {};
+  for (const fila of filasAtributos ?? []) {
+    (atributosPorCategoria[fila.categoria_id] ??= []).push(...leerAtributos([fila]));
+  }
 
   /* Si el negocio ya lleva la cuenta en algún producto. Es la señal más honesta
      de «este catálogo cuenta existencias»: no hay un ajuste de negocio para
@@ -65,8 +84,13 @@ export default async function PaginaImportarPlanilla() {
       />
 
       <ImportarPlanilla
+        atributosPorCategoria={atributosPorCategoria}
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
         negocioLlevaStock={negocioLlevaStock}
+        plantillas={plantillasDelNegocio(negocio).map((rubro) => ({
+          rubro,
+          nombre: nombreDeRubro(rubro),
+        }))}
       />
     </main>
   );

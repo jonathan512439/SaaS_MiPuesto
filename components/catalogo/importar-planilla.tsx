@@ -2,8 +2,9 @@
 
 import { useMemo, useState, type ChangeEvent } from "react";
 
+import type { Atributo } from "../../lib/catalogo/atributos";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
-import type { Mapeo } from "../../lib/importacion/columnas";
+import { columnasDeDatos, type Mapeo } from "../../lib/importacion/columnas";
 import {
   MAXIMO_FILAS,
   leerArchivoDePlanilla,
@@ -34,10 +35,18 @@ function nombreDeColumna(indice: number): string {
 }
 
 export function ImportarPlanilla({
+  atributosPorCategoria,
   categorias,
   negocioLlevaStock,
+  plantillas,
 }: {
+  /* Los campos de cada categoría, por su id: los datos de la planilla se
+     guardan en los de la categoría donde termine cada producto. */
+  atributosPorCategoria: Record<string, Atributo[]>;
   categorias: CategoriaCatalogo[];
+  /* Las plantillas de su rubro y de sus rubros secundarios que existen. Vacía
+     si ninguno de sus rubros tiene plantilla todavía. */
+  plantillas: ReadonlyArray<{ rubro: string; nombre: string }>;
   /* Si el negocio ya lleva la cuenta en los productos que tiene. Sirve para
      proponer lo mismo en los que va a importar: quien cuenta lo que le queda
      lo cuenta para todo, y prenderlo veintiocho veces a mano no lo haría
@@ -75,8 +84,17 @@ export function ImportarPlanilla({
 
   const resultado = useMemo(() => {
     if (!lectura || !mapeo) return null;
-    return productosDeLaPlanilla(lectura.filas, mapeo);
+    return productosDeLaPlanilla(lectura.filas, mapeo, lectura.cabeceras);
   }, [lectura, mapeo]);
+
+  /* Las columnas que se van a guardar como datos de la categoría. Se dicen
+     antes de confirmar: si «Color» no aparece acá, no se va a guardar. */
+  const columnasDeDatosVistas = useMemo(
+    () => (lectura && mapeo ? columnasDeDatos(lectura.cabeceras, mapeo).map(({ titulo }) => titulo) : []),
+    [lectura, mapeo],
+  );
+  const conPresentaciones =
+    resultado?.productos.filter(({ presentaciones }) => presentaciones.length > 0).length ?? 0;
 
   async function elegirArchivo(evento: ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0];
@@ -126,6 +144,31 @@ export function ImportarPlanilla({
 
   return (
     <div className={styles.pantalla}>
+      {/* La plantilla va primero: a quien no tiene planilla, o la tiene
+          desordenada, le ahorra el paso de adivinar qué columnas poner. */}
+      {plantillas.length > 0 ? (
+        <section aria-labelledby="titulo-plantilla" className={styles.plantilla}>
+          <h2 id="titulo-plantilla">Empieza con la plantilla de tu rubro</h2>
+          <p>
+            Trae tus categorías, los datos que pide cada una y ejemplos para copiar. Llénala en
+            Excel o en Google Sheets y súbela aquí: todo cae en su lugar sin que tengas que decir qué
+            columna es cuál.
+          </p>
+          <div className={styles.descargas}>
+            {plantillas.map(({ rubro, nombre }) => (
+              <a
+                className={styles.descarga}
+                download
+                href={`/api/catalogo/plantilla?rubro=${encodeURIComponent(rubro)}`}
+                key={rubro}
+              >
+                Descargar plantilla de {nombre.toLowerCase()}
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className={styles.ayuda}>
         <h2>Importar tu Excel o tu CSV</h2>
         <p className={styles.gratis}>
@@ -265,15 +308,65 @@ export function ImportarPlanilla({
             </Selector>
           ) : null}
 
+          {/* Talla, número o tamaño: una fila por cada uno, y las filas con el
+              mismo nombre se juntan en un producto. Solo si la planilla trae
+              títulos: sin ellos no hay forma de reconocer esa columna. */}
+          {lectura.cabeceras ? (
+            <>
+              <Selector
+                etiqueta="La talla, el número o el tamaño está en (opcional)"
+                id="columna-presentacion"
+                onChange={(evento) => cambiarMapeo("presentacion", evento.target.value)}
+                value={String(mapeo.presentacion ?? -1)}
+              >
+                <option value={SIN_COLUMNA}>Mis productos se venden de una sola forma</option>
+                {columnas.map(({ indice, etiqueta, ejemplo }) => (
+                  <option key={indice} value={indice}>
+                    {etiqueta}
+                    {ejemplo ? ` — por ejemplo «${ejemplo}»` : ""}
+                  </option>
+                ))}
+              </Selector>
+              {mapeo.presentacion !== null ? (
+                <Selector
+                  ayuda="Talla, Número, Tamaño u Opción. Si no la tienes, lo deducimos de lo que escribiste."
+                  etiqueta="Cómo se elige está en (opcional)"
+                  id="columna-tipo-presentacion"
+                  onChange={(evento) => cambiarMapeo("tipoPresentacion", evento.target.value)}
+                  value={String(mapeo.tipoPresentacion ?? -1)}
+                >
+                  <option value={SIN_COLUMNA}>Dedúcelo de lo que escribí</option>
+                  {columnas.map(({ indice, etiqueta, ejemplo }) => (
+                    <option key={indice} value={indice}>
+                      {etiqueta}
+                      {ejemplo ? ` — por ejemplo «${ejemplo}»` : ""}
+                    </option>
+                  ))}
+                </Selector>
+              ) : null}
+              {columnasDeDatosVistas.length > 0 ? (
+                <p className={styles.datosReconocidos}>
+                  <strong>Datos de categoría:</strong> {columnasDeDatosVistas.join(", ")}. Se guardan
+                  en cada producto si su categoría tiene un dato con ese nombre; los demás se
+                  ignoran.
+                </p>
+              ) : null}
+            </>
+          ) : null}
+
           {/* La cuenta se muestra antes de confirmar y se actualiza al cambiar
               una columna: es la forma de darse cuenta de que se eligió mal sin
               tener que pasar a la pantalla siguiente. Si la columna del precio
               está equivocada, acá se ve que no entró casi nada. */}
           <p className={styles.cuenta}>
             Con esta elección entran <strong>{resultado?.productos.length ?? 0} producto(s)</strong>
+            {conPresentaciones > 0 ? `, ${conPresentaciones} con tallas, números o tamaños` : ""}
             {resultado && resultado.descartadas > 0
               ? `, y se descartan ${resultado.descartadas} fila(s) que no tienen nombre o no tienen un precio válido.`
               : "."}
+            {resultado && resultado.ejemplos > 0
+              ? ` Dejamos afuera ${resultado.ejemplos} fila(s) de ejemplo de la plantilla.`
+              : ""}
           </p>
 
           <Boton
@@ -287,6 +380,7 @@ export function ImportarPlanilla({
 
       {confirmado && resultado ? (
         <RevisionDeProductos
+          atributosPorCategoria={atributosPorCategoria}
           categorias={categorias}
           controlaStock={conStock}
           introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agregales fotos si querés y sacá los que no vayas a publicar.`}

@@ -11,7 +11,15 @@ describe("adivinar qué columna es cuál", () => {
 
     expect(cabeceras).not.toBeNull();
     expect(filas).toHaveLength(1);
-    expect(mapeo).toEqual({ nombre: 1, precio: 2, descripcion: 3, categoria: 4, cantidad: null });
+    expect(mapeo).toEqual({
+      nombre: 1,
+      precio: 2,
+      descripcion: 3,
+      categoria: 4,
+      cantidad: null,
+      presentacion: null,
+      tipoPresentacion: null,
+    });
   });
 
   /* Una columna no puede ser dos cosas. Sin reservarlas, «Producto» y

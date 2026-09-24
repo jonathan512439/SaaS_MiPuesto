@@ -20,6 +20,11 @@ export type Mapeo = {
      porque encontrarla es lo que permite proponerle al dueño que lo active en
      vez de esperar a que se acuerde de decirlo. */
   cantidad: number | null;
+  /* La talla, el número o el tamaño de la fila, y cómo se elige. Con ellos,
+     varias filas con el mismo nombre son un solo producto con presentaciones:
+     «Polera · M · 6» y «Polera · L · 3». Es lo que trae la plantilla por rubro. */
+  presentacion: number | null;
+  tipoPresentacion: number | null;
 };
 
 export type Planilla = {
@@ -47,6 +52,10 @@ const PALABRAS: Record<keyof Mapeo, string[]> = {
   descripcion: ["descripcion", "detalle", "observacion", "comentario", "caracteristicas"],
   categoria: ["categoria", "rubro", "seccion", "grupo", "familia", "linea", "tipo"],
   cantidad: ["cantidad", "stock", "existencia", "existencias", "inventario", "unidades", "saldo"],
+  /* «Presentación» no está, a propósito: la distribuidora tiene un campo de
+     categoría que se llama así —«Botella 2 L»— y no es una talla. */
+  presentacion: ["talla numero o tamano", "talla", "tallas", "numero de calzado", "calzado"],
+  tipoPresentacion: ["se elige por"],
 };
 
 /* Se compara por palabra entera y no por pedazo de texto. Con `includes` a
@@ -118,7 +127,7 @@ export function analizarPlanilla(filas: string[][]): Planilla {
     return {
       cabeceras: null,
       filas: [],
-      mapeo: { nombre: 0, precio: 1, descripcion: null, categoria: null, cantidad: null },
+      mapeo: { ...SIN_EXTRAS, nombre: 0, precio: 1 },
     };
   }
 
@@ -131,7 +140,7 @@ export function analizarPlanilla(filas: string[][]): Planilla {
     return {
       cabeceras: null,
       filas: datos,
-      mapeo: { nombre, precio, descripcion: null, categoria: null, cantidad: null },
+      mapeo: { ...SIN_EXTRAS, nombre, precio },
     };
   }
 
@@ -151,6 +160,10 @@ export function analizarPlanilla(filas: string[][]): Planilla {
   const precio = porTitulo("precio");
   const cantidad = porTitulo("cantidad");
   const nombre = porTitulo("nombre");
+  /* Las dos de presentación antes que la descripción y la categoría: sus
+     títulos son específicos y no pueden quedar tomados por palabras genéricas. */
+  const tipoPresentacion = porTitulo("tipoPresentacion");
+  const presentacion = porTitulo("presentacion");
   const descripcion = porTitulo("descripcion");
   const categoria = porTitulo("categoria");
 
@@ -168,6 +181,31 @@ export function analizarPlanilla(filas: string[][]): Planilla {
       descripcion,
       categoria,
       cantidad,
+      presentacion,
+      tipoPresentacion,
     },
   };
+}
+
+const SIN_EXTRAS: Omit<Mapeo, "nombre" | "precio"> = {
+  descripcion: null,
+  categoria: null,
+  cantidad: null,
+  presentacion: null,
+  tipoPresentacion: null,
+};
+
+/* Las columnas que no son ninguna de las de arriba, con su título: pueden ser
+   datos de la categoría —«Color», «Potencia (W)»— y se cruzan con los campos
+   de la categoría de destino recién al crear, porque la categoría la decide el
+   dueño en la revisión. Sin títulos no hay cómo saber qué dato es. */
+export function columnasDeDatos(
+  cabeceras: ReadonlyArray<string> | null,
+  mapeo: Mapeo,
+): Array<{ indice: number; titulo: string }> {
+  if (!cabeceras) return [];
+  const tomadas = new Set(Object.values(mapeo).filter((valor): valor is number => valor !== null));
+  return cabeceras
+    .map((titulo, indice) => ({ indice, titulo: titulo.trim() }))
+    .filter(({ indice, titulo }) => titulo !== "" && !tomadas.has(indice));
 }

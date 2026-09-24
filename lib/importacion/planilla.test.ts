@@ -32,6 +32,10 @@ describe("abrir la planilla que trae el dueño", () => {
       categoria: "Bebidas",
       confianza: "alta",
       cantidad: null,
+      presentaciones: [],
+      tipoPresentacion: null,
+      campos: {},
+      avisos: [],
     });
   });
 
@@ -58,6 +62,8 @@ describe("abrir la planilla que trae el dueño", () => {
       descripcion: 2,
       categoria: 3,
       cantidad: null,
+      presentacion: null,
+      tipoPresentacion: null,
     });
 
     const { productos } = productosDeLaPlanilla(lectura.filas, lectura.mapeo);
@@ -80,7 +86,15 @@ describe("abrir la planilla que trae el dueño", () => {
         ["", "5"],
         ["Regalo", "0"],
       ],
-      { nombre: 0, precio: 1, descripcion: null, categoria: null, cantidad: null },
+      {
+        nombre: 0,
+        precio: 1,
+        descripcion: null,
+        categoria: null,
+        cantidad: null,
+        presentacion: null,
+        tipoPresentacion: null,
+      },
     );
 
     expect(productos).toHaveLength(1);

@@ -1726,6 +1726,40 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Plantilla de Excel por rubro, y un importador que la entiende entera.**
+  Pedido del dueño: que cada negocio pueda bajar una plantilla de cómo listar
+  su inventario según su rubro, solo para los rubros establecidos.
+  - **Seis plantillas**, una por siembra (restaurante, ferretería, ropa y
+    calzado, distribuidora, repuestos, veterinaria), armadas con las categorías
+    y los campos de la siembra: los nombres coinciden con los del negocio desde
+    el alta. Hoja «Productos» con títulos en negrita y fijos, anchos de columna
+    y ejemplos; hoja «Cómo llenarla» con los pasos, consejos del rubro y qué
+    dato pide cada categoría con sus opciones exactas
+    (`lib/importacion/plantillas.ts`).
+  - **Ropa y calzado usa las tallas de la fase 13**: una fila por talla o por
+    número con el mismo nombre, y el importador las junta en un producto con
+    existencias por talla y precio propio en la que cuesta distinto.
+    Restaurante y veterinaria muestran un tamaño con precio propio; ferretería,
+    distribuidora y repuestos, los datos de cada categoría.
+  - Se ofrece la del rubro principal y la de cada secundario que tenga
+    plantilla (`plantillasDelNegocio`); un rubro sin siembra no ve ninguna.
+    Descarga en `GET /api/catalogo/plantilla?rubro=…`, con sesión.
+  - **El importador aprendió tres cosas**, que sirven también para una
+    planilla propia: reconoce la columna de talla, número o tamaño y la de
+    «Se elige por» (o deduce el tipo); guarda las columnas de datos en los
+    campos de la categoría de destino, por título, sin tildes ni mayúsculas y
+    con la unidad entre paréntesis (`datos-de-planilla.ts`); y deja afuera las
+    filas que empiezan con «Ejemplo:». Un valor que no calza —una opción que no
+    existe— se deja afuera y se lista al terminar, sin perder el producto.
+  - El escritor de Excel arma ahora varias hojas, con negrita, primera fila fija
+    y anchos (`armarLibro`); la exportación del catálogo no cambió. Verificado
+    abriendo las seis plantillas con openpyxl.
+  - **Pruebas:** 49 nuevas. Cada plantilla se arma, se lee con el importador
+    real y cada ejemplo entra con su categoría, sus datos y sus tallas, aceptados
+    por los mismos validadores que el panel; los ejemplos sin tocar quedan todos
+    afuera; la hoja de instrucciones nombra cada campo y opción; sin voseo; y
+    una de dibujo de la revisión con tallas. Seis guardias probadas rompiéndolas.
+
 - **Las ayudas del catálogo hablan del rubro del negocio.** Pedido del dueño:
   los ejemplos al crear categorías, campos y productos eran genéricos —y todos
   de ferretería: «Potencia», «W», «E27»—.

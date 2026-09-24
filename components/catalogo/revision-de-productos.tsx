@@ -9,7 +9,11 @@ import {
   SIN_TITULO,
   proponerDestinos,
 } from "../../lib/catalogo/destinos-de-lista";
+import type { Atributo } from "../../lib/catalogo/atributos";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
+import { etiquetaDePresentacion, type TipoPresentacion } from "../../lib/catalogo/variantes";
+import { valoresDesdePlanilla } from "../../lib/importacion/datos-de-planilla";
+import type { PresentacionDePlanilla } from "../../lib/importacion/planilla";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
 import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
@@ -43,6 +47,13 @@ export type ProductoLeido = {
      título de la sección no coincida. Solo la trae la lectura con IA; la
      planilla no. */
   categoriaSugeridaId?: string | null;
+  /* Solo de la planilla: las tallas, números o tamaños —una fila de la
+     planilla cada una—, las columnas de datos por su título y lo que se vio
+     raro al leerla. */
+  presentaciones?: PresentacionDePlanilla[];
+  tipoPresentacion?: TipoPresentacion | null;
+  campos?: Record<string, string>;
+  avisos?: string[];
 };
 
 type ImagenPendiente = { archivo: File; vistaPrevia: string };
@@ -64,6 +75,7 @@ type Fila = Omit<ProductoLeido, "cantidad"> & {
    por título y no producto por producto. */
 
 export function RevisionDeProductos({
+  atributosPorCategoria = {},
   categorias,
   productos,
   introduccion,
@@ -71,6 +83,9 @@ export function RevisionDeProductos({
   cobertura,
   onTerminado,
 }: {
+  /* Los campos de cada categoría por su id. Con ellos, las columnas de datos
+     de la planilla se guardan en la categoría donde termina el producto. */
+  atributosPorCategoria?: Record<string, Atributo[]>;
   categorias: CategoriaCatalogo[];
   productos: ProductoLeido[];
   introduccion: string;
@@ -89,6 +104,9 @@ export function RevisionDeProductos({
     fotos: number;
     fallidos: string[];
     fotosFallidas: number;
+    /* Lo que entró a medias: un dato que no calzaba, una talla que no se
+       guardó. El producto está creado; lo que falta se completa a mano. */
+    advertencias: string[];
   } | null>(null);
 
   /* El estado arranca de las propiedades una sola vez. Quien llama vuelve a
@@ -222,6 +240,7 @@ export function RevisionDeProductos({
     let fotos = 0;
     let fotosFallidas = 0;
     const fallidos: string[] = [];
+    const advertencias: string[] = [];
 
     /* Primero las categorías, porque los productos las necesitan. Si una falla,
        sus productos van sin categoría en vez de perderse: es más fácil mover un
@@ -260,6 +279,29 @@ export function RevisionDeProductos({
       const cantidad = Number(producto.cantidad);
       const conStock =
         controlaStock && producto.cantidad.trim() !== "" && Number.isFinite(cantidad);
+      const presentaciones = producto.presentaciones ?? [];
+      /* Con presentaciones, las existencias son de cada una: se controlan solo
+         si todas las filas traían cantidad. Una talla sin número no se podría
+         pedir, y la base no la acepta. */
+      const conStockPorPresentacion =
+        conStock && presentaciones.every(({ cantidad: suya }) => suya !== null);
+      const categoriaId = idPorTitulo.get(titulo) ?? null;
+
+      /* Las columnas de datos, cruzadas con los campos de la categoría de
+         destino. Lo que no calza se avisa y no se manda: la ruta rechazaría el
+         producto entero por un valor que no es opción. */
+      const deLaPlanilla = producto.campos
+        ? valoresDesdePlanilla(categoriaId ? (atributosPorCategoria[categoriaId] ?? []) : [], producto.campos)
+        : { valores: {}, problemas: [] };
+      for (const problema of deLaPlanilla.problemas) {
+        advertencias.push(`${producto.nombre}: ${problema}.`);
+      }
+      const atributos = {
+        ...(producto.datos?.length
+          ? Object.fromEntries(producto.datos.map(({ clave, valor }) => [clave, valor]))
+          : {}),
+        ...deLaPlanilla.valores,
+      };
 
       try {
         const respuesta = await fetch("/api/catalogo/productos", {
@@ -267,17 +309,22 @@ export function RevisionDeProductos({
             nombre: producto.nombre,
             descripcion: producto.descripcion.trim() || null,
             precio: producto.precio,
-            categoria_id: idPorTitulo.get(titulo) ?? null,
+            categoria_id: categoriaId,
             subcategoria_id: null,
             /* Lo que la lectura completó de los campos de la categoría. La ruta
                de productos los valida otra vez contra la categoría que termine
                teniendo: acá el dueño pudo haber mandado ese título a otra
                categoría, y un campo que allá no existe se descarta. */
-            atributos: producto.datos?.length
-              ? Object.fromEntries(producto.datos.map(({ clave, valor }) => [clave, valor]))
-              : undefined,
-            controla_stock: conStock,
-            cantidad_stock: conStock ? Math.max(0, Math.round(cantidad)) : null,
+            atributos: Object.keys(atributos).length > 0 ? atributos : undefined,
+            controla_stock: presentaciones.length > 0 ? conStockPorPresentacion : conStock,
+            cantidad_stock:
+              presentaciones.length > 0
+                ? conStockPorPresentacion
+                  ? presentaciones.reduce((suma, una) => suma + (una.cantidad ?? 0), 0)
+                  : null
+                : conStock
+                  ? Math.max(0, Math.round(cantidad))
+                  : null,
           }),
           headers: { "content-type": "application/json" },
           method: "POST",
@@ -291,6 +338,38 @@ export function RevisionDeProductos({
            acaba de dar. Si una falla, el producto queda igual: es mucho más
            fácil agregarle una foto después que volver a cargar el producto. */
         const id = datos.producto?.id;
+
+        /* Las tallas, números o tamaños, con la misma ruta que el editor del
+           producto: las mismas validaciones y el mismo tope. Si fallan, el
+           producto queda creado sin ellas y se dice por qué. */
+        if (id && presentaciones.length > 0) {
+          try {
+            const guardado = await fetch(`/api/catalogo/productos/${id}/variantes`, {
+              body: JSON.stringify({
+                tipo: producto.tipoPresentacion ?? "presentacion",
+                variantes: presentaciones.map((una) => ({
+                  nombre: una.nombre,
+                  /* Sin precio propio si cuesta lo mismo que el producto: así
+                     una promoción del producto le alcanza. */
+                  precio: una.precio,
+                  cantidadStock: conStockPorPresentacion ? una.cantidad : null,
+                  visible: true,
+                })),
+              }),
+              headers: { "content-type": "application/json" },
+              method: "PUT",
+            });
+            if (!guardado.ok) {
+              const respuesta = (await guardado.json().catch(() => ({}))) as { error?: string };
+              advertencias.push(
+                `${producto.nombre}: se creó sin sus presentaciones. ${respuesta.error ?? "Agrégalas desde Productos."}`,
+              );
+            }
+          } catch {
+            advertencias.push(`${producto.nombre}: se creó sin sus presentaciones. Agrégalas desde Productos.`);
+          }
+        }
+
         if (id) {
           for (const [numero, imagen] of producto.imagenes.entries()) {
             setProgreso(
@@ -320,7 +399,7 @@ export function RevisionDeProductos({
 
     setProgreso("");
     setGuardando(false);
-    setResultado({ creados, fotos, fallidos, fotosFallidas });
+    setResultado({ creados, fotos, fallidos, fotosFallidas, advertencias });
     onTerminado();
     router.refresh();
   }
@@ -344,6 +423,18 @@ export function RevisionDeProductos({
             ? `No se pudieron crear: ${resultado.fallidos.slice(0, 3).join(", ")}.`
             : "Ya están en tu catálogo. Revisá los precios antes de publicarlo."}
         </p>
+        {/* Se listan todas y no las tres primeras: cada una es algo que el
+            dueño tiene que completar a mano, y la que no se ve no se completa. */}
+        {resultado.advertencias.length > 0 ? (
+          <div className={styles.advertencias}>
+            <h3>Para completar a mano</h3>
+            <ul>
+              {resultado.advertencias.map((advertencia) => (
+                <li key={advertencia}>{advertencia}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </section>
     );
   }
@@ -495,8 +586,26 @@ export function RevisionDeProductos({
                   {/* La cantidad y las fotos van en su propio renglón, debajo del
                       nombre y el precio. En un teléfono, cinco columnas en una
                       línea dejan cada campo del ancho de un dedo. */}
+                  {/* Las tallas se ven como van a quedar, con cuántas hay de
+                      cada una. La cantidad del producto no se pide: es la de
+                      cada talla. */}
+                  {fila.presentaciones && fila.presentaciones.length > 0 ? (
+                    <p className={styles.presentaciones}>
+                      {fila.presentaciones
+                        .map((una) =>
+                          `${etiquetaDePresentacion(fila.tipoPresentacion ?? "presentacion", una.nombre)}${
+                            una.cantidad !== null && controlaStock ? ` (${una.cantidad})` : ""
+                          }${una.precio !== null ? ` · Bs ${una.precio}` : ""}`,
+                        )
+                        .join(" · ")}
+                    </p>
+                  ) : null}
+                  {fila.avisos && fila.avisos.length > 0 ? (
+                    <p className={styles.avisoFila}>{fila.avisos.join(" ")}</p>
+                  ) : null}
+
                   <div className={styles.extras}>
-                    {controlaStock ? (
+                    {controlaStock && !(fila.presentaciones && fila.presentaciones.length > 0) ? (
                       <label className={styles.cantidad}>
                         <span>Cantidad</span>
                         <input

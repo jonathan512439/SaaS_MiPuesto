@@ -17,8 +17,11 @@
  * escribe un archivo menos y se evita mantener dos estructuras que tienen que
  * coincidir. El lector del importador entiende las dos formas.
  *
- * Lo que **no** hace, y no necesita: formatos, fórmulas, varias hojas, ni
- * fechas. Todo se escribe como texto o como número.
+ * Lo que **no** hace, y no necesita: fórmulas ni fechas. Todo se escribe como
+ * texto o como número. Desde las plantillas por rubro sí arma **varias hojas**,
+ * con la fila de títulos en negrita y fija, y el ancho de cada columna: una
+ * plantilla que se abre con las columnas apretadas no se entiende sin
+ * ensancharlas una por una.
  *
  * **Lleva una hoja de estilos vacía, y no es opcional.** Excel exige la parte
  * `xl/styles.xml` aunque ninguna celda declare estilo: cada celda referencia
@@ -93,23 +96,51 @@ function esNumero(valor: string): boolean {
   return valor !== "" && /^-?\d+(\.\d+)?$/.test(valor);
 }
 
-function celda(referencia: string, valor: string): string {
+/* `s="1"` es el estilo en negrita de `styles.xml`; sin atributo, el cero. */
+function celda(referencia: string, valor: string, negrita = false): string {
   if (valor === "") return "";
-  if (esNumero(valor)) return `<c r="${referencia}"><v>${valor}</v></c>`;
-  return `<c r="${referencia}" t="inlineStr"><is><t xml:space="preserve">${escaparXml(limpiar(valor))}</t></is></c>`;
+  const estilo = negrita ? ' s="1"' : "";
+  if (esNumero(valor)) return `<c r="${referencia}"${estilo}><v>${valor}</v></c>`;
+  return `<c r="${referencia}"${estilo} t="inlineStr"><is><t xml:space="preserve">${escaparXml(limpiar(valor))}</t></is></c>`;
 }
 
-function hoja(filas: ReadonlyArray<ReadonlyArray<string>>): string {
+export type HojaDeLibro = {
+  nombre: string;
+  filas: ReadonlyArray<ReadonlyArray<string>>;
+  /* En caracteres, como los cuenta Excel. Las que falten quedan con el ancho
+     de siempre. */
+  anchos?: ReadonlyArray<number>;
+  /* La primera fila en negrita y fija al desplazar: son los títulos. */
+  conTitulos?: boolean;
+};
+
+function hoja({ filas, anchos, conTitulos }: HojaDeLibro): string {
   const cuerpo = filas
     .map((fila, numero) => {
+      const negrita = conTitulos === true && numero === 0;
       const celdas = fila
-        .map((valor, columna) => celda(`${nombreDeColumna(columna)}${numero + 1}`, valor))
+        .map((valor, columna) => celda(`${nombreDeColumna(columna)}${numero + 1}`, valor, negrita))
         .join("");
       return `<row r="${numero + 1}">${celdas}</row>`;
     })
     .join("");
 
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${cuerpo}</sheetData></worksheet>`;
+  /* El orden de las partes lo fija el formato y Excel lo exige: primero la
+     vista, después las columnas, después los datos. */
+  const vista = conTitulos
+    ? '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+    : "";
+  const columnas =
+    anchos && anchos.length > 0
+      ? `<cols>${anchos
+          .map(
+            (ancho, indice) =>
+              `<col min="${indice + 1}" max="${indice + 1}" width="${ancho}" customWidth="1"/>`,
+          )
+          .join("")}</cols>`
+      : "";
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${vista}${columnas}<sheetData>${cuerpo}</sheetData></worksheet>`;
 }
 
 type Archivo = { nombre: string; contenido: Uint8Array };
@@ -197,14 +228,33 @@ export function armarXlsx(
   filas: ReadonlyArray<ReadonlyArray<string>>,
   nombreHoja = "Catálogo",
 ): Uint8Array {
+  return armarLibro([{ nombre: nombreHoja, filas }]);
+}
+
+/* Un libro con varias hojas, en el orden en que se pasan: ese es el orden de
+   las pestañas, y el importador lee la primera que tenga datos. */
+export function armarLibro(hojas: ReadonlyArray<HojaDeLibro>): Uint8Array {
+  if (hojas.length === 0) throw new Error("Un libro necesita al menos una hoja.");
   const codificador = new TextEncoder();
   const texto = (contenido: string) => codificador.encode(contenido);
+  const numeros = hojas.map((_, indice) => indice + 1);
+
+  /* Dos pestañas con el mismo nombre dejan el libro dañado para Excel. */
+  const nombres: string[] = [];
+  for (const { nombre } of hojas) {
+    const base = nombreDeHoja(nombre);
+    let propuesto = base;
+    for (let sufijo = 2; nombres.includes(propuesto); sufijo += 1) {
+      propuesto = `${base.slice(0, 28)} ${sufijo}`;
+    }
+    nombres.push(propuesto);
+  }
 
   return escribirZip([
     {
       nombre: "[Content_Types].xml",
       contenido: texto(
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>${numeros.map((numero) => `<Override PartName="/xl/worksheets/sheet${numero}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`,
       ),
     },
     {
@@ -216,24 +266,34 @@ export function armarXlsx(
     {
       nombre: "xl/workbook.xml",
       contenido: texto(
-        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${escaparXml(nombreDeHoja(nombreHoja))}" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${nombres
+          .map((nombre, indice) => `<sheet name="${escaparXml(nombre)}" sheetId="${indice + 1}" r:id="rId${indice + 1}"/>`)
+          .join("")}</sheets></workbook>`,
       ),
     },
     {
       nombre: "xl/_rels/workbook.xml.rels",
+      /* Las hojas llevan `rId1`…`rIdN` y los estilos el siguiente: el libro
+         apunta a cada hoja por ese identificador. */
       contenido: texto(
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${numeros
+          .map((numero) => `<Relationship Id="rId${numero}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${numero}.xml"/>`)
+          .join("")}<Relationship Id="rId${hojas.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`,
       ),
     },
     /* El mínimo que Excel acepta. Los dos rellenos son obligatorios —«ninguno» y
        «gris 125»— aunque no se use ninguno: Excel da por hecho que están y
-       cuenta a partir de ahí. */
+       cuenta a partir de ahí. La segunda fuente y el segundo formato son la
+       negrita de los títulos (`s="1"`). */
     {
       nombre: "xl/styles.xml",
       contenido: texto(
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/></styleSheet>',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/></styleSheet>',
       ),
     },
-    { nombre: "xl/worksheets/sheet1.xml", contenido: texto(hoja(filas)) },
+    ...hojas.map((una, indice) => ({
+      nombre: `xl/worksheets/sheet${indice + 1}.xml`,
+      contenido: texto(hoja(una)),
+    })),
   ]);
 }

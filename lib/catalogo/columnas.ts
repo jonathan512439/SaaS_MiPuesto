@@ -39,3 +39,8 @@ export const COLUMNAS_PRODUCTO_PUBLICO_PAGINADO =
    uno—, y con la misma forma de literal, para que el cliente de la base pueda
    inferir el tipo del resultado. */
 export const COLUMNAS_CATEGORIA = "id,nombre,orden,icono,visible,vende" as const;
+
+/* Los campos de todas las categorías del negocio: el formulario de producto y
+   la importación de planillas los cruzan con la categoría elegida. */
+export const COLUMNAS_ATRIBUTO_CATEGORIA =
+  "categoria_id,clave,nombre,tipo,unidad,opciones,obligatorio,en_tarjeta,en_resumen,orden" as const;

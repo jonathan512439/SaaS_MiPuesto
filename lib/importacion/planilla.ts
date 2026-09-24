@@ -1,4 +1,12 @@
-import { analizarPlanilla, type Mapeo, type Planilla } from "./columnas";
+import {
+  MAXIMO_VARIANTES,
+  TALLAS_CANONICAS,
+  normalizarNombreDePresentacion,
+  normalizarNumeroCalzado,
+  normalizarTalla,
+  type TipoPresentacion,
+} from "../catalogo/variantes";
+import { analizarPlanilla, columnasDeDatos, type Mapeo, type Planilla } from "./columnas";
 import { leerCsv } from "./csv";
 import { leerCantidad, leerPrecio } from "./valores";
 import { leerXlsx } from "./xlsx";
@@ -99,6 +107,14 @@ export async function leerArchivoDePlanilla(archivo: File): Promise<ResultadoLec
   };
 }
 
+export type PresentacionDePlanilla = {
+  nombre: string;
+  /* `null` si cuesta lo mismo que el producto: así sigue al producto si el
+     dueño le corrige el precio en la revisión, y le alcanza una promoción. */
+  precio: number | null;
+  cantidad: number | null;
+};
+
 export type ProductoDePlanilla = {
   nombre: string;
   precio: number;
@@ -110,7 +126,67 @@ export type ProductoDePlanilla = {
      una planilla sin columna de existencias dejaría el catálogo entero
      agotado. */
   cantidad: number | null;
+  /* Las tallas, números o tamaños, una por fila de la planilla, en el orden en
+     que venían. Vacío si el producto se vende de una sola forma. */
+  presentaciones: PresentacionDePlanilla[];
+  tipoPresentacion: TipoPresentacion | null;
+  /* Lo que dice cada columna que no es de las fijas, por su título: «Color»,
+     «Potencia (W)». Se cruza con los campos de la categoría al crear. */
+  campos: Record<string, string>;
+  /* Lo que se ve raro antes de crear —un número de calzado que no es—, para
+     decirlo en la revisión y no descubrirlo después. */
+  avisos: string[];
 };
+
+/* Las filas de ejemplo de la plantilla empiezan con «Ejemplo:». Se dejan
+   afuera solas: si el dueño escribe debajo sin borrarlas, no se publican
+   productos de muestra. */
+const FILA_DE_EJEMPLO = /^ejemplo\s*[:·.-]/i;
+
+export function esFilaDeEjemplo(nombre: string): boolean {
+  return FILA_DE_EJEMPLO.test(nombre.trim());
+}
+
+function clave(texto: string): string {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/* «Talla», «Número», «Tamaño» u «Opción», como lo escribiría una persona. */
+export function leerTipoPresentacion(texto: string): TipoPresentacion | null {
+  const limpio = clave(texto);
+  if (limpio === "") return null;
+  if (/^talla/.test(limpio)) return "talla";
+  if (/^(numero|nro|n°|n\.|calzado)/.test(limpio)) return "numero";
+  if (/^(tamano|peso|medida|volumen)/.test(limpio)) return "tamano";
+  if (/^(opcion|otra|presentacion|variante)/.test(limpio)) return "presentacion";
+  return null;
+}
+
+/* Sin columna «Se elige por», el tipo se deduce de lo escrito: si todo es un
+   número de calzado, es número; si todo es una talla de las de siempre, es
+   talla; si todo lleva una medida, es tamaño. Si no, es una opción cualquiera,
+   que no se normaliza y por eso nunca rechaza nada. */
+export function deducirTipoPresentacion(nombres: ReadonlyArray<string>): TipoPresentacion {
+  if (nombres.length > 0 && nombres.every((nombre) => normalizarNumeroCalzado(nombre) !== null)) {
+    return "numero";
+  }
+  const tallas = new Set(TALLAS_CANONICAS.map((talla) => talla.toLowerCase()));
+  if (nombres.length > 0 && nombres.every((nombre) => tallas.has((normalizarTalla(nombre) ?? "").toLowerCase()))) {
+    return "talla";
+  }
+  if (
+    nombres.length > 0 &&
+    nombres.every((nombre) => /^\d+([.,]\d+)?\s*(kg|g|gr|ml|l|lt|litros?|cm|m|oz)\.?$/i.test(nombre.trim()))
+  ) {
+    return "tamano";
+  }
+  return "presentacion";
+}
 
 /* De la grilla a productos, con el mapeo que quedó en pantalla —el propuesto o
    el que corrigió el dueño.
@@ -118,17 +194,33 @@ export type ProductoDePlanilla = {
  * Todo sale con confianza «alta» y no es un atajo: en una planilla no hay nada
  * que adivinar. El número que está en la celda del precio es el precio. La
  * duda que marca la herramienta de fotos existe porque ahí sí se interpreta una
- * imagen; acá marcar algo como dudoso sería inventar una duda. */
+ * imagen; acá marcar algo como dudoso sería inventar una duda.
+ *
+ * **Con talla, número o tamaño**, las filas con el mismo nombre y la misma
+ * categoría son un solo producto: cada fila es una presentación con su precio y
+ * sus existencias. Es como se lleva un inventario de ropa —una fila por talla—
+ * y es lo que pide la plantilla. Sin esa columna, dos filas iguales siguen
+ * siendo dos productos, como siempre. */
 export function productosDeLaPlanilla(
   filas: string[][],
   mapeo: Mapeo,
-): { productos: ProductoDePlanilla[]; descartadas: number } {
+  cabeceras: ReadonlyArray<string> | null = null,
+): { productos: ProductoDePlanilla[]; descartadas: number; ejemplos: number } {
   const productos: ProductoDePlanilla[] = [];
+  const porClave = new Map<string, ProductoDePlanilla>();
+  const tiposEscritos = new Map<ProductoDePlanilla, string>();
+  const datos = columnasDeDatos(cabeceras, mapeo);
   let descartadas = 0;
+  let ejemplos = 0;
 
   for (const fila of filas) {
     const nombre = (fila[mapeo.nombre] ?? "").trim().slice(0, 80);
     const precio = leerPrecio(fila[mapeo.precio] ?? "");
+
+    if (esFilaDeEjemplo(nombre)) {
+      ejemplos += 1;
+      continue;
+    }
 
     /* Se descarta lo que la base rechazaría igual, y se cuenta cuánto: un
        renglón que desaparece sin dejar rastro es la forma más fácil de que
@@ -138,17 +230,96 @@ export function productosDeLaPlanilla(
       continue;
     }
 
-    productos.push({
+    const celda = (indice: number | null) => (indice === null ? "" : (fila[indice] ?? "").trim());
+    const descripcion = celda(mapeo.descripcion).slice(0, 300);
+    const categoria = celda(mapeo.categoria).slice(0, 60);
+    const cantidad = mapeo.cantidad === null ? null : leerCantidad(fila[mapeo.cantidad] ?? "");
+    const presentacion = celda(mapeo.presentacion).slice(0, 40);
+    const campos: Record<string, string> = {};
+    for (const { indice, titulo } of datos) {
+      const valor = (fila[indice] ?? "").trim();
+      if (valor !== "") campos[titulo] = valor;
+    }
+
+    const llave = `${clave(nombre)}|${clave(categoria)}`;
+    const existente = presentacion === "" ? undefined : porClave.get(llave);
+
+    if (existente) {
+      /* Una fila más del mismo producto: suma su presentación. Lo que la
+         primera fila no traía —la descripción, un dato— se toma de la que lo
+         trae: la plantilla pide escribirlo una vez, no en cada talla. */
+      if (existente.presentaciones.some((una) => clave(una.nombre) === clave(presentacion))) {
+        descartadas += 1;
+        continue;
+      }
+      existente.presentaciones.push({
+        nombre: presentacion,
+        precio: precio === existente.precio ? null : precio,
+        cantidad,
+      });
+      if (!existente.descripcion && descripcion) existente.descripcion = descripcion;
+      for (const [titulo, valor] of Object.entries(campos)) {
+        if (!(titulo in existente.campos)) existente.campos[titulo] = valor;
+      }
+      if (!tiposEscritos.has(existente) && celda(mapeo.tipoPresentacion)) {
+        tiposEscritos.set(existente, celda(mapeo.tipoPresentacion));
+      }
+      continue;
+    }
+
+    const producto: ProductoDePlanilla = {
       nombre,
       precio,
-      descripcion:
-        mapeo.descripcion === null ? "" : (fila[mapeo.descripcion] ?? "").trim().slice(0, 300),
-      categoria:
-        mapeo.categoria === null ? "" : (fila[mapeo.categoria] ?? "").trim().slice(0, 60),
+      descripcion,
+      categoria,
       confianza: "alta",
-      cantidad: mapeo.cantidad === null ? null : leerCantidad(fila[mapeo.cantidad] ?? ""),
-    });
+      cantidad,
+      presentaciones: presentacion === "" ? [] : [{ nombre: presentacion, precio: null, cantidad }],
+      tipoPresentacion: null,
+      campos,
+      avisos: [],
+    };
+    if (presentacion !== "") {
+      porClave.set(llave, producto);
+      if (celda(mapeo.tipoPresentacion)) tiposEscritos.set(producto, celda(mapeo.tipoPresentacion));
+    }
+    productos.push(producto);
   }
 
-  return { productos, descartadas };
+  for (const producto of productos) {
+    if (producto.presentaciones.length === 0) continue;
+    const nombres = producto.presentaciones.map(({ nombre }) => nombre);
+    const escrito = tiposEscritos.get(producto);
+    const tipo = (escrito ? leerTipoPresentacion(escrito) : null) ?? deducirTipoPresentacion(nombres);
+    producto.tipoPresentacion = tipo;
+
+    /* Escritas como las va a guardar la base: «40.5» es «40,5», «m» es «M». Lo
+       que no se puede normalizar se deja como está y se avisa: la base lo
+       rechazaría, y es mejor saberlo en la revisión. */
+    for (const una of producto.presentaciones) {
+      const normalizado = normalizarNombreDePresentacion(una.nombre, tipo);
+      if (normalizado === null) {
+        producto.avisos.push(
+          `«${una.nombre}» no es un número de calzado: van de 16 a 50, enteros o con medio.`,
+        );
+      } else {
+        una.nombre = normalizado;
+      }
+    }
+    if (producto.presentaciones.length > MAXIMO_VARIANTES) {
+      producto.avisos.push(
+        `Tiene ${producto.presentaciones.length} presentaciones y el máximo es ${MAXIMO_VARIANTES}.`,
+      );
+    }
+    /* El precio del producto es el de su primera fila; las que cuestan
+       distinto llevan el suyo (arriba). Las existencias del producto son la
+       suma: la base las pasa a cada presentación al guardarlas. */
+    const conCantidad = producto.presentaciones.filter(({ cantidad }) => cantidad !== null);
+    producto.cantidad =
+      conCantidad.length === producto.presentaciones.length
+        ? conCantidad.reduce((suma, { cantidad }) => suma + (cantidad ?? 0), 0)
+        : null;
+  }
+
+  return { productos, descartadas, ejemplos };
 }

@@ -1,7 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "../supabase/database.types";
-import { COLUMNAS_CATEGORIA, COLUMNAS_PRODUCTO_ADMIN } from "./columnas";
+import {
+  COLUMNAS_ATRIBUTO_CATEGORIA,
+  COLUMNAS_CATEGORIA,
+  COLUMNAS_PRODUCTO_ADMIN,
+} from "./columnas";
 import type {
   CategoriaCatalogo,
   DatosCatalogoAdmin,
@@ -26,7 +30,7 @@ function consultarAtributos(supabase: SupabaseClient<Database>, negocioId: strin
      dueño cambia el desplegable. */
   return supabase
     .from("atributos_categoria")
-    .select("categoria_id,clave,nombre,tipo,unidad,opciones,obligatorio,en_tarjeta,en_resumen,orden")
+    .select(COLUMNAS_ATRIBUTO_CATEGORIA)
     .eq("negocio_id", negocioId)
     .order("orden");
 }
