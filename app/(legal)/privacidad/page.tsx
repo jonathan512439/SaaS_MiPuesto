@@ -90,6 +90,13 @@ export default function PaginaPrivacidad() {
           hasta que vos lo revisás y lo aceptás.
         </p>
         <p>
+          <strong>Hoy usamos el nivel gratuito de Google.</strong> En ese nivel, Google
+          puede usar lo que se le envía para mejorar sus productos, y personas de Google
+          pueden revisarlo. Por eso te pedimos que las fotos muestren solo productos y
+          precios: no fotografíes documentos, rostros ni datos de tus clientes para
+          leerlos con estas herramientas.
+        </p>
+        <p>
           <strong>Algo que queremos que sepas y no está escondido acá abajo:</strong> las
           condiciones con las que ese proveedor trata lo que se le envía son suyas y
           pueden cambiar. Si cambian de una forma que te afecte, actualizamos esta página

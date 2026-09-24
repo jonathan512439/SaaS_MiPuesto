@@ -170,3 +170,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.avisoPrivacidad {
+  border-left: var(--borde-marcado) solid var(--color-accion);
+  padding-left: var(--spacing-3);
+  font-size: var(--text-sm);
+}

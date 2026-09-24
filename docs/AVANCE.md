@@ -1726,6 +1726,26 @@ motivo por el que este archivo existe.
 
 ### 2026-09-24
 
+- **Etapa 4 de las correcciones: robustez de la operación.**
+  - **Tipos de la base al día:** `scripts/check-tipos-al-dia.mjs`, dentro de
+    `npm test`, exige que cada tabla y columna creada por una migración esté en
+    `database.types.ts`, descontando las borradas después. Probada quitando una
+    columna. Y `npm run supabase:push` ahora regenera los tipos solo.
+  - **Una importación cortada se retoma:** lo leído que ya está en el catálogo
+    con el mismo nombre viene sin marcar, con etiqueta y aviso; volver a subir
+    el archivo sigue desde donde quedó. Mientras se crean los productos, el
+    navegador pregunta antes de cerrar. Para la planilla y para la foto.
+  - **Tope de 150 MB de fotos por negocio** (migración `20261026090000`): regla
+    restrictiva de Storage con `uso_almacenamiento_negocio`, que solo ve su
+    dueño o la clave de servicio. Un catálogo lleno ronda los 110 MB; el que más
+    ocupa hoy, 4,8 MB. Las rutas de fotos, banners e identidad lo dicen antes de
+    subir; el formulario muestra el espacio usado y avisa desde el 80 %. Prueba
+    `test:almacenamiento:ensayo`, probada rompiendo la función de uso.
+  - **IA en el nivel gratuito de Google** (sin gastos hasta el primer cliente):
+    la política de privacidad dice ahora que en ese nivel Google puede usar lo
+    enviado para mejorar sus productos, y las dos herramientas piden fotografiar
+    solo productos y listas, sin documentos ni datos de clientes.
+
 - **Turnstile exigiendo, y reservar más rápido.** Tercera prueba real del dueño:
   pedido sin nombre y con nombre, los dos con su código; cancelados con el stock
   liberado. Con eso, `TURNSTILE_MODO=exigir`; comprobado en producción que sin

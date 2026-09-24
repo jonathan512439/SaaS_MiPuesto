@@ -27,7 +27,7 @@ import {
   textosDeProducto,
 } from "../../lib/catalogo/guias-por-rubro";
 import { EditorDeVariantes } from "./editor-de-variantes";
-import { AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
+import { AVISO_PRIVACIDAD_IA, AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
 import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
@@ -1196,6 +1196,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   </label>
                 </div>
                 <small>{AYUDA_PRODUCTO.advertencia}</small>
+                <small>{AVISO_PRIVACIDAD_IA}</small>
               </div>
               {/* Cuántas quedan, en un renglón y pegado al botón que las gasta.
                   Del mes y no del día: el mes es el tope que el negocio tiene

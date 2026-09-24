@@ -6,6 +6,13 @@
    Están escritas para alguien que vende en un mercado, no para alguien que sabe
    qué es un modelo de visión. */
 
+/* Lo que se le dice a quien va a elegir una foto para leer, en las dos
+   herramientas. Mientras se use el nivel gratuito de Google, lo enviado puede
+   usarse para mejorar sus productos: que no salga nada que no sea un producto
+   o una lista de precios. El detalle, en la política de privacidad. */
+export const AVISO_PRIVACIDAD_IA =
+  "Las fotos que elijas las lee Google. Fotografía solo productos y listas de precios: nada de documentos, rostros ni datos de tus clientes.";
+
 export const AYUDA_LISTA = {
   titulo: "Cómo mandar tu lista",
   /* El PDF va primero y con su propio renglón porque es el mejor caso y casi

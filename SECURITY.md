@@ -268,7 +268,7 @@ conteo de límites por IP — y que sí pueda guardar lo suyo.
 | ~~`/api/salud` sin límite y con clave de servicio~~ | **Resuelto**: responde de memoria durante 15 s y con `Cache-Control`, así que martillarla no toca la base. Esta tabla no lo decía; se corrigió el 2026-09-24 |
 | ~~La huella de IP se firmaba con la clave de servicio~~ | **Resuelto el 2026-09-24**: secreto propio `HUELLA_IP_SECRETO`, obligatorio en `wrangler.jsonc`; sin él las rutas responden «no disponible» en vez de firmar con algo débil |
 | `'unsafe-inline'` en `script-src` | Quitarlo exige nonces y hay que ver si vinext los soporta. No renderizamos HTML de usuario |
-| Sin tope de almacenamiento por negocio | El techo existe —2 MB por foto, 4 por producto, 300 productos— pero nadie avisa al acercarse |
+| ~~Sin tope de almacenamiento por negocio~~ | **Resuelto el 2026-09-24**: 150 MB por negocio en una regla restrictiva de Storage, con aviso en el panel desde el 80 % |
 | Invitaciones sin límite | Exige una cuenta con segundo factor ya comprometida |
 | Acaparar stock o turnos con un programa que cambia de IP | **Mitigado el 2026-09-24** con Cloudflare Turnstile en pedidos y reservas (`lib/turnstile.ts`). Arrancó en `TURNSTILE_MODO=observar`; tres pruebas reales del dueño pasaron verificadas y desde el 2026-09-24 está en **`exigir`**. El tope de 5 por IP sigue, y todavía no se midió si choca con la IP compartida de las redes móviles |
 

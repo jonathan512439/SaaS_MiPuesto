@@ -9,6 +9,11 @@
  * muestra el número medido sin barra. Un límite inventado sería peor que
  * ninguno: se decide con él.
  */
+/* **Nivel gratuito, a propósito** (decisión del dueño, 2026-09-24: ningún
+ * gasto hasta el primer cliente). En ese nivel Google puede usar lo enviado
+ * para mejorar sus productos, y la política de privacidad lo dice. Al pasar al
+ * nivel pago, quitar ese párrafo de `app/(legal)/privacidad/page.tsx` y
+ * actualizar estos límites. */
 export const LIMITES_GEMINI = {
   /* Pedidos por minuto. */
   porMinuto: 15,

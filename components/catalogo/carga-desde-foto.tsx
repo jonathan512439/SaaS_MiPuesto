@@ -2,7 +2,7 @@
 
 import { useState, type ChangeEvent } from "react";
 
-import { AYUDA_LISTA } from "../../lib/ia/ayuda";
+import { AVISO_PRIVACIDAD_IA, AYUDA_LISTA } from "../../lib/ia/ayuda";
 import { prepararArchivoParaLectura } from "../../lib/ia/adjunto";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { Trabajando, useAvisos } from "../ui";
@@ -87,6 +87,7 @@ export function CargaDesdeFoto({
             <li key={paso}>{paso}</li>
           ))}
         </ol>
+        <p className={styles.avisoPrivacidad}>{AVISO_PRIVACIDAD_IA}</p>
         <div className={styles.columnas}>
           <div>
             <h3>Funciona con</h3>
