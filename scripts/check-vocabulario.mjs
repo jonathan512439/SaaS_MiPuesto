@@ -158,6 +158,8 @@ const PERMITIDAS = {
   "components/directorio/iconos-rubro.ts": ["joya"],
   /* XML de Excel: `<Default Extension=…>` es parte del formato. */
   "lib/exportacion/xlsx.ts": ["default"],
+  /* La política de contenido: `default-src` es el nombre de la directiva. */
+  "lib/seguridad/politica-contenido.ts": ["default"],
 };
 
 /* ---------------------------------------------------------------------------

@@ -1,8 +1,11 @@
+import { headers } from "next/headers";
+
 import {
   ISOTIPO_GROSOR,
   ISOTIPO_PIEZAS,
   ISOTIPO_VIEWBOX,
 } from "../../lib/marca/isotipo";
+import { CABECERA_NONCE } from "../../lib/seguridad/politica-contenido";
 import styles from "./introduccion.module.css";
 
 /* El nombre, letra por letra. Ocho, y ocho reglas de demora en el CSS: si algún
@@ -71,11 +74,15 @@ setTimeout(function(){quitar();r.dataset.marca="vista";},2000);
  *
  * Las cinco piezas salen de `lib/marca/isotipo.ts`: es el mismo dibujo que la
  * barra del panel y la marca de agua del QR, con el mismo grosor.
+ *
+ * El guion lleva el nonce de la solicitud: la política de contenido bloquea
+ * todo script en línea que no lo tenga (`lib/seguridad/politica-contenido.ts`).
  */
-export function Introduccion() {
+export async function Introduccion() {
+  const nonce = (await headers()).get(CABECERA_NONCE) ?? undefined;
   return (
     <>
-      <script dangerouslySetInnerHTML={{ __html: GUION }} />
+      <script dangerouslySetInnerHTML={{ __html: GUION }} nonce={nonce} />
       <div aria-hidden="true" className={styles.introduccion}>
         <div className={styles.marca}>
           <svg

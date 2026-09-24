@@ -6,8 +6,21 @@ import type { Database } from "./database.types";
 import { obtenerVariablesPublicasSupabase } from "./variables";
 import { RUTAS_PANEL } from "../panel/rutas";
 
-export async function actualizarSesionSupabase(solicitud: NextRequest) {
-  let respuesta = NextResponse.next({ request: solicitud });
+/* `cabecerasExtra`: lo que el proxy le agrega a la solicitud antes de pasarla
+   a la página —la política de contenido con su nonce—. Se suman a las de la
+   solicitud **cada vez** que se arma la respuesta, porque `setAll` la vuelve a
+   armar después de renovar las cookies y la solicitud ya trae las nuevas. */
+export async function actualizarSesionSupabase(
+  solicitud: NextRequest,
+  cabecerasExtra: Record<string, string> = {},
+) {
+  function continuar() {
+    const cabeceras = new Headers(solicitud.headers);
+    for (const [nombre, valor] of Object.entries(cabecerasExtra)) cabeceras.set(nombre, valor);
+    return NextResponse.next({ request: { headers: cabeceras } });
+  }
+
+  let respuesta = continuar();
   const { url, clavePublica } = obtenerVariablesPublicasSupabase();
 
   const supabase = createServerClient<Database>(url, clavePublica, {
@@ -20,7 +33,7 @@ export async function actualizarSesionSupabase(solicitud: NextRequest) {
           solicitud.cookies.set(name, value);
         });
 
-        respuesta = NextResponse.next({ request: solicitud });
+        respuesta = continuar();
 
         cookiesParaGuardar.forEach(({ name, value, options }) => {
           respuesta.cookies.set(name, value, options);

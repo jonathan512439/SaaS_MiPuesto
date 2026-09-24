@@ -1,27 +1,9 @@
 import type { NextConfig } from "next";
 
 const urlSupabase = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const desarrollo = process.env.NODE_ENV === "development";
-const politicaContenido = [
-  "default-src 'self'",
-  /* Cloudflare Turnstile: su script y el marco donde verifica, al enviar un
-     pedido o una reserva. `lib/turnstile-cliente.ts`. */
-  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${desarrollo ? " 'unsafe-eval'" : ""}`,
-  "frame-src https://challenges.cloudflare.com",
-  "style-src 'self' 'unsafe-inline'",
-  /* Los mosaicos del mapa de la fase 11. Se ven solo en el alta y en «Mi
-     negocio», pero la política es una sola para todo el sitio. Si se cambia de
-     proveedor, cambia acá y en `MOSAICOS_MAPA`. */
-  "img-src 'self' data: blob: https://*.supabase.co https://tile.openstreetmap.org",
-  "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
-  "media-src 'self' https://*.supabase.co",
-  "worker-src 'self' blob:",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-].join("; ");
+/* La política de contenido (CSP) ya no vive acá: lleva un nonce distinto en
+   cada solicitud, así que la arma `proxy.ts` con
+   `lib/seguridad/politica-contenido.ts`. Esta lista es fija para todas. */
 /* El permiso de ubicación queda **abierto a nuestro propio sitio** y cerrado
    para todo lo demás (un iframe ajeno no puede pedirlo).
 
@@ -37,7 +19,6 @@ const politicaContenido = [
 const POLITICA_PERMISOS = "camera=(), microphone=(), geolocation=(self), browsing-topics=()";
 
 const cabecerasSeguridad = [
-  { key: "Content-Security-Policy", value: politicaContenido },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },

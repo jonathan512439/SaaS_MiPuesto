@@ -124,6 +124,13 @@ describe("la presentación de la marca", () => {
     );
   });
 
+  /* Es el único script en línea que no escribe vinext. Sin el nonce, la
+     política de contenido lo bloquea y la animación sale en cada visita. */
+  it("el guion lleva el nonce de la solicitud", () => {
+    expect(tsx).toMatch(/<script[^>]*\snonce=\{nonce\}/);
+    expect(tsx).toContain("get(CABECERA_NONCE)");
+  });
+
   /* Quien pidió no ver movimiento no lo ve, y el papel no lleva una hoja en
      blanco con el logotipo. */
   it("respeta a quien no quiere movimiento, y no se imprime", () => {

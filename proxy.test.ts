@@ -52,3 +52,36 @@ describe("qué rutas renuevan la sesión", () => {
     expect(requiereGestionDeSesion("/t/BCD234")).toBe(false);
   });
 });
+
+/* La política de contenido lleva un nonce por solicitud. Tiene que llegar a
+   los dos lados: a la página —vinext y React lo leen de la solicitud— y al
+   navegador, que es quien la hace cumplir. Si falta en la solicitud, los
+   scripts de React salen sin nonce y el navegador los bloquea: el catálogo se
+   ve pero no responde. */
+describe("proxy y política de contenido", () => {
+  function nonceDe(politica: string | null) {
+    return /'nonce-([^']+)'/.exec(politica ?? "")?.[1];
+  }
+
+  it("pone la misma política con nonce en la respuesta y en la solicitud", async () => {
+    const respuesta = await proxy(new NextRequest("http://localhost:3000/brasaurbana"));
+    const enLaRespuesta = respuesta.headers.get("content-security-policy");
+    const nonce = nonceDe(enLaRespuesta);
+
+    expect(nonce).toBeTruthy();
+    expect(respuesta.headers.get("x-middleware-request-content-security-policy")).toBe(
+      enLaRespuesta,
+    );
+    expect(respuesta.headers.get("x-middleware-request-x-nonce")).toBe(nonce);
+  });
+
+  it("un nonce distinto en cada solicitud", async () => {
+    const [una, otra] = await Promise.all([
+      proxy(new NextRequest("http://localhost:3000/brasaurbana")),
+      proxy(new NextRequest("http://localhost:3000/brasaurbana")),
+    ]);
+    expect(nonceDe(una.headers.get("content-security-policy"))).not.toBe(
+      nonceDe(otra.headers.get("content-security-policy")),
+    );
+  });
+});

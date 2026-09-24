@@ -1,6 +1,11 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import {
+  CABECERA_NONCE,
+  crearNonce,
+  politicaDeContenido,
+} from "./lib/seguridad/politica-contenido";
 import { actualizarSesionSupabase } from "./lib/supabase/proxy";
 
 const RUTAS_AUTH = new Set(["/login", "/recuperar-clave", "/actualizar-clave"]);
@@ -39,11 +44,26 @@ export async function proxy(solicitud: NextRequest) {
     return NextResponse.redirect(destino, 308);
   }
 
-  if (requiereGestionDeSesion(solicitud.nextUrl.pathname)) {
-    return actualizarSesionSupabase(solicitud);
-  }
+  /* Un nonce nuevo por solicitud. Va en la solicitud —de ahí lo toman vinext
+     y React para sus scripts, y `components/marca/introduccion.tsx` para el
+     suyo— y en la respuesta, que es la que el navegador hace cumplir. */
+  const nonce = crearNonce();
+  const politica = politicaDeContenido(nonce, process.env.NODE_ENV === "development");
+  const cabecerasExtra = {
+    "content-security-policy": politica,
+    [CABECERA_NONCE]: nonce,
+  };
 
-  return NextResponse.next();
+  let respuesta: NextResponse;
+  if (requiereGestionDeSesion(solicitud.nextUrl.pathname)) {
+    respuesta = await actualizarSesionSupabase(solicitud, cabecerasExtra);
+  } else {
+    const cabeceras = new Headers(solicitud.headers);
+    for (const [nombre, valor] of Object.entries(cabecerasExtra)) cabeceras.set(nombre, valor);
+    respuesta = NextResponse.next({ request: { headers: cabeceras } });
+  }
+  respuesta.headers.set("Content-Security-Policy", politica);
+  return respuesta;
 }
 
 export const config = {

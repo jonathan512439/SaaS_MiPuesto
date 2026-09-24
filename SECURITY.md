@@ -78,7 +78,7 @@ Herramienta sugerida: Vitest para la lógica pura (`lib/`), y un script de prueb
 - `eventos_analitica` permite inserción anónima pero **no** lectura anónima. Sin esto, cualquiera puede leer las métricas de todos los negocios.
 - Límite de escritura de eventos por sesión, para que la tabla de analítica no sea un vector para llenar tu base de datos gratuita.
 - El directorio público expone solo campos pensados para ser públicos — revisá la consulta columna por columna, no uses `select *`.
-- Cabeceras de seguridad configuradas en Cloudflare Pages: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`.
+- Cabeceras de seguridad: `Content-Security-Policy` con nonce por solicitud (la arma `proxy.ts`), `X-Content-Type-Options`, `Referrer-Policy` y las demás en `next.config.ts`.
 
 ### Fase 9 — Cierre
 - Correr la suite completa de pruebas de RLS por última vez.
@@ -267,10 +267,10 @@ conteo de límites por IP — y que sí pueda guardar lo suyo.
 |---|---|
 | ~~`/api/salud` sin límite y con clave de servicio~~ | **Resuelto**: responde de memoria durante 15 s y con `Cache-Control`, así que martillarla no toca la base. Esta tabla no lo decía; se corrigió el 2026-09-24 |
 | ~~La huella de IP se firmaba con la clave de servicio~~ | **Resuelto el 2026-09-24**: secreto propio `HUELLA_IP_SECRETO`, obligatorio en `wrangler.jsonc`; sin él las rutas responden «no disponible» en vez de firmar con algo débil |
-| `'unsafe-inline'` en `script-src` | Quitarlo exige nonces y hay que ver si vinext los soporta. No renderizamos HTML de usuario |
+| ~~`'unsafe-inline'` en `script-src`~~ | **Resuelto el 2026-09-24**: `proxy.ts` pone un nonce nuevo en cada solicitud (`lib/seguridad/politica-contenido.ts`) y vinext lo aplica a todos sus scripts en línea. `'unsafe-inline'` sigue escrito solo para navegadores sin CSP 2, que lo usan; los actuales lo ignoran en cuanto hay nonce. Sin costo de caché: ninguna página se guardaba (`no-store`) |
 | ~~Sin tope de almacenamiento por negocio~~ | **Resuelto el 2026-09-24**: 150 MB por negocio en una regla restrictiva de Storage, con aviso en el panel desde el 80 % |
 | Invitaciones sin límite | Exige una cuenta con segundo factor ya comprometida |
-| Acaparar stock o turnos con un programa que cambia de IP | **Mitigado el 2026-09-24** con Cloudflare Turnstile en pedidos y reservas (`lib/turnstile.ts`). Arrancó en `TURNSTILE_MODO=observar`; tres pruebas reales del dueño pasaron verificadas y desde el 2026-09-24 está en **`exigir`**. El tope de 5 por IP sigue, y todavía no se midió si choca con la IP compartida de las redes móviles |
+| Acaparar stock o turnos con un programa que cambia de IP | **Mitigado el 2026-09-24** con Cloudflare Turnstile en pedidos y reservas (`lib/turnstile.ts`). Arrancó en `TURNSTILE_MODO=observar`; tres pruebas reales del dueño pasaron verificadas y desde el 2026-09-24 está en **`exigir`**. El tope por IP sigue de segunda línea: desde el 2026-09-24 es de 15 cada quince minutos, por la IP compartida de las redes móviles, y cada vez que alguien choca con él queda anotado en el registro del Worker |
 
 ## Recuperación de contraseña — corregido el 2026-09-07
 
