@@ -92,10 +92,14 @@ export function FichaProducto({
           justo lo que la miniatura de la tarjeta corta. */}
       <div className={styles.lienzo}>
         {imagen ? (
+          /* La foto grande es lo primero que se mira en la página del
+             producto: se pide antes que el resto, no cuando le toque. */
           <Image
             alt={imagen.alt}
             className={styles.imagen}
+            fetchPriority="high"
             height={1200}
+            preload
             sizes="(min-width: 48rem) 40rem, 100vw"
             src={imagen.src}
             width={1200}

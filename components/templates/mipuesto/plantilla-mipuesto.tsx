@@ -203,10 +203,15 @@ export function PlantillaMipuesto({
           decorar. */}
       {negocio.portadaUrl ? (
         <section className={styles.portada}>
+          {/* `preload` y prioridad alta: es lo más grande que se ve al abrir el
+              catálogo —el LCP—, y con la carga diferida de siempre el
+              navegador la pedía recién después de armar la página. */}
           <Image
             alt={`Portada de ${negocio.nombre}`}
             className={styles.portadaImagen}
+            fetchPriority="high"
             fill
+            preload
             sizes="(min-width: 60rem) 800px, 100vw"
             src={negocio.portadaUrl}
           />
