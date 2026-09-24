@@ -162,6 +162,22 @@ Los negocios afiliados van a tener nombres y teléfonos de sus clientes en tu ba
 - Definir y aplicar un plazo de retención: los pedidos confirmados o expirados con más de X meses se pueden anonimizar (borrar nombre y teléfono, conservar el resto para estadística).
 - Tener una respuesta preparada si un cliente final pide que borres sus datos.
 
+**Hecho el 2026-09-24.** El plazo es de **seis meses**, decidido por el dueño del
+proyecto y el mismo que ya prometía la política de privacidad:
+
+- La tarea `mipuesto-borrar-datos-clientes` corre todos los días a las 08:15 UTC
+  (`borrar_datos_de_clientes_viejos`). Borra nombre y teléfono de los pedidos
+  cerrados de más de seis meses, y nombre, teléfono y nota de las citas cuyo
+  turno pasó hace más de seis meses. El registro queda; `datos_cliente_borrados_en`
+  dice cuándo, y el panel muestra «Datos del cliente borrados».
+- Si un cliente pide el borrado antes: `npm run privacidad:borrar-cliente --
+  <celular>` muestra qué hay, y con `--confirmar` lo borra en todos los negocios
+  (`borrar_datos_de_un_cliente`). Pedirle que escriba desde ese número es la
+  forma de saber que es suyo.
+- Las dos funciones son solo de `service_role`; la tarea está en el vigilante y
+  en la restauración. Prueba: `npm run test:privacidad:ensayo`, probada rompiendo
+  el plazo y la excepción de los pendientes.
+
 ## Registro de auditoría mínimo
 
 No hace falta un sistema de logs completo, pero sí dejar rastro de las acciones que cambian dinero o estado:

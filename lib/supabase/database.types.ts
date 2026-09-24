@@ -226,6 +226,7 @@ export type Database = {
           codigo: string
           creado_en: string
           cupo: number
+          datos_cliente_borrados_en: string | null
           estado: string
           id: string
           idempotencia: string
@@ -245,6 +246,7 @@ export type Database = {
           codigo?: string
           creado_en?: string
           cupo?: number
+          datos_cliente_borrados_en?: string | null
           estado?: string
           id?: string
           idempotencia?: string
@@ -264,6 +266,7 @@ export type Database = {
           codigo?: string
           creado_en?: string
           cupo?: number
+          datos_cliente_borrados_en?: string | null
           estado?: string
           id?: string
           idempotencia?: string
@@ -747,6 +750,7 @@ export type Database = {
           confirmado_en: string | null
           confirmado_por: string | null
           creado_en: string
+          datos_cliente_borrados_en: string | null
           estado: string
           expira_en: string | null
           id: string
@@ -766,6 +770,7 @@ export type Database = {
           confirmado_en?: string | null
           confirmado_por?: string | null
           creado_en?: string
+          datos_cliente_borrados_en?: string | null
           estado?: string
           expira_en?: string | null
           id?: string
@@ -785,6 +790,7 @@ export type Database = {
           confirmado_en?: string | null
           confirmado_por?: string | null
           creado_en?: string
+          datos_cliente_borrados_en?: string | null
           estado?: string
           expira_en?: string | null
           id?: string
@@ -1276,6 +1282,20 @@ export type Database = {
         Args: { p_meses?: number; p_negocio_id: string }
         Returns: Json
       }
+      borrar_datos_de_clientes_viejos: {
+        Args: { p_meses?: number }
+        Returns: {
+          citas: number
+          pedidos: number
+        }[]
+      }
+      borrar_datos_de_un_cliente: {
+        Args: { p_telefono: string }
+        Returns: {
+          citas: number
+          pedidos: number
+        }[]
+      }
       buscar_en_directorio: {
         Args: {
           p_ciudad?: string
@@ -1448,6 +1468,7 @@ export type Database = {
       show_trgm: { Args: { "": string }; Returns: string[] }
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }
       suspender_suscripciones_vencidas: { Args: never; Returns: number }
+      texto_datos_borrados: { Args: never; Returns: string }
       uso_almacenamiento: { Args: never; Returns: Json }
       uso_almacenamiento_servicio: { Args: never; Returns: Json }
       uso_ia: { Args: never; Returns: Json }

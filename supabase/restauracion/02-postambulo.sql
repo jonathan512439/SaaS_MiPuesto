@@ -1,6 +1,6 @@
 -- Lo que hay que crear DESPUÉS de restaurar el volcado.
 --
--- Las cinco tareas programadas viven en el esquema `cron`, que **no se
+-- Las tareas programadas viven en el esquema `cron`, que **no se
 -- respalda**: no es de la aplicación, es de la extensión. Una base restaurada
 -- sin esto queda con todos los datos y sin nada que corra sola: las reservas no
 -- expiran, los vencidos no se suspenden, la analítica no se purga y el vigilante
@@ -26,7 +26,8 @@ begin
       ('mipuesto-purgar-vigilancia', '30 4 * * *',  'select public.purgar_vigilancia_salud();'),
       ('mipuesto-purgar-analitica',  '30 8 * * *',  'select public.purgar_analitica_vieja();'),
       ('mipuesto-suspender-vencidos','0 9 * * *',   'select public.suspender_suscripciones_vencidas();'),
-      ('mipuesto-purgar-busquedas',  '45 8 * * *',  'select public.purgar_busquedas_sin_resultado();')
+      ('mipuesto-purgar-busquedas',  '45 8 * * *',  'select public.purgar_busquedas_sin_resultado();'),
+      ('mipuesto-borrar-datos-clientes', '15 8 * * *', 'select public.borrar_datos_de_clientes_viejos();')
     ) as t(nombre, horario, sentencia)
   loop
     -- Idempotente: se puede correr dos veces sin duplicar la tarea. El ensayo

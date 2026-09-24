@@ -41,6 +41,7 @@
     "supabase:functions:deploy": "supabase functions deploy ping-keepalive --use-api",
     "ops:keepalive:configurar": "node --env-file-if-exists=.env.local scripts/configurar-keepalive.mjs",
     "auth:invitar": "node --env-file-if-exists=.env.local scripts/invitar-admin.mjs",
+    "privacidad:borrar-cliente": "node --env-file-if-exists=.env.local scripts/privacidad-borrar-cliente.mjs",
     "suscripcion:ver": "node --env-file-if-exists=.env.local scripts/suscripciones.mjs ver",
     "suscripcion:renovar": "node --env-file-if-exists=.env.local scripts/suscripciones.mjs renovar",
     "cloudflare:secret:pedidos": "node --env-file-if-exists=.env.local scripts/configurar-secreto-pedidos-cloudflare.mjs",
@@ -77,6 +78,7 @@
     "ensayo:rls": "node --env-file-if-exists=.env.local scripts/ensayo.mjs rls",
     "ensayo:verificar": "npm run ensayo:estructura && npm run ensayo:rls",
     "test:fase13:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/fase13-presentaciones.sql",
+    "test:privacidad:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/privacidad-clientes.sql",
     "test:fase13:motor:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/fase13-motor.sql",
     "test:fase13:concurrencia": "node --env-file-if-exists=.env.local scripts/test-presentaciones-concurrencia.mjs",
     "test:tareas": "node scripts/check-tareas-programadas.mjs"

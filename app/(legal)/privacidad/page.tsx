@@ -145,6 +145,11 @@ export default function PaginaPrivacidad() {
           tu cuenta siga activa. Son datos de tu cliente y no hay motivo para conservarlos
           más tiempo.
         </p>
+        <p>
+          Lo mismo con quien reserva un turno: seis meses después del turno borramos su
+          nombre, su teléfono y la nota que haya escrito. El pedido o la cita quedan, sin
+          esos datos, para que sepas qué vendiste y cuándo.
+        </p>
       </section>
 
       <section className={styles.seccion}>
@@ -152,6 +157,11 @@ export default function PaginaPrivacidad() {
         <p>
           Podés pedirnos en cualquier momento una copia de tus datos, la corrección de un
           dato equivocado o el borrado completo de tu cuenta. Escribinos y lo resolvemos.
+        </p>
+        <p>
+          Si le hiciste un pedido o reservaste un turno a un negocio de MiPuesto y quieres
+          que borremos tu nombre y tu teléfono antes de los seis meses, escríbenos desde
+          ese número. Los borramos en todos los negocios.
         </p>
         <a
           className={styles.contacto}

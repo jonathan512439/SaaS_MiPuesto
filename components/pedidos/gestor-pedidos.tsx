@@ -43,8 +43,18 @@ export type PedidoAdmin = {
   confirmado_por: string | null;
   cancelado_en: string | null;
   cancelado_por: string | null;
+  /* Cuándo se borraron el nombre y el teléfono del cliente: a los seis meses,
+     o antes si lo pidió. Opcional para los pedidos armados en las pruebas. */
+  datos_cliente_borrados_en?: string | null;
   pedido_items: ItemPedidoAdmin[];
 };
+
+/* Sin nombre hay dos casos distintos, y el dueño tiene que saber cuál: el
+   cliente no lo escribió, o se borró por privacidad. */
+function nombreDelCliente(pedido: PedidoAdmin): string {
+  if (pedido.datos_cliente_borrados_en) return "Datos del cliente borrados";
+  return pedido.cliente_nombre || "Cliente no informado";
+}
 
 type PropiedadesGestor = {
   pedidosIniciales: PedidoAdmin[];
@@ -58,7 +68,7 @@ function ResumenPedido({ pedido }: { pedido: PedidoAdmin }) {
   return (
     <div className={styles.confirmacion}>
       <p>
-        <strong>{pedido.codigo}</strong> · {pedido.cliente_nombre || "Cliente no informado"}
+        <strong>{pedido.codigo}</strong> · {nombreDelCliente(pedido)}
         {/* La mesa va en la primera línea de la confirmación: es el dato que
             decide a dónde va el plato, y quien confirma lo lee de un vistazo. */}
         {pedido.numero_mesa ? <> · <strong>Mesa {pedido.numero_mesa}</strong></> : null}
@@ -220,7 +230,7 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
                     se le escribe al cliente sin copiar el número a mano, que es
                     lo que el dueño hace igual, pero peor. */}
                 <div className={styles.quien}>
-                  <strong>{pedido.cliente_nombre || "Cliente no informado"}</strong>
+                  <strong>{nombreDelCliente(pedido)}</strong>
                   {pedido.numero_mesa ? <span>Mesa {pedido.numero_mesa}</span> : null}
                   {pedido.cliente_telefono ? (
                     <a
@@ -230,6 +240,8 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
                     >
                       {pedido.cliente_telefono}
                     </a>
+                  ) : pedido.datos_cliente_borrados_en ? (
+                    <span>Borrados por privacidad</span>
                   ) : (
                     <span>Sin teléfono</span>
                   )}
