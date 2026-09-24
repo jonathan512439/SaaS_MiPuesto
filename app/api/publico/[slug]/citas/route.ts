@@ -91,7 +91,16 @@ export async function POST(
      quince minutos. Sin esto, un script con idempotencias distintas llenaba la
      agenda entera en un minuto. Se cuenta el intento antes de mirar el
      horario, para que tantear horarios ocupados también cueste. */
-  const huellaIp = await crearHuellaIp(obtenerIpSolicitud(solicitud), leerSecretoHuella());
+  let secreto: string;
+  try {
+    secreto = leerSecretoHuella();
+  } catch {
+    return NextResponse.json(
+      { error: "Las reservas todavía no están habilitadas en este entorno." },
+      { status: 503 },
+    );
+  }
+  const huellaIp = await crearHuellaIp(obtenerIpSolicitud(solicitud), secreto);
   const { data: intentos, error: errorLimite } = await supabase.rpc("contar_intento_publico", {
     p_negocio_id: negocio.id,
     p_huella_ip: huellaIp,
