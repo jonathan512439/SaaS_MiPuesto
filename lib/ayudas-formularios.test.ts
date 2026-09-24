@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  AYUDA_CATEGORIA,
   AYUDA_FOTO_PRODUCTO,
   AYUDA_LOGO,
   AYUDA_PORTADA,
@@ -26,6 +25,5 @@ describe("ayudas de los formularios", () => {
 
   it("dicen qué hacer, no qué es", () => {
     expect(AYUDA_LOGO).toContain("Cuadrada");
-    expect(AYUDA_CATEGORIA).toContain("como los busca tu cliente");
   });
 });

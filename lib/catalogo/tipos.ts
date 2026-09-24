@@ -77,6 +77,10 @@ export type DatosCatalogoAdmin = {
     nombre: string;
     slug: string;
     rubro: string | null;
+    /* Lo que vende, dicho como lo busca el cliente, y hasta dos rubros más.
+       Deciden los ejemplos del catálogo; nunca permisos ni datos. */
+    rubro_publico: string | null;
+    rubros_secundarios: string[];
     /* Obligatorio a propósito, aunque el valor pueda ser falso.
        Era opcional, y por eso una consulta que dejó de pedirlo compiló igual:
        el formulario de producto se quedó sin su bloque de lectura con foto y no

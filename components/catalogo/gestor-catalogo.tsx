@@ -8,15 +8,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { obtenerUrlPublicaImagenProducto } from "../../lib/catalogo/imagenes-publicas";
 import { estaEnLaCartaDeHoy } from "../../lib/catalogo/carta-del-dia";
 import {
-  AYUDA_CATEGORIA,
-  AYUDA_DESCRIPCION_PRODUCTO,
   AYUDA_FOTO_PRODUCTO,
-  AYUDA_NOMBRE_PRODUCTO,
   AYUDA_PRECIO,
 } from "../../lib/ayudas-formularios";
 import { leerAtributos, type Atributo } from "../../lib/catalogo/atributos";
 import { leerValores, type ValorAtributo } from "../../lib/catalogo/valores";
 import { CamposDeProducto } from "./campos-de-producto";
+import {
+  ayudaCategoria,
+  ejemploDeCategoria,
+  guiaDelNegocio,
+  textosDeProducto,
+} from "../../lib/catalogo/guias-por-rubro";
 import { EditorDeVariantes } from "./editor-de-variantes";
 import { AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
@@ -270,6 +273,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   const subcategoriasFormulario = subcategorias.filter(
     (subcategoria) => subcategoria.categoria_id === formulario.categoria_id,
   );
+  /* Los ejemplos del formulario hablan del rubro de la categoría elegida: en
+     una pollería que también vende helados, «Helados» pide sabores. */
+  const guiaProducto = guiaDelNegocio(
+    datosIniciales.negocio,
+    categorias.find(({ id }) => id === formulario.categoria_id)?.nombre,
+  );
+  const textosProducto = textosDeProducto(guiaProducto);
   const totalPaginasProductos = Math.max(
     1,
     Math.ceil(productosVisibles.length / PRODUCTOS_POR_PAGINA),
@@ -1202,10 +1212,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             <Campo
               error={erroresFormulario.nombre}
               id="producto-nombre"
-              ayuda={AYUDA_NOMBRE_PRODUCTO}
+              ayuda={textosProducto.ayudaNombre}
               etiqueta="Nombre del producto"
               maxLength={120}
               onChange={(evento) => actualizarCampo("nombre", evento.target.value)}
+              placeholder={textosProducto.nombre}
               required
               value={formulario.nombre}
             />
@@ -1217,7 +1228,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               inputMode="decimal"
               min="0"
               onChange={(evento) => actualizarCampo("precio", evento.target.value)}
-              placeholder="Ej.: 45,00"
+              placeholder={textosProducto.precio}
               required
               type="number"
               step="0.01"
@@ -1227,11 +1238,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               className={styles.descripcion}
               error={erroresFormulario.descripcion}
               id="producto-descripcion"
-              ayuda={AYUDA_DESCRIPCION_PRODUCTO}
+              ayuda={textosProducto.ayudaDescripcion}
               etiqueta="Descripción"
               maxLength={1000}
               onChange={(evento) => actualizarCampo("descripcion", evento.target.value)}
-              placeholder="Ingredientes, medidas, materiales o detalles útiles."
+              placeholder={textosProducto.descripcion}
               value={formulario.descripcion}
             />
             <Selector
@@ -1330,6 +1341,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             }
             atributos={atributosDelFormulario}
             errores={erroresFormulario}
+            guia={guiaProducto}
             valores={valoresAtributos}
           />
           <label className={styles.opcionStock}>
@@ -1543,13 +1555,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             </div>
             <form className={styles.nuevaCategoria} onSubmit={crearCategoria}>
               <label htmlFor="nueva-categoria">Nueva categoría</label>
-              <small className={styles.ayudaCampo}>{AYUDA_CATEGORIA}</small>
+              <small className={styles.ayudaCampo}>{ayudaCategoria(datosIniciales.negocio)}</small>
               <div>
                 <input
                   id="nueva-categoria"
                   maxLength={80}
                   onChange={(evento) => setNombreCategoria(evento.target.value)}
-                  placeholder="Ej.: Bebidas"
+                  placeholder={ejemploDeCategoria(datosIniciales.negocio)}
                   required
                   value={nombreCategoria}
                 />
@@ -1681,7 +1693,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                       <EditorDeCampos
                         categoriaId={categoria.id}
                         categoriaNombre={categoria.nombre}
-                        rubro={datosIniciales.negocio.rubro}
+                        guia={guiaDelNegocio(datosIniciales.negocio, categoria.nombre)}
                       />
                     ) : null}
                     {categoriaActiva === categoria.id ? <div className={styles.subcategorias}>

@@ -24,19 +24,13 @@ export const AYUDA_QR =
 
 export const AYUDA_FOTO_PRODUCTO = `Un producto por foto, de cerca y con buena luz. Se recorta cuadrada, así que centralo. Hasta ${MEGAS_MAXIMOS} MB; la achicamos sola a ${LADO_MAXIMO_IMAGEN} píxeles.`;
 
-/* Las categorías son la decisión que más cuesta y la que más ordena el
-   catálogo. La ayuda da el criterio, no la definición. */
-export const AYUDA_CATEGORIA =
-  "Agrupá como los busca tu cliente, no como los guardás vos: «Almuerzos», «Bebidas», «Postres». Entre cuatro y ocho alcanzan; con veinte, el catálogo se vuelve una lista larga otra vez.";
+/* La ayuda de la categoría, el nombre y la descripción del producto dependen
+   del rubro del negocio y viven en `catalogo/guias-por-rubro.ts`. */
 
 export const AYUDA_SUBCATEGORIA =
   "Solo si una categoría se hizo muy larga. Por ejemplo, dentro de «Bebidas»: «Calientes» y «Frías».";
 
-export const AYUDA_NOMBRE_PRODUCTO =
-  "Como lo pide tu cliente, no como figura en tu factura. «Silpancho» antes que «Plato ejecutivo N.° 3».";
-
-export const AYUDA_DESCRIPCION_PRODUCTO =
-  "Lo que no se ve en la foto: qué trae, de qué tamaño, para cuántas personas. Dos renglones bastan.";
-
+/* Desde la fase 13 cada talla, número o tamaño puede tener su propio precio,
+   y eso se carga en el producto ya creado, no duplicándolo. */
 export const AYUDA_PRECIO =
-  "Solo el número, en bolivianos. Si cambia por tamaño, cargá un producto por tamaño.";
+  "Solo el número, en bolivianos. Si cambia por talla o tamaño, después de crear el producto le agregas sus presentaciones, cada una con su precio.";

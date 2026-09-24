@@ -35,6 +35,8 @@ const datos = {
     nombre: "Negocio de prueba",
     slug: "negocio-de-prueba",
     rubro: "veterinaria",
+    rubro_publico: "veterinaria",
+    rubros_secundarios: ["mascotas"],
     foto_ia_habilitada: true,
     plan_id: "catalogo",
   },
@@ -145,5 +147,14 @@ describe("las pantallas del catálogo del panel", () => {
     expect(html).toContain("Tus categorías");
     expect(html).toContain("Alimento");
     expect(html).toContain("Consulta");
+  });
+
+  /* Las ayudas hablan del rubro: la veterinaria con tienda de mascotas ve
+     ejemplos de los dos, y ninguno de ferretería. */
+  it("la ayuda para crear una categoría es del rubro del negocio", () => {
+    const html = dibujar("categorias");
+    expect(html).toContain("«Consultas»");
+    expect(html).toContain("«Alimentos»");
+    expect(html).toContain('placeholder="Ej.: Consultas"');
   });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import type { Atributo } from "../../lib/catalogo/atributos";
+import { marcadorDeValor, type GuiaDeRubro } from "../../lib/catalogo/guias-por-rubro";
 import type { ValorAtributo } from "../../lib/catalogo/valores";
 import { Campo, Selector } from "../ui";
 import styles from "./campos-de-producto.module.css";
@@ -19,11 +20,15 @@ export function CamposDeProducto({
   atributos,
   valores,
   errores,
+  guia,
   alCambiar,
 }: {
   atributos: ReadonlyArray<Atributo>;
   valores: Record<string, ValorAtributo>;
   errores: Record<string, string>;
+  /* Para el texto gris: la muestra del rubro si el campo se llama como el
+     ejemplo, o qué forma tiene la respuesta. */
+  guia: GuiaDeRubro;
   alCambiar: (clave: string, valor: ValorAtributo | null) => void;
 }) {
   if (atributos.length === 0) return null;
@@ -92,7 +97,7 @@ export function CamposDeProducto({
             inputMode={atributo.tipo === "numero" ? "decimal" : undefined}
             maxLength={atributo.tipo === "numero" ? 12 : 80}
             onChange={(evento) => alCambiar(atributo.clave, evento.target.value || null)}
-            placeholder={atributo.tipo === "numero" ? "0" : ""}
+            placeholder={marcadorDeValor(atributo, guia)}
             /* `Campo` ya dibuja el rótulo «Obligatorio» al lado de la etiqueta:
                se aprovecha en vez de inventar otra forma de decir lo mismo. */
             required={atributo.obligatorio}

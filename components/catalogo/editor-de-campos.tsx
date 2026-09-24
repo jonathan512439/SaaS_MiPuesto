@@ -4,13 +4,18 @@ import { useEffect, useState } from "react";
 
 import {
   DEFINICIONES_TIPOS,
-  ejemploDeTipo,
   LARGO_NOMBRE,
   LARGO_UNIDAD,
   MAXIMO_ATRIBUTOS,
   MAXIMO_EN_TARJETA,
   type TipoAtributo,
 } from "../../lib/catalogo/atributos";
+import {
+  ejemploDeTipo,
+  introDeCampos,
+  marcadoresDeCampo,
+  type GuiaDeRubro,
+} from "../../lib/catalogo/guias-por-rubro";
 import { Boton, useAvisos, useConfirmacion } from "../ui";
 import styles from "./editor-de-campos.module.css";
 
@@ -78,13 +83,13 @@ function desdeFila(fila: FilaGuardada): CampoEnEdicion {
 export function EditorDeCampos({
   categoriaId,
   categoriaNombre,
-  rubro,
+  guia,
 }: {
   categoriaId: string;
   categoriaNombre: string;
-  /* Para que el ejemplo hable del oficio de quien está mirando. Sin rubro
-     —o con uno sin ejemplos propios— se muestra el general. */
-  rubro?: string | null;
+  /* Para que los ejemplos hablen del oficio de quien está mirando: la guía de
+     su rubro, o la del rubro secundario si la categoría es de ese. */
+  guia: GuiaDeRubro;
 }) {
   const [campos, setCampos] = useState<CampoEnEdicion[] | null>(null);
   const [usos, setUsos] = useState<Record<string, number>>({});
@@ -216,11 +221,10 @@ export function EditorDeCampos({
     <section className={styles.seccion}>
       <header className={styles.cabecera}>
         <h3>Datos de «{categoriaNombre}»</h3>
-        {/* Una línea y un ejemplo. Antes eran dos frases con dos rubros distintos,
-            y el segundo no le servía a nadie: quien está acá ya sabe a qué se
-            dedica y lo que necesita es entender qué va en el campo, no leer la
-            explicación del oficio ajeno. */}
-        <p>Además del nombre y el precio. Por ejemplo: potencia, talla, especie.</p>
+        {/* Lo que el cliente de este rubro pregunta antes de comprar: eso es lo
+            que vale la pena volver un campo. Un ejemplo de otro oficio
+            —«potencia» para una pollería— no le enseña nada a nadie. */}
+        <p>{introDeCampos(guia)}</p>
       </header>
 
       {campos.length === 0 ? (
@@ -229,144 +233,147 @@ export function EditorDeCampos({
         </p>
       ) : null}
 
-      {campos.map((campo, indice) => (
-        <fieldset className={styles.campo} disabled={guardando} key={`${campo.clave}-${indice}`}>
-          <legend>
-            {campo.nombre || "Campo nuevo"}
-            {usos[campo.clave] ? <span> · cargado en {usos[campo.clave]}</span> : null}
-          </legend>
+      {campos.map((campo, indice) => {
+        const marcadores = marcadoresDeCampo(campo.tipo, guia);
+        return (
+          <fieldset className={styles.campo} disabled={guardando} key={`${campo.clave}-${indice}`}>
+            <legend>
+              {campo.nombre || "Campo nuevo"}
+              {usos[campo.clave] ? <span> · cargado en {usos[campo.clave]}</span> : null}
+            </legend>
 
-          <div className={styles.fila}>
-            <label className={styles.control}>
-              <span>Cómo se llama</span>
-              <input
-                maxLength={LARGO_NOMBRE}
-                onChange={(evento) => cambiar(indice, { nombre: evento.target.value })}
-                placeholder="Potencia"
-                type="text"
-                value={campo.nombre}
-              />
-              {errores[`atributos.${indice}.nombre`] ? (
-                <strong className={styles.error}>{errores[`atributos.${indice}.nombre`]}</strong>
-              ) : null}
-            </label>
-
-            <label className={styles.control}>
-              <span>Qué clase de dato es</span>
-              <select
-                onChange={(evento) =>
-                  cambiar(indice, { tipo: evento.target.value as TipoAtributo })
-                }
-                value={campo.tipo}
-              >
-                {DEFINICIONES_TIPOS.map((definicion) => (
-                  <option key={definicion.id} value={definicion.id}>
-                    {definicion.nombre}
-                  </option>
-                ))}
-              </select>
-              {/* El ejemplo en vez de la explicación: se ve cómo va a quedar en
-                  lugar de leer qué significa el tipo. Y el ejemplo es del rubro
-                  del negocio: «Lista de opciones» con «Casquillo: E27» no le
-                  enseña nada a quien tiene un restaurante. */}
-              <small>{ejemploDeTipo(campo.tipo, rubro)}</small>
-            </label>
-          </div>
-
-          {campo.tipo === "numero" ? (
-            <label className={styles.control}>
-              <span>Unidad</span>
-              <input
-                maxLength={LARGO_UNIDAD}
-                onChange={(evento) => cambiar(indice, { unidad: evento.target.value })}
-                placeholder="W"
-                type="text"
-                value={campo.unidad}
-              />
-              <small>La escribís una vez acá, no en cada producto. Podés dejarla vacía.</small>
-              {errores[`atributos.${indice}.unidad`] ? (
-                <strong className={styles.error}>{errores[`atributos.${indice}.unidad`]}</strong>
-              ) : null}
-            </label>
-          ) : null}
-
-          {campo.tipo === "opcion" ? (
-            <label className={styles.control}>
-              <span>Las opciones</span>
-              <textarea
-                onChange={(evento) => cambiar(indice, { opciones: evento.target.value })}
-                placeholder={"E27\nE14\nGU10"}
-                rows={4}
-                value={campo.opciones}
-              />
-              <small>Una por renglón. Entre 2 y 24.</small>
-              {errores[`atributos.${indice}.opciones`] ? (
-                <strong className={styles.error}>{errores[`atributos.${indice}.opciones`]}</strong>
-              ) : null}
-            </label>
-          ) : null}
-
-          <div className={styles.interruptores}>
-            {/* Se apaga al llegar a seis en vez de dejar marcar el séptimo y
-                fallar al guardar. El error aparecía recién al guardar y se leía
-                como si el sistema no dejara crear más campos, que es otra cosa:
-                el tope de campos es diez, y este es solo de cuántos se ven en la
-                tarjeta. */}
-            <label className={tarjetaLlena && !campo.enTarjeta ? styles.apagado : undefined}>
-              <input
-                checked={campo.enTarjeta}
-                disabled={tarjetaLlena && !campo.enTarjeta}
-                onChange={(evento) => cambiar(indice, { enTarjeta: evento.target.checked })}
-                type="checkbox"
-              />
-              <span>
-                Mostrarlo en la tarjeta
-                {tarjetaLlena && !campo.enTarjeta ? (
-                  <small> · ya hay {MAXIMO_EN_TARJETA}. Destildá otro para poner este.</small>
+            <div className={styles.fila}>
+              <label className={styles.control}>
+                <span>Cómo se llama</span>
+                <input
+                  maxLength={LARGO_NOMBRE}
+                  onChange={(evento) => cambiar(indice, { nombre: evento.target.value })}
+                  placeholder={marcadores.nombre}
+                  type="text"
+                  value={campo.nombre}
+                />
+                {errores[`atributos.${indice}.nombre`] ? (
+                  <strong className={styles.error}>{errores[`atributos.${indice}.nombre`]}</strong>
                 ) : null}
-              </span>
-            </label>
-            <label>
-              <input
-                checked={campo.enResumen}
-                onChange={(evento) => cambiar(indice, { enResumen: evento.target.checked })}
-                type="checkbox"
-              />
-              <span>Que viaje en el pedido de WhatsApp</span>
-            </label>
-            <label>
-              <input
-                checked={campo.obligatorio}
-                onChange={(evento) => cambiar(indice, { obligatorio: evento.target.checked })}
-                type="checkbox"
-              />
-              <span>Pedirlo siempre</span>
-            </label>
-          </div>
+              </label>
 
-          <div className={styles.acciones}>
-            <button
-              aria-label={`Subir ${campo.nombre}`}
-              disabled={indice === 0}
-              onClick={() => mover(indice, -1)}
-              type="button"
-            >
-              ↑
-            </button>
-            <button
-              aria-label={`Bajar ${campo.nombre}`}
-              disabled={indice === campos.length - 1}
-              onClick={() => mover(indice, 1)}
-              type="button"
-            >
-              ↓
-            </button>
-            <button onClick={() => void quitar(indice)} type="button">
-              Quitar
-            </button>
-          </div>
-        </fieldset>
-      ))}
+              <label className={styles.control}>
+                <span>Qué clase de dato es</span>
+                <select
+                  onChange={(evento) =>
+                    cambiar(indice, { tipo: evento.target.value as TipoAtributo })
+                  }
+                  value={campo.tipo}
+                >
+                  {DEFINICIONES_TIPOS.map((definicion) => (
+                    <option key={definicion.id} value={definicion.id}>
+                      {definicion.nombre}
+                    </option>
+                  ))}
+                </select>
+                {/* El ejemplo en vez de la explicación: se ve cómo va a quedar en
+                    lugar de leer qué significa el tipo. Y el ejemplo es del rubro
+                    del negocio: «Lista de opciones» con «Casquillo: E27» no le
+                    enseña nada a quien tiene un restaurante. */}
+                <small>Así se ve: {ejemploDeTipo(campo.tipo, guia)}</small>
+              </label>
+            </div>
+
+            {campo.tipo === "numero" ? (
+              <label className={styles.control}>
+                <span>Unidad</span>
+                <input
+                  maxLength={LARGO_UNIDAD}
+                  onChange={(evento) => cambiar(indice, { unidad: evento.target.value })}
+                  placeholder={marcadores.unidad}
+                  type="text"
+                  value={campo.unidad}
+                />
+                <small>La escribís una vez acá, no en cada producto. Podés dejarla vacía.</small>
+                {errores[`atributos.${indice}.unidad`] ? (
+                  <strong className={styles.error}>{errores[`atributos.${indice}.unidad`]}</strong>
+                ) : null}
+              </label>
+            ) : null}
+
+            {campo.tipo === "opcion" ? (
+              <label className={styles.control}>
+                <span>Las opciones</span>
+                <textarea
+                  onChange={(evento) => cambiar(indice, { opciones: evento.target.value })}
+                  placeholder={marcadores.opciones}
+                  rows={4}
+                  value={campo.opciones}
+                />
+                <small>Una por renglón. Entre 2 y 24.</small>
+                {errores[`atributos.${indice}.opciones`] ? (
+                  <strong className={styles.error}>{errores[`atributos.${indice}.opciones`]}</strong>
+                ) : null}
+              </label>
+            ) : null}
+
+            <div className={styles.interruptores}>
+              {/* Se apaga al llegar a seis en vez de dejar marcar el séptimo y
+                  fallar al guardar. El error aparecía recién al guardar y se leía
+                  como si el sistema no dejara crear más campos, que es otra cosa:
+                  el tope de campos es diez, y este es solo de cuántos se ven en la
+                  tarjeta. */}
+              <label className={tarjetaLlena && !campo.enTarjeta ? styles.apagado : undefined}>
+                <input
+                  checked={campo.enTarjeta}
+                  disabled={tarjetaLlena && !campo.enTarjeta}
+                  onChange={(evento) => cambiar(indice, { enTarjeta: evento.target.checked })}
+                  type="checkbox"
+                />
+                <span>
+                  Mostrarlo en la tarjeta
+                  {tarjetaLlena && !campo.enTarjeta ? (
+                    <small> · ya hay {MAXIMO_EN_TARJETA}. Destildá otro para poner este.</small>
+                  ) : null}
+                </span>
+              </label>
+              <label>
+                <input
+                  checked={campo.enResumen}
+                  onChange={(evento) => cambiar(indice, { enResumen: evento.target.checked })}
+                  type="checkbox"
+                />
+                <span>Que viaje en el pedido de WhatsApp</span>
+              </label>
+              <label>
+                <input
+                  checked={campo.obligatorio}
+                  onChange={(evento) => cambiar(indice, { obligatorio: evento.target.checked })}
+                  type="checkbox"
+                />
+                <span>Pedirlo siempre</span>
+              </label>
+            </div>
+
+            <div className={styles.acciones}>
+              <button
+                aria-label={`Subir ${campo.nombre}`}
+                disabled={indice === 0}
+                onClick={() => mover(indice, -1)}
+                type="button"
+              >
+                ↑
+              </button>
+              <button
+                aria-label={`Bajar ${campo.nombre}`}
+                disabled={indice === campos.length - 1}
+                onClick={() => mover(indice, 1)}
+                type="button"
+              >
+                ↓
+              </button>
+              <button onClick={() => void quitar(indice)} type="button">
+                Quitar
+              </button>
+            </div>
+          </fieldset>
+        );
+      })}
 
       {errores.atributos ? <strong className={styles.error}>{errores.atributos}</strong> : null}
 

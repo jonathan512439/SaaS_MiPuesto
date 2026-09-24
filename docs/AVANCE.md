@@ -1726,6 +1726,35 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Las ayudas del catálogo hablan del rubro del negocio.** Pedido del dueño:
+  los ejemplos al crear categorías, campos y productos eran genéricos —y todos
+  de ferretería: «Potencia», «W», «E27»—.
+  - `lib/catalogo/guias-por-rubro.ts`: una guía por cada uno de los 29 rubros
+    públicos (más la general para «Otro»), con tres categorías de ejemplo, lo
+    que el cliente pregunta antes de comprar, un campo de ejemplo por tipo y los
+    textos del producto (nombre, cómo no nombrarlo, qué contar, precio).
+  - **Rubro secundario:** en la categoría que es de un secundario se usa su
+    guía —en una pollería que también es heladería, «Helados» pide sabores y
+    no presas—. Se reconoce por las palabras del nombre de la categoría; en un
+    empate gana el principal. La ayuda para crear categorías mezcla ejemplos
+    del principal y de cada secundario.
+  - **Editor de campos:** la introducción dice qué pregunta el cliente de ese
+    rubro; el nombre, la unidad y las opciones de ejemplo salen del mismo campo
+    y cambian juntos con el tipo; al pie del tipo, «Así se ve: Porción: 350 g».
+  - **Formulario de producto:** nombre, descripción y precio con ejemplo y
+    ayuda del rubro de la categoría elegida; los datos de la categoría muestran
+    la muestra si el campo se llama como el ejemplo, y «Solo el número» en los
+    numéricos.
+  - La ayuda del precio decía «cargá un producto por tamaño», que desde la fase
+    13 ya no es cierto: ahora dice que cada presentación lleva su precio.
+  - Todo el texto nuevo en español neutro, con tuteo.
+  - **Pruebas:** 101 de las guías —cada rubro con la suya, cada ejemplo de
+    campo pasa `validarAtributos`, sin voseo, la elección entre principal y
+    secundario, plural sí y palabra más larga no («pan» no es «Pantalones»)— y
+    la de dibujo de «Mi catálogo» con la ayuda del rubro. Probadas rompiéndolas:
+    la de voseo no detectaba palabras con tilde al final (`` no trata la «á»
+    como letra) y se corrigió con límites Unicode.
+
 - **Fase 13, paso 7: de punta a punta en producción. Fase 13 cerrada.**
   - **En producción, en Tienda Kantuta (con carrito):** se crearon productos
     «PRUEBA F13» —una zapatilla con 40, 40,5 y 42 a precios distintos, una
