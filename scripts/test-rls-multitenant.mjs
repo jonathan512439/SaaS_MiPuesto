@@ -676,8 +676,32 @@ try {
     .insert({ termino: palabraSonda, equivalentes: ["x"] });
   comprobar(errorSinonimoDueno, "un dueño pudo cargar un sinónimo");
 
+  /* 2026-09-24: el espacio de fotos de un negocio lo ve su dueño y nadie más,
+     y las funciones que borran datos de clientes son solo de la plataforma.
+     Se llaman con argumentos que no harían nada aunque el permiso estuviera
+     mal —cien años de antigüedad, un teléfono que no existe—: la prueba corre
+     contra la base real. */
+  const { data: usoPropio, error: errorUsoPropio } = await clienteA.rpc("uso_almacenamiento_negocio", {
+    p_carpeta: negocios[0].id,
+  });
+  comprobar(!errorUsoPropio && typeof usoPropio === "number", "un dueño no pudo ver cuánto ocupa su negocio");
+  const { data: usoAjeno } = await clienteA.rpc("uso_almacenamiento_negocio", { p_carpeta: negocios[1].id });
+  comprobar(usoAjeno === null, "un dueño pudo ver cuánto ocupa un negocio ajeno");
+  const { error: errorUsoAnonimo } = await publico.rpc("uso_almacenamiento_negocio", {
+    p_carpeta: negocios[0].id,
+  });
+  comprobar(errorUsoAnonimo, "un visitante anónimo pudo consultar el espacio de un negocio");
+  const { error: errorBorrarCliente } = await clienteA.rpc("borrar_datos_de_un_cliente", {
+    p_telefono: "59169999999",
+  });
+  comprobar(errorBorrarCliente, "un dueño pudo borrar los datos de un cliente en todos los negocios");
+  const { error: errorBorrarViejos } = await clienteA.rpc("borrar_datos_de_clientes_viejos", {
+    p_meses: 1200,
+  });
+  comprobar(errorBorrarViejos, "un dueño pudo correr el borrado de datos de clientes");
+
   console.log(
-    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, el buscador del directorio, y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, el buscador del directorio, el espacio de fotos, el borrado de datos de clientes, y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([
