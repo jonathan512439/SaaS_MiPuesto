@@ -5,6 +5,16 @@ import nextTypeScript from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextCoreWebVitals,
   ...nextTypeScript,
+  /* Las imágenes para redes sociales se dibujan con `ImageResponse`, que solo
+     entiende `<img>`: `next/image` ahí no existe. La regla de Next ya exceptúa
+     estos archivos, pero reconoce la ruta con «/», así que en Windows —con «\»—
+     no la exceptuaba y en Linux sí. Un comentario para desactivarla sobraba en
+     uno y faltaba en el otro, y el lint de Cloudflare frenó la publicación por
+     eso. Declarado acá vale igual en los dos. */
+  {
+    files: ["**/opengraph-image.tsx"],
+    rules: { "@next/next/no-img-element": "off" },
+  },
   globalIgnores([
     ".next/**",
     ".vinext/**",

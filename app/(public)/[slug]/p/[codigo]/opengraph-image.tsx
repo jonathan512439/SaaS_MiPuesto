@@ -61,7 +61,6 @@ export default async function ImagenProducto({
         }}
       >
         {foto ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             alt=""
             src={foto}
