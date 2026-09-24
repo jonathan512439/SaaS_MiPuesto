@@ -54,12 +54,12 @@ export function FormularioLogin({
           hace es pedir otro enlace. */}
       {claveGuardada ? (
         <p className={styles.nota} role="status">
-          Tu contraseña quedó guardada. Ingresá con ella para entrar a tu panel.
+          Tu contraseña quedó guardada. Ingresa con ella para entrar a tu panel.
         </p>
       ) : null}
       {sesionRequerida ? (
         <p className={styles.nota} role="status">
-          Iniciá sesión para continuar en tu panel.
+          Inicia sesión para continuar en tu panel.
         </p>
       ) : null}
       <Campo

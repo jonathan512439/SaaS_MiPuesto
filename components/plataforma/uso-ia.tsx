@@ -302,7 +302,7 @@ export function UsoIaPanel({
 
       <p className={styles.nota}>
         Los tres límites del nivel gratuito están escritos a mano en{" "}
-        <code>lib/ia/limites.ts</code> porque Google no los expone. Copialos de la pantalla de
+        <code>lib/ia/limites.ts</code> porque Google no los expone. Cópialos de la pantalla de
         límites de AI Studio si cambian: los topes por negocio se recalculan solos a partir de
         ellos. Medido el {conFecha(uso.medido_en)}.
       </p>

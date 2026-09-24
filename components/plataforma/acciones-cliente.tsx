@@ -85,7 +85,7 @@ export function AccionesCliente({
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo aplicar el cambio",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {

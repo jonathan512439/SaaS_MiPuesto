@@ -178,7 +178,7 @@ export function CarritoCatalogo({
       setError(
         motivo instanceof Error
           ? motivo.message
-          : "No se pudo reservar el pedido. Intentá nuevamente.",
+          : "No se pudo reservar el pedido. Intenta nuevamente.",
       );
     } finally {
       setEnviando(false);
@@ -234,7 +234,7 @@ export function CarritoCatalogo({
           se muestra abajo. */}
       {items.length === 0 && !pedidoVigente ? (
         <p className={styles.vacio}>
-          Todavía no agregaste productos. Elegí una opción del catálogo para preparar tu pedido.
+          Todavía no agregaste productos. Elige una opción del catálogo para preparar tu pedido.
         </p>
       ) : items.length === 0 ? null : (
         <ul aria-live="polite">
@@ -405,7 +405,7 @@ export function CarritoCatalogo({
                   Continuar por WhatsApp
                 </a>
               ) : (
-                <p>Guardá el código y comunicate con el negocio por otro medio.</p>
+                <p>Guarda el código y comunícate con el negocio por otro medio.</p>
               )}
               {datos.negocio.qrPagoUrl ? (
                 <button
@@ -427,7 +427,7 @@ export function CarritoCatalogo({
                 ninguna reserva: el QR no dice quién pagó. */}
             {qrDescargado ? (
               <p className={styles.avisoComprobante}>
-                Ya tenés el QR. <strong>Cuando pagues, mandá la captura del comprobante por
+                Ya tienes el QR. <strong>Cuando pagues, manda la captura del comprobante por
                 WhatsApp junto con tu código {pedidoVigente.codigo}</strong>, así el negocio sabe
                 qué reserva pagaste.
               </p>
@@ -439,7 +439,7 @@ export function CarritoCatalogo({
               <p className={styles.resenas}>
                 <a href={datos.negocio.resenasUrl} rel="noreferrer" target="_blank">
                   <Icono nombre="mapa" />
-                  Calificá a {datos.negocio.nombre} en Google
+                  Califica a {datos.negocio.nombre} en Google
                 </a>
               </p>
             ) : null}

@@ -26,7 +26,7 @@ describe("la categoría que se elige desde la foto de un producto", () => {
 
   it("sin categorías el campo queda libre y la instrucción pide dejarlo vacío", () => {
     expect(esquemaProducto([]).properties.categoria).toEqual({ type: "string" });
-    expect(instruccionProducto([])).toContain('categoria: devolvé ""');
+    expect(instruccionProducto([])).toContain('categoria: devuelve ""');
   });
 
   it("la instrucción lista las categorías del negocio, una por renglón", () => {

@@ -23,8 +23,8 @@ export async function comprobarZona(
     .eq("activa", true)
     .maybeSingle();
 
-  if (error) return "No se pudo comprobar la zona. Intentá de nuevo.";
-  if (!zona) return "Esa zona no existe. Elegí otra de la lista.";
+  if (error) return "No se pudo comprobar la zona. Intenta de nuevo.";
+  if (!zona) return "Esa zona no existe. Elige otra de la lista.";
   if (zona.ciudad !== presencia.ciudad) return "Esa zona es de otra ciudad.";
   return null;
 }

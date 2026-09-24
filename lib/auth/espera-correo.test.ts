@@ -10,7 +10,7 @@ describe("límite de envío de correos", () => {
     expect(esLimiteDeCorreo(null)).toBe(false);
   });
 
-  /* Decir cuántos segundos faltan permite decidir si conviene esperar; «esperá
+  /* Decir cuántos segundos faltan permite decidir si conviene esperar; «espera
      un rato» no. */
   it("rescata los segundos del mensaje de Supabase", () => {
     expect(

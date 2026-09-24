@@ -82,7 +82,7 @@ export function ZonasPlataforma({
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo guardar",
-        mensaje: causa instanceof Error ? causa.message : "Intentá de nuevo.",
+        mensaje: causa instanceof Error ? causa.message : "Intenta de nuevo.",
         variante: "error",
       });
       return false;
@@ -151,7 +151,7 @@ export function ZonasPlataforma({
             value={borrador.nombre}
           />
         </div>
-        <p className={styles.ayuda}>Tocá el mapa en el centro de la zona.</p>
+        <p className={styles.ayuda}>Toca el mapa en el centro de la zona.</p>
         <MapaPin
           alCambiar={(punto) => setBorrador((actual) => ({ ...actual, punto }))}
           centro={CENTRO_DE_CIUDAD[borrador.ciudad] ?? CENTRO_DE_BOLIVIA}
@@ -174,7 +174,7 @@ export function ZonasPlataforma({
       </form>
 
       {porCiudad.length === 0 ? (
-        <p className={styles.vacio}>Todavía no hay zonas. Empezá por las de Oruro.</p>
+        <p className={styles.vacio}>Todavía no hay zonas. Empieza por las de Oruro.</p>
       ) : (
         porCiudad.map(({ ciudad, zonas: deLaCiudad }) => (
           <div className={styles.ciudad} key={ciudad}>
@@ -241,7 +241,7 @@ export function ZonasPlataforma({
                     </small>
                   </span>
                   {opciones.length === 0 ? (
-                    <small>Creá primero una zona de {nombreDeCiudad(negocio.ciudad)}.</small>
+                    <small>Crea primero una zona de {nombreDeCiudad(negocio.ciudad)}.</small>
                   ) : (
                     <span className={styles.asignar}>
                       <label className={styles.soloLectores} htmlFor={`asignar-${negocio.id}`}>
@@ -254,7 +254,7 @@ export function ZonasPlataforma({
                         }
                         value={asignaciones[negocio.id] ?? ""}
                       >
-                        <option value="">Elegí la zona</option>
+                        <option value="">Elige la zona</option>
                         {opciones.map((zona) => (
                           <option key={zona.id} value={zona.id}>
                             {zona.nombre}

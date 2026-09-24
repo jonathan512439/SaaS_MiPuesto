@@ -28,8 +28,8 @@ export function PasoQueVendes({
   return (
     <section className={styles.paso}>
       <div className={styles.titulo}>
-        <h2>Qué vendés y dónde</h2>
-        <p>Con esto preparamos tus categorías, y decidís si querés que te encuentren.</p>
+        <h2>Qué vendes y dónde</h2>
+        <p>Con esto preparamos tus categorías, y decides si quieres que te encuentren.</p>
       </div>
       <QueVendesYDonde
         enlaceMaps={enlaceMaps}

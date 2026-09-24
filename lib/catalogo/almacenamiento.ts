@@ -35,10 +35,10 @@ export function describirEspacio(usados: number): string {
 
 export const MENSAJE_SIN_ESPACIO = `Llegaste al espacio de fotos de tu negocio (${megas(
   TOPE_ALMACENAMIENTO_BYTES,
-)} MB). Borrá fotos de productos que ya no vendés para subir nuevas.`;
+)} MB). Borra fotos de productos que ya no vendes para subir nuevas.`;
 
 export const MENSAJE_POCO_ESPACIO =
-  "Te queda poco espacio para fotos. Borrá las de productos que ya no vendés antes de que se llene.";
+  "Te queda poco espacio para fotos. Borra las de productos que ya no vendes antes de que se llene.";
 
 /* Lo que ocupa el negocio, preguntado a la base. `null` si no se pudo saber:
    en ese caso no se frena nada desde acá, y la regla de la base decide. */

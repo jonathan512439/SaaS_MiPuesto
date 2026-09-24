@@ -110,7 +110,7 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
     dias === null ||
     !semana.correcto
   ) {
-    return NextResponse.json({ error: "Revisá el horario.", errores }, { status: 400 });
+    return NextResponse.json({ error: "Revisa el horario.", errores }, { status: 400 });
   }
 
   const { data, error } = await contexto.supabase

@@ -48,8 +48,8 @@ export default async function PaginaConfiguracion() {
   return (
     <main className={panel.contenido}>
       <EncabezadoPanel
-        descripcion="Configurá la información de tu negocio para que tus clientes te encuentren en el catálogo."
-        titulo={negocio ? "Tu negocio" : "Creá el perfil de tu negocio"}
+        descripcion="Configura la información de tu negocio para que tus clientes te encuentren en el catálogo."
+        titulo={negocio ? "Tu negocio" : "Crea el perfil de tu negocio"}
       />
 
       <div className={styles.rejilla}>
@@ -62,10 +62,10 @@ export default async function PaginaConfiguracion() {
               Tiene su propio botón porque guarda en otro lado. */}
           <section aria-labelledby="que-vendes-y-donde" className={styles.formulario}>
             <PasoNumerado
-              descripcion="Tu rubro, y si querés aparecer cuando alguien busca en MiPuesto."
+              descripcion="Tu rubro, y si quieres aparecer cuando alguien busca en MiPuesto."
               idTitulo="que-vendes-y-donde"
               numero={4}
-              titulo="Qué vendés y dónde"
+              titulo="Qué vendes y dónde"
             />
             <QueVendesYDonde
               enlaceMaps={presencia.enlaceMaps}

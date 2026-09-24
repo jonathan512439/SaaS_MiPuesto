@@ -226,7 +226,7 @@ export function RevisionDeProductos({
       } catch (error) {
         mostrarAviso({
           titulo: `No se pudo usar «${original.name}»`,
-          mensaje: error instanceof Error ? error.message : "Probá con otra imagen.",
+          mensaje: error instanceof Error ? error.message : "Prueba con otra imagen.",
           variante: "error",
         });
       }
@@ -386,11 +386,11 @@ export function RevisionDeProductos({
             if (!guardado.ok) {
               const respuesta = (await guardado.json().catch(() => ({}))) as { error?: string };
               advertencias.push(
-                `${producto.nombre}: se creó sin sus presentaciones. ${respuesta.error ?? "Agregalas desde Productos."}`,
+                `${producto.nombre}: se creó sin sus presentaciones. ${respuesta.error ?? "Agrégalas desde Productos."}`,
               );
             }
           } catch {
-            advertencias.push(`${producto.nombre}: se creó sin sus presentaciones. Agregalas desde Productos.`);
+            advertencias.push(`${producto.nombre}: se creó sin sus presentaciones. Agrégalas desde Productos.`);
           }
         }
 
@@ -439,13 +439,13 @@ export function RevisionDeProductos({
         {resultado.fotosFallidas > 0 ? (
           <p>
             {resultado.fotosFallidas} fotografía(s) no se pudieron subir. Los productos sí quedaron
-            creados: podés agregarles la foto desde el catálogo.
+            creados: puedes agregarles la foto desde el catálogo.
           </p>
         ) : null}
         <p>
           {resultado.fallidos.length > 0
             ? `No se pudieron crear: ${resultado.fallidos.slice(0, 3).join(", ")}.`
-            : "Ya están en tu catálogo. Revisá los precios antes de publicarlo."}
+            : "Ya están en tu catálogo. Revisa los precios antes de publicarlo."}
         </p>
         {/* Se listan todas y no las tres primeras: cada una es algo que el
             dueño tiene que completar a mano, y la que no se ve no se completa. */}
@@ -466,7 +466,7 @@ export function RevisionDeProductos({
   return (
     <section className={styles.revision}>
       <header>
-        <h2>Revisá antes de crear</h2>
+        <h2>Revisa antes de crear</h2>
         <p>{introduccion}</p>
       </header>
 
@@ -497,7 +497,7 @@ export function RevisionDeProductos({
             ))}
           </ul>
           <p>
-            Los podés completar ahora en cada producto, o después desde Productos. Nada de
+            Los puedes completar ahora en cada producto, o después desde Productos. Nada de
             esto impide crearlos.
           </p>
         </aside>
@@ -509,7 +509,7 @@ export function RevisionDeProductos({
             ? "1 producto ya está en tu catálogo con el mismo nombre y quedó sin marcar."
             : `${yaExistentes} productos ya están en tu catálogo con el mismo nombre y quedaron sin marcar.`}{" "}
           Si una importación anterior se cortó, sigue desde aquí sin duplicar. Si es otro
-          producto con el mismo nombre, marcalo.
+          producto con el mismo nombre, márcalo.
         </p>
       ) : null}
 
@@ -531,7 +531,7 @@ export function RevisionDeProductos({
       {titulos.some((titulo) => titulo !== SIN_TITULO) ? (
         <div className={styles.titulos}>
           <h3>Las secciones de tu lista</h3>
-          <p>Decidí qué hacer con cada una.</p>
+          <p>Decide qué hacer con cada una.</p>
           {/* Cuando la propuesta no es la categoría que se llama igual sino la
               más parecida, se dice: si no, el dueño ve «Poner en Refrescos» al
               lado de «BEBIDAS» y no sabe de dónde salió. */}
@@ -539,7 +539,7 @@ export function RevisionDeProductos({
             <p className={styles.sugerencia}>
               Te sugerimos tu categoría más parecida en{" "}
               {propuesta.sugeridas.size === 1 ? "una sección" : `${propuesta.sugeridas.size} secciones`}.
-              Revisalas antes de confirmar.
+              Revísalas antes de confirmar.
             </p>
           ) : null}
           {titulos
@@ -687,7 +687,7 @@ export function RevisionDeProductos({
                   </div>
 
                   {fila.yaExiste ? <span className={styles.etiquetaYaExiste}>Ya está en tu catálogo</span> : null}
-                  {fila.confianza === "baja" ? <span>revisá</span> : null}
+                  {fila.confianza === "baja" ? <span>revisa</span> : null}
                 </li>
               ),
             )}
@@ -715,7 +715,7 @@ export function RevisionDeProductos({
         {controlaStock
           ? "Los que dejes sin cantidad se crean sin control de existencias."
           : "Se crean sin existencias."}{" "}
-        <strong>Revisá los precios antes de publicar.</strong>
+        <strong>Revisa los precios antes de publicar.</strong>
       </p>
     </section>
   );

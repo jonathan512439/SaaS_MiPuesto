@@ -39,7 +39,7 @@ export type DatosNegocioValidados = {
   telefono_whatsapp: string;
   rubro: RubroId | null;
   pide_numero_mesa: boolean;
-  /* La ciudad y la zona ya no van acá: desde la fase 11 las guarda «Qué vendés
+  /* La ciudad y la zona ya no van acá: desde la fase 11 las guarda «Qué vendes
      y dónde», con el pin y la zona de la lista. Si este formulario las siguiera
      mandando, guardar el teléfono borraría la ciudad. */
 };
@@ -72,15 +72,15 @@ export function proponerSlug(nombre: string) {
 
 export function validarSlug(slug: string) {
   if (slug.length < 3 || slug.length > 48) {
-    return "Usá entre 3 y 48 caracteres.";
+    return "Usa entre 3 y 48 caracteres.";
   }
 
   if (!PATRON_SLUG.test(slug)) {
-    return "Usá solo minúsculas, números y guiones, sin guiones al inicio o al final.";
+    return "Usa solo minúsculas, números y guiones, sin guiones al inicio o al final.";
   }
 
   if (SLUGS_RESERVADOS.has(slug)) {
-    return "Ese nombre está reservado por MiPuesto. Elegí otro.";
+    return "Ese nombre está reservado por MiPuesto. Elige otro.";
   }
 
   return "";
@@ -106,7 +106,7 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
   const errores: Record<string, string> = {};
 
   if (nombre.length < 2 || nombre.length > 80) {
-    errores.nombre = "Escribí un nombre de entre 2 y 80 caracteres.";
+    errores.nombre = "Escribe un nombre de entre 2 y 80 caracteres.";
   }
 
   const errorSlug = validarSlug(slug);
@@ -124,19 +124,19 @@ export function validarDatosNegocio(entrada: unknown): ResultadoValidacionNegoci
   }
 
   if (!TIPOS_NEGOCIO.includes(tipo as TipoNegocio)) {
-    errores.tipo_negocio = "Elegí una modalidad válida.";
+    errores.tipo_negocio = "Elige una modalidad válida.";
   }
 
   /* Vacío es válido y significa «no lo dijo»: quien no elige rubro ve el panel
      completo. Lo que no se acepta es un rubro inventado, que la base rechazaría
      recién al guardar con un error que el dueño no puede entender. */
   if (rubro && !esRubroId(rubro)) {
-    errores.rubro = "Elegí un rubro de la lista.";
+    errores.rubro = "Elige un rubro de la lista.";
   }
 
   if (!PATRON_TELEFONO_BOLIVIA.test(telefono)) {
     errores.telefono_whatsapp =
-      "Ingresá un celular boliviano de 8 dígitos que empiece con 6 o 7.";
+      "Ingresa un celular boliviano de 8 dígitos que empiece con 6 o 7.";
   }
 
   if (Object.keys(errores).length > 0) {

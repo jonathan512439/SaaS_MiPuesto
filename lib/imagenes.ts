@@ -78,7 +78,7 @@ export async function prepararImagenParaSubir(archivo: File) {
 
   const cabecera = new Uint8Array(await archivo.slice(0, 12).arrayBuffer());
   if (!detectarTipoImagen(cabecera)) {
-    throw new Error("Seleccioná una imagen JPEG, PNG o WebP válida.");
+    throw new Error("Selecciona una imagen JPEG, PNG o WebP válida.");
   }
 
   const imagen = await createImageBitmap(archivo, { imageOrientation: "from-image" });
@@ -128,7 +128,7 @@ export async function prepararFotoParaLectura(archivo: File): Promise<{
 
   const cabecera = new Uint8Array(await archivo.slice(0, 12).arrayBuffer());
   if (!detectarTipoImagen(cabecera)) {
-    throw new Error("Seleccioná una imagen JPEG, PNG o WebP válida.");
+    throw new Error("Selecciona una imagen JPEG, PNG o WebP válida.");
   }
 
   const imagen = await createImageBitmap(archivo, { imageOrientation: "from-image" });

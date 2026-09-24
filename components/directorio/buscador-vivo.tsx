@@ -93,7 +93,7 @@ export function BuscadorVivo({
   return (
     <form action="/directorio" className={styles.buscador} data-tamano={tamano} method="get" role="search">
       <label className={styles.soloLectores} htmlFor={`${idLista}-campo`}>
-        ¿Qué buscás?
+        ¿Qué buscas?
       </label>
       <div className={styles.campo}>
         <Icono nombre="lupa" />
@@ -115,7 +115,7 @@ export function BuscadorVivo({
           onKeyDown={(evento) => {
             if (evento.key === "Escape") setAbierto(false);
           }}
-          placeholder={ejemplos.length ? `Probá «${ejemplos[ejemplo]}»` : "¿Qué buscás?"}
+          placeholder={ejemplos.length ? `Prueba «${ejemplos[ejemplo]}»` : "¿Qué buscas?"}
           role="combobox"
           type="search"
           value={texto}

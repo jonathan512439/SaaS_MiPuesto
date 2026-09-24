@@ -152,7 +152,7 @@ export function EditorDeCampos({
         titulo: `Borrar «${campo.nombre}»`,
         descripcion: `Este campo tiene valor en ${cargados} ${
           cargados === 1 ? "producto" : "productos"
-        }. Si lo borrás, ese dato se pierde.`,
+        }. Si lo borras, ese dato se pierde.`,
         textoAccion: "Borrar el campo y su dato",
         destructiva: true,
       });
@@ -202,7 +202,7 @@ export function EditorDeCampos({
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudieron guardar los campos",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -289,7 +289,7 @@ export function EditorDeCampos({
                   type="text"
                   value={campo.unidad}
                 />
-                <small>La escribís una vez acá, no en cada producto. Podés dejarla vacía.</small>
+                <small>La escribes una vez acá, no en cada producto. Puedes dejarla vacía.</small>
                 {errores[`atributos.${indice}.unidad`] ? (
                   <strong className={styles.error}>{errores[`atributos.${indice}.unidad`]}</strong>
                 ) : null}

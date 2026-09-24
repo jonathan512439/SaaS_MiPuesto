@@ -68,7 +68,7 @@ export function BuscadorPlataforma({
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo guardar",
-        mensaje: causa instanceof Error ? causa.message : "Intentá de nuevo.",
+        mensaje: causa instanceof Error ? causa.message : "Intenta de nuevo.",
         variante: "error",
       });
       return false;

@@ -38,7 +38,7 @@ export async function POST(solicitud: NextRequest) {
   const identidad = validarIdentidadCategoria({ icono: cuerpo.icono, vende: cuerpo.vende });
   if (!identidad.correcto) {
     return NextResponse.json(
-      { error: "Revisá los datos de la categoría.", errores: identidad.errores },
+      { error: "Revisa los datos de la categoría.", errores: identidad.errores },
       { status: 400 },
     );
   }
@@ -49,7 +49,7 @@ export async function POST(solicitud: NextRequest) {
     .eq("negocio_id", contexto.negocio.id);
   if ((count ?? 0) >= LIMITE_CATEGORIAS) {
     return NextResponse.json(
-      { error: `Podés crear hasta ${LIMITE_CATEGORIAS} categorías.` },
+      { error: `Puedes crear hasta ${LIMITE_CATEGORIAS} categorías.` },
       { status: 409 },
     );
   }
@@ -116,7 +116,7 @@ export async function PATCH(solicitud: NextRequest) {
     const identidad = validarIdentidadCategoria(datos);
     if (!identidad.correcto) {
       return NextResponse.json(
-        { error: "Revisá los datos de la categoría.", errores: identidad.errores },
+        { error: "Revisa los datos de la categoría.", errores: identidad.errores },
         { status: 400 },
       );
     }
@@ -163,7 +163,7 @@ export async function PATCH(solicitud: NextRequest) {
   }
 
   if (datos.direccion !== "subir" && datos.direccion !== "bajar") {
-    return NextResponse.json({ error: "Indicá un cambio válido." }, { status: 400 });
+    return NextResponse.json({ error: "Indica un cambio válido." }, { status: 400 });
   }
   const { data: categorias, error: errorLista } = await contexto.supabase
     .from("categorias")

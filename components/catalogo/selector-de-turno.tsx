@@ -148,7 +148,7 @@ export function SelectorDeTurno({
     return (
       <p className={styles.estado}>
         No hay horarios disponibles por ahora.
-        Consultá al negocio directamente.
+        Consulta al negocio directamente.
       </p>
     );
   }
@@ -218,7 +218,7 @@ export function SelectorDeTurno({
       }
       throw new Error(datos.error || "No se pudo reservar.");
     } catch (fallo) {
-      setError(fallo instanceof Error ? fallo.message : "No se pudo reservar. Intentá otra vez.");
+      setError(fallo instanceof Error ? fallo.message : "No se pudo reservar. Intenta otra vez.");
     } finally {
       setReservando(false);
     }
@@ -227,16 +227,16 @@ export function SelectorDeTurno({
   return (
     <section className={styles.seccion}>
       <h3 className={styles.titulo}>
-        <Icono nombre="calendario" /> Elegí tu turno
+        <Icono nombre="calendario" /> Elige tu turno
       </h3>
 
       {/* Los emojis van decorativos —`aria-hidden`— y el rótulo dice lo mismo en
-          palabras: quien usa lector de pantalla escucha «Elegí el día» y no el
+          palabras: quien usa lector de pantalla escucha «Elige el día» y no el
           nombre del pictograma. Sirven para separar de un vistazo las dos filas,
           que antes eran dos hileras de botones iguales sin nada que las
           distinguiera. */}
       <p className={styles.rotulo}>
-        <Icono nombre="calendario" /> Elegí el día
+        <Icono nombre="calendario" /> Elige el día
       </p>
 
       <div className={styles.dias}>
@@ -257,7 +257,7 @@ export function SelectorDeTurno({
       </div>
 
       <p className={styles.rotulo}>
-        <Icono nombre="reloj" /> Elegí la hora
+        <Icono nombre="reloj" /> Elige la hora
       </p>
 
       <div className={styles.horas}>

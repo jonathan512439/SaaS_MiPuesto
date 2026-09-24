@@ -14,7 +14,7 @@ import panel from "../../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Cargar desde una foto | MiPuesto",
-  description: "Cargá tu catálogo fotografiando tu lista de precios.",
+  description: "Carga tu catálogo fotografiando tu lista de precios.",
 };
 
 export const dynamic = "force-dynamic";
@@ -77,7 +77,7 @@ export default async function PaginaCargaDesdeFoto() {
     <main className={panel.contenido}>
       <EncabezadoPanel
         accion={<Link href={RUTAS_PANEL.productos}>Ver mis productos</Link>}
-        descripcion="Fotografiá tu lista de precios y te armamos el borrador. Vos revisás y confirmás: nada se publica sin que lo mires."
+        descripcion="Fotografía tu lista de precios y te armamos el borrador. Vos revisas y confirmas: nada se publica sin que lo mires."
         titulo="Cargar desde una foto"
       />
 

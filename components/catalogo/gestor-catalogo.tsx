@@ -210,7 +210,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   const [imagenesPendientes, setImagenesPendientes] = useState<File[]>([]);
   /* Las miniaturas se crean en un efecto y no al dibujar: `createObjectURL`
      reserva memoria del navegador y hay que devolverla. Sin el `revoke`, cada
-     foto elegida queda retenida hasta que se recargá la página. */
+     foto elegida queda retenida hasta que se recarga la página. */
   const previasPendientes = useMemo(
     () => imagenesPendientes.map((archivo) => URL.createObjectURL(archivo)),
     [imagenesPendientes],
@@ -313,7 +313,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     mostrarAviso({
       titulo,
       mensaje:
-        error instanceof Error ? error.message : "Revisá tu conexión e intentá nuevamente.",
+        error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
       variante: "error",
     });
   }
@@ -643,7 +643,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     if (imagenesPendientes.length + archivos.length > MAXIMO_FOTOS_POR_PRODUCTO) {
       informarError(
         "Demasiadas fotografías",
-        new Error(`Podés seleccionar ${MAXIMO_FOTOS_POR_PRODUCTO - imagenesPendientes.length} más.`),
+        new Error(`Puedes seleccionar ${MAXIMO_FOTOS_POR_PRODUCTO - imagenesPendientes.length} más.`),
       );
       return;
     }
@@ -753,7 +753,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       titulo: `Borrar “${producto.nombre}”`,
       /* Ya no dice «no se puede deshacer» porque ahora sí se puede, y decirlo
          asusta de más a quien sólo quiere ordenar su catálogo. */
-      descripcion: `Va a la papelera con sus fotografías. Podés recuperarlo durante ${DIAS_PAPELERA} días.`,
+      descripcion: `Va a la papelera con sus fotografías. Puedes recuperarlo durante ${DIAS_PAPELERA} días.`,
       destructiva: true,
       textoAccion: "Borrar producto",
     });
@@ -767,7 +767,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       setProductos((actuales) => actuales.filter(({ id }) => id !== producto.id));
       informarExito(
         "Producto borrado",
-        `Está en la papelera. Podés recuperarlo durante ${DIAS_PAPELERA} días.`,
+        `Está en la papelera. Puedes recuperarlo durante ${DIAS_PAPELERA} días.`,
       );
     } catch (error) {
       informarError("No se pudo borrar el producto", error);
@@ -784,10 +784,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     );
     try {
       await navigator.clipboard.writeText(enlace);
-      informarExito("Enlace copiado", "Pegalo en WhatsApp para compartir este producto.");
+      informarExito("Enlace copiado", "Pégalo en WhatsApp para compartir este producto.");
     } catch {
       mostrarAviso({
-        titulo: "Copiá el enlace a mano",
+        titulo: "Copia el enlace a mano",
         mensaje: enlace,
         variante: "informacion",
       });
@@ -814,9 +814,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       informarExito(
         agotado ? "Marcado como agotado" : "Disponible otra vez",
         agotado && producto.controla_stock
-          ? "Sus existencias quedaron en cero. Para reponer, editá la cantidad."
+          ? "Sus existencias quedaron en cero. Para reponer, edita la cantidad."
           : agotado
-            ? "Tocá «Hay de nuevo» cuando vuelva a haber."
+            ? "Toca «Hay de nuevo» cuando vuelva a haber."
             : "Ya se puede pedir otra vez.",
       );
     } catch (error) {
@@ -930,7 +930,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
          veces seguidas y la segunda no ve cambiar nada. */
       const conservado =
         habiaNombre && habiaDescripcion
-          ? "Dejamos lo que ya habías escrito. Borrá el nombre y la descripción si querés que los reescriba."
+          ? "Dejamos lo que ya habías escrito. Borra el nombre y la descripción si quieres que los reescriba."
           : habiaNombre
             ? "Conservamos el nombre que ya tenías."
             : habiaDescripcion
@@ -950,7 +950,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
         : categoriaSugerida
           ? `La pusimos en «${categoriaSugerida.nombre}».`
           : categorias.length
-            ? "Ninguna de tus categorías le corresponde: elegila vos."
+            ? "Ninguna de tus categorías le corresponde: elígela vos."
             : "";
 
       informarExito(
@@ -958,8 +958,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
         [
           conservado ||
             (propuesta.confianza === "alta"
-              ? "Revisá el texto y poné tu precio."
-              : "No estamos seguros de qué es. Revisá bien antes de guardar."),
+              ? "Revisa el texto y pon tu precio."
+              : "No estamos seguros de qué es. Revisa bien antes de guardar."),
           sobreLaCategoria,
           guardada,
         ]
@@ -1006,7 +1006,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       categoria_id: ajusteCategoria || null,
     });
     if (!validacion.correcto) {
-      informarError("Revisá el ajuste", new Error(validacion.error));
+      informarError("Revisa el ajuste", new Error(validacion.error));
       return;
     }
 
@@ -1017,7 +1017,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     const aceptado = await confirmar({
       titulo: `${porcentaje > 0 ? "Subir" : "Bajar"} ${Math.abs(porcentaje)} % en ${alcance}`,
       descripcion:
-        "Cada producto guarda su precio anterior, así que podés corregirlo uno por uno si algo no cuadra.",
+        "Cada producto guarda su precio anterior, así que puedes corregirlo uno por uno si algo no cuadra.",
       textoAccion: "Ajustar precios",
     });
     if (!aceptado) return;
@@ -1155,10 +1155,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             <section aria-labelledby="titulo-ia-producto" className={styles.tarjetaIa}>
               <div className={styles.tarjetaIaCuerpo}>
                 <span className={styles.selloIa}>Herramienta con IA</span>
-                <h3 id="titulo-ia-producto">Completá los campos con una foto del producto</h3>
+                <h3 id="titulo-ia-producto">Completa los campos con una foto del producto</h3>
                 <ol className={styles.pasosIa}>
                   <li>
-                    <b>1</b> Sacás o elegís la foto del producto
+                    <b>1</b> Sacas o eliges la foto del producto
                   </li>
                   <li>
                     <b>2</b> Se completan el nombre y la descripción
@@ -1283,7 +1283,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               <Selector
                 ayuda={
                   datosIniciales.recursos.length === 0
-                    ? "Todavía no cargaste a nadie. Hacelo en Agenda."
+                    ? "Todavía no cargaste a nadie. Hazlo en Agenda."
                     : "Dos servicios de la misma persona no se pueden dar a la misma hora."
                 }
                 error={erroresFormulario.recurso_id}
@@ -1433,7 +1433,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             <section className={styles.imagenesFormulario} aria-labelledby="fotos-nuevo-producto">
               <div>
                 <h3 id="fotos-nuevo-producto">Fotografías</h3>
-                <p>Seleccioná hasta cuatro. Se optimizan antes de subirlas.</p>
+                <p>Selecciona hasta cuatro. Se optimizan antes de subirlas.</p>
               </div>
               <label className={styles.botonFoto}>
                 Seleccionar fotografías
@@ -1712,7 +1712,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                       <p className={styles.avisoAgenda}>
                         Los horarios se configuran en <Link href={RUTAS_PANEL.pedidos}>Pedidos y citas</Link>,
                         por cada persona o consultorio que atiende. Después, en cada servicio,
-                        elegís quién lo atiende.
+                        eliges quién lo atiende.
                       </p>
                     ) : null}
                     {categoriaActiva === categoria.id ? (
@@ -1808,7 +1808,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                       <span aria-hidden="true">⚠</span> Cambiar precios
                     </strong>
                     <small>
-                      Subí o bajá de una vez el precio de todo tu catálogo o de una categoría.
+                      Sube o baja de una vez el precio de todo tu catálogo o de una categoría.
                     </small>
                   </span>
                   <Icono className={styles.flechaAjuste} nombre="flechaArriba" />
@@ -1820,7 +1820,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                     creyendo que el domingo vuelven como estaban. */}
                 <p className={styles.avisoAjuste}>
                   <strong>Reescribe el precio guardado y no vence.</strong> No es una oferta:
-                  para un descuento con fecha, usá Promociones. Cada producto guarda su precio
+                  para un descuento con fecha, usa Promociones. Cada producto guarda su precio
                   anterior, así que se puede corregir uno por uno.
                 </p>
                 <div className={styles.controlesAjuste}>
@@ -1858,7 +1858,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   </Boton>
                 </div>
                 <p className={styles.ayudaAjuste}>
-                  Escribí <strong>10</strong> para subir un 10 % o <strong>-10</strong> para
+                  Escribe <strong>10</strong> para subir un 10 % o <strong>-10</strong> para
                   bajarlo. Ningún precio queda en cero.
                 </p>
                 </form>
@@ -1885,8 +1885,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 }
                 descripcion={
                   productos.length === 0
-                    ? "Empezá por el primero."
-                    : "Probá con otra palabra o quitá los filtros."
+                    ? "Empieza por el primero."
+                    : "Prueba con otra palabra o quita los filtros."
                 }
                 titulo={
                   productos.length === 0

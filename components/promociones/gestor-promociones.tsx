@@ -305,7 +305,7 @@ export function GestorPromociones({
             <p>Nueva oferta</p>
             <h2>Define el descuento</h2>
           </div>
-          <p>Podés pausarlo o borrarlo después sin cambiar el precio normal.</p>
+          <p>Puedes pausarlo o borrarlo después sin cambiar el precio normal.</p>
         </header>
 
         <div className={styles.campos}>
@@ -401,7 +401,7 @@ export function GestorPromociones({
         <fieldset className={styles.horario}>
           <legend>Solo a ciertas horas <span>Opcional</span></legend>
           <p>
-            Dejá todo vacío y el descuento vale siempre. Si el fin es menor que el
+            Deja todo vacío y el descuento vale siempre. Si el fin es menor que el
             inicio, la ventana cruza la medianoche: de 22:00 a 02:00 es una sola
             noche, y a la 01:00 sigue contando como el día que empezó.
           </p>
@@ -472,7 +472,7 @@ export function GestorPromociones({
         </header>
         {promociones.length === 0 ? (
           <EstadoVacio
-            descripcion="Usá el formulario de arriba para destacar tu primera oferta: la yapa que hace volver a tus caseros."
+            descripcion="Usa el formulario de arriba para destacar tu primera oferta: la yapa que hace volver a tus caseros."
             titulo="Todavía no creaste promociones"
           />
         ) : (

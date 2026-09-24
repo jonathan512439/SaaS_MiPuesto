@@ -20,9 +20,9 @@ export const AYUDA_LOGO =
   "Cuadrada, con 400 × 400 alcanza. Se muestra chica, del tamaño de una moneda: si tiene letras finas no se van a leer.";
 
 export const AYUDA_QR =
-  "Que el código ocupe casi toda la imagen, derecho y sin marco. Sacale la foto apoyado en una mesa, no en la mano.";
+  "Que el código ocupe casi toda la imagen, derecho y sin marco. Sácale la foto apoyado en una mesa, no en la mano.";
 
-export const AYUDA_FOTO_PRODUCTO = `Un producto por foto, de cerca y con buena luz. Se recorta cuadrada, así que centralo. Hasta ${MEGAS_MAXIMOS} MB; la achicamos sola a ${LADO_MAXIMO_IMAGEN} píxeles.`;
+export const AYUDA_FOTO_PRODUCTO = `Un producto por foto, de cerca y con buena luz. Se recorta cuadrada, así que céntralo. Hasta ${MEGAS_MAXIMOS} MB; la achicamos sola a ${LADO_MAXIMO_IMAGEN} píxeles.`;
 
 /* La ayuda de la categoría, el nombre y la descripción del producto dependen
    del rubro del negocio y viven en `catalogo/guias-por-rubro.ts`. */
@@ -33,4 +33,4 @@ export const AYUDA_SUBCATEGORIA =
 /* Desde la fase 13 cada talla, número o tamaño puede tener su propio precio,
    y eso se carga en el producto ya creado, no duplicándolo. */
 export const AYUDA_PRECIO =
-  "Solo el número, en bolivianos. Si cambia por talla o tamaño, después de crear el producto le agregás sus presentaciones, cada una con su precio.";
+  "Solo el número, en bolivianos. Si cambia por talla o tamaño, después de crear el producto le agregas sus presentaciones, cada una con su precio.";

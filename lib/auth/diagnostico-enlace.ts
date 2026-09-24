@@ -21,18 +21,18 @@ export function explicarFalloDeEnlace(tokens: TokensDeUrl): Diagnostico {
       return {
         titulo: "El enlace ya fue usado o venció",
         detalle:
-          "Si acabás de pedirlo y no lo abriste antes, es probable que el antivirus de tu correo lo haya visitado primero. Pedí uno nuevo y abrilo desde la lista de correos, sin tocar la vista previa.",
+          "Si acabas de pedirlo y no lo abriste antes, es probable que el antivirus de tu correo lo haya visitado primero. Pide uno nuevo y ábrelo desde la lista de correos, sin tocar la vista previa.",
       };
     }
     if (tokens.codigo === "access_denied") {
       return {
         titulo: "El enlace fue rechazado",
-        detalle: "Pedí uno nuevo. Si vuelve a pasar, avisanos con la hora exacta.",
+        detalle: "Pide uno nuevo. Si vuelve a pasar, avísanos con la hora exacta.",
       };
     }
     return {
       titulo: "El enlace llegó con un error",
-      detalle: tokens.mensaje || tokens.codigo || "Pedí uno nuevo desde Recuperar contraseña.",
+      detalle: tokens.mensaje || tokens.codigo || "Pide uno nuevo desde Recuperar contraseña.",
     };
   }
 
@@ -43,13 +43,13 @@ export function explicarFalloDeEnlace(tokens: TokensDeUrl): Diagnostico {
     return {
       titulo: "Entraste sin un enlace",
       detalle:
-        "Esta página se abre desde el enlace que te llega por correo. Pedí uno desde Recuperar contraseña.",
+        "Esta página se abre desde el enlace que te llega por correo. Pide uno desde Recuperar contraseña.",
     };
   }
 
   return {
     titulo: "No pudimos abrir la sesión",
     detalle:
-      "El enlace traía los datos pero el navegador no los aceptó. Probá con otro navegador o avisanos.",
+      "El enlace traía los datos pero el navegador no los aceptó. Prueba con otro navegador o avísanos.",
   };
 }

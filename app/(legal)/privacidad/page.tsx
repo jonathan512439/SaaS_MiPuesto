@@ -22,7 +22,7 @@ export default function PaginaPrivacidad() {
         <h2>Quiénes somos</h2>
         <p>
           MiPuesto es un servicio boliviano que permite a un negocio publicar su catálogo
-          y recibir pedidos por WhatsApp. Lo desarrolla y opera JC-DEV. Podés escribirnos
+          y recibir pedidos por WhatsApp. Lo desarrolla y opera JC-DEV. Puedes escribirnos
           al {WHATSAPP_MIPUESTO.slice(3)} por cualquier consulta sobre tus datos.
         </p>
       </section>
@@ -30,9 +30,9 @@ export default function PaginaPrivacidad() {
       <section className={styles.seccion}>
         <h2>Datos del negocio que contrata</h2>
         <p>
-          Para abrir tu cuenta guardamos tu correo electrónico y los datos que cargás de
+          Para abrir tu cuenta guardamos tu correo electrónico y los datos que cargas de
           tu negocio: nombre, descripción, rubro, horario, teléfono de WhatsApp, enlaces
-          a tus redes, tu logotipo y tu código QR de cobro si lo subís.
+          a tus redes, tu logotipo y tu código QR de cobro si lo subes.
         </p>
         <p>
           Tu contraseña no la guardamos ni la vemos. La administra Supabase, el
@@ -70,14 +70,14 @@ export default function PaginaPrivacidad() {
           Tu panel trae dos herramientas que leen una fotografía y proponen texto: una
           completa el nombre y la descripción de un producto a partir de su foto, y la
           otra arma un borrador de catálogo a partir de la foto de una lista de precios.{" "}
-          <strong>Solo se usan si vos las usás</strong>: si nunca elegís una foto para
+          <strong>Solo se usan si vos las usas</strong>: si nunca eliges una foto para
           leer, nada de lo que sigue te afecta.
         </p>
         <p>
-          Nunca se envía nada solo. Vos elegís cada fotografía, una por una, y hasta que
-          no la elegís no sale de tu dispositivo.
+          Nunca se envía nada solo. Vos eliges cada fotografía, una por una, y hasta que
+          no la eliges no sale de tu dispositivo.
         </p>
-        <p>Cuando la elegís, esa fotografía se envía a Google, que es quien la lee.</p>
+        <p>Cuando la eliges, esa fotografía se envía a Google, que es quien la lee.</p>
         <p><strong>Lo que se envía es únicamente esa fotografía.</strong> No se envía:</p>
         <ul>
           <li>El nombre, el teléfono ni los pedidos de quienes te compran.</li>
@@ -87,7 +87,7 @@ export default function PaginaPrivacidad() {
         <p>
           Google devuelve un texto propuesto y ahí termina su participación: la foto no se
           publica en ningún lado por su cuenta, y el texto no se guarda en tu catálogo
-          hasta que vos lo revisás y lo aceptás.
+          hasta que vos lo revisas y lo aceptas.
         </p>
         <p>
           <strong>Hoy usamos el nivel gratuito de Google.</strong> En ese nivel, Google
@@ -100,8 +100,8 @@ export default function PaginaPrivacidad() {
           <strong>Algo que queremos que sepas y no está escondido acá abajo:</strong> las
           condiciones con las que ese proveedor trata lo que se le envía son suyas y
           pueden cambiar. Si cambian de una forma que te afecte, actualizamos esta página
-          y te avisamos. Y si preferís que tus listas de precios no salgan de acá, pedinos
-          que te apaguemos las herramientas y seguís cargando a mano, sin ningún cargo ni
+          y te avisamos. Y si prefieres que tus listas de precios no salgan de acá, pídenos
+          que te apaguemos las herramientas y sigues cargando a mano, sin ningún cargo ni
           penalidad.
         </p>
         <p>
@@ -109,7 +109,7 @@ export default function PaginaPrivacidad() {
           de las dos herramientas fue y el tamaño del pedido.{" "}
           <strong>No guardamos la fotografía en ese registro</strong>, y lo borramos a los
           treinta días. La foto sí queda guardada como imagen de tu producto, igual que
-          cualquier otra que subas, si decidís usarla.
+          cualquier otra que subas, si decides usarla.
         </p>
       </section>
 
@@ -128,7 +128,7 @@ export default function PaginaPrivacidad() {
         <p>
           La información se almacena en <strong>Supabase</strong> y el sitio se sirve
           desde <strong>Cloudflare</strong>, ambos proveedores de infraestructura con
-          servidores fuera de Bolivia. Si usás las herramientas que leen fotos, las
+          servidores fuera de Bolivia. Si usas las herramientas que leen fotos, las
           fotografías que elijas para eso pasan además por{" "}
           <strong>Google</strong>, también fuera de Bolivia, como se explica más arriba.
         </p>
@@ -144,12 +144,12 @@ export default function PaginaPrivacidad() {
           Mientras tu cuenta esté activa, conservamos tu catálogo y tus pedidos.
         </p>
         <p>
-          Si dejás de pagar, tu catálogo deja de publicarse y tus datos te esperan en el
+          Si dejas de pagar, tu catálogo deja de publicarse y tus datos te esperan en el
           panel durante <strong>noventa días</strong>. Pasado ese plazo podemos borrarlos,
           y te avisamos antes por WhatsApp.
         </p>
         <p>
-          Si pedís que borremos tu cuenta, eliminamos tu negocio, tus productos, tus
+          Si pides que borremos tu cuenta, eliminamos tu negocio, tus productos, tus
           imágenes y los pedidos asociados dentro de los treinta días siguientes.
         </p>
         <p>
@@ -168,12 +168,12 @@ export default function PaginaPrivacidad() {
       <section className={styles.seccion}>
         <h2>Tus derechos</h2>
         <p>
-          Podés pedirnos en cualquier momento una copia de tus datos, la corrección de un
-          dato equivocado o el borrado completo de tu cuenta. Escribinos y lo resolvemos.
+          Puedes pedirnos en cualquier momento una copia de tus datos, la corrección de un
+          dato equivocado o el borrado completo de tu cuenta. Escríbenos y lo resolvemos.
         </p>
         <p>
-          Si le hiciste un pedido o reservaste un turno a un negocio de MiPuesto y querés
-          que borremos tu nombre y tu teléfono antes de los seis meses, escribinos desde
+          Si le hiciste un pedido o reservaste un turno a un negocio de MiPuesto y quieres
+          que borremos tu nombre y tu teléfono antes de los seis meses, escríbenos desde
           ese número. Los borramos en todos los negocios.
         </p>
         <a

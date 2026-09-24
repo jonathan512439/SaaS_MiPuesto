@@ -42,7 +42,7 @@ export function normalizarUbicacion(valor: unknown) {
   if (url === undefined) {
     return {
       correcto: false as const,
-      error: "Pegá un enlace HTTPS válido de hasta 300 caracteres.",
+      error: "Pega un enlace HTTPS válido de hasta 300 caracteres.",
     };
   }
   return { correcto: true as const, ubicacion: url };
@@ -56,7 +56,7 @@ export function normalizarResenas(valor: unknown) {
   if (url === undefined) {
     return {
       correcto: false as const,
-      error: "Pegá el enlace HTTPS de tu ficha en Google, de hasta 300 caracteres.",
+      error: "Pega el enlace HTTPS de tu ficha en Google, de hasta 300 caracteres.",
     };
   }
   return { correcto: true as const, resenas: url };
@@ -73,7 +73,7 @@ export function normalizarRedesSociales(valor: unknown) {
   for (const campo of CAMPOS_REDES) {
     const url = normalizarUrl(entrada[campo]);
     if (url === undefined) {
-      errores[campo] = "Escribí un enlace HTTPS válido de hasta 300 caracteres.";
+      errores[campo] = "Escribe un enlace HTTPS válido de hasta 300 caracteres.";
     } else if (url) {
       redes[campo] = url;
     }

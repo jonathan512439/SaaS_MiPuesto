@@ -1,6 +1,6 @@
 /* GENERADO por scripts/armar-iconos.mjs. No se edita a mano.
 
-   Para agregar un ícono: sumalo a la lista de ese script y volvé a correrlo con
+   Para agregar un ícono: sumalo a la lista de ese script y vuelve a correrlo con
    `npm run iconos`. Los trazos vienen de Lucide (licencia ISC) y se guardan
    acá para no depender de la librería en producción.
 

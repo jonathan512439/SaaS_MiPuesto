@@ -44,9 +44,9 @@ const GARANTIAS = ["Primer mes gratis", "Sin comisión por venta", "Sin contrato
 
 /* Una secuencia de verdad: lo que pasa, en orden, hasta el primer pedido. */
 const PASOS = [
-  { titulo: "Sacale foto a tu lista", detalle: "O cargá producto por producto." },
-  { titulo: "Compartí tu enlace", detalle: "En tu estado, tus redes y tu mostrador." },
-  { titulo: "Recibí el pedido", detalle: "Con el detalle y el total, en tu WhatsApp." },
+  { titulo: "Sácale foto a tu lista", detalle: "O carga producto por producto." },
+  { titulo: "Comparte tu enlace", detalle: "En tu estado, tus redes y tu mostrador." },
+  { titulo: "Recibe el pedido", detalle: "Con el detalle y el total, en tu WhatsApp." },
 ];
 
 /* La lista escrita a mano que se vuelve catálogo: el ejemplo del primer paso. */
@@ -64,7 +64,7 @@ const PREGUNTAS = [
   {
     pregunta: "¿Y el catálogo de WhatsApp Business, que es gratis?",
     respuesta:
-      "Sirve para pocos productos. Acá tenés dirección propia, QR, buscador, carrito con el total y promociones con fecha. La venta se sigue cerrando en tu WhatsApp.",
+      "Sirve para pocos productos. Acá tienes dirección propia, QR, buscador, carrito con el total y promociones con fecha. La venta se sigue cerrando en tu WhatsApp.",
   },
   {
     pregunta: "¿La tarjeta de acrílico incluye el catálogo?",
@@ -125,7 +125,7 @@ export default function Inicio() {
               </p>
               <div className={styles.acciones}>
                 <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
-                  Probalo gratis un mes
+                  Pruébalo gratis un mes
                 </a>
                 <Link className={styles.botonContorno} href="/directorio">
                   Ver negocios reales
@@ -202,7 +202,7 @@ export default function Inicio() {
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
               <h2 id="asi-se-ve">Así lo ve tu cliente</h2>
-              <p>Tocá tu rubro. No es una captura: es el catálogo de verdad.</p>
+              <p>Toca tu rubro. No es una captura: es el catálogo de verdad.</p>
             </div>
             <MuestraPlantillas />
           </div>
@@ -339,7 +339,7 @@ export default function Inicio() {
               </article>
             </div>
             <p className={styles.iaNota}>
-              Revisás todo antes de publicar y el precio lo ponés vos.{" "}
+              Revisas todo antes de publicar y el precio lo pones vos.{" "}
               <strong>
                 {LECTURAS.catalogo} fotos al mes en Catálogo, {LECTURAS.activo} en Catálogo Activo.
               </strong>
@@ -351,8 +351,8 @@ export default function Inicio() {
         <section aria-labelledby="te-encuentran" className={styles.encontrar}>
           <div className={styles.encontrarContenido}>
             <div className={styles.encabezadoNoche}>
-              <h2 id="te-encuentran">Y te encuentran por lo que vendés</h2>
-              <p>Todos los catálogos aparecen en el directorio. Probá buscar algo:</p>
+              <h2 id="te-encuentran">Y te encuentran por lo que vendes</h2>
+              <p>Todos los catálogos aparecen en el directorio. Prueba buscar algo:</p>
             </div>
             <BuscadorVivo ejemplos={EJEMPLOS_DE_BUSQUEDA} tamano="grande" />
             <ul className={styles.atajos}>
@@ -418,7 +418,7 @@ export default function Inicio() {
                   </span>
                   <div>
                     <p className={styles.extraNombre}>Te cargamos el catálogo</p>
-                    <p>Nos mandás tu lista, hasta {CARGA_INICIAL.productosMaximos} productos.</p>
+                    <p>Nos mandas tu lista, hasta {CARGA_INICIAL.productosMaximos} productos.</p>
                   </div>
                   <p className={styles.extraPrecio}>
                     Bs {CARGA_INICIAL.precioBs}
@@ -468,7 +468,7 @@ export default function Inicio() {
                 <li>
                   <Icono nombre="estrella" />
                   <span>
-                    <strong>Te califican en Google Maps</strong> y aparecés más arriba.
+                    <strong>Te califican en Google Maps</strong> y apareces más arriba.
                   </span>
                 </li>
                 <li>
@@ -495,10 +495,10 @@ export default function Inicio() {
               <div className={styles.acrilicoPlaca}>
                 <div className={styles.impreso}>
                   <p className={styles.impresoNegocio}>Tu negocio</p>
-                  <p className={styles.impresoLlamada}>Mirá nuestro catálogo</p>
+                  <p className={styles.impresoLlamada}>Mira nuestro catálogo</p>
                   <div className={styles.impresoQr} dangerouslySetInnerHTML={{ __html: qrDirectorio }} />
                   <p className={styles.impresoNfc}>
-                    <Icono nombre="nfc" />o acercá tu celular
+                    <Icono nombre="nfc" />o acerca tu celular
                   </p>
                   <div className={styles.impresoGoogle}>
                     <Icono nombre="mapa" />
@@ -510,7 +510,7 @@ export default function Inicio() {
                         <Icono nombre="estrella" />
                         <Icono nombre="estrella" />
                       </span>
-                      Calificanos en Google Maps
+                      Califícanos en Google Maps
                     </span>
                   </div>
                   <p className={styles.impresoMarca}>
@@ -520,7 +520,7 @@ export default function Inicio() {
                 </div>
               </div>
               <div aria-hidden="true" className={styles.acrilicoBase} />
-              <figcaption>Escaneá este QR: abre catálogos de negocios reales.</figcaption>
+              <figcaption>Escanea este QR: abre catálogos de negocios reales.</figcaption>
             </figure>
           </div>
         </section>
@@ -547,16 +547,16 @@ export default function Inicio() {
           <div className={styles.cierreContenido}>
             <Isotipo className={styles.isotipoCierre} titulo="MiPuesto" />
             <h2 id="cierre">Tu primer mes corre por nuestra cuenta</h2>
-            <p>Escribinos y lo armamos juntos. Si no te convence, no pagás nada.</p>
+            <p>Escríbenos y lo armamos juntos. Si no te convence, no pagas nada.</p>
             <a className={styles.botonNoche} href={enlaceAlta} rel="noreferrer" target="_blank">
-              Probalo gratis un mes
+              Pruébalo gratis un mes
             </a>
           </div>
         </section>
 
         <div className={styles.accionFija}>
           <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
-            Probalo gratis un mes
+            Pruébalo gratis un mes
           </a>
         </div>
       </main>

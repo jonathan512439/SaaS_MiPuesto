@@ -24,10 +24,10 @@ export type ResultadoVerificacion =
   | { permitido: true; verificado: boolean }
   | { permitido: false; motivo: string };
 
-/* Lo que ve quien pidió si la verificación falla. No dice «sos un robot»: la
+/* Lo que ve quien pidió si la verificación falla. No dice «eres un robot»: la
    causa más común es un token que venció porque la página quedó abierta. */
 export const MENSAJE_VERIFICACION_FALLIDA =
-  "No pudimos comprobar el envío. Volvé a intentarlo; si sigue pasando, recargá la página.";
+  "No pudimos comprobar el envío. Vuelve a intentarlo; si sigue pasando, recarga la página.";
 
 /* Cómo se aplica: `exigir` rechaza lo que no pasa; `observar` verifica y anota,
    pero deja pasar. Se arrancó observando porque el camino de una persona real
@@ -111,7 +111,7 @@ export async function verificarTurnstile(
      durante días sería no tener verificación. */
   const codigos = datos["error-codes"] ?? [];
   if (codigos.includes("invalid-input-secret") || codigos.includes("missing-input-secret")) {
-    console.error("Turnstile rechazó la clave secreta: revisá TURNSTILE_SECRET_KEY.");
+    console.error("Turnstile rechazó la clave secreta: revisa TURNSTILE_SECRET_KEY.");
   }
   return { permitido: false, motivo: codigos.join(",") || "rechazado" };
 }

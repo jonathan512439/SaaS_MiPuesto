@@ -21,7 +21,7 @@ import { Boton, Selector, useAvisos } from "../ui";
 import { MapaPin } from "./mapa-pin";
 import styles from "./que-vendes-y-donde.module.css";
 
-/* «Qué vendés y dónde». Fase 11.
+/* «Qué vendes y dónde». Fase 11.
  *
  * Un solo formulario para dos lugares: el paso 2 del alta y «Mi negocio». Así
  * no pueden preguntar cosas distintas, y el dueño reconoce la pantalla la
@@ -29,7 +29,7 @@ import styles from "./que-vendes-y-donde.module.css";
  *
  * Tres preguntas, en el orden en que un comerciante las contesta:
  *
- * 1. **Qué vendés**, en sus palabras, y hasta dos cosas más.
+ * 1. **Qué vendes**, en sus palabras, y hasta dos cosas más.
  * 2. **Si quiere que lo encuentren** en el buscador. Obligatoria y sin respuesta
  *    marcada: es su decisión, no la nuestra.
  * 3. **Dónde está**, solo si dijo que sí: ciudad y un pin. El pin arranca en el
@@ -129,7 +129,7 @@ export function QueVendesYDonde({
         mensaje:
           causa instanceof Error && causa.message
             ? causa.message
-            : "Marcá tu local tocando el mapa.",
+            : "Marca tu local tocando el mapa.",
         variante: "error",
       });
     } finally {
@@ -141,7 +141,7 @@ export function QueVendesYDonde({
     if (!("geolocation" in navigator)) {
       mostrarAviso({
         titulo: "Tu teléfono no comparte la ubicación",
-        mensaje: "Marcá tu local tocando el mapa.",
+        mensaje: "Marca tu local tocando el mapa.",
         variante: "error",
       });
       return;
@@ -158,15 +158,15 @@ export function QueVendesYDonde({
            mandaba a revisar un permiso que a veces estaba bien. */
         const mensajes: Record<number, string> = {
           [problema.PERMISSION_DENIED]:
-            "Le negaste el permiso al navegador. Para darlo, tocá el candado junto a la dirección y permití la ubicación. O marcá tu local tocando el mapa.",
+            "Le negaste el permiso al navegador. Para darlo, toca el candado junto a la dirección y permite la ubicación. O marca tu local tocando el mapa.",
           [problema.POSITION_UNAVAILABLE]:
-            "Tu equipo no sabe dónde está: revisá que la ubicación del teléfono esté encendida. O marcá tu local tocando el mapa.",
+            "Tu equipo no sabe dónde está: revisa que la ubicación del teléfono esté encendida. O marca tu local tocando el mapa.",
           [problema.TIMEOUT]:
-            "Tardó demasiado en encontrarte. Probá de nuevo al aire libre, o marcá tu local tocando el mapa.",
+            "Tardó demasiado en encontrarte. Prueba de nuevo al aire libre, o marca tu local tocando el mapa.",
         };
         mostrarAviso({
           titulo: "No pudimos saber dónde estás",
-          mensaje: mensajes[problema.code] ?? "Marcá tu local tocando el mapa.",
+          mensaje: mensajes[problema.code] ?? "Marca tu local tocando el mapa.",
           variante: "error",
         });
       },
@@ -219,7 +219,7 @@ export function QueVendesYDonde({
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo guardar",
-        mensaje: causa instanceof Error ? causa.message : "Intentá de nuevo.",
+        mensaje: causa instanceof Error ? causa.message : "Intenta de nuevo.",
         variante: "error",
       });
     } finally {
@@ -245,20 +245,20 @@ export function QueVendesYDonde({
 
   return (
     <form className={styles.formulario} onSubmit={guardar}>
-      {/* 1 · Qué vendés */}
+      {/* 1 · Qué vendes */}
       <div className={styles.bloque}>
         {/* Elegido, queda a la vista y apagado: el dueño ve cuál tiene, y el
             cómo se cambia está al lado, no en una pantalla de ayuda. */}
         <Selector
           disabled={rubroFijo}
           error={errores.rubro_publico}
-          etiqueta="¿Qué vendés?"
+          etiqueta="¿Qué vendes?"
           id="rubro-publico"
           onChange={(evento) => setRubroPublico(evento.target.value)}
           required
           value={rubroPublico}
         >
-          {opcionesRubro("Elegí uno")}
+          {opcionesRubro("Elige uno")}
         </Selector>
         {rubroFijo ? (
           <p className={styles.nota}>
@@ -268,14 +268,14 @@ export function QueVendesYDonde({
               rel="noreferrer"
               target="_blank"
             >
-              Escribinos para cambiarlo
+              Escríbenos para cambiarlo
             </a>
             .
           </p>
         ) : null}
 
         <details className={styles.tambien} open={secundarios.some(Boolean)}>
-          <summary>¿También vendés otra cosa? (opcional)</summary>
+          <summary>¿También vendes otra cosa? (opcional)</summary>
           <p>Hasta {MAXIMO_RUBROS_SECUNDARIOS} más, para que te encuentren también por eso.</p>
           {secundarios.map((valor, indice) => (
             <Selector
@@ -311,9 +311,9 @@ export function QueVendesYDonde({
 
       {/* 2 · Si quiere que lo encuentren */}
       <fieldset className={styles.bloque}>
-        <legend className={styles.pregunta}>¿Querés que te encuentren en el buscador de MiPuesto?</legend>
+        <legend className={styles.pregunta}>¿Quieres que te encuentren en el buscador de MiPuesto?</legend>
         <p className={styles.explicacion}>
-          Si alguien busca en MiPuesto algo que vendés —por ejemplo, «juguetes en Oruro»— puede
+          Si alguien busca en MiPuesto algo que vendes —por ejemplo, «juguetes en Oruro»— puede
           encontrar tu catálogo. Para eso necesitamos tu ciudad y dónde está tu local.{" "}
           <strong>Tu dirección exacta no se publica: se muestra solo tu zona.</strong>
         </p>
@@ -347,7 +347,7 @@ export function QueVendesYDonde({
           <strong className={styles.error}>{errores.aparece_en_directorio}</strong>
         ) : null}
         {aparece === false ? (
-          <p className={styles.nota}>Podés cambiarlo cuando quieras en «Mi negocio».</p>
+          <p className={styles.nota}>Puedes cambiarlo cuando quieras en «Mi negocio».</p>
         ) : null}
       </fieldset>
 
@@ -365,7 +365,7 @@ export function QueVendesYDonde({
             required
             value={ciudad}
           >
-            <option value="">Elegí tu ciudad</option>
+            <option value="">Elige tu ciudad</option>
             {CIUDADES.map((id) => (
               <option key={id} value={id}>
                 {NOMBRES_CIUDADES[id]}
@@ -376,7 +376,7 @@ export function QueVendesYDonde({
           <div className={styles.ubicacion}>
             <p className={styles.pregunta}>¿Dónde está tu local?</p>
             <p className={styles.explicacion}>
-              Tocá el mapa donde está tu puerta, o arrastrá el pin.
+              Toca el mapa donde está tu puerta, o arrastra el pin.
             </p>
             <div className={styles.atajos}>
               <Boton disabled={buscandoPunto} onClick={usarMiUbicacion} type="button" variante="secundario">
@@ -406,7 +406,7 @@ export function QueVendesYDonde({
             <div className={styles.zona}>
               {zonaDelPin && !zonaAMano ? (
                 <p className={styles.zonaDetectada}>
-                  Tu local queda en <strong>{zonaDelPin.nombre}</strong>. Si no es así, elegí la tuya.
+                  Tu local queda en <strong>{zonaDelPin.nombre}</strong>. Si no es así, elige la tuya.
                 </p>
               ) : null}
               <Selector
@@ -420,7 +420,7 @@ export function QueVendesYDonde({
                 value={zonaEfectiva}
               >
                 <option value="">
-                  {zonasDeLaCiudad.length === 0 ? "Todavía no cargamos zonas de tu ciudad" : "Elegí tu zona"}
+                  {zonasDeLaCiudad.length === 0 ? "Todavía no cargamos zonas de tu ciudad" : "Elige tu zona"}
                 </option>
                 {zonasDeLaCiudad.map((zona) => (
                   <option key={zona.id} value={zona.id}>

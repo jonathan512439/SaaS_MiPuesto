@@ -80,7 +80,7 @@ export const PLANES: readonly Plan[] = [
       "Todo lo del plan Catálogo",
       "Herramientas de IA: una foto de tu lista de precios se vuelve productos cargados",
       `60 lecturas de foto al mes, hasta ${topeDiario(60)} por día`,
-      "Prioridad cuando escribís por WhatsApp",
+      "Prioridad cuando escribes por WhatsApp",
     ],
   },
 ];

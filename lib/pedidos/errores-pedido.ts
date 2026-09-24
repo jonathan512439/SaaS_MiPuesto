@@ -19,25 +19,25 @@ export const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }>
   },
   PRODUCTO_NO_DISPONIBLE: {
     estado: 409,
-    mensaje: "Uno de los productos ya no está disponible. Actualizá el catálogo.",
+    mensaje: "Uno de los productos ya no está disponible. Actualiza el catálogo.",
   },
   /* Fase 13. Llegan cuando el catálogo que tiene abierto el comprador es
      anterior a un cambio del dueño: una talla nueva, una que se ocultó. */
   PRESENTACION_REQUERIDA: {
     estado: 409,
-    mensaje: "Elegí la talla, el número o el tamaño de cada producto antes de enviar el pedido.",
+    mensaje: "Elige la talla, el número o el tamaño de cada producto antes de enviar el pedido.",
   },
   PRESENTACION_NO_DISPONIBLE: {
     estado: 409,
-    mensaje: "Una de las opciones que elegiste ya no está disponible. Actualizá el catálogo.",
+    mensaje: "Una de las opciones que elegiste ya no está disponible. Actualiza el catálogo.",
   },
   STOCK_INSUFICIENTE: {
     estado: 409,
-    mensaje: "Cambió la cantidad disponible. Revisá tu pedido e intentá nuevamente.",
+    mensaje: "Cambió la cantidad disponible. Revisa tu pedido e intenta nuevamente.",
   },
   LIMITE_PEDIDOS: {
     estado: 429,
-    mensaje: "Llegaste al límite temporal de pedidos. Intentá nuevamente en 15 minutos.",
+    mensaje: "Llegaste al límite temporal de pedidos. Intenta nuevamente en 15 minutos.",
   },
   /* Solo por largo: el nombre es opcional. Hasta el 2026-09-24 faltaba acá, y
      un nombre de más terminaba en el 500 genérico. */
@@ -49,11 +49,11 @@ export const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }>
      de rango. Con el carrito normal no pasa; si pasa, recargar lo arregla. */
   PEDIDO_INVALIDO: {
     estado: 400,
-    mensaje: "No pudimos leer tu pedido. Recargá la página e intentalo de nuevo.",
+    mensaje: "No pudimos leer tu pedido. Recarga la página e inténtalo de nuevo.",
   },
   TELEFONO_INVALIDO: {
     estado: 400,
-    mensaje: "Escribí un celular boliviano válido de 8 dígitos.",
+    mensaje: "Escribe un celular boliviano válido de 8 dígitos.",
   },
   MESA_NO_PERMITIDA: {
     estado: 400,
@@ -67,7 +67,7 @@ export const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }>
 
 const ERROR_DESCONOCIDO = {
   estado: 500,
-  mensaje: "No se pudo reservar el pedido. Intentá nuevamente.",
+  mensaje: "No se pudo reservar el pedido. Intenta nuevamente.",
 };
 
 export function responderErrorPedido(mensajeDeLaBase: string): { estado: number; mensaje: string } {

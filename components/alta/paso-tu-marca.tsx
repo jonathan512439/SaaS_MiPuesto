@@ -77,7 +77,7 @@ export function PasoTuMarca({
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo subir el logo",
-        mensaje: causa instanceof Error ? causa.message : "Intentá con otra imagen.",
+        mensaje: causa instanceof Error ? causa.message : "Intenta con otra imagen.",
         variante: "error",
       });
     } finally {
@@ -120,7 +120,7 @@ export function PasoTuMarca({
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo guardar",
-        mensaje: causa instanceof Error ? causa.message : "Intentá de nuevo.",
+        mensaje: causa instanceof Error ? causa.message : "Intenta de nuevo.",
         variante: "error",
       });
     } finally {
@@ -133,7 +133,7 @@ export function PasoTuMarca({
       <div className={styles.paso}>
         <div className={styles.titulo}>
           <h2>Tu marca</h2>
-          <p>Mirá a la derecha: lo que cambies acá se ve al instante.</p>
+          <p>Mira a la derecha: lo que cambies acá se ve al instante.</p>
         </div>
 
         <label className={styles.campoArchivo} htmlFor="logo-alta">
@@ -154,7 +154,7 @@ export function PasoTuMarca({
               type="file"
             />
           </div>
-          <small>{subiendo ? "Subiendo…" : "Podés cargarlo después, en Apariencia."}</small>
+          <small>{subiendo ? "Subiendo…" : "Puedes cargarlo después, en Apariencia."}</small>
         </label>
 
         <Campo

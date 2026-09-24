@@ -289,7 +289,7 @@ export function CatalogoInteractivo({
           <>
           {totalProductos === 0 && filtros.busqueda.trim() ? (
             <p className={styles.sinResultados} role="status">
-              No encontramos «{filtros.busqueda.trim()}». Probá con otra palabra o mirá todo
+              No encontramos «{filtros.busqueda.trim()}». Prueba con otra palabra o mira todo
               el catálogo.
             </p>
           ) : null}

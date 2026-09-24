@@ -70,13 +70,13 @@ export function validarIdentidadCategoria(datos: {
   const errores: Record<string, string> = {};
 
   if (datos.icono !== undefined && !esIconoCatalogo(datos.icono)) {
-    errores.icono = "Elegí un ícono de la lista.";
+    errores.icono = "Elige un ícono de la lista.";
   }
   if (datos.visible !== undefined && typeof datos.visible !== "boolean") {
-    errores.visible = "Indicá si la categoría se muestra o no.";
+    errores.visible = "Indica si la categoría se muestra o no.";
   }
   if (datos.vende !== undefined && !esFormaDeVender(datos.vende)) {
-    errores.vende = "Indicá si esta categoría vende cosas o tiempo.";
+    errores.vende = "Indica si esta categoría vende cosas o tiempo.";
   }
 
   return Object.keys(errores).length > 0 ? { correcto: false, errores } : { correcto: true };

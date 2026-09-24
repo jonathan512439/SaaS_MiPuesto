@@ -61,8 +61,8 @@ export async function POST(solicitud: NextRequest) {
       {
         error:
           lectura.motivo === "tardo_demasiado"
-            ? "La lectura tardó demasiado. Probá con una foto más liviana."
-            : "No pudimos leer la fotografía. Probá de nuevo en un momento.",
+            ? "La lectura tardó demasiado. Prueba con una foto más liviana."
+            : "No pudimos leer la fotografía. Prueba de nuevo en un momento.",
       },
       { status: 503 },
     );
@@ -77,7 +77,7 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "No reconocimos el producto en esa foto. Probá con una más cercana y con buena luz.",
+          "No reconocimos el producto en esa foto. Prueba con una más cercana y con buena luz.",
       },
       { status: 422 },
     );

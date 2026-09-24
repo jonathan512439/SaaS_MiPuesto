@@ -43,7 +43,7 @@ export async function POST(solicitud: NextRequest) {
       ? ((entrada as Record<string, unknown>).correo as string).trim().toLowerCase()
       : "";
   if (!PATRON_CORREO.test(correo) || correo.length > 200) {
-    return NextResponse.json({ error: "Escribí un correo válido." }, { status: 400 });
+    return NextResponse.json({ error: "Escribe un correo válido." }, { status: 400 });
   }
 
   let admin;

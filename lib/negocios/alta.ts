@@ -18,7 +18,7 @@ export const PASOS_ALTA = [
   {
     numero: 1,
     id: "quien-sos",
-    titulo: "Quién sos",
+    titulo: "Quién eres",
     /* Se pide el nombre de la persona y el del negocio. El slug se calcula y se
        confirma acá: es la dirección que va a repartir, y cambiarla después deja
        muertos los códigos QR ya impresos. */
@@ -27,7 +27,7 @@ export const PASOS_ALTA = [
   {
     numero: 2,
     id: "que-vendes",
-    titulo: "Qué vendés y dónde",
+    titulo: "Qué vendes y dónde",
     ruta: "/alta/que-vendes",
   },
   {
@@ -146,7 +146,7 @@ export function faltantesParaPublicar(situacion: SituacionDelNegocio): Faltante[
   if (situacion.apareceEnDirectorio === null) {
     faltantes.push({
       clave: "directorio",
-      titulo: "Decidí si querés que te encuentren en el buscador de MiPuesto",
+      titulo: "Decide si quieres que te encuentren en el buscador de MiPuesto",
       ruta: RUTAS_PANEL.negocio,
       impide: false,
     });

@@ -37,7 +37,7 @@ export async function POST(solicitud: NextRequest) {
   const datos = entrada.datos as Record<string, unknown>;
 
   if (!esUuid(datos.recursoId)) {
-    return NextResponse.json({ error: "Elegí quién atiende." }, { status: 400 });
+    return NextResponse.json({ error: "Elige quién atiende." }, { status: 400 });
   }
   const { data: recurso } = await contexto.supabase
     .from("recursos")
@@ -51,7 +51,7 @@ export async function POST(solicitud: NextRequest) {
 
   const inicio = new Date(typeof datos.inicio === "string" ? datos.inicio : "");
   if (Number.isNaN(inicio.getTime())) {
-    return NextResponse.json({ error: "Elegí el día y la hora." }, { status: 400 });
+    return NextResponse.json({ error: "Elige el día y la hora." }, { status: 400 });
   }
   /* Un servicio dura hasta ocho horas; un bloqueo puede durar el día entero.
      Son cosas distintas y por eso el tope no es el mismo: «ocho horas» existe
@@ -84,14 +84,14 @@ export async function POST(solicitud: NextRequest) {
      «Banco»—. El teléfono se acepta si viene y se normaliza como en el catálogo. */
   const nombre = textoLimpio(datos.nombre, 80);
   if (nombre === "") {
-    return NextResponse.json({ error: "Escribí un nombre o el motivo del bloqueo." }, { status: 400 });
+    return NextResponse.json({ error: "Escribe un nombre o el motivo del bloqueo." }, { status: 400 });
   }
   let telefono: string | null = null;
   const telefonoCrudo = textoLimpio(datos.telefono, 20).replace(/\D/g, "");
   if (telefonoCrudo !== "") {
     telefono = telefonoCrudo.length === 8 ? `591${telefonoCrudo}` : telefonoCrudo;
     if (!/^591[67]\d{7}$/.test(telefono)) {
-      return NextResponse.json({ error: "El WhatsApp no es válido. Dejalo vacío si no lo tenés." }, { status: 400 });
+      return NextResponse.json({ error: "El WhatsApp no es válido. Déjalo vacío si no lo tienes." }, { status: 400 });
     }
   }
 
@@ -201,7 +201,7 @@ function explicarRegla(mensaje: string): string {
   const conocida = REGLAS.find(({ restriccion }) => mensaje.includes(restriccion));
   return (
     conocida?.explicacion ??
-    "La base no aceptó el turno. Revisá la fecha, la hora y la duración."
+    "La base no aceptó el turno. Revisa la fecha, la hora y la duración."
   );
 }
 
@@ -225,7 +225,7 @@ export async function PATCH(solicitud: NextRequest) {
 
   if (datos.estado !== undefined) {
     if (typeof datos.estado !== "string" || !(ESTADOS as readonly string[]).includes(datos.estado)) {
-      return NextResponse.json({ error: "Indicá qué hacer con el turno." }, { status: 400 });
+      return NextResponse.json({ error: "Indica qué hacer con el turno." }, { status: 400 });
     }
     cambios.estado = datos.estado;
     /* La cancelación lleva su marca de tiempo porque la base la exige: sin ella

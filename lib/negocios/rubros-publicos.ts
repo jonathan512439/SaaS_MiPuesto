@@ -97,7 +97,7 @@ export function rubroQuedoFijo(rubroPublicoActual: string | null | undefined): b
 }
 
 export const MENSAJE_RUBRO_FIJO =
-  "Tu rubro quedó fijo al crear tu catálogo. Para cambiarlo, escribinos por WhatsApp.";
+  "Tu rubro quedó fijo al crear tu catálogo. Para cambiarlo, escríbenos por WhatsApp.";
 
 /* Cuántos rubros más puede declarar, aparte del principal. Dos y no más: con
    más, todos marcan todo y el filtro deja de filtrar. */
@@ -138,7 +138,7 @@ export function leerRubrosSecundarios(
     return { correcto: false, error: "Uno de los rubros extra no existe." };
   }
   if (secundarios.length > MAXIMO_RUBROS_SECUNDARIOS) {
-    return { correcto: false, error: `Podés sumar hasta ${MAXIMO_RUBROS_SECUNDARIOS} rubros extra.` };
+    return { correcto: false, error: `Puedes sumar hasta ${MAXIMO_RUBROS_SECUNDARIOS} rubros extra.` };
   }
   return { correcto: true, secundarios };
 }

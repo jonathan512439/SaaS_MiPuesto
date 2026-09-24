@@ -92,7 +92,7 @@ export function CambioDeRubro({ negocioId, nombre, rubroActual }: Propiedades) {
     } catch (motivo) {
       mostrarAviso({
         titulo: "No se cambió el rubro",
-        mensaje: motivo instanceof Error ? motivo.message : "Revisá la conexión e intentá de nuevo.",
+        mensaje: motivo instanceof Error ? motivo.message : "Revisa la conexión e intenta de nuevo.",
         variante: "error",
       });
     } finally {
@@ -117,7 +117,7 @@ export function CambioDeRubro({ negocioId, nombre, rubroActual }: Propiedades) {
       <label className={styles.campo}>
         <span>Rubro nuevo</span>
         <select onChange={(evento) => setRubro(evento.target.value)} value={rubro}>
-          <option value="">Elegí uno</option>
+          <option value="">Elige uno</option>
           {DEFINICIONES_RUBROS.filter(({ id }) => id !== rubroActual).map(({ id, nombre: rotulo }) => (
             <option key={id} value={id}>
               {rotulo}

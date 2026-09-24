@@ -67,7 +67,7 @@ export function SegundoFactor() {
       if (error || !data) {
         mostrarAviso({
           titulo: "No se pudo preparar el segundo factor",
-          mensaje: error?.message ?? "Recargá la página.",
+          mensaje: error?.message ?? "Recarga la página.",
           variante: "error",
         });
         setEtapa("inscribir");
@@ -103,7 +103,7 @@ export function SegundoFactor() {
         challengeId: desafio,
         code: codigo,
       });
-      if (error) throw new Error("El código no coincide. Probá con el siguiente.");
+      if (error) throw new Error("El código no coincide. Prueba con el siguiente.");
 
       setEtapa("listo");
       /* La sesión sube de nivel y el servidor tiene que volver a evaluarla: sin
@@ -114,7 +114,7 @@ export function SegundoFactor() {
       setCodigo("");
       mostrarAviso({
         titulo: "No se pudo verificar",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -129,14 +129,14 @@ export function SegundoFactor() {
   return (
     <section className={styles.tarjeta} aria-labelledby="segundo-factor">
       <h1 id="segundo-factor">
-        {etapa === "desafio" ? "Confirmá que sos vos" : "Activá el segundo factor"}
+        {etapa === "desafio" ? "Confirma que eres vos" : "Activa el segundo factor"}
       </h1>
 
       {etapa === "verificar_alta" ? (
         <>
           <p>
-            Escaneá este código con Google Authenticator, Authy o la aplicación que
-            uses. Después escribí el número de seis dígitos que te muestre.
+            Escanea este código con Google Authenticator, Authy o la aplicación que
+            uses. Después escribe el número de seis dígitos que te muestre.
           </p>
           {qr ? (
             /* Imagen de datos que genera el sistema de autenticación en el
@@ -146,12 +146,12 @@ export function SegundoFactor() {
             <img alt="Código para la aplicación de autenticación" className={styles.qr} src={qr} />
           ) : null}
           <p className={styles.secreto}>
-            Si no podés escanear, cargá esta clave a mano: <code>{secreto}</code>
+            Si no puedes escanear, carga esta clave a mano: <code>{secreto}</code>
           </p>
         </>
       ) : (
         <p>
-          Abrí tu aplicación de autenticación y escribí el número de seis dígitos que
+          Abre tu aplicación de autenticación y escribe el número de seis dígitos que
           muestra para MiPuesto.
         </p>
       )}
@@ -174,7 +174,7 @@ export function SegundoFactor() {
       </form>
 
       <p className={styles.nota}>
-        Guardá la aplicación de autenticación en un lugar seguro. Sin ella no vas a
+        Guarda la aplicación de autenticación en un lugar seguro. Sin ella no vas a
         poder entrar a esta pantalla.
       </p>
 

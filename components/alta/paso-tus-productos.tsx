@@ -12,7 +12,7 @@ import { RUTAS_PANEL } from "../../lib/panel/rutas";
  *
  * Tres caminos, y **en este orden a propósito**: el que menos trabajo cuesta
  * primero. Un comerciante que ya tiene su lista de precios escrita en un papel no
- * tiene por qué volver a tipearla; ofrecerle «cargalos a mano» de entrada es
+ * tiene por qué volver a tipearla; ofrecerle «cárgalos a mano» de entrada es
  * pedirle una tarde de trabajo antes de haber visto si el sistema le sirve.
  *
  * No exige cargar nada para terminar. Un catálogo vacío se puede publicar, y la
@@ -49,7 +49,7 @@ export function PasoTusProductos({
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo terminar",
-        mensaje: causa instanceof Error ? causa.message : "Intentá de nuevo.",
+        mensaje: causa instanceof Error ? causa.message : "Intenta de nuevo.",
         variante: "error",
       });
       setTerminando(false);
@@ -63,7 +63,7 @@ export function PasoTusProductos({
         <p>
           {categorias > 0
             ? `Tu rubro ya te dejó ${categorias} categorías armadas. Ahora van los productos.`
-            : "Elegí por dónde empezar."}
+            : "Elige por dónde empezar."}
         </p>
       </div>
 
@@ -74,19 +74,19 @@ export function PasoTusProductos({
               las dos herramientas se mudaran— y el dueño caía en la lista de
               categorías sin entender qué pasó. */}
           <Link className={styles.camino} href={RUTAS_PANEL.desdeFoto}>
-            <strong>Sacale una foto a tu lista de precios</strong>
-            <span>La leemos y armamos los productos. Es lo más rápido si ya la tenés escrita.</span>
+            <strong>Sácale una foto a tu lista de precios</strong>
+            <span>La leemos y armamos los productos. Es lo más rápido si ya la tienes escrita.</span>
           </Link>
         </li>
         <li>
           <Link className={styles.camino} href={RUTAS_PANEL.importar}>
-            <strong>Subí un Excel</strong>
+            <strong>Sube un Excel</strong>
             <span>Con la plantilla ya armada para tus categorías.</span>
           </Link>
         </li>
         <li>
           <Link className={styles.camino} href={RUTAS_PANEL.productos}>
-            <strong>Cargalos a mano</strong>
+            <strong>Cárgalos a mano</strong>
             <span>Uno por uno, con su foto y su precio.</span>
           </Link>
         </li>
@@ -95,8 +95,8 @@ export function PasoTusProductos({
       <div className={styles.cierre}>
         <p>
           {productos > 0
-            ? `Llevás ${productos} producto(s) cargados. Podés seguir agregando cuando quieras.`
-            : "Podés terminar ahora y cargarlos después: tu panel te va a ir recordando lo que falta."}
+            ? `Llevas ${productos} producto(s) cargados. Puedes seguir agregando cuando quieras.`
+            : "Puedes terminar ahora y cargarlos después: tu panel te va a ir recordando lo que falta."}
         </p>
         <Boton cargando={terminando} onClick={() => void terminar()} type="button">
           Terminar y ver mi panel

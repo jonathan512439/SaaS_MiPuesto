@@ -310,7 +310,7 @@ export async function PantallaDirectorio({
         <section className={styles.sumate}>
           <div className={styles.sumateContenido}>
             <div>
-              <h2>¿Tenés un negocio{huboTexto ? " que vende esto" : ""}?</h2>
+              <h2>¿Tienes un negocio{huboTexto ? " que vende esto" : ""}?</h2>
               <p>Que te encuentren acá. El primer mes es gratis.</p>
             </div>
             <div className={styles.sumateAcciones}>
@@ -325,7 +325,7 @@ export async function PantallaDirectorio({
                 Quiero aparecer
               </a>
               <Link className={styles.enlaceNoche} href="/">
-                Conocé MiPuesto
+                Conoce MiPuesto
               </Link>
             </div>
           </div>
@@ -462,6 +462,6 @@ export function tituloDeDirectorio(
     return `${rubro} en ${nombreDeCiudad(filtros.ciudad)}`;
   if (rubro) return `${rubro} en Bolivia`;
   if (filtros.ciudad)
-    return `¿Qué buscás en ${nombreDeCiudad(filtros.ciudad)}?`;
-  return "¿Qué buscás hoy?";
+    return `¿Qué buscas en ${nombreDeCiudad(filtros.ciudad)}?`;
+  return "¿Qué buscas hoy?";
 }

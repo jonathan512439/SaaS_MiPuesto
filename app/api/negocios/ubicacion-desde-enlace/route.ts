@@ -66,7 +66,7 @@ export async function POST(solicitud: NextRequest) {
       : "";
 
   if (enlace === "" || enlace.length > 2000) {
-    return NextResponse.json({ error: "Pegá el enlace de Google Maps de tu local." }, { status: 400 });
+    return NextResponse.json({ error: "Pega el enlace de Google Maps de tu local." }, { status: 400 });
   }
 
   const directo = coordenadasDeEnlace(enlace);
@@ -79,7 +79,7 @@ export async function POST(solicitud: NextRequest) {
   const seguido = await seguir(enlace);
   if (!seguido) {
     return NextResponse.json(
-      { error: "No encontramos el punto en ese enlace. Marcalo a mano en el mapa." },
+      { error: "No encontramos el punto en ese enlace. Márcalo a mano en el mapa." },
       { status: 422 },
     );
   }

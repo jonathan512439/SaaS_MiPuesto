@@ -152,7 +152,7 @@ describe("el aspecto de los controles del panel", () => {
 
     expect(
       invasores,
-      "usá --control-principal-*, --control-segundo-* o --control-peligro-*; si de verdad tiene que ser distinto, agregalo a PERMITIDOS con su motivo",
+      "usa --control-principal-*, --control-segundo-* o --control-peligro-*; si de verdad tiene que ser distinto, agrégalo a PERMITIDOS con su motivo",
     ).toEqual([]);
   });
 

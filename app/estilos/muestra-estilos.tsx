@@ -88,7 +88,7 @@ function Galeria() {
           <div className={styles.muestraTipo}>
             <p className={styles.tipoHero}>Un catálogo que se entiende de un vistazo</p>
             <p className={styles.tipoTitulo}>Productos listos para vender</p>
-            <p className={styles.tipoSubtitulo}>Organizá el menú como atiende tu negocio.</p>
+            <p className={styles.tipoSubtitulo}>Organiza el menú como atiende tu negocio.</p>
             <p className={styles.tipoCuerpo}>
               Texto de lectura para descripciones claras, sin tecnicismos y con líneas cortas.
             </p>
@@ -100,7 +100,7 @@ function Galeria() {
         <section className={styles.seccion}>
           <EncabezadoSeccion
             titulo="Botones"
-            descripcion="La etiqueta dice exactamente qué ocurrirá. Probá hover, clic y navegación con Tab."
+            descripcion="La etiqueta dice exactamente qué ocurrirá. Prueba hover, clic y navegación con Tab."
           />
           <div className={styles.grupoBotones}>
             <Boton>Publicar catálogo</Boton>
@@ -176,7 +176,7 @@ function Galeria() {
                 <Boton onClick={() => setHojaAbierta(false)}>Publicar producto</Boton>
               </>
             }
-            descripcion="Confirmá que el nombre y el precio estén correctos antes de publicar."
+            descripcion="Confirma que el nombre y el precio estén correctos antes de publicar."
             onCerrar={() => setHojaAbierta(false)}
             titulo="Revisar producto"
           >
@@ -231,7 +231,7 @@ function Galeria() {
             />
             <Toast
               anunciar={false}
-              mensaje="Pesa más de 5 MB. Probá con una imagen más liviana."
+              mensaje="Pesa más de 5 MB. Prueba con una imagen más liviana."
               titulo="No se pudo subir la foto"
               variante="error"
             />
@@ -256,7 +256,7 @@ function Galeria() {
               onClick={() =>
                 mostrarAviso({
                   titulo: "No se pudo subir la foto",
-                  mensaje: "Pesa más de 5 MB. Probá con una imagen más liviana.",
+                  mensaje: "Pesa más de 5 MB. Prueba con una imagen más liviana.",
                   variante: "error",
                 })
               }
@@ -291,7 +291,7 @@ function Galeria() {
           />
           <EstadoVacio
             accion={<Boton>Agregar primer producto</Boton>}
-            descripcion="Empezá con el primero para preparar tu catálogo."
+            descripcion="Empieza con el primero para preparar tu catálogo."
             titulo="Todavía no cargaste ningún producto"
           />
         </section>

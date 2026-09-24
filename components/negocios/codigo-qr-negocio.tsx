@@ -27,7 +27,7 @@ export function CodigoQrNegocio({ nombreNegocio, urlCatalogo }: PropiedadesCodig
         if (activo) setImagen(resultado);
       })
       .catch(() => {
-        if (activo) setError("No se pudo preparar el QR. Recargá la página para intentarlo otra vez.");
+        if (activo) setError("No se pudo preparar el QR. Recarga la página para intentarlo otra vez.");
       });
     return () => {
       activo = false;

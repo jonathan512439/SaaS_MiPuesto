@@ -31,7 +31,7 @@ export function validarAjustePrecios(entrada: unknown): ResultadoValidacionAjust
   const porcentaje = Number(valor.porcentaje);
 
   if (!Number.isFinite(porcentaje) || porcentaje === 0) {
-    return { correcto: false, error: "Escribí un porcentaje distinto de cero." };
+    return { correcto: false, error: "Escribe un porcentaje distinto de cero." };
   }
   if (porcentaje < AJUSTE_MINIMO || porcentaje > AJUSTE_MAXIMO) {
     return {
@@ -40,7 +40,7 @@ export function validarAjustePrecios(entrada: unknown): ResultadoValidacionAjust
     };
   }
   if (Math.round(porcentaje * 10) !== porcentaje * 10) {
-    return { correcto: false, error: "Usá como máximo un decimal." };
+    return { correcto: false, error: "Usa como máximo un decimal." };
   }
 
   const categoria = valor.categoria_id;

@@ -2,7 +2,7 @@
    y un tope por hora en todo el proyecto. Cuando se pasa, responde 429 y **no
    envía nada**.
  *
- * El formulario ignoraba la respuesta y siempre decía «revisá tu correo». Eso es
+ * El formulario ignoraba la respuesta y siempre decía «revisa tu correo». Eso es
  * correcto para no revelar si una dirección existe —esa es una decisión de
  * privacidad y se mantiene—, pero un 429 no tiene nada que ver con la
  * privacidad: es una espera. Callarlo deja a la persona mirando una bandeja
@@ -20,7 +20,7 @@ export function esLimiteDeCorreo(error: ErrorEnvio | null): boolean {
 
 /* Supabase escribe los segundos dentro del mensaje: «you can only request this
    after 22 seconds». Se rescatan para poder decir cuánto falta en vez de un
-   «esperá un rato» que no ayuda a decidir si conviene esperar o no. */
+   «espera un rato» que no ayuda a decidir si conviene esperar o no. */
 export function segundosDeEspera(error: ErrorEnvio | null): number {
   const encontrado = /after (\d+) seconds?/.exec(error?.message ?? "");
   return encontrado ? Number(encontrado[1]) : 0;
@@ -29,7 +29,7 @@ export function segundosDeEspera(error: ErrorEnvio | null): number {
 export function mensajeDeEspera(error: ErrorEnvio | null): string {
   const segundos = segundosDeEspera(error);
   if (segundos > 0) {
-    return `Ya pediste uno hace poco. Esperá ${segundos} segundos y volvé a intentar.`;
+    return `Ya pediste uno hace poco. Espera ${segundos} segundos y vuelve a intentar.`;
   }
-  return "Se pidieron demasiados correos en poco tiempo. Esperá unos minutos y volvé a intentar.";
+  return "Se pidieron demasiados correos en poco tiempo. Espera unos minutos y vuelve a intentar.";
 }

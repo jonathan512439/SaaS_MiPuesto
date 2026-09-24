@@ -14,7 +14,7 @@ export default function PlataformaNoEncontrada() {
         <h1>Esta página no está disponible</h1>
         <p>
           La dirección no existe, o tu cuenta no tiene acceso a esta sección. Si
-          esperabas administrar la plataforma, revisá con qué cuenta iniciaste sesión.
+          esperabas administrar la plataforma, revisa con qué cuenta iniciaste sesión.
         </p>
         <Link href={RUTAS_PANEL.inicio}>Ir a mi panel</Link>
       </section>

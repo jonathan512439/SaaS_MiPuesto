@@ -121,14 +121,14 @@ export function ImportarPlanilla({
       if (leido.recortada) {
         mostrarAviso({
           titulo: "Tomamos las primeras filas",
-          mensaje: `Tu planilla tiene ${leido.totalLeido} filas y trabajamos con ${MAXIMO_FILAS} por vez. Importá el resto en una segunda vuelta.`,
+          mensaje: `Tu planilla tiene ${leido.totalLeido} filas y trabajamos con ${MAXIMO_FILAS} por vez. Importa el resto en una segunda vuelta.`,
           variante: "advertencia",
         });
       }
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo abrir la planilla",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -151,10 +151,10 @@ export function ImportarPlanilla({
           desordenada, le ahorra el paso de adivinar qué columnas poner. */}
       {plantillas.length > 0 ? (
         <section aria-labelledby="titulo-plantilla" className={styles.plantilla}>
-          <h2 id="titulo-plantilla">Empezá con la plantilla de tu rubro</h2>
+          <h2 id="titulo-plantilla">Empieza con la plantilla de tu rubro</h2>
           <p>
-            Trae tus categorías, los datos que pide cada una y ejemplos para copiar. Llenala en
-            Excel o en Google Sheets y subila aquí: todo cae en su lugar sin que tengas que decir qué
+            Trae tus categorías, los datos que pide cada una y ejemplos para copiar. Llénala en
+            Excel o en Google Sheets y súbela aquí: todo cae en su lugar sin que tengas que decir qué
             columna es cuál.
           </p>
           <div className={styles.descargas}>
@@ -187,7 +187,7 @@ export function ImportarPlanilla({
               <li>Archivos .csv, con coma o con punto y coma</li>
               <li>Con fila de títulos o sin ella</li>
               <li>Precios escritos «12», «12,50» o «Bs 12,50»</li>
-              <li>Una columna de categoría, si la tenés</li>
+              <li>Una columna de categoría, si la tienes</li>
             </ul>
           </div>
           <div>
@@ -197,7 +197,7 @@ export function ImportarPlanilla({
               <li>El formato viejo .xls hay que guardarlo antes como .xlsx</li>
               <li>Los renglones sin nombre o sin precio se descartan y te lo decimos</li>
               <li>Hasta {MAXIMO_FILAS} productos por vez</li>
-              <li>Las fotos de cada producto las subís vos después</li>
+              <li>Las fotos de cada producto las subes vos después</li>
             </ul>
           </div>
         </div>
@@ -332,13 +332,13 @@ export function ImportarPlanilla({
               </Selector>
               {mapeo.presentacion !== null ? (
                 <Selector
-                  ayuda="Talla, Número, Tamaño u Opción. Si no la tenés, lo deducimos de lo que escribiste."
+                  ayuda="Talla, Número, Tamaño u Opción. Si no la tienes, lo deducimos de lo que escribiste."
                   etiqueta="Cómo se elige está en (opcional)"
                   id="columna-tipo-presentacion"
                   onChange={(evento) => cambiarMapeo("tipoPresentacion", evento.target.value)}
                   value={String(mapeo.tipoPresentacion ?? -1)}
                 >
-                  <option value={SIN_COLUMNA}>Dedúcelo de lo que escribí</option>
+                  <option value={SIN_COLUMNA}>Dedúcelo de lo que está escrito</option>
                   {columnas.map(({ indice, etiqueta, ejemplo }) => (
                     <option key={indice} value={indice}>
                       {etiqueta}
@@ -387,7 +387,7 @@ export function ImportarPlanilla({
           nombresDelCatalogo={nombresDelCatalogo}
           categorias={categorias}
           controlaStock={conStock}
-          introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agregales fotos si querés y sacá los que no vayas a publicar.`}
+          introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agrégales fotos si quieres y saca los que no vayas a publicar.`}
           key={nombreArchivo}
           onTerminado={() => setConfirmado(true)}
           productos={resultado.productos}

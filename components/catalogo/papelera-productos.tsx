@@ -60,7 +60,7 @@ export function PapeleraProductos({
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo completar",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -72,7 +72,7 @@ export function PapeleraProductos({
     return (
       <EstadoVacio
         titulo="La papelera está vacía"
-        descripcion="Lo que borres de tu catálogo aparece acá y podés recuperarlo."
+        descripcion="Lo que borres de tu catálogo aparece acá y puedes recuperarlo."
       />
     );
   }

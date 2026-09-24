@@ -44,7 +44,7 @@ export async function POST(solicitud: NextRequest) {
     : { correcto: false as const, errores: { general: entrada.error } };
   if (!validacion.correcto) {
     return NextResponse.json(
-      { error: "Revisá los datos de la promoción.", errores: validacion.errores },
+      { error: "Revisa los datos de la promoción.", errores: validacion.errores },
       { status: 400 },
     );
   }
@@ -58,7 +58,7 @@ export async function POST(solicitud: NextRequest) {
   }
   if ((count ?? 0) >= LIMITE_PROMOCIONES) {
     return NextResponse.json(
-      { error: `Podés conservar hasta ${LIMITE_PROMOCIONES} promociones. Borrá una anterior para continuar.` },
+      { error: `Puedes conservar hasta ${LIMITE_PROMOCIONES} promociones. Borra una anterior para continuar.` },
       { status: 409 },
     );
   }

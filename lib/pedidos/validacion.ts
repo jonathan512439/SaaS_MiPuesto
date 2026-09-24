@@ -57,7 +57,7 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
     valor.items.length === 0 ||
     valor.items.length > LIMITE_ITEMS_PEDIDO
   ) {
-    return { correcto: false, error: "Agregá entre 1 y 30 productos al pedido." };
+    return { correcto: false, error: "Agrega entre 1 y 30 productos al pedido." };
   }
 
   const items: ItemSolicitudPedido[] = [];
@@ -70,7 +70,7 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
     const sinVariante =
       datosItem.varianteId === undefined || datosItem.varianteId === null || datosItem.varianteId === "";
     if (!sinVariante && !esUuid(datosItem.varianteId)) {
-      return { correcto: false, error: "Revisá los productos y sus cantidades." };
+      return { correcto: false, error: "Revisa los productos y sus cantidades." };
     }
     const varianteId = sinVariante ? null : (datosItem.varianteId as string);
     /* La M y la L del mismo producto son dos renglones; la M dos veces, no. */
@@ -82,7 +82,7 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
       Number(datosItem.cantidad) > LIMITE_CANTIDAD_ITEM ||
       identificadores.has(clave)
     ) {
-      return { correcto: false, error: "Revisá los productos y sus cantidades." };
+      return { correcto: false, error: "Revisa los productos y sus cantidades." };
     }
     identificadores.add(clave);
     items.push({
@@ -101,7 +101,7 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
   if (clienteTelefono === undefined) {
     return {
       correcto: false,
-      error: "Escribí un celular boliviano válido de 8 dígitos.",
+      error: "Escribe un celular boliviano válido de 8 dígitos.",
     };
   }
 

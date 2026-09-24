@@ -234,7 +234,7 @@ export function GestorAgenda({
     const minutos = Math.ceil((hasta.getTime() - desde.getTime()) / 60_000);
 
     if (minutos < 5) {
-      informarError("No se pudo pausar", new Error("Elegí un momento más adelante."));
+      informarError("No se pudo pausar", new Error("Elige un momento más adelante."));
       return;
     }
     if (minutos > 43_200) {
@@ -247,7 +247,7 @@ export function GestorAgenda({
       informarError(
         "No se pudo pausar",
         new Error(
-          `Hay ${tomados} turno(s) tomado(s) en ese rango. Cancelalos primero: hay alguien esperando que le avises.`,
+          `Hay ${tomados} turno(s) tomado(s) en ese rango. Cancélalos primero: hay alguien esperando que le avises.`,
         ),
       );
       return;
@@ -335,7 +335,7 @@ export function GestorAgenda({
   function informarError(titulo: string, error: unknown) {
     mostrarAviso({
       titulo,
-      mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+      mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
       variante: "error",
     });
   }
@@ -495,8 +495,8 @@ export function GestorAgenda({
         <header className={styles.cabecera}>
           <h2>Cronograma</h2>
           <p>
-            Lo que llega del catálogo entra <strong>sin confirmar</strong>. Confirmalo si te
-            parece serio, o cancelalo y la hora vuelve a ofrecerse.
+            Lo que llega del catálogo entra <strong>sin confirmar</strong>. Confírmalo si te
+            parece serio, o cancélalo y la hora vuelve a ofrecerse.
           </p>
         </header>
 
@@ -646,7 +646,7 @@ export function GestorAgenda({
           <div className={styles.formulario}>
             <h3>Turno a mano</h3>
             <p className={styles.ayuda}>
-              Para lo que llega por teléfono, o para bloquear una hora. En «nombre» podés
+              Para lo que llega por teléfono, o para bloquear una hora. En «nombre» puedes
               poner el motivo: «Reunión», «Banco».
             </p>
             <div className={styles.rejilla}>
@@ -773,7 +773,7 @@ export function GestorAgenda({
 
         {recursos.length === 0 ? (
           <p className={styles.vacio}>
-            Todavía no cargaste a nadie. Empezá por quien atiende: «Dr. Ana», «Consultorio 1».
+            Todavía no cargaste a nadie. Empieza por quien atiende: «Dr. Ana», «Consultorio 1».
           </p>
         ) : null}
 
@@ -815,7 +815,7 @@ export function GestorAgenda({
 
                 {!recurso.acepta_reservas ? (
                   <p className={styles.apagado}>
-                    El catálogo no ofrece horarios de {recurso.nombre}. Vos seguís pudiendo cargar
+                    El catálogo no ofrece horarios de {recurso.nombre}. Vos sigues pudiendo cargar
                     turnos a mano.
                   </p>
                 ) : null}

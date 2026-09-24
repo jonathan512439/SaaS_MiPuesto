@@ -23,7 +23,7 @@ export function validarOperacionNegocio(entrada: unknown): ResultadoValidacionOp
 
   if (!horario.correcto) errores.horario = horario.error;
   if (!Number.isInteger(reservaMinutos) || reservaMinutos < 5 || reservaMinutos > 1440) {
-    errores.reserva_minutos = "Elegí un tiempo entre 5 minutos y 24 horas.";
+    errores.reserva_minutos = "Elige un tiempo entre 5 minutos y 24 horas.";
   }
 
   if (Object.keys(errores).length > 0 || !horario.correcto) {

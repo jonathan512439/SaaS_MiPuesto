@@ -54,7 +54,7 @@ export async function POST(solicitud: NextRequest) {
       }
     }
     return NextResponse.json(
-      { error: "No se pudo encontrar un código libre. Probá otra vez." },
+      { error: "No se pudo encontrar un código libre. Prueba otra vez." },
       { status: 503 },
     );
   }

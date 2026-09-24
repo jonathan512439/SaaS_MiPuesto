@@ -29,7 +29,7 @@ export default function ErrorGlobal({
       >
         <div style={{ maxWidth: "32rem" }}>
           <h1 style={{ fontSize: "1.5rem" }}>MiPuesto no pudo cargar</h1>
-          <p>Volvé a intentar en unos segundos.</p>
+          <p>Vuelve a intentar en unos segundos.</p>
           <button
             onClick={() => reset()}
             style={{

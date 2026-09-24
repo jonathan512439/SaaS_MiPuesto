@@ -121,7 +121,7 @@ export function EditorDeAgenda({ recursoId }: { recursoId: string }) {
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo guardar el horario",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -149,9 +149,9 @@ export function EditorDeAgenda({ recursoId }: { recursoId: string }) {
   return (
     <section className={styles.seccion}>
       <header className={styles.cabecera}>
-        <h3>Cuándo atendés</h3>
+        <h3>Cuándo atiendes</h3>
         <p>
-          Escribí los tramos en los que atendés. Los horarios que ve tu cliente salen de acá
+          Escribe los tramos en los que atiendes. Los horarios que ve tu cliente salen de acá
           con la duración del turno: no hace falta escribirlos uno por uno.
         </p>
       </header>
@@ -177,7 +177,7 @@ export function EditorDeAgenda({ recursoId }: { recursoId: string }) {
         </label>
 
         <label className={styles.control}>
-          <span>A la vez atendés a</span>
+          <span>A la vez atiendes a</span>
           <div className={styles.conUnidad}>
             <input
               disabled={guardando}
@@ -190,7 +190,7 @@ export function EditorDeAgenda({ recursoId }: { recursoId: string }) {
           </div>
           {/* El caso que explica para qué sirve: dos consultorios son dos cupos.
               Sin el ejemplo, «cupo» se lee como un número abstracto. */}
-          <small className={styles.ayuda}>Dos consultorios, dos sillones: poné 2.</small>
+          <small className={styles.ayuda}>Dos consultorios, dos sillones: pon 2.</small>
           {errores.cupoPorFranja ? (
             <strong className={styles.error}>{errores.cupoPorFranja}</strong>
           ) : null}

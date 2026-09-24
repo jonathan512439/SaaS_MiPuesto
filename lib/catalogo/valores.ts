@@ -57,7 +57,7 @@ export function validarValores(
          cuenta el aviso al borrar un campo y lo que decide si la ficha dibuja
          una fila. */
       if (atributo.obligatorio) {
-        errores[campo] = `Completá ${atributo.nombre}.`;
+        errores[campo] = `Completa ${atributo.nombre}.`;
       }
       continue;
     }

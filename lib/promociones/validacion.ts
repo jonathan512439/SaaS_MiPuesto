@@ -66,18 +66,18 @@ export function validarPromocion(entrada: unknown): ResultadoValidacion {
   const errores: Record<string, string> = {};
 
   if (tipo !== "porcentaje" && tipo !== "monto_fijo") {
-    errores.tipo = "Elegí un tipo de descuento válido.";
+    errores.tipo = "Elige un tipo de descuento válido.";
   }
   if (!Number.isFinite(valor) || valor <= 0) {
-    errores.valor = "Escribí un descuento mayor a cero.";
+    errores.valor = "Escribe un descuento mayor a cero.";
   } else if (tipo === "porcentaje" && valor > 100) {
     errores.valor = "El porcentaje no puede superar 100 %.";
   } else if (Math.round(valor * 100) !== valor * 100) {
-    errores.valor = "Usá como máximo dos decimales.";
+    errores.valor = "Usa como máximo dos decimales.";
   }
 
   if ((destino !== "producto" && destino !== "categoria") || !esUuid(destinoId)) {
-    errores.destino_id = "Elegí un producto o una categoría de tu negocio.";
+    errores.destino_id = "Elige un producto o una categoría de tu negocio.";
   }
   if (fechaInicio === undefined) errores.fecha_inicio = "La fecha de inicio no es válida.";
   if (fechaFin === undefined) errores.fecha_fin = "La fecha de finalización no es válida.";
@@ -90,17 +90,17 @@ export function validarPromocion(entrada: unknown): ResultadoValidacion {
   }
 
   if (horaInicio === undefined || horaFin === undefined) {
-    errores.horario = "Escribí las horas en formato 24 h, como 12:00.";
+    errores.horario = "Escribe las horas en formato 24 h, como 12:00.";
   } else if ((horaInicio === null) !== (horaFin === null)) {
     /* Una sola hora no define ninguna ventana, y la base lo rechaza con un
        check: se avisa acá para que el dueño lea algo que entiende. */
-    errores.horario = "Completá la hora de inicio y la de fin, o dejá las dos vacías.";
+    errores.horario = "Completa la hora de inicio y la de fin, o deja las dos vacías.";
   } else if (horaInicio !== null && horaInicio === horaFin) {
     errores.horario = "El inicio y el fin no pueden ser la misma hora.";
   }
 
   if (dias === undefined) {
-    errores.dias = "Elegí días de la semana válidos.";
+    errores.dias = "Elige días de la semana válidos.";
   }
 
   if (Object.keys(errores).length > 0) return { correcto: false, errores };

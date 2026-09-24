@@ -190,7 +190,7 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo guardar la atención",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -212,7 +212,7 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
 
       <div className={styles.controles}>
         <Selector
-          ayuda="Podés cambiarlo cuando quieras."
+          ayuda="Puedes cambiarlo cuando quieras."
           error={errores.horario}
           etiqueta="Horario del negocio"
           id="modo-horario"
@@ -420,7 +420,7 @@ export function FormularioOperacion({ operacionInicial }: PropiedadesFormularioO
                   </div>
 
                   <p className={styles.resumenExcepcion}>
-                    {formatearFechaLegible(excepcion.fecha) || "Elegí una fecha"}
+                    {formatearFechaLegible(excepcion.fecha) || "Elige una fecha"}
                     {excepcion.cerrado
                       ? ": cerrado"
                       : `: ${excepcion.intervalos[0]?.abre ?? "09:00"} a ${

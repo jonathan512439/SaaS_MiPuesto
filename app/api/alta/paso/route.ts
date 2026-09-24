@@ -87,10 +87,10 @@ export async function PATCH(solicitud: NextRequest) {
     const slug = normalizarSlug(objeto.slug);
 
     if (nombreAdmin.length < 2 || nombreAdmin.length > 60) {
-      errores.nombre_admin = "Escribí tu nombre, de 2 a 60 caracteres.";
+      errores.nombre_admin = "Escribe tu nombre, de 2 a 60 caracteres.";
     }
     if (nombre.length < 2 || nombre.length > 80) {
-      errores.nombre = "Escribí el nombre de tu negocio, de 2 a 80 caracteres.";
+      errores.nombre = "Escribe el nombre de tu negocio, de 2 a 80 caracteres.";
     }
 
     const errorSlug = validarSlug(slug);
@@ -106,14 +106,14 @@ export async function PATCH(solicitud: NextRequest) {
           { status: 500 },
         );
       }
-      if (libre !== true) errores.slug = "Esa dirección ya está tomada. Probá con otra.";
+      if (libre !== true) errores.slug = "Esa dirección ya está tomada. Prueba con otra.";
     }
 
     Object.assign(cambios, { nombre_admin: nombreAdmin, nombre, slug });
   }
 
   if (paso === 2) {
-    /* «Qué vendés y dónde» (fase 11). El dueño elige un rubro **público** —en
+    /* «Qué vendes y dónde» (fase 11). El dueño elige un rubro **público** —en
        sus palabras— y de ahí sale la siembra; y responde si quiere que lo
        encuentren en el buscador, que es obligatorio. */
     const validacion = validarPresencia(objeto);
@@ -161,7 +161,7 @@ export async function PATCH(solicitud: NextRequest) {
   }
 
   if (Object.keys(errores).length > 0) {
-    return NextResponse.json({ error: "Revisá lo que cargaste.", errores }, { status: 400 });
+    return NextResponse.json({ error: "Revisa lo que cargaste.", errores }, { status: 400 });
   }
 
   /* El paso guardado nunca retrocede.
@@ -182,7 +182,7 @@ export async function PATCH(solicitud: NextRequest) {
     .eq("admin_user_id", idUsuario);
 
   if (error) {
-    return NextResponse.json({ error: "No se pudo guardar. Intentá de nuevo." }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo guardar. Intenta de nuevo." }, { status: 500 });
   }
 
   /* La siembra va **después** de guardar el rubro y no antes: si fallara, el

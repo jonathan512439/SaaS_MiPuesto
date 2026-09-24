@@ -100,7 +100,7 @@ export function SelectorApariencia({
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo guardar la apariencia",
-        mensaje: causa instanceof Error ? causa.message : "Intentá nuevamente.",
+        mensaje: causa instanceof Error ? causa.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -111,8 +111,8 @@ export function SelectorApariencia({
   return (
     <form className={styles.formulario} onSubmit={guardarApariencia}>
       <fieldset className={styles.grupo} disabled={guardando}>
-        <legend className={styles.leyendaOculta}>Elegí la paleta de colores</legend>
-        <PasoNumerado numero={1} titulo="Elegí la paleta de colores" />
+        <legend className={styles.leyendaOculta}>Elige la paleta de colores</legend>
+        <PasoNumerado numero={1} titulo="Elige la paleta de colores" />
         <p className={styles.ayuda}>Tiñe la cabecera, el fondo y las tarjetas.</p>
         <div className={styles.paletas}>
           {DEFINICIONES_PALETAS.map((paleta) => {
@@ -196,8 +196,8 @@ export function SelectorApariencia({
       </fieldset>
 
       <fieldset className={styles.grupo} disabled={guardando}>
-        <legend className={styles.leyendaOculta}>Elegí el fondo</legend>
-        <PasoNumerado numero={3} titulo="Elegí el fondo" />
+        <legend className={styles.leyendaOculta}>Elige el fondo</legend>
+        <PasoNumerado numero={3} titulo="Elige el fondo" />
         <p className={styles.ayuda}>
           El catálogo lleva detrás un patrón de íconos tenue.
         </p>
@@ -248,7 +248,7 @@ export function SelectorApariencia({
 
       <section className={styles.demostracion} aria-labelledby="titulo-demostracion">
         {/* Con `PasoNumerado`, igual que el 1 y el 2. Estaba escrito a mano como
-            «3. Revisá el resultado», que es exactamente lo que el comentario de ese
+            «3. Revisa el resultado», que es exactamente lo que el comentario de ese
             componente dice que no hay que hacer: se lee como una lista y no como
             un paso. Quedó atrás cuando los otros dos se convirtieron. */}
         <header>
@@ -256,7 +256,7 @@ export function SelectorApariencia({
             descripcion="Así se verá la experiencia de tus clientes."
             idTitulo="titulo-demostracion"
             numero={4}
-            titulo="Revisá el resultado"
+            titulo="Revisa el resultado"
           />
           <span>Vista completa de demostración</span>
         </header>
@@ -283,7 +283,7 @@ export function SelectorApariencia({
         <div className={styles.acciones}>
           <p className={hayCambioPendiente ? styles.avisoPendiente : styles.avisoCambio}>
             {hayCambioPendiente
-              ? "Tenés cambios de apariencia sin guardar."
+              ? "Tienes cambios de apariencia sin guardar."
               : "Esta es la apariencia guardada actualmente."}
           </p>
           <Boton cargando={guardando} disabled={!hayCambioPendiente} type="submit">

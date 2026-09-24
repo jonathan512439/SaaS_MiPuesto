@@ -43,7 +43,7 @@ export async function POST(solicitud: NextRequest) {
      TypeScript; que quien llama sea administrador lo exige la función. */
   if (datos.accion === "rubro_publico") {
     if (!esRubroPublicoId(datos.rubro_publico)) {
-      return NextResponse.json({ error: "Elegí un rubro de la lista." }, { status: 400 });
+      return NextResponse.json({ error: "Elige un rubro de la lista." }, { status: 400 });
     }
     const { data: negocio } = await supabase
       .from("negocios")
@@ -54,7 +54,7 @@ export async function POST(solicitud: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Ese rubro es de otro tipo de catálogo. Para pasar a él usá «Cambiar rubro», que exporta y reinicia el catálogo.",
+            "Ese rubro es de otro tipo de catálogo. Para pasar a él usa «Cambiar rubro», que exporta y reinicia el catálogo.",
         },
         { status: 409 },
       );

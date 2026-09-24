@@ -1,17 +1,19 @@
-/* Cómo escribe el sistema: español neutro, con vos, sin jerga rioplatense.
+/* Cómo escribe el sistema: español neutro, verbos de tú, «vos» de pronombre.
  *
- * Es la guardia de `docs/plan/08-VOCABULARIO.md`, sección 5, más una regla que
- * el plan no tenía y que hizo falta: **nada de tuteo**. Durante unas semanas los
- * textos nuevos se escribieron con «elige», «tienes», «escríbenos» por una regla
- * equivocada, y quedaron mezclados con el voseo del resto. Decisión del dueño
- * del proyecto, 2026-09-24: voseo, español neutro y algo de jerga boliviana.
+ * Es la guardia de `docs/plan/08-VOCABULARIO.md`, sección 5. Decisión del dueño
+ * del proyecto (2026-09-24, después de dos idas y vueltas): los verbos se
+ * conjugan con tú —«elige», «tienes», «configura», «escríbenos»— y, donde
+ * aparece el pronombre, se usa «vos» —«el precio lo pones vos»—, como se habla
+ * en el occidente de Bolivia. Nada de voseo verbal —«tenés», «elegí»— ni de
+ * usted, ni de jerga rioplatense. Algo de jerga boliviana sí va.
  *
  * Qué revisa: el texto que llega a la pantalla —cadenas y texto de JSX— en
  * `app/`, `components/` y `lib/`. Qué no: comentarios, nombres de variables,
  * pruebas y los tipos generados.
  *
- * Cómo busca: palabra completa, sin tildes y sin distinguir mayúsculas. Nunca
- * por pedazo: «plata» dentro de «plataforma» no es jerga (sección 2 del plan).
+ * Cómo busca: palabra completa. La jerga, sin tildes ni mayúsculas; el voseo,
+ * **con tilde**, porque es lo único que separa «vendés» de «vendes». Nunca por
+ * pedazo: «plata» dentro de «plataforma» no es jerga (sección 2 del plan).
  *
  * Cuando falla, dice el archivo, la línea, la palabra y qué usar. Se corre con
  * `npm test`.
@@ -65,69 +67,80 @@ const MULETILLAS_SUELTAS = new Map([
   ["ahora si", "muletilla: sacala"],
 ]);
 
-/* El tuteo que no se confunde con otra cosa: la segunda persona del presente
-   —«tienes»— y los imperativos con pronombre pegado, que con tú llevan tilde
-   —«escríbenos»— y con vos no —«escribinos»—. Con su forma en vos. */
-const TUTEO = new Map(
+/* El voseo verbal, que no va: «tenés», «podés», «elegí», «configurá»,
+   «escribinos». Decisión del dueño del proyecto (2026-09-24): los verbos se
+   conjugan con tú —«tienes», «elige», «configura», «escríbenos»— y, donde
+   aparece el pronombre, se usa «vos»: «el precio lo pones vos», como se habla
+   en el occidente de Bolivia.
+
+   Cada forma con la que la reemplaza. Se compara **con tilde**: «vendés» es
+   voseo y «vendes» no, y la tilde es lo único que las separa. */
+const VOSEO = new Map(
   Object.entries({
-    tu: "vos",
-    tienes: "tenés", puedes: "podés", quieres: "querés", eres: "sos", necesitas: "necesitás",
-    prefieres: "preferís", sabes: "sabés", vendes: "vendés", cobras: "cobrás", guardas: "guardás",
-    haces: "hacés", agregas: "agregás", escribes: "escribís", eliges: "elegís", buscas: "buscás",
-    subes: "subís", vuelves: "volvés", pagas: "pagás", recibes: "recibís", llevas: "llevás",
-    tardas: "tardás", ofreces: "ofrecés", atiendes: "atendés", pides: "pedís", usas: "usás",
-    cargas: "cargás", quedas: "quedás", importas: "importás", encargas: "encargás",
-    escribenos: "escribinos", escribelo: "escribilo", subela: "subila", subelo: "subilo",
-    llenala: "llenala", marcalo: "marcalo", marcala: "marcala", borralas: "borralas",
-    borralo: "borralo", agregalas: "agregalas", agregalo: "agregalo", cancelalo: "cancelalo",
-    cancelalos: "cancelalos", revisalas: "revisalas", revisalo: "revisalo", guardalo: "guardalo",
-    sacale: "sacale", elegilo: "elegilo", eligelo: "elegilo", eligela: "elegila", dimelo: "decímelo",
-    avisame: "avisame", pidenos: "pedinos", cambialo: "cambialo", activalo: "activalo",
-    ocultala: "ocultala", ocultalo: "ocultalo", intentalo: "intentalo", encargala: "encargala",
-    fotografialo: "fotografialo", completalos: "completalos", completalo: "completalo",
-    dejala: "dejala", dejalo: "dejalo", dilo: "decilo", hazlo: "hacelo", ponlo: "ponelo",
-    ponle: "ponele", dime: "decime", comunicate: "comunicate",
-    /* Imperativos irregulares que nunca son tercera persona: sirven en
-       cualquier lugar de la frase. */
-    pon: "poné", haz: "hacé",
+    podés: "puedes", tenés: "tienes", vendés: "vendes", querés: "quieres", elegís: "eliges",
+    revisás: "revisas", llevás: "llevas", subís: "subes", pedís: "pides", atendés: "atiendes",
+    escribís: "escribes", buscás: "buscas", ponés: "pones", usás: "usas", dejás: "dejas",
+    ofrecés: "ofreces", sabés: "sabes", confirmás: "confirmas", cargás: "cargas", borrás: "borras",
+    aceptás: "aceptas", seguís: "sigues", decidís: "decides", renovás: "renuevas", necesitás: "necesitas",
+    corregís: "corriges", resolvés: "resuelves", preferís: "prefieres", reanudás: "reanudas",
+    publicás: "publicas", mandás: "mandas", aparecés: "apareces", pagás: "pagas", llamás: "llamas",
+    sacás: "sacas", venís: "vienes", acabás: "acabas", agregás: "agregas", guardás: "guardas",
+    cobrás: "cobras", mirás: "miras", dudás: "dudas", reconocés: "reconoces", leés: "lees",
+    aclarás: "aclaras", decís: "dices", hacés: "haces", entendés: "entiendes", conocés: "conoces",
+    empezás: "empiezas", volvés: "vuelves", recibís: "recibes", vivís: "vives", pensás: "piensas",
+    sos: "eres", agregués: "agregues", reutilicés: "reutilices",
+    elegí: "elige", revisá: "revisa", intentá: "intenta", escribí: "escribe", probá: "prueba",
+    usá: "usa", volvé: "vuelve", indicá: "indica", devolvé: "devuelve", pedí: "pide", marcá: "marca",
+    poné: "pon", cargá: "carga", subí: "sube", buscá: "busca", seleccioná: "selecciona",
+    esperá: "espera", tocá: "toca", abrí: "abre", recargá: "recarga", empezá: "empieza",
+    completá: "completa", actualizá: "actualiza", pegá: "pega", guardá: "guarda", borrá: "borra",
+    mirá: "mira", dejá: "deja", ingresá: "ingresa", confirmá: "confirma", compará: "compara",
+    fotografiá: "fotografía", creá: "crea", definí: "define", escaneá: "escanea", agregá: "agrega",
+    consultá: "consulta", copiá: "copia", bajá: "baja", sacá: "saca", decidí: "decide", hacé: "haz",
+    activá: "activa", administrá: "administra", configurá: "configura", gestioná: "gestiona",
+    mantené: "mantén", repetí: "repite", evitá: "evita", iniciá: "inicia", recuperá: "recupera",
+    cuidá: "cuida", organizá: "organiza", compartí: "comparte", recibí: "recibe", acercá: "acerca",
+    mandá: "manda", calificá: "califica", editá: "edita", quitá: "quita", importá: "importa",
+    conocé: "conoce", describí: "describe", permití: "permite", arrastrá: "arrastra", agrupá: "agrupa",
+    apoyá: "apoya", decí: "di", tené: "ten", vení: "ven", contá: "cuenta", mostrá: "muestra",
+    encontrá: "encuentra", cerrá: "cierra", pensá: "piensa", registrá: "registra", cambiá: "cambia",
+    llená: "llena", cancelá: "cancela", enviá: "envía", encargá: "encarga", descargá: "descarga",
+    imprimí: "imprime", escogé: "escoge", seguí: "sigue", llamá: "llama", ocultá: "oculta",
+    agendá: "agenda", respondé: "responde", prepará: "prepara",
+    escribinos: "escríbenos", sacale: "sácale", comunicate: "comunícate", probalo: "pruébalo",
+    dejala: "déjala", ocultala: "ocúltala", cancelalos: "cancélalos", subilo: "súbelo", subila: "súbela",
+    abrilo: "ábrelo", avisanos: "avísanos", decilo: "dilo", cambiala: "cámbiala", decinos: "dinos",
+    pedinos: "pídenos", escribilas: "escríbelas", dejalo: "déjalo", marcalo: "márcalo",
+    calificanos: "califícanos", confirmalo: "confírmalo", cancelalo: "cancélalo", cargalos: "cárgalos",
+    pegalo: "pégalo", elegila: "elígela", elegilo: "elígelo", hacelo: "hazlo", llenala: "llénala",
+    agregales: "agrégales", agregalas: "agrégalas", pegala: "pégala", copialos: "cópialos",
+    revisalos: "revísalos", centralo: "céntralo", encargala: "encárgala", devolvelos: "devuélvelos",
+    leelas: "léelas", fijate: "fíjate", completalos: "complétalos", ponele: "ponle", borralas: "bórralas",
+    contanos: "cuéntanos", intentalo: "inténtalo", asegurate: "asegúrate", quedate: "quédate",
+    registrate: "regístrate", mostralo: "muéstralo", guardalo: "guárdalo", borralo: "bórralo",
+    agregalo: "agrégalo", decime: "dime", avisame: "avísame",
   }),
 );
-/* Las de arriba sin tilde coinciden con el voseo («marcalo»): lo que las hace
-   tuteo es la tilde. Esas se buscan con tilde; las demás, sin. */
-const TUTEO_CON_TILDE = new Set([
-  "tú", "escríbenos", "escríbelo", "súbela", "súbelo", "llénala", "márcalo", "márcala", "bórralas",
-  "bórralo", "agrégalas", "agrégalo", "cancélalo", "cancélalos", "revísalas", "revísalo",
-  "guárdalo", "sácale", "elígelo", "elígela", "dímelo", "avísame", "pídenos", "cámbialo",
-  "actívalo", "ocúltala", "ocúltalo", "inténtalo", "encárgala", "fotografíalo", "complétalos",
-  "complétalo", "déjala", "déjalo", "dilo", "hazlo", "ponlo", "ponle", "dime", "comunícate",
+
+/* Además de la lista, la forma: una palabra que termina en «-ás», «-és» o
+   «-ís» con tilde casi siempre es voseo en presente —«tenés»—. Salvo el futuro
+   —«podrás», que es de tú— y estas palabras de siempre. */
+const TERMINAN_EN_AS_ES_IS = new Set([
+  "más", "además", "atrás", "jamás", "demás", "detrás", "estás", "compás", "después", "través",
+  "inglés", "francés", "interés", "japonés", "revés", "cortés", "portugués", "estrés", "país",
+  "anís", "cafés", "bebés", "estés",
 ]);
 
-/* Imperativos de tú al comienzo de una frase. En medio de una frase son
-   tercera persona —«el cliente elige»— y están bien; al principio, con
-   mayúscula, son una orden: «Elige tu número» → «Elegí tu número». «Abre» no
-   está: casi siempre es el negocio —«Abre el lunes a las 09:00»—. */
-const IMPERATIVOS_TU = new Map(
-  Object.entries({
-    Elige: "Elegí", Escribe: "Escribí", Revisa: "Revisá", Intenta: "Intentá", Vuelve: "Volvé",
-    Recarga: "Recargá", Agrega: "Agregá", Usa: "Usá", Pon: "Poné", Borra: "Borrá", Guarda: "Guardá",
-    Completa: "Completá", Descarga: "Descargá", Sube: "Subí", Llena: "Llená", Cancela: "Cancelá",
-    Toca: "Tocá", Busca: "Buscá", Mira: "Mirá", Cambia: "Cambiá", Activa: "Activá",
-    Crea: "Creá", Deja: "Dejá", Haz: "Hacé", Empieza: "Empezá", Indica: "Indicá", Agrupa: "Agrupá",
-    Actualiza: "Actualizá", Elimina: "Eliminá", Confirma: "Confirmá", Selecciona: "Seleccioná",
-    Comparte: "Compartí", Imprime: "Imprimí", Escoge: "Escogé", Pide: "Pedí", Sigue: "Seguí",
-    Espera: "Esperá", Llama: "Llamá", Envía: "Enviá", Encarga: "Encargá", Ponle: "Ponele",
-    Fíjate: "Fijate", Asegúrate: "Asegurate", Guárdalo: "Guardalo", Describe: "Describí",
-    Déjala: "Dejala", Déjalo: "Dejalo", Dilo: "Decilo", Hazlo: "Hacelo", Ponlo: "Ponelo",
-  }),
-);
+/* El pronombre de tú no va: «vos», como se dice en Bolivia. */
+const PRONOMBRE_TU = new Map([["tú", "vos"]]);
 
-/* Usted, que el plan descarta: «Elija su rubro» → «Elegí tu rubro». Solo al
+/* Usted, que el plan descarta: «Elija su rubro» → «Elige tu rubro». Solo al
    comienzo de una frase, como los de tú: a mitad de frase son subjuntivo de
    tercera persona —«cuando un casero haga su pedido»—, y están bien. */
 const USTED = new Map(
   Object.entries({
-    Elija: "Elegí", Suba: "Subí", Guarde: "Guardá", Ingrese: "Ingresá", Seleccione: "Seleccioná",
-    Escriba: "Escribí", Intente: "Intentá", Verifique: "Verificá", Presione: "Tocá", Haga: "Hacé",
+    Elija: "Elige", Suba: "Sube", Guarde: "Guarda", Ingrese: "Ingresa", Seleccione: "Selecciona",
+    Escriba: "Escribe", Intente: "Intenta", Verifique: "Verifica", Presione: "Toca", Haga: "Haz",
   }),
 );
 
@@ -297,17 +310,22 @@ for (const carpeta of CARPETAS) {
         const suelta = new RegExp(`(?:^|[.!?¡¿…,;:«]\\s*)${escapar(giro)}\\s*(?:[.!?…»]|$)`, "iu");
         if (suelta.test(sinTildes(texto).trim())) anotar(giro, uso);
       }
-      for (const [palabra, uso] of TUTEO) {
-        const conTilde = [...TUTEO_CON_TILDE].find((forma) => sinTildes(forma) === palabra);
-        /* Con tilde, siempre: «vendes» es tuteo y «vendés» es voseo, y lo único
-           que las distingue es la tilde. Compararlas sin tildes marcaba el voseo
-           como error. */
-        if (buscar(texto, conTilde ?? palabra, { distinguirTildes: true })) {
-          anotar(conTilde ?? palabra, `tuteo: «${uso}»`);
+      for (const [palabra, uso] of VOSEO) {
+        if (buscar(texto, palabra, { distinguirTildes: true })) anotar(palabra, `voseo: «${uso}»`);
+      }
+      for (const [palabra] of texto.matchAll(/[\p{L}]+/gu)) {
+        const minuscula = palabra.toLowerCase();
+        if (
+          /[áéí]s$/.test(minuscula) &&
+          !/rás$/.test(minuscula) &&
+          !TERMINAN_EN_AS_ES_IS.has(minuscula) &&
+          !VOSEO.has(minuscula)
+        ) {
+          anotar(minuscula, "voseo: conjugalo con tú (tienes, puedes, vendes)");
         }
       }
-      for (const [palabra, uso] of IMPERATIVOS_TU) {
-        if (buscar(texto, palabra, { mayusculaInicial: true })) anotar(palabra, `tuteo: «${uso}»`);
+      for (const [palabra, uso] of PRONOMBRE_TU) {
+        if (buscar(texto, palabra, { distinguirTildes: true })) anotar(palabra, `pronombre: «${uso}»`);
       }
       for (const [palabra, uso] of USTED) {
         if (buscar(texto, palabra, { mayusculaInicial: true })) anotar(palabra, `usted: «${uso}»`);
@@ -316,23 +334,31 @@ for (const carpeta of CARPETAS) {
   }
 }
 
-/* `--auditar`: los imperativos de tú **a mitad de frase** —«si sigue pasando,
-   recarga la página»—, que la guardia no puede rechazar sola porque ahí
-   también cabe la tercera persona —«el cliente entra, elige y pide»—. Se
-   listan para revisarlos a mano; no hacen fallar nada. */
+/* `--auditar`: las palabras que terminan en «á», «é» o «í» y no son de
+   siempre. Ahí se puede colar un voseo nuevo que no esté en la tabla —«mostrá»,
+   «tené»—, pero la forma sola no alcanza para rechazar: «acá», «café», «aquí»,
+   el futuro «podrá» y la primera persona «encontré» terminan igual. Se listan
+   para revisarlas a mano; no hacen fallar nada. */
 if (process.argv.includes("--auditar")) {
-  const verbos =
-    "elige|escribe|revisa|intenta|vuelve|recarga|agrega|usa|pon|borra|guarda|completa|descarga|sube|llena|cancela|abre|toca|busca|mira|cambia|activa|crea|deja|haz|empieza|indica|agrupa|actualiza|elimina|confirma|selecciona|comparte|imprime|pide|sigue|espera|llama|envía|encarga|fotografía|describe|prueba|carga|marca|dilo|hazlo|ponlo|ponle|déjala|déjalo|dime|mándanos|avisa|decide|piensa|recuerda|evita|anota|agrégala|agrégalo|revísala|súbelas";
-  const patron = new RegExp(`(?:[,;:—]\\s*|\\s(?:y|o|luego|después|mejor)\\s+)(${verbos})(?![\\p{L}])`, "iu");
+  const DE_SIEMPRE = new Set([
+    "qué", "está", "esté", "acá", "allá", "así", "sí", "aquí", "ahí", "allí", "café", "sofá", "mí",
+    "té", "bebé", "rubí", "ají", "maní", "potosí", "mié", "papá", "mamá", "menú", "perú", "quizá",
+  ]);
+  const conteo = new Map();
   for (const carpeta of CARPETAS) {
     for (const archivo of archivos(join(raiz, carpeta))) {
       const ruta = relative(raiz, archivo).replaceAll("\\", "/");
       for (const { texto, linea } of textosVisibles(readFileSync(archivo, "utf8"), archivo.endsWith(".tsx"))) {
-        const hallado = patron.exec(texto);
-        if (hallado) console.log(`${ruta}:${linea}  «${hallado[1]}»  ${texto.trim().slice(0, 150)}`);
+        for (const [palabra] of texto.matchAll(/[\p{L}]+/gu)) {
+          const minuscula = palabra.toLowerCase();
+          /* El futuro —«aparecerá», «tendrá»— es de tú y va bien. */
+          if (!/[áéí]$/.test(minuscula) || DE_SIEMPRE.has(minuscula) || /rá$/.test(minuscula)) continue;
+          if (!conteo.has(minuscula)) conteo.set(minuscula, `${ruta}:${linea}`);
+        }
       }
     }
   }
+  for (const [palabra, donde] of conteo) console.log(`«${palabra}»  ${donde}`);
   process.exit(0);
 }
 
@@ -345,4 +371,4 @@ if (hallazgos.length > 0) {
   process.exit(1);
 }
 
-console.log("Vocabulario: todo el texto visible va con vos y sin jerga prohibida.");
+console.log("Vocabulario: verbos de tú, «vos» de pronombre y sin jerga prohibida en todo el texto visible.");

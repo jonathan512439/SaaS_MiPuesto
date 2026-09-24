@@ -1726,6 +1726,24 @@ motivo por el que este archivo existe.
 
 ### 2026-09-24
 
+- **Etapa 5, corregida: verbos de tú y «vos» de pronombre.** El dueño vio en el
+  menú y el panel «lo que tenés incluido», «configurá», «describí», «que
+  vendés», «querés», y no los quiere: la entrada de abajo había leído mal su
+  decisión. Se le preguntó con ejemplos y eligió **verbos de tú y, donde aparece
+  el pronombre, «vos»** —«el precio lo pones vos»—, como se habla en el
+  occidente de Bolivia.
+  - 591 cambios en 156 archivos con una tabla de unas 200 formas de voseo, sin
+    tocar rutas ni nombres de código (límites que excluyen guiones, barras y
+    extensiones: la primera versión casi rompe `paso-quien-sos`).
+  - Revisados a mano los casos donde la forma coincide con la primera persona:
+    «lo que escribí» pasó a «lo que está escrito».
+  - La guardia ahora rechaza el voseo verbal (tabla y forma «-ás/-és/-ís» con
+    tilde, salvo el futuro y palabras de siempre), el pronombre «tú», el usted y
+    la jerga rioplatense. Probada rompiéndola con cinco formas; las cinco
+    marcadas. `vocabulario:auditar` lista las terminadas en «-á/-é/-í»; quedan
+    tres primeras personas legítimas.
+  - La jerga boliviana (caseros, yapa, wawas) se quedó.
+
 - **Etapa 5, primera parte: todo el sistema habla con vos.** Decisión del dueño:
   español neutro, con voseo y algo de jerga boliviana. Los textos nuevos de las
   últimas semanas estaban en tuteo por una regla equivocada que yo había

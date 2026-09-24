@@ -68,13 +68,13 @@ export async function POST(
 
   const nombre = textoLimpio(cuerpo.nombre, 80);
   if (nombre === "") {
-    return NextResponse.json({ error: "Escribí tu nombre." }, { status: 400 });
+    return NextResponse.json({ error: "Escribe tu nombre." }, { status: 400 });
   }
 
   const telefono = textoLimpio(cuerpo.telefono, 20).replace(/\D/g, "");
   const telefonoCompleto = telefono.length === 8 ? `591${telefono}` : telefono;
   if (!/^591[67]\d{7}$/.test(telefonoCompleto)) {
-    return NextResponse.json({ error: "Escribí un número de WhatsApp válido." }, { status: 400 });
+    return NextResponse.json({ error: "Escribe un número de WhatsApp válido." }, { status: 400 });
   }
 
   const inicio = typeof cuerpo.inicio === "string" ? cuerpo.inicio : "";
@@ -158,11 +158,11 @@ export async function POST(
     p_huella_ip: huellaIp,
   });
   if (errorLimite || typeof intentos !== "number") {
-    return NextResponse.json({ error: "No se pudo agendar. Probá de nuevo." }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo agendar. Prueba de nuevo." }, { status: 500 });
   }
   if (intentos > TOPE_INTENTOS_POR_VENTANA) {
     return NextResponse.json(
-      { error: "Llegaste al límite temporal de reservas. Intentá nuevamente en 15 minutos." },
+      { error: "Llegaste al límite temporal de reservas. Intenta nuevamente en 15 minutos." },
       { status: 429 },
     );
   }
@@ -179,7 +179,7 @@ export async function POST(
      aceptaría sin chistar, porque no choca con ninguna otra cita. */
   if (!horarioValido(producto.agenda, inicio, ahora)) {
     return NextResponse.json(
-      { error: "Ese horario ya no se puede pedir. Elegí otro." },
+      { error: "Ese horario ya no se puede pedir. Elige otro." },
       { status: 409 },
     );
   }
@@ -255,7 +255,7 @@ export async function POST(
     }
 
     if (error?.code !== CHOQUE) {
-      return NextResponse.json({ error: "No se pudo agendar. Intentá otra vez." }, { status: 500 });
+      return NextResponse.json({ error: "No se pudo agendar. Intenta otra vez." }, { status: 500 });
     }
     /* Fue un choque: este cupo está ocupado, se prueba el siguiente. */
   }
@@ -266,7 +266,7 @@ export async function POST(
   const ocupados = await obtenerOcupacion(supabase, producto.recursoId, ahora, hasta);
   return NextResponse.json(
     {
-      error: "Ese horario se acaba de ocupar. Elegí otro.",
+      error: "Ese horario se acaba de ocupar. Elige otro.",
       dias: proximosDias(producto.agenda, ocupados, ahora),
     },
     { status: 409 },

@@ -68,9 +68,9 @@ export function SelectorDeIcono({
           </Boton>
         }
         abierta={abierta}
-        descripcion="Buscá por lo que vendés: «foco», «tornillo», «pollo»."
+        descripcion="Busca por lo que vendes: «foco», «tornillo», «pollo»."
         onCerrar={() => setAbierta(false)}
-        titulo="Elegí un ícono"
+        titulo="Elige un ícono"
       >
         <div className={styles.contenido}>
           <label className={styles.buscador}>
@@ -86,7 +86,7 @@ export function SelectorDeIcono({
 
           {total === 0 ? (
             <p className={styles.vacio}>
-              No encontré ninguno con «{termino}». Probá con otra palabra.
+              No encontré ninguno con «{termino}». Prueba con otra palabra.
             </p>
           ) : null}
 

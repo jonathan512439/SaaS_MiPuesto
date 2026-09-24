@@ -80,30 +80,30 @@ export type ProductoLeido = {
    elige. */
 function reglaDeCategoria(categorias: readonly string[]): string {
   if (!categorias.length) {
-    return `- categoria: devolvé "" (el negocio todavía no tiene categorías).`;
+    return `- categoria: devuelve "" (el negocio todavía no tiene categorías).`;
   }
-  return `- categoria: elegí UNA de estas categorías que el negocio ya tiene, la que mejor le corresponda al producto:
+  return `- categoria: elige UNA de estas categorías que el negocio ya tiene, la que mejor le corresponda al producto:
 ${categorias.map((nombre) => `  - ${nombre}`).join("\n")}
-  Devolvé el nombre exactamente como está escrito. Si ninguna le corresponde de verdad, devolvé "${NINGUNA_CATEGORIA}": un producto en una categoría equivocada se pierde en el catálogo, y es mejor dejarlo sin categoría. No inventes una categoría nueva.`;
+  Devuelve el nombre exactamente como está escrito. Si ninguna le corresponde de verdad, devuelve "${NINGUNA_CATEGORIA}": un producto en una categoría equivocada se pierde en el catálogo, y es mejor dejarlo sin categoría. No inventes una categoría nueva.`;
 }
 
 /* Se le prohíbe explícitamente inventar marca, peso y sabor. Sin esa
    prohibición el modelo completa con lo más probable —«Aceite Fino 900 ml»
    cuando la etiqueta no se lee— y el dueño publica algo que no vende. */
 export function instruccionProducto(categorias: readonly string[]): string {
-  return `Mirás la fotografía de un producto que un comerciante boliviano quiere publicar en su catálogo.
+  return `Miras la fotografía de un producto que un comerciante boliviano quiere publicar en su catálogo.
 
-Devolvé:
+Devuelve:
 - nombre: cómo lo llamaría el vendedor. Corto y concreto, en español de Bolivia. Máximo 60 caracteres.
 - descripcion: una sola oración de venta, máximo 20 palabras.
 ${reglaDeCategoria(categorias)}
-- confianza: "alta" si se ve con claridad qué es; "media" si dudás; "baja" si no estás seguro.
+- confianza: "alta" si se ve con claridad qué es; "media" si dudas; "baja" si no estás seguro.
 
 Reglas que no se rompen:
 - No inventes marca, peso, volumen, sabor ni ingredientes que no se lean o no se vean en la foto.
 - No inventes precios. Nunca menciones un precio.
-- Si no reconocés el producto, devolvé nombre vacío y confianza "baja".
-- Escribí en español, sin emojis y sin signos de admiración.`;
+- Si no reconoces el producto, devuelve nombre vacío y confianza "baja".
+- Escribe en español, sin emojis y sin signos de admiración.`;
 }
 
 /* El esquema de la lista se arma con las categorías del negocio, igual que el
@@ -217,7 +217,7 @@ export function instruccionDeCamposDeCategoria(
 
   if (lineas.length === 0) return "";
 
-  return `\n\nEl negocio ya tiene categorías con datos propios. Cuando un renglón caiga en una de estas categorías Y el renglón diga alguno de esos datos, devolvelos en "datos", con la clave exacta entre comillas:\n${lineas.join("\n")}\n\nReglas de "datos", que no se rompen:\n- Solo si el dato está escrito en el renglón. NO lo deduzcas de lo que sabés del producto ni de su nombre.\n- Si no está, no devuelvas esa clave. Es correcto devolver "datos" vacío.\n- Usá únicamente las claves de la lista de arriba. No inventes claves nuevas.`;
+  return `\n\nEl negocio ya tiene categorías con datos propios. Cuando un renglón caiga en una de estas categorías Y el renglón diga alguno de esos datos, devuélvelos en "datos", con la clave exacta entre comillas:\n${lineas.join("\n")}\n\nReglas de "datos", que no se rompen:\n- Solo si el dato está escrito en el renglón. NO lo deduzcas de lo que sabes del producto ni de su nombre.\n- Si no está, no devuelvas esa clave. Es correcto devolver "datos" vacío.\n- Usa únicamente las claves de la lista de arriba. No inventes claves nuevas.`;
 }
 
 /* «No inventes» va repetido y en primer lugar porque es el umbral que decide si
@@ -227,20 +227,20 @@ export function instruccionDeCamposDeCategoria(
 
    `es_lista_de_precios` existe para poder decirle «esto no parece una lista»
    en vez de devolverle un invento sobre la foto de su estantería. */
-export const INSTRUCCION_LISTA = `Leés la lista de precios de un negocio boliviano. Puede llegarte como fotografía o como PDF, y estar impresa, tipeada o escrita a mano.
+export const INSTRUCCION_LISTA = `Lees la lista de precios de un negocio boliviano. Puede llegarte como fotografía o como PDF, y estar impresa, tipeada o escrita a mano.
 
-Devolvé un producto por cada renglón que tenga un nombre y un precio.
+Devuelve un producto por cada renglón que tenga un nombre y un precio.
 
 Reglas que no se rompen:
 - NO INVENTES productos. Si un renglón no se lee, no lo incluyas. Es preferible devolver menos productos que uno que no está.
 - No completes precios que no se leen. Si el nombre está pero el precio no, no incluyas ese renglón.
 - Los precios son bolivianos. "10.-", "Bs 10", "10 Bs" y "10" son todos 10.
-- Si un renglón trae dos precios (por ejemplo "35/45" o dos tamaños), devolvé dos productos con el tamaño en el nombre.
-- Si dice "2x15", el precio del producto es 15 y aclarás "por 2" en el nombre.
-- Los títulos de sección NO son productos, pero tampoco se tiran: "BEBIDAS", "ALMUERZOS", "FERRETERÍA" son la categoría de todos los productos que vienen debajo, hasta el título siguiente. Poné ese título en el campo categoria de cada producto, escrito como nombre propio y no en mayúsculas: "Bebidas", "Almuerzos".
-- Si la lista no tiene títulos de sección, dejá categoria vacía en todos.
-- descripcion: solo si el renglón trae detalle además del nombre, por ejemplo "Silpancho — carne apanada, arroz, papa y huevo". Si no hay detalle, dejala vacía. No la inventes ni la deduzcas de lo que sabés del plato.
+- Si un renglón trae dos precios (por ejemplo "35/45" o dos tamaños), devuelve dos productos con el tamaño en el nombre.
+- Si dice "2x15", el precio del producto es 15 y aclaras "por 2" en el nombre.
+- Los títulos de sección NO son productos, pero tampoco se tiran: "BEBIDAS", "ALMUERZOS", "FERRETERÍA" son la categoría de todos los productos que vienen debajo, hasta el título siguiente. Pon ese título en el campo categoria de cada producto, escrito como nombre propio y no en mayúsculas: "Bebidas", "Almuerzos".
+- Si la lista no tiene títulos de sección, deja categoria vacía en todos.
+- descripcion: solo si el renglón trae detalle además del nombre, por ejemplo "Silpancho — carne apanada, arroz, papa y huevo". Si no hay detalle, déjala vacía. No la inventes ni la deduzcas de lo que sabes del plato.
 - confianza: "alta" si el nombre y el precio se leen sin esfuerzo; "baja" si tuviste que adivinar alguna letra o número.
-- Escribí TODO en español, incluidos los nombres y las categorías. Si la lista tiene una palabra en otro idioma que es el nombre propio del producto, dejala como está; todo lo demás va en español.
-- es_lista_de_precios: false si lo que recibiste no es una lista de precios, por ejemplo si es la foto de una estantería, de una vitrina o de un producto suelto, o un PDF que es un contrato, un folleto o una factura. En ese caso devolvé la lista de productos vacía.
-- Si el PDF tiene varias páginas, leelas todas y devolvé los productos de todas, en orden. Los títulos de sección siguen valiendo aunque el título esté en una página y sus productos en la siguiente.`;
+- Escribe TODO en español, incluidos los nombres y las categorías. Si la lista tiene una palabra en otro idioma que es el nombre propio del producto, déjala como está; todo lo demás va en español.
+- es_lista_de_precios: false si lo que recibiste no es una lista de precios, por ejemplo si es la foto de una estantería, de una vitrina o de un producto suelto, o un PDF que es un contrato, un folleto o una factura. En ese caso devuelve la lista de productos vacía.
+- Si el PDF tiene varias páginas, léelas todas y devuelve los productos de todas, en orden. Los títulos de sección siguen valiendo aunque el título esté en una página y sus productos en la siguiente.`;

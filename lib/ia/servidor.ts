@@ -88,7 +88,7 @@ export async function prepararLecturaDeFoto(): Promise<Preparacion> {
       return {
         correcto: false,
         estado: 429,
-        error: `Llegaste a las ${credito.tope} fotos de hoy. Podés seguir ${describirReinicio(credito.reinicio)}.`,
+        error: `Llegaste a las ${credito.tope} fotos de hoy. Puedes seguir ${describirReinicio(credito.reinicio)}.`,
       };
     }
     return {

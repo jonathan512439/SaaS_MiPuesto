@@ -54,7 +54,7 @@ export function EtiquetasNfc({
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo completar",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {

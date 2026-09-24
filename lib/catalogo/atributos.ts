@@ -47,7 +47,7 @@ export const DEFINICIONES_TIPOS: ReadonlyArray<{
     id: "numero",
     nombre: "Número con unidad",
     ejemplo: "Potencia: 9 W",
-    ayuda: "Para medidas. La unidad la escribís una vez acá, no en cada producto.",
+    ayuda: "Para medidas. La unidad la escribes una vez acá, no en cada producto.",
   },
   {
     id: "opcion",
@@ -153,13 +153,13 @@ export function validarAtributos(
 
     const nombre = textoLimpio(dato.nombre);
     if (nombre === "") {
-      errores[campo("nombre")] = "Escribí cómo se llama el campo.";
+      errores[campo("nombre")] = "Escribe cómo se llama el campo.";
     } else if (nombre.length > LARGO_NOMBRE) {
       errores[campo("nombre")] = `Hasta ${LARGO_NOMBRE} caracteres.`;
     }
 
     if (!esTipoAtributo(dato.tipo)) {
-      errores[campo("tipo")] = "Elegí qué clase de dato es.";
+      errores[campo("tipo")] = "Elige qué clase de dato es.";
       return;
     }
     const tipo = dato.tipo;
@@ -206,7 +206,7 @@ export function validarAtributos(
          que tiene tres lo dejaría buscando el error donde no está. */
       opciones = [...new Set(lista.map(textoLimpio).filter((opcion) => opcion !== ""))];
       if (opciones.length < MINIMO_OPCIONES) {
-        errores[campo("opciones")] = `Escribí al menos ${MINIMO_OPCIONES} opciones distintas.`;
+        errores[campo("opciones")] = `Escribe al menos ${MINIMO_OPCIONES} opciones distintas.`;
       } else if (opciones.length > MAXIMO_OPCIONES) {
         errores[campo("opciones")] = `Hasta ${MAXIMO_OPCIONES} opciones.`;
       }

@@ -13,7 +13,7 @@ import panel from "../../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Papelera | MiPuesto",
-  description: "Productos que borraste y todavía podés recuperar.",
+  description: "Productos que borraste y todavía puedes recuperar.",
 };
 
 export default async function PaginaPapelera() {
@@ -42,7 +42,7 @@ export default async function PaginaPapelera() {
     <main className={panel.contenido}>
       <EncabezadoPanel
         accion={<Link href={RUTAS_PANEL.productos}>Ver mis productos</Link>}
-        descripcion={`Lo que borrás se guarda ${DIAS_PAPELERA} días y podés recuperarlo con sus fotografías. Después se borra solo.`}
+        descripcion={`Lo que borras se guarda ${DIAS_PAPELERA} días y puedes recuperarlo con sus fotografías. Después se borra solo.`}
         titulo="Papelera"
       />
 

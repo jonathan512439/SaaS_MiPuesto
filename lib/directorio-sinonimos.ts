@@ -29,7 +29,7 @@ export function leerSinonimo(
     .map((palabra) => normalizarPalabra(String(palabra)))
     .filter((palabra) => palabra.length >= 2 && palabra.length <= 40 && palabra !== limpio);
   const unicos = [...new Set(lista)];
-  if (unicos.length === 0) return { correcto: false, error: "Escribí al menos una palabra equivalente." };
+  if (unicos.length === 0) return { correcto: false, error: "Escribe al menos una palabra equivalente." };
   if (unicos.length > MAXIMO_EQUIVALENTES) {
     return { correcto: false, error: `Hasta ${MAXIMO_EQUIVALENTES} palabras equivalentes.` };
   }

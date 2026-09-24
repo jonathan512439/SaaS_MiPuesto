@@ -65,7 +65,7 @@ export async function POST(solicitud: NextRequest) {
     if (error) {
       return NextResponse.json(
         {
-          error: `Se ajustaron ${ajustados} productos y el proceso se detuvo. Volvé a intentarlo.`,
+          error: `Se ajustaron ${ajustados} productos y el proceso se detuvo. Vuelve a intentarlo.`,
         },
         { status: 500 },
       );

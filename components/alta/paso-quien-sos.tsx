@@ -9,7 +9,7 @@ import styles from "./paso.module.css";
 
 type Disponibilidad = "sin-consultar" | "consultando" | "libre" | "tomada" | "invalida";
 
-/* Paso 1 del alta: quién sos y cómo se llama tu negocio.
+/* Paso 1 del alta: quién eres y cómo se llama tu negocio.
  *
  * El slug **se calcula mientras escribe** y se confirma acá, no después. Es la
  * dirección que va a repartir en tarjetas y códigos QR: descubrir en el paso 4
@@ -115,7 +115,7 @@ export function PasoQuienSos({
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo guardar",
-        mensaje: causa instanceof Error ? causa.message : "Intentá de nuevo.",
+        mensaje: causa instanceof Error ? causa.message : "Intenta de nuevo.",
         variante: "error",
       });
     } finally {
@@ -129,7 +129,7 @@ export function PasoQuienSos({
   return (
     <form className={styles.paso} onSubmit={guardar}>
       <div className={styles.titulo}>
-        <h2>¿Cómo te llamás?</h2>
+        <h2>¿Cómo te llamas?</h2>
         <p>Para saludarte por tu nombre y no por «usuario».</p>
       </div>
 

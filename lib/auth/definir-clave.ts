@@ -85,12 +85,12 @@ export async function definirClaveConToken(
      muestra tal como vino, con su código. Un mensaje inventado ya nos costó
      tres días de buscar en el lugar equivocado. */
   if (datos.error_code === "same_password") {
-    return { correcto: false, motivo: "Esa es la contraseña que ya tenías. Elegí una distinta." };
+    return { correcto: false, motivo: "Esa es la contraseña que ya tenías. Elige una distinta." };
   }
   if (datos.error_code === "weak_password") {
     return {
       correcto: false,
-      motivo: "Esa contraseña es demasiado fácil de adivinar. Probá con una o dos palabras más.",
+      motivo: "Esa contraseña es demasiado fácil de adivinar. Prueba con una o dos palabras más.",
     };
   }
 
@@ -168,7 +168,7 @@ export async function verificarSegundoFactor(
       correcto: false,
       motivo:
         verificacion.status === 400 || verificacion.status === 422
-          ? "El código no coincide. Probá con el siguiente que muestre tu aplicación."
+          ? "El código no coincide. Prueba con el siguiente que muestre tu aplicación."
           : motivoDe(datos, verificacion.status),
     };
   }

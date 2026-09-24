@@ -19,7 +19,7 @@ import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Plantilla del catálogo | MiPuesto",
-  description: "Compará y elegí la presentación visual de tu catálogo.",
+  description: "Compara y elige la presentación visual de tu catálogo.",
 };
 
 export default async function PaginaPlantilla() {
@@ -91,7 +91,7 @@ export default async function PaginaPlantilla() {
   return (
     <main className={panel.contenido}>
       <EncabezadoPanel
-        descripcion="Cambiala cuando quieras."
+        descripcion="Cámbiala cuando quieras."
         titulo="Apariencia"
       />
 

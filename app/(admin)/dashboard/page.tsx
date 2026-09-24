@@ -26,7 +26,7 @@ import panel from "./panel.module.css";
 
 export const metadata: Metadata = {
   title: "Resumen | MiPuesto",
-  description: "Qué le falta a tu catálogo, qué pasó con él esta semana y qué tenés usado.",
+  description: "Qué le falta a tu catálogo, qué pasó con él esta semana y qué tienes usado.",
 };
 
 const METRICAS = [
@@ -211,7 +211,7 @@ export default async function PaginaDashboard() {
           usar le sobra. */}
       {negocio.foto_ia_habilitada ? (
         <section aria-labelledby="tus-limites" className={styles.limites}>
-          <h2 id="tus-limites">Lo que tenés incluido</h2>
+          <h2 id="tus-limites">Lo que tienes incluido</h2>
           <dl>
             <div>
               <dt>Lecturas con IA este mes</dt>

@@ -20,8 +20,8 @@ export const AYUDA_LISTA = {
      que cualquier fotografía, porque el texto ya está escrito adentro del
      archivo y no hay sombra, ángulo ni enfoque que puedan salir mal. */
   pasos: [
-    "¿Tenés la lista en PDF, la que te mandó tu proveedor? Subila así: se lee mejor que una foto.",
-    "Si vas a fotografiarla, apoyá la hoja en una superficie plana y sacá la foto desde arriba, no de costado.",
+    "¿Tienes la lista en PDF, la que te mandó tu proveedor? Súbela así: se lee mejor que una foto.",
+    "Si vas a fotografiarla, apoya la hoja en una superficie plana y saca la foto desde arriba, no de costado.",
     "Que se vean los cuatro bordes de la hoja y que quede derecha, con buena luz y sin flash que rebote.",
     "Si tu lista es larga, mandala por partes: media hoja por vez se lee mejor que la hoja entera.",
   ],
@@ -37,10 +37,10 @@ export const AYUDA_LISTA = {
   noFunciona: [
     "Fotos de la estantería o de la vitrina",
     "Precios sueltos sin el nombre al lado",
-    "Letra que ni vos podés leer en la foto",
-    "Fotografías de cada producto: esas las subís vos",
-    "Cantidades en stock: eso lo sabés vos, no la lista",
-    "PDF de más de 4 MB: subí tu lista por páginas",
+    "Letra que ni vos puedes leer en la foto",
+    "Fotografías de cada producto: esas las subes vos",
+    "Cantidades en stock: eso lo sabes vos, no la lista",
+    "PDF de más de 4 MB: sube tu lista por páginas",
   ],
   /* El ejemplo va con los casos raros de verdad —«2x15», dos tamaños, el título
      de sección— porque son los que hacen dudar al comerciante de si va a
@@ -69,11 +69,11 @@ export const AYUDA_PRODUCTO = {
   titulo: "Cómo sacar la foto del producto",
   pasos: [
     "Un solo producto por foto, centrado y de cerca.",
-    "Fondo liso si podés: una mesa, una pared, una bandeja.",
-    "Buena luz. La foto que ya subís al catálogo sirve igual.",
+    "Fondo liso si puedes: una mesa, una pared, una bandeja.",
+    "Buena luz. La foto que ya subes al catálogo sirve igual.",
   ],
   advertencia:
-    "La herramienta escribe el nombre y la descripción, y la foto queda como imagen del producto. El precio nunca: ninguna foto sabe cuánto cobrás vos.",
+    "La herramienta escribe el nombre y la descripción, y la foto queda como imagen del producto. El precio nunca: ninguna foto sabe cuánto cobras vos.",
   ejemplo: {
     entrada: "Foto de un plato de hamburguesa con papas",
     nombre: "Hamburguesa doble con queso",

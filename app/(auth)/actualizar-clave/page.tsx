@@ -22,11 +22,11 @@ export default async function PaginaActualizarClave({
         /* Quien llegó acá rebotado desde el panel necesita saber por qué: si no,
            parece que el sistema no lo deja entrar por capricho. */
         motivo === "pendiente"
-          ? "Entraste con el enlace del correo, así que primero definí tu contraseña. Recién después se abre el panel."
-          : "Usá al menos 10 caracteres y evitá contraseñas que ya uses en otros servicios."
+          ? "Entraste con el enlace del correo, así que primero define tu contraseña. Recién después se abre el panel."
+          : "Usa al menos 10 caracteres y evita contraseñas que ya uses en otros servicios."
       }
       paso="Contraseña de administrador"
-      titulo="Definí tu contraseña"
+      titulo="Define tu contraseña"
     >
       <FormularioActualizarClave />
     </MarcoAuth>

@@ -52,7 +52,7 @@ export default async function PaginaCuenta() {
   return (
     <main className={panel.contenido}>
       <EncabezadoPanel
-        descripcion="Administrá tu suscripción y los datos de tu negocio."
+        descripcion="Administra tu suscripción y los datos de tu negocio."
         titulo="Tu cuenta"
       />
 
@@ -74,11 +74,11 @@ export default async function PaginaCuenta() {
         ) : suscripcion.estado === "vencida" ? (
           <p className={styles.explicacion}>
             Tu catálogo todavía se ve, pero dejará de publicarse en las próximas horas si
-            no renovás. Tus datos no se borran.
+            no renuevas. Tus datos no se borran.
           </p>
         ) : (
           <p className={styles.explicacion}>
-            Escribinos unos días antes para que tu catálogo no deje de verse. Se paga por
+            Escríbenos unos días antes para que tu catálogo no deje de verse. Se paga por
             WhatsApp y lo activamos el mismo día.
           </p>
         )}
@@ -128,7 +128,7 @@ export default async function PaginaCuenta() {
           </div>
         </dl>
         <p className={styles.aclaracion}>
-          Sin contrato de permanencia y sin comisión por venta. Podés dejar de pagar
+          Sin contrato de permanencia y sin comisión por venta. Puedes dejar de pagar
           cuando quieras.
         </p>
       </section>

@@ -83,8 +83,8 @@ export async function POST(solicitud: NextRequest) {
       {
         error:
           lectura.motivo === "tardo_demasiado"
-            ? "La lectura tardó demasiado. Si es un PDF largo, subilo por partes; si es una foto, fotografiá media hoja por vez."
-            : "No pudimos leer el archivo. Probá de nuevo en un momento.",
+            ? "La lectura tardó demasiado. Si es un PDF largo, súbelo por partes; si es una foto, fotografía media hoja por vez."
+            : "No pudimos leer el archivo. Prueba de nuevo en un momento.",
       },
       { status: 503 },
     );
@@ -149,7 +149,7 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "No pudimos leer ningún producto. Si es una foto, probá con más luz, más cerca y con la lista derecha.",
+          "No pudimos leer ningún producto. Si es una foto, prueba con más luz, más cerca y con la lista derecha.",
       },
       { status: 422 },
     );

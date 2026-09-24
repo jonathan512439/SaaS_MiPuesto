@@ -31,7 +31,7 @@ export async function POST(solicitud: NextRequest, contexto: ContextoRuta) {
       : null;
   if (estado !== "confirmado" && estado !== "cancelado") {
     return NextResponse.json(
-      { error: "Elegí confirmar la venta o cancelar el pedido." },
+      { error: "Elige confirmar la venta o cancelar el pedido." },
       { status: 400 },
     );
   }
@@ -57,13 +57,13 @@ export async function POST(solicitud: NextRequest, contexto: ContextoRuta) {
   }
   if (error?.message.includes("PEDIDO_NO_PENDIENTE")) {
     return NextResponse.json(
-      { error: "El pedido ya fue atendido o su reserva venció. Actualizá la lista." },
+      { error: "El pedido ya fue atendido o su reserva venció. Actualiza la lista." },
       { status: 409 },
     );
   }
   if (error || !data) {
     return NextResponse.json(
-      { error: "No se pudo cambiar el estado del pedido. Intentá nuevamente." },
+      { error: "No se pudo cambiar el estado del pedido. Intenta nuevamente." },
       { status: 500 },
     );
   }

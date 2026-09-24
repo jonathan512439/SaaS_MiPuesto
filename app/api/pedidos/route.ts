@@ -243,7 +243,7 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "La reserva fue creada, pero el negocio debe corregir su número de WhatsApp. Guardá el código mostrado.",
+          "La reserva fue creada, pero el negocio debe corregir su número de WhatsApp. Guarda el código mostrado.",
         pedido: {
           codigo: data.codigo,
           total: Number(data.total),

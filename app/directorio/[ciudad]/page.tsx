@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Propiedades): Promise<Metadat
   const nombre = nombreDeCiudad(ciudad);
   return {
     title: `Negocios en ${nombre} | MiPuesto`,
-    description: `Catálogos de negocios de ${nombre}: buscá productos por zona y rubro, y pedí por WhatsApp.`,
+    description: `Catálogos de negocios de ${nombre}: busca productos por zona y rubro, y pide por WhatsApp.`,
     alternates: { canonical: `/directorio/${ciudad}` },
   };
 }

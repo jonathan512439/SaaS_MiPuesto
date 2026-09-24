@@ -197,15 +197,13 @@ describe("qué plantillas le sirven a un negocio", () => {
   });
 });
 
-describe("con vos, nunca tuteo", () => {
-  /* Decisión del dueño, 2026-09-24: voseo y español neutro. Las plantillas se
-     escribieron primero con tuteo; esta prueba y `check-vocabulario.mjs` lo
-     cuidan. */
-  const TUTEO =
-    /(?<!\p{L})(tú|tienes|puedes|vendes|llevas|escríbenos|súbela|bórralas|déjala|dilo|ponle|pon)(?!\p{L})/u;
+describe("verbos de tú, sin voseo", () => {
+  /* Decisión del dueño (2026-09-24): verbos conjugados con tú y «vos» solo
+     como pronombre. Esta prueba y `check-vocabulario.mjs` lo cuidan. */
+  const VOSEO = /(?<!\p{L})(tenés|podés|vendés|llevás|escribí|poné|dejá|decilo|ponele|borralas|dejala|completá|cargá)(?!\p{L})/u;
 
   it.each(rubrosConPlantilla())("%s", (rubro) => {
     const texto = [...filasDeInstrucciones(rubro), ...filasDeProductos(rubro)].flat().join(" ");
-    expect(texto).not.toMatch(TUTEO);
+    expect(texto).not.toMatch(VOSEO);
   });
 });

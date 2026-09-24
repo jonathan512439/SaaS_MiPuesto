@@ -16,6 +16,13 @@ cierre, «te la hacés fácil».
 Así que la corrección no es cambiar de pronombre. **El voseo se queda.** Lo que
 se corrige es el léxico.
 
+> **Actualizado el 2026-09-24 — decisión del dueño del proyecto, que reemplaza
+> lo de arriba:** los verbos se conjugan **con tú** —«elige», «tienes»,
+> «configura», «escríbenos»— y, donde aparece el pronombre, se usa **«vos»**
+> —«el precio lo pones vos»—, como se habla en el occidente de Bolivia. Nada de
+> voseo verbal («tenés», «elegí») ni de usted. Hubo dos idas y vueltas antes de
+> llegar acá; se preguntó con ejemplos y esta es la respuesta.
+
 ## 2. Lo que se encontró al revisar el código
 
 Se escaneó `app/`, `components/` y `lib/` buscando jerga marcada. **Casi no hay**
@@ -29,13 +36,14 @@ correctos. Ya nos pasó dos veces con guardias que afirmaban de más.
 
 ## 3. Las cuatro reglas
 
-**1. Vos, siempre. Nunca usted.**
+**1. Verbos de tú, «vos» de pronombre. Nunca usted.**
 
 | Sí | No |
 |---|---|
-| Elegí tu rubro | Elija su rubro / Elige tu rubro |
-| Subí tu logo | Suba su logo |
-| Guardá los cambios | Guarde los cambios |
+| Elige tu rubro | Elija su rubro / Elegí tu rubro |
+| Sube tu logo | Suba su logo / Subí tu logo |
+| Guarda los cambios | Guarde los cambios / Guardá los cambios |
+| El precio lo pones vos | El precio lo ponés vos / El precio lo pones tú |
 
 **2. La frase dice qué pasa, no qué siente el sistema.**
 
@@ -55,21 +63,21 @@ correctos. Ya nos pasó dos veces con guardias que afirmaban de más.
 **4. Palabras del negocio, no del sistema.** La tabla completa está en
 [`04-PANEL.md`](04-PANEL.md), sección 3.7.
 
-**5. Nada de tuteo.** Agregada el 2026-09-24. Durante unas semanas los textos
-nuevos se escribieron con «elige», «tienes», «escríbenos» por una regla
-equivocada, y quedaron mezclados con el voseo. Decisión del dueño del proyecto:
-**español neutro, con vos y algo de jerga boliviana.** Se convirtieron 180
-textos en 64 archivos.
+**5. Nada de voseo verbal.** Agregada el 2026-09-24, y corregida el mismo día.
+Primero se convirtieron 180 textos del tuteo al voseo («elegí», «tenés») por
+una lectura equivocada de la decisión; el dueño lo rechazó y todo volvió a los
+verbos de tú, con «vos» solo como pronombre (591 cambios en 156 archivos).
 
 | Sí | No |
 |---|---|
-| Elegí tu número | Elige tu número |
-| Podés cancelarlo | Puedes cancelarlo |
-| Escribinos | Escríbenos |
-| Poné «Talla» | Pon «Talla» |
+| Elige tu número | Elegí tu número |
+| Puedes cancelarlo | Podés cancelarlo |
+| Escríbenos | Escribinos |
+| Configura tu horario | Configurá tu horario |
+| Confirma que eres vos | Confirmá que sos vos |
 
-Ojo con lo que no es una orden: «Abre el lunes a las 09:00» habla del negocio,
-y «el cliente elige» es tercera persona. Esas se quedan como están.
+Ojo con lo que tiene la misma forma: «lo que escribí» (primera persona) se
+confunde con el voseo «escribí»; se reescribe —«lo que está escrito»—.
 
 ## 3 bis. La jerga boliviana que sí va
 
@@ -136,16 +144,21 @@ día de uso.
 
 **Hecha el 2026-09-24.** `scripts/check-vocabulario.mjs`, dentro de `npm test`,
 que corre también antes de cada publicación en Cloudflare. Probada rompiéndola
-con «Elige otro filtro, che: tienes más pedidos»: marcó las tres cosas.
+con «Configurá el filtro, tenés más pedidos: escribinos si tú querés»: marcó las
+cinco formas.
+
+Busca el voseo por dos caminos: una tabla de unas 200 formas con su reemplazo,
+y la forma —toda palabra que termina en «-ás», «-és» o «-ís» con tilde, salvo el
+futuro («podrás») y unas pocas de siempre («además», «país»)—. Las que terminan
+en «-á», «-é», «-í» no se pueden rechazar por la forma («acá», «café», «aquí»):
+`npm run vocabulario:auditar` las lista para revisarlas.
 
 Cómo quedó, además de lo que decía el plan:
 
-- **Tuteo, con tilde.** «vendes» es tuteo y «vendés» es voseo: la tilde es lo
-  único que las separa, así que estas se comparan con tilde. La primera versión
-  comparaba sin tildes y marcaba el voseo como error.
-- **Imperativos de tú solo al comienzo de una frase** («Elige…»). A mitad de
-  frase también cabe la tercera persona, así que no se rechazan:
-  `npm run vocabulario:auditar` los lista para revisarlos a mano.
+- **El voseo, con tilde.** «vendés» es voseo y «vendes» no: la tilde es lo
+  único que las separa, así que se comparan con tilde.
+- **El usted, solo al comienzo de una frase** («Elija…»): a mitad de frase es
+  subjuntivo de tercera persona —«cuando un casero haga su pedido»—.
 - **Muletillas que son español corriente** —«de una», «tal cual», «literal»—
   solo cuando van solas («¡De una!»): buscarlas en cualquier lugar marcaba «de
   una vez» y hasta «de uña».

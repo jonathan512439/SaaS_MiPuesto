@@ -34,7 +34,7 @@ export function InvitarNegocio() {
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo invitar",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {

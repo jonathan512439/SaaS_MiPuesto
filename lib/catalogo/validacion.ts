@@ -24,10 +24,10 @@ export function esUuid(valor: unknown): valor is string {
 }
 
 export function validarNombreOrganizacion(valor: unknown) {
-  if (typeof valor !== "string") return "Escribí un nombre válido.";
+  if (typeof valor !== "string") return "Escribe un nombre válido.";
   const nombre = valor.trim();
   if (!nombre) return "El nombre es obligatorio.";
-  if (nombre.length > 80) return "Usá como máximo 80 caracteres.";
+  if (nombre.length > 80) return "Usa como máximo 80 caracteres.";
   return "";
 }
 
@@ -77,14 +77,14 @@ export function validarProducto(
 
   if (!nombre) errores.nombre = "El nombre es obligatorio.";
   else if (nombre.length > LARGO_MAXIMO_NOMBRE_PRODUCTO)
-    errores.nombre = `Usá como máximo ${LARGO_MAXIMO_NOMBRE_PRODUCTO} caracteres.`;
+    errores.nombre = `Usa como máximo ${LARGO_MAXIMO_NOMBRE_PRODUCTO} caracteres.`;
 
   if (descripcion && descripcion.length > 1000) {
-    errores.descripcion = "Usá como máximo 1000 caracteres.";
+    errores.descripcion = "Usa como máximo 1000 caracteres.";
   }
 
   if (!Number.isFinite(precio) || precio < 0 || precio > 9_999_999.99) {
-    errores.precio = "Escribí un precio válido mayor o igual a cero.";
+    errores.precio = "Escribe un precio válido mayor o igual a cero.";
   } else if (Math.round(precio * 100) !== precio * 100) {
     errores.precio = "El precio admite como máximo dos decimales.";
   }
@@ -96,7 +96,7 @@ export function validarProducto(
     errores.subcategoria_id = "La subcategoría seleccionada no es válida.";
   }
   if (subcategoriaId !== null && categoriaId === null) {
-    errores.subcategoria_id = "Elegí primero una categoría.";
+    errores.subcategoria_id = "Elige primero una categoría.";
   }
 
   if (
@@ -107,7 +107,7 @@ export function validarProducto(
       cantidadStock < 0 ||
       cantidadStock > 999_999)
   ) {
-    errores.cantidad_stock = "Escribí una cantidad entera entre 0 y 999999.";
+    errores.cantidad_stock = "Escribe una cantidad entera entre 0 y 999999.";
   }
 
   /* La duración de un servicio. Vacía significa «la de mi categoría», que es lo
@@ -130,7 +130,7 @@ export function validarProducto(
   const recursoId =
     recursoCrudo === undefined || recursoCrudo === null || recursoCrudo === "" ? null : recursoCrudo;
   if (recursoId !== null && !esUuid(recursoId)) {
-    errores.recurso_id = "Elegí quién atiende de la lista.";
+    errores.recurso_id = "Elige quién atiende de la lista.";
   }
 
   if (Object.keys(errores).length > 0) return { correcto: false, errores };

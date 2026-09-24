@@ -54,7 +54,7 @@ export async function prepararArchivoParaLectura(archivo: File): Promise<Adjunto
   if (esPdf(cabecera)) {
     if (archivo.size > PESO_MAXIMO_PDF) {
       throw new Error(
-        "El PDF debe pesar como máximo 4 MB. Si es un catálogo largo, subí las páginas de tu lista por separado.",
+        "El PDF debe pesar como máximo 4 MB. Si es un catálogo largo, sube las páginas de tu lista por separado.",
       );
     }
     const bytes = new Uint8Array(await archivo.arrayBuffer());
@@ -70,7 +70,7 @@ export async function prepararArchivoParaLectura(archivo: File): Promise<Adjunto
      comparte la herramienta de producto, donde un PDF no significa nada y
      nombrarlo confundiría. Acá sí es una opción, y hay que decirlo. */
   if (!detectarTipoImagen(cabecera)) {
-    throw new Error("Elegí una foto (JPG, PNG o WebP) o un PDF.");
+    throw new Error("Elige una foto (JPG, PNG o WebP) o un PDF.");
   }
 
   const foto = await prepararFotoParaLectura(archivo);

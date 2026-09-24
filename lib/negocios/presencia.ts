@@ -52,7 +52,7 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
 
   const rubroPublico = entrada.rubro_publico;
   if (!esRubroPublicoId(rubroPublico)) {
-    errores.rubro_publico = "Elegí qué vendés.";
+    errores.rubro_publico = "Elige qué vendes.";
   }
 
   const secundarios = leerRubrosSecundarios(
@@ -63,7 +63,7 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
 
   const aparece = entrada.aparece_en_directorio;
   if (aparece !== true && aparece !== false) {
-    errores.aparece_en_directorio = "Contanos si querés que te encuentren en el buscador.";
+    errores.aparece_en_directorio = "Cuéntanos si quieres que te encuentren en el buscador.";
   }
 
   let ciudad: CiudadId | null = null;
@@ -75,11 +75,11 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
     if (esCiudadId(entrada.ciudad)) {
       ciudad = entrada.ciudad;
     } else {
-      errores.ciudad = "Elegí tu ciudad.";
+      errores.ciudad = "Elige tu ciudad.";
     }
 
     ubicacion = leerPunto(entrada.ubicacion);
-    if (!ubicacion) errores.ubicacion = "Marcá en el mapa dónde está tu local.";
+    if (!ubicacion) errores.ubicacion = "Marca en el mapa dónde está tu local.";
 
     if (entrada.zona_id !== undefined && entrada.zona_id !== null && entrada.zona_id !== "") {
       if (esUuid(entrada.zona_id)) {
@@ -92,7 +92,7 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
     const propuesta = typeof entrada.zona_propuesta === "string" ? entrada.zona_propuesta.trim() : "";
     if (!zonaId && propuesta !== "") {
       if (propuesta.length < LARGO_ZONA_PROPUESTA.minimo || propuesta.length > LARGO_ZONA_PROPUESTA.maximo) {
-        errores.zona_propuesta = `Escribí tu zona, de ${LARGO_ZONA_PROPUESTA.minimo} a ${LARGO_ZONA_PROPUESTA.maximo} caracteres.`;
+        errores.zona_propuesta = `Escribe tu zona, de ${LARGO_ZONA_PROPUESTA.minimo} a ${LARGO_ZONA_PROPUESTA.maximo} caracteres.`;
       } else {
         zonaPropuesta = propuesta;
       }

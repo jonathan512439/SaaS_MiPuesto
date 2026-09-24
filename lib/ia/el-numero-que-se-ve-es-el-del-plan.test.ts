@@ -57,7 +57,7 @@ describe("el cupo que se muestra", () => {
 
     expect(
       infractores,
-      "usá cupoDelPlan(plan, TOPE_FOTOS_POR_DIA).mensual; si de verdad tiene que decir el techo del sistema, sumalo a PUEDEN_NOMBRARLO con su motivo",
+      "usa cupoDelPlan(plan, TOPE_FOTOS_POR_DIA).mensual; si de verdad tiene que decir el techo del sistema, sumalo a PUEDEN_NOMBRARLO con su motivo",
     ).toEqual([]);
   });
 

@@ -126,7 +126,7 @@ export function FormularioIdentidad({
       mostrarAviso({
         titulo: "No se pudo guardar la imagen",
         mensaje:
-          error instanceof Error ? error.message : "Revisá tu conexión e intentá nuevamente.",
+          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -157,7 +157,7 @@ export function FormularioIdentidad({
       mostrarAviso({
         titulo: "No se pudo quitar la imagen",
         mensaje:
-          error instanceof Error ? error.message : "Revisá tu conexión e intentá nuevamente.",
+          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -200,7 +200,7 @@ export function FormularioIdentidad({
       mostrarAviso({
         titulo: "No se pudieron guardar los enlaces",
         mensaje:
-          error instanceof Error ? error.message : "Revisá tu conexión e intentá nuevamente.",
+          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -297,7 +297,7 @@ export function FormularioIdentidad({
             value={ubicacion}
           />
           <small className={styles.ayudaUbicacion}>
-            Abrí Google Maps, buscá tu negocio, tocá «Compartir» y pegá acá el enlace. Tus
+            Abre Google Maps, busca tu negocio, toca «Compartir» y pega acá el enlace. Tus
             clientes verán un botón «Cómo llegar».
           </small>
           {errores.ubicacion_url ? <small>{errores.ubicacion_url}</small> : null}
@@ -326,12 +326,12 @@ export function FormularioIdentidad({
               queda trabado sin entender por qué. */}
           <ol className={styles.pasosResenas}>
             <li>
-              <strong>Desde una computadora</strong>, abrí Google Maps y buscá tu
+              <strong>Desde una computadora</strong>, abre Google Maps y busca tu
               negocio.
             </li>
-            <li>Hacé clic en tu ficha y bajá hasta «Reseñas».</li>
-            <li>Hacé clic en «Escribir una reseña».</li>
-            <li>Copiá la dirección que se abre y pegala acá.</li>
+            <li>Haz clic en tu ficha y baja hasta «Reseñas».</li>
+            <li>Haz clic en «Escribir una reseña».</li>
+            <li>Copia la dirección que se abre y pégala acá.</li>
           </ol>
           <small className={styles.ayudaUbicacion}>
             No sirve el enlace de «Compartir»: ese lleva a ver tu ficha, no a

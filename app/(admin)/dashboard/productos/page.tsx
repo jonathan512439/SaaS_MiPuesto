@@ -11,7 +11,7 @@ import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Productos | MiPuesto",
-  description: "Cargá, buscá y actualizá los productos de tu catálogo.",
+  description: "Carga, busca y actualiza los productos de tu catálogo.",
 };
 
 /* Los productos, con la pantalla entera para ellos.
@@ -35,7 +35,7 @@ export default async function PaginaProductos() {
   return (
     <main className={panel.contenido}>
       <EncabezadoPanel
-        descripcion="Gestioná tus productos y mantené tu negocio siempre al día."
+        descripcion="Gestiona tus productos y mantén tu negocio siempre al día."
         titulo="Productos"
       />
 

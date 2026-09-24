@@ -18,7 +18,7 @@ import panel from "../../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Importar tu Excel | MiPuesto",
-  description: "Cargá tu catálogo desde la planilla que ya tenés.",
+  description: "Carga tu catálogo desde la planilla que ya tienes.",
 };
 
 export const dynamic = "force-dynamic";
@@ -87,7 +87,7 @@ export default async function PaginaImportarPlanilla() {
     <main className={panel.contenido}>
       <EncabezadoPanel
         accion={<Link href={RUTAS_PANEL.productos}>Ver mis productos</Link>}
-        descripcion="Si ya llevás tu inventario en una planilla, no hace falta volver a escribirlo. Subí el archivo, decinos qué columna es cuál y revisá antes de crear."
+        descripcion="Si ya llevas tu inventario en una planilla, no hace falta volver a escribirlo. Sube el archivo, dinos qué columna es cuál y revisa antes de crear."
         titulo="Importar tu Excel"
       />
 

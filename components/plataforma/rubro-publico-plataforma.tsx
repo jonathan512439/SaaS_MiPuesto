@@ -56,7 +56,7 @@ export function RubroPublicoPlataforma({
     } catch (motivo) {
       mostrarAviso({
         titulo: "No se cambió el rubro",
-        mensaje: motivo instanceof Error ? motivo.message : "Intentá de nuevo.",
+        mensaje: motivo instanceof Error ? motivo.message : "Intenta de nuevo.",
         variante: "error",
       });
     } finally {
@@ -81,7 +81,7 @@ export function RubroPublicoPlataforma({
       <label className={styles.campo}>
         <span>Rubro público nuevo</span>
         <select onChange={(evento) => setElegido(evento.target.value)} value={elegido}>
-          <option value="">Elegí uno</option>
+          <option value="">Elige uno</option>
           {opciones.map(({ id, nombre }) => (
             <option disabled={id === rubroPublicoActual} key={id} value={id}>
               {nombre}

@@ -9,7 +9,7 @@ import {
   siembraDeRubroPublico,
 } from "../../../../lib/negocios/rubros-publicos";
 
-/* «Qué vendés y dónde», desde «Mi negocio». Fase 11.
+/* «Qué vendes y dónde», desde «Mi negocio». Fase 11.
  *
  * Es lo mismo que el paso 2 del alta, con dos diferencias:
  *
@@ -39,7 +39,7 @@ export async function PATCH(solicitud: NextRequest) {
   const validacion = validarPresencia(objeto);
   if (!validacion.correcto) {
     return NextResponse.json(
-      { error: "Revisá lo que cargaste.", errores: validacion.errores },
+      { error: "Revisa lo que cargaste.", errores: validacion.errores },
       { status: 400 },
     );
   }
@@ -83,7 +83,7 @@ export async function PATCH(solicitud: NextRequest) {
        de Bolivia—, y si rechaza algo que la validación dejó pasar, el dueño
        tiene que saber que no se guardó. */
     console.error("presencia: la base rechazó el cambio", error.code, error.message);
-    return NextResponse.json({ error: "No se pudo guardar. Intentá de nuevo." }, { status: 500 });
+    return NextResponse.json({ error: "No se pudo guardar. Intenta de nuevo." }, { status: 500 });
   }
 
   return NextResponse.json({ guardado: true });

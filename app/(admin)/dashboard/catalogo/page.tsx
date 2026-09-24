@@ -35,7 +35,7 @@ export default async function PaginaCatalogo() {
   return (
     <main className={panel.contenido}>
       <EncabezadoPanel
-        descripcion="Las categorías son las secciones de tu catálogo. Acá elegís su ícono, qué datos pide cada una y, si vendés turnos, sus horarios."
+        descripcion="Las categorías son las secciones de tu catálogo. Acá eliges su ícono, qué datos pide cada una y, si vendes turnos, sus horarios."
         titulo="Mi catálogo"
       />
 

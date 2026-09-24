@@ -13,7 +13,7 @@ export default function PaginaRecuperarClave() {
     <MarcoAuth
       descripcion="Te enviaremos un enlace para definir una contraseña nueva."
       paso="Recuperación de acceso"
-      titulo="Recuperá tu contraseña"
+      titulo="Recupera tu contraseña"
     >
       <FormularioRecuperacion />
     </MarcoAuth>

@@ -17,9 +17,9 @@ export default async function PaginaLogin({ searchParams }: PropiedadesPaginaLog
 
   return (
     <MarcoAuth
-      descripcion="Usá el correo que recibió la invitación y tu contraseña."
+      descripcion="Usa el correo que recibió la invitación y tu contraseña."
       paso="Acceso de administradores"
-      titulo="Ingresá a tu negocio"
+      titulo="Ingresa a tu negocio"
     >
       <FormularioLogin
         claveGuardada={motivo === "clave-lista"}

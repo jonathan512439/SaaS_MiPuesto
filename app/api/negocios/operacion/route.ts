@@ -23,7 +23,7 @@ export async function POST(solicitud: NextRequest) {
   const validacion = validarOperacionNegocio(entrada);
   if (!validacion.correcto) {
     return NextResponse.json(
-      { error: "Revisá el horario y el tiempo de reserva.", errores: validacion.errores },
+      { error: "Revisa el horario y el tiempo de reserva.", errores: validacion.errores },
       { status: 400 },
     );
   }

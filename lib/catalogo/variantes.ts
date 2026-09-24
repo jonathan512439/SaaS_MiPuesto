@@ -153,7 +153,7 @@ export function validarVariantes(
     const normalizado = escrito === "" ? "" : normalizarNombreDePresentacion(escrito, contexto.tipo ?? "presentacion");
     const nombre = normalizado ?? escrito;
     if (nombre === "") {
-      errores[campo("nombre")] = "Escribí cómo se llama.";
+      errores[campo("nombre")] = "Escribe cómo se llama.";
     } else if (normalizado === null) {
       errores[campo("nombre")] = `«${escrito}» no es un número de calzado. Van de 16 a 50, enteros o con medio: 38, 40,5.`;
     } else if (nombre.length > LARGO_NOMBRE_VARIANTE) {
@@ -178,13 +178,13 @@ export function validarVariantes(
     } else if (cantidadStock === null && contexto.controlaStock) {
       /* Desde la fase 13 las existencias de un producto con presentaciones
          viven en cada una: sin el número, esa talla no se podría pedir. */
-      errores[campo("cantidadStock")] = "Indicá cuántas unidades hay de esta presentación.";
+      errores[campo("cantidadStock")] = "Indica cuántas unidades hay de esta presentación.";
     } else if (cantidadStock !== null && !contexto.controlaStock) {
       /* Se avisa en vez de guardarlo callado: un número de existencias en un
          producto que no las controla no se muestra en ninguna parte, y el dueño
          quedaría creyendo que lo está llevando. */
       errores[campo("cantidadStock")] =
-        "Para llevar existencias por presentación, activá «Controlar existencias» en el producto.";
+        "Para llevar existencias por presentación, activa «Controlar existencias» en el producto.";
     }
 
     variantes.push({
@@ -347,8 +347,8 @@ export const TEXTOS_DE_PRESENTACION: Record<
   TipoPresentacion,
   { nombre: string; elegir: string; boton: string }
 > = {
-  talla: { nombre: "Talla", elegir: "Elegí tu talla", boton: "Elegir talla" },
-  numero: { nombre: "Número de calzado", elegir: "Elegí tu número", boton: "Elegir número" },
-  tamano: { nombre: "Tamaño", elegir: "Elegí el tamaño", boton: "Elegir tamaño" },
-  presentacion: { nombre: "Otra opción", elegir: "Elegí una opción", boton: "Elegir opción" },
+  talla: { nombre: "Talla", elegir: "Elige tu talla", boton: "Elegir talla" },
+  numero: { nombre: "Número de calzado", elegir: "Elige tu número", boton: "Elegir número" },
+  tamano: { nombre: "Tamaño", elegir: "Elige el tamaño", boton: "Elegir tamaño" },
+  presentacion: { nombre: "Otra opción", elegir: "Elige una opción", boton: "Elegir opción" },
 };

@@ -51,7 +51,7 @@ describe("el encabezado del panel", () => {
       }
     }
 
-    expect(propias, "usá <EncabezadoPanel> en vez de definir .encabezado").toEqual([]);
+    expect(propias, "usa <EncabezadoPanel> en vez de definir .encabezado").toEqual([]);
   });
 
   /* Si el componente dejara de usarse, la prueba de arriba pasaría en verde con

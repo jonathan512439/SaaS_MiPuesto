@@ -66,13 +66,13 @@ export async function leerArchivoDePlanilla(archivo: File): Promise<ResultadoLec
       if (error instanceof Error && error.message === "sin-hoja") {
         throw new Error("Ese archivo comprimido no es una planilla de Excel.");
       }
-      throw new Error("No pudimos abrir esa planilla. Probá guardarla de nuevo como .xlsx o como CSV.");
+      throw new Error("No pudimos abrir esa planilla. Prueba guardarla de nuevo como .xlsx o como CSV.");
     }
   } else if (empiezaCon(bytes, [0xd0, 0xcf, 0x11, 0xe0])) {
     /* El `.xls` viejo, anterior a 2007, no es un ZIP y no se parece en nada:
        leerlo sería otro lector entero. Se dice qué hacer, que son dos clics. */
     throw new Error(
-      "Ese Excel está en el formato viejo (.xls). Abrilo y usá «Guardar como» eligiendo .xlsx o CSV.",
+      "Ese Excel está en el formato viejo (.xls). Ábrelo y usa «Guardar como» eligiendo .xlsx o CSV.",
     );
   } else if (empiezaCon(bytes, [0x25, 0x50, 0x44, 0x46])) {
     /* El PDF tiene su propia herramienta, y es la que corresponde: un PDF no es
@@ -92,7 +92,7 @@ export async function leerArchivoDePlanilla(archivo: File): Promise<ResultadoLec
   if (filas.length === 0) {
     throw new Error(
       hojasRevisadas > 0
-        ? `Abrimos tu Excel y revisamos sus ${hojasRevisadas} hoja(s), pero ninguna tiene filas con datos. Fijate que estés subiendo el archivo correcto.`
+        ? `Abrimos tu Excel y revisamos sus ${hojasRevisadas} hoja(s), pero ninguna tiene filas con datos. Fíjate que estés subiendo el archivo correcto.`
         : "La planilla no tiene ninguna fila con datos.",
     );
   }

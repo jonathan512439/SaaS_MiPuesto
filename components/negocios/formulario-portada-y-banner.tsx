@@ -244,7 +244,7 @@ export function FormularioPortadaYBanner({
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo subir la imagen",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -287,7 +287,7 @@ export function FormularioPortadaYBanner({
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo guardar",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -387,7 +387,7 @@ export function FormularioPortadaYBanner({
               onChange={(evento) => cambiar({ categoriaDestino: evento.target.value })}
               value={texto.categoriaDestino}
             >
-              <option value="">Elegí una</option>
+              <option value="">Elige una</option>
               {destinos.categorias.map(({ id, nombre }) => (
                 <option key={id} value={id}>
                   {nombre}
@@ -432,8 +432,8 @@ export function FormularioPortadaYBanner({
       <fieldset className={styles.banner} disabled={guardando}>
         <legend>Portada · lo primero que se ve</legend>
         <p className={styles.paraQue}>
-          Tu portada es tu primer cartel. Podés escribirle un título, una bajada y un botón; el
-          sombreado para que se lea aparece solo si ponés algo.
+          Tu portada es tu primer cartel. Puedes escribirle un título, una bajada y un botón; el
+          sombreado para que se lea aparece solo si pones algo.
           {tienePortada ? null : (
             <>
               {" "}
@@ -451,7 +451,7 @@ export function FormularioPortadaYBanner({
           <legend>Publicidad · a la mitad del catálogo</legend>
           <p className={styles.paraQue}>
             Se ve mientras tu cliente recorre los productos, entre dos categorías. Es el espacio
-            de publicidad: una marca que vendés, una promoción de temporada, tu otro local.
+            de publicidad: una marca que vendes, una promoción de temporada, tu otro local.
           </p>
 
           <div className={styles.previa}>

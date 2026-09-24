@@ -383,7 +383,7 @@ export function PlantillaMipuesto({
           {negocio.ubicacionUrl ? (
             <section aria-labelledby="invitacion-llegar" className={styles.invitacion}>
               <Icono nombre="ubicacion" />
-              <h3 id="invitacion-llegar">¿Venís a vernos?</h3>
+              <h3 id="invitacion-llegar">¿Vienes a vernos?</h3>
               <a href={negocio.ubicacionUrl} rel="noreferrer noopener" target="_blank">
                 Cómo llegar
               </a>

@@ -4,7 +4,7 @@ import type { Database } from "../supabase/database.types";
 import type { ZonaConCentro } from "./coordenadas";
 import { esRubroPublicoId, rubroQuedoFijo } from "./rubros-publicos";
 
-/* Lo que necesita «Qué vendés y dónde» para dibujarse, leído una vez y de una
+/* Lo que necesita «Qué vendes y dónde» para dibujarse, leído una vez y de una
  * forma. Lo usan el paso 2 del alta y «Mi negocio»: si cada pantalla armara su
  * consulta, una se olvidaría de una columna y el mismo negocio se vería
  * distinto en las dos.

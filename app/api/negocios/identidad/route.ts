@@ -43,7 +43,7 @@ export async function PATCH(solicitud: NextRequest) {
     : { correcto: false as const, errores: { general: entrada.error } };
   if (!redes.correcto) {
     return NextResponse.json(
-      { error: "Revisá los enlaces de contacto.", errores: redes.errores },
+      { error: "Revisa los enlaces de contacto.", errores: redes.errores },
       { status: 400 },
     );
   }
@@ -58,7 +58,7 @@ export async function PATCH(solicitud: NextRequest) {
   );
   if (!ubicacion.correcto) {
     return NextResponse.json(
-      { error: "Revisá los enlaces de contacto.", errores: { ubicacion_url: ubicacion.error } },
+      { error: "Revisa los enlaces de contacto.", errores: { ubicacion_url: ubicacion.error } },
       { status: 400 },
     );
   }
@@ -73,7 +73,7 @@ export async function PATCH(solicitud: NextRequest) {
   );
   if (!resenas.correcto) {
     return NextResponse.json(
-      { error: "Revisá los enlaces de contacto.", errores: { resenas_url: resenas.error } },
+      { error: "Revisa los enlaces de contacto.", errores: { resenas_url: resenas.error } },
       { status: 400 },
     );
   }
@@ -110,7 +110,7 @@ export async function POST(solicitud: NextRequest) {
   const tipo = formulario.get("tipo");
   const archivo = formulario.get("archivo");
   if (!esTipoImagenIdentidad(tipo) || !(archivo instanceof File)) {
-    return NextResponse.json({ error: "Seleccioná un tipo y una imagen válidos." }, { status: 400 });
+    return NextResponse.json({ error: "Selecciona un tipo y una imagen válidos." }, { status: 400 });
   }
 
   const bytes = new Uint8Array(await archivo.arrayBuffer());

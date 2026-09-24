@@ -132,7 +132,7 @@ describe("rubro del negocio", () => {
   });
 });
 
-/* Desde la fase 11 la ciudad y la zona las guarda «Qué vendés y dónde». El
+/* Desde la fase 11 la ciudad y la zona las guarda «Qué vendes y dónde». El
    perfil no las toca, y esto lo fija: si volviera a devolverlas, guardar el
    teléfono borraría la ciudad del negocio. */
 describe("el perfil no toca la ciudad ni la zona", () => {

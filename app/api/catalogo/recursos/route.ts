@@ -49,7 +49,7 @@ export async function POST(solicitud: NextRequest) {
   }
   const nombre = nombreLimpio((entrada.datos as Record<string, unknown>).nombre);
   if (!nombre) {
-    return NextResponse.json({ error: "Escribí cómo se llama: «Dr. Ana», «Consultorio 2»." }, { status: 400 });
+    return NextResponse.json({ error: "Escribe cómo se llama: «Dr. Ana», «Consultorio 2»." }, { status: 400 });
   }
 
   const { count } = await contexto.supabase
@@ -72,7 +72,7 @@ export async function POST(solicitud: NextRequest) {
     /* El nombre repetido es el único error que el dueño puede arreglar solo, y
        por eso se le dice cuál es en vez de un «no se pudo». */
     if (error.code === "23505") {
-      return NextResponse.json({ error: "Ya tenés un recurso con ese nombre." }, { status: 409 });
+      return NextResponse.json({ error: "Ya tienes un recurso con ese nombre." }, { status: 409 });
     }
     return NextResponse.json({ error: "No se pudo crear el recurso." }, { status: 500 });
   }
@@ -125,7 +125,7 @@ export async function PATCH(solicitud: NextRequest) {
     .select(COLUMNAS)
     .maybeSingle();
   if (error?.code === "23505") {
-    return NextResponse.json({ error: "Ya tenés un recurso con ese nombre." }, { status: 409 });
+    return NextResponse.json({ error: "Ya tienes un recurso con ese nombre." }, { status: 409 });
   }
   if (error || !data) {
     return NextResponse.json({ error: "No se pudo actualizar el recurso." }, { status: 404 });
@@ -164,7 +164,7 @@ export async function DELETE(solicitud: NextRequest) {
   if ((count ?? 0) > 0) {
     return NextResponse.json(
       {
-        error: `Este recurso tiene ${count} ${count === 1 ? "turno" : "turnos"} por delante. Cancelalos antes de borrarlo.`,
+        error: `Este recurso tiene ${count} ${count === 1 ? "turno" : "turnos"} por delante. Cancélalos antes de borrarlo.`,
       },
       { status: 409 },
     );

@@ -53,8 +53,8 @@ describe("el resumen de una reserva", () => {
   });
 
   /* Un carrito vacío sin haber pedido nada no muestra ningún resumen: sin esta
-     condición, el vacío de «todavía no elegí» se confundiría con el de «ya
-     pedí». */
+     condición, el vacío de «todavía no elige» se confundiría con el de «ya
+     pide». */
   it("no aparece con el carrito vacío si nunca se entregó nada", () => {
     expect(
       resumenSigueVigente({ entregado: false, firmaCarrito: "", firmaPedido: FIRMA, hayItems: false }),

@@ -20,10 +20,10 @@ function leerZona(entrada: Entrada) {
   const errores: Record<string, string> = {};
   const nombre = typeof entrada.nombre === "string" ? entrada.nombre.trim() : "";
   if (nombre.length < 2 || nombre.length > 60) errores.nombre = "El nombre va de 2 a 60 caracteres.";
-  if (!esCiudadId(entrada.ciudad)) errores.ciudad = "Elegí la ciudad.";
+  if (!esCiudadId(entrada.ciudad)) errores.ciudad = "Elige la ciudad.";
   const lat = Number(entrada.latitud);
   const lng = Number(entrada.longitud);
-  if (!estaEnBolivia({ lat, lng })) errores.punto = "Marcá el centro de la zona en el mapa.";
+  if (!estaEnBolivia({ lat, lng })) errores.punto = "Marca el centro de la zona en el mapa.";
   const punto = redondearPunto({ lat, lng });
   return { errores, fila: { nombre, ciudad: String(entrada.ciudad), latitud: punto.lat, longitud: punto.lng } };
 }
@@ -51,7 +51,7 @@ export async function POST(solicitud: NextRequest) {
 
   const { errores, fila } = leerZona(entrada);
   if (Object.keys(errores).length > 0) {
-    return NextResponse.json({ error: "Revisá la zona.", errores }, { status: 400 });
+    return NextResponse.json({ error: "Revisa la zona.", errores }, { status: 400 });
   }
 
   const { data, error } = await supabase.from("zonas").insert(fila).select("id").maybeSingle();
@@ -73,7 +73,7 @@ export async function PATCH(solicitud: NextRequest) {
   /* Asignar una zona a un negocio que propuso la suya. */
   if (entrada.accion === "asignar") {
     if (!esUuid(entrada.negocio_id) || !esUuid(entrada.zona_id)) {
-      return NextResponse.json({ error: "Elegí la zona." }, { status: 400 });
+      return NextResponse.json({ error: "Elige la zona." }, { status: 400 });
     }
     const { error } = await supabase.rpc("admin_asignar_zona", {
       p_negocio_id: entrada.negocio_id,
@@ -109,7 +109,7 @@ export async function PATCH(solicitud: NextRequest) {
 
   const { errores, fila } = leerZona(entrada);
   if (Object.keys(errores).length > 0) {
-    return NextResponse.json({ error: "Revisá la zona.", errores }, { status: 400 });
+    return NextResponse.json({ error: "Revisa la zona.", errores }, { status: 400 });
   }
   const { data, error } = await supabase.from("zonas").update(fila).eq("id", entrada.id).select("id");
   if (error?.code === "23505") {

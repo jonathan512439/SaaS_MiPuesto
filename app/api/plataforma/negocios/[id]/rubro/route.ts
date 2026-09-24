@@ -136,7 +136,7 @@ export async function POST(
       NEGOCIO_NO_ENCONTRADO: "Ese negocio no existe.",
       RUBRO_VACIO: "Ese rubro no existe.",
       MISMO_RUBRO: "El negocio ya está en ese rubro. No se cambió nada.",
-      NO_AUTORIZADO: "No tenés permiso para cambiar el rubro de un negocio.",
+      NO_AUTORIZADO: "No tienes permiso para cambiar el rubro de un negocio.",
     };
     const mensaje = Object.entries(conocidos).find(([clave]) => error.message.includes(clave))?.[1];
     return NextResponse.json(

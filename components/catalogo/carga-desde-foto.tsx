@@ -70,7 +70,7 @@ export function CargaDesdeFoto({
     } catch (error) {
       mostrarAviso({
         titulo: "No se pudo leer la lista",
-        mensaje: error instanceof Error ? error.message : "Intentá nuevamente.",
+        mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
         variante: "error",
       });
     } finally {
@@ -156,7 +156,7 @@ export function CargaDesdeFoto({
         </label>
       </div>
       <p className={styles.cupo}>
-        Llevás {fotosUsadas} de {topeFotos} lecturas este mes.{" "}
+        Llevas {fotosUsadas} de {topeFotos} lecturas este mes.{" "}
         <strong>Importar un Excel o un CSV no gasta ninguna.</strong>
       </p>
 
@@ -179,7 +179,7 @@ export function CargaDesdeFoto({
           nombresDelCatalogo={nombresDelCatalogo}
           cobertura={cobertura}
           controlaStock={negocioLlevaStock}
-          introduccion={`Encontramos ${productos.length} producto(s). Lo que no leímos con seguridad viene desmarcado. Compará con tu lista antes de confirmar.`}
+          introduccion={`Encontramos ${productos.length} producto(s). Lo que no leímos con seguridad viene desmarcado. Compara con tu lista antes de confirmar.`}
           key={lectura}
           /* No se vacía la lista de productos: eso desmontaría el panel y con
              él el resumen de qué se creó y qué no. Se saca la vista previa,

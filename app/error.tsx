@@ -28,7 +28,7 @@ export default function ErrorInesperado({
         <h1>Algo se cortó de nuestro lado</h1>
         <p>
           No pudimos cargar esta página. Casi siempre se arregla volviendo a
-          intentar; si sigue igual, probá en un rato.
+          intentar; si sigue igual, prueba en un rato.
         </p>
         <div className={styles.acciones}>
           <button onClick={() => reset()} type="button">

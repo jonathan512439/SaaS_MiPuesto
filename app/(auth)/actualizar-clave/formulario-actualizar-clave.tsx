@@ -142,7 +142,7 @@ export function FormularioActualizarClave() {
     }
 
     if (clave !== confirmacion) {
-      setError("Las contraseñas no coinciden. Escribilas nuevamente.");
+      setError("Las contraseñas no coinciden. Escríbelas nuevamente.");
       return;
     }
 
@@ -305,7 +305,7 @@ export function FormularioActualizarClave() {
     return (
       <form className={styles.formulario} onSubmit={confirmarSegundoFactor}>
         <p>
-          Tu cuenta tiene segundo factor. Escribí el número de seis dígitos que
+          Tu cuenta tiene segundo factor. Escribe el número de seis dígitos que
           muestra tu aplicación de autenticación y guardamos la contraseña nueva.
         </p>
         <label htmlFor="codigo-mfa">Código de seis dígitos</label>
@@ -344,7 +344,7 @@ export function FormularioActualizarClave() {
         <p className={styles.mensajeError} role="alert">
           {diagnostico?.titulo ?? "No pudimos abrir la sesión"}
         </p>
-        <p>{diagnostico?.detalle ?? "Pedí un enlace nuevo desde Recuperar contraseña."}</p>
+        <p>{diagnostico?.detalle ?? "Pide un enlace nuevo desde Recuperar contraseña."}</p>
         <Link className={styles.enlace} href="/recuperar-clave">
           Pedir un enlace nuevo
         </Link>
@@ -361,7 +361,7 @@ export function FormularioActualizarClave() {
       ) : null}
       <CampoClave
         autoComplete="new-password"
-        ayuda="Mínimo 10 caracteres. No reutilicés una contraseña personal."
+        ayuda="Mínimo 10 caracteres. No reutilices una contraseña personal."
         etiqueta="Contraseña nueva"
         id="clave"
         minLength={10}
@@ -370,7 +370,7 @@ export function FormularioActualizarClave() {
       />
       <CampoClave
         autoComplete="new-password"
-        etiqueta="Repetí la contraseña"
+        etiqueta="Repite la contraseña"
         id="confirmacion"
         minLength={10}
         name="confirmacion"

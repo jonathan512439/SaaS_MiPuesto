@@ -1,6 +1,6 @@
 /* GENERADO por scripts/armar-iconos-catalogo.mjs. No se edita a mano.
 
-   Para agregar uno: sumalo a la lista de ese script y volvé a correrlo con
+   Para agregar uno: sumalo a la lista de ese script y vuelve a correrlo con
    `npm run iconos:catalogo`. Los trazos vienen de Lucide (licencia ISC).
 
    Este es el juego que el dueño elige para sus categorías. El de la interfaz

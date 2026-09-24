@@ -26,7 +26,7 @@ export async function POST(solicitud: NextRequest) {
   const validacion = validarDatosNegocio(entrada);
   if (!validacion.correcto) {
     return NextResponse.json(
-      { error: "Revisá los campos marcados.", errores: validacion.errores },
+      { error: "Revisa los campos marcados.", errores: validacion.errores },
       { status: 400 },
     );
   }
@@ -47,7 +47,7 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json(
       {
         error: "La dirección del catálogo ya está ocupada.",
-        errores: { slug: "Ese nombre ya está en uso. Elegí otro." },
+        errores: { slug: "Ese nombre ya está en uso. Elige otro." },
       },
       { status: 409 },
     );
@@ -81,7 +81,7 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "Tu rubro ya quedó fijo. Para cambiarlo, escribinos: el catálogo se reinicia y te lo exportamos antes.",
+          "Tu rubro ya quedó fijo. Para cambiarlo, escríbenos: el catálogo se reinicia y te lo exportamos antes.",
       },
       { status: 409 },
     );
@@ -111,7 +111,7 @@ export async function POST(solicitud: NextRequest) {
 
   if (errorGuardado || !negocio) {
     return NextResponse.json(
-      { error: "No se pudo guardar el negocio. Probá nuevamente." },
+      { error: "No se pudo guardar el negocio. Prueba nuevamente." },
       { status: 500 },
     );
   }

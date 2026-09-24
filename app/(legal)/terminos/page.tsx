@@ -10,7 +10,7 @@ import styles from "../legal.module.css";
 
 export const metadata: Metadata = {
   title: "Términos del servicio | MiPuesto",
-  description: "Condiciones de uso de MiPuesto: qué incluye, cuánto cuesta y qué pasa si dejás de pagar.",
+  description: "Condiciones de uso de MiPuesto: qué incluye, cuánto cuesta y qué pasa si dejas de pagar.",
 };
 
 const VIGENCIA = "7 de septiembre de 2026";
@@ -50,7 +50,7 @@ export default function PaginaTerminos() {
           instalación.
         </p>
         <p>
-          Aparte, y solo si los pedís: la carga del catálogo por nosotros, Bs{" "}
+          Aparte, y solo si los pides: la carga del catálogo por nosotros, Bs{" "}
           {CARGA_INICIAL.precioBs} por única vez, y la tarjeta de acrílico con QR y
           NFC, Bs {TARJETA_ACRILICO.precioBs} por unidad. La tarjeta es un producto
           físico: incluye su diseño y su configuración, y no incluye ningún mes
@@ -58,23 +58,23 @@ export default function PaginaTerminos() {
         </p>
         <p>
           El cobro es mensual y se coordina con vos por WhatsApp. No hay contrato de
-          permanencia: podés dejar de pagar cuando quieras y no se te cobra nada
+          permanencia: puedes dejar de pagar cuando quieras y no se te cobra nada
           adicional.
         </p>
       </section>
 
       <section className={styles.seccion}>
-        <h2>Si dejás de pagar</h2>
+        <h2>Si dejas de pagar</h2>
         <p>
           Al día siguiente del vencimiento tu catálogo deja de publicarse y sale del
-          directorio. Seguís entrando a tu panel y ves tus productos, tus pedidos y tu
-          historial. Cuando reanudás el pago, tu catálogo vuelve tal cual estaba, el
+          directorio. Sigues entrando a tu panel y ves tus productos, tus pedidos y tu
+          historial. Cuando reanudas el pago, tu catálogo vuelve tal cual estaba, el
           mismo día.
         </p>
         <p>
           Guardamos todo por <strong>noventa días</strong> desde que tu catálogo sale de
           línea. Pasado ese plazo podemos borrarlo. Antes de borrar nada te escribimos al
-          WhatsApp que registraste, y si querés una copia de tus datos nos la pedís y te
+          WhatsApp que registraste, y si quieres una copia de tus datos nos la pides y te
           la damos.
         </p>
       </section>
@@ -91,8 +91,8 @@ export default function PaginaTerminos() {
         <p>
           <strong>Son una ayuda para escribir, no una fuente de verdad.</strong> Lo que
           proponen aparece siempre en una pantalla de revisión antes de guardarse, y nada
-          se publica hasta que vos lo aceptás. El precio no sale nunca de una fotografía:
-          ese lo ponés vos, siempre.
+          se publica hasta que vos lo aceptas. El precio no sale nunca de una fotografía:
+          ese lo pones vos, siempre.
         </p>
         <p>
           No garantizamos que lo que lea sea correcto. Puede confundir un producto,
@@ -104,7 +104,7 @@ export default function PaginaTerminos() {
             servidor. Antes esta página decía el techo técnico —200 al mes— que
             es lo que el sistema aguanta, no lo que se vende. */}
         <p>
-          Cuántas fotografías podés leer por mes depende de tu plan:{" "}
+          Cuántas fotografías puedes leer por mes depende de tu plan:{" "}
           {PLANES.map((plan, indice) => {
             const cupo = cupoDelPlan(plan.id, TOPE_FOTOS_POR_DIA);
             return (
@@ -116,7 +116,7 @@ export default function PaginaTerminos() {
               </span>
             );
           })}
-          . Al llegar al tope, la herramienta te dice cuándo podés seguir: el mensual
+          . Al llegar al tope, la herramienta te dice cuándo puedes seguir: el mensual
           vuelve a cero el día 1 y el diario a la medianoche. El resto de tu panel no se
           ve afectado, y tu catálogo tampoco.
         </p>
@@ -146,23 +146,23 @@ export default function PaginaTerminos() {
         <h2>Tus responsabilidades</h2>
         <ul>
           <li>
-            Los productos, precios, fotos y descripciones que publicás son tuyos y son tu
+            Los productos, precios, fotos y descripciones que publicas son tuyos y son tu
             responsabilidad. Deben ser reales y estar al día.
           </li>
           <li>
-            No podés publicar productos cuya venta esté prohibida por la ley boliviana,
+            No puedes publicar productos cuya venta esté prohibida por la ley boliviana,
             ni contenido de terceros sobre el que no tengas derechos.
           </li>
           <li>
-            Sos responsable de cumplir con lo que ofrecés a tus clientes y de atender sus
+            Eres responsable de cumplir con lo que ofreces a tus clientes y de atender sus
             pedidos.
           </li>
           <li>
-            Cuidá tu contraseña. Las acciones hechas desde tu cuenta se consideran
+            Cuida tu contraseña. Las acciones hechas desde tu cuenta se consideran
             tuyas.
           </li>
           <li>
-            Si usás las herramientas que leen fotos, revisá lo que proponen antes de
+            Si usas las herramientas que leen fotos, revisa lo que proponen antes de
             publicarlo. El contenido publicado sigue siendo tuyo y tu responsabilidad,
             lo hayas escrito vos o lo hayas aceptado de una propuesta.
           </li>
@@ -188,7 +188,7 @@ export default function PaginaTerminos() {
         <p>
           Podemos suspender una cuenta que publique contenido ilegal, que suplante a otro
           negocio o que use el servicio para engañar a las personas. Te avisamos antes,
-          salvo que la urgencia lo impida, y te damos tus datos si los pedís.
+          salvo que la urgencia lo impida, y te damos tus datos si los pides.
         </p>
       </section>
 
@@ -203,7 +203,7 @@ export default function PaginaTerminos() {
       <section className={styles.seccion}>
         <h2>Consultas</h2>
         <p>
-          Cualquier duda sobre estas condiciones la resolvemos conversando. Escribinos.
+          Cualquier duda sobre estas condiciones la resolvemos conversando. Escríbenos.
         </p>
         <a
           className={styles.contacto}

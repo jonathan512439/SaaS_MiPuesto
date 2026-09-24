@@ -21,7 +21,7 @@ export async function generateMetadata({ searchParams }: Propiedades): Promise<M
   return {
     title: "Directorio de negocios | MiPuesto",
     description:
-      "Buscá productos y negocios locales por ciudad, zona y rubro, y abrí su catálogo para pedir por WhatsApp.",
+      "Busca productos y negocios locales por ciudad, zona y rubro, y abre su catálogo para pedir por WhatsApp.",
     robots: conBusqueda ? { index: false, follow: true } : undefined,
   };
 }

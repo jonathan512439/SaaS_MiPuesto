@@ -55,7 +55,7 @@ export async function leerCatalogoAdmin(
   const { data: negocio } = await supabase
     .from("negocios")
     /* `foto_ia_habilitada` la necesita el formulario de producto, no esta
-       pantalla: es la que decide si aparece «Completá los campos con una foto».
+       pantalla: es la que decide si aparece «Completa los campos con una foto».
        Se cayó de esta consulta al separar Herramientas —donde vive la otra
        herramienta de IA, la que lee una lista entera— y el bloque desapareció
        sin que nada avisara, porque el campo era opcional en el tipo. */

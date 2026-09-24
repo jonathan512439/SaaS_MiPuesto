@@ -7,7 +7,7 @@ import styles from "./cabecera-sitio.module.css";
 /* La cabecera del sitio público: la portada y el directorio.
  *
  * Tres cosas y nada más: la marca, el directorio —con lo que se hace ahí,
- * «Buscá negocios», porque la palabra «directorio» sola no le dice nada a quien
+ * «Busca negocios», porque la palabra «directorio» sola no le dice nada a quien
  * llega— y la entrada de quien ya tiene su catálogo. El directorio se ve también
  * en el teléfono: es la puerta para los compradores, y esconderla en un menú la
  * dejaría sin usar.
@@ -29,7 +29,7 @@ export function CabeceraSitio({ actual }: { actual: "inicio" | "directorio" }) {
             <Icono nombre="lupa" />
             <span>
               <strong>Directorio</strong>
-              <small>Buscá negocios</small>
+              <small>Busca negocios</small>
             </span>
           </Link>
           <Link className={styles.secundario} href="/#precio">

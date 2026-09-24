@@ -23,7 +23,7 @@ export function CercaDeMi({ direccionSinCerca }: { direccionSinCerca: string }) 
 
   function ubicar() {
     if (!("geolocation" in navigator)) {
-      setAviso("Tu navegador no comparte la ubicación. Elegí tu ciudad y tu zona.");
+      setAviso("Tu navegador no comparte la ubicación. Elige tu ciudad y tu zona.");
       return;
     }
     setBuscando(true);
@@ -38,8 +38,8 @@ export function CercaDeMi({ direccionSinCerca }: { direccionSinCerca: string }) 
         setBuscando(false);
         setAviso(
           problema.code === problema.PERMISSION_DENIED
-            ? "No diste permiso de ubicación. Podés darlo desde el candado junto a la dirección, o elegir tu ciudad y tu zona."
-            : "No pudimos saber dónde estás. Elegí tu ciudad y tu zona.",
+            ? "No diste permiso de ubicación. Puedes darlo desde el candado junto a la dirección, o elegir tu ciudad y tu zona."
+            : "No pudimos saber dónde estás. Elige tu ciudad y tu zona.",
         );
       },
       { enableHighAccuracy: false, timeout: 10_000, maximumAge: 300_000 },

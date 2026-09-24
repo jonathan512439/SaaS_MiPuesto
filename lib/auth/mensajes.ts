@@ -5,14 +5,14 @@ type ErrorAuth = {
 
 export function mensajeErrorInicioSesion(error: ErrorAuth) {
   if (error.code === "email_not_confirmed") {
-    return "Confirmá tu correo antes de ingresar. Revisá también la carpeta de correo no deseado.";
+    return "Confirma tu correo antes de ingresar. Revisa también la carpeta de correo no deseado.";
   }
 
   if (error.status === 429 || error.code === "over_request_rate_limit") {
-    return "Se hicieron demasiados intentos. Esperá unos minutos antes de volver a probar.";
+    return "Se hicieron demasiados intentos. Espera unos minutos antes de volver a probar.";
   }
 
-  return "El correo o la contraseña no son correctos. Revisalos y volvé a intentar.";
+  return "El correo o la contraseña no son correctos. Revísalos y vuelve a intentar.";
 }
 
 /* Antes cualquier fallo decía «el enlace no es válido», incluso cuando el enlace
@@ -21,15 +21,15 @@ export function mensajeErrorInicioSesion(error: ErrorAuth) {
    fallaba igual, y de paso hacía creer que el sistema estaba roto. */
 export function mensajeErrorActualizarClave(error: ErrorAuth) {
   if (error.status === 429 || error.code === "over_request_rate_limit") {
-    return "Se hicieron demasiados intentos. Esperá unos minutos antes de volver a probar.";
+    return "Se hicieron demasiados intentos. Espera unos minutos antes de volver a probar.";
   }
 
   if (error.code === "same_password") {
-    return "Esa es la contraseña que ya tenías. Elegí una distinta.";
+    return "Esa es la contraseña que ya tenías. Elige una distinta.";
   }
 
   if (error.code === "weak_password") {
-    return "Esa contraseña es demasiado fácil de adivinar. Probá con uno o dos palabras más.";
+    return "Esa contraseña es demasiado fácil de adivinar. Prueba con uno o dos palabras más.";
   }
 
   /* Sin sesión sí es el enlace: venció, ya se usó, o se abrió en un navegador
@@ -39,8 +39,8 @@ export function mensajeErrorActualizarClave(error: ErrorAuth) {
      mandaban a pedir otro enlace que fallaba igual. Lo que pasó de verdad es que
      la sesión no llegó al momento de guardar. */
   if (error.code === "session_not_found" || error.status === 401 || error.status === 403) {
-    return "Tu sesión no llegó al momento de guardar. Si tu navegador bloquea cookies o estás en modo incógnito, probá en una ventana normal.";
+    return "Tu sesión no llegó al momento de guardar. Si tu navegador bloquea cookies o estás en modo incógnito, prueba en una ventana normal.";
   }
 
-  return "No pudimos guardar la contraseña. Volvé a intentar en un momento.";
+  return "No pudimos guardar la contraseña. Vuelve a intentar en un momento.";
 }

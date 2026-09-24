@@ -66,7 +66,7 @@ export default async function PaginaPedidos() {
         descripcion={
           usaAgenda
             ? `Los pedidos y los turnos de ${negocio.nombre}, en un solo lugar.`
-            : `Acá ves y resolvés todos los pedidos de ${negocio.nombre}.`
+            : `Acá ves y resuelves todos los pedidos de ${negocio.nombre}.`
         }
         titulo={usaAgenda ? "Pedidos y citas" : "Pedidos"}
       />

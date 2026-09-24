@@ -101,7 +101,7 @@ describe("la página de un producto con presentaciones", () => {
     it(`${accion}: sin elegir no hay botón para agregar, y se dice qué falta`, () => {
       const html = ficha(accion);
       expect(html).toContain(
-        accion === "carrito" ? "Elegí tu número para agregarlo al pedido." : "Elegí tu número para pedirlo.",
+        accion === "carrito" ? "Elige tu número para agregarlo al pedido." : "Elige tu número para pedirlo.",
       );
       expect(html).not.toMatch(/aria-label="[^"]*(Agregar|Pedir)[^"]*Zapatilla/);
     });

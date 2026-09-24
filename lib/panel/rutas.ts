@@ -1,7 +1,7 @@
 /* Las direcciones del panel, en un solo lugar.
  *
  * Estaban escritas a mano en veinticuatro sitios, y la mayoría no eran enlaces
- * de una pantalla a otra: eran el `redirect` de «todavía no tenés negocio» que
+ * de una pantalla a otra: eran el `redirect` de «todavía no tienes negocio» que
  * repite cada página del panel. Veinticuatro copias de una dirección aguantan
  * bien hasta el día que una pantalla cambia de nombre; ese día, la que queda sin
  * actualizar manda al dueño a un 404 desde el lugar donde menos se lo espera

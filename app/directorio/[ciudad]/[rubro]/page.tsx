@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Propiedades): Promise<Metadat
   const nombreCiudad = nombreDeCiudad(ciudad);
   return {
     title: `${nombreRubro} en ${nombreCiudad} | MiPuesto`,
-    description: `${nombreRubro} en ${nombreCiudad}: mirá sus catálogos, sus precios y pedí por WhatsApp.`,
+    description: `${nombreRubro} en ${nombreCiudad}: mira sus catálogos, sus precios y pide por WhatsApp.`,
     alternates: { canonical: `/directorio/${ciudad}/${rubro}` },
   };
 }
@@ -36,7 +36,7 @@ export default async function PaginaCiudadRubro({ params, searchParams }: Propie
   const filtros = leerFiltrosDirectorio(await searchParams, { ciudad, rubro });
   return (
     <PantallaDirectorio
-      bajada="Mirá su catálogo y pedí por WhatsApp"
+      bajada="Mira su catálogo y pide por WhatsApp"
       filtros={filtros}
       rubroEnRuta
       ruta={`/directorio/${ciudad}/${rubro}`}

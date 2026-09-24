@@ -71,10 +71,10 @@ const PLANTILLAS: ReadonlyArray<PlantillaDeRubro> = [
     rubro: "restaurante",
     conPresentaciones: true,
     consejos: [
-      "«Porción», «Acompañamiento», «Picante» y «Vegetariano» describen el plato y se ven en la tarjeta: completalos en Almuerzos y Platos a la carta.",
-      "Si el mismo plato cuesta distinto según el tamaño, escribí una fila por tamaño con el mismo nombre y poné «Tamaño» en «Se elige por», como el pique macho del ejemplo. El cliente elige el tamaño al pedir.",
+      "«Porción», «Acompañamiento», «Picante» y «Vegetariano» describen el plato y se ven en la tarjeta: complétalos en Almuerzos y Platos a la carta.",
+      "Si el mismo plato cuesta distinto según el tamaño, escribe una fila por tamaño con el mismo nombre y pon «Tamaño» en «Se elige por», como el pique macho del ejemplo. El cliente elige el tamaño al pedir.",
       "En Bebidas, el «Tamaño (ml)» es solo el número: 500, no «500 ml».",
-      "Si no llevás la cuenta de cuántos platos te quedan, dejá «Cantidad» vacía.",
+      "Si no llevas la cuenta de cuántos platos te quedan, deja «Cantidad» vacía.",
     ],
     ejemplos: [
       {
@@ -121,10 +121,10 @@ const PLANTILLAS: ReadonlyArray<PlantillaDeRubro> = [
     rubro: "ferreteria",
     conPresentaciones: false,
     consejos: [
-      "Tu cliente busca por medida y por potencia: completá los datos de Eléctrico e iluminación, Pinturas y Tornillería, que son los que se ven en la tarjeta.",
+      "Tu cliente busca por medida y por potencia: completa los datos de Eléctrico e iluminación, Pinturas y Tornillería, que son los que se ven en la tarjeta.",
       "Las opciones se escriben tal cual: el casquillo es E27, E14, GU10, B22 o G9.",
       "Los números van solos, sin la unidad: en «Potencia (W)» escribe 9, no «9 W».",
-      "Si un tornillo se vende por caja, decilo en «Se vende por» y en el nombre: «caja de 100».",
+      "Si un tornillo se vende por caja, dilo en «Se vende por» y en el nombre: «caja de 100».",
     ],
     ejemplos: [
       { producto: "Martillo de uña 16 oz", categoria: "Herramienta manual", precio: "45", cantidad: "12", descripcion: "Mango de fibra de vidrio." },
@@ -165,9 +165,9 @@ const PLANTILLAS: ReadonlyArray<PlantillaDeRubro> = [
     conPresentaciones: true,
     consejos: [
       "Una fila por talla o por número, con el mismo nombre de producto: así cada talla lleva su cantidad y el cliente elige la suya al pedir.",
-      "En «Se elige por» poné «Talla» para ropa (S, M, L, XL) y «Número» para calzado (38, 39, 40,5).",
-      "Si una talla cuesta distinto —las grandes, por ejemplo—, ponele su precio en su fila.",
-      "Si una prenda viene en varios colores, cargá un producto por color: «Polera básica blanca», «Polera básica negra».",
+      "En «Se elige por» pon «Talla» para ropa (S, M, L, XL) y «Número» para calzado (38, 39, 40,5).",
+      "Si una talla cuesta distinto —las grandes, por ejemplo—, ponle su precio en su fila.",
+      "Si una prenda viene en varios colores, carga un producto por color: «Polera básica blanca», «Polera básica negra».",
       "El color, el material y la temporada se escriben una vez, en la primera fila del producto.",
     ],
     ejemplos: [
@@ -213,7 +213,7 @@ const PLANTILLAS: ReadonlyArray<PlantillaDeRubro> = [
     rubro: "distribuidora",
     conPresentaciones: false,
     consejos: [
-      "Poné el precio de lo que vendés: si vendés por caja, el precio de la caja, y decilo en el nombre.",
+      "Pon el precio de lo que vendes: si vendes por caja, el precio de la caja, y dilo en el nombre.",
       "«Unidades por caja» y «Pedido mínimo (cajas)» van solo con el número.",
       "«Presentación» y «Marca» se ven en la tarjeta: son lo primero que mira un comprador por mayor.",
     ],
@@ -252,7 +252,7 @@ const PLANTILLAS: ReadonlyArray<PlantillaDeRubro> = [
     rubro: "repuestos",
     conPresentaciones: false,
     consejos: [
-      "Tu cliente busca por vehículo: completá siempre la marca, el modelo y los años en que sirve.",
+      "Tu cliente busca por vehículo: completa siempre la marca, el modelo y los años en que sirve.",
       "El código de parte es lo que más evita errores: con él, el cliente sabe que es la pieza exacta.",
       "«Original o alternativo» se escribe tal cual: Original o Alternativo.",
       "Los años van solo con el número: 2010, no «desde 2010».",
@@ -307,8 +307,8 @@ const PLANTILLAS: ReadonlyArray<PlantillaDeRubro> = [
     conPresentaciones: true,
     consejos: [
       "En Alimento, «Para», «Etapa» y «Raza» se escriben tal cual: Perro o Gato; Cachorro, Adulto o Senior; Pequeña, Mediana o Grande.",
-      "Si un medicamento cambia según el peso del animal, escribí una fila por tamaño con el mismo nombre y poné «Tamaño» en «Se elige por», como la pipeta del ejemplo.",
-      "Consultas, Vacunación y Baño y peluquería son servicios con cita: sin cantidad. Después de importar, en Productos elegís quién atiende cada uno.",
+      "Si un medicamento cambia según el peso del animal, escribe una fila por tamaño con el mismo nombre y pon «Tamaño» en «Se elige por», como la pipeta del ejemplo.",
+      "Consultas, Vacunación y Baño y peluquería son servicios con cita: sin cantidad. Después de importar, en Productos eliges quién atiende cada uno.",
     ],
     ejemplos: [
       {
@@ -462,18 +462,18 @@ export function filasDeInstrucciones(rubro: RubroId): string[][] {
   const plantilla = plantillaDe(rubro);
   const siembra = siembraDe(rubro);
   const pasos = [
-    "Escribí tus productos en la hoja «Productos», una fila por producto.",
-    "Las filas que empiezan con «Ejemplo:» son de muestra. Borralas o escribí debajo: al importar se dejan afuera solas.",
+    "Escribe tus productos en la hoja «Productos», una fila por producto.",
+    "Las filas que empiezan con «Ejemplo:» son de muestra. Bórralas o escribe debajo: al importar se dejan afuera solas.",
     "«Producto» y «Precio» son obligatorios. El precio va solo con el número, en bolivianos: 25 o 12,50.",
     "«Categoría»: el nombre de tu categoría en MiPuesto, escrito igual. Así el producto cae en ella con todos sus datos.",
-    "«Cantidad»: cuántas unidades tenés. Dejala vacía si no llevás la cuenta; un 0 publica el producto como agotado.",
+    "«Cantidad»: cuántas unidades tienes. Déjala vacía si no llevas la cuenta; un 0 publica el producto como agotado.",
     ...(plantilla.conPresentaciones
       ? [
-          "Tallas, números y tamaños: una fila por cada uno, con el mismo nombre de producto. En «Se elige por» poné Talla, Número o Tamaño, y en «Talla, número o tamaño» la de esa fila. Cada fila lleva su precio y su cantidad.",
+          "Tallas, números y tamaños: una fila por cada uno, con el mismo nombre de producto. En «Se elige por» pon Talla, Número o Tamaño, y en «Talla, número o tamaño» la de esa fila. Cada fila lleva su precio y su cantidad.",
         ]
       : []),
     "Las columnas después de «Descripción» son los datos de cada categoría: complétalas solo en las categorías que los piden (abajo está cuáles).",
-    `Hasta ${MAXIMO_FILAS} filas por vez. Guardá el archivo como .xlsx y subilo en Herramientas, «Importar tu Excel».`,
+    `Hasta ${MAXIMO_FILAS} filas por vez. Guarda el archivo como .xlsx y súbelo en Herramientas, «Importar tu Excel».`,
     "Las fotos se agregan después: en la revisión antes de crear o desde Productos.",
   ];
 

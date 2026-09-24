@@ -73,7 +73,7 @@ export default async function PaginaHerramientas() {
       href: RUTAS_PANEL.importar,
       titulo: "Importar una planilla",
       explicacion:
-        "Si ya tenés tus productos en un Excel o un CSV, los cargás todos de una vez en lugar de escribirlos uno por uno.",
+        "Si ya tienes tus productos en un Excel o un CSV, los cargas todos de una vez en lugar de escribirlos uno por uno.",
       icono: "grafico",
     },
     {
@@ -85,7 +85,7 @@ export default async function PaginaHerramientas() {
       descarga: true,
       titulo: "Descargar mi catálogo",
       explicacion:
-        "Una planilla con tus productos, sus precios y sus categorías. Te la podés llevar, o volver a cargarla acá si alguna vez necesitás rehacer el catálogo.",
+        "Una planilla con tus productos, sus precios y sus categorías. Te la puedes llevar, o volver a cargarla acá si alguna vez necesitas rehacer el catálogo.",
       icono: "carpeta",
     },
   ];
@@ -124,11 +124,11 @@ export default async function PaginaHerramientas() {
 
       {avisarFotoNueva ? (
         <aside className={styles.avisoFoto}>
-          <h2>Ya podés cargar tu catálogo con una foto</h2>
+          <h2>Ya puedes cargar tu catálogo con una foto</h2>
           <p>
             Habilitamos dos cosas en tu cuenta: fotografiar tu lista de precios para crear
             varios productos de una vez, y completar el nombre y la descripción de un
-            producto con su fotografía. El precio lo ponés siempre vos.
+            producto con su fotografía. El precio lo pones siempre vos.
           </p>
           <Link href={RUTAS_PANEL.desdeFoto}>Probar con mi lista de precios</Link>
         </aside>
@@ -143,16 +143,16 @@ export default async function PaginaHerramientas() {
         <section aria-labelledby="titulo-ia" className={styles.tarjetaIa}>
           <div className={styles.tarjetaIaCuerpo}>
             <span className={styles.selloIa}>Herramienta con IA</span>
-            <h2 id="titulo-ia">Cargá tu catálogo desde la foto o el PDF de tu lista de precios</h2>
+            <h2 id="titulo-ia">Carga tu catálogo desde la foto o el PDF de tu lista de precios</h2>
             <ol className={styles.pasosIa}>
               <li>
-                <b>1</b> Sacale una foto a tu lista, o subí el PDF del proveedor
+                <b>1</b> Sácale una foto a tu lista, o sube el PDF del proveedor
               </li>
               <li>
-                <b>2</b> Revisás y corregís lo que leyó
+                <b>2</b> Revisas y corriges lo que leyó
               </li>
               <li>
-                <b>3</b> Confirmás y se crean los productos
+                <b>3</b> Confirmas y se crean los productos
               </li>
             </ol>
             <Link className={styles.abrirIa} href={RUTAS_PANEL.desdeFoto}>

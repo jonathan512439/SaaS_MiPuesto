@@ -53,7 +53,7 @@ describe("el límite de fotografías por producto", () => {
       }
     }
 
-    expect(hallazgos, "usá MAXIMO_FOTOS_POR_PRODUCTO en vez de un número").toEqual([]);
+    expect(hallazgos, "usa MAXIMO_FOTOS_POR_PRODUCTO en vez de un número").toEqual([]);
   });
 
   /* Si alguien borrara los usos, la prueba de arriba seguiría pasando sin

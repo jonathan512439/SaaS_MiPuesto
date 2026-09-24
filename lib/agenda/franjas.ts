@@ -82,12 +82,12 @@ export function validarFranjas(
 
     const dia = typeof dato.dia === "number" ? dato.dia : Number(dato.dia);
     if (!Number.isInteger(dia) || dia < 0 || dia > 6) {
-      errores[campo("dia")] = "Elegí un día de la semana.";
+      errores[campo("dia")] = "Elige un día de la semana.";
       return;
     }
 
     if (!esHoraValida(dato.desde) || !esHoraValida(dato.hasta)) {
-      errores[campo("desde")] = "Escribí las horas como HH:MM.";
+      errores[campo("desde")] = "Escribe las horas como HH:MM.";
       return;
     }
 

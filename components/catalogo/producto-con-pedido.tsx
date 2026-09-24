@@ -13,7 +13,7 @@ import styles from "./producto-con-pedido.module.css";
  *
  * Desde que tocar una tarjeta lleva acá en vez de abrir una hoja encima del
  * catálogo, esta página tiene que **poder vender**. Antes no podía: en un
- * negocio con carrito mostraba un enlace que decía «agregá desde el catálogo»,
+ * negocio con carrito mostraba un enlace que decía «agrega desde el catálogo»,
  * que es pedirle al cliente que vuelva atrás para hacer lo que ya quería hacer.
  *
  * El pedido es el mismo de allá —`usarPedido` lee y escribe el mismo

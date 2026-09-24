@@ -255,7 +255,7 @@ export function FichaProducto({
             slug={slug}
           />
         ) : producto.vendeTiempo ? (
-          <p className={styles.soloMuestra}>Consultá al negocio para agendar.</p>
+          <p className={styles.soloMuestra}>Consulta al negocio para agendar.</p>
         ) : (
           /* Con presentaciones, primero se elige: el botón aparece recién con
              una elegida, y mientras tanto se dice qué falta en vez de mostrar

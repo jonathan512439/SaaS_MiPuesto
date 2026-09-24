@@ -148,7 +148,7 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
   const validacion = validarAtributos(crudos);
   if (!validacion.correcto) {
     return NextResponse.json(
-      { error: "Revisá los campos.", errores: validacion.errores },
+      { error: "Revisa los campos.", errores: validacion.errores },
       { status: 400 },
     );
   }
@@ -191,7 +191,7 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
       return NextResponse.json(
         {
           error:
-            "No se pudieron guardar los campos y los anteriores se perdieron. Volvé a cargarlos.",
+            "No se pudieron guardar los campos y los anteriores se perdieron. Vuelve a cargarlos.",
         },
         { status: 500 },
       );

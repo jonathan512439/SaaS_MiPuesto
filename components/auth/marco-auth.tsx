@@ -31,7 +31,7 @@ export function MarcoAuth({
         </div>
         <p className={styles.ayudaMarca}>
           Las cuentas se habilitan por invitación. Si todavía no recibiste una,
-          comunicate con MiPuesto.
+          comunícate con MiPuesto.
         </p>
       </aside>
 

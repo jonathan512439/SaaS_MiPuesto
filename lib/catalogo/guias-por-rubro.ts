@@ -190,7 +190,7 @@ const GUIAS: Record<Exclude<RubroPublicoId, "otro">, GuiaDeRubro> = {
       nombre: "Torta de chocolate",
       evitar: "Torta modelo 5",
       queContar: "para cuántas personas alcanza, de qué es el relleno, con cuánta anticipación se encarga",
-      descripcion: "Bizcocho de chocolate con relleno de dulce de leche. Para 12 porciones; encargala con un día.",
+      descripcion: "Bizcocho de chocolate con relleno de dulce de leche. Para 12 porciones; encárgala con un día.",
       precio: "90",
     },
   },
@@ -532,7 +532,7 @@ const GUIAS: Record<Exclude<RubroPublicoId, "otro">, GuiaDeRubro> = {
       nombre: "Consulta de medicina general",
       evitar: "Atención 1",
       queContar: "qué incluye, cuánto dura, qué tiene que traer el paciente",
-      descripcion: "Revisión completa y receta. Trae tus análisis anteriores si los tenés. 30 minutos.",
+      descripcion: "Revisión completa y receta. Trae tus análisis anteriores si los tienes. 30 minutos.",
       precio: "150",
     },
   },
@@ -551,7 +551,7 @@ const GUIAS: Record<Exclude<RubroPublicoId, "otro">, GuiaDeRubro> = {
       nombre: "Clase de guitarra para principiantes",
       evitar: "Curso A",
       queContar: "para qué nivel es, cuántas clases trae, qué hay que llevar",
-      descripcion: "Ocho clases de una hora, dos por semana. Si no tenés guitarra, te prestamos una.",
+      descripcion: "Ocho clases de una hora, dos por semana. Si no tienes guitarra, te prestamos una.",
       precio: "300",
     },
   },
@@ -560,7 +560,7 @@ const GUIAS: Record<Exclude<RubroPublicoId, "otro">, GuiaDeRubro> = {
     palabras: ["servicio", "domicilio", "instalacion", "mantenimiento", "reparacion", "limpieza", "lavado", "fumigacion", "mudanza", "fotografia", "evento"],
     categorias: ["A domicilio", "Mantenimiento", "Instalaciones"],
     campos: {
-      preguntas: "qué incluye, cuánto tarda, si atendés a domicilio",
+      preguntas: "qué incluye, cuánto tarda, si atiendes a domicilio",
       texto: { nombre: "Incluye", muestra: "Lavado y secado" },
       numero: { nombre: "Duración", unidad: "min", muestra: "45" },
       opcion: { nombre: "Atención", opciones: ["A domicilio", "En el local"] },
@@ -698,7 +698,7 @@ function lista(ejemplos: ReadonlyArray<string>): string {
 }
 
 export function ayudaCategoria(negocio: RubrosDelNegocio): string {
-  return `Agrupá como busca tu cliente, no como lo guardás vos: ${lista(categoriasDeEjemplo(negocio))}. Entre cuatro y ocho alcanzan; con veinte, el catálogo vuelve a ser una lista larga.`;
+  return `Agrupa como busca tu cliente, no como lo guardas vos: ${lista(categoriasDeEjemplo(negocio))}. Entre cuatro y ocho alcanzan; con veinte, el catálogo vuelve a ser una lista larga.`;
 }
 
 export function ejemploDeCategoria(negocio: RubrosDelNegocio): string {
@@ -706,7 +706,7 @@ export function ejemploDeCategoria(negocio: RubrosDelNegocio): string {
 }
 
 export function introDeCampos(guia: GuiaDeRubro): string {
-  return `Además del nombre y el precio, lo que tu cliente pregunta antes de comprar: ${guia.campos.preguntas}. Cada dato que agregués aquí se pide en todos los productos de esta categoría.`;
+  return `Además del nombre y el precio, lo que tu cliente pregunta antes de comprar: ${guia.campos.preguntas}. Cada dato que agregues aquí se pide en todos los productos de esta categoría.`;
 }
 
 /* «Picante: Suave · Medio · Fuerte». El ejemplo al pie del tipo de campo: se

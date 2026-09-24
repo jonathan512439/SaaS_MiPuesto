@@ -149,11 +149,11 @@ export function validarBanners(valor: unknown): ResultadoBanners {
     const enlaceCrudo = textoDe(registro.enlace);
     const enlace = enlaceValido(registro.enlace);
 
-    if (!imagen) errores[`banners.${indice}.imagen`] = "Subí una imagen para el banner.";
+    if (!imagen) errores[`banners.${indice}.imagen`] = "Sube una imagen para el banner.";
     if (alt === "") {
-      errores[`banners.${indice}.alt`] = "Escribí qué dice el banner, para quien no puede verlo.";
+      errores[`banners.${indice}.alt`] = "Escribe qué dice el banner, para quien no puede verlo.";
     } else if (alt.length > LARGO_MAXIMO_ALT) {
-      errores[`banners.${indice}.alt`] = `Usá hasta ${LARGO_MAXIMO_ALT} caracteres.`;
+      errores[`banners.${indice}.alt`] = `Usa hasta ${LARGO_MAXIMO_ALT} caracteres.`;
     }
     if (enlaceCrudo !== "" && !enlace) {
       errores[`banners.${indice}.enlace`] = "El enlace tiene que empezar con https://";

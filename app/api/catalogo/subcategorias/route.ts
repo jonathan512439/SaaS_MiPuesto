@@ -108,7 +108,7 @@ export async function PATCH(solicitud: NextRequest) {
   }
 
   if (datos.direccion !== "subir" && datos.direccion !== "bajar") {
-    return NextResponse.json({ error: "Indicá un cambio válido." }, { status: 400 });
+    return NextResponse.json({ error: "Indica un cambio válido." }, { status: 400 });
   }
   const { data: subcategorias, error: errorLista } = await contexto.supabase
     .from("subcategorias")
