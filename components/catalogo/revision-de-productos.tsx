@@ -13,6 +13,7 @@ import type { Atributo } from "../../lib/catalogo/atributos";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { etiquetaDePresentacion, type TipoPresentacion } from "../../lib/catalogo/variantes";
 import { valoresDesdePlanilla } from "../../lib/importacion/datos-de-planilla";
+import { posicionesYaExistentes } from "../../lib/importacion/ya-existentes";
 import type { PresentacionDePlanilla } from "../../lib/importacion/planilla";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
 import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
@@ -68,6 +69,8 @@ type Fila = Omit<ProductoLeido, "cantidad"> & {
      otro dejaría un `NaN` a mitad de camino. Se convierte recién al enviar. */
   cantidad: string;
   imagenes: ImagenPendiente[];
+  /* Ya hay un producto con este nombre en el catálogo: viene sin marcar. */
+  yaExiste: boolean;
 };
 
 /* Qué hacer con cada título de sección: crearlo como categoría nueva, mandarlo
@@ -76,6 +79,7 @@ type Fila = Omit<ProductoLeido, "cantidad"> & {
 
 export function RevisionDeProductos({
   atributosPorCategoria = {},
+  nombresDelCatalogo = [],
   categorias,
   productos,
   introduccion,
@@ -86,6 +90,10 @@ export function RevisionDeProductos({
   /* Los campos de cada categoría por su id. Con ellos, las columnas de datos
      de la planilla se guardan en la categoría donde termina el producto. */
   atributosPorCategoria?: Record<string, Atributo[]>;
+  /* Los nombres de los productos que el negocio ya tiene. Los de la lectura
+     que coinciden vienen sin marcar: así una importación cortada se retoma
+     subiendo el mismo archivo, sin duplicar lo que ya se creó. */
+  nombresDelCatalogo?: string[];
   categorias: CategoriaCatalogo[];
   productos: ProductoLeido[];
   introduccion: string;
@@ -113,16 +121,18 @@ export function RevisionDeProductos({
      montar este componente con una `key` distinta cuando hay una lectura nueva:
      así una lectura nueva nunca pisa en silencio las correcciones a mano de la
      anterior. */
-  const [filas, setFilas] = useState<Fila[]>(() =>
-    productos.map((producto) => ({
+  const [filas, setFilas] = useState<Fila[]>(() => {
+    const yaExistentes = posicionesYaExistentes(productos, nombresDelCatalogo);
+    return productos.map((producto, posicion) => ({
       ...producto,
-      elegido: producto.confianza !== "baja",
+      yaExiste: yaExistentes.has(posicion),
+      elegido: producto.confianza !== "baja" && !yaExistentes.has(posicion),
       cantidad: producto.cantidad === null || producto.cantidad === undefined
         ? ""
         : String(producto.cantidad),
       imagenes: [],
-    })),
-  );
+    }));
+  });
   /* El destino de cada sección se propone una sola vez, al montar: la categoría
      que se llama igual, o la más parecida que sugirió la lectura, o crear una.
      Lo que el dueño cambie después manda. */
@@ -150,6 +160,20 @@ export function RevisionDeProductos({
     };
   }, []);
 
+  /* Mientras se crean los productos, cerrar la pestaña deja la importación a
+     medias: el navegador pregunta antes. Si igual se cierra, volver a subir el
+     archivo retoma sin duplicar —los ya creados vienen sin marcar—. */
+  useEffect(() => {
+    if (!guardando) return;
+    const avisar = (evento: BeforeUnloadEvent) => {
+      evento.preventDefault();
+      evento.returnValue = "";
+    };
+    window.addEventListener("beforeunload", avisar);
+    return () => window.removeEventListener("beforeunload", avisar);
+  }, [guardando]);
+
+  const yaExistentes = filas.filter(({ yaExiste }) => yaExiste).length;
   const elegidos = filas.filter(({ elegido }) => elegido);
   const totalFotos = elegidos.reduce((suma, fila) => suma + fila.imagenes.length, 0);
 
@@ -479,6 +503,16 @@ export function RevisionDeProductos({
         </aside>
       ) : null}
 
+      {yaExistentes > 0 ? (
+        <p className={styles.yaExistentes}>
+          {yaExistentes === 1
+            ? "1 producto ya está en tu catálogo con el mismo nombre y quedó sin marcar."
+            : `${yaExistentes} productos ya están en tu catálogo con el mismo nombre y quedaron sin marcar.`}{" "}
+          Si una importación anterior se cortó, sigue desde aquí sin duplicar. Si es otro
+          producto con el mismo nombre, márcalo.
+        </p>
+      ) : null}
+
       {/* Con una planilla de doscientos renglones, marcar de a uno no es una
           opción. Con una foto de doce tampoco molesta tenerlo. */}
       <div className={styles.seleccion}>
@@ -652,6 +686,7 @@ export function RevisionDeProductos({
                     ))}
                   </div>
 
+                  {fila.yaExiste ? <span className={styles.etiquetaYaExiste}>Ya está en tu catálogo</span> : null}
                   {fila.confianza === "baja" ? <span>revisá</span> : null}
                 </li>
               ),

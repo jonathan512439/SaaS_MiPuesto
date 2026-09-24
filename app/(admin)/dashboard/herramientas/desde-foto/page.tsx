@@ -8,7 +8,7 @@ import { TOPE_FOTOS_POR_DIA } from "../../../../../lib/ia/servidor";
 import { cupoDelPlan } from "../../../../../lib/planes";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
-import { COLUMNAS_CATEGORIA } from "../../../../../lib/catalogo/columnas";
+import { COLUMNAS_CATEGORIA, COLUMNAS_NOMBRE_PRODUCTO } from "../../../../../lib/catalogo/columnas";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../../lib/panel/rutas";
 import panel from "../../panel.module.css";
 
@@ -37,7 +37,7 @@ export default async function PaginaCargaDesdeFoto() {
      puerta que no se puede abrir. */
   if (!negocio.foto_ia_habilitada) redirect(RUTAS_PANEL.herramientas);
 
-  const [{ data: categorias }, { data: uso }] = await Promise.all([
+  const [{ data: categorias }, { data: uso }, { data: productosActuales }] = await Promise.all([
     supabase
       .from("categorias")
       .select(COLUMNAS_CATEGORIA)
@@ -50,6 +50,12 @@ export default async function PaginaCargaDesdeFoto() {
       .eq("negocio_id", negocio.id)
       .eq("mes", `${new Date().toISOString().slice(0, 8)}01`)
       .maybeSingle(),
+    /* Los nombres que ya tiene: lo leído que coincide viene sin marcar. */
+    supabase
+      .from("productos")
+      .select(COLUMNAS_NOMBRE_PRODUCTO)
+      .eq("negocio_id", negocio.id)
+      .is("eliminado_en", null),
   ]);
 
   /* Si el negocio ya lleva la cuenta en algún producto. Es la señal más honesta
@@ -79,6 +85,7 @@ export default async function PaginaCargaDesdeFoto() {
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
         fotosUsadas={uso?.cantidad ?? 0}
         negocioLlevaStock={negocioLlevaStock}
+        nombresDelCatalogo={(productosActuales ?? []).map(({ nombre }) => nombre)}
         topeFotos={cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual}
       />
     </main>

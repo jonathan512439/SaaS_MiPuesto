@@ -38,12 +38,15 @@ export function ImportarPlanilla({
   atributosPorCategoria,
   categorias,
   negocioLlevaStock,
+  nombresDelCatalogo = [],
   plantillas,
 }: {
   /* Los campos de cada categoría, por su id: los datos de la planilla se
      guardan en los de la categoría donde termine cada producto. */
   atributosPorCategoria: Record<string, Atributo[]>;
   categorias: CategoriaCatalogo[];
+  /* Los nombres de los productos que ya tiene, para no duplicarlos. */
+  nombresDelCatalogo?: string[];
   /* Las plantillas de su rubro y de sus rubros secundarios que existen. Vacía
      si ninguno de sus rubros tiene plantilla todavía. */
   plantillas: ReadonlyArray<{ rubro: string; nombre: string }>;
@@ -381,6 +384,7 @@ export function ImportarPlanilla({
       {confirmado && resultado ? (
         <RevisionDeProductos
           atributosPorCategoria={atributosPorCategoria}
+          nombresDelCatalogo={nombresDelCatalogo}
           categorias={categorias}
           controlaStock={conStock}
           introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agregales fotos si querés y sacá los que no vayas a publicar.`}

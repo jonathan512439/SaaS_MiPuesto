@@ -367,3 +367,18 @@
   font-size: var(--text-sm);
   list-style: disc;
 }
+
+/* Los que ya están en el catálogo: se dice con palabras, no solo con el
+   casillero sin marcar. */
+.yaExistentes {
+  border-left: var(--borde-marcado) solid var(--color-accion);
+  padding-left: var(--spacing-3);
+  font-size: var(--text-sm);
+}
+
+.etiquetaYaExiste {
+  grid-column: 1 / -1;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}

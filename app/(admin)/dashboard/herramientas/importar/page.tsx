@@ -9,6 +9,7 @@ import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-
 import {
   COLUMNAS_ATRIBUTO_CATEGORIA,
   COLUMNAS_CATEGORIA,
+  COLUMNAS_NOMBRE_PRODUCTO,
 } from "../../../../../lib/catalogo/columnas";
 import { leerAtributos } from "../../../../../lib/catalogo/atributos";
 import { nombreDeRubro, plantillasDelNegocio } from "../../../../../lib/importacion/plantillas";
@@ -42,7 +43,7 @@ export default async function PaginaImportarPlanilla() {
 
   /* Los campos de cada categoría, para guardar los datos que trae la planilla
      —«Color», «Potencia (W)»— en la categoría donde termine cada producto. */
-  const [{ data: categorias }, { data: filasAtributos }] = await Promise.all([
+  const [{ data: categorias }, { data: filasAtributos }, { data: productosActuales }] = await Promise.all([
     supabase
       .from("categorias")
       .select(COLUMNAS_CATEGORIA)
@@ -54,6 +55,13 @@ export default async function PaginaImportarPlanilla() {
       .select(COLUMNAS_ATRIBUTO_CATEGORIA)
       .eq("negocio_id", negocio.id)
       .order("orden"),
+    /* Los nombres que ya tiene: una importación cortada se retoma subiendo el
+       mismo archivo, y lo ya creado viene sin marcar. */
+    supabase
+      .from("productos")
+      .select(COLUMNAS_NOMBRE_PRODUCTO)
+      .eq("negocio_id", negocio.id)
+      .is("eliminado_en", null),
   ]);
   const atributosPorCategoria: Record<string, ReturnType<typeof leerAtributos>> = {};
   for (const fila of filasAtributos ?? []) {
@@ -87,6 +95,7 @@ export default async function PaginaImportarPlanilla() {
         atributosPorCategoria={atributosPorCategoria}
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
         negocioLlevaStock={negocioLlevaStock}
+        nombresDelCatalogo={(productosActuales ?? []).map(({ nombre }) => nombre)}
         plantillas={plantillasDelNegocio(negocio).map((rubro) => ({
           rubro,
           nombre: nombreDeRubro(rubro),

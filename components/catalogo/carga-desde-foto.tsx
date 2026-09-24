@@ -14,6 +14,7 @@ export function CargaDesdeFoto({
   categorias,
   fotosUsadas,
   negocioLlevaStock,
+  nombresDelCatalogo = [],
   topeFotos,
 }: {
   categorias: CategoriaCatalogo[];
@@ -23,6 +24,8 @@ export function CargaDesdeFoto({
      producto en la cabeza, y volver después a cargarlo de a uno no lo hace
      nadie. */
   negocioLlevaStock: boolean;
+  /* Los nombres de los productos que ya tiene, para no duplicarlos. */
+  nombresDelCatalogo?: string[];
   topeFotos: number;
 }) {
   const { mostrarAviso } = useAvisos();
@@ -172,6 +175,7 @@ export function CargaDesdeFoto({
       {productos.length > 0 ? (
         <RevisionDeProductos
           categorias={categorias}
+          nombresDelCatalogo={nombresDelCatalogo}
           cobertura={cobertura}
           controlaStock={negocioLlevaStock}
           introduccion={`Encontramos ${productos.length} producto(s). Lo que no leímos con seguridad viene desmarcado. Compará con tu lista antes de confirmar.`}

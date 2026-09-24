@@ -44,13 +44,14 @@ const ZAPATILLA: ProductoLeido = {
   avisos: ["«treinta» no es un número de calzado: van de 16 a 50, enteros o con medio."],
 };
 
-function dibujar(controlaStock: boolean) {
+function dibujar(controlaStock: boolean, nombresDelCatalogo: string[] = []) {
   return renderToString(
     jsx(ProveedorAvisos, {
       children: jsx(RevisionDeProductos, {
         categorias: [],
         controlaStock,
         introduccion: "Prueba",
+        nombresDelCatalogo,
         onTerminado: () => undefined,
         productos: [POLERA, ZAPATILLA],
       }),
@@ -77,5 +78,23 @@ describe("la revisión de una planilla con tallas", () => {
 
   it("lo raro se dice antes de crear", () => {
     expect(dibujar(true)).toContain("«treinta» no es un número de calzado");
+  });
+});
+
+describe("una importación que se cortó y se vuelve a subir", () => {
+  it("lo que ya está en el catálogo viene sin marcar, con la etiqueta y el aviso", () => {
+    const html = dibujar(true, ["polera basica blanca"]);
+    const casilla = (nombre: string) =>
+      html.match(new RegExp(`<input[^>]*aria-label="Incluir ${nombre}"[^>]*>`))?.[0] ?? "";
+    expect(casilla("Polera básica blanca")).toMatch(/type="checkbox"/);
+    expect(casilla("Polera básica blanca")).not.toContain("checked");
+    expect(html).toContain("Ya está en tu catálogo");
+    expect(html).toContain("1 producto ya está en tu catálogo con el mismo nombre");
+    /* El que no existe sigue marcado. */
+    expect(casilla("Zapatilla urbana")).toContain("checked");
+  });
+
+  it("sin coincidencias no hay aviso", () => {
+    expect(dibujar(true)).not.toContain("Ya está en tu catálogo");
   });
 });

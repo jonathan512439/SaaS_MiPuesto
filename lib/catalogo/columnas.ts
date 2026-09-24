@@ -44,3 +44,7 @@ export const COLUMNAS_CATEGORIA = "id,nombre,orden,icono,visible,vende" as const
    la importación de planillas los cruzan con la categoría elegida. */
 export const COLUMNAS_ATRIBUTO_CATEGORIA =
   "categoria_id,clave,nombre,tipo,unidad,opciones,obligatorio,en_tarjeta,en_resumen,orden" as const;
+
+/* Solo el nombre: la revisión de una importación lo compara con lo leído para
+   no duplicar productos que ya existen. */
+export const COLUMNAS_NOMBRE_PRODUCTO = "nombre" as const;
