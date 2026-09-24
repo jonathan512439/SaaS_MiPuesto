@@ -171,6 +171,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   const { mostrarAviso } = useAvisos();
   const confirmar = useConfirmacion();
   const [productoEditando, setProductoEditando] = useState<string | null>(null);
+  /* Si el producto que se edita lleva presentaciones. Con control de
+     existencias, sus existencias van en cada una y el formulario deja de
+     pedírselas al producto (fase 13). Lo actualiza el editor al guardar. */
+  const [conPresentaciones, setConPresentaciones] = useState(false);
   /* El producto que se está editando, ya guardado. Las fotos se suben contra
      él y no contra el formulario: existe, tiene id, y es el mismo objeto que
      toca la lista. */
@@ -508,6 +512,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
 
   function abrirProductoNuevo() {
     setProductoEditando(null);
+    setConPresentaciones(false);
     setFormulario({ ...FORMULARIO_VACIO, categoria_id: categoriaActiva });
     setValoresAtributos({});
     setErroresFormulario({});
@@ -518,6 +523,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
 
   function editarProducto(producto: ProductoCatalogo) {
     setProductoEditando(producto.id);
+    setConPresentaciones(producto.con_presentaciones === true);
     setFormulario({
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? "",
@@ -1301,6 +1307,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               mantener dos caminos de guardado para lo mismo. */}
           {productoEditando ? (
             <EditorDeVariantes
+              alGuardar={(cantidad) => setConPresentaciones(cantidad > 0)}
               controlaStock={formulario.controla_stock}
               precioProducto={Number(formulario.precio) || 0}
               productoId={productoEditando}
@@ -1336,7 +1343,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               <small>El producto se marcará como agotado cuando llegue a cero.</small>
             </span>
           </label>
-          {formulario.controla_stock ? (
+          {formulario.controla_stock && conPresentaciones ? (
+            <p className={styles.notaExistencias}>
+              Las existencias de este producto se cargan en cada presentación, más abajo.
+            </p>
+          ) : formulario.controla_stock ? (
             <Campo
               error={erroresFormulario.cantidad_stock}
               id="producto-stock"
@@ -1901,9 +1912,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                       <small>
                         {producto.codigo}
                         {" · "}
-                        {producto.controla_stock
-                          ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} de ${producto.cantidad_stock ?? 0} disponible(s), ${producto.cantidad_reservada} reservada(s)`
-                          : "Sin control de existencias"}
+                        {producto.controla_stock && producto.con_presentaciones
+                          ? "Existencias por presentación"
+                          : producto.controla_stock
+                            ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} de ${producto.cantidad_stock ?? 0} disponible(s), ${producto.cantidad_reservada} reservada(s)`
+                            : "Sin control de existencias"}
                       </small>
                       {producto.precio_anterior !== null && producto.precio_actualizado_en ? (
                         <small className={styles.auditoriaPrecio}>

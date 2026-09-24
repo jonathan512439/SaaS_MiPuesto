@@ -15,7 +15,9 @@ import { esUuid } from "../../../../../../lib/catalogo/validacion";
  * `guardar_presentaciones`, que conserva el identificador de cada una.
  */
 
-const COLUMNAS = "id,nombre,precio,cantidad_stock,visible,orden" as const;
+/* Con lo apartado de cada una: el editor lo muestra y no deja borrar la que
+   tiene unidades en pedidos pendientes. */
+const COLUMNAS = "id,nombre,precio,cantidad_stock,cantidad_reservada,visible,orden" as const;
 
 export async function GET(
   _solicitud: NextRequest,
@@ -30,16 +32,24 @@ export async function GET(
     return NextResponse.json({ error: "El producto no es válido." }, { status: 400 });
   }
 
-  const { data, error } = await contexto.supabase
-    .from("variantes_producto")
-    .select(COLUMNAS)
-    .eq("producto_id", id)
-    .eq("negocio_id", contexto.negocio.id)
-    .order("orden");
+  const [{ data, error }, { data: producto }] = await Promise.all([
+    contexto.supabase
+      .from("variantes_producto")
+      .select(COLUMNAS)
+      .eq("producto_id", id)
+      .eq("negocio_id", contexto.negocio.id)
+      .order("orden"),
+    contexto.supabase
+      .from("productos")
+      .select("tipo_presentacion")
+      .eq("id", id)
+      .eq("negocio_id", contexto.negocio.id)
+      .maybeSingle(),
+  ]);
   if (error) {
     return NextResponse.json({ error: "No se pudieron leer las presentaciones." }, { status: 500 });
   }
-  return NextResponse.json({ variantes: data });
+  return NextResponse.json({ variantes: data, tipo: producto?.tipo_presentacion ?? "presentacion" });
 }
 
 /* Los errores de `guardar_presentaciones`, dichos para el dueño. La base es la
@@ -131,10 +141,19 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
       : {};
   const crudas = "variantes" in cuerpo ? cuerpo.variantes : [];
 
+  /* El tipo viaja con las presentaciones desde el editor de la fase 13; si no
+     viene, se conserva el que tenía. Se valida con él: normaliza los números y
+     reconoce «40» y «40,0» como el mismo. */
+  const tipo = esTipoPresentacion(cuerpo.tipo)
+    ? cuerpo.tipo
+    : esTipoPresentacion(producto.tipo_presentacion)
+      ? producto.tipo_presentacion
+      : "presentacion";
   const categoria = producto.categorias as { vende?: string } | null;
   const validacion = validarVariantes(crudas, {
     controlaStock: producto.controla_stock === true,
     vendeTiempo: categoria?.vende === "tiempo",
+    tipo,
   });
   if (!validacion.correcto) {
     return NextResponse.json(
@@ -143,9 +162,6 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
     );
   }
 
-  /* El tipo viaja con las presentaciones desde el editor de la fase 13; el
-     editor anterior no lo manda, y entonces se conserva el que tenía. */
-  const tipo = esTipoPresentacion(cuerpo.tipo) ? cuerpo.tipo : producto.tipo_presentacion;
   const existenciasProducto =
     typeof cuerpo.existenciasProducto === "number" && Number.isInteger(cuerpo.existenciasProducto)
       ? cuerpo.existenciasProducto

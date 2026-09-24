@@ -52,6 +52,11 @@ export type ProductoCatalogo = {
      de su categoría», que es lo normal: el dueño solo la escribe donde de verdad
      es distinta. */
   duracion_minutos: number | null;
+  /* Si lleva presentaciones (talla, número, tamaño). Lo calcula la base. Con
+     presentaciones y control de existencias, las existencias viven en cada una
+     y las del producto quedan en nulo (fase 13). */
+  con_presentaciones: boolean;
+  tipo_presentacion: "talla" | "numero" | "tamano" | "presentacion";
 };
 
 export type DatosProductoEntrada = {

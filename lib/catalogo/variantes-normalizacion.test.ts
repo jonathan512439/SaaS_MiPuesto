@@ -3,12 +3,14 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  ATAJOS_DE_PRESENTACIONES,
   MAXIMO_VARIANTES,
   TIPOS_PRESENTACION,
   normalizarNombreDePresentacion,
   normalizarNumeroCalzado,
   normalizarTalla,
   nombreConPresentacion,
+  ordenarPresentaciones,
 } from "./variantes";
 
 const RAIZ = join(import.meta.dirname, "..", "..");
@@ -116,5 +118,60 @@ describe("cómo se nombra la presentación al lado del producto", () => {
   it("sin presentación, el nombre solo", () => {
     expect(nombreConPresentacion("Salteña", null, null)).toBe("Salteña");
     expect(nombreConPresentacion("Salteña", "talla", "")).toBe("Salteña");
+  });
+});
+
+describe("el orden de las presentaciones", () => {
+  const nombres = (lista: Array<{ nombre: string }>) => lista.map(({ nombre }) => nombre);
+
+  it("los números, de menor a mayor, con los medios en su lugar", () => {
+    const lista = ["42", "38,5", "40", "38", "41"].map((nombre) => ({ nombre }));
+    expect(nombres(ordenarPresentaciones("numero", lista))).toEqual(["38", "38,5", "40", "41", "42"]);
+  });
+
+  it("las tallas de siempre en su orden, y lo escrito a mano al final en el suyo", () => {
+    const lista = ["XL", "2 años", "S", "Única", "M", "1 año"].map((nombre) => ({ nombre }));
+    expect(nombres(ordenarPresentaciones("talla", lista))).toEqual([
+      "S",
+      "M",
+      "XL",
+      "Única",
+      "2 años",
+      "1 año",
+    ]);
+  });
+
+  it("los tamaños y lo demás, como los acomodó el dueño", () => {
+    const lista = ["Familiar", "Personal", "Mediana"].map((nombre) => ({ nombre }));
+    expect(nombres(ordenarPresentaciones("tamano", lista))).toEqual(["Familiar", "Personal", "Mediana"]);
+    expect(nombres(ordenarPresentaciones("presentacion", lista))).toEqual([
+      "Familiar",
+      "Personal",
+      "Mediana",
+    ]);
+  });
+});
+
+describe("los atajos del editor", () => {
+  const atajo = (id: string) => ATAJOS_DE_PRESENTACIONES.find((uno) => uno.id === id)!;
+
+  it("generan exactamente la lista que dicen", () => {
+    expect(atajo("numeros-varon").generar(false)).toEqual(["38", "39", "40", "41", "42", "43", "44", "45"]);
+    expect(atajo("numeros-dama").generar(true)).toEqual([
+      "35", "35,5", "36", "36,5", "37", "37,5", "38", "38,5", "39", "39,5", "40",
+    ]);
+    expect(atajo("tallas-s-xxl").generar(false)).toEqual(["S", "M", "L", "XL", "XXL"]);
+  });
+
+  it("todo lo que generan lo acepta la base y entra en el tope", () => {
+    for (const uno of ATAJOS_DE_PRESENTACIONES) {
+      for (const conMedios of uno.admiteMedios ? [false, true] : [false]) {
+        const lista = uno.generar(conMedios);
+        expect(lista.length, `${uno.etiqueta} pasa el tope`).toBeLessThanOrEqual(MAXIMO_VARIANTES);
+        for (const nombre of lista) {
+          expect(normalizarNombreDePresentacion(nombre, uno.tipo), `${uno.etiqueta}: ${nombre}`).toBe(nombre);
+        }
+      }
+    }
   });
 });

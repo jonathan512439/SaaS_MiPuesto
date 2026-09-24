@@ -19,7 +19,9 @@ function hojas(directorio: string): string[] {
 }
 
 describe("hojas de estilo", () => {
-  it("no llevan caracteres de control", () => {
+  /* Recorre todas las hojas del proyecto: con la suite entera corriendo en
+     paralelo pasó los cinco segundos de margen y falló sin motivo. */
+  it("no llevan caracteres de control", { timeout: 20_000 }, () => {
     const sucias = hojas(RAIZ).filter((ruta) =>
       /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(readFileSync(ruta, "utf8")),
     );

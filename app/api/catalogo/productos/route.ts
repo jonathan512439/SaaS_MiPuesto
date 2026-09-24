@@ -236,7 +236,17 @@ export async function PATCH(solicitud: NextRequest) {
     return NextResponse.json({ producto: data });
   }
 
-  const validacion = validarProducto(datos);
+  /* Si lleva presentaciones, sus existencias van en cada una: el formulario no
+     las pide para el producto, y exigírselas acá bloquearía guardarlo. */
+  const { data: conPresentaciones } = await contexto.supabase
+    .from("productos")
+    .select("con_presentaciones")
+    .eq("id", typeof datos.id === "string" ? datos.id : "")
+    .eq("negocio_id", contexto.negocio.id)
+    .maybeSingle();
+  const validacion = validarProducto(datos, {
+    existenciasPorPresentacion: conPresentaciones?.con_presentaciones === true,
+  });
   if (!validacion.correcto) {
     return NextResponse.json({ error: "Revisa los datos del producto.", errores: validacion.errores }, { status: 400 });
   }

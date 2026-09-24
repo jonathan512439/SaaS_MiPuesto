@@ -1726,6 +1726,22 @@ motivo por el que este archivo existe.
 
 ### 2026-09-23
 
+- **Fase 13, paso 4: el editor del panel.** El tipo arriba (Talla, Número de
+  calzado, Tamaño, Otra opción), atajos que cargan la lista de una vez («S a XXL»,
+  «Varón 38 a 45», con o sin medios números), orden automático de tallas y
+  números, existencias obligatorias por presentación si el producto las
+  controla, «A la vista» para ocultar sin borrar, lo apartado de cada una, y una
+  presentación con pedidos pendientes no se puede quitar (se dice por qué).
+  Al sacar todas, pide las existencias del producto. El formulario del producto
+  deja de pedir existencias cuando van por presentación, la validación del
+  servidor ya no se las exige, y la lista dice «Existencias por presentación».
+  El validador normaliza según el tipo y exige existencias por presentación
+  (prueba vieja actualizada, con el motivo). La prueba de los atajos encontró
+  que «Niños 20 a 34» con medios números daba 29, más que el tope: va sin
+  medios. Textos nuevos en español neutro. Una prueba que recorre todas las
+  hojas de estilo pasó a tener 20 s de margen: con la suite entera fallaba por
+  tiempo.
+
 - **Fase 13, paso 2: la talla se reserva, se cobra y se descuenta.** Migración
   `20261019090000`:
   - **Fuente única de existencias sostenida por la base**: `productos.con_presentaciones`

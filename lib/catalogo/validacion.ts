@@ -35,7 +35,13 @@ export function normalizarNombreOrganizacion(valor: string) {
   return valor.trim().replace(/\s+/g, " ");
 }
 
-export function validarProducto(entrada: unknown):
+export function validarProducto(
+  entrada: unknown,
+  /* Con presentaciones y control de existencias, las existencias van en cada
+     presentación y el producto no lleva las suyas (fase 13): no se le exigen y
+     se guardan en nulo, que es lo que la base deja igual. */
+  opciones: { existenciasPorPresentacion?: boolean } = {},
+):
   | { correcto: true; datos: DatosProductoEntrada }
   | { correcto: false; errores: Record<string, string> } {
   if (typeof entrada !== "object" || entrada === null) {
@@ -57,7 +63,7 @@ export function validarProducto(entrada: unknown):
         ? Number(valor.precio.replace(",", "."))
         : Number.NaN;
   const controlaStock = valor.controla_stock === true;
-  const cantidadStock = controlaStock
+  const cantidadStock = controlaStock && !opciones.existenciasPorPresentacion
     ? typeof valor.cantidad_stock === "number"
       ? valor.cantidad_stock
       : typeof valor.cantidad_stock === "string" && valor.cantidad_stock.trim()
@@ -95,6 +101,7 @@ export function validarProducto(entrada: unknown):
 
   if (
     controlaStock &&
+    !opciones.existenciasPorPresentacion &&
     (cantidadStock === null ||
       !Number.isInteger(cantidadStock) ||
       cantidadStock < 0 ||

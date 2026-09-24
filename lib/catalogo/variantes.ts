@@ -97,7 +97,7 @@ function numeroONulo(valor: unknown): number | null | undefined {
  */
 export function validarVariantes(
   crudas: unknown,
-  contexto: { controlaStock: boolean; vendeTiempo: boolean } = {
+  contexto: { controlaStock: boolean; vendeTiempo: boolean; tipo?: TipoPresentacion } = {
     controlaStock: false,
     vendeTiempo: false,
   },
@@ -147,9 +147,15 @@ export function validarVariantes(
       errores[campo("id")] = "No se pudo identificar esta presentación.";
     }
 
-    const nombre = textoLimpio(dato.nombre);
+    /* El nombre como lo va a guardar la base según el tipo: así «40,0» y «40»
+       se reconocen repetidos acá y no recién al guardar. */
+    const escrito = textoLimpio(dato.nombre);
+    const normalizado = escrito === "" ? "" : normalizarNombreDePresentacion(escrito, contexto.tipo ?? "presentacion");
+    const nombre = normalizado ?? escrito;
     if (nombre === "") {
       errores[campo("nombre")] = "Escribí cómo se llama.";
+    } else if (normalizado === null) {
+      errores[campo("nombre")] = `«${escrito}» no es un número de calzado. Van de 16 a 50, enteros o con medio: 38, 40,5.`;
     } else if (nombre.length > LARGO_NOMBRE_VARIANTE) {
       errores[campo("nombre")] = `Hasta ${LARGO_NOMBRE_VARIANTE} caracteres.`;
     } else if (nombresVistos.has(nombre.toLocaleLowerCase("es"))) {
@@ -169,6 +175,10 @@ export function validarVariantes(
       errores[campo("cantidadStock")] = "Las existencias van en números enteros.";
     } else if (cantidadStock !== null && cantidadStock < 0) {
       errores[campo("cantidadStock")] = "Las existencias no pueden ser negativas.";
+    } else if (cantidadStock === null && contexto.controlaStock) {
+      /* Desde la fase 13 las existencias de un producto con presentaciones
+         viven en cada una: sin el número, esa talla no se podría pedir. */
+      errores[campo("cantidadStock")] = "Indica cuántas unidades hay de esta presentación.";
     } else if (cantidadStock !== null && !contexto.controlaStock) {
       /* Se avisa en vez de guardarlo callado: un número de existencias en un
          producto que no las controla no se muestra en ninguna parte, y el dueño
@@ -243,3 +253,102 @@ export function nombreConPresentacion(
   if (!nombrePresentacion) return nombreProducto;
   return `${nombreProducto} (${etiquetaDePresentacion(tipo, nombrePresentacion)})`;
 }
+
+/* El orden en que se muestran y se eligen. Las tallas de siempre en su orden
+   (XS antes que S), y lo que el dueño escribió a mano después, en su orden; los
+   números de menor a mayor; los tamaños y lo demás, como los acomodó el dueño,
+   porque «Familiar» y «Personal» no tienen un orden que se pueda adivinar. */
+export function ordenarPresentaciones<T extends { nombre: string }>(
+  tipo: TipoPresentacion,
+  lista: readonly T[],
+): T[] {
+  const copia = [...lista];
+  if (tipo === "numero") {
+    const valor = (nombre: string) => {
+      const normalizado = normalizarNumeroCalzado(nombre);
+      return normalizado === null ? Number.POSITIVE_INFINITY : Number(normalizado.replace(",", "."));
+    };
+    return copia.sort((a, b) => valor(a.nombre) - valor(b.nombre));
+  }
+  if (tipo === "talla") {
+    const posicion = (nombre: string) => {
+      const indice = (TALLAS_CANONICAS as readonly string[]).indexOf(normalizarTalla(nombre) ?? "");
+      return indice < 0 ? TALLAS_CANONICAS.length : indice;
+    };
+    /* `sort` es estable: las que no son de las de siempre quedan en el orden
+       en que venían, todas al final. */
+    return copia.sort((a, b) => posicion(a.nombre) - posicion(b.nombre));
+  }
+  return copia;
+}
+
+/* Los atajos del editor: cargan una lista de una vez y el dueño borra lo que no
+   tiene. Existen porque nadie va a escribir diez números a mano. */
+export type AtajoDePresentaciones = {
+  id: string;
+  tipo: TipoPresentacion;
+  etiqueta: string;
+  /* Solo los de números: si se ofrece la casilla «con medios números». */
+  admiteMedios: boolean;
+  generar: (conMedios: boolean) => string[];
+};
+
+function rangoDeNumeros(desde: number, hasta: number, conMedios: boolean): string[] {
+  const numeros: string[] = [];
+  for (let numero = desde; numero <= hasta; numero += 1) {
+    numeros.push(String(numero));
+    if (conMedios && numero < hasta) numeros.push(`${numero},5`);
+  }
+  return numeros;
+}
+
+export const ATAJOS_DE_PRESENTACIONES: readonly AtajoDePresentaciones[] = [
+  {
+    id: "tallas-xs-xl",
+    tipo: "talla",
+    etiqueta: "XS a XL",
+    admiteMedios: false,
+    generar: () => ["XS", "S", "M", "L", "XL"],
+  },
+  {
+    id: "tallas-s-xxl",
+    tipo: "talla",
+    etiqueta: "S a XXL",
+    admiteMedios: false,
+    generar: () => ["S", "M", "L", "XL", "XXL"],
+  },
+  {
+    id: "numeros-dama",
+    tipo: "numero",
+    etiqueta: "Dama 35 a 40",
+    admiteMedios: true,
+    generar: (conMedios) => rangoDeNumeros(35, 40, conMedios),
+  },
+  {
+    id: "numeros-varon",
+    tipo: "numero",
+    etiqueta: "Varón 38 a 45",
+    admiteMedios: true,
+    generar: (conMedios) => rangoDeNumeros(38, 45, conMedios),
+  },
+  {
+    id: "numeros-ninos",
+    tipo: "numero",
+    etiqueta: "Niños 20 a 34",
+    /* Sin medios números: el calzado de niños casi no los usa, y con ellos
+       serían 29, más que el tope de 24. Lo encontró la prueba de los atajos. */
+    admiteMedios: false,
+    generar: () => rangoDeNumeros(20, 34, false),
+  },
+];
+
+/* Cómo se pregunta en el catálogo y cómo se titula en el editor. */
+export const TEXTOS_DE_PRESENTACION: Record<
+  TipoPresentacion,
+  { nombre: string; elegir: string; boton: string }
+> = {
+  talla: { nombre: "Talla", elegir: "Elige tu talla", boton: "Elegir talla" },
+  numero: { nombre: "Número de calzado", elegir: "Elige tu número", boton: "Elegir número" },
+  tamano: { nombre: "Tamaño", elegir: "Elige el tamaño", boton: "Elegir tamaño" },
+  presentacion: { nombre: "Otra opción", elegir: "Elige una opción", boton: "Elegir opción" },
+};

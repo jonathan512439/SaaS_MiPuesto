@@ -104,10 +104,38 @@ describe("validarVariantes", () => {
       );
     });
 
-    it("acepta vacío, que significa que esta presentación no lleva cuenta", () => {
+    /* Hasta la fase 13 un vacío acá significaba «esta talla no lleva cuenta».
+       Desde que las existencias de un producto con presentaciones viven en cada
+       una, una talla sin número no se podría pedir nunca: se exige, igual que
+       la base (`EXISTENCIAS_POR_PRESENTACION`). */
+    it("exige las existencias de cada presentación si el producto las controla", () => {
       const resultado = validarVariantes([{ nombre: "M", cantidadStock: "" }], CON_STOCK);
-      expect(resultado.correcto).toBe(true);
-      if (resultado.correcto) expect(resultado.variantes[0].cantidadStock).toBeNull();
+      expect(resultado.correcto).toBe(false);
+      if (!resultado.correcto) expect(resultado.errores["variantes.0.cantidadStock"]).toBeTruthy();
+    });
+
+    it("con el tipo «número», normaliza y rechaza lo que no es un número", () => {
+      const bien = validarVariantes(
+        [
+          { nombre: "38.5", cantidadStock: "2" },
+          { nombre: "40", cantidadStock: "1" },
+        ],
+        { ...CON_STOCK, tipo: "numero" },
+      );
+      expect(bien.correcto && bien.variantes.map(({ nombre }) => nombre)).toEqual(["38,5", "40"]);
+
+      const mal = validarVariantes([{ nombre: "38,3", cantidadStock: "2" }], { ...CON_STOCK, tipo: "numero" });
+      expect(mal.correcto).toBe(false);
+      if (!mal.correcto) expect(mal.errores["variantes.0.nombre"]).toContain("no es un número de calzado");
+
+      const repetidos = validarVariantes(
+        [
+          { nombre: "40", cantidadStock: "1" },
+          { nombre: "40,0", cantidadStock: "1" },
+        ],
+        { ...CON_STOCK, tipo: "numero" },
+      );
+      expect(repetidos.correcto).toBe(false);
     });
   });
 

@@ -1572,3 +1572,15 @@
   font-size: var(--text-sm);
   font-weight: 900;
 }
+
+/* En lugar del campo de existencias, cuando el producto las lleva por
+   presentación: dice dónde se cargan en vez de pedir un número que la base
+   descartaría. */
+.notaExistencias {
+  margin: 0;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  background: var(--color-marca-tenue);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+}

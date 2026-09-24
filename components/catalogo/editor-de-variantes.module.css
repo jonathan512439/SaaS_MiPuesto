@@ -51,6 +51,19 @@
   background: var(--color-lienzo);
 }
 
+/* Oculta: sigue en la lista para poder volver a mostrarla, pero se ve que no
+   está a la venta. El texto de la casilla lo dice; el fondo lo refuerza. */
+.filaOculta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-24), 1fr));
+  align-items: end;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3);
+  border: var(--borde-fino) dashed var(--color-borde);
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-hundido);
+}
+
 .control {
   display: grid;
   gap: var(--spacing-1);
@@ -72,45 +85,114 @@
   font-size: var(--text-base);
 }
 
-.quitar {
-  min-height: var(--control-alto);
-  padding: var(--spacing-2) var(--spacing-3);
-  border: var(--borde-fino) solid var(--control-segundo-borde);
-  border-radius: var(--radius-control);
-  background: var(--control-segundo-fondo);
-  color: var(--control-segundo-texto);
-  font: inherit;
-  font-size: var(--text-xs);
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: var(--sombra-suave);
-}
-
-/* Relieve: lo mismo que el botón compartido, por el mismo motivo. Sin sombra
-   estos controles se leían como rótulos, y el dueño no sabía cuáles se tocaban
-   hasta probarlos. El hundido al presionar es la única confirmación que hay en
-   un teléfono de que el dedo dio en el blanco. */
-.quitar:active:not(:disabled) {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-.quitar:focus-visible {
-  outline: var(--foco-ancho) solid var(--color-superficie);
-  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
-}
-
-/* Lo que la función todavía no hace, a la vista y no escondido en la ayuda.
-   Con el fondo de alerta tenue: no es un error, es una advertencia sobre el
-   alcance. */
+/* Cómo funcionan las existencias por presentación, dicho donde se cargan. Con
+   el fondo de marca tenue: es una explicación, no una advertencia. */
 .aviso {
   margin: 0;
   padding: var(--spacing-3);
   border-radius: var(--radius-control);
-  background: var(--color-alerta-tenue);
+  background: var(--color-marca-tenue);
   color: var(--color-texto);
   font-size: var(--text-xs);
   line-height: 1.5;
+}
+
+/* El tipo, como un juego de opciones: importa cuál está elegida. */
+.tipos {
+  display: grid;
+  gap: var(--spacing-2);
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.tipos legend {
+  margin-bottom: var(--spacing-2);
+  padding: 0;
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.opcion,
+.opcionElegida {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border: var(--borde-marcado) solid var(--color-borde-campo);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.opcionElegida {
+  border-color: var(--color-marca);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+/* El radio se oculta a la vista pero no al teclado ni al lector: la pastilla
+   entera es la que se toca. */
+.opcion input,
+.opcionElegida input {
+  position: absolute;
+  width: var(--borde-fino);
+  height: var(--borde-fino);
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.opcion:has(input:focus-visible),
+.opcionElegida:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.atajos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.atajos > span {
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.casilla {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.casilla input {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+}
+
+.apartadas {
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.nota {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1.4;
 }
 
 .pie {
