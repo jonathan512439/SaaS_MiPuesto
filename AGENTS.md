@@ -83,6 +83,9 @@ Next.js 16 (App Router, TypeScript) sobre Cloudflare Workers con vinext + Supaba
 
 ## Qué no hacer
 - No agregues dependencias nuevas sin justificarlo primero por escrito.
+- No actualices `vinext`, `next`, `react` ni `@supabase/*` sin seguir
+  `docs/ACTUALIZAR-DEPENDENCIAS.md`. Las versiones son exactas y una guardia lo
+  comprueba.
 - No cambies el esquema sin una migración versionada.
 - No pongas `SUPABASE_SERVICE_ROLE_KEY` ni `GEMINI_API_KEY` en código que llegue al
   cliente.
@@ -97,7 +100,8 @@ npm run dev              # requiere .env.local
 npm test                 # contraste, tokens y unitarias
 npm run typecheck
 npm run lint
-npm run build:vinext     # cerrá wrangler dev antes, o falla con EBUSY
+npm run verificar        # tipos, lint y todas las pruebas, en ese orden
+npm run build:vinext     # corre antes `verificar`; cerrá wrangler dev antes, o falla con EBUSY
 npm run test:rls:linked
 npm run types:db:linked  # después de cualquier migración
 ```

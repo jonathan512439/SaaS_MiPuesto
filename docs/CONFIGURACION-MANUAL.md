@@ -92,6 +92,10 @@ La configuración aplicada queda documentada como referencia:
    - Rama de producción: `main`.
    - Directorio raíz: `/` o vacío.
    - Comando de build: `npm run build:vinext`.
+     **Desde el 2026-09-24 este comando corre antes `npm run verificar`** —tipos,
+     lint y todas las pruebas— por medio de `prebuild:vinext`. Si algo falla, el
+     build falla y no se publica. No lo cambies por `vinext build` directo:
+     saltearía ese freno sin que nada avise.
    - Comando de deploy: `npm run deploy:vinext`.
 4. En **Settings → Build → Build variables and secrets**, agregá:
    - `NEXT_PUBLIC_SUPABASE_URL`: la URL de `mipuesto-dev`.
