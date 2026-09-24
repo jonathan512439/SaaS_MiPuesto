@@ -1726,6 +1726,49 @@ motivo por el que este archivo existe.
 
 ### 2026-09-24
 
+- **Los pendientes fuera del dominio, cerrados.** Siete puntos que no dependen
+  de comprar el dominio, hechos antes del siguiente guion:
+  1. **Aislamiento al día** (`9b0cbd1`): `test-rls-multitenant.mjs` comprueba
+     también `uso_almacenamiento_negocio` —lo propio da un número, lo ajeno
+     `null`, anónimo error— y que un dueño no pueda llamar las funciones de
+     privacidad. `test:rls:linked` en verde.
+  2. **Tope por IP de 5 a 15** cada quince minutos (`acb5a8c`), en pedidos
+     (`20261027090000_tope_de_pedidos_por_ip.sql`) y turnos
+     (`TOPE_INTENTOS_POR_VENTANA`). Turnstile es la defensa principal; con 5, una
+     hora pico detrás de la IP compartida de una red móvil podía rechazar
+     clientes reales. Cada choque queda anotado en el registro del Worker.
+     Verificado en producción (`v_limite > 15` en la función).
+  3. **Aviso de hidratación del catálogo** (`c357066`): era el guion de la
+     introducción, que marca `data-marca` en `<html>` antes de pintar a
+     propósito. `suppressHydrationWarning` en la raíz —solo cubre sus atributos—
+     y una prueba que lo exige mientras el guion toque la raíz. Chrome sin
+     ventana: 0 avisos en `/brasaurbana`, `/` y búsqueda.
+  4. **La portada y la foto grande del producto se piden primero** (`1804c4b`):
+     `preload` —`priority` está en desuso en Next 16— y `fetchPriority="high"`.
+     El HTML sale sin `loading="lazy"` y con su `<link rel="preload">`.
+  5. **CPU de `/api/pedidos`** (`97673c0`): el cliente de Supabase con clave de
+     servicio y la clave HMAC de la huella se arman una vez por isolate, cada uno
+     guardado con el entorno del que salió (una clave rotada arma otro). Medido
+     en producción con pedidos sin verificación —recorren casi toda la ruta y no
+     escriben—: en caliente pasó de 4–19 ms (mediana ~8) a **2–5 ms (mediana 3)**.
+     El primer pedido de cada isolate nuevo sigue en 20–40 ms: es la evaluación
+     inicial del Worker, no de la ruta.
+  6. **Máximo de unidades por pedido, a elección de cada tienda** (`389d883`):
+     `negocios.tope_unidades_pedido` (vacío = sin tope, 1–2970 con `check`),
+     concedida a `anon` para leer y al dueño para escribir. `crear_pedido_reservado`
+     la hace cumplir con `TOPE_UNIDADES` antes del contador por IP y después del
+     control de idempotencia —bajar el tope no rompe un reintento—. Se edita en
+     «Atención y reservas» (solo con carrito) y el carrito avisa antes de enviar.
+     Prueba de base `npm run test:tope-unidades:ensayo`, rota a propósito;
+     `test:permisos:linked` en verde. Aplicada en ensayo y producción.
+  7. **Política de contenido con nonce** (`e1c126e`): `proxy.ts` pone un nonce
+     nuevo por solicitud (`lib/seguridad/politica-contenido.ts`), vinext lo
+     aplica a todos sus scripts en línea y la introducción al suyo. Probado sobre
+     el build de vinext con `wrangler dev`: todos los scripts en línea con nonce,
+     React hidratado, 0 violaciones en catálogo, ficha, inicio, `/login` y
+     privacidad, y el script de Turnstile carga. Sin costo: ninguna página se
+     guardaba en caché.
+
 - **Etapa 5, corregida: verbos de tú y «vos» de pronombre.** El dueño vio en el
   menú y el panel «lo que tenés incluido», «configurá», «describí», «que
   vendés», «querés», y no los quiere: la entrada de abajo había leído mal su
