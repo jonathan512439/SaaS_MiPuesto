@@ -46,7 +46,7 @@ function textoLimpio(valor: unknown, tope: number): string {
 }
 
 /* El mismo número que `crear_pedido_reservado` aplica a los pedidos. */
-const TOPE_INTENTOS_POR_VENTANA = 5;
+const TOPE_INTENTOS_POR_VENTANA = 15;
 
 export async function POST(
   solicitud: NextRequest,
@@ -161,6 +161,8 @@ export async function POST(
     return NextResponse.json({ error: "No se pudo agendar. Prueba de nuevo." }, { status: 500 });
   }
   if (intentos > TOPE_INTENTOS_POR_VENTANA) {
+    /* Se anota para saber si el tope alcanza o deja afuera a gente real. */
+    console.warn(`Tope de reservas por IP alcanzado en ${negocio.id}.`);
     return NextResponse.json(
       { error: "Llegaste al límite temporal de reservas. Intenta nuevamente en 15 minutos." },
       { status: 429 },

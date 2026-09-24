@@ -74,7 +74,12 @@ export function responderErrorPedido(mensajeDeLaBase: string): { estado: number;
   const coincidencia = Object.entries(ERRORES_PEDIDO).find(([codigo]) =>
     mensajeDeLaBase.includes(codigo),
   );
-  if (coincidencia) return coincidencia[1];
+  if (coincidencia) {
+    /* El tope por IP se anota: es la forma de saber si quince alcanza o si deja
+       afuera a clientes reales detrás de la misma IP de una red móvil. */
+    if (coincidencia[0] === "LIMITE_PEDIDOS") console.warn("Tope de pedidos por IP alcanzado.");
+    return coincidencia[1];
+  }
   /* Un error que no está en la lista se anota: sin esto, el de hoy se habría
      visto solo como un 500 sin causa en el registro del Worker. */
   console.error(`crear_pedido_reservado devolvió un error sin traducir: ${mensajeDeLaBase}`);

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -31,11 +31,19 @@ describe("las rutas públicas que escriben cuentan por huella de IP", () => {
   it("las citas devuelven 429 con el mismo tope que los pedidos", () => {
     const citas = readFileSync(join(raiz, RUTAS_PUBLICAS_QUE_ESCRIBEN[2]), "utf8");
     expect(citas).toContain("status: 429");
-    expect(citas).toContain("const TOPE_INTENTOS_POR_VENTANA = 5;");
-    const pedidos = readFileSync(
-      join(raiz, "supabase/migrations/20260903021631_fase6_pedidos_reservas.sql"),
-      "utf8",
-    );
-    expect(pedidos).toContain("if v_limite > 5 then");
+    const [, topeCitas] = /const TOPE_INTENTOS_POR_VENTANA = (\d+);/.exec(citas) ?? [];
+
+    /* El de los pedidos, en la última migración que define la función. */
+    const carpeta = join(raiz, "supabase/migrations");
+    const marca = "create or replace function public.crear_pedido_reservado(";
+    const vigente = readdirSync(carpeta)
+      .sort()
+      .map((archivo) => readFileSync(join(carpeta, archivo), "utf8"))
+      .filter((sql) => sql.includes(marca))
+      .at(-1)!;
+    const [, topePedidos] = /if v_limite > (\d+) then/.exec(vigente) ?? [];
+
+    expect(Number(topeCitas)).toBeGreaterThan(0);
+    expect(Number(topeCitas)).toBe(Number(topePedidos));
   });
 });
