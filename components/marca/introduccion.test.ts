@@ -112,6 +112,18 @@ describe("la presentación de la marca", () => {
     expect(css).toContain('html[data-marca="saltada"]');
   });
 
+  /* El guion toca el `<html>` antes de que React hidrate, así que el del
+     servidor y el del navegador no coinciden a propósito. Sin
+     `suppressHydrationWarning` en la raíz, cada visita al catálogo deja un aviso
+     de hidratación en la consola que tapa los que sí serían un error. */
+  it("la raíz acepta que el guion la marque antes de hidratar", () => {
+    const layout = readFileSync(join(CARPETA, "../../app/layout.tsx"), "utf8");
+    expect(tsx).toContain("r.dataset.marca=");
+    expect(layout, "falta suppressHydrationWarning en <html>").toMatch(
+      /<html[^>]*\ssuppressHydrationWarning[\s>]/,
+    );
+  });
+
   /* Quien pidió no ver movimiento no lo ve, y el papel no lleva una hoja en
      blanco con el logotipo. */
   it("respeta a quien no quiere movimiento, y no se imprime", () => {

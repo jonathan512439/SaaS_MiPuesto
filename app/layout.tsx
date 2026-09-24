@@ -53,10 +53,15 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  /* `suppressHydrationWarning`: el guion de `components/marca/introduccion.tsx`
+     pone `data-marca` en la raíz antes de pintar, a propósito, y React avisaría
+     que el `<html>` no coincide con el del servidor. Solo cubre los atributos de
+     este elemento; un desajuste en cualquier hijo sigue avisando. */
   return (
     <html
       className={`${fuenteProducto.variable} ${fuenteTitulo.variable} ${fuenteMarca.variable}`}
       lang="es-BO"
+      suppressHydrationWarning
     >
       <body>{children}</body>
     </html>
