@@ -236,6 +236,45 @@ function validarExcepciones(valor: unknown):
   return { correcto: true, excepciones: excepciones.sort((a, b) => a.fecha.localeCompare(b.fecha)) };
 }
 
+/* La semana, día por día. `estricto` es el formato con `modo` y `dias`: ahí un
+   día desconocido es un error. El formato viejo traía los días sueltos junto a
+   otras claves, y esas se saltean. */
+function leerSemana(
+  fuenteDias: unknown,
+  estricto: boolean,
+): { correcto: true; dias: Record<DiaSemana, IntervaloHorario[]> } | { correcto: false; error: string } {
+  if (!esRegistro(fuenteDias)) {
+    return { correcto: false, error: "Los días del horario programado no son válidos." };
+  }
+
+  const dias = diasVacios();
+  for (const [clave, intervalosSinValidar] of Object.entries(fuenteDias)) {
+    if (!DIAS_SEMANA.includes(clave as DiaSemana)) {
+      if (estricto) return { correcto: false, error: `El día ${clave} no es válido.` };
+      continue;
+    }
+
+    const lista = Array.isArray(intervalosSinValidar)
+      ? intervalosSinValidar
+      : intervalosSinValidar === null
+        ? []
+        : [intervalosSinValidar];
+    if (lista.length > 3) {
+      return { correcto: false, error: `Puedes configurar hasta tres intervalos en ${clave}.` };
+    }
+    const intervalos = lista.map(normalizarIntervalo);
+    if (intervalos.some((intervalo) => intervalo === null)) {
+      return { correcto: false, error: `Hay un intervalo inválido en ${clave}.` };
+    }
+    dias[clave as DiaSemana] = intervalos as IntervaloHorario[];
+  }
+
+  if (tieneSolapamientos({ modo: "programado", dias, excepciones: [] })) {
+    return { correcto: false, error: "Los intervalos del horario no pueden solaparse." };
+  }
+  return { correcto: true, dias };
+}
+
 export function validarHorario(valor: unknown): ResultadoValidacionHorario {
   if (!esRegistro(valor) || Object.keys(valor).length === 0) {
     return { correcto: true, horario: horarioVacio("sin_horario") };
@@ -264,55 +303,31 @@ export function validarHorario(valor: unknown): ResultadoValidacionHorario {
     return { correcto: false, error: validacionExcepciones.error };
   }
 
+  /* Con otro modo, la semana **se guarda pero no manda**: pasar a «Siempre
+     abierto» por una feria la borraba, y al volver a «Horario programado» todos
+     los días estaban cerrados. La evaluación mira el modo antes que los días, así
+     que guardarla no cambia qué ve el cliente. Como el dueño no la está viendo,
+     una semana rota no le impide guardar: se descarta. */
   if (modo !== "programado") {
+    const semana =
+      modoExplicito === modo && valor.dias !== undefined ? leerSemana(valor.dias, true) : null;
     return {
       correcto: true,
       horario: {
         modo,
-        dias: diasVacios(),
+        dias: semana?.correcto ? semana.dias : diasVacios(),
         excepciones: validacionExcepciones.excepciones,
       },
     };
   }
 
-  const fuenteDias = modoExplicito === "programado" ? valor.dias : valor;
-  if (!esRegistro(fuenteDias)) {
-    return { correcto: false, error: "Los días del horario programado no son válidos." };
-  }
+  const semana = leerSemana(modoExplicito === "programado" ? valor.dias : valor, modoExplicito === "programado");
+  if (!semana.correcto) return { correcto: false, error: semana.error };
 
-  const horario: HorarioNormalizado = {
-    modo,
-    dias: diasVacios(),
-    excepciones: validacionExcepciones.excepciones,
+  return {
+    correcto: true,
+    horario: { modo, dias: semana.dias, excepciones: validacionExcepciones.excepciones },
   };
-  for (const [clave, intervalosSinValidar] of Object.entries(fuenteDias)) {
-    if (!DIAS_SEMANA.includes(clave as DiaSemana)) {
-      if (modoExplicito === "programado") {
-        return { correcto: false, error: `El día ${clave} no es válido.` };
-      }
-      continue;
-    }
-
-    const lista = Array.isArray(intervalosSinValidar)
-      ? intervalosSinValidar
-      : intervalosSinValidar === null
-        ? []
-        : [intervalosSinValidar];
-    if (lista.length > 3) {
-      return { correcto: false, error: `Puedes configurar hasta tres intervalos en ${clave}.` };
-    }
-    const intervalos = lista.map(normalizarIntervalo);
-    if (intervalos.some((intervalo) => intervalo === null)) {
-      return { correcto: false, error: `Hay un intervalo inválido en ${clave}.` };
-    }
-    horario.dias[clave as DiaSemana] = intervalos as IntervaloHorario[];
-  }
-
-  if (tieneSolapamientos(horario)) {
-    return { correcto: false, error: "Los intervalos del horario no pueden solaparse." };
-  }
-
-  return { correcto: true, horario };
 }
 
 /* La evaluacion trabaja sobre fechas reales y no sobre una semana abstracta:

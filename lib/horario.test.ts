@@ -316,3 +316,54 @@ describe("fechas especiales y feriados", () => {
     );
   });
 });
+
+/* Pasar a «Siempre abierto» borraba la semana: al volver a «Horario programado»
+   todos los días estaban cerrados y había que cargarlos de nuevo. Le pasaba a
+   quien abre todo el día por una feria y después quiere volver a lo de siempre. */
+describe("la semana guardada sobrevive a los cambios de modo", () => {
+  const semana = {
+    lunes: [{ abre: "09:00", cierra: "20:00" }],
+    sabado: [{ abre: "09:00", cierra: "13:00" }],
+  };
+
+  it("«Siempre abierto» guarda la semana aunque no la use", () => {
+    const resultado = validarHorario({ modo: "siempre_abierto", dias: semana, excepciones: [] });
+    expect(resultado.correcto).toBe(true);
+    if (!resultado.correcto) return;
+    expect(resultado.horario.modo).toBe("siempre_abierto");
+    expect(resultado.horario.dias.lunes).toEqual([{ abre: "09:00", cierra: "20:00" }]);
+    expect(resultado.horario.dias.sabado).toEqual([{ abre: "09:00", cierra: "13:00" }]);
+  });
+
+  it("«Sin horario publicado» también la guarda", () => {
+    const resultado = validarHorario({ modo: "sin_horario", dias: semana, excepciones: [] });
+    expect(resultado.correcto && resultado.horario.dias.lunes).toEqual([
+      { abre: "09:00", cierra: "20:00" },
+    ]);
+  });
+
+  /* Guardarla no la vuelve vigente: el domingo a las 23:00 está fuera de la
+     semana y el negocio sigue abierto, porque el modo manda. */
+  it("con la semana guardada, «Siempre abierto» sigue abierto a toda hora", () => {
+    const estado = evaluarHorario(
+      { modo: "siempre_abierto", dias: semana, excepciones: [] },
+      fechaBolivia("2026-09-27T23:00:00"),
+    );
+    expect(estado.abierto).toBe(true);
+    expect(estado.texto).toBe("Siempre abierto");
+  });
+
+  /* El dueño no la ve mientras el modo no es programado: un error ahí no puede
+     impedirle guardar «Siempre abierto». Se descarta y listo. */
+  it("una semana rota no impide guardar otro modo", () => {
+    const rota = { lunes: [{ abre: "09:00", cierra: "12:00" }, { abre: "11:00", cierra: "14:00" }] };
+    const resultado = validarHorario({ modo: "siempre_abierto", dias: rota, excepciones: [] });
+    expect(resultado.correcto).toBe(true);
+    expect(resultado.correcto && resultado.horario.dias.lunes).toEqual([]);
+  });
+
+  it("en «Horario programado» la semana se sigue validando igual", () => {
+    const rota = { lunes: [{ abre: "09:00", cierra: "12:00" }, { abre: "11:00", cierra: "14:00" }] };
+    expect(validarHorario({ modo: "programado", dias: rota, excepciones: [] }).correcto).toBe(false);
+  });
+});
