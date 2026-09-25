@@ -38,7 +38,7 @@ virtual, rubro restaurante, siempre abierto y con número de mesa activado.
 |---|---|---|
 | 2.1 | Crear 3 categorías y 1 subcategoría | Aparecen en orden |
 | 2.2 | Cargar 10 productos con foto desde el celular | La foto se comprime sola. **Cronometrá cuánto tarda cada una** |
-| 2.3 | Cargar un producto con 4 fotos | Al llegar a 4 no deja subir más |
+| 2.3 | Cargar fotos hasta el tope del plan | Plan Catálogo: al llegar a 3 no deja subir más. Catálogo Activo: al llegar a 4 |
 | 2.4 | Intentar subir una foto de más de 5 MB | Avisa con un mensaje entendible |
 | 2.5 | Editar precio, nombre y descripción | Se guarda sin recargar |
 | 2.6 | Marcar «Agotado» y después «Hay de nuevo» | Cambia en un toque, sin abrir el formulario |

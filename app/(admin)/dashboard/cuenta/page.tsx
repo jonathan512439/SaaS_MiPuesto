@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { construirEnlaceContacto } from "../../../../lib/contacto";
-import { planDe } from "../../../../lib/planes";
+import { describirTopes, planDe } from "../../../../lib/planes";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import {
   describirDiasRestantes,
@@ -115,6 +115,10 @@ export default async function PaginaCuenta() {
             <dd className={styles.monto}>
               Bs {planDe(negocio.plan_id).precioBs} al mes, plan {planDe(negocio.plan_id).nombre}
             </dd>
+          </div>
+          <div>
+            <dt>Incluye</dt>
+            <dd>{describirTopes(planDe(negocio.plan_id).topes)}</dd>
           </div>
           <div>
             <dt>Publicación</dt>

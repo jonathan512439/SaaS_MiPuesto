@@ -70,6 +70,14 @@ const PREGUNTAS = [
     pregunta: "¿La tarjeta de acrílico incluye el catálogo?",
     respuesta: `No. La tarjeta se paga una vez, Bs ${TARJETA_ACRILICO.precioBs} cada una, con diseño, QR y NFC configurados. El catálogo es la suscripción mensual, aparte.`,
   },
+  /* Los números salen de `lib/planes.ts`, los mismos que aplica la base. */
+  {
+    pregunta: "¿Cuántos productos y fotos puedo cargar?",
+    respuesta: `${PLANES.map(
+      (plan) =>
+        `Con el plan ${plan.nombre}, hasta ${plan.topes.productos} productos con ${plan.topes.fotosPorProducto} fotos cada uno`,
+    ).join("; ")}. Lo que mandas a la papelera no cuenta.`,
+  },
   {
     pregunta: "¿Qué pasa si un mes no pago?",
     respuesta:

@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 /* Un menú impreso no se pagina: se imprime entero o no sirve. El tope existe
    para que un catálogo desmedido no tumbe la página, no para recortar a nadie:
-   el límite del plan son 300 productos. */
+   el plan más grande admite 300 productos (`lib/planes.ts`). */
 const TOPE_PRODUCTOS = 500;
 
 type PropiedadesPagina = { params: Promise<{ slug: string }> };

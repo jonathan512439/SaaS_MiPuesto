@@ -82,7 +82,7 @@ export default function ImagenPortada() {
             Tu catálogo digital, con pedidos por WhatsApp
           </span>
           <span style={{ fontSize: "34px", opacity: 0.86, lineHeight: 1.3 }}>
-            Tu dirección web propia, tu código QR y hasta 300 productos.
+            Tu dirección web propia, tu código QR y tu catálogo con fotos.
           </span>
         </div>
 

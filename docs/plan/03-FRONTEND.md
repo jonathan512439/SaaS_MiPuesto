@@ -95,7 +95,7 @@ El botón de la esquina cambia con la modalidad y con `vende`:
 
 | Bloque | Qué muestra |
 |---|---|
-| Galería | Hasta 4 fotos con miniaturas |
+| Galería | Hasta 3 fotos (plan Catálogo) o 4 (Catálogo Activo), con miniaturas |
 | Nombre, subtítulo, precio | Con precio anterior tachado si hay promoción |
 | Disponibilidad | Stock si lo controla, «Consultar» si no |
 | Variantes | Si la categoría vende cosas y el producto tiene |

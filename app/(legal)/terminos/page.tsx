@@ -6,6 +6,9 @@ import { construirEnlaceContacto } from "../../../lib/contacto";
    se cumple. Si mañana cambian, cambian en los dos lados a la vez. */
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
 import { CARGA_INICIAL, PLANES, TARJETA_ACRILICO, cupoDelPlan } from "../../../lib/planes";
+import { MAXIMO_ATRIBUTOS } from "../../../lib/catalogo/atributos";
+import { TOPE_ALMACENAMIENTO_BYTES } from "../../../lib/catalogo/almacenamiento";
+import { LIMITE_CATEGORIAS } from "../../../lib/catalogo/validacion";
 import styles from "../legal.module.css";
 
 export const metadata: Metadata = {
@@ -60,6 +63,31 @@ export default function PaginaTerminos() {
           El cobro es mensual y se coordina con vos por WhatsApp. No hay contrato de
           permanencia: puedes dejar de pagar cuando quieras y no se te cobra nada
           adicional.
+        </p>
+      </section>
+
+      {/* Lo que entra en cada plan, de `lib/planes.ts`: la base aplica esos
+          mismos números, así que acá no se puede prometer otro. */}
+      <section className={styles.seccion}>
+        <h2>Cuánto puedes cargar</h2>
+        <p>
+          {PLANES.map((plan, indice) => (
+            <span key={plan.id}>
+              {indice > 0 ? "; " : ""}
+              con el plan {plan.nombre}, hasta {plan.topes.productos} productos y{" "}
+              {plan.topes.fotosPorProducto} fotos en cada uno
+            </span>
+          ))}
+          . En los dos, hasta {LIMITE_CATEGORIAS} categorías con {MAXIMO_ATRIBUTOS} campos
+          cada una, y {Math.round(TOPE_ALMACENAMIENTO_BYTES / 1024 / 1024)} MB de
+          espacio para las fotos de tu negocio. Las fotos se achican en tu teléfono
+          antes de subir, así que ese espacio alcanza de sobra para el catálogo lleno.
+        </p>
+        <p>
+          Los productos que mandas a la papelera no cuentan; si recuperas uno, vuelve
+          a contar. Si pasas a un plan con menos lugar, no se borra nada: conservas
+          todos tus productos y sus fotos, y lo único que no puedes es agregar más
+          hasta quedar dentro del plan.
         </p>
       </section>
 
