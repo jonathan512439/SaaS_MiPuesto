@@ -12,17 +12,30 @@
  *
  * `pointer-events: none` desde el primer fotograma: la capa se ve pero no ataja.
  * Quien quiera tocar el catálogo con la marca todavía en pantalla, puede — y ese
- * mismo toque la corta, porque el guion lo escucha en la ventana. */
+ * mismo toque la corta, porque el guion lo escucha en la ventana.
+ *
+ * **Nace escondida.** La muestra solo el guion, con `data-marca="presentando"`,
+ * y el guion corre únicamente cuando la página se carga entera. Una navegación
+ * interna —volver al catálogo desde un producto con «Ver pedido»— no corre
+ * guiones, así que ahí la marca no sale nunca. Cuando salía por defecto y el
+ * guion la escondía, ese era justo el caso en que tapaba el pedido 4 o 5
+ * segundos sin poder cortarse. */
 .introduccion {
   position: fixed;
   z-index: 100;
   inset: 0;
-  display: grid;
+  display: none;
   place-items: center;
   padding: var(--spacing-6);
   background: var(--color-superficie);
   color: var(--color-marca);
   pointer-events: none;
+}
+
+/* Una entrada nueva que todavía no la vio en esta sesión. El atributo se pone
+   antes del primer pintado, así que la capa no parpadea. */
+:global(html[data-marca="presentando"]) .introduccion {
+  display: grid;
   animation: revelarPagina 1800ms linear both;
 }
 
@@ -183,15 +196,17 @@
   }
 }
 
-/* Ya la vio en esta sesión: no nace, no parpadea. El atributo lo pone el guion
-   mientras el navegador todavía arma el documento, antes del primer pintado. */
+/* Ya la vio en esta sesión: no nace, no parpadea. Es lo mismo que no tener
+   atributo, y queda escrito para que el estado final se lea en el CSS. */
 :global(html[data-marca="vista"]) .introduccion {
   display: none;
 }
 
 /* La cortó con un toque, la rueda o una tecla. Se va con una transición corta y
-   no de golpe: cortar no es lo mismo que parpadear. */
+   no de golpe: cortar no es lo mismo que parpadear. Sigue en `grid` mientras
+   se desvanece, porque desde `none` no habría transición. */
 :global(html[data-marca="saltada"]) .introduccion {
+  display: grid;
   opacity: 0;
   visibility: hidden;
   animation: none;
@@ -223,8 +238,11 @@
   }
 }
 
+/* Pesa lo mismo que la regla que la presenta y va después: sin el segundo
+   selector, `presentando` le ganaría y la marca saldría igual. */
 @media (prefers-reduced-motion: reduce), print {
-  .introduccion {
+  .introduccion,
+  :global(html[data-marca]) .introduccion {
     display: none;
   }
 }

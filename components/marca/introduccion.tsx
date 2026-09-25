@@ -22,21 +22,24 @@ export const CLAVE_INTRODUCCION = "mipuesto-marca-vista";
  * se ve peor que no tener animación. Acá el navegador lee el atributo mientras
  * todavía está armando el documento, y la capa nace escondida.
  *
- * Hace dos cosas y nada más:
+ * **Es lo único que la muestra.** La capa nace escondida y sale solo con
+ * `data-marca="presentando"`, que pone este guion. Un guion en línea corre
+ * cuando la página se carga entera y nunca en una navegación interna, así que
+ * quien entró por un producto compartido y vuelve al catálogo con «Ver pedido»
+ * no la ve: antes salía por defecto, y justo en ese caso nadie la escondía ni
+ * escuchaba el toque para cortarla.
+ *
+ * Hace tres cosas y nada más:
  *
  * 1. Si esta sesión ya la vio, marca la raíz y se va. Una vez por sesión, no una
  *    por visita: quien entra al catálogo, mira un producto y vuelve no paga tres
  *    veces tres segundos.
- * 2. Si no, la anota y queda escuchando el primer toque, rueda, deslizamiento o
- *    tecla para cortarla. Quien ya sabe lo que busca no tiene que esperar a que
- *    la marca termine de presentarse.
- * 3. Y cuando termina, **marca la raíz igual**. Esto faltaba, y por eso volver
- *    al catálogo desde la página de un producto repetía la animación: al ir y
+ * 2. Si no, la anota, la presenta y queda escuchando el primer toque, rueda,
+ *    deslizamiento o tecla para cortarla. Quien ya sabe lo que busca no tiene
+ *    que esperar a que la marca termine de presentarse.
+ * 3. Y cuando termina, **marca la raíz como vista**: al ir a un producto y
  *    volver no se recarga la página —el `<html>` es el mismo y este guion no
- *    corre de nuevo—, así que lo único que podía esconder la capa era el
- *    atributo, y en la primera visita nadie lo ponía. Quedaba anotado en la
- *    sesión, que solo se lee al recargar, y el cliente veía el logotipo cada vez
- *    que volvía de mirar un producto.
+ *    corre de nuevo—, y el atributo es lo que la deja escondida.
  *
  * Sin `sessionStorage` —navegación privada, almacenamiento bloqueado— la
  * animación sale igual. Se pierde el «una vez por sesión», que es una comodidad;
@@ -47,6 +50,7 @@ try{
 if(sessionStorage.getItem(${JSON.stringify(CLAVE_INTRODUCCION)})){r.dataset.marca="vista";return;}
 sessionStorage.setItem(${JSON.stringify(CLAVE_INTRODUCCION)},"si");
 }catch(e){}
+r.dataset.marca="presentando";
 var n=["pointerdown","wheel","touchmove","keydown"];
 function quitar(){n.forEach(function(t){window.removeEventListener(t,salir)});}
 function salir(){r.dataset.marca="saltada";quitar();}
@@ -58,8 +62,9 @@ setTimeout(function(){quitar();r.dataset.marca="vista";},2000);
  * detrás.
  *
  * SVG y CSS únicamente: empieza con el HTML servido y termina aunque JavaScript
- * no llegue nunca a hidratar. El único JavaScript es el guion de arriba, y lo
- * que hace es **sacarla antes**, no ponerla.
+ * no llegue nunca a hidratar. El único JavaScript es el guion de arriba, que la
+ * presenta y la saca antes. Si JavaScript está apagado del todo, la marca no
+ * sale: se pierde un adorno, no el catálogo.
  *
  * Tres cosas que la vuelven barata, porque abajo hay un catálogo que ya está
  * dibujado —el HTML viene con los productos— y esta capa no esconde una espera,

@@ -100,6 +100,26 @@ describe("la presentación de la marca", () => {
     expect(capa, "la capa no puede atajar toques").toContain("pointer-events: none");
   });
 
+  /* La capa nace escondida y solo el guion la muestra.
+   *
+   * Antes era al revés: salía por defecto y el guion la escondía. Pero el guion
+   * corre solo cuando la página se carga entera, así que quien entraba por un
+   * producto compartido y volvía al catálogo con «Ver pedido» —una navegación
+   * interna, sin guion— veía la marca tapándole el pedido 4 o 5 segundos, y sin
+   * poder cortarla, porque quien escucha el toque también es el guion. */
+  it("nace escondida: solo una entrada nueva la presenta", () => {
+    const capa = bloque(".introduccion {");
+    expect(capa, "la capa tiene que nacer escondida").toContain("display: none");
+    expect(capa, "la animación va con la presentación, no con la capa").not.toContain(
+      "animation:",
+    );
+
+    const presentando = bloque(':global(html[data-marca="presentando"]) .introduccion {');
+    expect(presentando, "falta la regla que la presenta").toContain("display: grid");
+    expect(presentando).toContain("revelarPagina");
+    expect(tsx).toContain('r.dataset.marca="presentando"');
+  });
+
   /* Sale una vez por sesión y se corta al primer toque. Las dos cosas las hace
      el guion que corre antes de pintar; sin él, la segunda visita mostraría el
      logotipo un instante y lo borraría de golpe. */
@@ -135,6 +155,13 @@ describe("la presentación de la marca", () => {
      blanco con el logotipo. */
   it("respeta a quien no quiere movimiento, y no se imprime", () => {
     expect(css).toMatch(/prefers-reduced-motion: reduce\), print/);
+    /* La regla que la presenta pesa más que `.introduccion` sola: la de
+       movimiento reducido tiene que pesar lo mismo y venir después, o la marca
+       volvería a salir justo para quien pidió que no. */
+    const reducido = bloque("@media (prefers-reduced-motion: reduce), print {");
+    expect(reducido, "tiene que ganarle a la regla que la presenta").toContain(
+      ":global(html[data-marca]) .introduccion",
+    );
   });
 
   /* Ocho letras, ocho demoras. Si el nombre cambiara y las reglas no, las
