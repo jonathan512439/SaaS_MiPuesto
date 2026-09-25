@@ -57,9 +57,11 @@ describe("el límite de fotografías por producto", () => {
   });
 
   /* Si alguien borrara los usos, la prueba de arriba seguiría pasando sin
-     comprobar nada. La constante tiene que estar en uso en las dos pantallas y
-     en la ruta que recibe las imágenes. */
-  it("se usa donde importa", () => {
+     comprobar nada. El tope **del plan** tiene que estar en uso en las dos
+     pantallas y en la ruta que recibe las imágenes: desde el 2026-09-25 cada
+     plan tiene el suyo (`lib/planes.ts`), y la constante fija de antes habría
+     dejado elegir cuatro fotos en el plan que incluye tres. */
+  it("se usa el del plan donde importa", () => {
     const obligatorios = [
       "components/catalogo/gestor-catalogo.tsx",
       "components/catalogo/revision-de-productos.tsx",
@@ -68,7 +70,10 @@ describe("el límite de fotografías por producto", () => {
 
     for (const relativa of obligatorios) {
       const fuente = readFileSync(join(RAIZ, relativa), "utf8");
-      expect(fuente, `${relativa} no usa la constante`).toContain("MAXIMO_FOTOS_POR_PRODUCTO");
+      expect(fuente, `${relativa} no usa el tope del plan`).toContain("fotosPorProducto");
+      expect(fuente, `${relativa} usa el techo fijo en vez del plan`).not.toContain(
+        "MAXIMO_FOTOS_POR_PRODUCTO",
+      );
     }
 
     expect(MAXIMO_FOTOS_POR_PRODUCTO).toBeGreaterThan(0);

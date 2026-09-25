@@ -6,6 +6,10 @@ import {
   purgarPapeleraVencida,
 } from "../../../../lib/catalogo/servidor";
 import { esUuid } from "../../../../lib/catalogo/validacion";
+import {
+  esRechazoDeTope,
+  mensajeLimiteProductos,
+} from "../../../../lib/catalogo/topes-del-plan";
 
 type Accion = "recuperar" | "borrar";
 
@@ -55,6 +59,14 @@ export async function POST(solicitud: NextRequest) {
       .select("id")
       .maybeSingle();
     if (error || !data) {
+      /* Recuperar vuelve a ocupar un lugar del plan. Hasta el 2026-09-25 no se
+         contaba, y la papelera servía para pasar el tope. */
+      if (esRechazoDeTope(error?.message, "LIMITE_PRODUCTOS")) {
+        return NextResponse.json(
+          { error: mensajeLimiteProductos(contexto.negocio.plan_id) },
+          { status: 409 },
+        );
+      }
       return NextResponse.json({ error: "No se pudo recuperar el producto." }, { status: 500 });
     }
     return NextResponse.json({ recuperado: true, nombre: producto.nombre });

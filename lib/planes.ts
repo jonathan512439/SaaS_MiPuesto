@@ -17,10 +17,26 @@ import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./ia/limites";
    base lo rechaza al guardarlo. */
 export type PlanId = "catalogo" | "activo";
 
+/* Cuánto puede cargar un negocio según su plan.
+ *
+ * **Lo hace cumplir la base**: `private.topes_del_plan` en la migración
+ * `20261029090000_topes_de_productos_y_fotos_por_plan.sql` repite estos mismos
+ * números, y `topes-del-plan.test.ts` compara los dos. Acá viven para que la
+ * portada, los términos, el panel y la plataforma digan lo mismo que aplica el
+ * sistema.
+ *
+ * Los productos en la papelera no cuentan. Quien baja de plan conserva lo que ya
+ * cargó —nada se borra—: solo no puede agregar más hasta quedar debajo. */
+export type TopesDelPlan = {
+  productos: number;
+  fotosPorProducto: number;
+};
+
 export type Plan = {
   id: PlanId;
   nombre: string;
   precioBs: number;
+  topes: TopesDelPlan;
   /* Lecturas de foto incluidas por mes. Cero sería un plan sin la herramienta;
      hoy los dos la traen, porque una función que el dueño nunca puede tocar es
      una función que nunca va a comprar. */
@@ -49,17 +65,21 @@ function topeDiario(mensual: number): number {
   return Math.min(Math.ceil(mensual / DIAS_PARA_GASTAR_EL_MES), TOPE_FOTOS_POR_DIA);
 }
 
+const TOPES_CATALOGO: TopesDelPlan = { productos: 150, fotosPorProducto: 3 };
+const TOPES_ACTIVO: TopesDelPlan = { productos: 300, fotosPorProducto: 4 };
+
 export const PLANES: readonly Plan[] = [
   {
     id: "catalogo",
     nombre: "Catálogo",
     precioBs: PRECIO_MENSUAL_BS,
+    topes: TOPES_CATALOGO,
     lecturasPorMes: 10,
     para: "Para la mayoría: un catálogo que se arma una vez y se retoca de vez en cuando.",
     destacado: false,
     incluye: [
       "Tu dirección web propia y tu código QR",
-      "Hasta 300 productos con fotos",
+      describirTopes(TOPES_CATALOGO),
       "Pedidos que se cierran por WhatsApp",
       /* Decía «cuatro diseños y siete paletas» y las dos cifras eran falsas:
          las cuatro plantillas se retiraron en la fase 6 y las paletas son
@@ -73,11 +93,13 @@ export const PLANES: readonly Plan[] = [
     id: "activo",
     nombre: "Catálogo Activo",
     precioBs: 150,
+    topes: TOPES_ACTIVO,
     lecturasPorMes: 60,
     para: "Con las herramientas de IA: para quien carga y cambia mercadería seguido.",
     destacado: true,
     incluye: [
       "Todo lo del plan Catálogo",
+      describirTopes(TOPES_ACTIVO),
       "Herramientas de IA: una foto de tu lista de precios se vuelve productos cargados",
       `60 lecturas de foto al mes, hasta ${topeDiario(60)} por día`,
       "Prioridad cuando escribes por WhatsApp",
@@ -119,6 +141,16 @@ export const PLAN_POR_OMISION: PlanId = "catalogo";
 
 export function planDe(id: string | null | undefined): Plan {
   return PLANES.find((plan) => plan.id === id) ?? planDe(PLAN_POR_OMISION);
+}
+
+export function topesDelPlan(id: string | null | undefined): TopesDelPlan {
+  return planDe(id).topes;
+}
+
+/* Cómo se dice el tope en una línea, igual en la portada, los términos y el
+   panel. */
+export function describirTopes(topes: TopesDelPlan): string {
+  return `Hasta ${topes.productos} productos, con ${topes.fotosPorProducto} fotos cada uno`;
 }
 
 /* Cuánto puede leer un plan, al mes y en un día.

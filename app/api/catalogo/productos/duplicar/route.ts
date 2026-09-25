@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { LIMITE_PRODUCTOS, esUuid } from "../../../../../lib/catalogo/validacion";
+import { esUuid } from "../../../../../lib/catalogo/validacion";
+import {
+  esRechazoDeTope,
+  mensajeLimiteProductos,
+} from "../../../../../lib/catalogo/topes-del-plan";
+import { topesDelPlan } from "../../../../../lib/planes";
 import {
   leerJson,
   obtenerContextoAdminCatalogo,
@@ -52,9 +57,10 @@ export async function POST(solicitud: NextRequest) {
   if (errorConteo) {
     return NextResponse.json({ error: "No se pudo comprobar el catálogo." }, { status: 500 });
   }
-  if ((count ?? 0) >= LIMITE_PRODUCTOS) {
+  const topes = topesDelPlan(contexto.negocio.plan_id);
+  if ((count ?? 0) >= topes.productos) {
     return NextResponse.json(
-      { error: `Puedes registrar hasta ${LIMITE_PRODUCTOS} productos.` },
+      { error: mensajeLimiteProductos(contexto.negocio.plan_id) },
       { status: 409 },
     );
   }
@@ -87,14 +93,24 @@ export async function POST(solicitud: NextRequest) {
     .select(COLUMNAS_PRODUCTO_ADMIN)
     .single();
   if (error || !copia) {
+    if (esRechazoDeTope(error?.message, "LIMITE_PRODUCTOS")) {
+      return NextResponse.json(
+        { error: mensajeLimiteProductos(contexto.negocio.plan_id) },
+        { status: 409 },
+      );
+    }
     return NextResponse.json({ error: "No se pudo duplicar el producto." }, { status: 500 });
   }
 
   /* Las fotos se copian de verdad y no se comparte la ruta: borrar el original
      borra sus archivos del almacenamiento, y una copia que apunte a los mismos
      se quedaría sin imágenes sin que nadie entienda por qué. */
+  /* Solo las que admite el plan: un producto con cuatro fotos de cuando el
+     negocio tenía el plan Activo se copia con tres en el Catálogo. Copiar las
+     cuatro dejaría un archivo en el almacenamiento que la base no deja vincular
+     y que nadie encontraría nunca. */
   const fotos: string[] = [];
-  for (const rutaOriginal of original.fotos) {
+  for (const rutaOriginal of original.fotos.slice(0, topes.fotosPorProducto)) {
     const extension = rutaOriginal.split(".").pop() ?? "webp";
     const destino = `${contexto.negocio.id}/${copia.id}/${crypto.randomUUID()}.${extension}`;
     const { error: errorCopia } = await contexto.supabase.storage

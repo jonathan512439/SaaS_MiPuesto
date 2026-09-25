@@ -2,9 +2,10 @@ import type { DatosProductoEntrada } from "./tipos";
 
 export const LIMITE_CATEGORIAS = 40;
 export const LIMITE_SUBCATEGORIAS_POR_CATEGORIA = 20;
-/* Sube a 300 recién ahora: con la paginación en el navegador, cada visita
-   descargaba la ficha de todos los productos para mostrar doce, así que subir
-   el límite antes habría empeorado el catálogo en vez de mejorarlo. */
+/* El techo técnico de productos: ningún plan puede incluir más sin revisar
+   primero el catálogo público, que se pensó y midió para 300 (con la paginación
+   en el navegador, cada visita descargaba la ficha de todos los productos).
+   **Cuántos incluye cada plan** vive en `lib/planes.ts` y lo aplica la base. */
 export const LIMITE_PRODUCTOS = 300;
 
 /* Cuántas fotografías admite un producto. Vive acá porque la comprueban tres
@@ -13,6 +14,9 @@ export const LIMITE_PRODUCTOS = 300;
    escrito a mano en cada uno, y tres números sueltos que tienen que coincidir
    terminan no coincidiendo: el día que suba a seis, el panel dejaría elegir
    seis y la ruta rechazaría las dos últimas sin explicar por qué. */
+/* Es el **techo físico**, el `check (cardinality(fotos) <= 4)` de la base.
+   Cuántas incluye cada plan vive en `lib/planes.ts`: las pantallas y las rutas
+   usan esas, nunca esta. */
 export const MAXIMO_FOTOS_POR_PRODUCTO = 4;
 export const LARGO_MAXIMO_NOMBRE_PRODUCTO = 120;
 

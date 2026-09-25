@@ -9,7 +9,12 @@ import {
   extensionPorTipo,
   validarImagenBinaria,
 } from "../../../../lib/imagenes";
-import { MAXIMO_FOTOS_POR_PRODUCTO, esUuid } from "../../../../lib/catalogo/validacion";
+import { esUuid } from "../../../../lib/catalogo/validacion";
+import {
+  esRechazoDeTope,
+  mensajeLimiteFotos,
+} from "../../../../lib/catalogo/topes-del-plan";
+import { topesDelPlan } from "../../../../lib/planes";
 import {
   leerJson,
   obtenerContextoAdminCatalogo,
@@ -43,9 +48,9 @@ export async function POST(solicitud: NextRequest) {
   if (errorProducto || !producto) {
     return NextResponse.json({ error: "No se encontró el producto." }, { status: 404 });
   }
-  if (producto.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO) {
+  if (producto.fotos.length >= topesDelPlan(contexto.negocio.plan_id).fotosPorProducto) {
     return NextResponse.json(
-      { error: `Cada producto admite hasta ${MAXIMO_FOTOS_POR_PRODUCTO} imágenes.` },
+      { error: mensajeLimiteFotos(contexto.negocio.plan_id) },
       { status: 409 },
     );
   }
@@ -83,6 +88,12 @@ export async function POST(solicitud: NextRequest) {
     .eq("negocio_id", contexto.negocio.id);
   if (errorActualizacion) {
     await contexto.supabase.storage.from("productos").remove([ruta]);
+    if (esRechazoDeTope(errorActualizacion.message, "LIMITE_FOTOS")) {
+      return NextResponse.json(
+        { error: mensajeLimiteFotos(contexto.negocio.plan_id) },
+        { status: 409 },
+      );
+    }
     return NextResponse.json({ error: "No se pudo vincular la imagen al producto." }, { status: 500 });
   }
 

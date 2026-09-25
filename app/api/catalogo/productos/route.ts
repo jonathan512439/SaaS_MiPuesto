@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import {
-  LIMITE_PRODUCTOS,
   esUuid,
   estadoPorStock,
   validarProducto,
@@ -16,6 +15,11 @@ import {
   validarJerarquiaProducto,
 } from "../../../../lib/catalogo/servidor";
 import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../lib/catalogo/columnas";
+import {
+  esRechazoDeTope,
+  mensajeLimiteProductos,
+} from "../../../../lib/catalogo/topes-del-plan";
+import { topesDelPlan } from "../../../../lib/planes";
 
 
 export async function POST(solicitud: NextRequest) {
@@ -40,9 +44,9 @@ export async function POST(solicitud: NextRequest) {
   if (errorConteo) {
     return NextResponse.json({ error: "No se pudo comprobar el catálogo." }, { status: 500 });
   }
-  if ((count ?? 0) >= LIMITE_PRODUCTOS) {
+  if ((count ?? 0) >= topesDelPlan(contexto.negocio.plan_id).productos) {
     return NextResponse.json(
-      { error: `Puedes registrar hasta ${LIMITE_PRODUCTOS} productos.` },
+      { error: mensajeLimiteProductos(contexto.negocio.plan_id) },
       { status: 409 },
     );
   }
@@ -92,6 +96,14 @@ export async function POST(solicitud: NextRequest) {
     .select(COLUMNAS_PRODUCTO_ADMIN)
     .single();
   if (error) {
+    /* Dos cargas a la vez pueden pasar juntas la cuenta de arriba; la base
+       deja entrar a una sola. */
+    if (esRechazoDeTope(error.message, "LIMITE_PRODUCTOS")) {
+      return NextResponse.json(
+        { error: mensajeLimiteProductos(contexto.negocio.plan_id) },
+        { status: 409 },
+      );
+    }
     return NextResponse.json({ error: "No se pudo crear el producto." }, { status: 500 });
   }
 

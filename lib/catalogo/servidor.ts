@@ -16,7 +16,8 @@ export async function obtenerContextoAdminCatalogo() {
 
   const { data: negocio, error } = await supabase
     .from("negocios")
-    .select("id,nombre,slug")
+    /* El plan decide cuántos productos y fotos entran (`lib/planes.ts`). */
+    .select("id,nombre,slug,plan_id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
