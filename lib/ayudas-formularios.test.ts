@@ -27,3 +27,12 @@ describe("ayudas de los formularios", () => {
     expect(AYUDA_LOGO).toContain("Cuadrada");
   });
 });
+
+/* La foto no se recorta al subirla: se achica entera y conserva su forma. Lo
+   que la recorta es la tarjeta, al centro y con la forma de su categoría. */
+describe("la ayuda de la foto del producto", () => {
+  it("dice dónde se recorta, sin prometer una foto cuadrada", () => {
+    expect(AYUDA_FOTO_PRODUCTO).not.toMatch(/cuadrad/i);
+    expect(AYUDA_FOTO_PRODUCTO).toContain("recortada al centro");
+  });
+});

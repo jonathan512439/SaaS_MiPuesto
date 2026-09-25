@@ -32,6 +32,7 @@ import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
 import { mensajeLimiteProductos } from "../../lib/catalogo/topes-del-plan";
 import { planDe } from "../../lib/planes";
+import { formatearPrecioBolivianos } from "../../lib/precios";
 import { rubroOfrece } from "../../lib/negocios/rubros";
 import { Icono } from "../iconos/icono";
 import { IconoCatalogo } from "../iconos/icono-catalogo";
@@ -1439,7 +1440,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             <section className={styles.imagenesFormulario} aria-labelledby="fotos-nuevo-producto">
               <div>
                 <h3 id="fotos-nuevo-producto">Fotografías</h3>
-                <p>Selecciona hasta cuatro. Se optimizan antes de subirlas.</p>
+                <p>Selecciona hasta {topeFotos}. Se optimizan antes de subirlas.</p>
               </div>
               <label className={styles.botonFoto}>
                 Seleccionar fotografías
@@ -1967,7 +1968,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                           <IndicadorEstado estado={producto.estado as EstadoProducto} />
                         )}
                       </div>
-                      <strong>Bs {Number(producto.precio).toFixed(2).replace(".", ",")}</strong>
+                      <strong>{formatearPrecioBolivianos(Number(producto.precio))}</strong>
                       <small>
                         {producto.codigo}
                         {" · "}
@@ -1979,7 +1980,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                       </small>
                       {producto.precio_anterior !== null && producto.precio_actualizado_en ? (
                         <small className={styles.auditoriaPrecio}>
-                          Precio anterior: Bs {Number(producto.precio_anterior).toFixed(2).replace(".", ",")}. Actualizado {producto.precio_actualizado_por ? "por tu cuenta" : "por administración de MiPuesto"} el {FORMATEADOR_CAMBIO_PRECIO.format(new Date(producto.precio_actualizado_en))}.
+                          Precio anterior: {formatearPrecioBolivianos(Number(producto.precio_anterior))}. Actualizado {producto.precio_actualizado_por ? "por tu cuenta" : "por administración de MiPuesto"} el {FORMATEADOR_CAMBIO_PRECIO.format(new Date(producto.precio_actualizado_en))}
                         </small>
                       ) : null}
                     </div>

@@ -22,7 +22,7 @@ export const AYUDA_LOGO =
 export const AYUDA_QR =
   "Que el código ocupe casi toda la imagen, derecho y sin marco. Sácale la foto apoyado en una mesa, no en la mano.";
 
-export const AYUDA_FOTO_PRODUCTO = `Un producto por foto, de cerca y con buena luz. Se recorta cuadrada, así que céntralo. Hasta ${MEGAS_MAXIMOS} MB; la achicamos sola a ${LADO_MAXIMO_IMAGEN} píxeles.`;
+export const AYUDA_FOTO_PRODUCTO = `Un producto por foto, de cerca y con buena luz. En las tarjetas se muestra recortada al centro, así que céntralo. Hasta ${MEGAS_MAXIMOS} MB; la achicamos sola a ${LADO_MAXIMO_IMAGEN} píxeles.`;
 
 /* La ayuda de la categoría, el nombre y la descripción del producto dependen
    del rubro del negocio y viven en `catalogo/guias-por-rubro.ts`. */

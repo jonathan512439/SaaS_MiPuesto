@@ -55,7 +55,7 @@ const datos = {
       descripcion: "Bolsa grande.",
       precio: 180,
       precio_anterior: 200,
-      precio_actualizado_en: null,
+      precio_actualizado_en: "2026-09-20T12:00:00Z",
       precio_actualizado_por: null,
       fotos: [`${NEGOCIO}/producto/foto.webp`],
       controla_stock: true,
@@ -146,6 +146,16 @@ describe("las pantallas del catálogo del panel", () => {
     expect(html.replaceAll("<!-- -->", "")).toMatch(
       /Tu plan Catálogo: \d+ de 150 productos,\s+hasta 3 fotos en cada uno\./,
     );
+  });
+
+  /* El precio se escribe igual que en el catálogo —«Bs 180», no «Bs 180,00»—,
+     porque sale de la misma función: DESIGN.md §4 pide un solo formato en todo
+     el producto y AGENTS.md, que los precios pasen por lib/precios.ts. */
+  it("«Productos» escribe los precios como el catálogo", () => {
+    const html = dibujar("productos").replaceAll("<!-- -->", "");
+    expect(html).toContain("Bs 180");
+    expect(html).not.toContain("180,00");
+    expect(html).toContain("Precio anterior: Bs 200.");
   });
 
   it("«Mi catálogo» se dibuja con datos", () => {
