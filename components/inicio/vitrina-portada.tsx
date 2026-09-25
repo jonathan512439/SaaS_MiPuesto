@@ -25,11 +25,15 @@ const Catalogo: ComponentType<PropiedadesPlantilla> = dynamic(
   { loading: PantallaCargando },
 );
 
+/* Cada muestra con su rubro: sin él, las dos mostraban hamburguesas —también la
+   tienda de ropa—. La primera es de comida a propósito: es la única con fotos
+   de verdad, y los avisos que flotan encima hablan de salteñas y api. */
 const PUESTO = crearDatosDemoPlantilla({
-  nombre: "Frutas Doña Rosa",
-  descripcion: "Puesto 42 del mercado, fruta de temporada al peso.",
+  nombre: "Doña Rosa",
+  descripcion: "Salteñas y comida casera, en el mercado de siempre.",
   telefonoWhatsapp: "70000000",
   tipoNegocio: "tienda_virtual",
+  rubro: "restaurante",
 });
 
 const TIENDA = crearDatosDemoPlantilla({
@@ -37,6 +41,7 @@ const TIENDA = crearDatosDemoPlantilla({
   descripcion: "Ropa y accesorios elegidos uno por uno en la feria.",
   telefonoWhatsapp: "70000000",
   tipoNegocio: "tienda_virtual",
+  rubro: "ropa_y_calzado",
 });
 
 /* Dos catálogos de verdad, no una ilustración: es el mismo catálogo que recibe
