@@ -1839,14 +1839,24 @@ motivo por el que este archivo existe.
   `nicolbelen75+demo2@gmail.com`, rubro «Comida rápida», fuera del
   directorio), con 7 productos y fotos libres. Al subir el logo en el alta ya
   no aparece el aviso falso (arreglo `287a2c3`, comprobado en uso real).
-  Anotado, sin arreglar:
-  - La vista previa del paso «Tu marca» **siempre muestra hamburguesa, papas y
-    limonada**, sea cual sea el rubro (`lib/plantillas/datos-demo.ts`): una
-    tienda de ropa o una ferretería eligen su color viendo comida. Pide fotos
-    de muestra por rubro.
-  - «Comida rápida» **siembra las categorías de restaurante** («Almuerzos»,
-    «Platos a la carta», «Bebidas», «Postres»), mientras la ayuda de «Mi
-    catálogo» le sugiere «Hamburguesas», «Salchipapas» y «Bebidas».
+  Las dos observaciones que dejó, **corregidas** (sin desplegar):
+  - La vista previa mostraba comida en cualquier rubro (`77686df`): ahora
+    `categoriasDeMuestra` da una muestra por siembra, sin fotos salvo el
+    restaurante —lo que ya decidía `demos-rubro.ts`—. Arregla también
+    Apariencia y la portada del sitio, que le ponía hamburguesas a la tienda de
+    ropa; el primer celular de la portada pasa a ser «Doña Rosa, salteñas y
+    comida casera», que calza con sus fotos y con el aviso de «2 salteñas y 1
+    api». 18 pruebas rotas antes del arreglo.
+  - Los rubros de comida arrancaban con categorías de restaurante (`ece8466`):
+    cada rubro público puede nombrar las categorías de su siembra
+    (`categorias` en `RUBROS_PUBLICOS`), con los nombres de su guía. Comida
+    rápida arranca con «Hamburguesas» y «Salchipapas»; pollería, salteñería,
+    cafetería y panadería, con los suyos. La guardia se rompió a propósito con
+    «Presa».
+  - Pendiente, con el mismo mecanismo más la posibilidad de **omitir**
+    categorías: «Tienda de mascotas» siembra las de la veterinaria, con
+    «Consultas» y agenda que una tienda no usa, y «Accesorios y bisutería»
+    siembra «Ropa de dama» y «Calzado». Renombrar no alcanza.
 
 ### 2026-09-24
 
