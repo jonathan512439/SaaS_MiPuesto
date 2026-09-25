@@ -87,3 +87,26 @@ describe("la pastilla de una tarjeta", () => {
     expect(insigniaDe(producto())).toBeNull();
   });
 });
+
+/* Con presentaciones, el total no le sirve a nadie: «Quedan 2» cuando queda 1
+   del 38 y 1 del 39 promete dos de algo que no existe. Cada presentación dice
+   lo suyo en el selector. */
+describe("la pastilla de un producto con presentaciones", () => {
+  const variantes = [
+    { id: "v38", nombre: "38", precio: 280, disponibles: 1, accionWhatsapp: null },
+    { id: "v39", nombre: "39", precio: 280, disponibles: 1, accionWhatsapp: null },
+  ];
+
+  it("no suma las presentaciones en «Quedan»", () => {
+    expect(
+      insigniaDe(producto({ controlaStock: true, cantidadDisponible: 2, variantes })),
+    ).toBeNull();
+  });
+
+  it("sigue diciendo «Agotado» cuando no queda ninguna", () => {
+    expect(
+      insigniaDe(producto({ estado: "agotado", controlaStock: true, cantidadDisponible: 0, variantes }))
+        ?.tipo,
+    ).toBe("agotado");
+  });
+});

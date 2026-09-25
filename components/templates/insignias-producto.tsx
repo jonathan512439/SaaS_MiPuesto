@@ -30,8 +30,11 @@ export type Insignia = { tipo: "agotado" | "ultimas" | "oferta"; texto: string }
 export function insigniaDe(producto: ProductoPlantilla): Insignia | null {
   if (producto.estado === "agotado") return { tipo: "agotado", texto: "Agotado" };
 
+  /* Con presentaciones no se suma: «Quedan 2» cuando queda 1 del 38 y 1 del 39
+     promete dos de algo que no existe. */
   if (
     producto.controlaStock &&
+    producto.variantes.length === 0 &&
     producto.cantidadDisponible !== null &&
     producto.cantidadDisponible > 0 &&
     producto.cantidadDisponible <= POCAS_UNIDADES
