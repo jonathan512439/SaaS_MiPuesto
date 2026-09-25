@@ -55,5 +55,9 @@ export function obtenerUrlPublicaImagenNegocio(
     return `${base}/storage/v1/object/public/negocios/${segura}`;
   }
 
-  return `${base}/storage/v1/render/image/public/negocios/${segura}?width=${ANCHOS[rol]}&quality=${CALIDAD}`;
+  /* `resize=contain` no es opcional. Con solo `width`, Supabase conserva el alto
+     original y recorta con `cover`: un logo cuadrado de 1024 volvía como una
+     franja de 192 × 1024 y el catálogo mostraba su centro. Lo mismo le pasaba a
+     la portada, a los banners y al QR de cobro. */
+  return `${base}/storage/v1/render/image/public/negocios/${segura}?width=${ANCHOS[rol]}&resize=contain&quality=${CALIDAD}`;
 }

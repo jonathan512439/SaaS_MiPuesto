@@ -17,6 +17,13 @@ describe("construirUrlVistaPrevia", () => {
     expect(url).toContain("quality=72");
   });
 
+  /* Con solo `width`, Supabase deja el alto original y recorta con `cover`: la
+     foto de la tarjeta llegaba como una franja del centro. */
+  it("achica la foto entera, sin recortarla", () => {
+    const url = construirUrlVistaPrevia(URL_SUPABASE, "productos", "a/b.webp");
+    expect(new URL(url!).searchParams.get("resize")).toBe("contain");
+  });
+
   it("escapa cada segmento de la ruta", () => {
     const url = construirUrlVistaPrevia(URL_SUPABASE, "negocios", "mi negocio/la foto.webp");
     expect(url).toContain("mi%20negocio/la%20foto.webp");

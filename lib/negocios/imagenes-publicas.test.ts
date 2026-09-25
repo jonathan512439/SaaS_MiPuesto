@@ -27,6 +27,18 @@ describe("imágenes públicas del negocio", () => {
     expect(ANCHO_LOGO).toBeLessThan(ANCHO_PORTADA);
   });
 
+  /* Con solo `width`, Supabase deja el alto original y recorta con `cover`: un
+     logo cuadrado de 1024 volvía como una franja de 192 × 1024, y el catálogo
+     mostraba el centro. Pasaba igual con la portada, los banners y el QR de
+     cobro. `contain` achica sin recortar. */
+  it.each(["portada", "logo", "qr", "banner"] as const)(
+    "pide la imagen «%s» achicada entera, sin recortarla",
+    (rol) => {
+      const url = obtenerUrlPublicaImagenNegocio(URL_SUPABASE, `n1/${rol}/a.webp`, rol);
+      expect(new URL(url!).searchParams.get("resize")).toBe("contain");
+    },
+  );
+
   /* El panel muestra lo que el dueño subió: ahí no se reduce. */
   it("devuelve el archivo tal cual cuando no se pide un rol", () => {
     const url = obtenerUrlPublicaImagenNegocio(URL_SUPABASE, "n1/logo/a.webp");

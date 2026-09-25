@@ -26,7 +26,9 @@ export function construirUrlVistaPrevia(
   if (!ruta) return null;
   if (ruta.startsWith("https://")) return ruta;
   const base = urlSupabase.replace(/\/$/, "");
-  return `${base}/storage/v1/render/image/public/${deposito}/${rutaSegura(ruta)}?width=${ANCHO_VISTA_PREVIA}&quality=${CALIDAD_VISTA_PREVIA}`;
+  /* Sin `resize=contain`, Supabase conserva el alto original y recorta con
+     `cover`: la foto llegaba como una franja de su centro. */
+  return `${base}/storage/v1/render/image/public/${deposito}/${rutaSegura(ruta)}?width=${ANCHO_VISTA_PREVIA}&resize=contain&quality=${CALIDAD_VISTA_PREVIA}`;
 }
 
 const TIPOS_RASTERIZABLES = ["image/png", "image/jpeg"];
