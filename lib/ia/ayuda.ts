@@ -23,7 +23,7 @@ export const AYUDA_LISTA = {
     "¿Tienes la lista en PDF, la que te mandó tu proveedor? Súbela así: se lee mejor que una foto.",
     "Si vas a fotografiarla, apoya la hoja en una superficie plana y saca la foto desde arriba, no de costado.",
     "Que se vean los cuatro bordes de la hoja y que quede derecha, con buena luz y sin flash que rebote.",
-    "Si tu lista es larga, mandala por partes: media hoja por vez se lee mejor que la hoja entera.",
+    "Si tu lista es larga, mándala por partes: media hoja por vez se lee mejor que la hoja entera.",
   ],
   funciona: [
     "PDF de listas de precios, el del proveedor incluido",
