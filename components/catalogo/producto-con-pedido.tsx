@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { registrarEventoAnalitica } from "../../lib/analitica-cliente";
+import { construirRutaPedido } from "../../lib/catalogo/consulta-publica";
 import { usePedido } from "../../lib/pedidos/use-pedido";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { formatearPrecioBolivianos } from "../../lib/precios";
@@ -57,14 +58,15 @@ export function ProductoConPedido({
       />
 
       {/* La barra de abajo aparece recién cuando hay algo que ver, y lleva al
-          catálogo, que es donde el pedido se revisa y se manda. Es el mismo
+          catálogo con el pedido ya abierto, que es donde se revisa y se manda.
+          Antes llevaba al catálogo a secas y había que tocar otra vez. Es el mismo
           color de la paleta que el carrito de las tarjetas: lo que agrega y lo
           que abre el pedido son la misma cosa vista dos veces. */}
       {modalidad === "carrito" && articulos > 0 ? (
         <Link
           aria-label={`Ver pedido: ${articulos} ${articulos === 1 ? "artículo" : "artículos"}, subtotal ${formatearPrecioBolivianos(total)}`}
           className={styles.acceso}
-          href={`/${slug}`}
+          href={construirRutaPedido(slug)}
         >
           <span aria-hidden="true" className={styles.contador}>
             {articulos}

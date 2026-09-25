@@ -32,6 +32,8 @@ type PropiedadesCatalogoInteractivo = {
   filtros: FiltrosCatalogo;
   totalProductos: number;
   totalPaginas: number;
+  /* Llegó desde «Ver pedido» en la página de un producto. */
+  abrirPedidoAlLlegar?: boolean;
 };
 
 /* Lo que se escribe se ve al instante, pero la consulta espera: sin esta pausa
@@ -58,6 +60,7 @@ export function CatalogoInteractivo({
   filtros,
   totalProductos,
   totalPaginas,
+  abrirPedidoAlLlegar = false,
 }: PropiedadesCatalogoInteractivo) {
   const router = useRouter();
   /* El pedido no vive acá: lo lleva `usarPedido`, que es el mismo que usa la
@@ -212,6 +215,19 @@ export function CatalogoInteractivo({
   useEffect(() => {
     registrar("vista_catalogo");
   }, [registrar]);
+
+  /* Viene de «Ver pedido» en la página de un producto: el pedido se abre solo.
+     Espera a que haya algo elegido porque el pedido se lee de la sesión recién
+     después de montar, y abrirlo antes mostraría un pedido vacío un instante.
+     Después se saca `?pedido=abierto` de la dirección sin pedirle nada al
+     servidor, para que recargar o volver atrás no lo reabra. */
+  const pedidoPorAbrir = useRef(abrirPedidoAlLlegar);
+  useEffect(() => {
+    if (!pedidoPorAbrir.current || cantidadEnCarrito === 0) return;
+    pedidoPorAbrir.current = false;
+    setPedidoAbierto(true);
+    window.history.replaceState(window.history.state, "", construirRutaCatalogo(slug, filtros));
+  }, [cantidadEnCarrito, filtros, slug]);
 
   useEffect(
     () => () => {

@@ -4,10 +4,12 @@ import {
   calcularRango,
   calcularTotalPaginas,
   construirRutaCatalogo,
+  construirRutaPedido,
   extraerTerminos,
   leerFiltrosCatalogo,
   MAXIMO_TERMINOS,
   normalizarBusqueda,
+  pideAbrirPedido,
   PRODUCTOS_PUBLICOS_POR_PAGINA,
 } from "./consulta-publica";
 
@@ -94,5 +96,28 @@ describe("construcción de la dirección", () => {
       construirRutaCatalogo("mi-negocio", { categoria: "cat-1", busqueda: " polera " }),
     ).toBe("/mi-negocio?categoria=cat-1&buscar=polera");
     expect(construirRutaCatalogo("mi-negocio", { pagina: 3 })).toBe("/mi-negocio?pagina=3");
+  });
+});
+
+/* «Ver pedido» desde la página de un producto llevaba al catálogo con el pedido
+   cerrado, y el cliente tenía que tocar la barra otra vez para verlo. */
+describe("la dirección que abre el pedido", () => {
+  it("lleva al catálogo con el pedido abierto", () => {
+    expect(construirRutaPedido("mi-negocio")).toBe("/mi-negocio?pedido=abierto");
+    expect(pideAbrirPedido({ pedido: "abierto" })).toBe(true);
+  });
+
+  it("no se abre con cualquier valor ni sin el parámetro", () => {
+    expect(pideAbrirPedido({})).toBe(false);
+    expect(pideAbrirPedido({ pedido: "si" })).toBe(false);
+    expect(pideAbrirPedido({ pedido: ["abierto", "otro"] })).toBe(true);
+  });
+
+  /* No es un filtro: no cambia qué productos se ven, así que no puede cambiar
+     la página, la categoría ni la búsqueda. */
+  it("no cuenta como filtro", () => {
+    expect(leerFiltrosCatalogo({ pedido: "abierto" }, CATEGORIAS)).toEqual(
+      leerFiltrosCatalogo({}, CATEGORIAS),
+    );
   });
 });

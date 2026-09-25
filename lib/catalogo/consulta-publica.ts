@@ -74,3 +74,21 @@ export function construirRutaCatalogo(slug: string, filtros: Partial<FiltrosCata
   const cadena = parametros.toString();
   return cadena ? `/${slug}?${cadena}` : `/${slug}`;
 }
+
+/* «Ver pedido» desde la página de un producto: el catálogo con el pedido ya
+   abierto. Antes llevaba al catálogo a secas y el cliente tenía que tocar la
+   barra otra vez para ver lo que había elegido.
+
+   No es un filtro —no cambia qué productos se ven—, por eso no pasa por
+   `leerFiltrosCatalogo`, y el catálogo lo saca de la dirección apenas abre el
+   pedido: recargar o volver atrás no lo reabre. */
+const PARAMETRO_PEDIDO = "pedido";
+const PEDIDO_ABIERTO = "abierto";
+
+export function construirRutaPedido(slug: string) {
+  return `/${slug}?${PARAMETRO_PEDIDO}=${PEDIDO_ABIERTO}`;
+}
+
+export function pideAbrirPedido(parametros: Record<string, string | string[] | undefined>) {
+  return primerValor(parametros[PARAMETRO_PEDIDO]) === PEDIDO_ABIERTO;
+}

@@ -9,6 +9,7 @@ import {
   construirRutaCatalogo,
   extraerTerminos,
   leerFiltrosCatalogo,
+  pideAbrirPedido,
 } from "../../../lib/catalogo/consulta-publica";
 import { obtenerNegocioPublico as consultarNegocioPublico } from "../../../lib/catalogo/negocio-publico";
 import {
@@ -212,10 +213,12 @@ export default async function PaginaCatalogoPublico({
      Taparle la pantalla con nuestro logotipo ahí es costo puro: no se entera de
      nada nuevo y pierde el tiempo dos veces, porque además tiene que encontrar
      dónde quedó lo que venía a ver. */
+  const abrirPedido = pideAbrirPedido(parametros);
   const visitaApuntada =
     Boolean(filtros.busqueda) ||
     Boolean(filtros.categoria) ||
-    filtros.pagina > 1;
+    filtros.pagina > 1 ||
+    abrirPedido;
 
   return (
     <>
@@ -226,6 +229,7 @@ export default async function PaginaCatalogoPublico({
       <main className={styles.pagina}>
         <div className={styles.catalogo}>
           <CatalogoInteractivo
+            abrirPedidoAlLlegar={abrirPedido}
             categoriasNavegacion={categoriasParaNavegar(categorias)}
             datos={catalogo.datos}
             filtros={filtros}
