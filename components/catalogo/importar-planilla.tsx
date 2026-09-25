@@ -225,7 +225,7 @@ export function ImportarPlanilla({
             <h2>¿Qué columna es cuál?</h2>
             <p>
               Abrimos <strong>{nombreArchivo}</strong> y encontramos {lectura.filas.length} fila(s).
-              Esto es lo que entendimos: corregilo si no coincide.
+              Esto es lo que entendimos: corrígelo si no coincide.
             </p>
           </header>
 

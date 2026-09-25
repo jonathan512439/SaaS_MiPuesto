@@ -118,7 +118,7 @@ const VOSEO = new Map(
     leelas: "léelas", fijate: "fíjate", completalos: "complétalos", ponele: "ponle", borralas: "bórralas",
     contanos: "cuéntanos", intentalo: "inténtalo", asegurate: "asegúrate", quedate: "quédate",
     registrate: "regístrate", mostralo: "muéstralo", guardalo: "guárdalo", borralo: "bórralo",
-    agregalo: "agrégalo", decime: "dime", avisame: "avísame",
+    agregalo: "agrégalo", decime: "dime", avisame: "avísame", corregilo: "corrígelo",
   }),
 );
 
@@ -235,8 +235,11 @@ function textosVisibles(fuente, esTsx) {
       agregar(texto, inicio);
       continue;
     }
-    // Texto de JSX: lo que va entre `>` y `<` o `{`, si parece prosa.
-    if (esTsx && c === ">") {
+    // Texto de JSX: lo que va entre `>` o `}` y `<` o `{`, si parece prosa.
+    // También después de `}`: el texto que sigue a una expresión —«encontramos
+    // {n} fila(s). Esto es lo que…»— es tan visible como el primero, y se
+    // coló un voseo por ahí. El «(s)» de los plurales no lo vuelve código.
+    if (esTsx && (c === ">" || c === "}")) {
       const inicio = linea;
       let j = i + 1;
       let texto = "";
@@ -244,7 +247,8 @@ function textosVisibles(fuente, esTsx) {
         texto += fuente[j];
         j += 1;
       }
-      if (!/[;=()]|=>|&&|\|\|/.test(texto) && /[a-záéíóúñ]{2,}\s+[a-záéíóúñ]/i.test(texto)) {
+      const sinPlurales = texto.replace(/\(s\)/g, "");
+      if (!/[;=()]|=>|&&|\|\|/.test(sinPlurales) && /[a-záéíóúñ]{2,}\s+[a-záéíóúñ]/i.test(texto)) {
         agregar(texto, inicio);
       }
       i += 1;
