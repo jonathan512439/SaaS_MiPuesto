@@ -1813,7 +1813,9 @@ motivo por el que este archivo existe.
     «Horario programado» la semana sigue; los precios dicen «Bs 280».
 
 - **Antes de grabar el segundo video** («Del cuaderno al catálogo»), tres
-  arreglos más. **Sin desplegar.**
+  arreglos más. **Desplegados** en `1ffde5da` y comprobados en producción: la
+  portada dice `mi-puesto.com` y no el dominio ajeno, y la ficha del producto
+  no tiene ningún texto en mayúsculas.
   - El dominio es `mi-puesto.com` (`13090c9`): el alta, el formulario del
     negocio y la portada lo toman de `DOMINIO_MIPUESTO`; la documentación y los
     datos de ejemplo, también. `lib/marca/dominio.test.ts` rechaza el dominio
