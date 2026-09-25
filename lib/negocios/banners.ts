@@ -170,3 +170,37 @@ export function validarBanners(valor: unknown): ResultadoBanners {
 
   return Object.keys(errores).length > 0 ? { correcto: false, errores } : { correcto: true, banners };
 }
+
+/* Los banners que se subieron y nunca se guardaron.
+ *
+ * `POST` sube la imagen y `PATCH` la guarda con su texto. Si el dueño sube y se
+ * va sin guardar, la imagen quedaba para siempre en Storage ocupando el espacio
+ * de fotos del plan: el guardado solo borra lo que sale de la lista guardada, y
+ * esa imagen nunca entró.
+ *
+ * La espera es lo que la vuelve segura: la imagen recién subida puede estar
+ * esperando su «Guardar» —acá o en otra pestaña—, y borrarla dejaría un banner
+ * roto. Lo que no se puede fechar no se toca, ni lo que no es un archivo (una
+ * subcarpeta viene sin `id`), ni nada fuera de la carpeta del negocio. */
+export const ESPERA_ANTES_DE_BORRAR_MS = 24 * 60 * 60 * 1000;
+
+type ArchivoDelDeposito = { name: string; created_at?: string | null; id?: string | null };
+
+export function bannersSinGuardar(
+  archivos: ReadonlyArray<ArchivoDelDeposito>,
+  enUso: ReadonlyArray<string>,
+  negocioId: string,
+  ahora: Date,
+): string[] {
+  const usadas = new Set(enUso);
+  const carpeta = `${negocioId}/banner/`;
+  return archivos
+    .filter((archivo) => archivo.id !== null)
+    .filter((archivo) => !archivo.name.startsWith(".") && !/[\/]/.test(archivo.name))
+    .filter((archivo) => {
+      const creado = archivo.created_at ? Date.parse(archivo.created_at) : Number.NaN;
+      return Number.isFinite(creado) && ahora.getTime() - creado >= ESPERA_ANTES_DE_BORRAR_MS;
+    })
+    .map((archivo) => `${carpeta}${archivo.name}`)
+    .filter((ruta) => !usadas.has(ruta));
+}

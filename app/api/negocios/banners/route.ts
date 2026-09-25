@@ -9,6 +9,7 @@ import { leerJson, obtenerContextoAdminCatalogo } from "../../../../lib/catalogo
 import { extensionPorTipo, validarImagenBinaria } from "../../../../lib/imagenes";
 import {
   MAXIMO_BANNERS,
+  bannersSinGuardar,
   leerBanners,
   validarBanners,
   type Banner,
@@ -17,6 +18,7 @@ import {
   leerTextoPortada,
   validarTextoPortada,
 } from "../../../../lib/negocios/texto-sobre-imagen";
+import type { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 
 /* El cartel de la portada y el banner de publicidad.
  *
@@ -62,6 +64,28 @@ function imagenesHuerfanas(
     .filter((banner) => banner !== null)
     .map((banner) => banner.imagen)
     .filter((ruta) => !enUso.has(ruta) && rutaDeBanner(ruta, negocioId));
+}
+
+type Cliente = Awaited<ReturnType<typeof crearClienteSupabaseServidor>>;
+
+/* Borra de la carpeta del negocio los banners subidos y nunca guardados (la
+   regla, con su espera, está en `bannersSinGuardar`). Corre cada vez que el
+   dueño sube o guarda un banner, y sin bloquear nada: si falla, el archivo
+   espera a la próxima. La política de Storage solo le deja listar y borrar su
+   propia carpeta. */
+async function borrarBannersSinGuardar(supabase: Cliente, negocioId: string, enUso: string[]) {
+  const { data, error } = await supabase.storage
+    .from("negocios")
+    .list(`${negocioId}/${CARPETA}`, { limit: 100 });
+  if (error || !data) return;
+  const sobrantes = bannersSinGuardar(data, enUso, negocioId, new Date());
+  if (sobrantes.length > 0) {
+    await supabase.storage.from("negocios").remove(sobrantes);
+  }
+}
+
+function imagenesEnUso(banners: Array<Banner | null>) {
+  return banners.filter((banner) => banner !== null).map((banner) => banner.imagen);
 }
 
 export async function POST(solicitud: NextRequest) {
@@ -111,6 +135,20 @@ export async function POST(solicitud: NextRequest) {
       return NextResponse.json({ error: MENSAJE_SIN_ESPACIO }, { status: 409 });
     }
     return NextResponse.json({ error: "No se pudo subir la imagen." }, { status: 500 });
+  }
+
+  /* La recién subida no corre riesgo: tiene menos de un día. */
+  const { data: guardados } = await contexto.supabase
+    .from("negocios")
+    .select("banners")
+    .eq("id", contexto.negocio.id)
+    .maybeSingle();
+  if (guardados) {
+    await borrarBannersSinGuardar(
+      contexto.supabase,
+      contexto.negocio.id,
+      imagenesEnUso(leerBanners(guardados.banners)),
+    );
   }
 
   const { data: publica } = contexto.supabase.storage.from("negocios").getPublicUrl(ruta);
@@ -197,6 +235,11 @@ export async function PATCH(solicitud: NextRequest) {
   if (huerfanas.length > 0) {
     await contexto.supabase.storage.from("negocios").remove(huerfanas);
   }
+  await borrarBannersSinGuardar(
+    contexto.supabase,
+    contexto.negocio.id,
+    imagenesEnUso(validacion.banners),
+  );
 
   return NextResponse.json({
     banners: leerBanners(guardado.banners),

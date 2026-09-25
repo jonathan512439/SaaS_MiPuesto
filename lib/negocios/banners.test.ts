@@ -3,7 +3,14 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { MAXIMO_BANNERS, PROPORCION_BANNER, leerBanners, validarBanners } from "./banners";
+import {
+  ESPERA_ANTES_DE_BORRAR_MS,
+  MAXIMO_BANNERS,
+  PROPORCION_BANNER,
+  bannersSinGuardar,
+  leerBanners,
+  validarBanners,
+} from "./banners";
 
 const bueno = {
   /* Una ruta del depósito, no una dirección: guardar la dirección completa
@@ -174,5 +181,49 @@ describe("la proporción del banner", () => {
        proporción que la misma frase anuncia, enseña a equivocarse. */
     const [ancho, alto] = PROPORCION_BANNER.ejemplo.match(/\d+/g)!.map(Number);
     expect(ancho / alto).toBe(PROPORCION_BANNER.ancho / PROPORCION_BANNER.alto);
+  });
+});
+
+/* Un banner subido y nunca guardado quedaba para siempre en Storage, ocupando
+   el espacio de fotos del plan: el guardado solo borraba lo que salía de la
+   lista guardada, y esa imagen nunca entró. */
+describe("los banners subidos y nunca guardados", () => {
+  const NEGOCIO = "11111111-1111-4111-8111-111111111111";
+  const AHORA = new Date("2026-09-25T12:00:00Z");
+  const hace = (horas: number) => new Date(AHORA.getTime() - horas * 3_600_000).toISOString();
+
+  it("borra los que ningún banner usa y ya pasaron la espera", () => {
+    const archivos = [
+      { name: "abandonado.webp", created_at: hace(30) },
+      { name: "en-uso.webp", created_at: hace(30) },
+    ];
+    expect(bannersSinGuardar(archivos, [`${NEGOCIO}/banner/en-uso.webp`], NEGOCIO, AHORA)).toEqual([
+      `${NEGOCIO}/banner/abandonado.webp`,
+    ]);
+  });
+
+  /* El que se acaba de subir puede estar esperando su «Guardar», acá o en otra
+     pestaña: borrarlo dejaría un banner roto al guardar. */
+  it("respeta la espera con uno recién subido", () => {
+    expect(ESPERA_ANTES_DE_BORRAR_MS).toBeGreaterThanOrEqual(3_600_000);
+    expect(
+      bannersSinGuardar([{ name: "nuevo.webp", created_at: hace(1) }], [], NEGOCIO, AHORA),
+    ).toEqual([]);
+  });
+
+  it("no borra lo que no puede fechar ni lo que no es un archivo", () => {
+    const archivos = [
+      { name: "sin-fecha.webp", created_at: null },
+      { name: "fecha-rota.webp", created_at: "ayer" },
+      { name: ".emptyFolderPlaceholder", created_at: hace(30) },
+      { name: "subcarpeta", created_at: hace(30), id: null },
+    ];
+    expect(bannersSinGuardar(archivos, [], NEGOCIO, AHORA)).toEqual([]);
+  });
+
+  it("no se sale de la carpeta del negocio", () => {
+    expect(
+      bannersSinGuardar([{ name: "../logo/a.webp", created_at: hace(30) }], [], NEGOCIO, AHORA),
+    ).toEqual([]);
   });
 });
