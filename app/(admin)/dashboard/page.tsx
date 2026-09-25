@@ -11,12 +11,9 @@ import {
 } from "../../../lib/analitica-servidor";
 import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/limites";
 import { faltantesParaPublicar } from "../../../lib/negocios/alta";
-import {
-  LIMITE_PRODUCTOS,
-  MAXIMO_FOTOS_POR_PRODUCTO,
-} from "../../../lib/catalogo/validacion";
+import { LIMITE_CATEGORIAS } from "../../../lib/catalogo/validacion";
 import { leerSituacionDelNegocio } from "../../../lib/negocios/situacion";
-import { cupoDelPlan } from "../../../lib/planes";
+import { cupoDelPlan, planDe } from "../../../lib/planes";
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./resumen.module.css";
@@ -59,6 +56,7 @@ export default async function PaginaDashboard() {
   /* Cuánto puede leer con la IA: sale del plan que paga, con el techo
      técnico como límite duro. Es el mismo cálculo que aplica el servidor. */
   const cupo = cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA);
+  const plan = planDe(negocio.plan_id);
 
   /* Lo que le falta al catálogo para servir, en la primera pantalla y no
      escondido en el alta.
@@ -206,13 +204,14 @@ export default async function PaginaDashboard() {
         </aside>
       ) : null}
 
-      {/* Los topes del negocio, con lo usado al lado. Aparece solo si tiene la
-          herramienta encendida: al que no la tiene, un tope de algo que no puede
-          usar le sobra. */}
-      {negocio.foto_ia_habilitada ? (
-        <section aria-labelledby="tus-limites" className={styles.limites}>
-          <h2 id="tus-limites">Lo que tienes incluido</h2>
-          <dl>
+      {/* Los topes del negocio, con lo usado al lado. Siempre: cuántos productos
+          y fotos entran lo necesita todo dueño. Solo la fila de las lecturas
+          depende de tener la herramienta encendida: al que no la tiene, un tope
+          de algo que no puede usar le sobra. */}
+      <section aria-labelledby="tus-limites" className={styles.limites}>
+        <h2 id="tus-limites">Lo que incluye tu plan {plan.nombre}</h2>
+        <dl>
+          {negocio.foto_ia_habilitada ? (
             <div>
               <dt>Lecturas con IA este mes</dt>
               {/* El cupo del plan que paga, no el techo técnico del sistema.
@@ -226,6 +225,7 @@ export default async function PaginaDashboard() {
                   carga su catálogo entero en una tarde. */}
               <p>Hasta {cupo.diario} por día</p>
             </div>
+          ) : null}
             <div>
               <dt>Productos</dt>
               {/* Decía «Sin tope», y es falso: el servidor rechaza el producto
@@ -233,20 +233,19 @@ export default async function PaginaDashboard() {
                   catálogo entero creyendo que no hay techo se entera cuando le
                   rebotan el que estaba cargando, que es el peor momento. */}
               <dd>
-                <strong>{leido.situacion.productos}</strong> de {LIMITE_PRODUCTOS}
+                <strong>{leido.situacion.productos}</strong> de {plan.topes.productos}
               </dd>
-              <p>Hasta {MAXIMO_FOTOS_POR_PRODUCTO} fotos en cada uno</p>
+              <p>Hasta {plan.topes.fotosPorProducto} fotos en cada uno</p>
             </div>
             <div>
               <dt>Categorías</dt>
               <dd>
-                <strong>{leido.situacion.categorias}</strong> de 40
+                <strong>{leido.situacion.categorias}</strong> de {LIMITE_CATEGORIAS}
               </dd>
               <p>Hasta 10 campos en cada una</p>
             </div>
-          </dl>
-        </section>
-      ) : null}
+        </dl>
+      </section>
 
       <section aria-labelledby="actividad-semanal" className={styles.actividad}>
         <div className={styles.tituloSeccion}>

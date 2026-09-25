@@ -44,7 +44,11 @@ const ZAPATILLA: ProductoLeido = {
   avisos: ["«treinta» no es un número de calzado: van de 16 a 50, enteros o con medio."],
 };
 
-function dibujar(controlaStock: boolean, nombresDelCatalogo: string[] = []) {
+function dibujar(
+  controlaStock: boolean,
+  nombresDelCatalogo: string[] = [],
+  plan: { planId: string; productosActuales: number } = { planId: "catalogo", productosActuales: 0 },
+) {
   return renderToString(
     jsx(ProveedorAvisos, {
       children: jsx(RevisionDeProductos, {
@@ -54,6 +58,7 @@ function dibujar(controlaStock: boolean, nombresDelCatalogo: string[] = []) {
         nombresDelCatalogo,
         onTerminado: () => undefined,
         productos: [POLERA, ZAPATILLA],
+        ...plan,
       }),
     }),
   ).replaceAll("<!-- -->", "");
@@ -96,5 +101,20 @@ describe("una importación que se cortó y se vuelve a subir", () => {
 
   it("sin coincidencias no hay aviso", () => {
     expect(dibujar(true)).not.toContain("Ya está en tu catálogo");
+  });
+
+  /* El tope del plan, antes de crear: con 149 de 150 en el plan Catálogo entra
+     uno de los dos marcados. La base rechazaría el segundo igual, pero a mitad
+     de la importación y sin explicar por qué. */
+  it("avisa cuando lo marcado no entra en el plan, y no deja crear de más", () => {
+    const lleno = dibujar(false, [], { planId: "catalogo", productosActuales: 149 });
+    expect(lleno).toContain("Tu plan Catálogo incluye hasta 150 productos y ya tienes 149: entran 1 más.");
+    expect(lleno).toContain("Desmarca 1 para poder crear los demás.");
+    expect(lleno).toMatch(/<button[^>]*disabled=""[^>]*>(?:(?!<\/button>).)*Crear 2 producto/);
+
+    const holgado = dibujar(false, [], { planId: "activo", productosActuales: 149 });
+    expect(holgado).not.toContain("para poder crear los demás");
+    expect(holgado).toContain("Agregar fotos (hasta 4)");
+    expect(dibujar(false)).toContain("Agregar fotos (hasta 3)");
   });
 });

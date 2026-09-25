@@ -39,7 +39,9 @@ export function ImportarPlanilla({
   categorias,
   negocioLlevaStock,
   nombresDelCatalogo = [],
+  planId,
   plantillas,
+  productosActuales,
 }: {
   /* Los campos de cada categoría, por su id: los datos de la planilla se
      guardan en los de la categoría donde termine cada producto. */
@@ -55,6 +57,10 @@ export function ImportarPlanilla({
      lo cuenta para todo, y prenderlo veintiocho veces a mano no lo haría
      nadie. */
   negocioLlevaStock: boolean;
+  /* El plan y cuántos productos vivos tiene: la revisión avisa si lo marcado
+     no entra en el plan (`lib/planes.ts`). */
+  planId: string;
+  productosActuales: number;
 }) {
   const { mostrarAviso } = useAvisos();
   const [leyendo, setLeyendo] = useState(false);
@@ -390,7 +396,9 @@ export function ImportarPlanilla({
           introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agrégales fotos si quieres y saca los que no vayas a publicar.`}
           key={nombreArchivo}
           onTerminado={() => setConfirmado(true)}
+          planId={planId}
           productos={resultado.productos}
+          productosActuales={productosActuales}
         />
       ) : null}
     </div>

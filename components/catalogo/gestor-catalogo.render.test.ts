@@ -141,6 +141,11 @@ describe("las pantallas del catálogo del panel", () => {
     const html = dibujar("productos");
     expect(html).toContain("Alimento adulto 10 kg");
     expect(html).toContain("Consulta general");
+    /* El tope de su plan, al lado de la lista: el dueño no se entera con un
+       producto que no se guarda. */
+    expect(html.replaceAll("<!-- -->", "")).toMatch(
+      /Tu plan Catálogo: \d+ de 150 productos,\s+hasta 3 fotos en cada uno\./,
+    );
   });
 
   it("«Mi catálogo» se dibuja con datos", () => {

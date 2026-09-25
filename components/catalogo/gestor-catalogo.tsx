@@ -30,7 +30,8 @@ import { EditorDeVariantes } from "./editor-de-variantes";
 import { AVISO_PRIVACIDAD_IA, AYUDA_PRODUCTO } from "../../lib/ia/ayuda";
 import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
-import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
+import { mensajeLimiteProductos } from "../../lib/catalogo/topes-del-plan";
+import { planDe } from "../../lib/planes";
 import { rubroOfrece } from "../../lib/negocios/rubros";
 import { Icono } from "../iconos/icono";
 import { IconoCatalogo } from "../iconos/icono-catalogo";
@@ -152,6 +153,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
      cambiar de rubro no borra ninguna marca ya puesta. */
   const ofreceCartaDelDia = rubroOfrece(datosIniciales.negocio.rubro, "carta_del_dia");
   const ofreceLecturaDeFotos = datosIniciales.negocio.foto_ia_habilitada === true;
+  /* Cuánto entra según el plan. La base lo hace cumplir igual; acá se dice
+     antes, para que el dueño no se entere con un producto que no se guarda. */
+  const plan = planDe(datosIniciales.negocio.plan_id);
+  const topeFotos = plan.topes.fotosPorProducto;
+  const productosLlenos = productos.length >= plan.topes.productos;
   /* Cuántas lecturas le quedan al negocio este mes. Se dice acá, pegado al
      botón que las gasta, y no en otra pantalla: la pregunta «¿me queda?» aparece
      justo cuando se está por tocar, y una cuenta que hay que ir a buscar no la
@@ -640,10 +646,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     const archivos = Array.from(evento.target.files ?? []);
     evento.target.value = "";
     if (!archivos.length) return;
-    if (imagenesPendientes.length + archivos.length > MAXIMO_FOTOS_POR_PRODUCTO) {
+    if (imagenesPendientes.length + archivos.length > topeFotos) {
       informarError(
         "Demasiadas fotografías",
-        new Error(`Puedes seleccionar ${MAXIMO_FOTOS_POR_PRODUCTO - imagenesPendientes.length} más.`),
+        new Error(`Puedes seleccionar ${topeFotos - imagenesPendientes.length} más.`),
       );
       return;
     }
@@ -862,7 +868,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     const producto = productos.find(({ id }) => id === productoEditando);
 
     if (!productoEditando) {
-      if (imagenesPendientes.length >= MAXIMO_FOTOS_POR_PRODUCTO) return "";
+      if (imagenesPendientes.length >= topeFotos) return "";
       try {
         const preparada = await prepararImagenParaSubir(archivo);
         setImagenesPendientes((actuales) => [...actuales, preparada]);
@@ -872,7 +878,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       }
     }
 
-    if (!producto || producto.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO) return "";
+    if (!producto || producto.fotos.length >= topeFotos) return "";
     try {
       await cargarArchivosProducto(producto, [archivo]);
       return "La foto se agregó al producto.";
@@ -1059,7 +1065,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     const archivos = Array.from(evento.target.files ?? []);
     evento.target.value = "";
     if (!archivos.length) return;
-    if (producto.fotos.length + archivos.length > MAXIMO_FOTOS_POR_PRODUCTO) {
+    if (producto.fotos.length + archivos.length > topeFotos) {
       informarError("Demasiadas fotografías", new Error(`Este producto admite ${4 - producto.fotos.length} más.`));
       return;
     }
@@ -1393,7 +1399,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               <div>
                 <h3 id="fotos-producto-editado">Fotografías</h3>
                 <p>
-                  {productoEnEdicion.fotos.length} de {MAXIMO_FOTOS_POR_PRODUCTO}. Se optimizan
+                  {productoEnEdicion.fotos.length} de {topeFotos}. Se optimizan
                   antes de subirlas.
                 </p>
               </div>
@@ -1422,7 +1428,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 Agregar fotos
                 <input
                   accept="image/jpeg,image/png,image/webp"
-                  disabled={ocupado || productoEnEdicion.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO}
+                  disabled={ocupado || productoEnEdicion.fotos.length >= topeFotos}
                   multiple
                   onChange={(evento) => void subirImagenes(productoEnEdicion, evento)}
                   type="file"
@@ -1439,7 +1445,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 Seleccionar fotografías
                 <input
                   accept="image/jpeg,image/png,image/webp"
-                  disabled={ocupado || imagenesPendientes.length >= MAXIMO_FOTOS_POR_PRODUCTO}
+                  disabled={ocupado || imagenesPendientes.length >= topeFotos}
                   multiple
                   onChange={(evento) => void prepararImagenesNuevas(evento)}
                   type="file"
@@ -1493,7 +1499,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 </small>
               ) : null}
               <small>
-                {imagenesPendientes.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías seleccionadas
+                {imagenesPendientes.length} de {topeFotos} fotografías seleccionadas
               </small>
             </section>
           )}
@@ -1564,7 +1570,18 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 </button>
               ))}
             </div>
-            <Boton onClick={abrirProductoNuevo}>Crear producto</Boton>
+            <Boton
+              aria-describedby={productosLlenos ? "aviso-tope-productos" : undefined}
+              disabled={productosLlenos}
+              onClick={abrirProductoNuevo}
+            >
+              Crear producto
+            </Boton>
+            {productosLlenos ? (
+              <p className={styles.avisoEspacio} id="aviso-tope-productos">
+                {mensajeLimiteProductos(datosIniciales.negocio.plan_id)}
+              </p>
+            ) : null}
           </div>
         </section>
       ) : null}
@@ -1789,6 +1806,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 <p>
                   {productosVisibles.length} de {productos.length} producto(s)
                   {busquedaProductos.trim() ? ` para «${busquedaProductos.trim()}»` : ""}
+                </p>
+                <p>
+                  Tu plan {plan.nombre}: {productos.length} de {plan.topes.productos} productos,
+                  hasta {topeFotos} fotos en cada uno.
                 </p>
               </div>
             </div>
@@ -2038,7 +2059,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                             Agregar fotos
                             <input
                               accept="image/jpeg,image/png,image/webp"
-                              disabled={ocupado || producto.fotos.length >= MAXIMO_FOTOS_POR_PRODUCTO}
+                              disabled={ocupado || producto.fotos.length >= topeFotos}
                               multiple
                               onChange={(evento) => void subirImagenes(producto, evento)}
                               type="file"
@@ -2046,7 +2067,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                           </label>
                         </div>
                         <small>
-                          {producto.fotos.length} de {MAXIMO_FOTOS_POR_PRODUCTO} fotografías
+                          {producto.fotos.length} de {topeFotos} fotografías
                         </small>
                       </div>
                     ) : null}

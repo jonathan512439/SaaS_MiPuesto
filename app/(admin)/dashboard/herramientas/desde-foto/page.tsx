@@ -86,6 +86,8 @@ export default async function PaginaCargaDesdeFoto() {
         fotosUsadas={uso?.cantidad ?? 0}
         negocioLlevaStock={negocioLlevaStock}
         nombresDelCatalogo={(productosActuales ?? []).map(({ nombre }) => nombre)}
+        planId={negocio.plan_id}
+        productosActuales={(productosActuales ?? []).length}
         topeFotos={cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual}
       />
     </main>

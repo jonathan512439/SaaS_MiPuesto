@@ -36,7 +36,8 @@ export default async function PaginaImportarPlanilla() {
   const { data: negocio } = await supabase
     .from("negocios")
     /* El rubro y los secundarios deciden qué plantillas se ofrecen. */
-    .select("id,rubro,rubro_publico,rubros_secundarios")
+    /* El plan, para avisar en la revisión si lo que se importa no entra. */
+    .select("id,rubro,rubro_publico,rubros_secundarios,plan_id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
@@ -96,10 +97,12 @@ export default async function PaginaImportarPlanilla() {
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
         negocioLlevaStock={negocioLlevaStock}
         nombresDelCatalogo={(productosActuales ?? []).map(({ nombre }) => nombre)}
+        planId={negocio.plan_id}
         plantillas={plantillasDelNegocio(negocio).map((rubro) => ({
           rubro,
           nombre: nombreDeRubro(rubro),
         }))}
+        productosActuales={(productosActuales ?? []).length}
       />
     </main>
   );

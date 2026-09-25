@@ -16,7 +16,7 @@ import { valoresDesdePlanilla } from "../../lib/importacion/datos-de-planilla";
 import { posicionesYaExistentes } from "../../lib/importacion/ya-existentes";
 import type { PresentacionDePlanilla } from "../../lib/importacion/planilla";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
-import { MAXIMO_FOTOS_POR_PRODUCTO } from "../../lib/catalogo/validacion";
+import { planDe } from "../../lib/planes";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { Boton, Selector, useAvisos } from "../ui";
 import styles from "./revision-de-productos.module.css";
@@ -86,6 +86,8 @@ export function RevisionDeProductos({
   controlaStock,
   cobertura,
   onTerminado,
+  planId,
+  productosActuales,
 }: {
   /* Los campos de cada categoría por su id. Con ellos, las columnas de datos
      de la planilla se guardan en la categoría donde termina el producto. */
@@ -102,7 +104,16 @@ export function RevisionDeProductos({
      importada no pasa por el modelo— y entonces no se dibuja nada. */
   cobertura?: InformeDeCobertura;
   onTerminado: () => void;
+  /* El plan decide cuántos productos entran y cuántas fotos lleva cada uno
+     (`lib/planes.ts`). Con lo que el negocio ya tiene, se sabe cuántos de los
+     marcados caben antes de crear: la base rechaza el que sobra igual, pero a
+     mitad de una importación y sin que el dueño entienda por qué. */
+  planId: string;
+  productosActuales: number;
 }) {
+  const plan = planDe(planId);
+  const topeFotos = plan.topes.fotosPorProducto;
+  const lugarLibre = Math.max(0, plan.topes.productos - productosActuales);
   const router = useRouter();
   const { mostrarAviso } = useAvisos();
   const [guardando, setGuardando] = useState(false);
@@ -175,6 +186,7 @@ export function RevisionDeProductos({
 
   const yaExistentes = filas.filter(({ yaExiste }) => yaExiste).length;
   const elegidos = filas.filter(({ elegido }) => elegido);
+  const sobran = Math.max(0, elegidos.length - lugarLibre);
   const totalFotos = elegidos.reduce((suma, fila) => suma + fila.imagenes.length, 0);
 
   /* Los títulos en el orden en que aparecieron, sin repetir. El orden importa:
@@ -208,11 +220,11 @@ export function RevisionDeProductos({
     if (archivos.length === 0) return;
 
     const actuales = filas[indice].imagenes.length;
-    const lugar = MAXIMO_FOTOS_POR_PRODUCTO - actuales;
+    const lugar = topeFotos - actuales;
     if (lugar <= 0) {
       mostrarAviso({
         titulo: "Ese producto ya tiene sus fotos",
-        mensaje: `Cada producto admite hasta ${MAXIMO_FOTOS_POR_PRODUCTO}.`,
+        mensaje: `Cada producto admite hasta ${topeFotos}.`,
         variante: "advertencia",
       });
       return;
@@ -236,7 +248,7 @@ export function RevisionDeProductos({
     if (archivos.length > lugar) {
       mostrarAviso({
         titulo: "Tomamos las primeras",
-        mensaje: `Cada producto admite hasta ${MAXIMO_FOTOS_POR_PRODUCTO} fotos.`,
+        mensaje: `Cada producto admite hasta ${topeFotos} fotos.`,
         variante: "advertencia",
       });
     }
@@ -656,11 +668,11 @@ export function RevisionDeProductos({
 
                     <label className={styles.agregarFoto}>
                       {fila.imagenes.length === 0
-                        ? "Agregar fotos"
-                        : `${fila.imagenes.length} de ${MAXIMO_FOTOS_POR_PRODUCTO}`}
+                        ? `Agregar fotos (hasta ${topeFotos})`
+                        : `${fila.imagenes.length} de ${topeFotos}`}
                       <input
                         accept="image/jpeg,image/png,image/webp"
-                        disabled={guardando || fila.imagenes.length >= MAXIMO_FOTOS_POR_PRODUCTO}
+                        disabled={guardando || fila.imagenes.length >= topeFotos}
                         multiple
                         onChange={(evento) => void agregarImagenes(indice, evento)}
                         type="file"
@@ -701,10 +713,21 @@ export function RevisionDeProductos({
         </p>
       ) : null}
 
+      {sobran > 0 ? (
+        <p className={styles.aviso} id="aviso-tope-importacion" role="status">
+          <strong>
+            Tu plan {plan.nombre} incluye hasta {plan.topes.productos} productos y ya tienes{" "}
+            {productosActuales}: entran {lugarLibre} más.
+          </strong>{" "}
+          Desmarca {sobran} para poder crear los demás.
+        </p>
+      ) : null}
+
       <div className={styles.confirmar}>
         <Boton
           cargando={guardando}
-          disabled={guardando || elegidos.length === 0}
+          aria-describedby={sobran > 0 ? "aviso-tope-importacion" : undefined}
+          disabled={guardando || elegidos.length === 0 || sobran > 0}
           onClick={() => void crear()}
         >
           Crear {elegidos.length} producto(s)

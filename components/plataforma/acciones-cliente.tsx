@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { PLANES, planDe } from "../../lib/planes";
+import { PLANES, describirTopes, planDe } from "../../lib/planes";
 import { useAvisos, useConfirmacion } from "../ui";
 import styles from "./acciones-cliente.module.css";
 
@@ -62,6 +62,29 @@ export function AccionesCliente({
         textoCancelar: "Dejar apagada",
       });
       if (!aceptado) return;
+    }
+
+    /* Bajar a un plan con menos lugar no borra nada, pero deja al negocio sin
+       poder agregar productos o fotos si ya pasa el tope nuevo. Se confirma con
+       lo que incluye el plan delante. */
+    if (accion === "plan" && plan) {
+      const actual = planDe(planId).topes;
+      const nuevo = planDe(plan);
+      if (
+        nuevo.topes.productos < actual.productos ||
+        nuevo.topes.fotosPorProducto < actual.fotosPorProducto
+      ) {
+        const aceptado = await confirmar({
+          titulo: `Pasar ${nombre} al plan ${nuevo.nombre}`,
+          descripcion: `${describirTopes(nuevo.topes)}. Si ya tiene más, conserva todo lo cargado, pero no puede agregar productos ni fotos hasta quedar dentro del plan.`,
+          textoAccion: "Cambiar de plan",
+          textoCancelar: "Dejarlo como está",
+        });
+        if (!aceptado) {
+          setPlan(planDe(planId).id);
+          return;
+        }
+      }
     }
 
     setOcupado(accion);
@@ -132,7 +155,8 @@ export function AccionesCliente({
         >
           {PLANES.map((opcion) => (
             <option key={opcion.id} value={opcion.id}>
-              {opcion.nombre} — {opcion.lecturasPorMes}/mes
+              {opcion.nombre} — {opcion.topes.productos} productos, {opcion.topes.fotosPorProducto}{" "}
+              fotos c/u, {opcion.lecturasPorMes} lecturas/mes
             </option>
           ))}
         </select>

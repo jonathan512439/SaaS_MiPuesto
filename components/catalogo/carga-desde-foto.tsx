@@ -15,6 +15,8 @@ export function CargaDesdeFoto({
   fotosUsadas,
   negocioLlevaStock,
   nombresDelCatalogo = [],
+  planId,
+  productosActuales,
   topeFotos,
 }: {
   categorias: CategoriaCatalogo[];
@@ -26,6 +28,10 @@ export function CargaDesdeFoto({
   negocioLlevaStock: boolean;
   /* Los nombres de los productos que ya tiene, para no duplicarlos. */
   nombresDelCatalogo?: string[];
+  /* El plan y cuántos productos vivos tiene: la revisión avisa si lo marcado
+     no entra en el plan (`lib/planes.ts`). */
+  planId: string;
+  productosActuales: number;
   topeFotos: number;
 }) {
   const { mostrarAviso } = useAvisos();
@@ -181,6 +187,8 @@ export function CargaDesdeFoto({
           controlaStock={negocioLlevaStock}
           introduccion={`Encontramos ${productos.length} producto(s). Lo que no leímos con seguridad viene desmarcado. Compara con tu lista antes de confirmar.`}
           key={lectura}
+          planId={planId}
+          productosActuales={productosActuales}
           /* No se vacía la lista de productos: eso desmontaría el panel y con
              él el resumen de qué se creó y qué no. Se saca la vista previa,
              que ya cumplió su función de permitir comparar. */
