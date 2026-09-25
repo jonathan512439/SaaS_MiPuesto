@@ -1797,9 +1797,13 @@ motivo por el que este archivo existe.
   - Verificado: `build:vinext` con 1106 pruebas. **Desplegado** (`0050472d`) y
     comprobado en producción: la marca en sus cuatro casos, la ficha sin el
     total y `?pedido=abierto` sin la marca.
-  - Anotado, sin arreglar: pasar el horario a «Siempre abierto» **borra la
-    semana guardada** (al volver a «Horario programado» todos los días quedan
-    cerrados).
+  - «Siempre abierto» ya no borra la semana guardada (`3405462`):
+    `validarHorario` descartaba los días en cualquier modo que no fuera
+    «programado». Ahora la semana se guarda siempre y el modo decide si manda;
+    una semana rota no impide guardar otro modo. Probado en el panel (guardar
+    «Siempre abierto», recargar, volver: lunes a sábado 9:00–20:00 intactos) y
+    en el catálogo (abierto a las 7:00 con «Siempre abierto»; «Cerrado · Abre
+    hoy a las 09:00» al volver). `verificar` con 1111 pruebas. **Sin desplegar.**
 
 ### 2026-09-24
 
