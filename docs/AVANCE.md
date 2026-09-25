@@ -251,6 +251,9 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | Comprar y conectar el dominio | Bloquea correo propio, QR, NFC y el reporte por correo |
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
+| **`mipuesto.com` no es nuestro todavía.** Consultado el 2026-09-25 en el registro (RDAP de Verisign): registrado desde 2004 en Porkbun, vence el 2027-06-18 y no apunta a ningún sitio. El primer video de redes termina con «Crea el tuyo en mipuesto.com» | Comprarlo o elegir otro dominio **antes de publicar el video**; al conectarlo, sumarlo al widget de Turnstile (`lib/turnstile-publico.ts`) |
+| Borrar la tienda de demostración **Kantuta Moda** (cuenta `nicolbelen75+demo@gmail.com`) cuando termine la campaña del video. Se lleva sus fotos y los dos banners huérfanos | Panel de plataforma |
+| Rotar la contraseña de la base y la clave secreta del proyecto **de ensayo**: se mostraron en una sesión de trabajo el 2026-09-25 | Supabase → proyecto de ensayo → Settings |
 
 ---
 
@@ -1803,7 +1806,11 @@ motivo por el que este archivo existe.
     una semana rota no impide guardar otro modo. Probado en el panel (guardar
     «Siempre abierto», recargar, volver: lunes a sábado 9:00–20:00 intactos) y
     en el catálogo (abierto a las 7:00 con «Siempre abierto»; «Cerrado · Abre
-    hoy a las 09:00» al volver). `verificar` con 1111 pruebas. **Sin desplegar.**
+    hoy a las 09:00» al volver). `verificar` con 1111 pruebas.
+  - **Todo lo anterior está desplegado** en `aafcc115` (el horario) y
+    `0050472d` (el resto), y subido a GitHub. Comprobado en el panel publicado
+    con la cuenta de demostración: «Siempre abierto» se guarda, y al volver a
+    «Horario programado» la semana sigue; los precios dicen «Bs 280».
 
 ### 2026-09-24
 
