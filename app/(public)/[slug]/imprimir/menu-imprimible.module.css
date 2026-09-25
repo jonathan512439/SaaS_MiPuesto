@@ -41,7 +41,6 @@
   border-bottom: var(--borde-fino) solid var(--color-borde);
   font-size: var(--text-lg);
   font-weight: 800;
-  text-transform: uppercase;
 }
 
 .categoria h3 {

@@ -56,8 +56,6 @@
   color: var(--color-marca);
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: var(--tracking-etiqueta);
-  text-transform: uppercase;
 }
 
 .campo legend span {

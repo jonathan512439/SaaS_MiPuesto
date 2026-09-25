@@ -947,8 +947,6 @@
   color: var(--catalogo-texto-suave);
   font-size: var(--text-sm);
   font-weight: 800;
-  letter-spacing: var(--tracking-etiqueta);
-  text-transform: uppercase;
 }
 
 /* 9 · Pie */

@@ -36,8 +36,6 @@
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .opciones {

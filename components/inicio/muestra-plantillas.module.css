@@ -45,8 +45,6 @@
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
 .opciones {

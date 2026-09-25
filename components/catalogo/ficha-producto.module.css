@@ -278,8 +278,6 @@
   color: var(--catalogo-texto-suave);
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: var(--tracking-etiqueta);
-  text-transform: uppercase;
 }
 
 /* Dos columnas del mismo reparto en todas las filas.
@@ -329,8 +327,6 @@
   color: var(--catalogo-texto-suave);
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: var(--tracking-etiqueta);
-  text-transform: uppercase;
 }
 
 .especificaciones dd {

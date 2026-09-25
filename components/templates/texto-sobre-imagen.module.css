@@ -80,9 +80,7 @@
   font-family: var(--font-marca);
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: var(--tracking-etiqueta);
   text-shadow: 0 0.0625rem 0.1875rem color-mix(in srgb, var(--catalogo-cortina) 88%, transparent);
-  text-transform: uppercase;
 }
 
 .titulo {

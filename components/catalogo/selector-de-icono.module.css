@@ -59,8 +59,6 @@
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: var(--tracking-etiqueta);
-  text-transform: uppercase;
 }
 
 /* Se acomodan solos: con ciento y pico de dibujos, un número fijo de columnas

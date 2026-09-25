@@ -41,8 +41,6 @@
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: var(--tracking-etiqueta);
-  text-transform: uppercase;
 }
 
 .descripcion {

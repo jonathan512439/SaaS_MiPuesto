@@ -48,8 +48,6 @@
 .titulo {
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .cifras strong {

@@ -1260,8 +1260,6 @@
   color: var(--color-ia-sobre);
   font-size: var(--text-xs);
   font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .tarjetaIa h3 {
