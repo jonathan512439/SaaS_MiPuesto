@@ -1724,6 +1724,42 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-09-25
+
+- **Topes de productos y fotos por plan** (`cf56f6c`, `884ec73`, `d33eebe`).
+  Decisión del dueño: **Catálogo, 150 productos con 3 fotos cada uno; Catálogo
+  Activo, 300 con 4.** Hasta hoy los dos planes tenían lo mismo y el tope de
+  productos vivía **solo en la ruta**: un script con la clave privilegiada lo
+  saltaba, y la papelera también —a la papelera, crear otro, recuperar—.
+  - Base: `20261029090000_topes_de_productos_y_fotos_por_plan.sql`, con
+    `private.topes_del_plan` y un disparador en `productos` que cubre crear,
+    duplicar, importar y **recuperar de la papelera**, con un bloqueo por
+    negocio para que dos cargas simultáneas no pasen el tope. La papelera no
+    cuenta. **Bajar de plan no borra nada**: conserva lo cargado y solo no puede
+    agregar hasta quedar dentro; un producto que quedó con 4 fotos puede quitar,
+    no sumar. El techo físico sigue siendo `check (cardinality(fotos) <= 4)`.
+  - Fuente de verdad: `lib/planes.ts` (`topes`, `topesDelPlan`,
+    `describirTopes`); `topes-del-plan.test.ts` compara sus números con los de
+    la migración. Mensajes en `lib/catalogo/topes-del-plan.ts`.
+  - Rutas: crear, duplicar, fotos y papelera usan el tope del plan y traducen
+    `LIMITE_PRODUCTOS`/`LIMITE_FOTOS`. Duplicar copia solo las fotos que admite
+    el plan (antes habría dejado archivos huérfanos).
+  - Pantallas: «Productos» muestra «Tu plan X: N de 150 productos, hasta 3
+    fotos» y desactiva «Crear producto» en el tope; la revisión de importación y
+    de carga desde foto avisa cuántos entran y no deja crear de más; el inicio
+    del panel muestra los topes **siempre** (antes solo con la IA encendida);
+    «Tu cuenta» dice qué incluye el plan; la plataforma muestra los topes de
+    cada plan y confirma al bajar a uno con menos lugar.
+  - Textos públicos: tarjetas de planes y una pregunta frecuente en la portada,
+    sección «Cuánto puedes cargar» en los términos, y la imagen al compartir ya
+    no dice «hasta 300».
+  - Verificado: prueba de base `npm run test:topes-plan:ensayo` rota dos veces a
+    propósito (tope 151 y papelera ignorada); prueba de sincronía rota con 160;
+    guardia de la revisión rota. `verificar` con 1086 pruebas,
+    `test:rls:linked` y `test:permisos:linked` en verde. Aplicada en ensayo y
+    producción; ningún negocio real queda por encima (el mayor tiene 52
+    productos).
+
 ### 2026-09-24
 
 - **Los pendientes fuera del dominio, cerrados.** Siete puntos que no dependen
