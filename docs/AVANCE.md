@@ -1788,11 +1788,18 @@ motivo por el que este archivo existe.
   - Textos del panel (`cf2d612`): «hasta cuatro» fotos sale del tope del plan;
     la ayuda ya no promete foto cuadrada (la recorta la tarjeta); el precio usa
     `formatearPrecioBolivianos` —«Bs 180», no «Bs 180,00»—; sin «a. m..».
-  - Verificado: `verificar` con 1102 pruebas. **Sin desplegar** los arreglos de
-    la marca, «Ver pedido», existencias y textos.
+  - Banners subidos y nunca guardados (`6a104ab`): al subir o guardar un
+    banner se borran de la carpeta del negocio los archivos que ningún banner
+    usa y tienen más de 24 h (la espera protege al que espera su «Guardar»).
+    Comprobado con la sesión real del dueño: la política de Storage deja listar
+    su carpeta; hoy no borra nada y en 25 h borraría los dos huérfanos de la
+    tienda de demostración.
+  - Verificado: `build:vinext` con 1106 pruebas. **Desplegado** (`0050472d`) y
+    comprobado en producción: la marca en sus cuatro casos, la ficha sin el
+    total y `?pedido=abierto` sin la marca.
   - Anotado, sin arreglar: pasar el horario a «Siempre abierto» **borra la
     semana guardada** (al volver a «Horario programado» todos los días quedan
-    cerrados), y un banner subido y nunca guardado queda huérfano en Storage.
+    cerrados).
 
 ### 2026-09-24
 
