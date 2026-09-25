@@ -15,6 +15,7 @@ import {
   normalizarResenas,
   normalizarUbicacion,
   rutaPerteneceAImagenNegocio,
+  type ImagenIdentidadSubida,
   type TipoImagenIdentidad,
 } from "../../../../lib/negocios/identidad";
 import type { Database } from "../../../../lib/supabase/database.types";
@@ -185,10 +186,8 @@ export async function POST(solicitud: NextRequest) {
 
 
   const { data: datosPublicos } = contexto.supabase.storage.from("negocios").getPublicUrl(ruta);
-  return NextResponse.json(
-    { identidad, imagen: { tipo, ruta, url: datosPublicos.publicUrl } },
-    { status: 201 },
-  );
+  const imagen: ImagenIdentidadSubida = { tipo, ruta, url: datosPublicos.publicUrl };
+  return NextResponse.json({ identidad, imagen }, { status: 201 });
 }
 
 export async function DELETE(solicitud: NextRequest) {

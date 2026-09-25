@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { DEFINICIONES_PALETAS, type PaletaId } from "../../lib/apariencia";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
+import type { RespuestaSubidaIdentidad } from "../../lib/negocios/identidad";
 import type { DatosPlantilla } from "../../lib/plantillas/tipos";
 import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
 import temaStyles from "../templates/tema-catalogo.module.css";
@@ -66,14 +67,11 @@ export function PasoTuMarca({
         method: "POST",
         body: formulario,
       });
-      const resultado = (await respuesta.json().catch(() => ({}))) as {
-        error?: string;
-        url?: string;
-      };
-      if (!respuesta.ok || !resultado.url) {
+      const resultado = (await respuesta.json().catch(() => ({}))) as RespuestaSubidaIdentidad;
+      if (!respuesta.ok || !resultado.imagen) {
         throw new Error(resultado.error || "No se pudo subir el logo.");
       }
-      setLogo(resultado.url);
+      setLogo(resultado.imagen.url);
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo subir el logo",

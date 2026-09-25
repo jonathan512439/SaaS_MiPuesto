@@ -1,6 +1,13 @@
 export const TIPOS_IMAGEN_IDENTIDAD = ["logo", "portada", "qr"] as const;
 export type TipoImagenIdentidad = (typeof TIPOS_IMAGEN_IDENTIDAD)[number];
 
+/* Lo que responde `POST /api/negocios/identidad`. Es un solo tipo para la ruta
+   y para las dos pantallas que suben imágenes, porque el alta leía `url` en la
+   raíz cuando la ruta la manda dentro de `imagen`: el logo se guardaba y el
+   dueño veía «No se pudo subir el logo». */
+export type ImagenIdentidadSubida = { tipo: TipoImagenIdentidad; ruta: string; url: string };
+export type RespuestaSubidaIdentidad = { error?: string; imagen?: ImagenIdentidadSubida };
+
 export type RedesSocialesNegocio = {
   facebook?: string;
   instagram?: string;

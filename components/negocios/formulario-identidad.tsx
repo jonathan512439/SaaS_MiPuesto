@@ -7,6 +7,7 @@ import { prepararImagenParaSubir } from "../../lib/imagenes";
 import {
   obtenerRedesSociales,
   type RedesSocialesNegocio,
+  type RespuestaSubidaIdentidad,
   type TipoImagenIdentidad,
 } from "../../lib/negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../../lib/negocios/imagenes-publicas";
@@ -106,10 +107,7 @@ export function FormularioIdentidad({
         method: "POST",
         body: formulario,
       });
-      const datos = (await respuesta.json().catch(() => ({}))) as {
-        error?: string;
-        imagen?: { tipo: TipoImagenIdentidad; ruta: string; url: string };
-      };
+      const datos = (await respuesta.json().catch(() => ({}))) as RespuestaSubidaIdentidad;
       if (!respuesta.ok || !datos.imagen) {
         throw new Error(datos.error || "No se pudo guardar la imagen.");
       }
