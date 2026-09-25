@@ -365,6 +365,25 @@ const GUIAS: Record<Exclude<RubroPublicoId, "otro">, GuiaDeRubro> = {
       precio: "150",
     },
   },
+  importados: {
+    id: "importados",
+    palabras: ["importado", "variedad", "bazar", "novedad", "termo", "tomatodo", "organizador", "utensilio", "adorno", "gadget"],
+    categorias: ["Juguetes", "Hogar y cocina", "Tecnología"],
+    campos: {
+      preguntas: "de qué material es, qué medidas tiene, qué trae la caja",
+      texto: { nombre: "Material", muestra: "Acero inoxidable" },
+      numero: { nombre: "Capacidad", unidad: "ml", muestra: "500" },
+      opcion: { nombre: "Color", opciones: ["Negro", "Blanco", "Rosado"] },
+      si_no: { nombre: "Trae caja" },
+    },
+    producto: {
+      nombre: "Termo de acero 500 ml",
+      evitar: "Termo importado",
+      queContar: "de qué material es, cuánto le cabe o cuánto mide, qué trae la caja",
+      descripcion: "Acero inoxidable, mantiene caliente 12 horas. Tapa a rosca, no gotea.",
+      precio: "65",
+    },
+  },
   ropa_y_calzado: {
     id: "ropa_y_calzado",
     palabras: ["polera", "camisa", "pantalon", "jean", "vestido", "falda", "chamarra", "zapato", "zapatilla", "calzado", "ropa", "deportivo", "buzo", "blusa", "bota"],

@@ -130,6 +130,13 @@ describe("los rubros públicos", () => {
     }
   });
 
+  /* La tienda que vende de todo un poco —juguetes, cosas de casa, electrónica,
+     regalos— no es una tienda de barrio: su vista previa mostraría abarrotes.
+     Empieza sin categorías, como «Otro», y las arma con su propia planilla. */
+  it("la tienda de importados y variedades tiene el suyo", () => {
+    expect(siembraDeRubroPublico("importados")).toBe("otro");
+  });
+
   it("no hay dos con el mismo identificador", () => {
     const ids = RUBROS_PUBLICOS.map(({ id }) => id);
     expect(new Set(ids).size).toBe(ids.length);
@@ -137,11 +144,13 @@ describe("los rubros públicos", () => {
 
   /* La lista vive en dos lugares: acá y en las dos restricciones de la base. Si
      se agrega uno acá y no allá, el panel lo ofrece y la base rechaza el
-     guardado. */
+     guardado. Cuenta la última versión de cada restricción: sumar un rubro es
+     volver a crearla en una migración nueva. */
   it("son los mismos que aceptan las dos restricciones de la base", () => {
     const sql = todasLasMigraciones();
-    const principal = sql.match(/negocios_rubro_publico_valido check \(\s*rubro_publico is null or rubro_publico in \(([^)]+)\)/)?.[1] ?? "";
-    const secundarios = sql.match(/rubros_secundarios <@ array\[([^\]]+)\]/)?.[1] ?? "";
+    const ultima = (patron: RegExp) => [...sql.matchAll(patron)].at(-1)?.[1] ?? "";
+    const principal = ultima(/negocios_rubro_publico_valido check \(\s*rubro_publico is null or rubro_publico in \(([^)]+)\)/g);
+    const secundarios = ultima(/rubros_secundarios <@ array\[([^\]]+)\]/g);
     const ids = RUBROS_PUBLICOS.map(({ id }) => id);
     for (const lista of [principal, secundarios]) {
       expect([...lista.matchAll(/'([a-z_]+)'/g)].map(([, id]) => id)).toEqual(ids);

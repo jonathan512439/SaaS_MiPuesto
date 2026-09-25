@@ -21,6 +21,7 @@ export const ICONO_DE_RUBRO: Record<RubroPublicoId, NombreIconoCatalogo> = {
   electronica: "celular",
   muebles: "sofa",
   artesanias: "costura",
+  importados: "caja-abierta",
   ropa_y_calzado: "remera",
   accesorios: "joya",
   ferreteria: "martillo",

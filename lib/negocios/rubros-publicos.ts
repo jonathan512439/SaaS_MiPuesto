@@ -78,6 +78,7 @@ export const RUBROS_PUBLICOS = [
   { id: "electronica", nombre: "Celulares y electrónica", grupo: "Tiendas", siembra: "tienda_barrio" },
   { id: "muebles", nombre: "Muebles y hogar", grupo: "Tiendas", siembra: "tienda_barrio" },
   { id: "artesanias", nombre: "Artesanías", grupo: "Tiendas", siembra: "tienda_barrio" },
+  { id: "importados", nombre: "Importados y variedades", grupo: "Tiendas", siembra: "otro" },
   { id: "ropa_y_calzado", nombre: "Ropa y calzado", grupo: "Ropa", siembra: "ropa_y_calzado" },
   { id: "accesorios", nombre: "Accesorios y bisutería", grupo: "Ropa", siembra: "ropa_y_calzado" },
   { id: "ferreteria", nombre: "Ferretería y materiales", grupo: "Construcción", siembra: "ferreteria" },
