@@ -34,11 +34,41 @@ export type GrupoRubroPublico = (typeof GRUPOS_RUBROS_PUBLICOS)[number];
 
 export const RUBROS_PUBLICOS = [
   { id: "restaurante", nombre: "Restaurante", grupo: "Comida", siembra: "restaurante" },
-  { id: "polleria", nombre: "Pollería y broaster", grupo: "Comida", siembra: "restaurante" },
-  { id: "comida_rapida", nombre: "Comida rápida", grupo: "Comida", siembra: "restaurante" },
-  { id: "salteneria", nombre: "Salteñería y empanadas", grupo: "Comida", siembra: "restaurante" },
-  { id: "cafeteria", nombre: "Cafetería y heladería", grupo: "Comida", siembra: "restaurante" },
-  { id: "panaderia", nombre: "Panadería y pastelería", grupo: "Comida", siembra: "restaurante" },
+  {
+    id: "polleria",
+    nombre: "Pollería y broaster",
+    grupo: "Comida",
+    siembra: "restaurante",
+    categorias: { Almuerzos: "Presas", "Platos a la carta": "Combos" },
+  },
+  {
+    id: "comida_rapida",
+    nombre: "Comida rápida",
+    grupo: "Comida",
+    siembra: "restaurante",
+    categorias: { Almuerzos: "Hamburguesas", "Platos a la carta": "Salchipapas" },
+  },
+  {
+    id: "salteneria",
+    nombre: "Salteñería y empanadas",
+    grupo: "Comida",
+    siembra: "restaurante",
+    categorias: { Almuerzos: "Salteñas", "Platos a la carta": "Empanadas" },
+  },
+  {
+    id: "cafeteria",
+    nombre: "Cafetería y heladería",
+    grupo: "Comida",
+    siembra: "restaurante",
+    categorias: { Almuerzos: "Cafés", "Platos a la carta": "Helados" },
+  },
+  {
+    id: "panaderia",
+    nombre: "Panadería y pastelería",
+    grupo: "Comida",
+    siembra: "restaurante",
+    categorias: { Almuerzos: "Panes", "Platos a la carta": "Tortas", Postres: "Masitas" },
+  },
   { id: "tienda_barrio", nombre: "Tienda de barrio", grupo: "Tiendas", siembra: "tienda_barrio" },
   { id: "minimarket", nombre: "Minimarket y abarrotes", grupo: "Tiendas", siembra: "tienda_barrio" },
   { id: "licoreria", nombre: "Licorería", grupo: "Tiendas", siembra: "tienda_barrio" },
@@ -67,6 +97,13 @@ export const RUBROS_PUBLICOS = [
   nombre: string;
   grupo: GrupoRubroPublico;
   siembra: RubroId;
+  /* Cómo se llaman en este rubro las categorías de su siembra. Cinco rubros de
+     comida usan la del restaurante, y una hamburguesería arrancaba con
+     «Almuerzos» y «Platos a la carta» mientras la ayuda de su propia pantalla le
+     sugería «Hamburguesas» y «Salchipapas». Solo cambia el nombre: los campos y
+     el orden son los de la siembra. Los nombres nuevos salen de la guía del
+     rubro (`lib/catalogo/guias-por-rubro.ts`), y una prueba lo comprueba. */
+  categorias?: Readonly<Record<string, string>>;
 }>;
 
 export type RubroPublicoId = (typeof RUBROS_PUBLICOS)[number]["id"];
@@ -109,6 +146,13 @@ export function esRubroPublicoId(valor: unknown): valor is RubroPublicoId {
 
 export function siembraDeRubroPublico(id: RubroPublicoId): RubroId {
   return RUBROS_PUBLICOS.find((rubro) => rubro.id === id)!.siembra;
+}
+
+/* Los nombres propios de las categorías de un rubro público; vacío si usa los de
+   su siembra o si el rubro no existe. */
+export function renombresDeCategorias(id: unknown): Readonly<Record<string, string>> {
+  const rubro = RUBROS_PUBLICOS.find((r) => r.id === id);
+  return rubro && "categorias" in rubro ? rubro.categorias : {};
 }
 
 export function nombreDeRubroPublico(id: unknown): string | null {

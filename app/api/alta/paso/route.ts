@@ -195,7 +195,10 @@ export async function PATCH(solicitud: NextRequest) {
   let sembrado: Awaited<ReturnType<typeof sembrarRubro>> | null = null;
   if (paso === 2 && typeof cambios.rubro === "string") {
     try {
-      sembrado = await sembrarRubro(supabase, negocio.id, cambios.rubro);
+      /* Con el rubro público, las categorías nacen con el nombre del negocio:
+         una comida rápida arranca con «Hamburguesas» y no con «Almuerzos». */
+      const rubroPublico = typeof cambios.rubro_publico === "string" ? cambios.rubro_publico : null;
+      sembrado = await sembrarRubro(supabase, negocio.id, cambios.rubro, rubroPublico);
     } catch {
       sembrado = null;
     }

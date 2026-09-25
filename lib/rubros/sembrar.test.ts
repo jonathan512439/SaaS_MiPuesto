@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { sembrarRubro } from "./sembrar";
+import { guiaDeRubroPublico } from "../catalogo/guias-por-rubro";
+import { RUBROS_PUBLICOS } from "../negocios/rubros-publicos";
+import { armarSiembra, sembrarRubro } from "./sembrar";
 
 /* Un cliente de mentira, lo más chico posible: `sembrarRubro` solo cuenta
    categorías y escribe filas, así que alcanza con eso. Se usa uno propio en vez
@@ -99,5 +101,53 @@ describe("sembrar el catálogo de un rubro", () => {
     const categorias = escrito.categorias as Array<{ orden: number; visible: boolean }>;
     expect(categorias.map(({ orden }) => orden)).toEqual([1, 2, 3, 4]);
     expect(categorias.every(({ visible }) => visible)).toBe(true);
+  });
+});
+
+/* Cinco rubros de comida usan la siembra del restaurante. Una hamburguesería
+   arrancaba con «Almuerzos» y «Platos a la carta» mientras la ayuda de su propia
+   pantalla le sugería «Hamburguesas» y «Salchipapas». */
+describe("la siembra habla como el rubro que eligió el dueño", () => {
+  it("una comida rápida arranca con hamburguesas y salchipapas", async () => {
+    const { cliente, escrito } = clienteFalso();
+    await sembrarRubro(cliente, "negocio-1", "restaurante", "comida_rapida");
+    const nombres = (escrito.categorias as Array<{ nombre: string }>).map((c) => c.nombre);
+    expect(nombres).toEqual(["Hamburguesas", "Salchipapas", "Bebidas", "Postres"]);
+    /* Los campos siguen a su categoría con el nombre nuevo. */
+    const deHamburguesas = (escrito.atributos_categoria as Array<{ categoria_id: string }>).filter(
+      (a) => a.categoria_id === "categorias-0",
+    );
+    expect(deHamburguesas.length).toBeGreaterThan(0);
+  });
+
+  it("un restaurante, o quien no dijo su rubro, arranca como siempre", () => {
+    expect(armarSiembra("restaurante", "restaurante")!.categorias[0].nombre).toBe("Almuerzos");
+    expect(armarSiembra("restaurante")!.categorias[0].nombre).toBe("Almuerzos");
+    expect(armarSiembra("restaurante", "un-rubro-que-no-existe")!.categorias[0].nombre).toBe("Almuerzos");
+  });
+
+  /* La guardia: cada nombre nuevo tiene que existir en la siembra que renombra
+     —si no, no renombra nada y nadie se entera— y coincidir con lo que la guía
+     de ese rubro le sugiere al dueño, para que la ayuda y el catálogo digan lo
+     mismo. Y ninguna siembra puede quedar con dos categorías del mismo nombre. */
+  it.each(RUBROS_PUBLICOS.filter((r) => "categorias" in r).map((r) => [r.id, r] as const))(
+    "«%s» renombra categorías que existen, como dice su guía",
+    (id, rubro) => {
+      const renombres = (rubro as { categorias: Record<string, string> }).categorias;
+      const originales = armarSiembra(rubro.siembra)!.categorias.map((c) => c.nombre);
+      const guia = guiaDeRubroPublico(id).categorias;
+      for (const [viejo, nuevo] of Object.entries(renombres)) {
+        expect(originales, `«${viejo}» no está en la siembra ${rubro.siembra}`).toContain(viejo);
+        expect(guia, `«${nuevo}» no está en la guía de ${id}`).toContain(nuevo);
+      }
+      const nombres = armarSiembra(rubro.siembra, id)!.categorias.map((c) => c.nombre);
+      expect(new Set(nombres).size).toBe(nombres.length);
+    },
+  );
+
+  it("los cinco rubros de comida que no son restaurante renombran", () => {
+    for (const id of ["polleria", "comida_rapida", "salteneria", "cafeteria", "panaderia"]) {
+      expect(armarSiembra("restaurante", id)!.categorias[0].nombre, id).not.toBe("Almuerzos");
+    }
   });
 });

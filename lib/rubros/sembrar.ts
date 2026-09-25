@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "../supabase/database.types";
+import { renombresDeCategorias } from "../negocios/rubros-publicos";
 import { siembraDeRubro } from "./siembra";
 
 /* Crear el catálogo de arranque de un rubro.
@@ -73,14 +74,18 @@ export type CargaDeSiembra = {
   }>;
 };
 
-export function armarSiembra(rubro: string): CargaDeSiembra | null {
+export function armarSiembra(rubro: string, rubroPublico?: string | null): CargaDeSiembra | null {
   const siembra = siembraDeRubro(rubro);
+  /* El rubro público puede darles a las categorías el nombre de su negocio
+     —«Hamburguesas» y no «Almuerzos»—; los campos las siguen por ese nombre. */
+  const renombres = renombresDeCategorias(rubroPublico);
+  const nombreDe = (nombre: string) => renombres[nombre] ?? nombre;
   /* Cuatro de los diez rubros no tienen siembra y eso no es un error: se les
      arma cuando llegue el primer cliente de ese rubro. */
   if (!siembra) return null;
 
   const categorias = siembra.categorias.map((categoria, posicion) => ({
-    nombre: categoria.nombre,
+    nombre: nombreDe(categoria.nombre),
     icono: categoria.icono,
     vende: categoria.vende,
     orden: posicion + 1,
@@ -89,7 +94,7 @@ export function armarSiembra(rubro: string): CargaDeSiembra | null {
 
   const atributos = siembra.categorias.flatMap((categoria) =>
     (categoria.atributos ?? []).map((atributo, posicion) => ({
-      categoria: categoria.nombre,
+      categoria: nombreDe(categoria.nombre),
       clave: atributo.clave,
       nombre: atributo.nombre,
       tipo: atributo.tipo as string,
@@ -113,7 +118,7 @@ export function armarSiembra(rubro: string): CargaDeSiembra | null {
   const recursos = siembra.categorias
     .filter((categoria) => categoria.agenda)
     .map((categoria, posicion) => ({
-      nombre: categoria.nombre,
+      nombre: nombreDe(categoria.nombre),
       orden: posicion + 1,
       activo: true,
       acepta_reservas: true,
@@ -133,8 +138,9 @@ export async function sembrarRubro(
   supabase: Cliente,
   negocioId: string,
   rubro: string,
+  rubroPublico?: string | null,
 ): Promise<ResultadoSiembra> {
-  const carga = armarSiembra(rubro);
+  const carga = armarSiembra(rubro, rubroPublico);
   if (!carga) return { sembro: false, motivo: "sin-siembra" };
 
   const { count } = await supabase
