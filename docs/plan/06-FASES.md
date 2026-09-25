@@ -552,7 +552,7 @@ negocio ya atiende.
 - Una fotografía pedida dos veces responde desde la caché la segunda, y el
   tráfico medido contra Supabase baja.
 
-**Criterio de salida:** los seis catálogos en `nombre.mipuesto.com`, las
+**Criterio de salida:** los seis catálogos en `nombre.mi-puesto.com`, las
 direcciones viejas redirigiendo, y todas las guardias en verde.
 
 ---

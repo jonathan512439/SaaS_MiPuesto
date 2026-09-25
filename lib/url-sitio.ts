@@ -1,5 +1,11 @@
 const URL_LOCAL = "http://localhost:3000";
 
+/* La dirección con que MiPuesto se presenta al dueño: «mi-puesto.com/tu-negocio».
+   Con guion: el dominio sin guion lo tiene un tercero desde 2004. Decidido por
+   el dueño el 2026-09-25. Mientras no esté conectado, el sitio sigue sirviendo
+   desde `NEXT_PUBLIC_SITE_URL`; esto es solo lo que se escribe en pantalla. */
+export const DOMINIO_MIPUESTO = "mi-puesto.com";
+
 export function obtenerUrlBaseSitio(valor = process.env.NEXT_PUBLIC_SITE_URL) {
   try {
     const url = new URL(valor || URL_LOCAL);

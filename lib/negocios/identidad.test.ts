@@ -10,13 +10,13 @@ describe("identidad del negocio", () => {
     expect(
       normalizarRedesSociales({
         instagram: " https://instagram.com/mipuesto#perfil ",
-        sitio_web: "https://mipuesto.com",
+        sitio_web: "https://mi-puesto.com",
       }),
     ).toEqual({
       correcto: true,
       redes: {
         instagram: "https://instagram.com/mipuesto",
-        sitio_web: "https://mipuesto.com/",
+        sitio_web: "https://mi-puesto.com/",
       },
     });
   });

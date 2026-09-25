@@ -20,7 +20,7 @@ import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
 import { RUBROS_PUBLICOS } from "../lib/negocios/rubros-publicos";
 import { CARGA_INICIAL, PLANES, TARJETA_ACRILICO } from "../lib/planes";
 import { qrComoSvg } from "../lib/qr-svg";
-import { obtenerUrlBaseSitio } from "../lib/url-sitio";
+import { DOMINIO_MIPUESTO, obtenerUrlBaseSitio } from "../lib/url-sitio";
 import styles from "./inicio.module.css";
 
 export const metadata: Metadata = {
@@ -243,7 +243,7 @@ export default function Inicio() {
                       <div className={styles.compartir}>
                         <p className={styles.enlaceMuestra}>
                           <Icono nombre="enlace" />
-                          mipuesto.com/dona-rosa
+                          {DOMINIO_MIPUESTO}/dona-rosa
                         </p>
                         <div className={styles.canales}>
                           <span>

@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { proponerSlug, validarSlug } from "../../lib/negocios/validacion";
+import { DOMINIO_MIPUESTO } from "../../lib/url-sitio";
 import { Boton, Campo, useAvisos } from "../ui";
 import styles from "./paso.module.css";
 
@@ -171,7 +172,7 @@ export function PasoQuienSos({
       />
 
       <p className={styles.direccion} data-estado={disponibilidad} aria-live="polite">
-        <span className={styles.dominio}>mipuesto.com/</span>
+        <span className={styles.dominio}>{DOMINIO_MIPUESTO}/</span>
         <strong>{slugMostrado || "tu-negocio"}</strong>
         <span className={styles.veredicto}>
           {disponibilidad === "libre" ? "✓ disponible" : null}

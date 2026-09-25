@@ -17,7 +17,7 @@ const bueno = {
      hornearía el proyecto de Supabase adentro del dato. */
   imagen: "11111111-1111-4111-8111-111111111111/banner/promo.webp",
   alt: "20 % de descuento toda la semana",
-  enlace: "https://mipuesto.com/promo",
+  enlace: "https://mi-puesto.com/promo",
 };
 
 describe("leerBanners", () => {

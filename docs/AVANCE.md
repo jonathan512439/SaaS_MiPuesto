@@ -251,7 +251,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | Comprar y conectar el dominio | Bloquea correo propio, QR, NFC y el reporte por correo |
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
-| **`mipuesto.com` no es nuestro todavía.** Consultado el 2026-09-25 en el registro (RDAP de Verisign): registrado desde 2004 en Porkbun, vence el 2027-06-18 y no apunta a ningún sitio. El primer video de redes termina con «Crea el tuyo en mipuesto.com» | Comprarlo o elegir otro dominio **antes de publicar el video**; al conectarlo, sumarlo al widget de Turnstile (`lib/turnstile-publico.ts`) |
+| **Comprar y conectar `mi-puesto.com`**, el dominio decidido el 2026-09-25 (libre en el registro ese día). El que no lleva guion lo tiene un tercero desde 2004 (Porkbun, vence el 2027-06-18): nada del sistema ni de los videos lo menciona, y lo vigila `lib/marca/dominio.test.ts` | Registrador; al conectarlo, sumarlo al widget de Turnstile (`lib/turnstile-publico.ts`) y a `NEXT_PUBLIC_SITE_URL` |
 | Borrar la tienda de demostración **Kantuta Moda** (cuenta `nicolbelen75+demo@gmail.com`) cuando termine la campaña del video. Se lleva sus fotos y los dos banners huérfanos | Panel de plataforma |
 | Rotar la contraseña de la base y la clave secreta del proyecto **de ensayo**: se mostraron en una sesión de trabajo el 2026-09-25 | Supabase → proyecto de ensayo → Settings |
 

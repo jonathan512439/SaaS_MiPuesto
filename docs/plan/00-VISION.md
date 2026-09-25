@@ -65,7 +65,7 @@ Ninguna función existente se pierde. Se reubican dentro del diseño nuevo:
 | 7 | Un banner de publicidad, opcional, con texto y botón. La portada lleva su propio cartel, también opcional (el banner de arriba se fue el 2026-09-19) |
 | 8 | Paletas cerradas y verificadas. Afectan cabecera, fondo y tarjetas. **No tocan los banners** |
 | 9 | El botón de Google Maps es opcional. Con clave configurada muestra la calificación; sin clave, solo el enlace |
-| 10 | La dirección es `mipuesto.com/nombre-del-negocio` durante el MVP. El subdominio llega en la fase final |
+| 10 | La dirección es `mi-puesto.com/nombre-del-negocio` durante el MVP. El subdominio llega en la fase final |
 | 11 | El sistema escribe en voseo, sin jerga marcada |
 
 ## Cómo se mide que terminó

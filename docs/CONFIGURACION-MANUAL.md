@@ -524,7 +524,7 @@ la vuelta, pero solo si antes avisó la caída.
 ### El día que se compre el dominio
 
 ```
-npm run vigilancia:configurar -- --sitio "https://mipuesto.com"
+npm run vigilancia:configurar -- --sitio "https://mi-puesto.com"
 ```
 
 Y en GitHub, en **Settings → Secrets and variables → Actions → Variables**,

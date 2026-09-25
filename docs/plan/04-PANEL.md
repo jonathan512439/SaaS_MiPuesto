@@ -26,7 +26,7 @@ Cuatro pasos, uno por pantalla, con la barra de progreso siempre visible.
 [ Ferretería El Sol                 ]
 
   Tu catálogo va a estar en:
-  mipuesto.com/ferreteria-el-sol   ✓ disponible
+  mi-puesto.com/ferreteria-el-sol  ✓ disponible
 ```
 
 El slug se calcula mientras escribe y se confirma acá. De ahí en adelante el

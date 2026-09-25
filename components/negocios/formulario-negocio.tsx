@@ -9,6 +9,7 @@ import {
   validarSlug,
 } from "../../lib/negocios/validacion";
 import { nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
+import { DOMINIO_MIPUESTO } from "../../lib/url-sitio";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
 import styles from "../../app/(admin)/dashboard/negocio/negocio.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
@@ -303,7 +304,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           {mensajeSlug}
         </p>
         <p className={styles.vistaDireccion}>
-          Dirección reservada: mipuesto.com/<strong>{slug || "tu-negocio"}</strong>
+          Dirección reservada: {DOMINIO_MIPUESTO}/<strong>{slug || "tu-negocio"}</strong>
         </p>
       </section>
 

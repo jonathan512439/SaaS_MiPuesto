@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { anclaDelCatalogo, armarEnlace, leerDestino, type ContextoDestino } from "./destino-banner";
 
 const CONTEXTO: ContextoDestino = {
-  urlCatalogo: "https://mipuesto.com/ferreteria-el-sol",
+  urlCatalogo: "https://mi-puesto.com/ferreteria-el-sol",
   telefonoWhatsapp: "71234567",
   ubicacionUrl: "https://maps.google.com/?q=el-sol",
   categorias: [
@@ -16,7 +16,7 @@ describe("a dónde lleva un banner", () => {
   it("arma el enlace de cada destino conocido", () => {
     expect(armarEnlace({ tipo: "ninguno" }, CONTEXTO)).toBeNull();
     expect(armarEnlace({ tipo: "categoria", categoriaId: "cat-1" }, CONTEXTO)).toBe(
-      "https://mipuesto.com/ferreteria-el-sol#categoria-cat-1",
+      "https://mi-puesto.com/ferreteria-el-sol#categoria-cat-1",
     );
     /* El teléfono se normaliza con el mismo código que el resto del sistema: un
        número de ocho dígitos marca bien desde Bolivia y falla desde afuera. */
@@ -42,7 +42,7 @@ describe("a dónde lleva un banner", () => {
     expect(leerDestino(null, CONTEXTO)).toEqual({ tipo: "ninguno" });
     expect(leerDestino("", CONTEXTO)).toEqual({ tipo: "ninguno" });
     expect(
-      leerDestino("https://mipuesto.com/ferreteria-el-sol#categoria-cat-2", CONTEXTO),
+      leerDestino("https://mi-puesto.com/ferreteria-el-sol#categoria-cat-2", CONTEXTO),
     ).toEqual({ tipo: "categoria", categoriaId: "cat-2" });
     expect(leerDestino("https://wa.me/59171234567", CONTEXTO)).toEqual({ tipo: "whatsapp" });
     expect(leerDestino(CONTEXTO.ubicacionUrl, CONTEXTO)).toEqual({ tipo: "ubicacion" });
@@ -56,10 +56,10 @@ describe("a dónde lleva un banner", () => {
      categoría» sería señalar una que ya no está en la lista. */
   it("degrada a dirección suelta el ancla de una categoría borrada", () => {
     expect(
-      leerDestino("https://mipuesto.com/ferreteria-el-sol#categoria-borrada", CONTEXTO),
+      leerDestino("https://mi-puesto.com/ferreteria-el-sol#categoria-borrada", CONTEXTO),
     ).toEqual({
       tipo: "otra",
-      url: "https://mipuesto.com/ferreteria-el-sol#categoria-borrada",
+      url: "https://mi-puesto.com/ferreteria-el-sol#categoria-borrada",
     });
   });
 

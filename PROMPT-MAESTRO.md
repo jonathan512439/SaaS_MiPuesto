@@ -26,8 +26,8 @@ los pedidos se cierran por WhatsApp. Cada negocio elige una de tres modalidades 
 estático, catálogo con acción por producto, o tienda con carrito y reserva temporal— y un
 **rubro**, que trae su preset de categorías, campos, armazón y paleta. No hay pasarela de
 pago ni registro de autoservicio: la suscripción se vende en persona. Moneda: bolivianos
-(Bs), con dólares donde el rubro lo exige. Zona horaria: `America/La_Paz`. Dominio
-previsto: `mipuesto.com`.
+(Bs), con dólares donde el rubro lo exige. Zona horaria: `America/La_Paz`. Dominio:
+`mi-puesto.com`, con guion (el que no lo lleva es de un tercero).
 
 ## En qué está el proyecto
 
