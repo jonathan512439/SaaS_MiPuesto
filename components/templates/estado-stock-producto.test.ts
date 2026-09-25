@@ -12,7 +12,7 @@ function producto(cambios: Partial<ProductoPlantilla> = {}): ProductoPlantilla {
     especificaciones: [],
     codigo: "PRD-1",
     nombre: "Zapatillas urbanas",
-    descripcion: null,
+    descripcion: "Livianas y cómodas",
     precio: 280,
     precioOriginal: 280,
     tienePromocion: false,
