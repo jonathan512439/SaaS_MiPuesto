@@ -1760,6 +1760,40 @@ motivo por el que este archivo existe.
     producción; ningún negocio real queda por encima (el mayor tiene 52
     productos).
 
+- **Siete observaciones del recorrido de compra y del panel, encontradas al
+  grabar el video de Kantuta Moda** (tienda de demostración en producción).
+  - Imágenes del negocio recortadas (`f851ba9`): el transformador de Supabase
+    con solo `width` recorta con `cover` y devolvía una franja —el logo de 1024
+    llegaba de 192 × 1024—. Afectaba logo, portada, banners, **QR de cobro** y la
+    vista previa compartida. `resize=contain`. Desplegado (`a28d5289`) y
+    comprobado en producción.
+  - El alta decía «No se pudo subir el logo» aunque se subía (`287a2c3`). La
+    respuesta de `/api/negocios/identidad` tiene un solo tipo; leer mal el campo
+    ya no compila (guardia rota a propósito con la lectura vieja).
+  - La marca tapaba el pedido 4 o 5 s al volver al catálogo desde un producto,
+    sin poder cortarse (`3dd8eee`). Ahora nace escondida y solo el guion la
+    presenta en una entrada nueva. Medido en el navegador: navegación interna
+    (no sale), entrada por la portada (sale y se va a los 2 s), recarga (no
+    sale) y movimiento reducido (no sale; la regla tuvo que igualar el peso de
+    la que la presenta, y la prueba se rompió primero).
+  - «Ver pedido» desde un producto abre el pedido y no solo el catálogo
+    (`a8f8011`): `?pedido=abierto`, que no es filtro, cuenta como visita
+    apuntada y se quita de la dirección al abrir. Probado: abre en 2 s con el
+    renglón «(N.º 38)» y recargar no lo reabre.
+  - Con presentaciones, ni la ficha ni la tarjeta suman existencias
+    (`585c02b`, `831b5f3`): decían «Quedan 25 unidades» junto a «38 · Quedan 3».
+  - `DESIGN.md` §2.1 al día (`a7ba680`): **el panel toma la paleta del catálogo
+    elegida en Apariencia**, solo en los acentos. Confirmado por el dueño hoy; ya
+    era lo construido en la fase 8.5.
+  - Textos del panel (`cf2d612`): «hasta cuatro» fotos sale del tope del plan;
+    la ayuda ya no promete foto cuadrada (la recorta la tarjeta); el precio usa
+    `formatearPrecioBolivianos` —«Bs 180», no «Bs 180,00»—; sin «a. m..».
+  - Verificado: `verificar` con 1102 pruebas. **Sin desplegar** los arreglos de
+    la marca, «Ver pedido», existencias y textos.
+  - Anotado, sin arreglar: pasar el horario a «Siempre abierto» **borra la
+    semana guardada** (al volver a «Horario programado» todos los días quedan
+    cerrados), y un banner subido y nunca guardado queda huérfano en Storage.
+
 ### 2026-09-24
 
 - **Los pendientes fuera del dominio, cerrados.** Siete puntos que no dependen
