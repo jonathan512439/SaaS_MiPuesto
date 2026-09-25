@@ -32,7 +32,9 @@ Los estados de producto (disponible / reservado / vendido / oculto) tienen que s
 
 ### 2.1 Paletas del catálogo público
 
-El panel administrativo conserva siempre la paleta base de MiPuesto. El dueño puede elegir para su catálogo una de cuatro paletas cerradas; no puede escribir colores arbitrarios. Cada paleta reasigna los mismos roles semánticos para que cualquier plantilla pueda usarla sin duplicar lógica.
+**El panel toma la paleta del catálogo que el dueño eligió en Apariencia.** Decidido con el dueño (fase 8.5 de `docs/plan/06-FASES.md`) y confirmado el 25 de septiembre de 2026. La paleta pinta **solo los acentos** del panel —la barra superior, lo elegido, los realces y los botones—, **nunca el fondo ni las superficies**: así el dueño reconoce el panel como suyo y sigue distinguiendo de un vistazo «estoy en el administrador» de «estoy en mi tienda». No hay una preferencia aparte para el panel: es la misma paleta del catálogo.
+
+El dueño elige una de las paletas cerradas de Apariencia (hoy dieciséis; los valores viven en `lib/apariencia.ts`); no puede escribir colores arbitrarios. Cada paleta reasigna los mismos roles semánticos para que cualquier plantilla y el panel puedan usarla sin duplicar lógica. Estas son las cuatro de partida:
 
 | Paleta | Superficie | Texto | Marca | Sobre marca | Acción | Sobre acción |
 |---|---|---|---|---|---|---|
@@ -41,7 +43,7 @@ El panel administrativo conserva siempre la paleta base de MiPuesto. El dueño p
 | Océano | `#F5FBFC` | `#14303B` | `#0F6178` | `#F5FBFC` | `#B03562` | `#F5FBFC` |
 | Noche | `#151A1C` | `#F7F3EA` | `#8FD0C9` | `#132225` | `#F29A70` | `#2B1710` |
 
-Los fondos suaves y bordes se derivan de esos roles. Las combinaciones de texto, marca y acción deben conservar al menos 4,5:1 de contraste; el foco nunca depende del color de la paleta.
+Los fondos suaves y bordes se derivan de esos roles. Las combinaciones de texto, marca y acción deben conservar al menos 4,5:1 de contraste —en el catálogo y en el panel, con cada paleta: lo comprueba el control de contraste—; el foco nunca depende del color de la paleta.
 
 ## 3. Prohibiciones explícitas (esto es lo que hace que un diseño se vea "generado")
 
