@@ -1812,6 +1812,26 @@ motivo por el que este archivo existe.
     con la cuenta de demostración: «Siempre abierto» se guarda, y al volver a
     «Horario programado» la semana sigue; los precios dicen «Bs 280».
 
+- **Antes de grabar el segundo video** («Del cuaderno al catálogo»), tres
+  arreglos más. **Sin desplegar.**
+  - El dominio es `mi-puesto.com` (`13090c9`): el alta, el formulario del
+    negocio y la portada lo toman de `DOMINIO_MIPUESTO`; la documentación y los
+    datos de ejemplo, también. `lib/marca/dominio.test.ts` rechaza el dominio
+    ajeno en `app`, `components` y `lib` (rota primero: siete archivos).
+  - Sin etiquetas en MAYÚSCULAS (`7b0e16b`): 22 reglas en 17 hojas, con su
+    espaciado. `components/ui/sin-mayusculas-de-adorno.test.ts` las vigila
+    (rota primero: 17 hojas).
+  - «mándala por partes» (`4cd9df1`) en la ayuda de «Cargar desde una foto»:
+    la guardia de vocabulario no lo ve porque «mandala» también es sustantivo.
+  - Probado de verdad «Cargar desde una foto» con un cuaderno escrito a mano:
+    la IA leyó los 8 productos con su precio exacto y usó los títulos del
+    cuaderno como categorías. Gastó 2 de las 10 lecturas del mes de la tienda
+    de demostración (una se probó sin confirmar).
+  - Anotado, sin arreglar: la creación de lo leído va **de a un producto** desde
+    el navegador; si se cierra la ventana a mitad, quedan creados solo los
+    primeros (pasó: 5 de 8). La pantalla lo advierte («No cierres esta
+    ventana»), pero no hay forma de retomar lo que faltó.
+
 ### 2026-09-24
 
 - **Los pendientes fuera del dominio, cerrados.** Siete puntos que no dependen
