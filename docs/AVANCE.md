@@ -252,7 +252,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
 | **Comprar y conectar `mi-puesto.com`**, el dominio decidido el 2026-09-25 (libre en el registro ese día). El que no lleva guion lo tiene un tercero desde 2004 (Porkbun, vence el 2027-06-18): nada del sistema ni de los videos lo menciona, y lo vigila `lib/marca/dominio.test.ts` | Registrador; al conectarlo, sumarlo al widget de Turnstile (`lib/turnstile-publico.ts`) y a `NEXT_PUBLIC_SITE_URL` |
-| Borrar la tienda de demostración **Kantuta Moda** (cuenta `nicolbelen75+demo@gmail.com`) cuando termine la campaña del video. Se lleva sus fotos y los dos banners huérfanos | Panel de plataforma |
+| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) y **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`) | Panel de plataforma |
 | Rotar la contraseña de la base y la clave secreta del proyecto **de ensayo**: se mostraron en una sesión de trabajo el 2026-09-25 | Supabase → proyecto de ensayo → Settings |
 
 ---
@@ -1833,6 +1833,20 @@ motivo por el que este archivo existe.
     el navegador; si se cierra la ventana a mitad, quedan creados solo los
     primeros (pasó: 5 de 8). La pantalla lo advierte («No cierres esta
     ventana»), pero no hay forma de retomar lo que faltó.
+
+- **Tercer video («Tu tienda lista en 4 pasos»): el alta real de una segunda
+  tienda de demostración**, «La Esquina del Sabor» (cuenta
+  `nicolbelen75+demo2@gmail.com`, rubro «Comida rápida», fuera del
+  directorio), con 7 productos y fotos libres. Al subir el logo en el alta ya
+  no aparece el aviso falso (arreglo `287a2c3`, comprobado en uso real).
+  Anotado, sin arreglar:
+  - La vista previa del paso «Tu marca» **siempre muestra hamburguesa, papas y
+    limonada**, sea cual sea el rubro (`lib/plantillas/datos-demo.ts`): una
+    tienda de ropa o una ferretería eligen su color viendo comida. Pide fotos
+    de muestra por rubro.
+  - «Comida rápida» **siembra las categorías de restaurante** («Almuerzos»,
+    «Platos a la carta», «Bebidas», «Postres»), mientras la ayuda de «Mi
+    catálogo» le sugiere «Hamburguesas», «Salchipapas» y «Bebidas».
 
 ### 2026-09-24
 
