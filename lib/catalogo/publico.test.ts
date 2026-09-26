@@ -328,6 +328,19 @@ describe("categoriasParaNavegar", () => {
     expect(categoriasParaNavegar([comida, bebidas]).map(({ id }) => id)).not.toContain("cat-2");
   });
 
+  /* Una tienda de zapatillas nace con «Ropa de dama» y «Accesorios» sembradas.
+     Si no les carga nada, esas esferas llevan a una página vacía: se esconden
+     de la barra, pero la categoría sigue ahí y vuelve a aparecer con su primer
+     producto. */
+  it("deja fuera las que no tienen productos visibles, si se sabe cuáles tienen", () => {
+    const calzado = { id: "cat-3", nombre: "Calzado", orden: 3, icono: "calzado", visible: true };
+    expect(categoriasParaNavegar([comida, calzado], new Set(["cat-3"]))).toEqual([
+      { id: "cat-3", nombre: "Calzado", icono: "calzado" },
+    ]);
+    expect(categoriasParaNavegar([comida, calzado], new Set())).toEqual([]);
+    expect(categoriasParaNavegar([comida, calzado]).map(({ id }) => id)).toEqual(["cat-1", "cat-3"]);
+  });
+
   /* Las consultas viejas no piden las columnas nuevas. Sin este valor por
      omisión, un despliegue a medias dejaría el catálogo sin ninguna esfera. */
   it("sin las columnas nuevas, la categoría se muestra igual", () => {

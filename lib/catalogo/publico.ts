@@ -428,15 +428,23 @@ export function construirCatalogoPublico(
  * los accesos rápidos de arriba», que es lo que necesita el negocio con doce
  * categorías y espacio para seis; no es esconder mercadería.
  *
+ * También se dejan fuera las que no tienen ningún producto visible, cuando se
+ * sabe cuáles tienen (`conProductos`): una tienda de zapatillas nace con «Ropa
+ * de dama» sembrada, y una esfera que lleva a una página vacía confunde. Es
+ * solo el acceso rápido: la categoría sigue en el panel y vuelve a la barra con
+ * su primer producto.
+ *
  * Va acá, con las demás funciones puras del catálogo público, para que se pueda
  * probar sin montar una página: el orden y el filtrado son justamente lo que se
  * rompe en silencio.
  */
 export function categoriasParaNavegar(
   categorias: ReadonlyArray<CategoriaPublica>,
+  conProductos?: ReadonlySet<string>,
 ): Array<{ id: string; nombre: string; icono: string }> {
   return categorias
     .filter((categoria) => categoria.visible !== false)
+    .filter((categoria) => !conProductos || conProductos.has(categoria.id))
     .map((categoria) => ({
       id: categoria.id,
       nombre: categoria.nombre,

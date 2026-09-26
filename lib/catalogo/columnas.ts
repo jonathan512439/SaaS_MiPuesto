@@ -40,6 +40,10 @@ export const COLUMNAS_PRODUCTO_PUBLICO_PAGINADO =
    inferir el tipo del resultado. */
 export const COLUMNAS_CATEGORIA = "id,nombre,orden,icono,visible,vende" as const;
 
+/* Solo de qué categoría es cada producto visible: con eso la barra del
+   catálogo público sabe qué esferas llevan a algo. */
+export const COLUMNAS_CATEGORIA_DE_PRODUCTO = "categoria_id" as const;
+
 /* Los campos de todas las categorías del negocio: el formulario de producto y
    la importación de planillas los cruzan con la categoría elegida. */
 export const COLUMNAS_ATRIBUTO_CATEGORIA =

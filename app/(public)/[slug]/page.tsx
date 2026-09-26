@@ -20,6 +20,7 @@ import {
   consultarContextoPublico,
   consultarProductosPublicos,
 } from "../../../lib/catalogo/pagina-publica";
+import { COLUMNAS_CATEGORIA_DE_PRODUCTO } from "../../../lib/catalogo/columnas";
 import { esUuid } from "../../../lib/catalogo/validacion";
 import { crearClienteSupabasePublico } from "../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
@@ -127,6 +128,7 @@ export default async function PaginaCatalogoPublico({
       resultadoPromociones,
     ],
     resultadoOptimista,
+    resultadoConProductos,
   ] = await Promise.all([
     consultarContextoPublico(supabase, negocio.id),
     consultarProductosPublicos(
@@ -135,6 +137,14 @@ export default async function PaginaCatalogoPublico({
       parametros,
       categoriaPedida,
     ),
+    /* Qué categorías tienen algo que mostrar, para no poner en la barra una
+       esfera que lleva a una página vacía. Son a lo sumo trescientas filas de
+       una columna. */
+    supabase
+      .from("productos")
+      .select(COLUMNAS_CATEGORIA_DE_PRODUCTO)
+      .eq("negocio_id", negocio.id)
+      .eq("visible", true),
   ]);
 
   const categorias = resultadoCategorias.data ?? [];
@@ -182,6 +192,15 @@ export default async function PaginaCatalogoPublico({
     throw new Error("No se pudo cargar el catálogo público.");
   }
 
+  /* Si esa lectura falla, la barra queda como antes, con todas: esconder
+     esferas de más sería peor que mostrar una vacía. */
+  const categoriasConProductos = resultadoConProductos.error
+    ? undefined
+    : new Set(
+        (resultadoConProductos.data ?? [])
+          .map(({ categoria_id }) => categoria_id)
+          .filter((id): id is string => id !== null),
+      );
   const totalProductos = resultadoProductos.count ?? 0;
   const totalPaginas = calcularTotalPaginas(totalProductos);
   const subcategorias = (resultadoSubcategorias.data ?? []).map(
@@ -230,7 +249,7 @@ export default async function PaginaCatalogoPublico({
         <div className={styles.catalogo}>
           <CatalogoInteractivo
             abrirPedidoAlLlegar={abrirPedido}
-            categoriasNavegacion={categoriasParaNavegar(categorias)}
+            categoriasNavegacion={categoriasParaNavegar(categorias, categoriasConProductos)}
             datos={catalogo.datos}
             filtros={filtros}
             paleta={catalogo.paleta}
