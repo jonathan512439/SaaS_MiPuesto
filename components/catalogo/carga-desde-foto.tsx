@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type ChangeEvent } from "react";
 
 import { AVISO_PRIVACIDAD_IA, AYUDA_LISTA } from "../../lib/ia/ayuda";
-import { prepararArchivoParaLectura } from "../../lib/ia/adjunto";
+import { esPlanilla, prepararArchivoParaLectura } from "../../lib/ia/adjunto";
+import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { Trabajando, useAvisos } from "../ui";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
@@ -46,11 +48,22 @@ export function CargaDesdeFoto({
   /* Cambia con cada lectura y sirve de `key` del paso de revisión: una lectura
      nueva monta una revisión nueva en vez de mezclarse con la anterior. */
   const [lectura, setLectura] = useState(0);
+  /* El nombre del Excel o del CSV que se eligió acá por error. Se contesta en la
+     pantalla y no en un aviso que se va solo: lo que hay que hacer es ir a otro
+     lado, y el botón para ir tiene que quedarse a la vista. */
+  const [planillaElegida, setPlanillaElegida] = useState("");
 
   async function leerArchivo(evento: ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0];
     evento.target.value = "";
     if (!archivo) return;
+
+    setPlanillaElegida("");
+    const cabecera = new Uint8Array(await archivo.slice(0, 8).arrayBuffer());
+    if (esPlanilla(cabecera, archivo.name)) {
+      setPlanillaElegida(archivo.name);
+      return;
+    }
 
     setLeyendo(true);
     setProductos([]);
@@ -156,8 +169,11 @@ export function CargaDesdeFoto({
         </label>
         <label className={styles.cargar}>
           {leyendo ? "Leyendo tu lista…" : "Elegir la foto o el PDF de la lista"}
+          {/* El Excel y el CSV se aceptan para poder contestarlos: fuera de la
+              lista, el selector los escondía y el dueño creía que su archivo no
+              servía. Elegidos, no se leen acá: se manda a importar. */}
           <input
-            accept="image/jpeg,image/png,image/webp,application/pdf"
+            accept="image/jpeg,image/png,image/webp,application/pdf,.xlsx,.xls,.csv"
             disabled={leyendo}
             onChange={(evento) => void leerArchivo(evento)}
             type="file"
@@ -168,6 +184,19 @@ export function CargaDesdeFoto({
         Llevas {fotosUsadas} de {topeFotos} lecturas este mes.{" "}
         <strong>Importar un Excel o un CSV no gasta ninguna.</strong>
       </p>
+
+      {planillaElegida ? (
+        <section aria-live="polite" className={styles.esPlanilla}>
+          <h2>
+            <strong>{planillaElegida}</strong> es una planilla
+          </h2>
+          <p>
+            Los Excel y los CSV no se leen con IA: ya son una tabla. Súbelo en «Importar una
+            planilla», que lo carga tal cual, es gratis y no gasta tus lecturas.
+          </p>
+          <Link href={RUTAS_PANEL.importar}>Ir a Importar una planilla</Link>
+        </section>
+      ) : null}
 
       {/* De una foto se muestra la foto, para poder comparar renglón por
           renglón. De un PDF se muestra el nombre: dibujarlo pediría rasterizar

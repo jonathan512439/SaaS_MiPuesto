@@ -160,6 +160,52 @@
   overflow-wrap: anywhere;
 }
 
+/* La respuesta a un Excel elegido en la herramienta de fotos. El botón lleva
+   el aspecto principal y no el degradado de IA: manda a la importación, que no
+   gasta cuota, y pintarlo de IA diría lo contrario. */
+.esPlanilla {
+  display: grid;
+  gap: var(--spacing-2);
+  justify-items: start;
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-left: var(--borde-marcado) solid var(--color-accion);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.esPlanilla h2 {
+  font-size: var(--text-base);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.esPlanilla p {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.esPlanilla a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border: var(--borde-fino) solid var(--control-principal-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--control-principal-fondo);
+  color: var(--control-principal-texto);
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: var(--sombra-suave);
+}
+
+.esPlanilla a:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
 .enCategoria {
   color: var(--color-texto-suave);
   font-size: var(--text-xs);

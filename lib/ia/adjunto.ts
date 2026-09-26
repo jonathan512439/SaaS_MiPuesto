@@ -45,6 +45,24 @@ function esPdf(cabecera: Uint8Array): boolean {
   );
 }
 
+/* Una planilla no se manda a leer: ya es una tabla, y «Importar una planilla» la
+   lee tal cual, gratis y sin interpretar nada. Llegaba acá porque la tarjeta de
+   IA es la primera de Herramientas y dice «Carga tu catálogo»; el selector
+   escondía el .xlsx, o se rechazaba con «Elige una foto o un PDF», y el dueño
+   concluía que MiPuesto no reconoce Excel.
+
+   Por contenido —el .xlsx y el .ods son ZIP, el .xls viejo es OLE— y además por
+   nombre, porque un CSV es texto y no tiene firma. Un .docx también es un ZIP,
+   pero tampoco es una foto: mandarlo al importador, que sabe decir «eso no es
+   una planilla», es mejor que el mensaje de acá. */
+const EXTENSIONES_DE_PLANILLA = /\.(xlsx|xlsm|xls|ods|csv|tsv)$/i;
+
+export function esPlanilla(cabecera: Uint8Array, nombre: string): boolean {
+  const esZip = cabecera[0] === 0x50 && cabecera[1] === 0x4b && cabecera[2] === 0x03 && cabecera[3] === 0x04;
+  const esOle = cabecera[0] === 0xd0 && cabecera[1] === 0xcf && cabecera[2] === 0x11 && cabecera[3] === 0xe0;
+  return esZip || esOle || EXTENSIONES_DE_PLANILLA.test(nombre.trim());
+}
+
 /* Se mira el contenido y no la extensión ni lo que declara el navegador. Un
    archivo renombrado a `.pdf` pasaría los dos primeros controles y se cortaría
    recién en Google, gastando una de las lecturas del día. */
