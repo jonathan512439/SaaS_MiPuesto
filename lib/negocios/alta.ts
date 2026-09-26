@@ -212,3 +212,12 @@ export function esIdPasoAlta(valor: unknown): valor is IdPasoAlta {
 export function rutaDespuesDeGuardarNegocio({ esNuevo }: { esNuevo: boolean }): string | null {
   return esNuevo ? PASOS_ALTA[0].ruta : null;
 }
+
+/* El paso de la pantalla abierta, leído de la dirección. El progreso del alta
+   vive en su layout, y un layout no se vuelve a dibujar al pasar de un paso a
+   otro con «Seguir»: con el valor del servidor se quedaba en «Paso 1 de 4»
+   durante todo el recorrido. Fuera de los cuatro pasos, vale el alcanzado. */
+export function pasoActualDeAlta(ruta: string | null, alcanzado: number): number {
+  const limpia = (ruta ?? "").replace(/\/+$/, "");
+  return PASOS_ALTA.find((paso) => paso.ruta === limpia)?.numero ?? alcanzado;
+}

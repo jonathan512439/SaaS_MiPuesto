@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 
-import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
-import { PASOS_ALTA } from "../../../lib/negocios/alta";
+import { EncabezadoAlta } from "../../../components/alta/encabezado-alta";
 import { ProveedorSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
 import { ProveedorAvisos } from "../../../components/ui";
 import { obtenerVariablesPublicasSupabase } from "../../../lib/supabase/variables";
@@ -57,48 +56,16 @@ export default async function LayoutAlta({
       <ProveedorAvisos>
         <main className={styles.contenido}>
           {/* El saludo **es** el título de la pantalla, así que usa el encabezado del
-          panel en vez de dibujar uno propio. El progreso va como contenido suyo:
-          pertenece al encabezado, no es una sección aparte. */}
-          <EncabezadoPanel
-            rotulo={`Paso ${alcanzado} de ${PASOS_ALTA.length}`}
+          panel en vez de dibujar uno propio. El progreso lo dibuja el navegador:
+          ver `EncabezadoAlta`. */}
+          <EncabezadoAlta
+            alcanzado={alcanzado}
             titulo={
               negocio.nombre_admin
                 ? `Hola, ${negocio.nombre_admin}`
                 : "Vamos a publicar tu catálogo"
             }
-          >
-            {/* Una lista ordenada y no una fila de puntos: para quien usa lector de
-            pantalla, «paso 2 de 4» tiene que poder leerse, no solo verse. */}
-            <ol className={styles.progreso}>
-              {PASOS_ALTA.map((paso) => {
-                const estado =
-                  paso.numero < alcanzado
-                    ? "hecho"
-                    : paso.numero === alcanzado
-                      ? "actual"
-                      : "pendiente";
-                return (
-                  <li
-                    className={styles.paso}
-                    data-estado={estado}
-                    key={paso.id}
-                  >
-                    <span aria-hidden="true" className={styles.disco}>
-                      {paso.numero}
-                    </span>
-                    <span className={styles.nombrePaso}>{paso.titulo}</span>
-                    <span className={styles.soloLectores}>
-                      {estado === "hecho"
-                        ? " (hecho)"
-                        : estado === "actual"
-                          ? " (acá estás)"
-                          : ""}
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-          </EncabezadoPanel>
+          />
 
           {children}
         </main>

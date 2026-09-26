@@ -5,6 +5,7 @@ import {
   esIdPasoAlta,
   estadoDeAlta,
   faltantesParaPublicar,
+  pasoActualDeAlta,
   rutaDespuesDeGuardarNegocio,
   type SituacionDelNegocio,
 } from "./alta";
@@ -187,5 +188,21 @@ describe("después de guardar el negocio", () => {
 
   it("al editarlo, se queda donde está", () => {
     expect(rutaDespuesDeGuardarNegocio({ esNuevo: false })).toBeNull();
+  });
+});
+
+/* El progreso del alta vive en su layout, y un layout no se vuelve a dibujar al
+   pasar de un paso a otro con «Seguir»: se quedaba en «Paso 1 de 4» durante
+   todo el recorrido. El paso se lee de la dirección, en el navegador. */
+describe("pasoActualDeAlta", () => {
+  it("es el de la pantalla abierta", () => {
+    expect(pasoActualDeAlta("/alta/tu-marca", 1)).toBe(3);
+    expect(pasoActualDeAlta("/alta/quien-sos", 4)).toBe(1);
+    expect(pasoActualDeAlta("/alta/tus-productos/", 2)).toBe(4);
+  });
+
+  it("fuera de los cuatro pasos, el alcanzado", () => {
+    expect(pasoActualDeAlta("/alta", 2)).toBe(2);
+    expect(pasoActualDeAlta(null, 3)).toBe(3);
   });
 });
