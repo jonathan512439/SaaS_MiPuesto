@@ -1809,6 +1809,40 @@ motivo por el que este archivo existe.
       caché de Workers (`"cache": {"enabled": true}` en `wrangler.jsonc`)
       guardó una respuesta de error.
 
+- **Las tallas, más simples de cargar: de 8 pasos a 5.** Una prenda con
+  tallas y existencias pedía pasar dos veces por el formulario del producto:
+  encender «Controlar existencias» con una cantidad para el producto entero
+  —que se descartaba— y recién ahí el editor mostraba la columna por talla.
+  Aplicado en producción (`20261031090000`) y desplegado en `57574864`.
+  - `guardar_presentaciones` recibe `p_controla_stock` y enciende o apaga la
+    cuenta en el mismo guardado de las tallas; se niega a apagarla con algo
+    apartado (`0df351c`). Probada en ensayo con
+    `npm run test:tallas-cuenta:ensayo`, guardia rota a propósito.
+  - El editor de tallas trae «Llevar la cuenta de cuántas quedan» (`9091614`).
+  - Una prenda sin presentaciones abre en lo que usan las otras de su
+    categoría o, si no hay, en lo que dice su ícono: remera, talla; calzado,
+    número (`ed40b91`, `tipoSugeridoPorCategoria`). Se dice («Sugerido por su
+    categoría») y se cambia con un toque.
+  - `verificar` con 1194 pruebas; `test:rls:linked` en verde. Validado de
+    punta a punta en local contra ensayo (alta de una tienda de ropa, las
+    cuatro categorías, encender y apagar la cuenta) y visto en el panel de
+    Kantuta Moda en producción.
+  - Kantuta Moda: sus 12 prendas y calzados ahora se eligen por talla o
+    número, con existencias por talla.
+  - **Pendientes:**
+    - La casilla «Llevar la cuenta» quedó debajo de todas las tallas: con
+      cinco hay que bajar para encontrarla. Iría mejor junto a los atajos.
+    - `npm run ensayo:estructura` falla con «cannot insert multiple commands
+      into a prepared statement»: `fase2-audit.sql` tiene 43 sentencias y el
+      ejecutor de ensayo las manda como una sola consulta. No es de este
+      cambio.
+    - En desarrollo, el diálogo de confirmación del panel se hidrata con otro
+      identificador (`_R_16_` contra `_R_16i_`). No rompe nada, pero ensucia
+      la consola.
+    - Los 503 de Cloudflare coinciden con el tope de CPU del plan gratuito de
+      Workers cuando se lo satura de pruebas y despliegues. Con clientes
+      reales hace falta el plan pago.
+
 ### 2026-09-25
 
 - **Topes de productos y fotos por plan** (`cf56f6c`, `884ec73`, `d33eebe`).
