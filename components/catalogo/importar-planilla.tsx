@@ -42,6 +42,7 @@ export function ImportarPlanilla({
   planId,
   plantillas,
   productosActuales,
+  enlaceCatalogo,
 }: {
   /* Los campos de cada categoría, por su id: los datos de la planilla se
      guardan en los de la categoría donde termine cada producto. */
@@ -61,6 +62,8 @@ export function ImportarPlanilla({
      no entra en el plan (`lib/planes.ts`). */
   planId: string;
   productosActuales: number;
+  /* La dirección del catálogo público, para el «Ver mi catálogo» del final. */
+  enlaceCatalogo?: string;
 }) {
   const { mostrarAviso } = useAvisos();
   const [leyendo, setLeyendo] = useState(false);
@@ -393,6 +396,7 @@ export function ImportarPlanilla({
           nombresDelCatalogo={nombresDelCatalogo}
           categorias={categorias}
           controlaStock={conStock}
+          enlaceCatalogo={enlaceCatalogo}
           introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agrégales fotos si quieres y saca los que no vayas a publicar.`}
           key={nombreArchivo}
           onTerminado={() => setConfirmado(true)}

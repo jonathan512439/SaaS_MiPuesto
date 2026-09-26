@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 import { ProveedorAvisos } from "../ui";
-import { RevisionDeProductos, type ProductoLeido } from "./revision-de-productos";
+import { ResultadoDeCreacion, RevisionDeProductos, type ProductoLeido } from "./revision-de-productos";
 
 /* La revisión de una planilla con tallas y datos de categoría, dibujada.
  *
@@ -116,5 +116,28 @@ describe("una importación que se cortó y se vuelve a subir", () => {
     expect(holgado).not.toContain("para poder crear los demás");
     expect(holgado).toContain("Agregar fotos (hasta 4)");
     expect(dibujar(false)).toContain("Agregar fotos (hasta 3)");
+  });
+});
+
+/* Lo que queda en pantalla al terminar de crear. Los productos ya están a la
+   vista de los clientes: el texto no puede decir «antes de publicarlo», y el
+   paso siguiente natural —ver cómo quedó— tiene que estar a un toque. */
+describe("el resultado de crear", () => {
+  const RESULTADO = { creados: 8, fotos: 0, fallidos: [], fotosFallidas: 0, advertencias: [] };
+
+  it("dice que ya están publicados y lleva al catálogo", () => {
+    const html = renderToString(
+      jsx(ResultadoDeCreacion, { resultado: RESULTADO, enlaceCatalogo: "/kallpa-zapatillas" }),
+    ).replaceAll("<!-- -->", "");
+    expect(html).toContain("8 producto(s) creado(s)");
+    expect(html).toContain("Ya están publicados en tu catálogo");
+    expect(html).not.toContain("antes de publicarlo");
+    expect(html).toContain('href="/kallpa-zapatillas"');
+    expect(html).toContain("Ver mi catálogo");
+  });
+
+  it("sin enlace, no dibuja uno roto", () => {
+    const html = renderToString(jsx(ResultadoDeCreacion, { resultado: RESULTADO }));
+    expect(html).not.toContain("Ver mi catálogo");
   });
 });

@@ -18,6 +18,7 @@ export function CargaDesdeFoto({
   planId,
   productosActuales,
   topeFotos,
+  enlaceCatalogo,
 }: {
   categorias: CategoriaCatalogo[];
   fotosUsadas: number;
@@ -33,6 +34,8 @@ export function CargaDesdeFoto({
   planId: string;
   productosActuales: number;
   topeFotos: number;
+  /* La dirección del catálogo público, para el «Ver mi catálogo» del final. */
+  enlaceCatalogo?: string;
 }) {
   const { mostrarAviso } = useAvisos();
   const [vistaPrevia, setVistaPrevia] = useState("");
@@ -185,6 +188,7 @@ export function CargaDesdeFoto({
           nombresDelCatalogo={nombresDelCatalogo}
           cobertura={cobertura}
           controlaStock={negocioLlevaStock}
+          enlaceCatalogo={enlaceCatalogo}
           introduccion={`Encontramos ${productos.length} producto(s). Lo que no leímos con seguridad viene desmarcado. Compara con tu lista antes de confirmar.`}
           key={lectura}
           planId={planId}

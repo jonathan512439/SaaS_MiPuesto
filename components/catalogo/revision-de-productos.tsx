@@ -88,6 +88,7 @@ export function RevisionDeProductos({
   onTerminado,
   planId,
   productosActuales,
+  enlaceCatalogo,
 }: {
   /* Los campos de cada categoría por su id. Con ellos, las columnas de datos
      de la planilla se guardan en la categoría donde termina el producto. */
@@ -110,6 +111,8 @@ export function RevisionDeProductos({
      mitad de una importación y sin que el dueño entienda por qué. */
   planId: string;
   productosActuales: number;
+  /* La dirección del catálogo público, para el «Ver mi catálogo» del final. */
+  enlaceCatalogo?: string;
 }) {
   const plan = planDe(planId);
   const topeFotos = plan.topes.fotosPorProducto;
@@ -118,15 +121,7 @@ export function RevisionDeProductos({
   const { mostrarAviso } = useAvisos();
   const [guardando, setGuardando] = useState(false);
   const [progreso, setProgreso] = useState("");
-  const [resultado, setResultado] = useState<{
-    creados: number;
-    fotos: number;
-    fallidos: string[];
-    fotosFallidas: number;
-    /* Lo que entró a medias: un dato que no calzaba, una talla que no se
-       guardó. El producto está creado; lo que falta se completa a mano. */
-    advertencias: string[];
-  } | null>(null);
+  const [resultado, setResultado] = useState<ResultadoDeCarga | null>(null);
 
   /* El estado arranca de las propiedades una sola vez. Quien llama vuelve a
      montar este componente con una `key` distinta cuando hay una lectura nueva:
@@ -444,35 +439,7 @@ export function RevisionDeProductos({
      que hay que leer acá es la lista de los que no entraron, y esa lista no
      puede desaparecer a los cinco segundos. */
   if (resultado) {
-    return (
-      <section className={styles.revision}>
-        <h2>{resultado.creados} producto(s) creado(s)</h2>
-        {resultado.fotos > 0 ? <p>Se subieron {resultado.fotos} fotografía(s).</p> : null}
-        {resultado.fotosFallidas > 0 ? (
-          <p>
-            {resultado.fotosFallidas} fotografía(s) no se pudieron subir. Los productos sí quedaron
-            creados: puedes agregarles la foto desde el catálogo.
-          </p>
-        ) : null}
-        <p>
-          {resultado.fallidos.length > 0
-            ? `No se pudieron crear: ${resultado.fallidos.slice(0, 3).join(", ")}.`
-            : "Ya están en tu catálogo. Revisa los precios antes de publicarlo."}
-        </p>
-        {/* Se listan todas y no las tres primeras: cada una es algo que el
-            dueño tiene que completar a mano, y la que no se ve no se completa. */}
-        {resultado.advertencias.length > 0 ? (
-          <div className={styles.advertencias}>
-            <h3>Para completar a mano</h3>
-            <ul>
-              {resultado.advertencias.map((advertencia) => (
-                <li key={advertencia}>{advertencia}</li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-      </section>
-    );
+    return <ResultadoDeCreacion enlaceCatalogo={enlaceCatalogo} resultado={resultado} />;
   }
 
   return (
@@ -740,6 +707,62 @@ export function RevisionDeProductos({
           : "Se crean sin existencias."}{" "}
         <strong>Revisa los precios antes de publicar.</strong>
       </p>
+    </section>
+  );
+}
+
+export type ResultadoDeCarga = {
+  creados: number;
+  fotos: number;
+  fallidos: string[];
+  fotosFallidas: number;
+  /* Lo que entró a medias: un dato que no calzaba, una talla que no se
+     guardó. El producto está creado; lo que falta se completa a mano. */
+  advertencias: string[];
+};
+
+/* Lo que queda en pantalla al terminar. Los productos ya están a la vista de
+   los clientes, así que el paso siguiente natural —ver cómo quedaron— va a un
+   toque. Sin la dirección del catálogo no se dibuja el enlace. */
+export function ResultadoDeCreacion({
+  resultado,
+  enlaceCatalogo,
+}: {
+  resultado: ResultadoDeCarga;
+  enlaceCatalogo?: string;
+}) {
+  return (
+    <section className={styles.revision}>
+      <h2>{resultado.creados} producto(s) creado(s)</h2>
+      {resultado.fotos > 0 ? <p>Se subieron {resultado.fotos} fotografía(s).</p> : null}
+      {resultado.fotosFallidas > 0 ? (
+        <p>
+          {resultado.fotosFallidas} fotografía(s) no se pudieron subir. Los productos sí quedaron
+          creados: puedes agregarles la foto desde el catálogo.
+        </p>
+      ) : null}
+      <p>
+        {resultado.fallidos.length > 0
+          ? `No se pudieron crear: ${resultado.fallidos.slice(0, 3).join(", ")}.`
+          : "Ya están publicados en tu catálogo. Revisa que los precios estén bien."}
+      </p>
+      {/* Se listan todas y no las tres primeras: cada una es algo que el
+          dueño tiene que completar a mano, y la que no se ve no se completa. */}
+      {resultado.advertencias.length > 0 ? (
+        <div className={styles.advertencias}>
+          <h3>Para completar a mano</h3>
+          <ul>
+            {resultado.advertencias.map((advertencia) => (
+              <li key={advertencia}>{advertencia}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {enlaceCatalogo ? (
+        <a className={styles.verCatalogo} href={enlaceCatalogo} rel="noreferrer" target="_blank">
+          Ver mi catálogo
+        </a>
+      ) : null}
     </section>
   );
 }

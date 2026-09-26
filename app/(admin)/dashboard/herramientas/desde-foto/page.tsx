@@ -27,7 +27,7 @@ export default async function PaginaCargaDesdeFoto() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("id,foto_ia_habilitada,plan_id")
+    .select("id,slug,foto_ia_habilitada,plan_id")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
@@ -83,6 +83,7 @@ export default async function PaginaCargaDesdeFoto() {
 
       <CargaDesdeFoto
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
+        enlaceCatalogo={`/${negocio.slug}`}
         fotosUsadas={uso?.cantidad ?? 0}
         negocioLlevaStock={negocioLlevaStock}
         nombresDelCatalogo={(productosActuales ?? []).map(({ nombre }) => nombre)}
