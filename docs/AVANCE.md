@@ -252,7 +252,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
 | **Comprar y conectar `mi-puesto.com`**, el dominio decidido el 2026-09-25 (libre en el registro ese día). El que no lleva guion lo tiene un tercero desde 2004 (Porkbun, vence el 2027-06-18): nada del sistema ni de los videos lo menciona, y lo vigila `lib/marca/dominio.test.ts` | Registrador; al conectarlo, sumarlo al widget de Turnstile (`lib/turnstile-publico.ts`) y a `NEXT_PUBLIC_SITE_URL` |
-| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`), **Mundo Mil Cosas** (`nicolbelen75+demo3@gmail.com`, rubro «Importados y variedades», 16 productos) y **Kallpa Zapatillas** (`nicolbelen75+demo4@gmail.com`, 8 modelos) | Panel de plataforma |
+| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`), **Mundo Mil Cosas** (`nicolbelen75+demo3@gmail.com`, rubro «Importados y variedades», 16 productos) **Kallpa Zapatillas** (`nicolbelen75+demo4@gmail.com`, 8 modelos) y **Brasa Urbana** (`nicolbelen75+demo5@gmail.com`, 13 platos) | Panel de plataforma |
 | Rotar la contraseña de la base y la clave secreta del proyecto **de ensayo**: se mostraron en una sesión de trabajo el 2026-09-25 | Supabase → proyecto de ensayo → Settings |
 
 ---
@@ -1761,6 +1761,19 @@ motivo por el que este archivo existe.
   - Observación sin corregir: el texto de ejemplo de «Tu nombre» en el alta
     trae el nombre de la cuenta; y las cuatro categorías sembradas vacías
     ocupan la primera página de «Mi catálogo».
+
+- **Sexto video («Acerca tu celular y aparece la carta», la tarjeta de
+  acrílico con QR y NFC): el rubro pisaba la modalidad elegida** (`f390363`,
+  **sin desplegar**). Al elegir el rubro en el alta, la siembra aplicaba
+  siempre la modalidad sugerida: un restaurante creado con «Tienda con
+  carrito» y número de mesa quedaba, sin aviso, con pedidos de a un producto
+  por WhatsApp, y la mesa no servía. Ahora la sugerencia solo aplica si el
+  negocio sigue en la modalidad por omisión (`modalidadDespuesDeSembrar`,
+  prueba rota a propósito). `verificar` con 1166 pruebas.
+  - Tienda de demostración nueva, **«Brasa Urbana»**
+    (`nicolbelen75+demo5@gmail.com`, rubro «Restaurante», carrito y número de
+    mesa): 13 platos con fotos desde un Excel. Su modalidad se corrigió a mano
+    desde «Mi negocio».
 
 ### 2026-09-25
 
