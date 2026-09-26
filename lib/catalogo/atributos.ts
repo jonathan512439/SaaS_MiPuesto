@@ -290,7 +290,10 @@ export function formatearValor(atributo: Atributo, valor: unknown): string | nul
   if (atributo.tipo === "numero") {
     const numero = typeof valor === "number" ? valor : Number(valor);
     if (!Number.isFinite(numero)) return null;
-    return atributo.unidad ? `${numero} ${atributo.unidad}` : String(numero);
+    /* Con coma decimal, como los precios: «1,5 kg». Sin separador de miles:
+       «2015» es un año y «1500 W» se lee bien así. */
+    const escrito = String(numero).replace(".", ",");
+    return atributo.unidad ? `${escrito} ${atributo.unidad}` : escrito;
   }
   return typeof valor === "string" ? valor : null;
 }

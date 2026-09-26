@@ -240,6 +240,14 @@ describe("formatearValor", () => {
     expect(formatearValor(definicion({ tipo: "numero" }), 2015)).toBe("2015");
   });
 
+  /* En Bolivia el decimal va con coma, como en los precios: un alimento de
+     «1.5 kg» se lee raro en la tarjeta y en el mensaje de WhatsApp. */
+  it("escribe los decimales con coma", () => {
+    expect(formatearValor(definicion({ tipo: "numero", unidad: "kg" }), 1.5)).toBe("1,5 kg");
+    expect(formatearValor(definicion({ tipo: "numero", unidad: "kg" }), "0.75")).toBe("0,75 kg");
+    expect(formatearValor(definicion({ tipo: "numero" }), 2.5)).toBe("2,5");
+  });
+
   it("traduce el sí y el no", () => {
     expect(formatearValor(definicion({ tipo: "si_no" }), true)).toBe("Sí");
     expect(formatearValor(definicion({ tipo: "si_no" }), false)).toBe("No");
