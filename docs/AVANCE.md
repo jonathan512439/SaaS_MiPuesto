@@ -1858,6 +1858,23 @@ motivo por el que este archivo existe.
     «Consultas» y agenda que una tienda no usa, y «Accesorios y bisutería»
     siembra «Ropa de dama» y «Calzado». Renombrar no alcanza.
 
+- **Cuarto video (tienda de variedades): dos arreglos antes de grabar**
+  (sin desplegar).
+  - Rubro público nuevo **«Importados y variedades»** (`231a169`): la tienda
+    de juguetes, casa, tecnología y regalos no tenía dónde caer; como «Tienda
+    de barrio» su vista previa mostraba abarrotes. Usa la siembra `otro`
+    —empieza sin categorías y las arma con su planilla—, con guía y dibujo en
+    el directorio. Migración `20261030090000_rubro_importados_y_variedades.sql`
+    que vuelve a crear las dos restricciones de rubro; la prueba de sincronía
+    ahora lee la **última** versión de cada una y se rompió a propósito
+    quitando el rubro de la migración. **Hay que aplicar la migración en
+    producción antes de que alguien lo elija**: el panel ya lo ofrece.
+  - La importación decía «corregilo si no coincide» (`990cac0`). La guardia de
+    vocabulario no leía el texto de JSX que sigue a una expresión `{…}`, y
+    descartaba como código cualquier texto con «fila(s)». Ahora lo lee; no
+    apareció ningún otro caso. Rota a propósito antes del arreglo.
+  - Verificado: `verificar` con 1155 pruebas.
+
 ### 2026-09-24
 
 - **Los pendientes fuera del dominio, cerrados.** Siete puntos que no dependen
