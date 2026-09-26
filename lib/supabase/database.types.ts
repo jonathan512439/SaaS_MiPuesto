@@ -1385,6 +1385,7 @@ export type Database = {
       }
       guardar_presentaciones: {
         Args: {
+          p_controla_stock?: boolean
           p_existencias_producto?: number
           p_presentaciones: Json
           p_producto_id: string
