@@ -106,6 +106,9 @@ export function EditorDeVariantes({
   const [conMedios, setConMedios] = useState(false);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [guardando, setGuardando] = useState(false);
+  /* Si el tipo lo sugirió la categoría: se dice, para que no parezca una
+     elección que el dueño no hizo. */
+  const [sugeridoPorCategoria, setSugeridoPorCategoria] = useState(false);
   const { mostrarAviso } = useAvisos();
 
   useEffect(() => {
@@ -113,11 +116,19 @@ export function EditorDeVariantes({
     void (async () => {
       try {
         const respuesta = await fetch(`/api/catalogo/productos/${productoId}/variantes`);
-        const datos = (await respuesta.json()) as { variantes?: FilaGuardada[]; tipo?: string };
+        const datos = (await respuesta.json()) as {
+          variantes?: FilaGuardada[];
+          tipo?: string;
+          sugerido?: string | null;
+        };
         if (!vigente) return;
-        const tipoGuardado = esTipoPresentacion(datos.tipo) ? datos.tipo : "presentacion";
-        setTipo(tipoGuardado);
         const filas = (datos.variantes ?? []).map(aEdicion);
+        /* Sin presentaciones todavía, abre en lo que sugiere la categoría: la
+           polera nueva, en «Talla» con sus atajos a la vista. */
+        const sugerido = filas.length === 0 && esTipoPresentacion(datos.sugerido) ? datos.sugerido : null;
+        const tipoGuardado = sugerido ?? (esTipoPresentacion(datos.tipo) ? datos.tipo : "presentacion");
+        setTipo(tipoGuardado);
+        setSugeridoPorCategoria(sugerido !== null);
         setVariantes(ordenarPresentaciones(tipoGuardado, filas));
         setCantidadGuardada(filas.length);
       } catch {
@@ -253,6 +264,7 @@ export function EditorDeVariantes({
                 name={`tipo-presentacion-${productoId}`}
                 onChange={() => {
                   setTipo(opcion);
+                  setSugeridoPorCategoria(false);
                   setVariantes((actuales) => ordenarPresentaciones(opcion, actuales ?? []));
                   setErrores({});
                 }}
@@ -264,6 +276,10 @@ export function EditorDeVariantes({
           ))}
         </div>
       </fieldset>
+
+      {sugeridoPorCategoria ? (
+        <p className={styles.nota}>Sugerido por su categoría. Puedes elegir otro.</p>
+      ) : null}
 
       {atajos.length > 0 ? (
         <div className={styles.atajos}>

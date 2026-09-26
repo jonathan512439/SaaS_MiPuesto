@@ -106,6 +106,39 @@ export function controlDeExistenciasPedido(
     : { controlaStock: actual, cambio: null };
 }
 
+/* Cómo abre el editor de una prenda que todavía no tiene presentaciones.
+ *
+ * Primero, lo que ya usan las otras de su categoría: si las poleras se eligen
+ * por talla, la polera nueva también. Si todavía no hay ninguna, lo que dice el
+ * ícono de la categoría: una remera se elige por talla y un zapato por número.
+ * Solo sugiere: el dueño elige otro tipo con un toque, y nada se guarda hasta
+ * que guarda.
+ */
+const ICONOS_POR_TALLA: ReadonlySet<string> = new Set(["remera", "bebe"]);
+const ICONOS_POR_NUMERO: ReadonlySet<string> = new Set(["calzado"]);
+
+function tipoPorIcono(icono: string | null): TipoPresentacion | null {
+  if (icono === null) return null;
+  if (ICONOS_POR_TALLA.has(icono)) return "talla";
+  if (ICONOS_POR_NUMERO.has(icono)) return "numero";
+  return null;
+}
+
+export function tipoSugeridoPorCategoria(
+  tiposDeLaCategoria: ReadonlyArray<string | null>,
+  iconoDeLaCategoria: string | null,
+): TipoPresentacion | null {
+  const cuentas = new Map<TipoPresentacion, number>();
+  for (const tipo of tiposDeLaCategoria) {
+    if (esTipoPresentacion(tipo)) cuentas.set(tipo, (cuentas.get(tipo) ?? 0) + 1);
+  }
+  const ordenados = [...cuentas.entries()].sort((a, b) => b[1] - a[1]);
+  const [primero, segundo] = ordenados;
+  if (primero && (!segundo || primero[1] > segundo[1])) return primero[0];
+  /* Sin otras, o con un empate: decide el ícono, si dice algo. */
+  return tipoPorIcono(iconoDeLaCategoria);
+}
+
 /* Lo que el editor de tallas manda al guardar.
  *
  * El control de existencias viaja siempre: la base solo lo aplica si cambió.

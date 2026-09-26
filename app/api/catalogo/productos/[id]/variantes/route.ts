@@ -5,8 +5,14 @@ import {
   obtenerContextoAdminCatalogo,
 } from "../../../../../../lib/catalogo/servidor";
 import {
+  COLUMNAS_ICONO_DE_CATEGORIA,
+  COLUMNAS_PRESENTACION_DE_PRODUCTO,
+  COLUMNAS_TIPO_DE_PRESENTACION,
+} from "../../../../../../lib/catalogo/columnas";
+import {
   controlDeExistenciasPedido,
   esTipoPresentacion,
+  tipoSugeridoPorCategoria,
   validarVariantes,
 } from "../../../../../../lib/catalogo/variantes";
 import { esUuid } from "../../../../../../lib/catalogo/validacion";
@@ -45,7 +51,7 @@ export async function GET(
       .order("orden"),
     contexto.supabase
       .from("productos")
-      .select("tipo_presentacion")
+      .select(COLUMNAS_PRESENTACION_DE_PRODUCTO)
       .eq("id", id)
       .eq("negocio_id", contexto.negocio.id)
       .maybeSingle(),
@@ -53,7 +59,39 @@ export async function GET(
   if (error) {
     return NextResponse.json({ error: "No se pudieron leer las presentaciones." }, { status: 500 });
   }
-  return NextResponse.json({ variantes: data, tipo: producto?.tipo_presentacion ?? "presentacion" });
+
+  /* Una prenda sin presentaciones abre el editor en lo que usan las otras de
+     su categoría, o en lo que dice su ícono. Es solo una sugerencia: si la
+     lectura falla, el editor abre como siempre. */
+  let sugerido = null;
+  if ((data ?? []).length === 0 && producto?.categoria_id) {
+    const [{ data: otras }, { data: categoria }] = await Promise.all([
+      contexto.supabase
+        .from("productos")
+        .select(COLUMNAS_TIPO_DE_PRESENTACION)
+        .eq("negocio_id", contexto.negocio.id)
+        .eq("categoria_id", producto.categoria_id)
+        .eq("con_presentaciones", true)
+        .is("eliminado_en", null)
+        .neq("id", id)
+        .limit(200),
+      contexto.supabase
+        .from("categorias")
+        .select(COLUMNAS_ICONO_DE_CATEGORIA)
+        .eq("id", producto.categoria_id)
+        .eq("negocio_id", contexto.negocio.id)
+        .maybeSingle(),
+    ]);
+    sugerido = tipoSugeridoPorCategoria(
+      (otras ?? []).map((otra) => otra.tipo_presentacion),
+      categoria?.icono ?? null,
+    );
+  }
+  return NextResponse.json({
+    variantes: data,
+    tipo: producto?.tipo_presentacion ?? "presentacion",
+    sugerido,
+  });
 }
 
 /* Los errores de `guardar_presentaciones`, dichos para el dueño. La base es la

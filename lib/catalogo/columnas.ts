@@ -52,3 +52,12 @@ export const COLUMNAS_ATRIBUTO_CATEGORIA =
 /* Solo el nombre: la revisión de una importación lo compara con lo leído para
    no duplicar productos que ya existen. */
 export const COLUMNAS_NOMBRE_PRODUCTO = "nombre" as const;
+
+/* Lo que el editor de presentaciones necesita del producto: cómo se elige hoy y
+   de qué categoría es, para sugerir el tipo a una prenda que todavía no tiene. */
+export const COLUMNAS_PRESENTACION_DE_PRODUCTO = "tipo_presentacion,categoria_id" as const;
+
+/* Cómo se eligen las otras de la categoría, y el ícono de la categoría: las dos
+   pistas de `tipoSugeridoPorCategoria`. */
+export const COLUMNAS_TIPO_DE_PRESENTACION = "tipo_presentacion" as const;
+export const COLUMNAS_ICONO_DE_CATEGORIA = "icono" as const;

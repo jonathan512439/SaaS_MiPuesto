@@ -6,6 +6,7 @@ import {
   precioDeVariante,
   controlDeExistenciasPedido,
   cuerpoDeGuardadoDePresentaciones,
+  tipoSugeridoPorCategoria,
   validarVariantes,
 } from "./variantes";
 
@@ -231,5 +232,31 @@ describe("cuerpoDeGuardadoDePresentaciones", () => {
   it("agrega las existencias del producto solo cuando se piden", () => {
     expect(cuerpoDeGuardadoDePresentaciones("talla", [], true, 7).existenciasProducto).toBe(7);
     expect("existenciasProducto" in cuerpoDeGuardadoDePresentaciones("talla", tallas, true)).toBe(false);
+  });
+});
+
+/* Una prenda nueva abre el editor de tallas en lo que usan las otras de su
+   categoría y, si todavía no hay ninguna, en lo que sugiere su ícono. */
+describe("tipoSugeridoPorCategoria", () => {
+  it("sigue a lo que ya usan las otras de la categoría", () => {
+    expect(tipoSugeridoPorCategoria(["talla", "talla", "numero"], "calzado")).toBe("talla");
+    expect(tipoSugeridoPorCategoria(["tamano"], null)).toBe("tamano");
+  });
+
+  it("sin otras con presentaciones, mira el ícono", () => {
+    expect(tipoSugeridoPorCategoria([], "remera")).toBe("talla");
+    expect(tipoSugeridoPorCategoria([], "bebe")).toBe("talla");
+    expect(tipoSugeridoPorCategoria([], "calzado")).toBe("numero");
+  });
+
+  it("con un empate, decide el ícono; sin ícono que diga algo, no sugiere", () => {
+    expect(tipoSugeridoPorCategoria(["talla", "numero"], "calzado")).toBe("numero");
+    expect(tipoSugeridoPorCategoria(["talla", "numero"], "reloj")).toBeNull();
+  });
+
+  it("no sugiere lo que no sabe ni lo que no es un tipo", () => {
+    expect(tipoSugeridoPorCategoria([], "reloj")).toBeNull();
+    expect(tipoSugeridoPorCategoria([], null)).toBeNull();
+    expect(tipoSugeridoPorCategoria([null, "cualquiera"], null)).toBeNull();
   });
 });
