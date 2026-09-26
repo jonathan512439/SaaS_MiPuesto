@@ -5,6 +5,7 @@ import {
   obtenerContextoAdminCatalogo,
 } from "../../../../lib/catalogo/servidor";
 import { esUuid } from "../../../../lib/catalogo/validacion";
+import { limpiarNombreDeRecurso } from "../../../../lib/agenda/recursos";
 
 /* Los recursos del negocio: quién hace el trabajo.
  *
@@ -14,12 +15,6 @@ import { esUuid } from "../../../../lib/catalogo/validacion";
 
 const COLUMNAS = "id,nombre,orden,activo,acepta_reservas" as const;
 const MAXIMO_RECURSOS = 20;
-
-function nombreLimpio(valor: unknown): string | null {
-  if (typeof valor !== "string") return null;
-  const nombre = valor.trim().replace(/\s+/g, " ");
-  return nombre.length >= 1 && nombre.length <= 60 ? nombre : null;
-}
 
 export async function GET() {
   const contexto = await obtenerContextoAdminCatalogo();
@@ -47,7 +42,7 @@ export async function POST(solicitud: NextRequest) {
   if (!entrada.correcto || typeof entrada.datos !== "object" || entrada.datos === null) {
     return NextResponse.json({ error: "Los datos enviados no son válidos." }, { status: 400 });
   }
-  const nombre = nombreLimpio((entrada.datos as Record<string, unknown>).nombre);
+  const nombre = limpiarNombreDeRecurso((entrada.datos as Record<string, unknown>).nombre);
   if (!nombre) {
     return NextResponse.json({ error: "Escribe cómo se llama: «Dr. Ana», «Consultorio 2»." }, { status: 400 });
   }
@@ -95,7 +90,7 @@ export async function PATCH(solicitud: NextRequest) {
 
   const cambios: { nombre?: string; activo?: boolean; acepta_reservas?: boolean } = {};
   if (datos.nombre !== undefined) {
-    const nombre = nombreLimpio(datos.nombre);
+    const nombre = limpiarNombreDeRecurso(datos.nombre);
     if (!nombre) return NextResponse.json({ error: "El nombre no es válido." }, { status: 400 });
     cambios.nombre = nombre;
   }

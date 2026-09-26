@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { describirCita } from "../../lib/agenda/horarios";
 import { resumirFranjas, leerFranjas } from "../../lib/agenda/franjas";
+import { LARGO_MAXIMO_NOMBRE_RECURSO, nombreParaRenombrar } from "../../lib/agenda/recursos";
 import { EditorDeAgenda } from "../catalogo/editor-de-agenda";
 import { Boton, Campo, Selector, useAvisos, useConfirmacion } from "../ui";
 import styles from "./gestor-agenda.module.css";
@@ -367,7 +368,10 @@ export function GestorAgenda({
     }
   }
 
-  async function cambiarRecurso(id: string, cambio: { acepta_reservas?: boolean; activo?: boolean }) {
+  async function cambiarRecurso(
+    id: string,
+    cambio: { acepta_reservas?: boolean; activo?: boolean; nombre?: string },
+  ) {
     setOcupado(id);
     try {
       const respuesta = await fetch("/api/catalogo/recursos", {
@@ -820,7 +824,17 @@ export function GestorAgenda({
                   </p>
                 ) : null}
 
-                {abierto ? <EditorDeAgenda recursoId={recurso.id} /> : null}
+                {abierto ? (
+                  <>
+                    <NombreDeRecurso
+                      guardando={ocupado === recurso.id}
+                      id={recurso.id}
+                      nombre={recurso.nombre}
+                      onGuardar={(nombre) => void cambiarRecurso(recurso.id, { nombre })}
+                    />
+                    <EditorDeAgenda recursoId={recurso.id} />
+                  </>
+                ) : null}
               </li>
             );
           })}
@@ -840,6 +854,48 @@ export function GestorAgenda({
           </Boton>
         </div>
       </section>
+    </div>
+  );
+}
+
+/* Cambiarle el nombre a quien atiende. El rubro lo siembra con el de la
+   categoría —«Consultas»— y el dueño lo cambia una vez por el de la persona:
+   «Dra. Paola». Vive dentro de «Horario» y no en la cabecera porque se usa
+   una vez, y la cabecera es lo que se toca todos los días. */
+export function NombreDeRecurso({
+  id,
+  nombre,
+  guardando,
+  onGuardar,
+}: {
+  id: string;
+  nombre: string;
+  guardando: boolean;
+  onGuardar: (nombre: string) => void;
+}) {
+  const [escrito, setEscrito] = useState(nombre);
+  const nuevo = nombreParaRenombrar(nombre, escrito);
+  return (
+    <div className={styles.nuevo}>
+      <Campo
+        etiqueta="Cómo se llama"
+        id={`nombre-recurso-${id}`}
+        maxLength={LARGO_MAXIMO_NOMBRE_RECURSO}
+        onChange={(evento) => setEscrito(evento.target.value)}
+        placeholder="Dra. Ana, Consultorio 2"
+        value={escrito}
+      />
+      <Boton
+        cargando={guardando}
+        disabled={nuevo === null}
+        onClick={() => {
+          if (nuevo) onGuardar(nuevo);
+        }}
+        type="button"
+        variante="secundario"
+      >
+        Cambiar nombre
+      </Boton>
     </div>
   );
 }
