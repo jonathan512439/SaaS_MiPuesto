@@ -252,7 +252,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
 | **Comprar y conectar `mi-puesto.com`**, el dominio decidido el 2026-09-25 (libre en el registro ese día). El que no lleva guion lo tiene un tercero desde 2004 (Porkbun, vence el 2027-06-18): nada del sistema ni de los videos lo menciona, y lo vigila `lib/marca/dominio.test.ts` | Registrador; al conectarlo, sumarlo al widget de Turnstile (`lib/turnstile-publico.ts`) y a `NEXT_PUBLIC_SITE_URL` |
-| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`), **Mundo Mil Cosas** (`nicolbelen75+demo3@gmail.com`, rubro «Importados y variedades», 16 productos) **Kallpa Zapatillas** (`nicolbelen75+demo4@gmail.com`, 8 modelos) y **Brasa Urbana** (`nicolbelen75+demo5@gmail.com`, 13 platos) | Panel de plataforma |
+| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`), **Mundo Mil Cosas** (`nicolbelen75+demo3@gmail.com`, rubro «Importados y variedades», 16 productos) **Kallpa Zapatillas** (`nicolbelen75+demo4@gmail.com`, 8 modelos) **Brasa Urbana** (`nicolbelen75+demo5@gmail.com`, 13 platos) y **Huellitas Veterinaria** (`nicolbelen75+demo6@gmail.com`, 15 productos, citas y un pedido) | Panel de plataforma |
 | Rotar la contraseña de la base y la clave secreta del proyecto **de ensayo**: se mostraron en una sesión de trabajo el 2026-09-25 | Supabase → proyecto de ensayo → Settings |
 
 ---
@@ -1774,6 +1774,40 @@ motivo por el que este archivo existe.
     (`nicolbelen75+demo5@gmail.com`, rubro «Restaurante», carrito y número de
     mesa): 13 platos con fotos desde un Excel. Su modalidad se corrigió a mano
     desde «Mi negocio».
+
+- **Séptimo y octavo video («Tu menú, a un toque» y «Ni un turno cruzado», la
+  agenda completa de una veterinaria): cuatro arreglos**, cada guardia rota a
+  propósito; `verificar` con 1179 pruebas. Desplegados en `5dfbe63c` y
+  empujados.
+  - **El nombre de quien atiende no se podía cambiar** (`c451eaf`): el rubro lo
+    siembra con el de la categoría —«Consultas», «Vacunación»— y el panel no
+    tenía cómo cambiarlo, aunque la ruta ya lo aceptaba. Ahora hay un campo
+    «Cómo se llama» dentro de «Horario». La validación del nombre pasa a
+    `lib/agenda/recursos.ts`, compartida por la ruta y el panel. Primera prueba
+    de dibujo de «Cronograma».
+  - Los datos con decimales se mostraban con punto, «1.5 kg» (`3996e09`):
+    ahora «1,5 kg», como los precios.
+  - **El horario de quien atiende ocupaba media pantalla** (`38737fd`): once
+    tramos seguidos. Ahora se agrupa: «Lun a Vie 08:30–12:00 y 14:30–18:30 ·
+    Sáb 09:00–13:00».
+  - El aviso al pausar reservas decía «hasta el 2026-09-28» (`1889ee7`): ahora
+    «hasta el Lun 28/9», como la línea de abajo.
+  - Tienda de demostración nueva, **«Huellitas Veterinaria»**
+    (`nicolbelen75+demo6@gmail.com`, rubro «Veterinaria», carrito): 15
+    productos con fotos libres desde la plantilla del rubro, tres agendas con
+    nombre de persona, citas de relleno cargadas a mano, una cita y un pedido
+    reales hechos desde un celular (el pedido, vendido).
+  - **Pendientes sin explicar:**
+    - Huellitas se creó eligiendo «Tienda con carrito» y quedó en «Catálogo
+      para mostrar». Ni la creación, ni el alta, ni la base la cambian; hay
+      que reproducirlo en la base de ensayo con una cuenta nueva.
+    - Cloudflare devolvió 503 vacíos: en 3 de 11 turnos cargados a mano (uno
+      se guardó igual, y reintentar lo habría duplicado) y, después, en
+      `/huellitas-veterinaria` sin parámetros. Ese 503 no traía cabeceras de
+      la aplicación ni pasaba por la caché del CDN, y con cualquier parámetro
+      la página cargaba; se fue con el despliegue siguiente. Sospecha: la
+      caché de Workers (`"cache": {"enabled": true}` en `wrangler.jsonc`)
+      guardó una respuesta de error.
 
 ### 2026-09-25
 
