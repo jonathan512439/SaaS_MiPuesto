@@ -16,6 +16,10 @@ import { RUTAS_PANEL } from "../../lib/panel/rutas";
  * tiene por qué volver a tipearla; ofrecerle «cárgalos a mano» de entrada es
  * pedirle una tarde de trabajo antes de haber visto si el sistema le sirve.
  *
+ * La foto solo si la plataforma le habilitó la IA a este negocio. Se ofrecía
+ * siempre, y sin la IA esa pantalla no existe: el dueño la elegía, el alta se
+ * cerraba y caía en Herramientas sin la herramienta que había elegido.
+ *
  * No exige cargar nada para terminar. Un catálogo vacío se puede publicar, y la
  * lista de «lo que falta» de la pantalla de inicio se encarga de recordárselo
  * cada vez que entre. Trabar el alta acá dejaría a quien quiere mirar primero y
@@ -24,9 +28,12 @@ import { RUTAS_PANEL } from "../../lib/panel/rutas";
 export function PasoTusProductos({
   productos,
   categorias,
+  conFotoIa,
 }: {
   productos: number;
   categorias: number;
+  /* Si la plataforma le habilitó la lectura de fotos con IA. */
+  conFotoIa: boolean;
 }) {
   const router = useRouter();
   const { mostrarAviso } = useAvisos();
@@ -67,23 +74,25 @@ export function PasoTusProductos({
       </div>
 
       <ol className={styles.caminos}>
-        <li>
-          {/* A las herramientas, que es donde viven. Apuntaban a «Mi catálogo» con
-              un `?asistente=` que ninguna pantalla leía —quedaron de antes de que
-              las dos herramientas se mudaran— y el dueño caía en la lista de
-              categorías sin entender qué pasó. */}
-          <Link
-            className={styles.camino}
-            href={RUTAS_PANEL.desdeFoto}
-            onClick={(evento) => {
-              evento.preventDefault();
-              void terminar(RUTAS_PANEL.desdeFoto);
-            }}
-          >
-            <strong>Sácale una foto a tu lista de precios</strong>
-            <span>La leemos y armamos los productos. Es lo más rápido si ya la tienes escrita.</span>
-          </Link>
-        </li>
+        {conFotoIa ? (
+          <li>
+            {/* A las herramientas, que es donde viven. Apuntaban a «Mi catálogo»
+                con un `?asistente=` que ninguna pantalla leía —quedaron de antes
+                de que las dos herramientas se mudaran— y el dueño caía en la
+                lista de categorías sin entender qué pasó. */}
+            <Link
+              className={styles.camino}
+              href={RUTAS_PANEL.desdeFoto}
+              onClick={(evento) => {
+                evento.preventDefault();
+                void terminar(RUTAS_PANEL.desdeFoto);
+              }}
+            >
+              <strong>Sácale una foto a tu lista de precios</strong>
+              <span>La leemos y armamos los productos. Es lo más rápido si ya la tienes escrita.</span>
+            </Link>
+          </li>
+        ) : null}
         <li>
           <Link
             className={styles.camino}

@@ -12,7 +12,7 @@ export default async function PaginaTusProductos() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("id")
+    .select("id,foto_ia_habilitada")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -24,5 +24,11 @@ export default async function PaginaTusProductos() {
     supabase.from("categorias").select("id", { count: "exact", head: true }).eq("negocio_id", negocio.id),
   ]);
 
-  return <PasoTusProductos categorias={categorias ?? 0} productos={productos ?? 0} />;
+  return (
+    <PasoTusProductos
+      categorias={categorias ?? 0}
+      conFotoIa={negocio.foto_ia_habilitada === true}
+      productos={productos ?? 0}
+    />
+  );
 }
