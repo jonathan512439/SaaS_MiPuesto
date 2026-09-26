@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Boton, useAvisos } from "../ui";
 import styles from "./paso.module.css";
+import { cerrarAlta } from "../../lib/negocios/cerrar-alta";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 
 /* Paso 4 del alta: los primeros productos.
@@ -31,21 +32,19 @@ export function PasoTusProductos({
   const { mostrarAviso } = useAvisos();
   const [terminando, setTerminando] = useState(false);
 
-  async function terminar() {
+  /* Los tres caminos también cierran el alta antes de ir: llevan a pantallas
+     del panel, y el panel manda de vuelta al alta mientras siga abierta. Sin
+     esto, «Sube un Excel» devolvía al dueño a este mismo paso. */
+  async function terminar(destino: string = RUTAS_PANEL.productos) {
+    if (terminando) return;
     setTerminando(true);
     try {
-      const respuesta = await fetch("/api/alta/paso", {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ paso: 4, terminar: true }),
-      });
-      const datos = (await respuesta.json().catch(() => ({}))) as { error?: string };
-      if (!respuesta.ok) throw new Error(datos.error || "No se pudo terminar.");
+      await cerrarAlta();
       /* `refresh` antes de navegar: el panel decide a dónde mandar mirando
          `alta_completada_en`, y sin refrescar seguiría leyendo el valor viejo y
          lo devolvería al alta que acaba de cerrar. */
       router.refresh();
-      router.push(RUTAS_PANEL.productos);
+      router.push(destino);
     } catch (causa) {
       mostrarAviso({
         titulo: "No se pudo terminar",
@@ -73,19 +72,40 @@ export function PasoTusProductos({
               un `?asistente=` que ninguna pantalla leía —quedaron de antes de que
               las dos herramientas se mudaran— y el dueño caía en la lista de
               categorías sin entender qué pasó. */}
-          <Link className={styles.camino} href={RUTAS_PANEL.desdeFoto}>
+          <Link
+            className={styles.camino}
+            href={RUTAS_PANEL.desdeFoto}
+            onClick={(evento) => {
+              evento.preventDefault();
+              void terminar(RUTAS_PANEL.desdeFoto);
+            }}
+          >
             <strong>Sácale una foto a tu lista de precios</strong>
             <span>La leemos y armamos los productos. Es lo más rápido si ya la tienes escrita.</span>
           </Link>
         </li>
         <li>
-          <Link className={styles.camino} href={RUTAS_PANEL.importar}>
+          <Link
+            className={styles.camino}
+            href={RUTAS_PANEL.importar}
+            onClick={(evento) => {
+              evento.preventDefault();
+              void terminar(RUTAS_PANEL.importar);
+            }}
+          >
             <strong>Sube un Excel</strong>
             <span>Con la plantilla ya armada para tus categorías.</span>
           </Link>
         </li>
         <li>
-          <Link className={styles.camino} href={RUTAS_PANEL.productos}>
+          <Link
+            className={styles.camino}
+            href={RUTAS_PANEL.productos}
+            onClick={(evento) => {
+              evento.preventDefault();
+              void terminar(RUTAS_PANEL.productos);
+            }}
+          >
             <strong>Cárgalos a mano</strong>
             <span>Uno por uno, con su foto y su precio.</span>
           </Link>
