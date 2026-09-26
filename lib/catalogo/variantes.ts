@@ -90,6 +90,57 @@ function numeroONulo(valor: unknown): number | null | undefined {
   return Number.isFinite(numero) ? numero : undefined;
 }
 
+/* Si el guardado de las tallas enciende o apaga «llevar la cuenta».
+ *
+ * El editor de tallas lo decide en el mismo guardado, sin pasar antes por el
+ * formulario del producto. Se valida con lo pedido —si se encendió, cada talla
+ * necesita su número— y el cambio viaja a la base, que lo aplica antes de
+ * escribirlas. Sin pedido, o con algo que no es sí o no, queda como estaba.
+ */
+export function controlDeExistenciasPedido(
+  pedido: unknown,
+  actual: boolean,
+): { controlaStock: boolean; cambio: boolean | null } {
+  return typeof pedido === "boolean"
+    ? { controlaStock: pedido, cambio: pedido }
+    : { controlaStock: actual, cambio: null };
+}
+
+/* Lo que el editor de tallas manda al guardar.
+ *
+ * El control de existencias viaja siempre: la base solo lo aplica si cambió.
+ * Con «llevar la cuenta» apagado, las tallas van sin existencias aunque el
+ * campo tenga algo escrito de antes: la base las rechazaría en un producto que
+ * no las controla, y el dueño vería un error por algo que ya no quiere llevar.
+ */
+export type PresentacionEnEdicion = {
+  id: string | null;
+  nombre: string;
+  precio: string;
+  cantidadStock: string;
+  visible: boolean;
+};
+
+export function cuerpoDeGuardadoDePresentaciones(
+  tipo: TipoPresentacion,
+  variantes: ReadonlyArray<PresentacionEnEdicion>,
+  llevaCuenta: boolean,
+  existenciasProducto?: number,
+) {
+  return {
+    tipo,
+    controlaStock: llevaCuenta,
+    variantes: variantes.map((variante) => ({
+      id: variante.id,
+      nombre: variante.nombre,
+      precio: variante.precio,
+      cantidadStock: llevaCuenta ? variante.cantidadStock : null,
+      visible: variante.visible,
+    })),
+    ...(existenciasProducto === undefined ? {} : { existenciasProducto }),
+  };
+}
+
 /* Valida el conjunto entero, no una suelta.
  *
  * Dos de las reglas son sobre el conjunto: el tope de presentaciones y que no se repita el
@@ -184,7 +235,7 @@ export function validarVariantes(
          producto que no las controla no se muestra en ninguna parte, y el dueño
          quedaría creyendo que lo está llevando. */
       errores[campo("cantidadStock")] =
-        "Para llevar existencias por presentación, activa «Controlar existencias» en el producto.";
+        "Para llevar existencias por presentación, marca «Llevar la cuenta de cuántas quedan».";
     }
 
     variantes.push({

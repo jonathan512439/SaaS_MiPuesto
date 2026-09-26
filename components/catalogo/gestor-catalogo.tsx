@@ -1332,7 +1332,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               mantener dos caminos de guardado para lo mismo. */}
           {productoEditando ? (
             <EditorDeVariantes
-              alGuardar={(cantidad) => setConPresentaciones(cantidad > 0)}
+              alGuardar={(cantidad, controlaStock) => {
+                setConPresentaciones(cantidad > 0);
+                /* Las tallas pueden haber encendido o apagado la cuenta: el
+                   formulario queda igual a lo guardado, sin pedir de nuevo la
+                   cantidad del producto entero. */
+                setFormulario((actual) => ({ ...actual, controla_stock: controlaStock }));
+              }}
               controlaStock={formulario.controla_stock}
               precioProducto={Number(formulario.precio) || 0}
               productoId={productoEditando}

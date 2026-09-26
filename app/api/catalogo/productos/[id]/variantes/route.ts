@@ -4,7 +4,11 @@ import {
   leerJson,
   obtenerContextoAdminCatalogo,
 } from "../../../../../../lib/catalogo/servidor";
-import { esTipoPresentacion, validarVariantes } from "../../../../../../lib/catalogo/variantes";
+import {
+  controlDeExistenciasPedido,
+  esTipoPresentacion,
+  validarVariantes,
+} from "../../../../../../lib/catalogo/variantes";
 import { esUuid } from "../../../../../../lib/catalogo/validacion";
 
 /* Las presentaciones de un producto.
@@ -64,7 +68,7 @@ const ERRORES_PRESENTACIONES: Record<string, { estado: number; mensaje: string }
   PRODUCTO_RESERVADO: {
     estado: 409,
     mensaje:
-      "Este producto tiene unidades apartadas en pedidos pendientes. Espera a que se confirmen o venzan antes de agregarle presentaciones.",
+      "Este producto tiene unidades apartadas en pedidos pendientes. Espera a que se confirmen o venzan antes de cambiar sus presentaciones o dejar de llevar la cuenta.",
   },
   EXISTENCIAS_POR_PRESENTACION: {
     estado: 400,
@@ -150,8 +154,11 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
       ? producto.tipo_presentacion
       : "presentacion";
   const categoria = producto.categorias as { vende?: string } | null;
+  /* El editor puede encender o apagar «llevar la cuenta» en este mismo
+     guardado: se valida con lo pedido, y la base lo aplica antes de escribir. */
+  const control = controlDeExistenciasPedido(cuerpo.controlaStock, producto.controla_stock === true);
   const validacion = validarVariantes(crudas, {
-    controlaStock: producto.controla_stock === true,
+    controlaStock: control.controlaStock,
     vendeTiempo: categoria?.vende === "tiempo",
     tipo,
   });
@@ -182,6 +189,7 @@ export async function PUT(solicitud: NextRequest, { params }: { params: Promise<
       visible: variante.visible,
     })),
     p_existencias_producto: existenciasProducto ?? undefined,
+    p_controla_stock: control.cambio ?? undefined,
   });
   if (error) {
     const respuesta = responderErrorDePresentaciones(`${error.message} ${error.details ?? ""}`);

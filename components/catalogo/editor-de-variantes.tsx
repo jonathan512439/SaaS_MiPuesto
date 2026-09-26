@@ -8,6 +8,7 @@ import {
   MAXIMO_VARIANTES,
   TEXTOS_DE_PRESENTACION,
   TIPOS_PRESENTACION,
+  cuerpoDeGuardadoDePresentaciones,
   esTipoPresentacion,
   normalizarNombreDePresentacion,
   ordenarPresentaciones,
@@ -83,9 +84,21 @@ export function EditorDeVariantes({
   controlaStock: boolean;
   vendeTiempo: boolean;
   /* Para que el formulario del producto sepa si ahora las existencias van por
-     presentación y deje de pedir las suyas. */
-  alGuardar?: (cantidad: number) => void;
+     presentación y deje de pedir las suyas, y si quedó llevando la cuenta. */
+  alGuardar?: (cantidad: number, controlaStock: boolean) => void;
 }) {
+  /* «Llevar la cuenta» se decide acá, con las tallas: antes había que encender
+     «Controlar existencias» en el producto con una cantidad para el producto
+     entero, que se descartaba al guardar las tallas. */
+  const [llevaCuenta, setLlevaCuenta] = useState(controlaStock);
+  /* Si el formulario del producto cambia «Controlar existencias», la casilla lo
+     sigue. Se ajusta al dibujar y no en un efecto: así no hay un dibujo de más
+     con el valor viejo. */
+  const [controlaStockVisto, setControlaStockVisto] = useState(controlaStock);
+  if (controlaStockVisto !== controlaStock) {
+    setControlaStockVisto(controlaStock);
+    setLlevaCuenta(controlaStock);
+  }
   const [tipo, setTipo] = useState<TipoPresentacion>("presentacion");
   const [variantes, setVariantes] = useState<VarianteEnEdicion[] | null>(null);
   const [cantidadGuardada, setCantidadGuardada] = useState(0);
@@ -136,7 +149,7 @@ export function EditorDeVariantes({
   const algunoAdmiteMedios = atajos.some((atajo) => atajo.admiteMedios);
   /* Sacar todas las presentaciones de un producto que controla existencias le
      devuelve las suyas, y hay que decir cuántas. */
-  const pideExistenciasDelProducto = controlaStock && cantidadGuardada > 0 && variantes.length === 0;
+  const pideExistenciasDelProducto = llevaCuenta && cantidadGuardada > 0 && variantes.length === 0;
 
   function cambiar(indice: number, cambio: Partial<VarianteEnEdicion>) {
     setVariantes((actuales) =>
@@ -181,19 +194,14 @@ export function EditorDeVariantes({
       const respuesta = await fetch(`/api/catalogo/productos/${productoId}/variantes`, {
         method: "PUT",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          tipo,
-          variantes: ordenadas.map((variante) => ({
-            id: variante.id,
-            nombre: variante.nombre,
-            precio: variante.precio,
-            cantidadStock: variante.cantidadStock,
-            visible: variante.visible,
-          })),
-          existenciasProducto: pideExistenciasDelProducto
-            ? Number.parseInt(existenciasProducto, 10)
-            : undefined,
-        }),
+        body: JSON.stringify(
+          cuerpoDeGuardadoDePresentaciones(
+            tipo,
+            ordenadas,
+            llevaCuenta,
+            pideExistenciasDelProducto ? Number.parseInt(existenciasProducto, 10) : undefined,
+          ),
+        ),
       });
       const datos = (await respuesta.json().catch(() => ({}))) as {
         error?: string;
@@ -210,7 +218,7 @@ export function EditorDeVariantes({
       setVariantes(ordenarPresentaciones(tipo, filas));
       setCantidadGuardada(filas.length);
       setExistenciasProducto("");
-      alGuardar?.(filas.length);
+      alGuardar?.(filas.length, llevaCuenta);
       mostrarAviso({ titulo: "Presentaciones guardadas", variante: "exito" });
     } catch (error) {
       mostrarAviso({
@@ -325,7 +333,7 @@ export function EditorDeVariantes({
               ) : null}
             </label>
 
-            {controlaStock ? (
+            {llevaCuenta ? (
               <label className={styles.control}>
                 <span>Existencias</span>
                 <input
@@ -380,6 +388,23 @@ export function EditorDeVariantes({
 
       {errores.variantes ? <strong className={styles.error}>{errores.variantes}</strong> : null}
 
+      {/* Con tallas a la vista, la cuenta se enciende acá mismo: la columna de
+          existencias aparece al marcarla y se guarda con las tallas. */}
+      {variantes.length > 0 ? (
+        <label className={styles.casilla}>
+          <input
+            checked={llevaCuenta}
+            disabled={guardando}
+            onChange={(evento) => {
+              setLlevaCuenta(evento.target.checked);
+              setErrores({});
+            }}
+            type="checkbox"
+          />
+          Llevar la cuenta de cuántas quedan
+        </label>
+      ) : null}
+
       {pideExistenciasDelProducto ? (
         <label className={styles.control}>
           <span>Existencias del producto</span>
@@ -397,7 +422,7 @@ export function EditorDeVariantes({
         </label>
       ) : null}
 
-      {controlaStock && variantes.length > 0 ? (
+      {llevaCuenta && variantes.length > 0 ? (
         <p className={styles.aviso}>
           Cada presentación lleva sus existencias. El carrito aparta y descuenta de la que eligió
           el cliente.

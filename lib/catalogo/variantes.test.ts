@@ -4,6 +4,8 @@ import {
   MAXIMO_VARIANTES,
   leerVariantes,
   precioDeVariante,
+  controlDeExistenciasPedido,
+  cuerpoDeGuardadoDePresentaciones,
   validarVariantes,
 } from "./variantes";
 
@@ -91,7 +93,7 @@ describe("validarVariantes", () => {
       const resultado = validarVariantes([{ nombre: "M", cantidadStock: 3 }], SIN_STOCK);
       expect(resultado.correcto).toBe(false);
       if (!resultado.correcto) {
-        expect(resultado.errores["variantes.0.cantidadStock"]).toContain("Controlar existencias");
+        expect(resultado.errores["variantes.0.cantidadStock"]).toContain("Llevar la cuenta de cuántas quedan");
       }
     });
 
@@ -178,5 +180,56 @@ describe("precioDeVariante", () => {
 
   it("cero es un precio, no una ausencia", () => {
     expect(precioDeVariante(45, { precio: 0 })).toBe(0);
+  });
+});
+
+/* El editor de tallas enciende o apaga «llevar la cuenta» en el mismo guardado:
+   se valida con lo que pidió y no con lo que el producto tenía guardado. */
+describe("controlDeExistenciasPedido", () => {
+  it("usa lo que pidió el editor y lo pasa a la base", () => {
+    expect(controlDeExistenciasPedido(true, false)).toEqual({ controlaStock: true, cambio: true });
+    expect(controlDeExistenciasPedido(false, true)).toEqual({ controlaStock: false, cambio: false });
+  });
+
+  it("sin pedido, queda como estaba y no se le dice nada a la base", () => {
+    expect(controlDeExistenciasPedido(undefined, true)).toEqual({ controlaStock: true, cambio: null });
+    expect(controlDeExistenciasPedido(undefined, false)).toEqual({ controlaStock: false, cambio: null });
+  });
+
+  it("no acepta algo que no sea sí o no", () => {
+    expect(controlDeExistenciasPedido("true", false)).toEqual({ controlaStock: false, cambio: null });
+    expect(controlDeExistenciasPedido(1, false)).toEqual({ controlaStock: false, cambio: null });
+  });
+});
+
+/* Lo que el editor de tallas manda al guardar. Con «llevar la cuenta» apagado,
+   las tallas viajan sin existencias aunque el campo tenga algo escrito: la base
+   rechazaría existencias en un producto que no las controla. */
+describe("cuerpoDeGuardadoDePresentaciones", () => {
+  const tallas = [
+    { id: null, nombre: "S", precio: "", cantidadStock: "3", visible: true },
+    { id: "b6e3f0a2-6f1e-4c2a-9a51-1f1f1f1f1f1f", nombre: "M", precio: "95", cantidadStock: "", visible: false },
+  ];
+
+  it("con la cuenta encendida lleva las existencias de cada talla y lo pide a la base", () => {
+    expect(cuerpoDeGuardadoDePresentaciones("talla", tallas, true)).toEqual({
+      tipo: "talla",
+      controlaStock: true,
+      variantes: [
+        { id: null, nombre: "S", precio: "", cantidadStock: "3", visible: true },
+        { id: "b6e3f0a2-6f1e-4c2a-9a51-1f1f1f1f1f1f", nombre: "M", precio: "95", cantidadStock: "", visible: false },
+      ],
+    });
+  });
+
+  it("con la cuenta apagada las manda sin existencias", () => {
+    const cuerpo = cuerpoDeGuardadoDePresentaciones("talla", tallas, false);
+    expect(cuerpo.controlaStock).toBe(false);
+    expect(cuerpo.variantes.map((variante) => variante.cantidadStock)).toEqual([null, null]);
+  });
+
+  it("agrega las existencias del producto solo cuando se piden", () => {
+    expect(cuerpoDeGuardadoDePresentaciones("talla", [], true, 7).existenciasProducto).toBe(7);
+    expect("existenciasProducto" in cuerpoDeGuardadoDePresentaciones("talla", tallas, true)).toBe(false);
   });
 });
