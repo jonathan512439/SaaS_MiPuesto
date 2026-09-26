@@ -252,7 +252,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
 | **Comprar y conectar `mi-puesto.com`**, el dominio decidido el 2026-09-25 (libre en el registro ese día). El que no lleva guion lo tiene un tercero desde 2004 (Porkbun, vence el 2027-06-18): nada del sistema ni de los videos lo menciona, y lo vigila `lib/marca/dominio.test.ts` | Registrador; al conectarlo, sumarlo al widget de Turnstile (`lib/turnstile-publico.ts`) y a `NEXT_PUBLIC_SITE_URL` |
-| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) y **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`) | Panel de plataforma |
+| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`) y **Mundo Mil Cosas** (`nicolbelen75+demo3@gmail.com`, rubro «Importados y variedades», 16 productos) | Panel de plataforma |
 | Rotar la contraseña de la base y la clave secreta del proyecto **de ensayo**: se mostraron en una sesión de trabajo el 2026-09-25 | Supabase → proyecto de ensayo → Settings |
 
 ---
@@ -1875,6 +1875,13 @@ motivo por el que este archivo existe.
   - Verificado: `build:vinext` con 1155 pruebas y `test:rls:linked` en verde.
     **Desplegado** (`6bc3f263`) junto con los arreglos de la vista previa por
     rubro y de las categorías de comida (`77686df`, `ece8466`), que esperaban.
+  - Grabado con la tercera tienda de demostración, **«Mundo Mil Cosas»**
+    (`nicolbelen75+demo3@gmail.com`): alta con el rubro nuevo y **16 productos
+    en 4 categorías cargados de una sola planilla**, con sus 16 fotos, en una
+    pasada. Las categorías que crea la importación quedan con el ícono de caja;
+    se eligieron a mano en el panel. Observaciones sin corregir: con cinco
+    esferas el catálogo corta «Hogar …» y «Tecnol…» a 390 px, y el renglón de
+    ejemplo del alta dice «Pollos a la brasa · Desde 1998» a cualquier rubro.
 
 ### 2026-09-24
 
