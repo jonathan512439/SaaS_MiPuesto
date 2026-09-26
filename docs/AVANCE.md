@@ -252,7 +252,7 @@ Ninguna de estas cosas se puede hacer desde el repositorio:
 | La semana de piloto | Criterio de salida de la fase 9 |
 | Darse de alta como administrador de plataforma | «Cómo darse de alta», más abajo |
 | **Comprar y conectar `mi-puesto.com`**, el dominio decidido el 2026-09-25 (libre en el registro ese día). El que no lleva guion lo tiene un tercero desde 2004 (Porkbun, vence el 2027-06-18): nada del sistema ni de los videos lo menciona, y lo vigila `lib/marca/dominio.test.ts` | Registrador; al conectarlo, sumarlo al widget de Turnstile (`lib/turnstile-publico.ts`) y a `NEXT_PUBLIC_SITE_URL` |
-| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`) y **Mundo Mil Cosas** (`nicolbelen75+demo3@gmail.com`, rubro «Importados y variedades», 16 productos) | Panel de plataforma |
+| Borrar las tiendas de demostración de los videos cuando termine la campaña: **Kantuta Moda** (`nicolbelen75+demo@gmail.com`, con dos banners huérfanos) **La Esquina del Sabor** (`nicolbelen75+demo2@gmail.com`), **Mundo Mil Cosas** (`nicolbelen75+demo3@gmail.com`, rubro «Importados y variedades», 16 productos) y **Kallpa Zapatillas** (`nicolbelen75+demo4@gmail.com`, 8 modelos) | Panel de plataforma |
 | Rotar la contraseña de la base y la clave secreta del proyecto **de ensayo**: se mostraron en una sesión de trabajo el 2026-09-25 | Supabase → proyecto de ensayo → Settings |
 
 ---
@@ -1726,6 +1726,40 @@ despliegue que quedó en `/api/salud`.
 Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a mano
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
+
+### 2026-09-26
+
+- **Quinto video («Reto: tu tienda de zapatillas en 60 segundos»): cinco
+  arreglos encontrados al preparar una grabación sin cortes del alta
+  completa.** Los guiones de los videos anteriores saltaban entre pantallas
+  escribiendo la dirección, y así varios huecos no se veían.
+  - Al crear el negocio, el formulario se quedaba con el aviso «Negocio
+    creado» y ningún camino a la vista (`84fb74e`): ahora sigue solo en «Quién
+    eres» (`rutaDespuesDeGuardarNegocio`).
+  - **Los tres caminos del último paso del alta no llevaban a ningún lado**
+    (`2266f33`): «Sácale una foto», «Sube un Excel» y «Cárgalos a mano» van a
+    pantallas del panel, y el panel manda de vuelta al alta mientras siga
+    abierta. Ahora cierran el alta antes de ir (`lib/negocios/cerrar-alta.ts`).
+  - Al terminar de cargar productos, el aviso decía «Revisa los precios antes
+    de publicarlo», pero ya están publicados (`1da1883`). Ahora lo dice y trae
+    «Ver mi catálogo»; el resultado es un componente con prueba de dibujo.
+  - El catálogo público ya no muestra esferas de categorías sin productos
+    (`3f42afd`): una zapatillería mostraba «Ropa de dama», «Ropa de varón» y
+    «Accesorios» vacías. Solo el acceso rápido; si la lectura falla, se
+    muestran todas.
+  - El progreso del alta se quedaba en «Paso 1 de 4» durante todo el recorrido
+    (`7a69979`): vive en el layout, que no se vuelve a dibujar al pasar de un
+    paso a otro. Ahora el paso se lee de la dirección. **Sin desplegar.**
+  - Cada guardia rota a propósito antes de darla por hecha; `verificar` con
+    1164 pruebas. Los cuatro primeros, **desplegados** (`92c33da4`) y
+    empujados.
+  - Tienda de demostración nueva, **«Kallpa Zapatillas»**
+    (`nicolbelen75+demo4@gmail.com`, rubro «Ropa y calzado»): alta completa
+    y 8 modelos con 42 números cargados de un Excel en 58,2 s, grabado contra
+    producción a ritmo de persona. Fotos e íconos agregados después.
+  - Observación sin corregir: el texto de ejemplo de «Tu nombre» en el alta
+    trae el nombre de la cuenta; y las cuatro categorías sembradas vacías
+    ocupan la primera página de «Mi catálogo».
 
 ### 2026-09-25
 
