@@ -1775,8 +1775,8 @@ motivo por el que este archivo existe.
     mesa): 13 platos con fotos desde un Excel. Su modalidad se corrigió a mano
     desde «Mi negocio».
 
-- **Séptimo y octavo video («Tu menú, a un toque» y «Ni un turno cruzado», la
-  agenda completa de una veterinaria): cuatro arreglos**, cada guardia rota a
+- **Octavo video («Ni un turno cruzado», la agenda completa de una
+  veterinaria): cuatro arreglos**, cada guardia rota a
   propósito; `verificar` con 1179 pruebas. Desplegados en `5dfbe63c` y
   empujados.
   - **El nombre de quien atiende no se podía cambiar** (`c451eaf`): el rubro lo
