@@ -1764,7 +1764,7 @@ motivo por el que este archivo existe.
 
 - **Sexto video («Acerca tu celular y aparece la carta», la tarjeta de
   acrílico con QR y NFC): el rubro pisaba la modalidad elegida** (`f390363`,
-  **sin desplegar**). Al elegir el rubro en el alta, la siembra aplicaba
+  desplegado en `2540eb92`). Al elegir el rubro en el alta, la siembra aplicaba
   siempre la modalidad sugerida: un restaurante creado con «Tienda con
   carrito» y número de mesa quedaba, sin aviso, con pedidos de a un producto
   por WhatsApp, y la mesa no servía. Ahora la sugerencia solo aplica si el
