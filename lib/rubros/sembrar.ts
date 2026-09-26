@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "../supabase/database.types";
 import { renombresDeCategorias } from "../negocios/rubros-publicos";
+import type { TipoNegocio } from "../negocios/validacion";
 import { siembraDeRubro } from "./siembra";
 
 /* Crear el catálogo de arranque de un rubro.
@@ -217,3 +218,12 @@ export async function sembrarRubro(
     recursos,
   };
 }
+
+/* La modalidad con la que queda el negocio al sembrar su rubro. La del rubro es
+   una sugerencia para quien no eligió: el formulario de creación arranca en
+   «Catálogo para mostrar», y si el dueño eligió otra —carrito, pedidos por
+   WhatsApp—, esa es la que vale. Antes se pisaba siempre, sin avisar. */
+export function modalidadDespuesDeSembrar(actual: string | null, sugerida: TipoNegocio): string {
+  return actual && actual !== MODALIDAD_POR_OMISION ? actual : sugerida;
+}
+const MODALIDAD_POR_OMISION = "catalogo_estatico";

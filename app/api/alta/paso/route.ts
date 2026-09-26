@@ -8,7 +8,7 @@ import {
   rubroQuedoFijo,
   siembraDeRubroPublico,
 } from "../../../../lib/negocios/rubros-publicos";
-import { sembrarRubro } from "../../../../lib/rubros/sembrar";
+import { modalidadDespuesDeSembrar, sembrarRubro } from "../../../../lib/rubros/sembrar";
 import { siembraDeRubro } from "../../../../lib/rubros/siembra";
 import { normalizarSlug, validarSlug } from "../../../../lib/negocios/validacion";
 import type { Database } from "../../../../lib/supabase/database.types";
@@ -67,7 +67,7 @@ export async function PATCH(solicitud: NextRequest) {
 
   const { data: negocio, error: errorLectura } = await supabase
     .from("negocios")
-    .select("id,slug,rubro,rubro_bloqueado_en,rubro_publico,alta_paso")
+    .select("id,slug,rubro,rubro_bloqueado_en,rubro_publico,alta_paso,tipo_negocio")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
 
@@ -213,7 +213,11 @@ export async function PATCH(solicitud: NextRequest) {
     if (sembrado?.sembro && siembra) {
       await supabase
         .from("negocios")
-        .update({ paleta_id: siembra.paletaSugerida, tipo_negocio: siembra.modalidadSugerida })
+        .update({
+          paleta_id: siembra.paletaSugerida,
+          /* La del rubro solo si el dueño no eligió otra al crear el negocio. */
+          tipo_negocio: modalidadDespuesDeSembrar(negocio.tipo_negocio, siembra.modalidadSugerida),
+        })
         .eq("admin_user_id", idUsuario);
     }
   }

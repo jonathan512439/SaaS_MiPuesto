@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { guiaDeRubroPublico } from "../catalogo/guias-por-rubro";
 import { RUBROS_PUBLICOS } from "../negocios/rubros-publicos";
-import { armarSiembra, sembrarRubro } from "./sembrar";
+import { armarSiembra, modalidadDespuesDeSembrar, sembrarRubro } from "./sembrar";
 
 /* Un cliente de mentira, lo más chico posible: `sembrarRubro` solo cuenta
    categorías y escribe filas, así que alcanza con eso. Se usa uno propio en vez
@@ -149,5 +149,21 @@ describe("la siembra habla como el rubro que eligió el dueño", () => {
     for (const id of ["polleria", "comida_rapida", "salteneria", "cafeteria", "panaderia"]) {
       expect(armarSiembra("restaurante", id)!.categorias[0].nombre, id).not.toBe("Almuerzos");
     }
+  });
+});
+
+/* La modalidad del rubro es una sugerencia para quien no eligió. Al crear el
+   negocio el dueño ya elige una —el formulario arranca en «Catálogo para
+   mostrar»—, y si eligió otra a propósito, el rubro no se la cambia: un
+   restaurante que pidió carrito y número de mesa terminaba con pedidos de a
+   un producto por WhatsApp, sin enterarse. */
+describe("la modalidad después de sembrar", () => {
+  it("si sigue en la de por omisión, toma la del rubro", () => {
+    expect(modalidadDespuesDeSembrar("catalogo_estatico", "catalogo_cta")).toBe("catalogo_cta");
+  });
+
+  it("si el dueño eligió otra, se respeta", () => {
+    expect(modalidadDespuesDeSembrar("tienda_virtual", "catalogo_cta")).toBe("tienda_virtual");
+    expect(modalidadDespuesDeSembrar("catalogo_cta", "tienda_virtual")).toBe("catalogo_cta");
   });
 });
