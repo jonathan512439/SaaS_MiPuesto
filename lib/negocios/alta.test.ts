@@ -5,6 +5,7 @@ import {
   esIdPasoAlta,
   estadoDeAlta,
   faltantesParaPublicar,
+  rutaDespuesDeGuardarNegocio,
   type SituacionDelNegocio,
 } from "./alta";
 
@@ -173,5 +174,18 @@ describe("los pasos, como registro", () => {
     expect(esIdPasoAlta("inventado")).toBe(false);
     expect(esIdPasoAlta(3)).toBe(false);
     expect(esIdPasoAlta(null)).toBe(false);
+  });
+});
+
+/* Crear el negocio es el paso cero: el alta sigue sola desde ahí. Antes, el
+   formulario se quedaba con el aviso «Negocio creado» y ningún camino a la
+   vista; el panel recién mandaba al alta cuando el dueño tocaba otra cosa. */
+describe("después de guardar el negocio", () => {
+  it("al crearlo, sigue en el primer paso del alta", () => {
+    expect(rutaDespuesDeGuardarNegocio({ esNuevo: true })).toBe(PASOS_ALTA[0].ruta);
+  });
+
+  it("al editarlo, se queda donde está", () => {
+    expect(rutaDespuesDeGuardarNegocio({ esNuevo: false })).toBeNull();
   });
 });

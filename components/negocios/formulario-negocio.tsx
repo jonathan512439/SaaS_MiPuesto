@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 
 import {
@@ -8,6 +9,7 @@ import {
   validarDatosNegocio,
   validarSlug,
 } from "../../lib/negocios/validacion";
+import { rutaDespuesDeGuardarNegocio } from "../../lib/negocios/alta";
 import { nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
 import { DOMINIO_MIPUESTO } from "../../lib/url-sitio";
 import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
@@ -76,6 +78,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   const [estadoSlug, setEstadoSlug] = useState<EstadoSlug>("inicial");
   const [errores, setErrores] = useState<Record<string, string>>({});
   const { mostrarAviso } = useAvisos();
+  const router = useRouter();
   const [guardando, setGuardando] = useState(false);
   const slugEditado = useRef(Boolean(negocioInicial?.slug));
   const errorFormatoSlug = validarSlug(slug);
@@ -186,6 +189,14 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
       mensaje: negocioInicial ? undefined : "Tu dirección quedó reservada.",
       variante: "exito",
     });
+    /* Recién creado, sigue en el alta. `refresh` primero: el panel decide a
+       dónde mandar mirando si ya hay negocio, y sin refrescar leería lo viejo. */
+    const siguiente = rutaDespuesDeGuardarNegocio({ esNuevo: !negocioInicial });
+    if (siguiente) {
+      router.refresh();
+      router.push(siguiente);
+      return;
+    }
     setGuardando(false);
   }
 

@@ -205,3 +205,10 @@ export function estadoDeAlta(situacion: SituacionDelNegocio): EstadoAlta {
 export function esIdPasoAlta(valor: unknown): valor is IdPasoAlta {
   return typeof valor === "string" && PASOS_ALTA.some((paso) => paso.id === valor);
 }
+
+/* A dónde sigue el dueño después de guardar el formulario del negocio. Crearlo
+   es el paso cero del alta: sigue solo en el primer paso, en vez de quedarse con
+   un aviso y ningún camino a la vista. Editarlo no mueve a nadie. */
+export function rutaDespuesDeGuardarNegocio({ esNuevo }: { esNuevo: boolean }): string | null {
+  return esNuevo ? PASOS_ALTA[0].ruta : null;
+}
