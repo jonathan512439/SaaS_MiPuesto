@@ -309,6 +309,25 @@ export function EditorDeVariantes({
         </div>
       ) : null}
 
+      {/* Con tallas a la vista, la cuenta se enciende acá mismo: la columna de
+          existencias aparece al marcarla y se guarda con las tallas. Va junto
+          a los atajos y no al final: con cinco tallas, abajo había que bajar
+          para encontrarla. */}
+      {variantes.length > 0 ? (
+        <label className={styles.casilla}>
+          <input
+            checked={llevaCuenta}
+            disabled={guardando}
+            onChange={(evento) => {
+              setLlevaCuenta(evento.target.checked);
+              setErrores({});
+            }}
+            type="checkbox"
+          />
+          Llevar la cuenta de cuántas quedan
+        </label>
+      ) : null}
+
       {variantes.length === 0 ? (
         <p className={styles.noAplica}>
           Este producto se vende de una sola forma. Agrega presentaciones si viene en varias.
@@ -403,23 +422,6 @@ export function EditorDeVariantes({
       })}
 
       {errores.variantes ? <strong className={styles.error}>{errores.variantes}</strong> : null}
-
-      {/* Con tallas a la vista, la cuenta se enciende acá mismo: la columna de
-          existencias aparece al marcarla y se guarda con las tallas. */}
-      {variantes.length > 0 ? (
-        <label className={styles.casilla}>
-          <input
-            checked={llevaCuenta}
-            disabled={guardando}
-            onChange={(evento) => {
-              setLlevaCuenta(evento.target.checked);
-              setErrores({});
-            }}
-            type="checkbox"
-          />
-          Llevar la cuenta de cuántas quedan
-        </label>
-      ) : null}
 
       {pideExistenciasDelProducto ? (
         <label className={styles.control}>
