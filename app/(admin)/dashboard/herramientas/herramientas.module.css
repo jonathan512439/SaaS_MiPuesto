@@ -1,36 +1,5 @@
 @reference "../../../globals.css";
 
-.avisoFoto {
-  display: grid;
-  gap: var(--spacing-2);
-  justify-items: start;
-  border: var(--borde-marcado) solid var(--color-marca);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-4);
-  background: var(--color-marca-tenue);
-}
-
-.avisoFoto h2 {
-  font-size: var(--text-lg);
-  font-weight: 800;
-}
-
-.avisoFoto p {
-  max-width: var(--ancho-lectura);
-  font-size: var(--text-sm);
-}
-
-.avisoFoto a {
-  min-height: var(--control-alto);
-  display: inline-flex;
-  align-items: center;
-  border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-4);
-  background: var(--color-marca);
-  color: var(--color-superficie);
-  font-weight: 800;
-}
-
 /* ---- tarjeta de la herramienta con IA ----
    Se distingue del resto del encabezado a propósito: es la única función que
    cuesta dinero cada vez que se usa y la única que hace algo que el dueño no
@@ -118,6 +87,13 @@
 
 .abrirIa {
   box-shadow: 0 0.25rem 0.75rem -0.25rem color-mix(in srgb, var(--color-ia-fin) 60%, transparent);
+}
+
+.nuevaIa,
+.notaIa {
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
 }
 
 .abrirIa:hover {

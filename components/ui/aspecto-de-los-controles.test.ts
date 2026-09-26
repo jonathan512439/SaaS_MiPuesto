@@ -55,7 +55,6 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
   { selector: ".avisoSuscripcion a", motivo: "es un enlace, no un botón" },
   { selector: ".tituloSeccion a, .acciones a", motivo: "es un enlace, no un botón" },
   { selector: ".faltantes li a", motivo: "es un enlace, no un botón" },
-  { selector: ".avisoFoto a", motivo: "es un enlace, no un botón" },
   { selector: ".tarjeta h2 a", motivo: "es un enlace, no un botón" },
   { selector: ".noEncontrada a", motivo: "es un enlace, no un botón" },
   { selector: ".volver a", motivo: "es un enlace, no un botón" },

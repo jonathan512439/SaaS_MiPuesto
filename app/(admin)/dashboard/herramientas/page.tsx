@@ -122,28 +122,28 @@ export default async function PaginaHerramientas() {
         titulo="Herramientas"
       />
 
-      {avisarFotoNueva ? (
-        <aside className={styles.avisoFoto}>
-          <h2>Ya puedes cargar tu catálogo con una foto</h2>
-          <p>
-            Habilitamos dos cosas en tu cuenta: fotografiar tu lista de precios para crear
-            varios productos de una vez, y completar el nombre y la descripción de un
-            producto con su fotografía. El precio lo pones siempre vos.
-          </p>
-          <Link href={RUTAS_PANEL.desdeFoto}>Probar con mi lista de precios</Link>
-        </aside>
-      ) : null}
-
       {/* La de IA va aparte y primero, con su propio trato: es la única función
           que cuesta dinero cada vez que se usa y la única que hace algo que el
           dueño no podría hacer solo. Los tres pasos van a la vista y no detrás
           del clic, porque la pregunta que frena a alguien no es «qué hace» sino
-          «qué me va a pedir». */}
+          «qué me va a pedir».
+          El aviso de «recién habilitada» va adentro de la tarjeta y sin botón
+          propio. Era un recuadro aparte con «Probar con mi lista de precios»
+          encima de «Abrir la herramienta»: dos botones seguidos al mismo lugar,
+          que el dueño leía como dos formas distintas de subir su lista. */}
       {negocio.foto_ia_habilitada ? (
         <section aria-labelledby="titulo-ia" className={styles.tarjetaIa}>
           <div className={styles.tarjetaIaCuerpo}>
-            <span className={styles.selloIa}>Herramienta con IA</span>
+            <span className={styles.selloIa}>
+              {avisarFotoNueva ? "Nuevo en tu cuenta · Herramienta con IA" : "Herramienta con IA"}
+            </span>
             <h2 id="titulo-ia">Carga tu catálogo desde la foto o el PDF de tu lista de precios</h2>
+            {avisarFotoNueva ? (
+              <p className={styles.nuevaIa}>
+                También completa el nombre y la descripción de un producto con su fotografía, desde
+                Productos. El precio lo pones siempre vos.
+              </p>
+            ) : null}
             <ol className={styles.pasosIa}>
               <li>
                 <b>1</b> Sácale una foto a tu lista, o sube el PDF del proveedor
@@ -158,6 +158,14 @@ export default async function PaginaHerramientas() {
             <Link className={styles.abrirIa} href={RUTAS_PANEL.desdeFoto}>
               Abrir la herramienta
             </Link>
+            {/* Las dos herramientas cargan muchos productos juntos, y desde
+                afuera parecen la misma. La diferencia es el archivo: acá va una
+                foto o un PDF; un Excel va a «Importar una planilla», que lo lee
+                tal cual y no gasta lecturas. */}
+            <p className={styles.notaIa}>
+              ¿Ya tienes tus productos en Excel o CSV? Usa <strong>Importar una planilla</strong>,
+              más abajo: es gratis y no gasta lecturas.
+            </p>
           </div>
         </section>
       ) : null}
