@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import { ProveedorAvisos, ProveedorConfirmacion } from "../ui";
-import { GestorAgenda, NombreDeRecurso, type RecursoAdmin } from "./gestor-agenda";
+import { GestorAgenda, NombreDeRecurso, avisoDePausa, type RecursoAdmin } from "./gestor-agenda";
 
 /* «Cronograma», dibujado. Es una de las pantallas grandes del panel: un error
  * que ni los tipos ni el lint ven la deja entera en blanco. Se comprueba que se
@@ -46,5 +46,15 @@ describe("NombreDeRecurso", () => {
     expect(html).toContain('value="Consultas"');
     const boton = html.slice(html.lastIndexOf("<button", html.indexOf("Cambiar nombre")), html.indexOf("Cambiar nombre"));
     expect(boton).toContain("disabled");
+  });
+});
+
+/* El aviso al pausar decía «hasta el 2026-09-28», la fecha como la guarda el
+   sistema; la línea de abajo decía «Lun 28/9». Los dos dicen lo mismo. */
+describe("avisoDePausa", () => {
+  it("dice el día como el resto del cronograma", () => {
+    expect(avisoDePausa("2026-09-28", "08:00")).toBe(
+      "Sus horarios dejan de ofrecerse hasta el Lun 28/9 a las 08:00.",
+    );
   });
 });

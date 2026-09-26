@@ -77,6 +77,12 @@ function rotuloDia(fecha: string): string {
   return `${DIAS_CORTOS[semana]} ${Number(dia)}/${Number(mes)}`;
 }
 
+/* El aviso al pausar, con el día escrito como en el resto del cronograma:
+   «Lun 28/9», no la fecha como la guarda el sistema. */
+export function avisoDePausa(hastaFecha: string, hastaHora: string): string {
+  return `Sus horarios dejan de ofrecerse hasta el ${rotuloDia(hastaFecha)} a las ${hastaHora}.`;
+}
+
 function horaDe(iso: string): string {
   const local = new Date(new Date(iso).getTime() - HORAS_DETRAS_DE_UTC * 3600_000);
   return local.toISOString().slice(11, 16);
@@ -296,7 +302,7 @@ export function GestorAgenda({
       setPausando(null);
       mostrarAviso({
         titulo: `${recurso.nombre}: reservas en pausa`,
-        mensaje: `Sus horarios dejan de ofrecerse hasta el ${hastaFecha} a las ${hastaHora}.`,
+        mensaje: avisoDePausa(hastaFecha, hastaHora),
         variante: "exito",
       });
     } catch (error) {
