@@ -145,10 +145,35 @@ export function leerFranjas(crudas: unknown): Franja[] {
    quería sin tener que leer una tabla. */
 export function resumirFranjas(franjas: ReadonlyArray<Franja>): string {
   if (franjas.length === 0) return "Sin horario configurado";
-  return ordenarFranjas(franjas)
-    .map((franja) => {
-      const dia = DIAS.find(({ id }) => id === franja.dia)?.corto ?? "?";
-      return `${dia} ${franja.desde}–${franja.hasta}`;
+
+  /* Primero, el horario de cada día en una frase: «08:30–12:00 y 14:30–18:30». */
+  const porDia = new Map<number, string[]>();
+  for (const franja of ordenarFranjas(franjas)) {
+    porDia.set(franja.dia, [...(porDia.get(franja.dia) ?? []), `${franja.desde}–${franja.hasta}`]);
+  }
+
+  /* Después, los días seguidos con la misma frase van juntos: «Lun a Vie». La
+     semana empieza el lunes y el domingo va al final, como se lee acá. */
+  const grupos: { desde: number; hasta: number; horario: string }[] = [];
+  for (const dia of [1, 2, 3, 4, 5, 6, 0]) {
+    const tramos = porDia.get(dia);
+    if (!tramos) continue;
+    const horario = tramos.join(" y ");
+    const anterior = grupos.at(-1);
+    if (anterior && anterior.horario === horario && (anterior.hasta + 1) % 7 === dia) {
+      anterior.hasta = dia;
+    } else {
+      grupos.push({ desde: dia, hasta: dia, horario });
+    }
+  }
+
+  const corto = (dia: number) => DIAS.find(({ id }) => id === dia)?.corto ?? "?";
+  return grupos
+    .map(({ desde, hasta, horario }) => {
+      if (desde === hasta) return `${corto(desde)} ${horario}`;
+      const seguidos = (hasta - desde + 7) % 7 + 1;
+      const union = seguidos === 2 ? "y" : "a";
+      return `${corto(desde)} ${union} ${corto(hasta)} ${horario}`;
     })
     .join(" · ");
 }

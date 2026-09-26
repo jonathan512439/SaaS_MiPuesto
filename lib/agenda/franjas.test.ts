@@ -118,8 +118,47 @@ describe("minutosDesdeHora", () => {
 });
 
 describe("resumirFranjas", () => {
-  it("se lee en una línea", () => {
-    expect(resumirFranjas([lunesManana, lunesTarde])).toBe("Lun 08:30–12:00 · Lun 14:30–18:30");
+  it("se lee en una línea, con los tramos del mismo día juntos", () => {
+    expect(resumirFranjas([lunesManana, lunesTarde])).toBe("Lun 08:30–12:00 y 14:30–18:30");
+  });
+
+  /* La semana de una veterinaria eran once tramos seguidos —«Lun 08:30–12:00 ·
+     Lun 14:30–18:30 · Mar 08:30–12:00…»— que ocupaban media pantalla del
+     cronograma para decir algo que se dice en una línea. */
+  it("junta los días seguidos con el mismo horario", () => {
+    const semana = [1, 2, 3, 4, 5].flatMap((dia) => [
+      { ...lunesManana, dia },
+      { ...lunesTarde, dia },
+    ]);
+    semana.push({ dia: 6, desde: "09:00", hasta: "13:00" });
+    expect(resumirFranjas(semana)).toBe("Lun a Vie 08:30–12:00 y 14:30–18:30 · Sáb 09:00–13:00");
+  });
+
+  it("dice «y» cuando son solo dos días seguidos", () => {
+    expect(
+      resumirFranjas([
+        { dia: 1, desde: "09:00", hasta: "13:00" },
+        { dia: 2, desde: "09:00", hasta: "13:00" },
+      ]),
+    ).toBe("Lun y Mar 09:00–13:00");
+  });
+
+  it("no junta días que no son seguidos", () => {
+    expect(
+      resumirFranjas([
+        { dia: 1, desde: "09:00", hasta: "13:00" },
+        { dia: 3, desde: "09:00", hasta: "13:00" },
+      ]),
+    ).toBe("Lun 09:00–13:00 · Mié 09:00–13:00");
+  });
+
+  it("pone el domingo al final de la semana", () => {
+    expect(
+      resumirFranjas([
+        { dia: 0, desde: "10:00", hasta: "12:00" },
+        { dia: 6, desde: "10:00", hasta: "12:00" },
+      ]),
+    ).toBe("Sáb y Dom 10:00–12:00");
   });
 
   /* Sin horario no se dibuja una línea vacía: se dice que falta, que es lo que
