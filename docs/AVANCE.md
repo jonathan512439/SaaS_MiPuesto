@@ -1749,7 +1749,8 @@ motivo por el que este archivo existe.
     muestran todas.
   - El progreso del alta se quedaba en «Paso 1 de 4» durante todo el recorrido
     (`7a69979`): vive en el layout, que no se vuelve a dibujar al pasar de un
-    paso a otro. Ahora el paso se lee de la dirección. **Sin desplegar.**
+    paso a otro. Ahora el paso se lee de la dirección. Desplegado aparte
+    (`a3fd0a88`).
   - Cada guardia rota a propósito antes de darla por hecha; `verificar` con
     1164 pruebas. Los cuatro primeros, **desplegados** (`92c33da4`) y
     empujados.
