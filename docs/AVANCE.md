@@ -1858,8 +1858,7 @@ motivo por el que este archivo existe.
     «Consultas» y agenda que una tienda no usa, y «Accesorios y bisutería»
     siembra «Ropa de dama» y «Calzado». Renombrar no alcanza.
 
-- **Cuarto video (tienda de variedades): dos arreglos antes de grabar**
-  (sin desplegar).
+- **Cuarto video (tienda de variedades): dos arreglos antes de grabar**.
   - Rubro público nuevo **«Importados y variedades»** (`231a169`): la tienda
     de juguetes, casa, tecnología y regalos no tenía dónde caer; como «Tienda
     de barrio» su vista previa mostraba abarrotes. Usa la siembra `otro`
@@ -1867,13 +1866,15 @@ motivo por el que este archivo existe.
     el directorio. Migración `20261030090000_rubro_importados_y_variedades.sql`
     que vuelve a crear las dos restricciones de rubro; la prueba de sincronía
     ahora lee la **última** versión de cada una y se rompió a propósito
-    quitando el rubro de la migración. **Hay que aplicar la migración en
-    producción antes de que alguien lo elija**: el panel ya lo ofrece.
+    quitando el rubro de la migración. Migración aplicada en ensayo y en
+    producción (los tipos de la base no cambian).
   - La importación decía «corregilo si no coincide» (`990cac0`). La guardia de
     vocabulario no leía el texto de JSX que sigue a una expresión `{…}`, y
     descartaba como código cualquier texto con «fila(s)». Ahora lo lee; no
     apareció ningún otro caso. Rota a propósito antes del arreglo.
-  - Verificado: `verificar` con 1155 pruebas.
+  - Verificado: `build:vinext` con 1155 pruebas y `test:rls:linked` en verde.
+    **Desplegado** (`6bc3f263`) junto con los arreglos de la vista previa por
+    rubro y de las categorías de comida (`77686df`, `ece8466`), que esperaban.
 
 ### 2026-09-24
 
