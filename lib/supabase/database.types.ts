@@ -526,6 +526,7 @@ export type Database = {
           rubro_bloqueado_en: string | null
           rubro_publico: string | null
           rubros_secundarios: string[]
+          sin_local: boolean
           slug: string
           subnombre: string | null
           suscripcion_vence_en: string
@@ -585,6 +586,7 @@ export type Database = {
           rubro_bloqueado_en?: string | null
           rubro_publico?: string | null
           rubros_secundarios?: string[]
+          sin_local?: boolean
           slug: string
           subnombre?: string | null
           suscripcion_vence_en?: string
@@ -644,6 +646,7 @@ export type Database = {
           rubro_bloqueado_en?: string | null
           rubro_publico?: string | null
           rubros_secundarios?: string[]
+          sin_local?: boolean
           slug?: string
           subnombre?: string | null
           suscripcion_vence_en?: string
@@ -1324,6 +1327,7 @@ export type Database = {
           productos: Json
           puntaje: number
           rubro_publico: string
+          sin_local: boolean
           slug: string
           total: number
           zona: string
