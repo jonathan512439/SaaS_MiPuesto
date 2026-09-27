@@ -1114,7 +1114,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
         onCerrar={() => setRenombrando(null)}
         titulo="Cambiar el nombre"
       >
-        <form className={styles.formularioRenombrado} id="form-renombrar" onSubmit={confirmarRenombrado}>
+        <form method="post" className={styles.formularioRenombrado} id="form-renombrar" onSubmit={confirmarRenombrado}>
           <Campo
             defaultValue={renombrando?.nombre}
             etiqueta={renombrando?.etiqueta ?? "Nombre"}
@@ -1142,7 +1142,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       />
 
       {formularioAbierto ? (
-        <form
+        <form method="post"
           className={styles.formularioProducto}
           onSubmit={guardarProducto}
           ref={formularioProductoRef}
@@ -1603,7 +1603,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               <h2 id="titulo-categorias">Tus categorías</h2>
               <small>{categorias.length} de 40 creadas</small>
             </div>
-            <form className={styles.nuevaCategoria} onSubmit={crearCategoria}>
+            <form method="post" className={styles.nuevaCategoria} onSubmit={crearCategoria}>
               <label htmlFor="nueva-categoria">Nueva categoría</label>
               <small className={styles.ayudaCampo}>{ayudaCategoria(datosIniciales.negocio)}</small>
               <div>
@@ -1841,7 +1841,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   </span>
                   <Icono className={styles.flechaAjuste} nombre="flechaArriba" />
                 </summary>
-                <form className={styles.formularioAjuste} onSubmit={ajustarPrecios}>
+                <form method="post" className={styles.formularioAjuste} onSubmit={ajustarPrecios}>
                 {/* Se dice qué **no** es, y no por capricho: al lado existe
                     «Promociones», que baja un precio con fecha de vencimiento y lo
                     devuelve solo. Sin esta línea, un dueño sube todos sus precios

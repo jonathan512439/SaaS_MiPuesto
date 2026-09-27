@@ -44,7 +44,7 @@ export function FormularioRecuperacion() {
   }
 
   return (
-    <form className={styles.formulario} onSubmit={solicitarRecuperacion}>
+    <form method="post" className={styles.formulario} onSubmit={solicitarRecuperacion}>
       <Campo
         autoComplete="email"
         disabled={solicitudTerminada}

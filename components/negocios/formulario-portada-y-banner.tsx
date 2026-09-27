@@ -418,7 +418,7 @@ export function FormularioPortadaYBanner({
   }
 
   return (
-    <form className={styles.seccion} onSubmit={guardar}>
+    <form method="post" className={styles.seccion} onSubmit={guardar}>
       {/* El mismo encabezado que los tres pasos de arriba: esta sección vive en
           la misma pantalla y con un `h2` suelto se leía como si fuera de otra. */}
       <header className={styles.cabecera}>

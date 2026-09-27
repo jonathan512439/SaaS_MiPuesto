@@ -148,7 +148,7 @@ export function BuscadorPlataforma({
         )}
       </div>
 
-      <form className={styles.formulario} onSubmit={guardar}>
+      <form method="post" className={styles.formulario} onSubmit={guardar}>
         <h3>Sinónimo</h3>
         <p className={styles.ayuda}>
           Si ya existe la palabra, se reemplazan sus equivalentes. Las palabras se guardan sin tildes

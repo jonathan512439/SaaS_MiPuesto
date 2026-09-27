@@ -209,7 +209,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   }[estadoSlugVisible];
 
   return (
-    <form className={styles.formulario} onSubmit={guardar}>
+    <form method="post" className={styles.formulario} onSubmit={guardar}>
       <section className={styles.bloqueFormulario} aria-labelledby="datos-principales">
         <PasoNumerado
           descripcion="Así reconocerán tu negocio quienes abran el catálogo."

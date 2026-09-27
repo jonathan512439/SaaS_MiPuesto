@@ -123,7 +123,7 @@ export function ZonasPlataforma({
         </p>
       </header>
 
-      <form className={styles.formulario} onSubmit={guardarZona}>
+      <form method="post" className={styles.formulario} onSubmit={guardarZona}>
         <h3>{borrador.id ? `Editar «${borrador.nombre}»` : "Nueva zona"}</h3>
         <div className={styles.fila}>
           <Selector

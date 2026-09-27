@@ -48,7 +48,7 @@ export function FormularioLogin({
   }
 
   return (
-    <form className={styles.formulario} onSubmit={iniciarSesion}>
+    <form method="post" className={styles.formulario} onSubmit={iniciarSesion}>
       {/* Quien acaba de definir su contraseña necesita saber que se guardó. Sin
           esto, llegar al ingreso se lee como que algo falló, y lo primero que
           hace es pedir otro enlace. */}

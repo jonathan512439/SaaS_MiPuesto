@@ -128,7 +128,7 @@ export function PasoQuienSos({
     nombreAdmin.trim().length >= 2 && nombre.trim().length >= 2 && disponibilidad === "libre";
 
   return (
-    <form className={styles.paso} onSubmit={guardar}>
+    <form method="post" className={styles.paso} onSubmit={guardar}>
       <div className={styles.titulo}>
         <h2>¿Cómo te llamas?</h2>
         <p>Para saludarte por tu nombre y no por «usuario».</p>

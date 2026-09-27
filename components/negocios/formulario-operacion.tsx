@@ -216,7 +216,7 @@ export function FormularioOperacion({
   }
 
   return (
-    <form className={styles.formulario} onSubmit={guardar}>
+    <form method="post" className={styles.formulario} onSubmit={guardar}>
       <header className={styles.cabecera}>
         <div>
           <p>Atención y reservas</p>

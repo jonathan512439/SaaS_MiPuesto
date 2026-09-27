@@ -156,7 +156,7 @@ export function SegundoFactor() {
         </p>
       )}
 
-      <form className={styles.formulario} onSubmit={confirmar}>
+      <form method="post" className={styles.formulario} onSubmit={confirmar}>
         <label htmlFor="codigo-factor">Código de seis dígitos</label>
         <input
           autoComplete="one-time-code"

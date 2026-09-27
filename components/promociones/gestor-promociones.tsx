@@ -299,7 +299,7 @@ export function GestorPromociones({
 
   return (
     <div className={styles.gestor}>
-      <form className={styles.formulario} onSubmit={crearPromocion}>
+      <form method="post" className={styles.formulario} onSubmit={crearPromocion}>
         <header>
           <div>
             <p>Nueva oferta</p>

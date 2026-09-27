@@ -109,7 +109,7 @@ export function SelectorApariencia({
   }
 
   return (
-    <form className={styles.formulario} onSubmit={guardarApariencia}>
+    <form method="post" className={styles.formulario} onSubmit={guardarApariencia}>
       <fieldset className={styles.grupo} disabled={guardando}>
         <legend className={styles.leyendaOculta}>Elige la paleta de colores</legend>
         <PasoNumerado numero={1} titulo="Elige la paleta de colores" />

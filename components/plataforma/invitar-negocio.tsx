@@ -43,7 +43,7 @@ export function InvitarNegocio() {
   }
 
   return (
-    <form className={styles.invitar} onSubmit={invitar}>
+    <form method="post" className={styles.invitar} onSubmit={invitar}>
       <div>
         <label htmlFor="correo-invitado">Invitar a un negocio nuevo</label>
         <p>Recibe un correo para definir su contraseña y cargar su catálogo.</p>

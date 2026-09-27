@@ -315,7 +315,7 @@ export function CarritoCatalogo({
       </div>
 
       {items.length > 0 ? (
-        <form className={styles.confirmacion} onSubmit={reservarPedido}>
+        <form method="post" className={styles.confirmacion} onSubmit={reservarPedido}>
           <div className={styles.introduccion}>
             <h3>Reserva antes de escribir</h3>
             <p>

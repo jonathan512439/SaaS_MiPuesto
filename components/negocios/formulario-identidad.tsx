@@ -275,7 +275,7 @@ export function FormularioIdentidad({
         ))}
       </div>
 
-      <form className={styles.redes} onSubmit={guardarRedes}>
+      <form method="post" className={styles.redes} onSubmit={guardarRedes}>
         <header>
           <h3>Contacto y ubicación</h3>
           <p>Pega el enlace completo que comienza con https://. Todos son opcionales.</p>

@@ -244,7 +244,7 @@ export function QueVendesYDonde({
   );
 
   return (
-    <form className={styles.formulario} onSubmit={guardar}>
+    <form method="post" className={styles.formulario} onSubmit={guardar}>
       {/* 1 · Qué vendes */}
       <div className={styles.bloque}>
         {/* Elegido, queda a la vista y apagado: el dueño ve cuál tiene, y el
