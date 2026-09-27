@@ -201,6 +201,37 @@ describe("validarPresencia", () => {
     if (!enMadrid.correcto) expect(enMadrid.errores.ubicacion).toBeTruthy();
   });
 
+  /* Un negocio que vende solo por internet no tiene puerta que marcar: con
+     «Sin local» alcanza la ciudad, y se guarda sin punto ni zona. */
+  it("sin local, alcanza con la ciudad y se guarda sin punto ni zona", () => {
+    const sinLocal = validarPresencia({ ...SI, sin_local: true, ubicacion: null, zona_id: null });
+    expect(sinLocal.correcto).toBe(true);
+    if (sinLocal.correcto) {
+      const cambios = cambiosDePresencia(sinLocal.presencia);
+      expect(cambios.sin_local).toBe(true);
+      expect(cambios.ciudad).toBe("oruro");
+      expect(cambios.ubicacion_lat).toBeNull();
+      expect(cambios.ubicacion_lng).toBeNull();
+      expect(cambios.zona_id).toBeNull();
+      expect(cambios.zona_propuesta).toBeNull();
+    }
+    // Aunque el formulario mande un punto viejo, sin local no lo guarda.
+    const conPuntoViejo = validarPresencia({ ...SI, sin_local: true });
+    expect(conPuntoViejo.correcto).toBe(true);
+    if (conPuntoViejo.correcto) expect(cambiosDePresencia(conPuntoViejo.presencia).ubicacion_lat).toBeNull();
+  });
+
+  it("sin local igual exige la ciudad; con local, el punto", () => {
+    const sinCiudad = validarPresencia({ ...SI, sin_local: true, ciudad: "", ubicacion: null });
+    expect(sinCiudad.correcto).toBe(false);
+    if (!sinCiudad.correcto) expect(sinCiudad.errores.ciudad).toBeTruthy();
+    const conLocalSinPunto = validarPresencia({ ...SI, sin_local: false, ubicacion: null });
+    expect(conLocalSinPunto.correcto).toBe(false);
+    if (!conLocalSinPunto.correcto) expect(conLocalSinPunto.errores.ubicacion).toBeTruthy();
+    const conLocal = validarPresencia(SI);
+    if (conLocal.correcto) expect(cambiosDePresencia(conLocal.presencia).sin_local).toBe(false);
+  });
+
   /* El mapa podía quedarse en el centro de Bolivia si la ciudad se elegía antes
      de que terminara de cargar, y el negocio se guardaba «en Oruro» a 418 km.
      Un punto a más de 100 km del centro de su ciudad no se acepta; uno de un

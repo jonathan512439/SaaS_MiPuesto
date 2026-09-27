@@ -9,6 +9,7 @@ import {
   palabrasDeBusqueda,
   raizDePalabra,
   rubrosQueCoinciden,
+  zonaParaMostrar,
 } from "./directorio";
 import { redondearCerca } from "./directorio-cerca";
 import { leerSinonimo } from "./directorio-sinonimos";
@@ -163,5 +164,16 @@ describe("la búsqueda no devuelve coordenadas", () => {
       expect(devuelve, archivo).not.toBe("");
       expect(devuelve, archivo).not.toMatch(/ubicacion|latitud|longitud|\blat\b|\blng\b/);
     }
+  });
+});
+
+/* Un negocio sin local no tiene zona: la tarjeta y las sugerencias dicen «Sin
+   local» donde irían «Sud» o «Centro», así quien busca sabe que es por envío o
+   entrega. */
+describe("zonaParaMostrar", () => {
+  it("dice «Sin local» para un negocio sin local, y la zona para uno con local", () => {
+    expect(zonaParaMostrar({ zona: null, sin_local: true })).toBe("Sin local");
+    expect(zonaParaMostrar({ zona: "Sud", sin_local: false })).toBe("Sud");
+    expect(zonaParaMostrar({ zona: null, sin_local: false })).toBeNull();
   });
 });

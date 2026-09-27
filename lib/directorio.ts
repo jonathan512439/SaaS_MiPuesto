@@ -152,7 +152,15 @@ type FilaDeLaBase = {
   distancia_km: number | null;
   palabra: string | null;
   total: number;
+  sin_local: boolean;
 };
+
+/* Lo que va donde irían «Sud» o «Centro». Un negocio sin local no tiene zona:
+   se dice, así quien busca sabe que es por envío o entrega. Lo usan la tarjeta
+   del directorio y las sugerencias del buscador, que leen de acá. */
+export function zonaParaMostrar(fila: { zona: string | null; sin_local: boolean }): string | null {
+  return fila.sin_local ? "Sin local" : fila.zona;
+}
 
 export async function buscarEnDirectorio(filtros: FiltrosDirectorio, ahora = new Date()) {
   const supabase = crearClienteSupabasePublico();
@@ -184,7 +192,7 @@ export async function buscarEnDirectorio(filtros: FiltrosDirectorio, ahora = new
     portadaUrl: obtenerUrlPublicaImagenNegocio(url, fila.portada_url, "portada"),
     estadoAtencion: evaluarHorario(fila.horario, ahora),
     ciudad: fila.ciudad,
-    zona: fila.zona,
+    zona: zonaParaMostrar(fila),
     rubro: nombreDeRubroPublico(fila.rubro_publico),
     coincidencias: Number(fila.coincidencias) || 0,
     productos: (Array.isArray(fila.productos) ? fila.productos : []).map(

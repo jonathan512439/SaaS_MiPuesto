@@ -43,6 +43,7 @@ export type PresenciaInicial = {
   rubroPublico: string;
   rubrosSecundarios: string[];
   aparece: boolean | null;
+  sinLocal: boolean;
   ciudad: string;
   ubicacion: Punto | null;
   zonaId: string | null;
@@ -79,6 +80,7 @@ export function QueVendesYDonde({
     return lista;
   });
   const [aparece, setAparece] = useState<boolean | null>(inicial.aparece);
+  const [sinLocal, setSinLocal] = useState(inicial.sinLocal);
   const [ciudad, setCiudad] = useState(inicial.ciudad);
   const [ubicacion, setUbicacion] = useState<Punto | null>(inicial.ubicacion);
   const [zonaElegida, setZonaElegida] = useState<string>(
@@ -179,7 +181,7 @@ export function QueVendesYDonde({
   function elegirAparecer(valor: boolean) {
     setAparece(valor);
     setErrores({});
-    if (valor && !ubicacion && enlaceMaps) void usarEnlaceMaps();
+    if (valor && !sinLocal && !ubicacion && enlaceMaps) void usarEnlaceMaps();
   }
 
   async function guardar(evento: FormEvent<HTMLFormElement>) {
@@ -190,10 +192,12 @@ export function QueVendesYDonde({
       rubro_publico: rubroPublico,
       rubros_secundarios: secundarios.filter(Boolean),
       aparece_en_directorio: aparece,
+      sin_local: sinLocal,
       ciudad,
-      ubicacion,
-      zona_id: zonaEfectiva && zonaEfectiva !== ZONA_PROPIA ? zonaEfectiva : null,
-      zona_propuesta: zonaEfectiva === ZONA_PROPIA ? zonaPropuesta : null,
+      /* Sin local no hay punto ni zona: no se manda lo que quedó de antes. */
+      ubicacion: sinLocal ? null : ubicacion,
+      zona_id: !sinLocal && zonaEfectiva && zonaEfectiva !== ZONA_PROPIA ? zonaEfectiva : null,
+      zona_propuesta: !sinLocal && zonaEfectiva === ZONA_PROPIA ? zonaPropuesta : null,
     };
     try {
       const respuesta = await fetch(modo === "alta" ? "/api/alta/paso" : "/api/negocios/presencia", {
@@ -314,7 +318,7 @@ export function QueVendesYDonde({
         <legend className={styles.pregunta}>¿Quieres que te encuentren en el buscador de MiPuesto?</legend>
         <p className={styles.explicacion}>
           Si alguien busca en MiPuesto algo que vendes —por ejemplo, «juguetes en Oruro»— puede
-          encontrar tu catálogo. Para eso necesitamos tu ciudad y dónde está tu local.{" "}
+          encontrar tu catálogo. Para eso necesitamos tu ciudad y, si tienes local, dónde está.{" "}
           <strong>Tu dirección exacta no se publica: se muestra solo tu zona.</strong>
         </p>
         <div className={styles.opciones}>
@@ -327,7 +331,7 @@ export function QueVendesYDonde({
             />
             <span>
               <strong>Sí, quiero aparecer</strong>
-              <small>Te pedimos tu ciudad y que marques tu local en el mapa.</small>
+              <small>Te pedimos tu ciudad y, si tienes local, que lo marques en el mapa.</small>
             </span>
           </label>
           <label className={aparece === false ? styles.opcionElegida : styles.opcion}>
@@ -373,36 +377,70 @@ export function QueVendesYDonde({
             ))}
           </Selector>
 
-          <div className={styles.ubicacion}>
-            <p className={styles.pregunta}>¿Dónde está tu local?</p>
-            <p className={styles.explicacion}>
-              Toca el mapa donde está tu puerta, o arrastra el pin.
-            </p>
-            <div className={styles.atajos}>
-              <Boton disabled={buscandoPunto} onClick={usarMiUbicacion} type="button" variante="secundario">
-                Estoy en mi local
-              </Boton>
-              {enlaceMaps ? (
-                <Boton
-                  disabled={buscandoPunto}
-                  onClick={() => void usarEnlaceMaps()}
-                  type="button"
-                  variante="secundario"
-                >
-                  Usar mi enlace de Google Maps
-                </Boton>
-              ) : null}
+          {/* Hay quien vende solo por internet: sin una puerta que marcar,
+              aparece con su ciudad y sin mapa. */}
+          <fieldset className={styles.bloque}>
+            <legend className={styles.pregunta}>¿Dónde atiendes?</legend>
+            <div className={styles.opciones}>
+              <label className={!sinLocal ? styles.opcionElegida : styles.opcion}>
+                <input
+                  checked={!sinLocal}
+                  name="sin-local"
+                  onChange={() => setSinLocal(false)}
+                  type="radio"
+                />
+                <span>
+                  <strong>En mi local</strong>
+                  <small>Marcas en el mapa dónde está tu puerta. Se muestra solo tu zona.</small>
+                </span>
+              </label>
+              <label className={sinLocal ? styles.opcionElegida : styles.opcion}>
+                <input
+                  checked={sinLocal}
+                  name="sin-local"
+                  onChange={() => setSinLocal(true)}
+                  type="radio"
+                />
+                <span>
+                  <strong>Sin local</strong>
+                  <small>Vendes por internet, con envíos o entregas. Apareces en tu ciudad, sin mapa.</small>
+                </span>
+              </label>
             </div>
-            <MapaPin
-              alCambiar={setUbicacion}
-              centro={centro}
-              etiqueta="Ubicación de tu local"
-              valor={ubicacion}
-            />
-            {errores.ubicacion ? <strong className={styles.error}>{errores.ubicacion}</strong> : null}
-          </div>
+          </fieldset>
 
-          {ubicacion && ciudad ? (
+          {!sinLocal ? (
+            <div className={styles.ubicacion}>
+              <p className={styles.pregunta}>¿Dónde está tu local?</p>
+              <p className={styles.explicacion}>
+                Toca el mapa donde está tu puerta, o arrastra el pin.
+              </p>
+              <div className={styles.atajos}>
+                <Boton disabled={buscandoPunto} onClick={usarMiUbicacion} type="button" variante="secundario">
+                  Estoy en mi local
+                </Boton>
+                {enlaceMaps ? (
+                  <Boton
+                    disabled={buscandoPunto}
+                    onClick={() => void usarEnlaceMaps()}
+                    type="button"
+                    variante="secundario"
+                  >
+                    Usar mi enlace de Google Maps
+                  </Boton>
+                ) : null}
+              </div>
+              <MapaPin
+                alCambiar={setUbicacion}
+                centro={centro}
+                etiqueta="Ubicación de tu local"
+                valor={ubicacion}
+              />
+              {errores.ubicacion ? <strong className={styles.error}>{errores.ubicacion}</strong> : null}
+            </div>
+          ) : null}
+
+          {!sinLocal && ubicacion && ciudad ? (
             <div className={styles.zona}>
               {zonaDelPin && !zonaAMano ? (
                 <p className={styles.zonaDetectada}>

@@ -34,6 +34,9 @@ export type Presencia = {
   rubroPublico: RubroPublicoId;
   rubrosSecundarios: RubroPublicoId[];
   aparece: boolean;
+  /* Vende sin un local que marcar en el mapa: aparece con su ciudad, sin
+     punto ni zona. */
+  sinLocal: boolean;
   ciudad: CiudadId | null;
   ubicacion: Punto | null;
   zonaId: string | null;
@@ -72,6 +75,7 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
     errores.aparece_en_directorio = "Cuéntanos si quieres que te encuentren en el buscador.";
   }
 
+  const sinLocal = entrada.sin_local === true;
   let ciudad: CiudadId | null = null;
   let ubicacion: Punto | null = null;
   let zonaId: string | null = null;
@@ -84,8 +88,12 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
       errores.ciudad = "Elige tu ciudad.";
     }
 
-    ubicacion = leerPunto(entrada.ubicacion);
-    if (!ubicacion) {
+    /* Sin local no hay puerta que marcar: el punto, si vino de antes, no se
+       lee, y la zona tampoco. Aparece con su ciudad. */
+    ubicacion = sinLocal ? null : leerPunto(entrada.ubicacion);
+    if (sinLocal) {
+      // Nada más que pedir: la ciudad ya se miró arriba.
+    } else if (!ubicacion) {
       errores.ubicacion = "Marca en el mapa dónde está tu local.";
     } else if (ciudad) {
       /* El pin puede quedar lejos si el mapa no alcanzó a ir a la ciudad: se
@@ -96,7 +104,7 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
       }
     }
 
-    if (entrada.zona_id !== undefined && entrada.zona_id !== null && entrada.zona_id !== "") {
+    if (!sinLocal && entrada.zona_id !== undefined && entrada.zona_id !== null && entrada.zona_id !== "") {
       if (esUuid(entrada.zona_id)) {
         zonaId = entrada.zona_id;
       } else {
@@ -105,7 +113,7 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
     }
 
     const propuesta = typeof entrada.zona_propuesta === "string" ? entrada.zona_propuesta.trim() : "";
-    if (!zonaId && propuesta !== "") {
+    if (!sinLocal && !zonaId && propuesta !== "") {
       if (propuesta.length < LARGO_ZONA_PROPUESTA.minimo || propuesta.length > LARGO_ZONA_PROPUESTA.maximo) {
         errores.zona_propuesta = `Escribe tu zona, de ${LARGO_ZONA_PROPUESTA.minimo} a ${LARGO_ZONA_PROPUESTA.maximo} caracteres.`;
       } else {
@@ -122,6 +130,7 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
       rubroPublico: rubroPublico as RubroPublicoId,
       rubrosSecundarios: secundarios.correcto ? secundarios.secundarios : [],
       aparece: aparece as boolean,
+      sinLocal,
       ciudad,
       ubicacion,
       zonaId,
@@ -144,6 +153,7 @@ export function cambiosDePresencia(
   if (!presencia.aparece) return base;
   return {
     ...base,
+    sin_local: presencia.sinLocal,
     ciudad: presencia.ciudad,
     ubicacion_lat: presencia.ubicacion?.lat ?? null,
     ubicacion_lng: presencia.ubicacion?.lng ?? null,

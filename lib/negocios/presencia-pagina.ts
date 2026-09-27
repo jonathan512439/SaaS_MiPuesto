@@ -13,7 +13,7 @@ import { esRubroPublicoId, rubroQuedoFijo } from "./rubros-publicos";
  * El público no: esa es la regla de la fase 11.
  */
 const COLUMNAS =
-  "rubro,rubro_bloqueado_en,rubro_publico,rubros_secundarios,aparece_en_directorio,ciudad,ubicacion_lat,ubicacion_lng,zona_id,zona_propuesta,ubicacion_url";
+  "rubro,rubro_bloqueado_en,rubro_publico,rubros_secundarios,aparece_en_directorio,sin_local,ciudad,ubicacion_lat,ubicacion_lng,zona_id,zona_propuesta,ubicacion_url";
 
 export async function leerPresenciaDelNegocio(
   supabase: SupabaseClient<Database>,
@@ -37,6 +37,7 @@ export async function leerPresenciaDelNegocio(
       rubroPublico: esRubroPublicoId(negocio.rubro_publico) ? negocio.rubro_publico : "",
       rubrosSecundarios: (negocio.rubros_secundarios ?? []).filter(esRubroPublicoId),
       aparece: negocio.aparece_en_directorio,
+      sinLocal: negocio.sin_local === true,
       ciudad: negocio.ciudad ?? "",
       ubicacion: tienePunto
         ? { lat: Number(negocio.ubicacion_lat), lng: Number(negocio.ubicacion_lng) }
