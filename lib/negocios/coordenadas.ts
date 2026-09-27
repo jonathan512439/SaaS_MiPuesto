@@ -45,6 +45,19 @@ export const CENTRO_DE_CIUDAD: Record<string, Punto> = {
   cobija: { lat: -11.0267, lng: -68.7692 },
 };
 
+/* Cuánto puede alejarse un local del centro de su ciudad. Holgado a
+   propósito: un negocio de Caracollo o de Huanuni elige «Oruro» y está a 40 o
+   50 km. Lo que ataja es el error grande: el pin que quedó en el centro del país
+   porque el mapa no alcanzó a ir a la ciudad. La base tiene el mismo número. */
+export const RADIO_DE_CIUDAD_KM = 100;
+
+/* A cuántos km está un punto del centro de su ciudad, o `null` si la ciudad no
+   tiene centro conocido («Otra ciudad»): ahí no hay contra qué medir. */
+export function distanciaAlCentroDeLaCiudad(ciudad: string, punto: Punto): number | null {
+  const centro = CENTRO_DE_CIUDAD[ciudad];
+  return centro ? distanciaKm(centro, punto) : null;
+}
+
 /* El centro de Bolivia, para quien todavía no eligió ciudad. */
 export const CENTRO_DE_BOLIVIA: Punto = { lat: -16.29, lng: -63.59 };
 

@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  CENTRO_DE_CIUDAD,
+  RADIO_DE_CIUDAD_KM,
   coordenadasDeEnlace,
   distanciaKm,
   esEnlaceDeMaps,
@@ -199,6 +201,23 @@ describe("validarPresencia", () => {
     if (!enMadrid.correcto) expect(enMadrid.errores.ubicacion).toBeTruthy();
   });
 
+  /* El mapa podía quedarse en el centro de Bolivia si la ciudad se elegía antes
+     de que terminara de cargar, y el negocio se guardaba «en Oruro» a 418 km.
+     Un punto a más de 100 km del centro de su ciudad no se acepta; uno de un
+     pueblo cercano, sí. */
+  it("no acepta un punto a más de 100 km de la ciudad elegida, y dice a cuánto está", () => {
+    const lejos = validarPresencia({ ...SI, ubicacion: { lat: -16.29, lng: -63.59 } });
+    expect(lejos.correcto).toBe(false);
+    if (!lejos.correcto) {
+      expect(lejos.errores.ubicacion).toContain("km de Oruro");
+      expect(lejos.errores.ubicacion).toMatch(/4\d\d km/);
+    }
+    // Huanuni, a unos 45 km: un pueblo de la zona entra.
+    expect(validarPresencia({ ...SI, ubicacion: { lat: -18.2893, lng: -66.8386 } }).correcto).toBe(true);
+    // «Otra ciudad» no tiene centro conocido: no se limita.
+    expect(validarPresencia({ ...SI, ciudad: "otra", ubicacion: { lat: -16.29, lng: -63.59 } }).correcto).toBe(true);
+  });
+
   it("con «no» no pide ubicación, y no borra la que había", () => {
     const resultado = validarPresencia({ rubro_publico: "jugueteria", aparece_en_directorio: false });
     expect(resultado.correcto).toBe(true);
@@ -259,5 +278,25 @@ describe("estaEnBolivia", () => {
   it("acepta las ciudades y rechaza lo que no es un número", () => {
     expect(estaEnBolivia({ lat: -17.9647, lng: -67.1064 })).toBe(true);
     expect(estaEnBolivia({ lat: Number.NaN, lng: -67 })).toBe(false);
+  });
+});
+
+/* Los centros de las ciudades viven en dos lugares: acá, para el mapa y el
+   formulario, y en la base, para el disparador que rechaza un punto lejano
+   aunque se escriba sin pasar por la ruta. Tienen que ser los mismos. */
+describe("el centro de cada ciudad, igual en la base", () => {
+  it("la migración del radio usa los mismos centros que CENTRO_DE_CIUDAD", () => {
+    const sql = readFileSync(
+      join(process.cwd(), "supabase/migrations/20261102090000_el_punto_queda_en_su_ciudad.sql"),
+      "utf8",
+    );
+    const enLaBase = Object.fromEntries(
+      [...sql.matchAll(/\('([a-z_]+)', (-?\d+\.\d+), (-?\d+\.\d+)\)/g)].map(([, ciudad, lat, lng]) => [
+        ciudad,
+        { lat: Number(lat), lng: Number(lng) },
+      ]),
+    );
+    expect(enLaBase).toEqual(CENTRO_DE_CIUDAD);
+    expect(sql).toContain(`v_distancia > ${RADIO_DE_CIUDAD_KM} then`);
   });
 });

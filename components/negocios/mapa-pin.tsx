@@ -61,6 +61,17 @@ export function MapaPin({
   useEffect(() => {
     avisar.current = alCambiar;
   }, [alCambiar]);
+  /* El centro vigente, para cuando el mapa termine de armarse. Leaflet se
+     carga aparte y puede tardar: si el dueño elige la ciudad antes, el aviso de
+     «ir a la ciudad» llega cuando todavía no hay mapa, y el mapa se armaba con
+     el centro del primer dibujo —el de Bolivia—. El dueño tocaba ese mapa y su
+     local quedaba a cientos de kilómetros. */
+  const centroVigente = useRef(centro);
+  const valorVigente = useRef(valor);
+  useEffect(() => {
+    centroVigente.current = centro;
+    valorVigente.current = valor;
+  }, [centro, valor]);
 
   /* Pone el pin donde se le diga, creándolo la primera vez. Un solo lugar para
      crearlo: lo usan el toque en el mapa y los cambios que llegan de afuera. */
@@ -95,14 +106,17 @@ export function MapaPin({
       if (cancelado || !contenedor.current || mapa.current) return;
       leaflet.current = L;
 
-      const inicio = valor ?? centro;
+      /* Lo vigente y no lo del primer dibujo: el pin o la ciudad pudieron
+         llegar mientras Leaflet cargaba. */
+      const pinInicial = valorVigente.current;
+      const inicio = pinInicial ?? centroVigente.current;
       mapa.current = L.map(contenedor.current, { zoomControl: true }).setView(
         [inicio.lat, inicio.lng],
-        valor ? zoom : Math.min(zoom, 14),
+        pinInicial ? zoom : Math.min(zoom, 14),
       );
       L.tileLayer(MOSAICOS_MAPA, { attribution: ATRIBUCION, maxZoom: 19 }).addTo(mapa.current);
 
-      if (valor) ponerPin(valor.lat, valor.lng);
+      if (pinInicial) ponerPin(pinInicial.lat, pinInicial.lng);
 
       mapa.current.on("click", (evento: import("leaflet").LeafletMouseEvent) => {
         ponerPin(evento.latlng.lat, evento.latlng.lng);

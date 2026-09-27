@@ -1,7 +1,13 @@
 import { esUuid } from "../catalogo/validacion";
 import type { Database } from "../supabase/database.types";
-import { estaEnBolivia, redondearPunto, type Punto } from "./coordenadas";
-import { esCiudadId, type CiudadId } from "./lugares";
+import {
+  RADIO_DE_CIUDAD_KM,
+  distanciaAlCentroDeLaCiudad,
+  estaEnBolivia,
+  redondearPunto,
+  type Punto,
+} from "./coordenadas";
+import { NOMBRES_CIUDADES, esCiudadId, type CiudadId } from "./lugares";
 import {
   esRubroPublicoId,
   leerRubrosSecundarios,
@@ -79,7 +85,16 @@ export function validarPresencia(entrada: Record<string, unknown>): ResultadoPre
     }
 
     ubicacion = leerPunto(entrada.ubicacion);
-    if (!ubicacion) errores.ubicacion = "Marca en el mapa dónde está tu local.";
+    if (!ubicacion) {
+      errores.ubicacion = "Marca en el mapa dónde está tu local.";
+    } else if (ciudad) {
+      /* El pin puede quedar lejos si el mapa no alcanzó a ir a la ciudad: se
+         dice a cuánto quedó, para que el dueño entienda qué mover. */
+      const distancia = distanciaAlCentroDeLaCiudad(ciudad, ubicacion);
+      if (distancia !== null && distancia > RADIO_DE_CIUDAD_KM) {
+        errores.ubicacion = `Tu local quedó a ${Math.round(distancia)} km de ${NOMBRES_CIUDADES[ciudad]}. Muévelo en el mapa hasta tu puerta.`;
+      }
+    }
 
     if (entrada.zona_id !== undefined && entrada.zona_id !== null && entrada.zona_id !== "") {
       if (esUuid(entrada.zona_id)) {

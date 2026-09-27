@@ -82,6 +82,10 @@ export async function PATCH(solicitud: NextRequest) {
     /* La base tiene la última palabra —aparecer sin ubicación, un punto fuera
        de Bolivia—, y si rechaza algo que la validación dejó pasar, el dueño
        tiene que saber que no se guardó. */
+    if (error.message.includes("PUNTO_LEJOS_DE_SU_CIUDAD")) {
+      const mensaje = "Tu local quedó lejos de la ciudad que elegiste. Muévelo en el mapa hasta tu puerta.";
+      return NextResponse.json({ error: mensaje, errores: { ubicacion: mensaje } }, { status: 400 });
+    }
     console.error("presencia: la base rechazó el cambio", error.code, error.message);
     return NextResponse.json({ error: "No se pudo guardar. Intenta de nuevo." }, { status: 500 });
   }
