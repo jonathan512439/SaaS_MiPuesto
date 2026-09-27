@@ -1727,6 +1727,30 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-09-27
+
+- **Recorrido de seguridad, con tres arreglos y un ajuste.** Detalle en
+  `SECURITY.md`, «Recorrido de seguridad del 2026-09-27». Desplegado en
+  `d127f409`, migraciones aplicadas y `test:rls:linked` en verde.
+  - El directorio ya no revela dónde queda un negocio: la búsqueda redondea el
+    punto del visitante (`49a61dc`, migración `20261101090000`).
+  - Los 21 formularios van por POST: enviar el ingreso antes de que cargue la
+    página ya no deja la contraseña en la dirección (`373bea8`).
+  - El local queda en su ciudad: el mapa se arma con la ciudad vigente y un
+    punto a más de 100 km se rechaza en la ruta y en la base (`dcf987e`,
+    migración `20261102090000`). Cinco tiendas de demostración habían quedado
+    a ~418 km de Oruro; se reubicaron.
+  - Turnstile, en `exigir`.
+- **Negocios sin local en el directorio** (`97c533e`, `6ae2b68`, migración
+  `20261103090000`). Al decir que sí al directorio, «¿Dónde atiendes?»: «En mi
+  local» (ciudad, mapa y zona) o «Sin local» (solo la ciudad). Uno sin local
+  aparece en su ciudad, en todas sus zonas y en «Cerca de mí» solo si el
+  visitante está en su ciudad; su tarjeta dice «Sin local». No guarda punto.
+  Decisión del dueño: dos formas y sin un mínimo de productos. Validado en
+  local contra ensayo de punta a punta.
+- `verificar` con 1200 pruebas. Pruebas de ensayo nuevas:
+  `test:directorio-punto`, `test:punto-ciudad`, `test:sin-local`.
+
 ### 2026-09-26
 
 - **Quinto video («Reto: tu tienda de zapatillas en 60 segundos»): cinco

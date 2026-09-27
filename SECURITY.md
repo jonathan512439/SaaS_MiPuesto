@@ -272,6 +272,69 @@ conteo de límites por IP — y que sí pueda guardar lo suyo.
 | Invitaciones sin límite | Exige una cuenta con segundo factor ya comprometida |
 | Acaparar stock o turnos con un programa que cambia de IP | **Mitigado el 2026-09-24** con Cloudflare Turnstile en pedidos y reservas (`lib/turnstile.ts`). Arrancó en `TURNSTILE_MODO=observar`; tres pruebas reales del dueño pasaron verificadas y desde el 2026-09-24 está en **`exigir`**. El tope por IP sigue de segunda línea: desde el 2026-09-24 es de 15 cada quince minutos, por la IP compartida de las redes móviles, y cada vez que alguien choca con él queda anotado en el registro del Worker |
 
+## Recorrido de seguridad del 2026-09-27
+
+Revisión pedida por el dueño después de una tanda de cambios. Tres hallazgos
+corregidos y desplegados (`d127f409`), uno de configuración y lo que queda
+pendiente.
+
+### 1. El directorio podía revelar dónde queda un negocio
+
+`buscar_en_directorio` está abierta a la clave pública y redondeaba la
+distancia a medio kilómetro, pero medía desde el punto del visitante tal como
+llegaba: el redondeo de ese punto (~1 km) lo hacía solo la página. Llamándola
+directo, mover el punto de a metros y mirar dónde saltaba la distancia ubicaba
+el local, cuando el plan promete que el punto exacto nunca se publica —muchos
+venden desde su casa—. Ahora la función redondea el punto que recibe
+(`20261101090000`). Prueba: `npm run test:directorio-punto:ensayo`. Verificado
+en producción con la clave pública: moviendo el punto de a 110 m, dentro de
+cada celda de ~1 km la distancia no cambia.
+
+### 2. Un formulario enviado antes de cargar dejaba los datos en la dirección
+
+Los formularios se envían con JavaScript; si alguien tocaba «Ingresar» antes
+de que la página cargara, el navegador lo enviaba por GET y el ingreso quedaba
+en `/login?correo=…&clave=…`: la contraseña en el historial y en los registros
+del servidor y de Cloudflare. Igual el segundo factor, la contraseña nueva y el
+pedido del carrito, con el nombre y el celular del cliente. Los 21 formularios
+declaran `method="post"`; `components/formularios-por-post.test.ts` falla si uno
+nuevo no declara su método. El buscador y los filtros del directorio siguen por
+GET a propósito: solo llevan palabras de búsqueda.
+
+### 3. El mapa podía guardar el local a cientos de kilómetros
+
+Si la ciudad se elegía antes de que Leaflet terminara de cargar, el mapa se
+armaba en el centro de Bolivia y el negocio se guardaba «en Oruro» a 418 km,
+con una zona de Oruro asignada. El mapa ahora se arma con la ciudad vigente, y
+un punto a más de 100 km del centro de su ciudad se rechaza en la ruta y en la
+base (`20261102090000`, `npm run test:punto-ciudad:ensayo`).
+
+### 4. Turnstile estaba en modo observar
+
+`TURNSTILE_MODO` pasó a `exigir` (secreto del Worker). Comprobado: un pedido sin
+la verificación se rechaza con 403 antes de buscar el negocio. Si Cloudflare no
+contesta, el envío pasa con el tope por IP: los pedidos no se caen por eso.
+
+### Revisado y sin problema
+
+- Las páginas del panel salen con `no-store` y la caché de Workers no las
+  guarda: no hay filtración entre dueños.
+- El enlace de Google Maps que pega el dueño no deja mandar al servidor a pedir
+  direcciones arbitrarias: sesión, dominios exactos de Google por `https`, cada
+  salto revisado, tope de saltos y de tiempo.
+- La planilla de Excel se abre en el navegador del dueño, no en el Worker.
+
+### Pendiente
+
+- **Plan pago de Workers** y una regla de límite por IP en el WAF cuando el
+  dominio propio esté en Cloudflare; después, apagar `workers.dev`. Con el plan
+  gratuito, una ráfaga de pedidos tumba el sitio hasta que el contador se
+  reinicia.
+- **Rotar** la contraseña y la clave de servicio de la base de ensayo, que
+  quedaron expuestas.
+- **Apagar la caché de Workers** (`"cache": {"enabled": true}` en
+  `wrangler.jsonc`): la aplicación no la usa y guardó respuestas de error.
+
 ## Recuperación de contraseña — corregido el 2026-09-07
 
 Reportado en producción: se pide restablecer la contraseña, se abre el enlace del
