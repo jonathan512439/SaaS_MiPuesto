@@ -88,6 +88,7 @@
     "test:tope-unidades:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/tope-unidades.sql",
     "test:fase13:motor:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/fase13-motor.sql",
     "test:tallas-cuenta:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/tallas-llevan-la-cuenta.sql",
+    "test:directorio-punto:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/directorio-sin-punto-exacto.sql",
     "test:fase13:concurrencia": "node --env-file-if-exists=.env.local scripts/test-presentaciones-concurrencia.mjs",
     "test:tareas": "node scripts/check-tareas-programadas.mjs"
   },
