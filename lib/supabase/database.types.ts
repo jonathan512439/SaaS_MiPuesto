@@ -62,6 +62,38 @@ export type Database = {
           },
         ]
       }
+      ajustes_de_precios: {
+        Row: {
+          ajustados: number
+          creado_en: string
+          idempotencia: string
+          negocio_id: string
+          porcentaje: number
+        }
+        Insert: {
+          ajustados: number
+          creado_en?: string
+          idempotencia: string
+          negocio_id: string
+          porcentaje: number
+        }
+        Update: {
+          ajustados?: number
+          creado_en?: string
+          idempotencia?: string
+          negocio_id?: string
+          porcentaje?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ajustes_de_precios_negocio_id_fkey"
+            columns: ["negocio_id"]
+            isOneToOne: false
+            referencedRelation: "negocios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       atributos_categoria: {
         Row: {
           categoria_id: string
@@ -1287,6 +1319,10 @@ export type Database = {
       admin_renovar_suscripcion: {
         Args: { p_meses?: number; p_negocio_id: string }
         Returns: Json
+      }
+      aplicar_ajuste_de_precios: {
+        Args: { p_cambios: Json; p_idempotencia: string; p_porcentaje: number }
+        Returns: number
       }
       borrar_datos_de_clientes_viejos: {
         Args: { p_meses?: number }

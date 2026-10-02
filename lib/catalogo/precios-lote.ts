@@ -22,6 +22,23 @@ export function aplicarPorcentaje(precio: number, porcentaje: number): number {
   return Math.min(PRECIO_MAXIMO, Math.max(0.01, redondeado));
 }
 
+/* La lista de cambios de un ajuste, para `aplicar_ajuste_de_precios`: cada
+   producto con el precio que se leyó y el nuevo. La base ajusta solo los que
+   siguen teniendo el precio leído, y todos o ninguno. Los que no cambian no
+   viajan. */
+export type CambioDePrecio = { id: string; precio_actual: number; precio_nuevo: number };
+
+export function cambiosDeAjuste(
+  productos: ReadonlyArray<{ id: string; precio: number | string }>,
+  porcentaje: number,
+): CambioDePrecio[] {
+  return productos.flatMap(({ id, precio }) => {
+    const actual = Number(precio);
+    const nuevo = aplicarPorcentaje(actual, porcentaje);
+    return nuevo === actual ? [] : [{ id, precio_actual: actual, precio_nuevo: nuevo }];
+  });
+}
+
 export function validarAjustePrecios(entrada: unknown): ResultadoValidacionAjuste {
   if (typeof entrada !== "object" || entrada === null) {
     return { correcto: false, error: "Los datos enviados no son válidos." };

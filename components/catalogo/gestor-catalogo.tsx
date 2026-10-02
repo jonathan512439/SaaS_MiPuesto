@@ -242,6 +242,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   const [ajustePorcentaje, setAjustePorcentaje] = useState("");
   const [ajusteCategoria, setAjusteCategoria] = useState("");
   const [ajustando, setAjustando] = useState(false);
+  /* El intento de ajuste de precios en curso. Se reusa si el dueño reintenta
+     el mismo ajuste —mismo porcentaje, misma categoría— después de un error: si
+     el primero sí se aplicó y se perdió la respuesta, la base lo reconoce y no
+     ajusta de nuevo. Se descarta al salir bien. */
+  const intentoDeAjuste = useRef<{ clave: string; firma: string } | null>(null);
   const [progreso, setProgreso] = useState("");
   const [renombrando, setRenombrando] = useState<Renombrado | null>(null);
   const formularioProductoRef = useRef<HTMLFormElement>(null);
@@ -1029,6 +1034,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     });
     if (!aceptado) return;
 
+    const firma = `${validacion.datos.porcentaje}|${validacion.datos.categoria_id ?? ""}`;
+    if (intentoDeAjuste.current?.firma !== firma) {
+      intentoDeAjuste.current = { clave: crypto.randomUUID(), firma };
+    }
     setAjustando(true);
     try {
       const { ajustados } = await solicitarJson<{ ajustados: number; revisados: number }>(
@@ -1036,9 +1045,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(validacion.datos),
+          body: JSON.stringify({ ...validacion.datos, idempotencia: intentoDeAjuste.current.clave }),
         },
       );
+      intentoDeAjuste.current = null;
       setProductos((actuales) =>
         actuales.map((producto) =>
           !ajusteCategoria || producto.categoria_id === ajusteCategoria

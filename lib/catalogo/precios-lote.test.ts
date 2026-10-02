@@ -4,6 +4,7 @@ import {
   AJUSTE_MAXIMO,
   AJUSTE_MINIMO,
   aplicarPorcentaje,
+  cambiosDeAjuste,
   PRECIO_MAXIMO,
   validarAjustePrecios,
 } from "./precios-lote";
@@ -55,5 +56,27 @@ describe("validación del ajuste", () => {
 
   it("rechaza más de un decimal", () => {
     expect(validarAjustePrecios({ porcentaje: 10.25 }).correcto).toBe(false);
+  });
+});
+
+/* La lista que va a la base: cada producto con el precio que se leyó y el
+   nuevo. La base solo ajusta el que sigue teniendo el precio leído, y aplica
+   todo o nada; los que no cambian —ya en el centavo mínimo, por ejemplo— no
+   viajan. */
+describe("cambiosDeAjuste", () => {
+  it("lleva el precio leído y el nuevo, y deja afuera los que no cambian", () => {
+    expect(
+      cambiosDeAjuste(
+        [
+          { id: "a", precio: 100 },
+          { id: "b", precio: "45.5" },
+          { id: "c", precio: 0.01 },
+        ],
+        -10,
+      ),
+    ).toEqual([
+      { id: "a", precio_actual: 100, precio_nuevo: 90 },
+      { id: "b", precio_actual: 45.5, precio_nuevo: 40.95 },
+    ]);
   });
 });
