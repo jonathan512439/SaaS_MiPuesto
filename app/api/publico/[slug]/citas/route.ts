@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import {
-  describirCita,
   horarioValido,
   proximosDias,
   rangoDeCita,
 } from "../../../../../lib/agenda/horarios";
 import { partirRango } from "../../../../../lib/agenda/rango";
+import { esLaMismaReserva, respuestaDeCita } from "../../../../../lib/agenda/respuesta-de-cita";
 import { obtenerOcupacion, obtenerProductoAgendable } from "../../../../../lib/agenda/servidor";
 import { esUuid } from "../../../../../lib/catalogo/validacion";
 import {
@@ -22,8 +22,6 @@ import {
   obtenerIpSolicitud,
 } from "../../../../../lib/huella-ip";
 import { crearClienteSupabaseAdmin } from "../../../../../lib/supabase/admin";
-import { construirEnlaceWhatsapp } from "../../../../../lib/whatsapp";
-import { formatearPrecioBolivianos } from "../../../../../lib/precios";
 
 /* Tomar un horario.
  *
@@ -123,20 +121,12 @@ export async function POST(
      una reserva hecha no es un intento nuevo. */
   const { data: yaCreada } = await supabase
     .from("citas")
-    .select("codigo,rango")
+    .select(COLUMNAS_CITA_GUARDADA)
     .eq("negocio_id", negocio.id)
     .eq("idempotencia", idempotencia)
     .maybeSingle();
   if (yaCreada) {
-    const { inicio: inicioExistente } = partirRango(yaCreada.rango);
-    return NextResponse.json({
-      cita: {
-        codigo: yaCreada.codigo,
-        inicio: inicioExistente,
-        cuando: describirCita(inicioExistente),
-      },
-      repetido: true,
-    });
+    return responderCitaGuardada(supabase, negocio, yaCreada, { productoId, inicio });
   }
 
   /* El mismo tope que los pedidos, por negocio y por huella de IP: cinco en
@@ -216,43 +206,28 @@ export async function POST(
       .maybeSingle();
 
     if (!error && data) {
-      const cuando = describirCita(rango.inicio);
-      const mensaje = [
-        `Hola, agendé ${producto.nombre} en el catálogo de ${negocio.nombre}.`,
-        `Cuándo: ${cuando}.`,
-        `Precio publicado: ${formatearPrecioBolivianos(producto.precio)}.`,
-        `Código: ${data.codigo}.`,
-        `A nombre de: ${nombre}.`,
-        ...(nota ? [`Nota: ${nota}.`] : []),
-      ].join("\n");
-
       return NextResponse.json(
-        {
-          cita: { codigo: data.codigo, inicio: rango.inicio, cuando },
-          enlaceWhatsapp: construirEnlaceWhatsapp(negocio.telefono_whatsapp, mensaje),
-        },
+        respuestaDeCita(
+          { codigo: data.codigo, inicio: rango.inicio, nombre_cliente: nombre, nota },
+          producto,
+          negocio,
+        ),
         { status: 201 },
       );
     }
 
     /* El mismo pedido mandado dos veces —un doble toque en un teléfono lento— no
        genera dos citas: la segunda choca con la clave de idempotencia y se
-       devuelve la que ya existe. */
+       devuelve la que ya existe, con su hora y su enlace de WhatsApp. */
     if (error?.code === "23505") {
       const { data: existente } = await supabase
         .from("citas")
-        .select("codigo,rango")
+        .select(COLUMNAS_CITA_GUARDADA)
+        .eq("negocio_id", negocio.id)
         .eq("idempotencia", idempotencia)
         .maybeSingle();
       if (existente) {
-        return NextResponse.json({
-          cita: {
-            codigo: existente.codigo,
-            inicio: rango.inicio,
-            cuando: describirCita(rango.inicio),
-          },
-          repetido: true,
-        });
+        return responderCitaGuardada(supabase, negocio, existente, { productoId, inicio });
       }
     }
 
@@ -273,4 +248,46 @@ export async function POST(
     },
     { status: 409 },
   );
+}
+
+/* Lo que hace falta de una cita guardada para responder por ella. */
+const COLUMNAS_CITA_GUARDADA = "codigo,rango,producto_id,nombre_cliente,nota" as const;
+
+/* Un intento que ya tiene su cita —el reintento después de un corte, o el
+   doble toque que choca con su propia cita—: se responde con la cita guardada
+   y su enlace de WhatsApp, igual que la primera vez. Si el identificador se
+   reusó para otro servicio u otra hora, no se devuelve una cita ajena. */
+async function responderCitaGuardada(
+  supabase: ReturnType<typeof crearClienteSupabaseAdmin>,
+  negocio: { id: string; nombre: string; telefono_whatsapp: string },
+  guardada: {
+    codigo: string;
+    rango: unknown;
+    producto_id: string | null;
+    nombre_cliente: string;
+    nota: string | null;
+  },
+  pedida: { productoId: string; inicio: string },
+) {
+  const { inicio } = partirRango(guardada.rango);
+  if (!esLaMismaReserva({ producto_id: guardada.producto_id, inicio }, pedida)) {
+    return NextResponse.json(
+      { error: "Ese intento ya se usó para otra reserva. Vuelve a elegir el horario." },
+      { status: 409 },
+    );
+  }
+  const producto = guardada.producto_id
+    ? await obtenerProductoAgendable(supabase, negocio.id, guardada.producto_id)
+    : null;
+  if (!producto) {
+    return NextResponse.json({ error: "Este producto no se agenda." }, { status: 409 });
+  }
+  return NextResponse.json({
+    ...respuestaDeCita(
+      { codigo: guardada.codigo, inicio, nombre_cliente: guardada.nombre_cliente, nota: guardada.nota },
+      producto,
+      negocio,
+    ),
+    repetido: true,
+  });
 }
