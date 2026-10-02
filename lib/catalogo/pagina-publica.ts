@@ -1,4 +1,5 @@
 import { COLUMNAS_CATEGORIA, COLUMNAS_PRODUCTO_PUBLICO_PAGINADO } from "./columnas";
+import type { VariantePublica } from "./publico";
 import { calcularRango, extraerTerminos, leerFiltrosCatalogo } from "./consulta-publica";
 import type { crearClienteSupabasePublico } from "../supabase/public";
 
@@ -72,9 +73,13 @@ export function consultarProductosPublicos(
 
 /* Todo lo que no cambia entre páginas, en un solo viaje.
  *
- * Son cinco consultas y van juntas a propósito: cada una es chica —las
+ * Son cuatro consultas y van juntas a propósito: cada una es chica —las
  * categorías de un negocio, sus campos, sus promociones— y encadenarlas sumaría
- * cinco esperas antes de poder dibujar nada. */
+ * cuatro esperas antes de poder dibujar nada.
+ *
+ * Las presentaciones ya no están acá: viajan con los productos de la página
+ * (`COLUMNAS_PRODUCTO_PUBLICO_PAGINADO`). Leerlas todas del negocio pasaba el
+ * tope de 1000 filas en un catálogo grande y las tallas desaparecían. */
 export function consultarContextoPublico(supabase: Cliente, negocioId: string) {
   return Promise.all([
     supabase
@@ -83,16 +88,6 @@ export function consultarContextoPublico(supabase: Cliente, negocioId: string) {
       .eq("negocio_id", negocioId)
       .order("orden")
       .order("nombre"),
-    /* Las presentaciones de todos los productos del negocio, en una consulta.
-       Se filtran las ocultas al agrupar, no acá, para que el conteo del catálogo
-       no dependa de dos lugares. */
-    supabase
-      .from("variantes_producto")
-      /* Con lo apartado: desde la fase 13 cada presentación lleva sus
-         existencias, y el catálogo dice cuántas quedan de cada una. */
-      .select("id,producto_id,nombre,precio,cantidad_stock,cantidad_reservada,visible,orden")
-      .eq("negocio_id", negocioId)
-      .order("orden"),
     /* Las definiciones de campos de todas las categorías, en una sola consulta.
        Son diez filas por categoría como mucho, y el catálogo las necesita todas:
        pedirlas por categoría serían cuarenta viajes para dibujar una página. */
@@ -114,4 +109,13 @@ export function consultarContextoPublico(supabase: Cliente, negocioId: string) {
       )
       .eq("negocio_id", negocioId),
   ]);
+}
+
+/* Las presentaciones de los productos que se leyeron, juntas, para el
+   constructor del catálogo, que las agrupa y las ordena. Las ocultas se filtran
+   al agrupar, no acá, para que el conteo no dependa de dos lugares. */
+export function presentacionesDe(
+  productos: ReadonlyArray<{ variantes_producto?: ReadonlyArray<VariantePublica> | null }>,
+): VariantePublica[] {
+  return productos.flatMap((producto) => producto.variantes_producto ?? []);
 }

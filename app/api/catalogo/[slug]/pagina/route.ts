@@ -6,6 +6,7 @@ import { obtenerNegocioPublico } from "../../../../../lib/catalogo/negocio-publi
 import {
   consultarContextoPublico,
   consultarProductosPublicos,
+  presentacionesDe,
 } from "../../../../../lib/catalogo/pagina-publica";
 import { construirCatalogoPublico } from "../../../../../lib/catalogo/publico";
 import { crearClienteSupabasePublico } from "../../../../../lib/supabase/public";
@@ -63,9 +64,9 @@ export async function GET(
     ),
   ]);
 
-  const [categorias, variantes, atributos, subcategorias, promociones] = contexto;
+  const [categorias, atributos, subcategorias, promociones] = contexto;
 
-  if (categorias.error || productos.error) {
+  if (categorias.error || atributos.error || productos.error) {
     return NextResponse.json({ error: "No se pudo cargar el catálogo." }, { status: 500 });
   }
 
@@ -87,7 +88,7 @@ export async function GET(
       valor: Number(promocion.valor),
     })),
     atributos.data ?? [],
-    variantes.data ?? [],
+    presentacionesDe(productos.data ?? []),
   );
 
   return NextResponse.json({

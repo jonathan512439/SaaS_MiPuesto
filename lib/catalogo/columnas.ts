@@ -30,8 +30,19 @@ export const COLUMNAS_PRODUCTO_IMPRESO =
  * lo mínimo, y se acepta porque sin él las páginas se cortan en el medio de una
  * categoría y los productos de la segunda tanda aparecen más arriba de donde
  * está mirando el cliente. */
+/* Las presentaciones de cada producto, embebidas en su fila. Viajan con los
+   productos de la página —doce, nunca más de 288 presentaciones— y no en una
+   consulta aparte de todo el negocio: con 300 productos y 24 tallas eran 7200
+   filas, y Supabase corta en 1000 sin avisar. */
+const PRESENTACIONES_DEL_PRODUCTO =
+  "variantes_producto(id,producto_id,nombre,precio,cantidad_stock,cantidad_reservada,visible,orden)";
+
 export const COLUMNAS_PRODUCTO_PUBLICO_PAGINADO =
-  `${COLUMNAS_PRODUCTO_PUBLICO},categorias(orden)` as const;
+  `${COLUMNAS_PRODUCTO_PUBLICO},categorias(orden),${PRESENTACIONES_DEL_PRODUCTO}` as const;
+
+/* La ficha de un producto: lo mismo, con sus presentaciones. */
+export const COLUMNAS_PRODUCTO_PUBLICO_FICHA =
+  `${COLUMNAS_PRODUCTO_PUBLICO},${PRESENTACIONES_DEL_PRODUCTO}` as const;
 
 /* La categoría dejó de ser un nombre con un orden: ahora lleva su ícono, si su
    esfera se muestra y qué vende. Escrita acá por el mismo motivo que las de

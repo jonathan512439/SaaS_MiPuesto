@@ -19,6 +19,7 @@ import {
 import {
   consultarContextoPublico,
   consultarProductosPublicos,
+  presentacionesDe,
 } from "../../../lib/catalogo/pagina-publica";
 import { COLUMNAS_CATEGORIA_DE_PRODUCTO } from "../../../lib/catalogo/columnas";
 import { esUuid } from "../../../lib/catalogo/validacion";
@@ -122,7 +123,6 @@ export default async function PaginaCatalogoPublico({
   const [
     [
       resultadoCategorias,
-      resultadoVariantes,
       resultadoAtributos,
       resultadoSubcategorias,
       resultadoPromociones,
@@ -185,6 +185,7 @@ export default async function PaginaCatalogoPublico({
 
   if (
     resultadoCategorias.error ||
+    resultadoAtributos.error ||
     resultadoSubcategorias.error ||
     resultadoProductos.error ||
     resultadoPromociones.error
@@ -224,7 +225,7 @@ export default async function PaginaCatalogoPublico({
       valor: Number(promocion.valor),
     })),
     resultadoAtributos.data ?? [],
-    resultadoVariantes.data ?? [],
+    presentacionesDe(resultadoProductos.data ?? []),
   );
   /* La visita que llega apuntada a algo no se interrumpe.
      Un enlace con búsqueda o con categoría, o la página 2 de una lista, lo

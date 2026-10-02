@@ -3,9 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-import { COLUMNAS_PRODUCTO_PUBLICO } from "../../../../../lib/catalogo/columnas";
+import { COLUMNAS_PRODUCTO_PUBLICO_FICHA } from "../../../../../lib/catalogo/columnas";
 import { obtenerNegocioPublico } from "../../../../../lib/catalogo/negocio-publico";
-import { consultarContextoPublico } from "../../../../../lib/catalogo/pagina-publica";
+import { consultarContextoPublico, presentacionesDe } from "../../../../../lib/catalogo/pagina-publica";
 import { construirCatalogoPublico } from "../../../../../lib/catalogo/publico";
 import { Icono } from "../../../../../components/iconos/icono";
 import { ProductoConPedido } from "../../../../../components/catalogo/producto-con-pedido";
@@ -41,7 +41,7 @@ const obtenerProducto = cache(async (slug: string, codigo: string) => {
   const supabase = crearClienteSupabasePublico();
   const { data: producto, error: errorProducto } = await supabase
     .from("productos")
-    .select(COLUMNAS_PRODUCTO_PUBLICO)
+    .select(COLUMNAS_PRODUCTO_PUBLICO_FICHA)
     .eq("negocio_id", negocio.id)
     .eq("codigo", codigo)
     .eq("visible", true)
@@ -49,8 +49,10 @@ const obtenerProducto = cache(async (slug: string, codigo: string) => {
   if (errorProducto) throw new Error("No se pudo consultar el producto.");
   if (!producto) return null;
 
-  const [categorias, variantes, atributos, subcategorias, promociones] =
+  const [categorias, atributos, subcategorias, promociones] =
     await consultarContextoPublico(supabase, negocio.id);
+  /* Sin los campos, la ficha saldría sin sus datos y sin avisar. */
+  if (atributos.error) throw new Error("No se pudieron leer los datos del producto.");
 
   const { url } = obtenerVariablesPublicasSupabase();
   const { datos, paleta } = construirCatalogoPublico(
@@ -70,7 +72,7 @@ const obtenerProducto = cache(async (slug: string, codigo: string) => {
       valor: Number(promocion.valor),
     })),
     atributos.data ?? [],
-    variantes.data ?? [],
+    presentacionesDe([producto]),
   );
 
   /* El constructor devuelve el catálogo agrupado; acá dentro hay un solo
