@@ -1320,6 +1320,10 @@ export type Database = {
         Args: { p_meses?: number; p_negocio_id: string }
         Returns: Json
       }
+      agregar_foto_producto: {
+        Args: { p_producto_id: string; p_ruta: string }
+        Returns: string[]
+      }
       aplicar_ajuste_de_precios: {
         Args: { p_cambios: Json; p_idempotencia: string; p_porcentaje: number }
         Returns: number
@@ -1475,6 +1479,10 @@ export type Database = {
       }
       purgar_vigilancia_salud: { Args: never; Returns: number }
       raiz_de_palabra: { Args: { p_palabra: string }; Returns: string }
+      quitar_foto_producto: {
+        Args: { p_producto_id: string; p_ruta: string }
+        Returns: string[]
+      }
       registrar_busqueda_sin_resultado: {
         Args: { p_ciudad: string; p_termino: string }
         Returns: undefined

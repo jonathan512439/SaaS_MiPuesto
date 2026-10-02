@@ -6,6 +6,19 @@ export const PESO_MAXIMO_COMPRIMIDO = 2 * 1024 * 1024;
    que no se sirven nunca. */
 export const LADO_MAXIMO_IMAGEN = 1200;
 
+/* Lo que ocupa el formulario además de la foto: los separadores, el nombre del
+   archivo, el identificador del producto. Holgado: solo sirve para no rechazar
+   una foto que entra justa. */
+const MARGEN_DEL_FORMULARIO = 64 * 1024;
+
+/* Si la subida anuncia más de lo que puede pesar una foto, se rechaza antes de
+   leerla: leer el formulario trae la petición entera a memoria. Sin el dato,
+   no decide; lo mira después el tamaño del archivo. */
+export function subidaDemasiadoGrande(longitud: string | null): boolean {
+  const bytes = Number(longitud);
+  return Number.isFinite(bytes) && longitud !== null && bytes > PESO_MAXIMO_COMPRIMIDO + MARGEN_DEL_FORMULARIO;
+}
+
 export type TipoImagenPermitido = "image/webp" | "image/jpeg" | "image/png";
 
 export function detectarTipoImagen(bytes: Uint8Array): TipoImagenPermitido | null {

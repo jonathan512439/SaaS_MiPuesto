@@ -6,7 +6,9 @@ import {
 import { NextResponse, type NextRequest } from "next/server";
 
 import {
+  PESO_MAXIMO_COMPRIMIDO,
   extensionPorTipo,
+  subidaDemasiadoGrande,
   validarImagenBinaria,
 } from "../../../../lib/imagenes";
 import { esUuid } from "../../../../lib/catalogo/validacion";
@@ -20,10 +22,19 @@ import {
   obtenerContextoAdminCatalogo,
 } from "../../../../lib/catalogo/servidor";
 
+const MENSAJE_FOTO_GRANDE = "La imagen supera el límite de 2 MB.";
+
 export async function POST(solicitud: NextRequest) {
   const contexto = await obtenerContextoAdminCatalogo();
   if (!contexto.correcto) {
     return NextResponse.json({ error: contexto.error }, { status: contexto.estado });
+  }
+
+  /* El tamaño se mira antes de leer nada: leer el formulario trae la petición
+     entera a memoria, y el navegador comprime, pero quien se lo salte podía
+     mandar un archivo enorme y gastar la memoria del Worker. */
+  if (subidaDemasiadoGrande(solicitud.headers.get("content-length"))) {
+    return NextResponse.json({ error: MENSAJE_FOTO_GRANDE }, { status: 413 });
   }
 
   let formulario: FormData;
@@ -55,6 +66,9 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
+  if (archivo.size > PESO_MAXIMO_COMPRIMIDO) {
+    return NextResponse.json({ error: MENSAJE_FOTO_GRANDE }, { status: 413 });
+  }
   const bytes = new Uint8Array(await archivo.arrayBuffer());
   const validacion = validarImagenBinaria(bytes);
   if (!validacion.correcto) {
@@ -80,12 +94,13 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json({ error: "No se pudo subir la imagen." }, { status: 500 });
   }
 
-  const fotos = [...producto.fotos, ruta];
-  const { error: errorActualizacion } = await contexto.supabase
-    .from("productos")
-    .update({ fotos })
-    .eq("id", producto.id)
-    .eq("negocio_id", contexto.negocio.id);
+  /* La referencia se agrega en la base, en una sola sentencia: dos subidas a
+     la vez ya no leen la misma lista y se pisan. El tope de fotos lo sigue
+     cuidando la base. */
+  const { error: errorActualizacion } = await contexto.supabase.rpc("agregar_foto_producto", {
+    p_producto_id: producto.id,
+    p_ruta: ruta,
+  });
   if (errorActualizacion) {
     await contexto.supabase.storage.from("productos").remove([ruta]);
     if (esRechazoDeTope(errorActualizacion.message, "LIMITE_FOTOS")) {
@@ -126,23 +141,21 @@ export async function DELETE(solicitud: NextRequest) {
     return NextResponse.json({ error: "La imagen no pertenece a este producto." }, { status: 404 });
   }
 
+  /* Primero la referencia, después el archivo. Al revés, si fallaba lo segundo
+     el catálogo mostraba una foto rota; así, lo peor es un archivo sin uso,
+     que la conciliación de fotos encuentra después. */
+  const { error } = await contexto.supabase.rpc("quitar_foto_producto", {
+    p_producto_id: producto.id,
+    p_ruta: datos.ruta,
+  });
+  if (error) {
+    return NextResponse.json({ error: "No se pudo borrar la imagen." }, { status: 500 });
+  }
   const { error: errorStorage } = await contexto.supabase.storage
     .from("productos")
     .remove([datos.ruta]);
   if (errorStorage) {
-    return NextResponse.json({ error: "No se pudo borrar la imagen." }, { status: 500 });
-  }
-  const fotos = producto.fotos.filter((ruta) => ruta !== datos.ruta);
-  const { error } = await contexto.supabase
-    .from("productos")
-    .update({ fotos })
-    .eq("id", producto.id)
-    .eq("negocio_id", contexto.negocio.id);
-  if (error) {
-    return NextResponse.json(
-      { error: "La imagen se borró, pero no se pudo actualizar el producto. Recarga la página." },
-      { status: 500 },
-    );
+    console.warn("imagenes: la foto se quitó del producto, pero el archivo quedó en Storage", datos.ruta);
   }
   return NextResponse.json({ eliminado: true });
 }
