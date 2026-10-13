@@ -1733,7 +1733,8 @@ motivo por el que este archivo existe.
   de código; detalle en `SECURITY.md`, «Auditoría externa del 2026-09-30».
   Migraciones `20261104090000` y `20261105090000` aplicadas y desplegado por
   el dueño; él probó en el panel de producción el ajuste de precios y las
-  fotos.
+  fotos. `test:rls:linked` en verde: dos usuarios, doce tablas de negocio y
+  ambos buckets aislados.
   - Las tallas ya no desaparecen en catálogos grandes (`5147655`). Verificado
     en producción por la API paginada.
   - El ajuste masivo de precios es todo o nada y no se aplica dos veces

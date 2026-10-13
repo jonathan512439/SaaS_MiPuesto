@@ -341,7 +341,7 @@ Una auditoría externa encontró cuatro fallas de código que podían perder dat
 o dejar a un cliente sin respuesta. Las cuatro se corrigieron, se probaron en
 ensayo —cada guardia nueva rota a propósito— y se desplegaron el 2026-10-13 con
 las migraciones `20261104090000` y `20261105090000`. El dueño las probó en el
-panel de producción.
+panel de producción, y `test:rls:linked` aprobó después del despliegue.
 
 ### 1. Las tallas desaparecían en los catálogos grandes (`5147655`)
 
