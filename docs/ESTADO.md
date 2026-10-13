@@ -58,11 +58,11 @@ se vacía, el vigilante avisa.
 1. **Workers Paid** (5 dólares al mes), antes del piloto. El CPU medido —P50
    7,7 ms, P90 15,8 ms— pasa los 10 ms del plan gratuito en una de cada cuatro
    visitas.
-2. **Limpiar los datos de demostración**: hay dos «Brasa Urbana» en el
-   directorio, las tiendas de prueba llevan el WhatsApp del dueño, el alimento
-   de cachorro de Huellitas está en stock 0, y quedan 3 banners subidos y nunca
-   guardados (`npm run archivos:revisar`). Averiguar por qué un negocio perdía
-   la modalidad al crearse.
+2. **Averiguar por qué un negocio perdía la modalidad al crearse.** La
+   limpieza de demostración se hizo el 2026-10-13: se borró `brasa-urbana` (la
+   copia sin pedidos; queda `brasaurbana`) con sus 14 archivos, los 3 banners
+   sin uso, y el alimento de cachorro de Huellitas tiene stock. Las tiendas de
+   prueba siguen con el WhatsApp del dueño, a propósito.
 3. **Probar en un teléfono real** un catálogo grande, con datos móviles.
 4. **Dominio `mi-puesto.com`**: conectarlo al Worker y mover todo lo que apunta a
    la dirección de hoy —`NEXT_PUBLIC_SITE_URL` del build, las direcciones de
