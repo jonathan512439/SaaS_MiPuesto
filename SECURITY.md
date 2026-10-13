@@ -330,8 +330,12 @@ contesta, el envío pasa con el tope por IP: los pedidos no se caen por eso.
   dominio propio esté en Cloudflare; después, apagar `workers.dev`. Con el plan
   gratuito, una ráfaga de pedidos tumba el sitio hasta que el contador se
   reinicia.
-- **Rotar** la contraseña y la clave de servicio de la base de ensayo, que
-  quedaron expuestas.
+- ~~**Rotar** la contraseña y la clave de servicio de la base de ensayo, que
+  quedaron expuestas.~~ **Hecho el 2026-10-13** por el dueño: contraseña de la
+  base nueva (`.env.local` y el secreto `ENSAYO_DB_URL` de GitHub), clave
+  secreta nueva y la vieja borrada. Comprobado: la clave nueva lee y administra
+  cuentas, y las pruebas de ensayo conectan con la contraseña nueva. Importa
+  porque ensayo recibe copias de los respaldos de producción.
 - ~~Apagar la caché de Workers~~ **Se deja encendida** (decisión del dueño,
   2026-10-13). Revisada en producción: las páginas salen con `no-store` y no
   se guardan, las respuestas de error tampoco, y solo tres rutas sin datos de
@@ -390,7 +394,7 @@ paralelo quedan las dos.
 ### Pendiente de la auditoría
 
 - Lo de infraestructura sigue en «Pendiente» del recorrido del 2026-09-27:
-  plan pago de Workers y rotar las credenciales de ensayo. La caché se
+  plan pago de Workers. Las credenciales de ensayo se rotaron y la caché se
   revisó y se deja encendida.
 - ~~Una guardia que impida desplegar código cuya migración no está aplicada.~~
   Hecha el 2026-10-13: `scripts/check-migraciones-aplicadas.mjs` en

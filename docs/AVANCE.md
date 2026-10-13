@@ -1763,9 +1763,16 @@ motivo por el que este archivo existe.
   producción: ninguna página se guarda; solo la salud, las sugerencias del
   directorio y el manifiesto piden caché pública. `lib/cache-publica.test.ts`
   frena una ruta nueva que la pida.
-- Queda de la auditoría: fase 0 (CPU, credenciales de ensayo, plan pago),
-  fase 2 (vigilancia de contenido, revisión de fotos, documentos) y fase 3
-  (teléfono real, dominio, piloto).
+- **Credenciales de ensayo rotadas** por el dueño: contraseña de la base y
+  clave secreta nuevas, la vieja borrada. Comprobadas desde acá.
+- **CPU medido** (Cloudflare, 7 días): P50 7,7 ms, P90 15,8 ms, P99 65 ms,
+  P999 125 ms; pico aislado de ~2 s el 8 de octubre. El plan gratuito corta a
+  los 10 ms: una de cada cuatro visitas lo pasa. Memoria de 12 a 17 MB de 128.
+  La demora de 0,5 a 1 s es espera a Supabase, no CPU. **Workers Paid va antes
+  del piloto, no después.**
+- Queda de la auditoría: fase 0 (plan pago), fase 2 (vigilancia de
+  contenido, revisión de fotos, documentos) y fase 3 (teléfono real, dominio,
+  piloto).
 
 ### 2026-09-27
 
