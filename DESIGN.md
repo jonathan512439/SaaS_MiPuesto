@@ -62,31 +62,33 @@ Codex debe evitar deliberadamente estos patrones. Son defaults, no decisiones, y
 - Una o dos familias como máximo dentro de cada experiencia. Si son dos, que sean claramente distintas entre sí — no dos sans parecidas.
 - No hace falta una tipografía distinta para títulos y cuerpo; una sola familia bien usada con una escala de pesos clara suele ser más sólida.
 - El logo ya usa una sans redondeada y gruesa: la familia del producto debe convivir con ella, no pelearse.
-- Las plantillas pueden usar pilas tipográficas predefinidas diferentes: Clásica usa una serif editorial en títulos; Moderna usa una sans geométrica y pesada; Mínima usa una sans humanista. No se descargan fuentes externas durante la navegación.
+- El catálogo usa pilas tipográficas predefinidas, sin descargar fuentes externas durante la navegación.
 - Longitud de línea por debajo de 80 caracteres en textos largos (descripciones de producto, páginas informativas).
 - Sentence case en toda la interfaz. Nada de MAYÚSCULAS como recurso de estilo.
 - **Los precios son contenido de primera clase**, no un detalle: tratamiento tipográfico deliberado, siempre legibles de un vistazo, siempre con el mismo formato (`Bs 45` o `Bs 45,00` — elige uno y respétalo en todo el producto).
 
-## 5. Las tres plantillas deben ser realmente distintas
+## 5. Un solo diseño, tres formas de tarjeta
 
-Este es el punto donde es más fácil fallar. Si `clasica`, `moderna` y `minimal` son la misma cuadrícula con distintos colores, el selector de plantilla no aporta nada y el producto pierde su argumento de venta.
+Las tres plantillas de antes —Clásica, Moderna y Mínima— se retiraron: hay **un solo diseño de catálogo**, la plantilla MiPuesto (`components/templates/mipuesto/`). El dueño elige su aspecto con dos cosas cerradas, en Apariencia:
 
-Cada plantilla debe diferir en **estructura**, no solo en paleta:
+- **La forma de la tarjeta** (`FORMAS_TARJETA` en `lib/apariencia.ts`), que decide cómo se dibuja cada producto:
+  - **Cuadrícula** — dos por fila, con la foto arriba y a lo ancho. Para lo que se elige mirando.
+  - **Una por fila** — foto chica al costado y más texto. Para lo que se elige leyendo: una carta, una lista de servicios.
+  - **Vitrina** — la foto ocupa toda la tarjeta, con el nombre, el precio y el botón encima. Para lo que entra por los ojos.
 
-- **Clásica** — pensada para restaurantes: carta editorial con serif en títulos, categorías como capítulos, fotografía pequeña, producto en fila y acción sobria al final de cada sección.
-- **Moderna** — pensada para retail: escaparate de alto contraste con sans pesada, portada compacta, navegación horizontal, imágenes grandes, cuadrícula de productos y acciones directas por producto.
-- **Mínima** — pensada para servicios: directorio sereno con sans humanista, contacto y horario en primer plano, fotografías compactas, servicios en una línea de tiempo y una llamada principal a reservar.
+  El marcado es el mismo en las tres (`tarjeta-mipuesto.tsx`, con `data-forma`); cambia dónde queda la foto y qué tamaño se le pide al servidor. Así ninguna forma se queda sin un dato que las otras muestran.
+- **La paleta**: una de las dieciséis (sección 2).
 
-Las tres muestran las mismas fotografías, precios y datos de demostración. Deben cambiar también encabezado, navegación, botones, densidad, jerarquía y forma de recorrer el contenido. Cambiar la paleta no cambia la estructura.
+Es el punto donde es más fácil fallar: si las tres formas fueran la misma tarjeta con otro tamaño, elegir no aportaría nada. Cada forma tiene que cambiar **la disposición y la densidad** —cuánto se ve de un vistazo, qué manda, la foto o el texto—, no solo las medidas.
 
-Que cada plantilla nazca de un rubro real es lo que evita que sean tres variantes de lo mismo.
+**Una forma nunca esconde una acción.** Lo que se puede hacer con el producto —pedir, agendar, agregar al carrito— lo decide la modalidad del negocio, y aparece en las tres formas. Como cada forma se dibuja con cada modalidad, y esas combinaciones nadie las abre a mano, las cubre una prueba de dibujo (`formas-tarjeta.render.test.ts`).
 
 ## 6. Copy de interfaz (las palabras también son diseño)
 
 - Nombra las cosas como las entiende el dueño del negocio, no como está construido el sistema. "Productos ocultos", no "items con visible=false". "Pedidos por confirmar", no "órdenes en estado pendiente".
 - Voz activa, y el botón dice exactamente qué va a pasar: "Confirmar venta", no "Enviar". La acción conserva su nombre en todo el flujo — si el botón dice "Publicar", el mensaje de confirmación dice "Publicado".
 - **Estados vacíos como invitación a actuar, no como decoración.** "Todavía no cargaste ningún producto. Empieza con el primero." con el botón al lado — no una ilustración simpática sin salida.
-- **Los errores no piden disculpas y nunca son vagos.** Explican qué pasó y cómo arreglarlo: "No se pudo subir la foto: pesa más de 5 MB. Probá con una imagen más liviana."
+- **Los errores no piden disculpas y nunca son vagos.** Explican qué pasó y cómo arreglarlo: "No se pudo subir la foto: pesa más de 2 MB. Prueba con una imagen más liviana."
 - Todo el producto en español boliviano natural, sin tecnicismos y sin traducciones literales del inglés.
 
 ## 7. Piso de calidad (no se anuncia, se cumple)

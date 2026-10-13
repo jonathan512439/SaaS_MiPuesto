@@ -1779,8 +1779,14 @@ motivo por el que este archivo existe.
   con referencias rotas. Primera revisión de producción: **0 rotas**, 3 banners
   sin uso (Broaster Saolito y Kantuta Moda), que se suben al elegirlos y quedan
   sueltos si no se guarda.
-- Queda de la auditoría: fase 0 (plan pago), fase 2 (documentos y la alerta
-  de 5xx de Cloudflare) y fase 3 (teléfono real, dominio, piloto).
+- **Documentos al día.** `docs/ESTADO.md` nuevo: cómo está el proyecto hoy, y
+  se reescribe al cerrar cada tramo. `PROMPT-MAESTRO.md` pasó a verbos de tú y
+  manda el estado del día a `ESTADO.md`; `DESIGN.md` describe el diseño único
+  con tres formas de tarjeta en vez de las tres plantillas retiradas; `AGENTS.md`
+  sin voseo.
+- Queda de la auditoría: fase 0 (plan pago), la alerta de 5xx de Cloudflare y
+  fase 3 (limpieza de demostración, teléfono real, dominio, piloto). Lista en
+  `docs/ESTADO.md`.
 
 ### 2026-09-27
 

@@ -6,7 +6,8 @@
 3. `DESIGN.md` — antes de escribir cualquier interfaz
 4. `SECURITY.md` — controles, parte del criterio de aceptación
 5. `docs/plan/` — **el plan vigente**, en el orden de su `README.md`
-6. `docs/AVANCE.md` — qué está cerrado y con qué evidencia
+6. `docs/ESTADO.md` — cómo está el proyecto hoy, en una pantalla
+7. `docs/AVANCE.md` — qué está cerrado y con qué evidencia
 
 ## Producto
 SaaS de catálogos digitales para negocios locales en Bolivia. Los pedidos se cierran por
@@ -35,8 +36,8 @@ Next.js 16 (App Router, TypeScript) sobre Cloudflare Workers con vinext + Supaba
 - **Toda la lógica de precios vive en `lib/precios.ts`.** No se duplica en componentes ni
   en rutas. Si un mecanismo nuevo quiere tocar el precio y no cabe ahí, el diseño está mal.
 - Los totales de pedidos se recalculan en el servidor; nunca se confía en el navegador.
-- Comprimí y validá imágenes en el cliente antes de subir (`lib/imagenes.ts`). Al borrar o
-  reemplazar una imagen, borrá también el archivo en Storage.
+- Comprime y valida imágenes en el cliente antes de subir (`lib/imagenes.ts`). Al borrar o
+  reemplazar una imagen, borra también el archivo en Storage.
 - Fechas: guardar en UTC, convertir a `America/La_Paz` solo al mostrar.
 - Todo dato del cliente se valida también en el servidor. Sin excepciones.
 - Los topes —campos, variantes, escalas, fotos— van en la base con `check` o disparador,
@@ -94,7 +95,7 @@ Next.js 16 (App Router, TypeScript) sobre Cloudflare Workers con vinext + Supaba
   cliente.
 - No avances a la siguiente fase si la actual no cumple su criterio de aceptación.
 - No implementes lo que la sección final de `SECURITY.md` marca como prematuro.
-- No crees una tabla para un solo rubro. Reusá un mecanismo o anotalo como excepción.
+- No crees una tabla para un solo rubro. Reúsa un mecanismo o anótalo como excepción.
 - No corras el seed contra la base enlazada: reescribiría los negocios reales.
 
 ## Cómo correr el proyecto
@@ -104,7 +105,7 @@ npm test                 # contraste, tokens y unitarias
 npm run typecheck
 npm run lint
 npm run verificar        # tipos, lint y todas las pruebas, en ese orden
-npm run build:vinext     # corre antes `verificar`; cerrá wrangler dev antes, o falla con EBUSY
+npm run build:vinext     # corre antes `verificar`; cierra wrangler dev antes, o falla con EBUSY
 npm run test:rls:linked
 npm run types:db:linked  # después de cualquier migración (supabase:push ya lo corre)
 ```

@@ -1,88 +1,83 @@
 # PROMPT MAESTRO — MiPuesto
 
-> Punto de entrada del proyecto. Si sos un agente de código y estás leyendo esto, empezá
-> por acá.
+> Punto de entrada del proyecto. Si eres un agente de código y estás leyendo esto,
+> empieza por acá.
 
 ## Qué hacer ahora mismo, en este orden
 
-1. Leé **este archivo** completo.
-2. Leé **`AGENTS.md`** — convenciones de código y prohibiciones.
-3. Leé **`DESIGN.md`** — dirección visual, obligatoria antes de escribir cualquier
+1. Lee **este archivo** completo.
+2. Lee **`docs/ESTADO.md`** — cómo está el proyecto hoy, en una pantalla.
+3. Lee **`AGENTS.md`** — convenciones de código y prohibiciones.
+4. Lee **`DESIGN.md`** — dirección visual, obligatoria antes de escribir cualquier
    interfaz.
-4. Leé **`SECURITY.md`** — controles de seguridad, sobre todo la sección final «Cosas que
-   NO hay que hacer todavía».
-5. Leé **`docs/plan/`** en el orden que dice su `README.md`. Es el plan vigente.
-6. Si la máquina es nueva o recién formateada, **`docs/REINSTALAR.md`** tiene qué instalar,
-   qué copiar y cómo comprobar que quedó todo andando.
-6. Leé **`docs/AVANCE.md`** para saber qué está cerrado y con qué evidencia.
-7. **No escribas código todavía.** Devolvé primero un resumen de lo que entendiste:
-   producto, stack, en qué fase está el proyecto y qué vas a hacer en la que sigue.
-   Esperá confirmación.
+5. Lee **`SECURITY.md`** — controles de seguridad, sobre todo la sección «Cosas que NO
+   hay que hacer todavía».
+6. Lee **`docs/plan/`** en el orden que dice su `README.md`. Es el plan vigente.
+7. Lee **`docs/AVANCE.md`** para saber qué está cerrado y con qué evidencia.
+8. Si la máquina es nueva o recién formateada, **`docs/REINSTALAR.md`** tiene qué
+   instalar, qué copiar y cómo comprobar que quedó todo andando.
+9. **No escribas código todavía.** Devuelve primero un resumen de lo que entendiste:
+   producto, stack, en qué está el proyecto y qué vas a hacer después. Espera
+   confirmación.
 
 ## El producto en un párrafo
 
 MiPuesto es un SaaS donde negocios locales de Bolivia tienen su propio catálogo digital y
 los pedidos se cierran por WhatsApp. Cada negocio elige una de tres modalidades —catálogo
 estático, catálogo con acción por producto, o tienda con carrito y reserva temporal— y un
-**rubro**, que trae su preset de categorías, campos, armazón y paleta. No hay pasarela de
-pago ni registro de autoservicio: la suscripción se vende en persona. Moneda: bolivianos
-(Bs), con dólares donde el rubro lo exige. Zona horaria: `America/La_Paz`. Dominio:
+**rubro**, que trae su preset de categorías, campos y paleta. No hay pasarela de pago ni
+registro de autoservicio: la suscripción se vende en persona. Moneda: bolivianos (Bs),
+con dólares donde el rubro lo exige. Zona horaria: `America/La_Paz`. Dominio:
 `mi-puesto.com`, con guion (el que no lo lleva es de un tercero).
 
-## En qué está el proyecto
+## Cómo está armado
 
-Los planes anteriores **están cerrados y borrados**. Lo vigente es `docs/plan/`, que
-adopta el frontend de `Catalogos_Ejemplo/` —un sitio real, no un juego de imágenes— como
-el único diseño de catálogo del sistema.
+**Un solo diseño de catálogo**, la plantilla MiPuesto (`components/templates/mipuesto/`).
+El dueño elige su aspecto con dos cosas cerradas: una de **tres formas de tarjeta**
+—cuadrícula, fila o vitrina— y una de **dieciséis paletas** (`lib/apariencia.ts`). La
+forma decide cómo se dibuja el producto; lo que se puede hacer con él lo decide la
+modalidad.
 
-Dos decisiones lo ordenan todo: **un solo diseño**, sin plantillas ni formas de tarjeta
-elegibles, y **la categoría declara sus campos**, porque el modelo actual de producto no
-alcanza para una ferretería ni para una veterinaria.
+**La categoría declara sus campos**: una ferretería y una veterinaria no cargan lo mismo,
+y el modelo de producto no se parte por rubro.
 
-El plan tiene **nueve fases y 40 días de trabajo efectivo**, para seis rubros. La red de
-seguridad de respaldos ya está cerrada y verificada desde el 2026-09-09, que es lo que
-permite aplicar diez migraciones sobre la base de producción.
-
-**Al 2026-09-11 hay cuatro fases desplegadas**: la categoría con identidad, sus campos,
-los campos cargados y visibles en el producto, y las presentaciones. 578 pruebas en verde
-y todo empujado a `main`. El detalle, fase por fase, está en `docs/AVANCE.md`.
-
-**Lo primero que hay que decidir al retomar**: la fase 4 dejó pendiente la reserva por
-presentación y la fase 5 es la agenda. Las dos tocan **las mismas cinco funciones** de la
-base —crear el pedido, confirmar, cancelar, expirar, y `pedido_items`—, así que conviene
-hacerlas juntas en vez de entrar dos veces al motor de compra.
+El estado del día —qué está en producción, qué falta, qué decisiones esperan— está en
+**`docs/ESTADO.md`**, no acá: este archivo cambia poco a propósito.
 
 ## Con quién estás trabajando
 
-Un desarrollador solo, estudiante de informática, sin equipo, sin QA y sin presupuesto de
-infraestructura. Todo el stack tiene que caber en planes gratuitos. Dos consecuencias que
-afectan cada decisión:
+Un desarrollador solo, estudiante de informática, sin equipo, sin QA y con un presupuesto
+de infraestructura mínimo: todo cabe en planes gratuitos salvo Workers Paid (5 dólares al
+mes), que va antes del piloto. Dos consecuencias que afectan cada decisión:
 
 - **No hay nadie más que revise tu trabajo.** Las pruebas y los controles de seguridad son
   el único mecanismo de verificación que existe.
-- **Preferí siempre la solución simple y probada** sobre la elegante. Menos dependencias,
-  menos abstracciones, menos piezas móviles. Si dudás entre dos caminos, elegí el que
+- **Prefiere siempre la solución simple y probada** sobre la elegante. Menos dependencias,
+  menos abstracciones, menos piezas móviles. Si dudas entre dos caminos, elige el que
   tenga menos cosas que puedan romperse a las tres de la mañana sin nadie para arreglarlas.
 
 ## Reglas de trabajo
 
-**Trabajá de a una fase.** No empieces la siguiente hasta que la actual cumpla su criterio
-de aceptación — verificado corriendo la app en producción, no asumido por leer el código.
+**Trabaja de a una fase.** No empieces la siguiente hasta que la actual cumpla su
+criterio de aceptación — verificado corriendo la app en producción, no asumido por leer
+el código.
 
-**Antes de empezar una fase**, decí en voz alta: qué archivos vas a tocar, qué decisiones
+**Antes de empezar una fase**, di en voz alta: qué archivos vas a tocar, qué decisiones
 técnicas estás tomando y por qué, y qué riesgos de `SECURITY.md` aplican.
 
-**Al terminar una fase**, entregá: el criterio de aceptación verificado con el paso a paso
-de cómo lo comprobaste, los controles de seguridad marcados como cumplidos o pendientes
-con motivo, un commit por tarea, y una lista corta de lo que quedó pendiente.
+**Al terminar una fase**, entrega: el criterio de aceptación verificado con el paso a
+paso de cómo lo comprobaste, los controles de seguridad marcados como cumplidos o
+pendientes con motivo, un commit por tarea, y una lista corta de lo que quedó pendiente.
 
-**Cada cambio se despliega a producción para validarlo.** Es una restricción de trabajo
-del proyecto, no una preferencia.
+**Cada cambio se despliega a producción para validarlo.** Empujar a `main` despliega
+solo (Workers Builds), así que **primero la migración, después el código**: si sale el
+código antes, lo que usa la migración responde 500. Desde el 2026-10-13 una guardia lo
+frena (`scripts/check-migraciones-aplicadas.mjs`).
 
-**Si algo del plan te parece equivocado, decilo antes de implementarlo.** No lo ejecutes
+**Si algo del plan te parece equivocado, dilo antes de implementarlo.** No lo ejecutes
 en silencio ni lo cambies por tu cuenta.
 
-**Si una tarea es ambigua, preguntá en vez de asumir.** Una suposición arrastrada tres
+**Si una tarea es ambigua, pregunta en vez de asumir.** Una suposición arrastrada tres
 fases cuesta mucho más que una pregunta.
 
 ## Definición de «terminado»
