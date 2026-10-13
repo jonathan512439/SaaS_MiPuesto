@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
    sitio sin adivinar. Se lee en `/api/salud`. Cuando cambia acá y aparece allá
    sin que nadie haya desplegado a mano, el despliegue automático está andando.
    Se bumpea en cambios que importa poder confirmar en producción. */
-const MARCA_DESPLIEGUE = "topes-por-plan";
+const MARCA_DESPLIEGUE = "esquema-en-salud";
 
 const VIDA_CACHE_MS = 15_000;
 
@@ -52,9 +52,10 @@ export async function GET() {
   try {
     const supabase = crearClienteSupabaseAdmin();
 
-    const [negocios, tareas] = await Promise.all([
+    const [negocios, tareas, esquema] = await Promise.all([
       supabase.from("negocios").select("id", { count: "exact", head: true }),
       supabase.rpc("estado_tareas"),
+      supabase.rpc("esquema_aplicado"),
     ]);
 
     if (negocios.error) {
@@ -73,7 +74,15 @@ export async function GET() {
       return responder({ estado: "tareas_atrasadas", atrasadas }, 503);
     }
 
-    return responder({ estado: "ok", marca: MARCA_DESPLIEGUE }, 200);
+    /* La última migración aplicada: antes de cada despliegue,
+       `scripts/check-migraciones-aplicadas.mjs` la compara con la última del
+       repositorio y frena el código que necesita una migración que la base
+       todavía no tiene. Si no se pudo leer, va `null` y el sitio sigue sano:
+       el que decide qué hacer sin el dato es el despliegue, no el vigilante. */
+    return responder(
+      { estado: "ok", marca: MARCA_DESPLIEGUE, esquema: esquema.error ? null : esquema.data },
+      200,
+    );
   } catch {
     return responder({ estado: "sin_configurar" }, 503);
   }

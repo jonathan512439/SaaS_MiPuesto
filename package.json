@@ -67,6 +67,7 @@
     "build:vinext": "vinext build",
     "postbuild:vinext": "npm run security:client-secrets",
     "start:vinext": "wrangler dev --config dist/server/wrangler.json",
+    "predeploy:vinext": "node scripts/check-migraciones-aplicadas.mjs",
     "deploy:vinext": "wrangler deploy --config dist/server/wrangler.json --keep-vars",
     "salud": "node --env-file-if-exists=.env.local scripts/salud.mjs",
     "plataforma:admin": "node --env-file-if-exists=.env.local scripts/plataforma-admin.mjs",
@@ -93,6 +94,7 @@
     "test:sin-local:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/directorio-sin-local.sql",
     "test:ajuste-precios:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/ajuste-de-precios.sql",
     "test:fotos:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/fotos-atomicas.sql",
+    "test:esquema:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/esquema-aplicado.sql",
     "test:fase13:concurrencia": "node --env-file-if-exists=.env.local scripts/test-presentaciones-concurrencia.mjs",
     "test:tareas": "node scripts/check-tareas-programadas.mjs"
   },
