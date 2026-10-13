@@ -1770,9 +1770,17 @@ motivo por el que este archivo existe.
   los 10 ms: una de cada cuatro visitas lo pasa. Memoria de 12 a 17 MB de 128.
   La demora de 0,5 a 1 s es espera a Supabase, no CPU. **Workers Paid va antes
   del piloto, no después.**
-- Queda de la auditoría: fase 0 (plan pago), fase 2 (vigilancia de
-  contenido, revisión de fotos, documentos) y fase 3 (teléfono real, dominio,
-  piloto).
+- **El vigilante mira un catálogo testigo** (`a371098`, migración
+  `20261107090000`). Si la salud da bien, abre `/kantuta-moda` y exige al menos
+  un producto; si no, avisa por ntfy a la segunda falla seguida con un mensaje
+  propio. Configurado en producción y probado: el aviso de prueba llegó.
+- **Revisión semanal de archivos** (`49fa8fb`, migración `20261108090000`).
+  `npm run archivos:revisar` y cada lunes desde GitHub; solo lee y falla solo
+  con referencias rotas. Primera revisión de producción: **0 rotas**, 3 banners
+  sin uso (Broaster Saolito y Kantuta Moda), que se suben al elegirlos y quedan
+  sueltos si no se guarda.
+- Queda de la auditoría: fase 0 (plan pago), fase 2 (documentos y la alerta
+  de 5xx de Cloudflare) y fase 3 (teléfono real, dominio, piloto).
 
 ### 2026-09-27
 

@@ -399,8 +399,14 @@ paralelo quedan las dos.
 - ~~Una guardia que impida desplegar código cuya migración no está aplicada.~~
   Hecha el 2026-10-13: `scripts/check-migraciones-aplicadas.mjs` en
   `predeploy:vinext`.
-- Vigilar contenido, no solo que la página responda, y avisar los 5xx.
-- Revisar cada semana las fotos: archivos sin uso y referencias sin archivo.
+- ~~Vigilar contenido, no solo que la página responda.~~ Hecho el
+  2026-10-13: el vigilante abre un catálogo testigo (`/kantuta-moda`) y exige
+  al menos un producto; avisa por ntfy. Queda la alerta de errores 5xx de
+  Cloudflare, para cuando esté el plan pago y el dominio.
+- ~~Revisar cada semana las fotos.~~ Hecho el 2026-10-13:
+  `revisar_archivos_storage()`, `npm run archivos:revisar` y
+  `revisar-archivos.yml` cada lunes. Solo lee. Primera revisión de producción:
+  0 referencias rotas, 3 banners sin uso —subidos y nunca guardados—.
 
 ## Recuperación de contraseña — corregido el 2026-09-07
 
