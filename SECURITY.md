@@ -332,8 +332,13 @@ contesta, el envío pasa con el tope por IP: los pedidos no se caen por eso.
   reinicia.
 - **Rotar** la contraseña y la clave de servicio de la base de ensayo, que
   quedaron expuestas.
-- **Apagar la caché de Workers** (`"cache": {"enabled": true}` en
-  `wrangler.jsonc`): la aplicación no la usa y guardó respuestas de error.
+- ~~Apagar la caché de Workers~~ **Se deja encendida** (decisión del dueño,
+  2026-10-13). Revisada en producción: las páginas salen con `no-store` y no
+  se guardan, las respuestas de error tampoco, y solo tres rutas sin datos de
+  nadie piden caché pública —la salud, las sugerencias del directorio y el
+  manifiesto—. Apagarla no protegía nada y mandaba al Worker cada consulta del
+  vigilante y cada letra del buscador. El riesgo era el próximo que marque
+  `public` una ruta con datos de alguien: `lib/cache-publica.test.ts` lo frena.
 
 ## Auditoría externa del 2026-09-30
 
@@ -385,7 +390,8 @@ paralelo quedan las dos.
 ### Pendiente de la auditoría
 
 - Lo de infraestructura sigue en «Pendiente» del recorrido del 2026-09-27:
-  plan pago de Workers, rotar las credenciales de ensayo, apagar la caché.
+  plan pago de Workers y rotar las credenciales de ensayo. La caché se
+  revisó y se deja encendida.
 - Una guardia que impida desplegar código cuya migración no está aplicada.
 - Vigilar contenido, no solo que la página responda, y avisar los 5xx.
 - Revisar cada semana las fotos: archivos sin uso y referencias sin archivo.
