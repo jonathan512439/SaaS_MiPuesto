@@ -392,7 +392,9 @@ paralelo quedan las dos.
 - Lo de infraestructura sigue en «Pendiente» del recorrido del 2026-09-27:
   plan pago de Workers y rotar las credenciales de ensayo. La caché se
   revisó y se deja encendida.
-- Una guardia que impida desplegar código cuya migración no está aplicada.
+- ~~Una guardia que impida desplegar código cuya migración no está aplicada.~~
+  Hecha el 2026-10-13: `scripts/check-migraciones-aplicadas.mjs` en
+  `predeploy:vinext`.
 - Vigilar contenido, no solo que la página responda, y avisar los 5xx.
 - Revisar cada semana las fotos: archivos sin uso y referencias sin archivo.
 

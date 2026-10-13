@@ -225,6 +225,12 @@ npm run test:rls:linked  # al cierre de cada fase, sin excepción
 - **`npm run supabase:push`** aplica migraciones a la base real. `supabase:seed:local` es
   lo único que lleva `--include-seed`, y solo apunta a la base local. Nunca correr el seed
   contra la enlazada: reescribiría los negocios reales.
+- **Primero la migración, después el código.** Empujar a `main` despliega solo:
+  si el código sale antes que su migración, lo que la usa responde 500. Pasó el
+  2026-10-13. Desde entonces `predeploy:vinext` corre
+  `scripts/check-migraciones-aplicadas.mjs`, que pregunta a `/api/salud` la
+  última migración aplicada y frena el despliegue si falta alguna. Si el build
+  de Cloudflare falla por eso: `npm run supabase:push` y **Retry deployment**.
 - Antes de `npm run build:vinext`, cerrar cualquier `wrangler dev`: mantiene tomado
   `dist/client` y el build falla con `EBUSY`.
 - Después de cualquier migración, regenerar tipos con `npm run types:db:linked` o
@@ -1745,9 +1751,21 @@ motivo por el que este archivo existe.
     antes de leerla (`02c48be`). Probado de punta a punta en ensayo.
 - `verificar` con 1213 pruebas. Pruebas de ensayo nuevas:
   `test:ajuste-precios`, `test:fotos`.
-- Queda de la auditoría: fase 0 (caché de Workers, CPU, credenciales de
-  ensayo, plan pago), fase 2 (guardia de migraciones, vigilancia de contenido,
-  revisión de fotos, documentos) y fase 3 (teléfono real, dominio, piloto).
+- **Un tropiezo al desplegar, y su guardia.** Los commits de la auditoría se
+  empujaron antes de aplicar sus migraciones, y Workers Builds los publicó:
+  hasta que el dueño corrió `supabase:push`, el ajuste masivo de precios y la
+  subida y el borrado de fotos respondieron 500. Las tallas y las reservas no
+  dependían de la base. Guardia nueva: `predeploy:vinext` frena el despliegue
+  si a la base le falta una migración (migración `20261106090000`,
+  `esquema_aplicado()` en `/api/salud`, `npm run test:esquema:ensayo`). Probada
+  rompiéndola, y contra ensayo de punta a punta.
+- **Caché de Workers: se deja encendida** (decisión del dueño). Revisada en
+  producción: ninguna página se guarda; solo la salud, las sugerencias del
+  directorio y el manifiesto piden caché pública. `lib/cache-publica.test.ts`
+  frena una ruta nueva que la pida.
+- Queda de la auditoría: fase 0 (CPU, credenciales de ensayo, plan pago),
+  fase 2 (vigilancia de contenido, revisión de fotos, documentos) y fase 3
+  (teléfono real, dominio, piloto).
 
 ### 2026-09-27
 
