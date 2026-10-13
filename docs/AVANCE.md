@@ -1727,6 +1727,27 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-10-13
+
+- **Fase 1 de la auditoría externa del 2026-09-30, cerrada.** Cuatro arreglos
+  de código; detalle en `SECURITY.md`, «Auditoría externa del 2026-09-30».
+  Migraciones `20261104090000` y `20261105090000` aplicadas y desplegado por
+  el dueño; él probó en el panel de producción el ajuste de precios y las
+  fotos.
+  - Las tallas ya no desaparecen en catálogos grandes (`5147655`). Verificado
+    en producción por la API paginada.
+  - El ajuste masivo de precios es todo o nada y no se aplica dos veces
+    (`3ff19ff`).
+  - El reintento de una reserva trae su enlace de WhatsApp y su hora real
+    (`244ff7b`). Probado de punta a punta en ensayo.
+  - Las fotos se agregan y se quitan de a una, y una subida enorme se rechaza
+    antes de leerla (`02c48be`). Probado de punta a punta en ensayo.
+- `verificar` con 1213 pruebas. Pruebas de ensayo nuevas:
+  `test:ajuste-precios`, `test:fotos`.
+- Queda de la auditoría: fase 0 (caché de Workers, CPU, credenciales de
+  ensayo, plan pago), fase 2 (guardia de migraciones, vigilancia de contenido,
+  revisión de fotos, documentos) y fase 3 (teléfono real, dominio, piloto).
+
 ### 2026-09-27
 
 - **Recorrido de seguridad, con tres arreglos y un ajuste.** Detalle en

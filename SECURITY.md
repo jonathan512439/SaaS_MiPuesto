@@ -335,6 +335,61 @@ contesta, el envío pasa con el tope por IP: los pedidos no se caen por eso.
 - **Apagar la caché de Workers** (`"cache": {"enabled": true}` en
   `wrangler.jsonc`): la aplicación no la usa y guardó respuestas de error.
 
+## Auditoría externa del 2026-09-30
+
+Una auditoría externa encontró cuatro fallas de código que podían perder datos
+o dejar a un cliente sin respuesta. Las cuatro se corrigieron, se probaron en
+ensayo —cada guardia nueva rota a propósito— y se desplegaron el 2026-10-13 con
+las migraciones `20261104090000` y `20261105090000`. El dueño las probó en el
+panel de producción.
+
+### 1. Las tallas desaparecían en los catálogos grandes (`5147655`)
+
+Las presentaciones se pedían aparte, para todos los productos de la página, y
+un catálogo grande pasaba el tope de mil filas de PostgREST: las que sobraban
+no llegaban y el producto se mostraba sin tallas. Ahora viajan dentro de cada
+producto (`variantes_producto(...)` en `lib/catalogo/columnas.ts`). Verificado
+en producción: Kantuta Moda trae sus doce prendas con S a XXL por la API
+paginada.
+
+### 2. El ajuste masivo de precios quedaba a medias o se aplicaba dos veces (`3ff19ff`)
+
+Se actualizaba producto por producto desde la ruta: un corte dejaba la mitad
+ajustada, y repetir el envío ajustaba de nuevo. Ahora
+`aplicar_ajuste_de_precios` lo hace en una sola transacción, con un bloqueo
+por negocio, solo sobre productos cuyo precio no cambió entretanto, y anota
+cada intento en `ajustes_de_precios`: el mismo intento repetido devuelve el
+resultado anterior sin tocar nada. Prueba:
+`npm run test:ajuste-precios:ensayo`.
+
+### 3. El reintento de una reserva no traía el enlace de WhatsApp (`244ff7b`)
+
+Si el navegador reintentaba después de un corte, la cita quedaba hecha pero la
+respuesta no traía el enlace, y el cliente no escribía al negocio. Las tres
+respuestas —nueva, reintento y doble toque— se arman ahora con
+`lib/agenda/respuesta-de-cita.ts` desde la cita guardada, con su hora real. Un
+identificador de intento reusado para otro servicio u otra hora responde 409 y
+no devuelve una cita ajena.
+
+### 4. Dos fotos subidas a la vez se pisaban (`02c48be`)
+
+La ruta leía la lista de fotos, le sumaba una y escribía la lista entera; al
+borrar, quitaba el archivo antes que la referencia. Ahora
+`agregar_foto_producto` y `quitar_foto_producto` cambian la lista en una sola
+sentencia y solo aceptan rutas del propio negocio y producto; la referencia se
+quita antes que el archivo, así que lo peor que queda es un archivo sin uso. El
+tamaño de la subida se mira antes de leer el formulario (413). Prueba:
+`npm run test:fotos:ensayo`; de punta a punta en ensayo, dos subidas en
+paralelo quedan las dos.
+
+### Pendiente de la auditoría
+
+- Lo de infraestructura sigue en «Pendiente» del recorrido del 2026-09-27:
+  plan pago de Workers, rotar las credenciales de ensayo, apagar la caché.
+- Una guardia que impida desplegar código cuya migración no está aplicada.
+- Vigilar contenido, no solo que la página responda, y avisar los 5xx.
+- Revisar cada semana las fotos: archivos sin uso y referencias sin archivo.
+
 ## Recuperación de contraseña — corregido el 2026-09-07
 
 Reportado en producción: se pide restablecer la contraseña, se abre el enlace del
