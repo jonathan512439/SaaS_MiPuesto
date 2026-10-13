@@ -14,7 +14,7 @@ que ya no es cierto.
 | Base de ensayo | Supabase `hwirzxnoyuuqgbwipiff` — recibe copias de los respaldos; credenciales rotadas el 2026-10-13 |
 | Dominio propio | Ninguno todavía. Será `mi-puesto.com`, con guion |
 | Última migración | `20261108090000` |
-| Pruebas | 1226 en `npm run verificar` |
+| Pruebas | 1228 en `npm run verificar` |
 
 ## Cómo se despliega
 
@@ -58,16 +58,11 @@ se vacía, el vigilante avisa.
 1. **Workers Paid** (5 dólares al mes), antes del piloto. El CPU medido —P50
    7,7 ms, P90 15,8 ms— pasa los 10 ms del plan gratuito en una de cada cuatro
    visitas.
-2. **Averiguar por qué un negocio perdía la modalidad al crearse.** La
-   limpieza de demostración se hizo el 2026-10-13: se borró `brasa-urbana` (la
-   copia sin pedidos; queda `brasaurbana`) con sus 14 archivos, los 3 banners
-   sin uso, y el alimento de cachorro de Huellitas tiene stock. Las tiendas de
-   prueba siguen con el WhatsApp del dueño, a propósito.
-3. **Probar en un teléfono real** un catálogo grande, con datos móviles.
-4. **Dominio `mi-puesto.com`**: conectarlo al Worker y mover todo lo que apunta a
+2. **Probar en un teléfono real** un catálogo grande, con datos móviles.
+3. **Dominio `mi-puesto.com`**: conectarlo al Worker y mover todo lo que apunta a
    la dirección de hoy —`NEXT_PUBLIC_SITE_URL` del build, las direcciones de
    Supabase Auth, el permiso de Turnstile para el dominio nuevo, el vigilante
    (`--sitio` y `--catalogo`), la variable `SITIO_URL` de GitHub— y recién ahí
    imprimir QR y grabar etiquetas NFC.
-5. **Alerta de errores 5xx** en Cloudflare, con el plan pago y el dominio.
-6. **Piloto de siete días** con dos o tres negocios reales.
+4. **Alerta de errores 5xx** en Cloudflare, con el plan pago y el dominio.
+5. **Piloto de siete días** con dos o tres negocios reales.

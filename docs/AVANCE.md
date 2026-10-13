@@ -1784,9 +1784,25 @@ motivo por el que este archivo existe.
   manda el estado del día a `ESTADO.md`; `DESIGN.md` describe el diseño único
   con tres formas de tarjeta en vez de las tres plantillas retiradas; `AGENTS.md`
   sin voseo.
+- **Limpieza de demostración en producción** (pedida por el dueño): borrado
+  `brasa-urbana` —la copia sin pedidos ni citas; queda `brasaurbana`— con sus
+  14 archivos; borrados los 3 banners sin uso; «Alimento cachorro 3 kg» de
+  Huellitas con 20 unidades. Revisión de archivos después: 0 rotas, 0 sin uso.
+  La cuenta que tenía `brasa-urbana` queda sin negocio, a pedido del dueño.
+- **La modalidad perdida al crear el negocio, explicada y cerrada**
+  (`79c30be`). No era la siembra del rubro —la de veterinaria sugiere
+  `catalogo_cta`, y Huellitas quedó en `catalogo_estatico`, el valor inicial
+  del formulario—. Lo que se tocaba **antes de que cargara el JavaScript** se
+  veía en el campo pero no llegaba al estado de React. Reproducido en ensayo:
+  eligiendo «Tienda con carrito» antes de cargar, el selector la mostraba, la
+  explicación decía «Para mostrar lo que ofreces» y se guardaba
+  `catalogo_estatico`. Valía para cualquier campo: un precio o un teléfono
+  cambiados a tiempo se perdían sin aviso. Arreglo: `<Formulario>` va por POST
+  y queda `inert` hasta que carga, sin cambiar cómo se ve; reemplaza los 19
+  formularios, y la guardia rechaza un `<form>` suelto. Probado rompiéndolo y
+  de punta a punta. `verificar` con 1228 pruebas.
 - Queda de la auditoría: fase 0 (plan pago), la alerta de 5xx de Cloudflare y
-  fase 3 (limpieza de demostración, teléfono real, dominio, piloto). Lista en
-  `docs/ESTADO.md`.
+  fase 3 (teléfono real, dominio, piloto). Lista en `docs/ESTADO.md`.
 
 ### 2026-09-27
 
