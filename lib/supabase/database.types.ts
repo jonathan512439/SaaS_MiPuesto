@@ -1424,6 +1424,10 @@ export type Database = {
         }[]
       }
       estado_vigilancia: { Args: never; Returns: Json }
+      evaluar_catalogo_testigo: {
+        Args: { p_contenido: string; p_http: number }
+        Returns: string
+      }
       expirar_reservas_vencidas: {
         Args: { p_limite?: number }
         Returns: number

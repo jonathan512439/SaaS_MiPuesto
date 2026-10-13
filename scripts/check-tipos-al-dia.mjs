@@ -26,7 +26,11 @@ const tablas = new Set();
 const columnas = new Set();
 
 for (const archivo of readdirSync(carpeta).sort()) {
-  const sql = readFileSync(join(carpeta, archivo), "utf8").replace(/--.*$/gm, "");
+  /* Lo del esquema `private` no llega a los tipos —la API no lo expone— y no se
+     exige: `url_catalogo` de los ajustes del vigilante lo hizo saltar. */
+  const sql = readFileSync(join(carpeta, archivo), "utf8")
+    .replace(/--.*$/gm, "")
+    .replace(/alter table (?:if exists )?private\.[^;]*;/gi, "");
   for (const [, tabla] of sql.matchAll(/create table (?:if not exists )?public\.([a-z_][a-z0-9_]*)/gi)) {
     tablas.add(tabla);
   }

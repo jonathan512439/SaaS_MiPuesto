@@ -1,7 +1,8 @@
 /* Configura a dónde pregunta el vigilante y a dónde avisa.
  *
  *   npm run vigilancia:configurar -- --aviso "https://ntfy.sh/mi-tema-largo-y-dificil"
- *   npm run vigilancia:configurar -- --sitio "https://mipuesto.com"
+ *   npm run vigilancia:configurar -- --sitio "https://mi-puesto.com"
+ *   npm run vigilancia:configurar -- --catalogo "https://mi-puesto.com/kantuta-moda"
  *   npm run vigilancia:configurar -- --ver
  *
  * **Sin dirección de aviso, el vigilante anota y no avisa.** Eso deja resuelta
@@ -35,6 +36,7 @@ const soloProbar = process.argv.includes("--probar");
 const inventarTema = process.argv.includes("--inventar-tema");
 const aviso = leerArgumento("aviso");
 const sitio = leerArgumento("sitio");
+const catalogo = leerArgumento("catalogo");
 
 if (inventarTema) {
   /* Un tema inventado acá y no copiado de la documentación.
@@ -48,9 +50,9 @@ if (inventarTema) {
   process.exit(0);
 }
 
-if (!soloVer && !soloProbar && aviso === undefined && sitio === undefined) {
+if (!soloVer && !soloProbar && aviso === undefined && sitio === undefined && catalogo === undefined) {
   console.error(
-    "Uso: npm run vigilancia:configurar -- [--sitio URL] [--aviso URL] [--ver] [--probar] [--inventar-tema]",
+    "Uso: npm run vigilancia:configurar -- [--sitio URL] [--aviso URL] [--catalogo URL] [--ver] [--probar] [--inventar-tema]",
   );
   process.exit(1);
 }
@@ -112,7 +114,7 @@ if (soloProbar) {
     else 'Enviado con código HTTP ' ||
       (extensions.http_post(
         a.url_aviso,
-        'Prueba de MiPuesto: si leés esto, el aviso de caída funciona.',
+        'Prueba de MiPuesto: si lees esto, el aviso de caída funciona.',
         'text/plain'
       )).status::text
   end as resultado
@@ -125,7 +127,8 @@ from private.ajustes_vigilancia a where a.id;`;
   case
     when url_aviso is null then 'NADIE: anota la caída y no la cuenta'
     else regexp_replace(url_aviso, '[^/]+$', '…')
-  end as "avisa a"
+  end as "avisa a",
+  coalesce(url_catalogo, 'ninguno: no mira contenido') as "catálogo testigo"
 from private.ajustes_vigilancia where id;`;
 } else {
   const asignaciones = [];
@@ -144,11 +147,20 @@ from private.ajustes_vigilancia where id;`;
     asignaciones.push(`url_aviso = ${comoLiteralSql(destino)}`);
   }
 
+  if (catalogo !== undefined) {
+    /* Un catálogo de demostración que siempre tenga productos visibles: el
+       vigilante exige que muestre al menos uno. Si se vacía o se vence su
+       plan, avisa, y está bien que avise. Vacío lo apaga. */
+    const destino = catalogo === "" ? null : validarDireccion(catalogo, "catálogo").toString();
+    asignaciones.push(`url_catalogo = ${comoLiteralSql(destino)}`);
+  }
+
   sql = `update private.ajustes_vigilancia set ${asignaciones.join(", ")} where id;
 
 select
   url_salud as "pregunta a",
-  case when url_aviso is null then 'no avisa' else 'avisa' end as "estado del aviso"
+  case when url_aviso is null then 'no avisa' else 'avisa' end as "estado del aviso",
+  coalesce(url_catalogo, 'ninguno') as "catálogo testigo"
 from private.ajustes_vigilancia where id;`;
 }
 

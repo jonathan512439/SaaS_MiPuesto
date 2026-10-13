@@ -95,6 +95,7 @@
     "test:ajuste-precios:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/ajuste-de-precios.sql",
     "test:fotos:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/fotos-atomicas.sql",
     "test:esquema:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/esquema-aplicado.sql",
+    "test:vigilancia-catalogo:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/vigilancia-catalogo.sql",
     "test:fase13:concurrencia": "node --env-file-if-exists=.env.local scripts/test-presentaciones-concurrencia.mjs",
     "test:tareas": "node scripts/check-tareas-programadas.mjs"
   },

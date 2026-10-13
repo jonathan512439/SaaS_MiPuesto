@@ -521,10 +521,27 @@ vigilante que grita por un tropiezo de red se termina silenciando, y uno
 silenciado es peor que ninguno porque además tranquiliza. Cuando vuelve, avisa
 la vuelta, pero solo si antes avisó la caída.
 
+### El catálogo testigo
+
+Desde el 2026-10-13 el vigilante puede mirar también un catálogo: si la salud
+responde bien, abre ese catálogo y exige que muestre al menos un producto. Así
+avisa también cuando el sitio contesta pero un cliente vería un catálogo vacío o
+roto. El aviso dice «el catálogo testigo no muestra productos» para que no se
+confunda con una caída.
+
+```
+npm run vigilancia:configurar -- --catalogo "https://mipuesto-dev.mipuesto-app.workers.dev/kantuta-moda"
+```
+
+Elige un catálogo de demostración que siempre tenga productos visibles y su
+plan al día: si se vacía o se vence, el vigilante avisa, y es correcto que
+avise. Para apagarlo: `--catalogo ""`.
+
 ### El día que se compre el dominio
 
 ```
 npm run vigilancia:configurar -- --sitio "https://mi-puesto.com"
+npm run vigilancia:configurar -- --catalogo "https://mi-puesto.com/kantuta-moda"
 ```
 
 Y en GitHub, en **Settings → Secrets and variables → Actions → Variables**,
