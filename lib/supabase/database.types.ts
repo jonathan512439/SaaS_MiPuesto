@@ -1521,6 +1521,15 @@ export type Database = {
         Returns: string
       }
       resolver_etiqueta: { Args: { p_codigo: string }; Returns: string }
+      revisar_archivos_storage: {
+        Args: never
+        Returns: {
+          bucket: string
+          negocio: string
+          ruta: string
+          tipo: string
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       slug_disponible: { Args: { p_slug: string }; Returns: boolean }

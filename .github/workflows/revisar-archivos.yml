@@ -1,0 +1,43 @@
+name: Revisar los archivos de Storage
+
+# Una vez por semana: referencias rotas y archivos sin uso.
+#
+# Solo lee. Falla —y GitHub le escribe al dueño del repositorio— únicamente si
+# hay una referencia rota, porque eso es lo que ve un cliente. Los archivos sin
+# uso quedan listados en el resumen del trabajo para borrarlos a mano. Ver
+# `scripts/revisar-archivos.mjs`.
+#
+# Los lunes a las 13:00 UTC, las 9 de la mañana en La Paz: una vez por semana
+# gasta un par de minutos de los dos mil del mes.
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: revisar-archivos
+  cancel-in-progress: false
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Instalar desde el candado
+        run: npm ci --no-audit --no-fund
+
+      - name: Revisar
+        env:
+          REVISAR_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: npm run archivos:revisar
