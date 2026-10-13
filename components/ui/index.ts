@@ -4,6 +4,7 @@ export { Campo } from "./campo";
 export { CampoClave } from "./campo-clave";
 export { Esqueleto } from "./esqueleto";
 export { EstadoVacio } from "./estado-vacio";
+export { Formulario } from "./formulario";
 export { HojaModal } from "./hoja-modal";
 export { IndicadorEstado } from "./indicador-estado";
 export type { EstadoProducto } from "./indicador-estado";

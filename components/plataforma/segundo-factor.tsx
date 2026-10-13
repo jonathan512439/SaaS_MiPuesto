@@ -5,7 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 
 import { CerrarSesion } from "../negocios/cerrar-sesion";
 import { useClienteSupabaseNavegador } from "../supabase/proveedor-supabase-navegador";
-import { useAvisos } from "../ui";
+import { useAvisos, Formulario } from "../ui";
 import styles from "./segundo-factor.module.css";
 
 type Etapa = "cargando" | "inscribir" | "verificar_alta" | "desafio" | "listo";
@@ -156,7 +156,7 @@ export function SegundoFactor() {
         </p>
       )}
 
-      <form method="post" className={styles.formulario} onSubmit={confirmar}>
+      <Formulario className={styles.formulario} onSubmit={confirmar}>
         <label htmlFor="codigo-factor">Código de seis dígitos</label>
         <input
           autoComplete="one-time-code"
@@ -171,7 +171,7 @@ export function SegundoFactor() {
         <button disabled={ocupado || codigo.length !== LARGO_CODIGO} type="submit">
           {ocupado ? "Verificando…" : "Confirmar"}
         </button>
-      </form>
+      </Formulario>
 
       <p className={styles.nota}>
         Guarda la aplicación de autenticación en un lugar seguro. Sin ella no vas a

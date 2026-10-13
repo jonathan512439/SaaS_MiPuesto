@@ -9,7 +9,7 @@ import {
   useClienteSupabaseNavegador,
   useCredencialesSupabaseNavegador,
 } from "../../../components/supabase/proveedor-supabase-navegador";
-import { Boton, CampoClave } from "../../../components/ui";
+import { Boton, CampoClave, Formulario } from "../../../components/ui";
 import {
   canjearEnlace,
   definirClaveConToken,
@@ -303,7 +303,7 @@ export function FormularioActualizarClave() {
 
   if (pendienteMfa) {
     return (
-      <form method="post" className={styles.formulario} onSubmit={confirmarSegundoFactor}>
+      <Formulario className={styles.formulario} onSubmit={confirmarSegundoFactor}>
         <p>
           Tu cuenta tiene segundo factor. Escribe el número de seis dígitos que
           muestra tu aplicación de autenticación y guardamos la contraseña nueva.
@@ -332,7 +332,7 @@ export function FormularioActualizarClave() {
         >
           Confirmar y guardar
         </Boton>
-      </form>
+      </Formulario>
     );
   }
 
@@ -353,7 +353,7 @@ export function FormularioActualizarClave() {
   }
 
   return (
-    <form method="post" className={styles.formulario} onSubmit={actualizarClave}>
+    <Formulario className={styles.formulario} onSubmit={actualizarClave}>
       {/* Se dice antes de escribir: el enlace sigue intacto hasta que toque
           guardar, que es lo que impide que un antivirus de correo lo queme. */}
       {!haySesion && tokens.tipo !== "ninguno" ? (
@@ -389,6 +389,6 @@ export function FormularioActualizarClave() {
           Solicitar otro enlace
         </Link>
       </div>
-    </form>
+    </Formulario>
   );
 }

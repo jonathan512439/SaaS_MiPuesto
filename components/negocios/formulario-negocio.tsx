@@ -12,7 +12,7 @@ import {
 import { rutaDespuesDeGuardarNegocio } from "../../lib/negocios/alta";
 import { nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
 import { DOMINIO_MIPUESTO } from "../../lib/url-sitio";
-import { AreaTexto, Boton, Campo, Selector, useAvisos } from "../ui";
+import { AreaTexto, Boton, Campo, Selector, useAvisos, Formulario } from "../ui";
 import styles from "../../app/(admin)/dashboard/negocio/negocio.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
 
@@ -209,7 +209,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
   }[estadoSlugVisible];
 
   return (
-    <form method="post" className={styles.formulario} onSubmit={guardar}>
+    <Formulario className={styles.formulario} onSubmit={guardar}>
       <section className={styles.bloqueFormulario} aria-labelledby="datos-principales">
         <PasoNumerado
           descripcion="Así reconocerán tu negocio quienes abran el catálogo."
@@ -390,6 +390,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         </Boton>
         <p>Solo vos puedes ver y modificar los datos de este negocio.</p>
       </div>
-    </form>
+    </Formulario>
   );
 }

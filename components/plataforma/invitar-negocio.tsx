@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
-import { useAvisos } from "../ui";
+import { useAvisos, Formulario } from "../ui";
 import styles from "./invitar-negocio.module.css";
 
 /* Dar de alta un cliente exigía correr un script desde la máquina del vendedor
@@ -43,7 +43,7 @@ export function InvitarNegocio() {
   }
 
   return (
-    <form method="post" className={styles.invitar} onSubmit={invitar}>
+    <Formulario className={styles.invitar} onSubmit={invitar}>
       <div>
         <label htmlFor="correo-invitado">Invitar a un negocio nuevo</label>
         <p>Recibe un correo para definir su contraseña y cargar su catálogo.</p>
@@ -63,6 +63,6 @@ export function InvitarNegocio() {
           {enviando ? "Enviando…" : "Invitar"}
         </button>
       </div>
-    </form>
+    </Formulario>
   );
 }

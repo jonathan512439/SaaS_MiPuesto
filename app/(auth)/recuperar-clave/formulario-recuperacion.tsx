@@ -5,7 +5,7 @@ import { type FormEvent, useState } from "react";
 
 import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
-import { Boton, Campo } from "../../../components/ui";
+import { Boton, Campo, Formulario } from "../../../components/ui";
 import { esLimiteDeCorreo, mensajeDeEspera } from "../../../lib/auth/espera-correo";
 
 const MENSAJE_GENERICO =
@@ -44,7 +44,7 @@ export function FormularioRecuperacion() {
   }
 
   return (
-    <form method="post" className={styles.formulario} onSubmit={solicitarRecuperacion}>
+    <Formulario className={styles.formulario} onSubmit={solicitarRecuperacion}>
       <Campo
         autoComplete="email"
         disabled={solicitudTerminada}
@@ -79,6 +79,6 @@ export function FormularioRecuperacion() {
           Volver a ingresar
         </Link>
       </div>
-    </form>
+    </Formulario>
   );
 }

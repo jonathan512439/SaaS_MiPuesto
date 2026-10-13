@@ -21,7 +21,7 @@ import {
 } from "../../lib/negocios/texto-sobre-imagen";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import { PasoNumerado } from "../dashboard/paso-numerado";
-import { Boton, useAvisos } from "../ui";
+import { Boton, useAvisos, Formulario } from "../ui";
 import styles from "./formulario-portada-y-banner.module.css";
 
 /* Lo que se escribe encima de una imagen, mientras se edita.
@@ -418,7 +418,7 @@ export function FormularioPortadaYBanner({
   }
 
   return (
-    <form method="post" className={styles.seccion} onSubmit={guardar}>
+    <Formulario className={styles.seccion} onSubmit={guardar}>
       {/* El mismo encabezado que los tres pasos de arriba: esta sección vive en
           la misma pantalla y con un `h2` suelto se leía como si fuera de otra. */}
       <header className={styles.cabecera}>
@@ -529,6 +529,6 @@ export function FormularioPortadaYBanner({
       <Boton cargando={guardando} type="submit">
         Guardar portada y banner
       </Boton>
-    </form>
+    </Formulario>
   );
 }

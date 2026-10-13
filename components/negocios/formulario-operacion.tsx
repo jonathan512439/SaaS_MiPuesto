@@ -16,7 +16,7 @@ import {
 } from "../../lib/horario";
 import { validarOperacionNegocio } from "../../lib/negocios/operacion";
 import { TOPE_UNIDADES_MAXIMO } from "../../lib/pedidos/tope-unidades";
-import { Boton, Campo, Selector, useAvisos } from "../ui";
+import { Boton, Campo, Selector, useAvisos, Formulario } from "../ui";
 import styles from "./formulario-operacion.module.css";
 
 export type OperacionNegocioInicial = {
@@ -216,7 +216,7 @@ export function FormularioOperacion({
   }
 
   return (
-    <form method="post" className={styles.formulario} onSubmit={guardar}>
+    <Formulario className={styles.formulario} onSubmit={guardar}>
       <header className={styles.cabecera}>
         <div>
           <p>Atención y reservas</p>
@@ -480,6 +480,6 @@ export function FormularioOperacion({
       <div className={styles.acciones}>
         <Boton cargando={guardando} type="submit">Guardar atención y reservas</Boton>
       </div>
-    </form>
+    </Formulario>
   );
 }

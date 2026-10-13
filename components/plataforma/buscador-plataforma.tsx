@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
 import { nombreDeCiudad } from "../../lib/negocios/lugares";
-import { Boton, Campo, useAvisos } from "../ui";
+import { Boton, Campo, useAvisos, Formulario } from "../ui";
 import styles from "./zonas-plataforma.module.css";
 
 /* El buscador del directorio, visto desde la plataforma. Fase 12.
@@ -148,7 +148,7 @@ export function BuscadorPlataforma({
         )}
       </div>
 
-      <form method="post" className={styles.formulario} onSubmit={guardar}>
+      <Formulario className={styles.formulario} onSubmit={guardar}>
         <h3>Sinónimo</h3>
         <p className={styles.ayuda}>
           Si ya existe la palabra, se reemplazan sus equivalentes. Las palabras se guardan sin tildes
@@ -179,7 +179,7 @@ export function BuscadorPlataforma({
             Guardar sinónimo
           </Boton>
         </div>
-      </form>
+      </Formulario>
 
       {/* Plegada: son casi cien, y lo que se mira todos los días es la lista
           de arriba. Se abre para editar uno. */}

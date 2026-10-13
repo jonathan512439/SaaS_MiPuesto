@@ -10,7 +10,7 @@ import {
 } from "../../lib/negocios/coordenadas";
 import { CIUDADES, NOMBRES_CIUDADES, nombreDeCiudad } from "../../lib/negocios/lugares";
 import { MapaPin } from "../negocios/mapa-pin";
-import { Boton, Campo, Selector, useAvisos } from "../ui";
+import { Boton, Campo, Selector, useAvisos, Formulario } from "../ui";
 import styles from "./zonas-plataforma.module.css";
 
 /* Las zonas de cada ciudad, y los negocios que esperan una. Fase 11.
@@ -123,7 +123,7 @@ export function ZonasPlataforma({
         </p>
       </header>
 
-      <form method="post" className={styles.formulario} onSubmit={guardarZona}>
+      <Formulario className={styles.formulario} onSubmit={guardarZona}>
         <h3>{borrador.id ? `Editar «${borrador.nombre}»` : "Nueva zona"}</h3>
         <div className={styles.fila}>
           <Selector
@@ -171,7 +171,7 @@ export function ZonasPlataforma({
             </Boton>
           ) : null}
         </div>
-      </form>
+      </Formulario>
 
       {porCiudad.length === 0 ? (
         <p className={styles.vacio}>Todavía no hay zonas. Empieza por las de Oruro.</p>

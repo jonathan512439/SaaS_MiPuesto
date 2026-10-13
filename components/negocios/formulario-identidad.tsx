@@ -11,7 +11,7 @@ import {
   type TipoImagenIdentidad,
 } from "../../lib/negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../../lib/negocios/imagenes-publicas";
-import { Boton, useAvisos, useConfirmacion } from "../ui";
+import { Boton, useAvisos, useConfirmacion, Formulario } from "../ui";
 import styles from "./formulario-identidad.module.css";
 import { AYUDA_LOGO, AYUDA_PORTADA, AYUDA_QR } from "../../lib/ayudas-formularios";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
@@ -275,7 +275,7 @@ export function FormularioIdentidad({
         ))}
       </div>
 
-      <form method="post" className={styles.redes} onSubmit={guardarRedes}>
+      <Formulario className={styles.redes} onSubmit={guardarRedes}>
         <header>
           <h3>Contacto y ubicación</h3>
           <p>Pega el enlace completo que comienza con https://. Todos son opcionales.</p>
@@ -359,7 +359,7 @@ export function FormularioIdentidad({
           ))}
         </div>
         <Boton cargando={ocupado === "redes"} type="submit">Guardar enlaces</Boton>
-      </form>
+      </Formulario>
 
     </section>
   );

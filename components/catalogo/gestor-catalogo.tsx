@@ -68,6 +68,7 @@ import {
   Trabajando,
   useAvisos,
   useConfirmacion,
+  Formulario,
 } from "../ui";
 import styles from "./gestor-catalogo.module.css";
 import { TOPE_FOTOS_POR_DIA } from "../../lib/ia/limites";
@@ -1124,7 +1125,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
         onCerrar={() => setRenombrando(null)}
         titulo="Cambiar el nombre"
       >
-        <form method="post" className={styles.formularioRenombrado} id="form-renombrar" onSubmit={confirmarRenombrado}>
+        <Formulario className={styles.formularioRenombrado} id="form-renombrar" onSubmit={confirmarRenombrado}>
           <Campo
             defaultValue={renombrando?.nombre}
             etiqueta={renombrando?.etiqueta ?? "Nombre"}
@@ -1142,7 +1143,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               Guardar nombre
             </Boton>
           </div>
-        </form>
+        </Formulario>
       </HojaModal>
 
       <Trabajando
@@ -1152,7 +1153,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       />
 
       {formularioAbierto ? (
-        <form method="post"
+        <Formulario
           className={styles.formularioProducto}
           onSubmit={guardarProducto}
           ref={formularioProductoRef}
@@ -1526,7 +1527,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
             </Boton>
             <Boton disabled={ocupado} onClick={cerrarFormulario} variante="secundario">Cancelar</Boton>
           </div>
-        </form>
+        </Formulario>
       ) : null}
 
       {/* Buscar, filtrar y crear van juntos y arriba de todo: es lo que se hace
@@ -1613,7 +1614,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               <h2 id="titulo-categorias">Tus categorías</h2>
               <small>{categorias.length} de 40 creadas</small>
             </div>
-            <form method="post" className={styles.nuevaCategoria} onSubmit={crearCategoria}>
+            <Formulario className={styles.nuevaCategoria} onSubmit={crearCategoria}>
               <label htmlFor="nueva-categoria">Nueva categoría</label>
               <small className={styles.ayudaCampo}>{ayudaCategoria(datosIniciales.negocio)}</small>
               <div>
@@ -1633,7 +1634,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 rubro={datosIniciales.negocio.rubro}
                 valor={iconoCategoria}
               />
-            </form>
+            </Formulario>
             <div className={styles.listaCategorias}>
               {categoriasPaginadas.map((categoria) => {
                 const subcategoriasDeCategoria = subcategorias
@@ -1851,7 +1852,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   </span>
                   <Icono className={styles.flechaAjuste} nombre="flechaArriba" />
                 </summary>
-                <form method="post" className={styles.formularioAjuste} onSubmit={ajustarPrecios}>
+                <Formulario className={styles.formularioAjuste} onSubmit={ajustarPrecios}>
                 {/* Se dice qué **no** es, y no por capricho: al lado existe
                     «Promociones», que baja un precio con fecha de vencimiento y lo
                     devuelve solo. Sin esta línea, un dueño sube todos sus precios
@@ -1899,7 +1900,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   Escribe <strong>10</strong> para subir un 10 % o <strong>-10</strong> para
                   bajarlo. Ningún precio queda en cero.
                 </p>
-                </form>
+                </Formulario>
               </details>
             ) : null}
 

@@ -17,7 +17,7 @@ import {
 import type { DatosPlantilla } from "../../lib/plantillas/tipos";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
-import { Boton, useAvisos } from "../ui";
+import { Boton, useAvisos, Formulario } from "../ui";
 import styles from "./selector-apariencia.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
 
@@ -109,7 +109,7 @@ export function SelectorApariencia({
   }
 
   return (
-    <form method="post" className={styles.formulario} onSubmit={guardarApariencia}>
+    <Formulario className={styles.formulario} onSubmit={guardarApariencia}>
       <fieldset className={styles.grupo} disabled={guardando}>
         <legend className={styles.leyendaOculta}>Elige la paleta de colores</legend>
         <PasoNumerado numero={1} titulo="Elige la paleta de colores" />
@@ -291,6 +291,6 @@ export function SelectorApariencia({
           </Boton>
         </div>
       </div>
-    </form>
+    </Formulario>
   );
 }

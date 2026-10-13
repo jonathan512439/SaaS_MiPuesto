@@ -11,7 +11,7 @@ import {
 } from "../../lib/precios";
 import { validarPromocion } from "../../lib/promociones/validacion";
 import { normalizarBusqueda } from "../../lib/texto";
-import { Boton, EstadoVacio, useAvisos, useConfirmacion } from "../ui";
+import { Boton, EstadoVacio, useAvisos, useConfirmacion, Formulario } from "../ui";
 import styles from "./gestor-promociones.module.css";
 
 type Categoria = { id: string; nombre: string };
@@ -299,7 +299,7 @@ export function GestorPromociones({
 
   return (
     <div className={styles.gestor}>
-      <form method="post" className={styles.formulario} onSubmit={crearPromocion}>
+      <Formulario className={styles.formulario} onSubmit={crearPromocion}>
         <header>
           <div>
             <p>Nueva oferta</p>
@@ -461,7 +461,7 @@ export function GestorPromociones({
         <Boton cargando={ocupado} disabled={opcionesDisponibles.length === 0} type="submit">
           Crear promoción
         </Boton>
-      </form>
+      </Formulario>
 
       <section className={styles.listado} aria-labelledby="promociones-creadas">
         <header>

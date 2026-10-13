@@ -41,19 +41,30 @@ function aperturasDeFormulario(codigo: string): string[] {
   return [...codigo.matchAll(/<form\b[^>]*>/g)].map(([etiqueta]) => etiqueta);
 }
 
+/* Desde el 2026-10-13 los formularios son `<Formulario>`
+ * (`components/ui/formulario.tsx`), que además de ir por POST no se deja tocar
+ * hasta que la página cargó: lo que se tocaba antes no llegaba al estado de
+ * React, y Huellitas se creó con otra modalidad que la elegida. Un `<form>`
+ * suelto se saltaría las dos cosas. */
+const EL_FORMULARIO = "components/ui/formulario.tsx";
+
 describe("formularios", () => {
-  it("todos declaran method=\"post\", para que un envío antes de cargar no deje los datos en la dirección", () => {
-    const sinPost = ["app", "components"]
+  it("ninguno es un <form> suelto: todos pasan por <Formulario>, salvo los buscadores por GET", () => {
+    const sueltos = ["app", "components"]
       .flatMap((carpeta) => archivosTsx(join(RAIZ, carpeta)))
       .flatMap((archivo) => {
         const ruta = relative(RAIZ, archivo).replaceAll("\\", "/");
+        if (ruta === EL_FORMULARIO) return [];
         return aperturasDeFormulario(readFileSync(archivo, "utf8"))
-          .filter((etiqueta) => {
-            if (/\bmethod="post"/.test(etiqueta)) return false;
-            return !(BUSCADORES_POR_GET.has(ruta) && /\bmethod="get"/.test(etiqueta));
-          })
+          .filter((etiqueta) => !(BUSCADORES_POR_GET.has(ruta) && /\bmethod="get"/.test(etiqueta)))
           .map(() => ruta);
       });
-    expect(sinPost).toEqual([]);
+    expect(sueltos).toEqual([]);
+  });
+
+  it("<Formulario> va por POST y no se deja tocar hasta que la página cargó", () => {
+    const codigo = readFileSync(join(RAIZ, EL_FORMULARIO), "utf8");
+    expect(codigo).toMatch(/<form \{\.\.\.propiedades\} method="post" inert=\{!listo\} \/>/);
+    expect(codigo).toMatch(/useSyncExternalStore\(sinSuscripcion, \(\) => true, \(\) => false\)/);
   });
 });

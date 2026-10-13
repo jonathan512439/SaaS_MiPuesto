@@ -17,7 +17,7 @@ import {
   MAXIMO_RUBROS_SECUNDARIOS,
   rubrosPublicosPorGrupo,
 } from "../../lib/negocios/rubros-publicos";
-import { Boton, Selector, useAvisos } from "../ui";
+import { Boton, Selector, useAvisos, Formulario } from "../ui";
 import { MapaPin } from "./mapa-pin";
 import styles from "./que-vendes-y-donde.module.css";
 
@@ -248,7 +248,7 @@ export function QueVendesYDonde({
   );
 
   return (
-    <form method="post" className={styles.formulario} onSubmit={guardar}>
+    <Formulario className={styles.formulario} onSubmit={guardar}>
       {/* 1 · Qué vendes */}
       <div className={styles.bloque}>
         {/* Elegido, queda a la vista y apagado: el dueño ve cuál tiene, y el
@@ -492,6 +492,6 @@ export function QueVendesYDonde({
       <Boton cargando={guardando} disabled={rubroPublico === "" || aparece === null} type="submit">
         {modo === "alta" ? "Guardar y seguir" : "Guardar"}
       </Boton>
-    </form>
+    </Formulario>
   );
 }

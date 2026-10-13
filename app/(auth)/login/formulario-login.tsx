@@ -6,7 +6,7 @@ import { type FormEvent, useState } from "react";
 
 import styles from "../../../components/auth/marco-auth.module.css";
 import { useClienteSupabaseNavegador } from "../../../components/supabase/proveedor-supabase-navegador";
-import { Boton, Campo, CampoClave } from "../../../components/ui";
+import { Boton, Campo, CampoClave, Formulario } from "../../../components/ui";
 import { mensajeErrorInicioSesion } from "../../../lib/auth/mensajes";
 import { RUTAS_PANEL } from "../../../lib/panel/rutas";
 
@@ -48,7 +48,7 @@ export function FormularioLogin({
   }
 
   return (
-    <form method="post" className={styles.formulario} onSubmit={iniciarSesion}>
+    <Formulario className={styles.formulario} onSubmit={iniciarSesion}>
       {/* Quien acaba de definir su contraseña necesita saber que se guardó. Sin
           esto, llegar al ingreso se lee como que algo falló, y lo primero que
           hace es pedir otro enlace. */}
@@ -93,6 +93,6 @@ export function FormularioLogin({
           Recuperar contraseña
         </Link>
       </div>
-    </form>
+    </Formulario>
   );
 }

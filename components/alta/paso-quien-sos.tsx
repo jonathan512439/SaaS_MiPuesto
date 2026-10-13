@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { proponerSlug, validarSlug } from "../../lib/negocios/validacion";
 import { DOMINIO_MIPUESTO } from "../../lib/url-sitio";
-import { Boton, Campo, useAvisos } from "../ui";
+import { Boton, Campo, useAvisos, Formulario } from "../ui";
 import styles from "./paso.module.css";
 
 type Disponibilidad = "sin-consultar" | "consultando" | "libre" | "tomada" | "invalida";
@@ -128,7 +128,7 @@ export function PasoQuienSos({
     nombreAdmin.trim().length >= 2 && nombre.trim().length >= 2 && disponibilidad === "libre";
 
   return (
-    <form method="post" className={styles.paso} onSubmit={guardar}>
+    <Formulario className={styles.paso} onSubmit={guardar}>
       <div className={styles.titulo}>
         <h2>¿Cómo te llamas?</h2>
         <p>Para saludarte por tu nombre y no por «usuario».</p>
@@ -185,6 +185,6 @@ export function PasoQuienSos({
       <Boton cargando={guardando} disabled={!puedeSeguir} type="submit">
         Seguir
       </Boton>
-    </form>
+    </Formulario>
   );
 }

@@ -13,6 +13,7 @@ import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { Icono } from "../iconos/icono";
 import styles from "./carrito-catalogo.module.css";
+import { Formulario } from "../ui/formulario";
 
 type PropiedadesCarrito = {
   datos: DatosPlantilla;
@@ -315,7 +316,7 @@ export function CarritoCatalogo({
       </div>
 
       {items.length > 0 ? (
-        <form method="post" className={styles.confirmacion} onSubmit={reservarPedido}>
+        <Formulario className={styles.confirmacion} onSubmit={reservarPedido}>
           <div className={styles.introduccion}>
             <h3>Reserva antes de escribir</h3>
             <p>
@@ -400,7 +401,7 @@ export function CarritoCatalogo({
           >
             {enviando ? "Verificando pedido…" : "Reservar pedido"}
           </button>
-        </form>
+        </Formulario>
       ) : null}
 
       <div aria-live="polite" className={styles.resultado}>
