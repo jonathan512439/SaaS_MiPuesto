@@ -1,4 +1,4 @@
-# Estado de MiPuesto — 2026-10-13
+# Estado de MiPuesto — 2026-10-14
 
 Cómo está el proyecto hoy, en una pantalla. El detalle y la evidencia de cada
 cosa están en `docs/AVANCE.md`; los controles, en `SECURITY.md`. **Este archivo
@@ -14,7 +14,7 @@ que ya no es cierto.
 | Base de ensayo | Supabase `hwirzxnoyuuqgbwipiff` — recibe copias de los respaldos; credenciales rotadas el 2026-10-13 |
 | Dominio propio | Ninguno todavía. Será `mi-puesto.com`, con guion |
 | Última migración | `20261108090000` |
-| Pruebas | 1228 en `npm run verificar` |
+| Pruebas | 1247 en `npm run verificar` |
 
 ## Cómo se despliega
 

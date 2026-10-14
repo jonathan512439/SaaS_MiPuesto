@@ -1733,6 +1733,30 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-10-14
+
+- **Catorce observaciones del dueño sobre el panel, resueltas en orden** —
+  primero los errores, después lo rápido y al final lo grande—, cada una con
+  su commit, su prueba y revisada en el navegador contra ensayo:
+  - Errores: la barra «Cuánto se nota» del fondo no hacía nada (`9e1a3a7`:
+    la plantilla tapaba la intensidad con la de reserva; comprobado en
+    producción, leymi-store pasó de 6 % a 30 %); el banner no llevaba a la
+    categoría ni al producto y su WhatsApp salía sin mensaje (`2abee20`); el
+    rubro de la plataforma y de «Mi negocio» no era el que eligió el dueño
+    (`c29e633`).
+  - Rápidos: «Atención y modalidad» con WhatsApp arriba (`cf45dc3`);
+    contador de caracteres en los campos largos (`9178834`); «Reservar
+    pedido» más grande (`4c2b767`); «Crear producto» primero y el buscador
+    con forma de buscador (`f66301f`); crear una categoría sin salir del
+    producto (`db77a73`); flechas en la barra de secciones (`0dce207`).
+  - Grandes: el banner publicitario a Promociones, en cuatro pasos con vista
+    previa, y la portada en Apariencia (`58e6feb`; la ruta ya no borra el
+    banner al guardar solo la portada); el alta y «Mi negocio» aprovechan el
+    escritorio (`4d80a81`); la plataforma entra en el celular —medía 602 px
+    en una pantalla de 390— y sus pestañas llevan flechas (`9975b43`); las
+    ayudas del panel sin jerga (`8d4de62`).
+  - `verificar` con 1247 pruebas.
+
 ### 2026-10-13
 
 - **Fase 1 de la auditoría externa del 2026-09-30, cerrada.** Cuatro arreglos
