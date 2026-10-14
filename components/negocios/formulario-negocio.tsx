@@ -45,17 +45,19 @@ type RespuestaGuardado = {
   negocio?: PerfilNegocioInicial;
 };
 
+/* En este orden en el desplegable: lo más pedido arriba. El catálogo para
+   mostrar va al final porque es el único sin pedidos. */
 const ETIQUETAS_MODALIDAD: Record<TipoNegocio, string> = {
-  catalogo_estatico: "Catálogo para mostrar",
   catalogo_cta: "Pedidos o reservas por WhatsApp",
   tienda_virtual: "Tienda con carrito",
+  catalogo_estatico: "Catálogo para mostrar",
 };
 
 const EXPLICACIONES_MODALIDAD: Record<TipoNegocio, { titulo: string; descripcion: string }> = {
   catalogo_estatico: {
     titulo: "Para mostrar lo que ofreces",
     descripcion:
-      "Es una buena opción para menús, vitrinas y listas de servicios. Tus clientes verán la información y se comunicarán contigo por WhatsApp.",
+      "Es una buena opción para menús, vitrinas y listas de servicios. Tus clientes ven tus productos, precios y datos; no tiene botones para pedir ni para reservar.",
   },
   catalogo_cta: {
     titulo: "Para recibir pedidos o reservas por WhatsApp",
