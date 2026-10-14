@@ -160,6 +160,23 @@
   font-size: var(--text-xs);
 }
 
+/* El contador de caracteres, a la derecha y debajo del campo. Cerca del tope
+   se marca con el color de alerta y además lo dice con palabras —«te quedan
+   40»—: el color nunca es el único aviso. */
+.contador {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.contador[data-cerca="si"] {
+  color: var(--color-alerta);
+  font-weight: 600;
+}
+
 .requerido {
   font-weight: 600;
 }

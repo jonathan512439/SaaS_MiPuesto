@@ -274,7 +274,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           )}
         </p>
         <AreaTexto
-          ayuda={`${descripcion.length}/500 caracteres`}
           error={errores.descripcion}
           etiqueta="Descripción"
           id="descripcion"
