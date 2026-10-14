@@ -245,7 +245,7 @@ export function FormularioIdentidad({
                   escribirle un título encima. */}
               {tipo === "portada" ? (
                 <p>
-                  El título, la bajada y el botón que van sobre la portada se escriben en{" "}
+                  El texto y el botón que van sobre la portada se escriben en{" "}
                   <Link href={RUTAS_PANEL.apariencia}>Apariencia</Link>.
                 </p>
               ) : null}
@@ -278,7 +278,7 @@ export function FormularioIdentidad({
       <Formulario className={styles.redes} onSubmit={guardarRedes}>
         <header>
           <h3>Contacto y ubicación</h3>
-          <p>Pega el enlace completo que comienza con https://. Todos son opcionales.</p>
+          <p>Abre cada página —tu Facebook, tu Instagram—, copia su dirección y pégala acá. Todos son opcionales.</p>
         </header>
 
         {/* Los dos enlaces lado a lado en una pantalla ancha: uno debajo del

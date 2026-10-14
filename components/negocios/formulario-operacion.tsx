@@ -223,7 +223,7 @@ export function FormularioOperacion({
           <h2>Define cuándo pueden hacer pedidos</h2>
         </div>
         <p>
-          Fuera del horario programado tus clientes podrán navegar, pero no confirmar pedidos.
+          Fuera de este horario tus clientes pueden ver tu catálogo, pero no enviarte pedidos.
         </p>
       </header>
 
@@ -241,7 +241,7 @@ export function FormularioOperacion({
           <option value="programado">Horario programado</option>
         </Selector>
         <Campo
-          ayuda="Ese tiempo comienza cuando el cliente confirma la reserva."
+          ayuda="Cuando un cliente envía su pedido, apartamos esos productos para él durante estos minutos, mientras te escribe por WhatsApp. Si no confirmas la venta antes, vuelven a estar disponibles."
           error={errores.reserva_minutos}
           etiqueta="Minutos que se guarda una reserva"
           id="reserva-minutos"
@@ -256,7 +256,7 @@ export function FormularioOperacion({
         />
         {conCarrito ? (
           <Campo
-            ayuda="Cuenta todas las unidades del pedido. Déjalo vacío para no poner tope."
+            ayuda="Cuántas unidades puede pedir un cliente en total, sumando todos los productos. Déjalo vacío si no quieres límite."
             error={errores.tope_unidades_pedido}
             etiqueta="Máximo de unidades por pedido"
             id="tope-unidades"
@@ -264,7 +264,7 @@ export function FormularioOperacion({
             max={String(TOPE_UNIDADES_MAXIMO)}
             min="1"
             onChange={(evento) => setTopeUnidades(evento.target.value)}
-            placeholder="Sin tope"
+            placeholder="Sin límite"
             step="1"
             type="number"
             value={topeUnidades}
@@ -352,7 +352,7 @@ export function FormularioOperacion({
         <fieldset className={styles.excepciones}>
           <legend>Fechas especiales</legend>
           <p className={styles.ayudaExcepciones}>
-            Feriados, días especiales o imprevistos: mandan sobre el horario de ese día.
+            Feriados, días especiales o imprevistos: ese día vale este horario y no el de siempre.
             {/* Se conserva esta frase aunque el resto se acorto: es lo unico del
                 bloque que describe algo que pasa solo. Sin ella, el dueno vuelve
                 en marzo, no encuentra el feriado de enero que cargo, y cree que

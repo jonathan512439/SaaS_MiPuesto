@@ -1191,7 +1191,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
           <header className={styles.cabeceraFormulario}>
             <div>
               <h2>{productoEditando ? "Editar producto" : "Nuevo producto"}</h2>
-              <p>Los campos obligatorios son el nombre y el precio.</p>
+              <p>Solo el nombre y el precio son obligatorios. Lo demás lo puedes completar después.</p>
             </div>
             <Boton onClick={cerrarFormulario} variante="discreto">Cerrar</Boton>
           </header>
@@ -1468,8 +1468,8 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               type="checkbox"
             />
             <span>
-              <strong>Controlar existencias</strong>
-              <small>El producto se marcará como agotado cuando llegue a cero.</small>
+              <strong>Llevar la cuenta de cuántos tengo</strong>
+              <small>Cada venta descuenta una unidad, y cuando se acaban tu catálogo lo muestra agotado.</small>
             </span>
           </label>
           {formulario.controla_stock && conPresentaciones ? (
@@ -2089,7 +2089,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                           ? "Existencias por presentación"
                           : producto.controla_stock
                             ? `${Math.max(0, (producto.cantidad_stock ?? 0) - producto.cantidad_reservada)} de ${producto.cantidad_stock ?? 0} disponible(s), ${producto.cantidad_reservada} reservada(s)`
-                            : "Sin control de existencias"}
+                            : "Sin cuenta de unidades"}
                       </small>
                       {producto.precio_anterior !== null && producto.precio_actualizado_en ? (
                         <small className={styles.auditoriaPrecio}>

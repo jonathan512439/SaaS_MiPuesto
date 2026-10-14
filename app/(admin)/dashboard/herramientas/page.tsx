@@ -73,7 +73,7 @@ export default async function PaginaHerramientas() {
       href: RUTAS_PANEL.importar,
       titulo: "Importar una planilla",
       explicacion:
-        "Si ya tienes tus productos en un Excel o un CSV, los cargas todos de una vez en lugar de escribirlos uno por uno.",
+        "Si ya tienes tus productos en un Excel u otra planilla, los cargas todos de una vez en lugar de escribirlos uno por uno.",
       icono: "grafico",
     },
     {
@@ -163,7 +163,7 @@ export default async function PaginaHerramientas() {
                 foto o un PDF; un Excel va a «Importar una planilla», que lo lee
                 tal cual y no gasta lecturas. */}
             <p className={styles.notaIa}>
-              ¿Ya tienes tus productos en Excel o CSV? Usa <strong>Importar una planilla</strong>,
+              ¿Ya tienes tus productos en un Excel u otra planilla? Usa <strong>Importar una planilla</strong>,
               más abajo: es gratis y no gasta lecturas.
             </p>
           </div>

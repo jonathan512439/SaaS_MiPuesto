@@ -52,7 +52,7 @@ export const PROPORCION_BANNER = {
   alto: 1,
   /* Un tamaño concreto, no solo la razón: quien abre un editor de imágenes
      escribe píxeles, no proporciones. */
-  ejemplo: "1200 × 600 píxeles",
+  ejemplo: "1200 de ancho por 600 de alto",
 } as const;
 export const LARGO_MAXIMO_ALT = 120;
 export type Banner = TextoSobreImagen & {

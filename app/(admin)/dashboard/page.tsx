@@ -242,7 +242,7 @@ export default async function PaginaDashboard() {
               <dd>
                 <strong>{leido.situacion.categorias}</strong> de {LIMITE_CATEGORIAS}
               </dd>
-              <p>Hasta 10 campos en cada una</p>
+              <p>Hasta 10 datos en cada una (talla, color, marca…)</p>
             </div>
         </dl>
       </section>

@@ -188,7 +188,7 @@ export function FormularioBanners({
                 <small>
                   {subiendo === indice
                     ? "Subiendo la imagen…"
-                    : `Más ancha que alta: ${PROPORCION_BANNER.ancho} de ancho por ${PROPORCION_BANNER.alto} de alto, por ejemplo ${PROPORCION_BANNER.ejemplo}. Si tiene otra medida, se recorta por el medio.`}
+                    : `Una imagen acostada, el doble de ancha que de alta (por ejemplo, ${PROPORCION_BANNER.ejemplo}). Si tiene otra forma, se recorta por arriba y por abajo: pon lo importante al centro.`}
                 </small>
                 {errores[`banners.${indice}.imagen`] ? (
                   <strong className={styles.error}>{errores[`banners.${indice}.imagen`]}</strong>
