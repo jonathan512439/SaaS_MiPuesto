@@ -54,7 +54,7 @@ export const PROPORCION_BANNER = {
      escribe píxeles, no proporciones. */
   ejemplo: "1200 × 600 píxeles",
 } as const;
-const LARGO_MAXIMO_ALT = 120;
+export const LARGO_MAXIMO_ALT = 120;
 export type Banner = TextoSobreImagen & {
   imagen: string;
   /* Obligatorio y a propósito. Un banner sin texto alternativo es un hueco para

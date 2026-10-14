@@ -46,23 +46,45 @@
   font-weight: 800;
 }
 
-/* La vista previa mantiene la proporción del catálogo aunque no haya imagen: sin
-   eso, el bloque salta de alto al subir la primera y el formulario se mueve
-   debajo del dedo. */
-.previa {
+/* Cada paso del banner, con su número y su nombre: «1 · La imagen»,
+   «2 · ¿Qué muestra la imagen?». En vez de una lista larga de campos sin
+   orden, el dueño sabe qué va primero y qué es opcional. */
+.pasoBanner {
   display: grid;
-  place-items: center;
-  overflow: hidden;
-  aspect-ratio: 4 / 1;
-  border: var(--borde-fino) solid var(--color-borde-tarjeta);
-  border-radius: var(--radius-control);
-  background: var(--color-fondo-hundido);
+  gap: var(--spacing-3);
+  padding-top: var(--spacing-3);
+  border-top: var(--borde-fino) solid var(--color-borde-tarjeta);
 }
 
-.previa img {
+.pasoBanner:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.pasoBanner h3 {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+/* La vista previa del banner, con los colores del catálogo: es el mismo
+   componente que dibuja el catálogo, así que se ve como va a quedar. Sin
+   imagen guarda un alto para que el formulario no salte al subirla. */
+.previaBanner {
+  display: grid;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  /* Del ancho que tiene en un teléfono grande, no de la pantalla entera: en
+     escritorio, a lo ancho del formulario, la vista previa tapaba todo. */
+  max-width: 32rem;
+  min-height: var(--spacing-16);
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-control);
+  background: var(--catalogo-fondo-hundido);
+}
+
+.previaBanner > * {
+  width: 100%;
 }
 
 .sinImagen {
@@ -79,6 +101,14 @@
 /* El enlace a «Mi negocio» dentro de la explicación: del color de marca y
    subrayado, para que se vea que se toca. */
 .paraQue a {
+  color: var(--color-marca);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+/* Los enlaces de la explicación de arriba —«Mi negocio», «Promociones»—: se
+   tienen que ver como algo que se toca. */
+.cabecera a {
   color: var(--color-marca);
   font-weight: 800;
   text-decoration: underline;

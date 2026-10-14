@@ -170,7 +170,16 @@ export async function PATCH(solicitud: NextRequest) {
     typeof entrada.datos === "object" && entrada.datos !== null
       ? (entrada.datos as Record<string, unknown>)
       : {};
-  const validacion = validarBanners("banners" in cuerpo ? cuerpo.banners : []);
+  /* Cada parte se guarda solo si llega: la portada se edita en Apariencia y el
+     banner en Promociones, cada una con su botón. Antes llegaban siempre
+     juntas, y un banner que no venía se tomaba como lista vacía: guardar solo
+     la portada habría borrado el banner. `undefined` es «no lo toques». */
+  const tocaBanners = "banners" in cuerpo;
+  const tocaPortada = "portada" in cuerpo;
+  if (!tocaBanners && !tocaPortada) {
+    return NextResponse.json({ error: "No llegó nada para guardar." }, { status: 400 });
+  }
+  const validacion = validarBanners(tocaBanners ? cuerpo.banners : []);
   if (!validacion.correcto) {
     return NextResponse.json(
       { error: "Revisa el banner.", errores: validacion.errores },
@@ -178,7 +187,7 @@ export async function PATCH(solicitud: NextRequest) {
     );
   }
   /* `undefined` es «no lo toques»; un objeto es lo que va a quedar. */
-  const portada = "portada" in cuerpo ? validarTextoPortada(cuerpo.portada) : null;
+  const portada = tocaPortada ? validarTextoPortada(cuerpo.portada) : null;
   if (portada && !portada.correcto) {
     return NextResponse.json(
       { error: "Revisa el texto de la portada.", errores: portada.errores },
@@ -213,7 +222,7 @@ export async function PATCH(solicitud: NextRequest) {
   const { data: guardado, error: errorGuardado } = await contexto.supabase
     .from("negocios")
     .update({
-      banners: validacion.banners,
+      ...(tocaBanners ? { banners: validacion.banners } : {}),
       ...(portada?.correcto ? { portada_texto: portada.texto } : {}),
     })
     .eq("id", contexto.negocio.id)
@@ -227,19 +236,21 @@ export async function PATCH(solicitud: NextRequest) {
   /* El archivo se borra **después** de guardar, y su fallo no revierte nada: un
      archivo huérfano ocupa unos kilobytes y no se ve, mientras que deshacer un
      guardado correcto le devolvería al dueño el banner viejo sin motivo. */
-  const huerfanas = imagenesHuerfanas(
-    leerBanners(actual.banners),
-    validacion.banners,
-    contexto.negocio.id,
-  );
-  if (huerfanas.length > 0) {
-    await contexto.supabase.storage.from("negocios").remove(huerfanas);
+  if (tocaBanners) {
+    const huerfanas = imagenesHuerfanas(
+      leerBanners(actual.banners),
+      validacion.banners,
+      contexto.negocio.id,
+    );
+    if (huerfanas.length > 0) {
+      await contexto.supabase.storage.from("negocios").remove(huerfanas);
+    }
+    await borrarBannersSinGuardar(
+      contexto.supabase,
+      contexto.negocio.id,
+      imagenesEnUso(validacion.banners),
+    );
   }
-  await borrarBannersSinGuardar(
-    contexto.supabase,
-    contexto.negocio.id,
-    imagenesEnUso(validacion.banners),
-  );
 
   return NextResponse.json({
     banners: leerBanners(guardado.banners),

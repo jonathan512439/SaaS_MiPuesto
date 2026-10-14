@@ -48,7 +48,7 @@ export default async function PaginaPlantilla() {
   /* La dirección de cada imagen se arma acá, en el servidor, que es quien conoce
      la del proyecto. Pasarle la regla al navegador sería repetirla en un segundo
      lugar y dejarla lista para desincronizarse. */
-  /* Las categorías visibles, para ofrecerlas como destino del banner. Se piden
+  /* Las categorías visibles, para ofrecerlas como destino del botón de la portada. Se piden
      acá y no en el navegador: el formulario no tiene por qué conocer la forma de
      la tabla, y traerlas del servidor evita una consulta más al abrir la
      pantalla. */
@@ -59,7 +59,7 @@ export default async function PaginaPlantilla() {
       .eq("negocio_id", negocio.id)
       .eq("visible", true)
       .order("orden"),
-    /* Los productos visibles, para que un banner lleve a uno: «2x1 en
+    /* Los productos visibles, para que el botón de la portada lleve a uno: «2x1 en
        hamburguesas» lleva a la hamburguesa y no al principio del catálogo. */
     supabase
       .from("productos")
