@@ -8,6 +8,21 @@
   padding: var(--spacing-8) 0;
 }
 
+/* Nada puede empujar la página a lo ancho, el mismo contrato que el resto del
+   panel. Sin esto, la fila de pestañas —que no se encoge— estiraba la columna
+   de la grilla: en un celular de 390 px la página medía 602 y todo se veía
+   más grande que la pantalla. El dueño lo señaló el 2026-10-13. */
+.pagina > *,
+.cliente > * {
+  min-width: 0;
+}
+
+/* El plan es un desplegable con textos largos («Catálogo — 150 productos, 3
+   fotos c/u…»): sin tope, su ancho natural también empujaba la tarjeta. */
+.pagina select {
+  max-width: 100%;
+}
+
 .resumen,
 .vacio {
   margin: 0;
@@ -161,7 +176,49 @@ a.direccion:hover {
  *
  * Se desplazan de costado en un teléfono en vez de apilarse: apiladas ocupan
  * media pantalla antes de que empiece el contenido. */
+/* Las pestañas con sus flechas, como la barra de secciones del panel: en un
+   celular entran dos de cinco, y sin flechas no se sabía que había más. */
+.pestanasMarco {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.flechaPestanas {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  display: inline-flex;
+  width: var(--control-alto);
+  height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-status);
+  padding: 0 0 var(--spacing-1);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-elevada);
+  color: var(--color-marca-fuerte);
+  font: inherit;
+  font-size: var(--text-2xl);
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.flechaPestanas[data-lado="antes"] {
+  left: 0;
+}
+
+.flechaPestanas[data-lado="despues"] {
+  right: 0;
+}
+
 .pestanas {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   gap: var(--spacing-2);
   overflow-x: auto;

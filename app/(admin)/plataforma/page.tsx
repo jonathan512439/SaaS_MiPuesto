@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { AccionesCliente } from "../../../components/plataforma/acciones-cliente";
 import { CambioDeRubro } from "../../../components/plataforma/cambio-de-rubro";
+import { BarraDesplazable } from "../../../components/ui/barra-desplazable";
 import { EtiquetasNfc } from "../../../components/plataforma/etiquetas-nfc";
 import type { EtiquetaPlataforma } from "../../../components/plataforma/etiquetas-nfc";
 import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
@@ -140,7 +141,13 @@ export default async function PaginaPlataforma({
       {/* Las pestañas van en la dirección y no en el estado del navegador: así
           «Consumo» se puede guardar en favoritos, y volver de una acción no
           devuelve al administrador a la primera. */}
-      <nav aria-label="Secciones de la plataforma" className={styles.pestanas}>
+      <BarraDesplazable
+        claseBarra={styles.pestanas}
+        claseFlecha={styles.flechaPestanas}
+        claseMarco={styles.pestanasMarco}
+        clave={pestana}
+        etiqueta="Secciones de la plataforma"
+      >
         {PESTANAS_PLATAFORMA.map(({ id, titulo, pregunta }) => (
           <Link
             aria-current={id === pestana ? "page" : undefined}
@@ -152,7 +159,7 @@ export default async function PaginaPlataforma({
             <small>{pregunta}</small>
           </Link>
         ))}
-      </nav>
+      </BarraDesplazable>
 
       {pestana === "consumo" ? (
         <>

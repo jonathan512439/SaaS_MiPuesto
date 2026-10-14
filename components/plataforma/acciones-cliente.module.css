@@ -9,8 +9,19 @@
 
 .renovar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-2);
+  min-width: 0;
+}
+
+/* El plan, con textos largos: se ajusta al ancho que hay y no al de su
+   opción más larga. Sin esto, en un celular la fila medía 585 px y arrastraba
+   toda la plataforma a lo ancho. */
+.renovar select {
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .renovar label {

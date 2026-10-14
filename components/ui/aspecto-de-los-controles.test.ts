@@ -90,6 +90,7 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
      al lado: con el aspecto de un botón del panel quedarían como una acción
      más entre las secciones, y solo desplazan la barra. */
   { selector: ".flechaNavegacion", motivo: "desplaza la barra de secciones; va sobre la barra de color" },
+  { selector: ".flechaPestanas", motivo: "desplaza las pestañas de la plataforma, como las de la barra del panel" },
   { selector: ".masOpciones[open] > summary", motivo: "es el estado abierto, no otro aspecto" },
 
   /* Las que cuestan dinero cada vez que se usan llevan el degradado de IA. Es la

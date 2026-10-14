@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Icono, type NombreIcono } from "../iconos/icono";
 import styles from "../../app/(admin)/dashboard/dashboard.module.css";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
+import { BarraDesplazable } from "../ui/barra-desplazable";
 
 /* El ícono acompaña a la palabra, no la reemplaza. Con nueve secciones que se
    recorren de reojo, la forma se reconoce antes que el texto y se vuelve a la
@@ -38,97 +38,35 @@ const ENLACES: ReadonlyArray<{ href: string; etiqueta: string; icono: NombreIcon
 ];
 
 
-/* Las flechas de la barra.
- *
- * Con nueve secciones, la barra no entra entera en un celular ni, junto al logo
- * y la cuenta, en un escritorio angosto: se desplaza de costado. Pero sin
- * barra de desplazamiento visible, quien no tiene rueda ni panel táctil —o no
- * sabe que se desplaza— no llegaba a las del final. Pedido por el dueño el
- * 2026-10-13: «un botón de siguiente por si no funciona el mousepad». Cada
- * flecha aparece solo cuando hay algo más de ese lado. */
-type Lados = { antes: boolean; despues: boolean };
-
+/* La barra se desplaza de costado y lleva flechas (`BarraDesplazable`): con
+   nueve secciones no entra entera en un celular ni, junto al logo y la
+   cuenta, en un escritorio angosto. */
 export function NavegacionDashboard() {
   const rutaActual = usePathname();
-  const barra = useRef<HTMLElement>(null);
-  const [lados, setLados] = useState<Lados>({ antes: false, despues: false });
-
-  const medir = useCallback(() => {
-    const elemento = barra.current;
-    if (!elemento) return;
-    const margen = 4;
-    setLados({
-      antes: elemento.scrollLeft > margen,
-      despues: elemento.scrollLeft + elemento.clientWidth < elemento.scrollWidth - margen,
-    });
-  }, []);
-
-  useEffect(() => {
-    const elemento = barra.current;
-    if (!elemento) return;
-    /* La sección abierta, a la vista: entrar a «Cuenta» desde un celular
-       dejaba la barra mostrando «Resumen» y la marca de dónde se está, afuera. */
-    elemento.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({
-      block: "nearest",
-      inline: "center",
-    });
-    medir();
-    const observador = new ResizeObserver(medir);
-    observador.observe(elemento);
-    elemento.addEventListener("scroll", medir, { passive: true });
-    return () => {
-      observador.disconnect();
-      elemento.removeEventListener("scroll", medir);
-    };
-  }, [medir, rutaActual]);
-
-  function mover(sentido: 1 | -1) {
-    const elemento = barra.current;
-    if (!elemento) return;
-    elemento.scrollBy({ left: sentido * elemento.clientWidth * 0.7, behavior: "smooth" });
-  }
 
   return (
-    <div className={styles.navegacionMarco}>
-      {lados.antes ? (
-        <button
-          aria-label="Ver las secciones anteriores"
-          className={styles.flechaNavegacion}
-          data-lado="antes"
-          onClick={() => mover(-1)}
-          type="button"
-        >
-          ‹
-        </button>
-      ) : null}
-      <nav aria-label="Secciones del panel" className={styles.navegacion} ref={barra}>
-        {ENLACES.map(({ etiqueta, href, icono }) => {
-          const activo = rutaActual === href;
+    <BarraDesplazable
+      claseBarra={styles.navegacion}
+      claseFlecha={styles.flechaNavegacion}
+      claseMarco={styles.navegacionMarco}
+      clave={rutaActual}
+      etiqueta="Secciones del panel"
+    >
+      {ENLACES.map(({ etiqueta, href, icono }) => {
+        const activo = rutaActual === href;
 
-          return (
-            <Link
-              aria-current={activo ? "page" : undefined}
-              className={activo ? styles.enlaceActivo : styles.enlace}
-              href={href}
-              key={href}
-            >
-              <Icono className={styles.iconoEnlace} nombre={icono} />
-              {etiqueta}
-            </Link>
-          );
-        })}
-      </nav>
-      {lados.despues ? (
-        <button
-          aria-label="Ver más secciones"
-          className={styles.flechaNavegacion}
-          data-lado="despues"
-          onClick={() => mover(1)}
-          type="button"
-        >
-          ›
-        </button>
-      ) : null}
-    </div>
+        return (
+          <Link
+            aria-current={activo ? "page" : undefined}
+            className={activo ? styles.enlaceActivo : styles.enlace}
+            href={href}
+            key={href}
+          >
+            <Icono className={styles.iconoEnlace} nombre={icono} />
+            {etiqueta}
+          </Link>
+        );
+      })}
+    </BarraDesplazable>
   );
 }
