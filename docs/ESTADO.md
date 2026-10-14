@@ -14,7 +14,7 @@ que ya no es cierto.
 | Base de ensayo | Supabase `hwirzxnoyuuqgbwipiff` — recibe copias de los respaldos; credenciales rotadas el 2026-10-13 |
 | Dominio propio | Ninguno todavía. Será `mi-puesto.com`, con guion |
 | Última migración | `20261108090000` |
-| Pruebas | 1247 en `npm run verificar` |
+| Pruebas | 1251 en `npm run verificar` |
 
 ## Cómo se despliega
 

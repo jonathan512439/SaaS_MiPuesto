@@ -1756,6 +1756,12 @@ motivo por el que este archivo existe.
     en una pantalla de 390— y sus pestañas llevan flechas (`9975b43`); las
     ayudas del panel sin jerga (`8d4de62`).
   - `verificar` con 1247 pruebas.
+- **El turno cargado a mano ya no se duplica ni choca consigo mismo al
+  reintentar** (`884160a`), el pendiente de los 503 del 2026-09-26. El panel
+  manda una clave por intento —la de pausar las reservas conserva además su
+  inicio— y la ruta devuelve el turno que ese intento ya guardó. Probado
+  contra ensayo: reintento → el mismo turno; doble toque → uno solo; la clave
+  para otra hora → 409. `verificar` con 1251 pruebas.
 
 ### 2026-10-13
 
