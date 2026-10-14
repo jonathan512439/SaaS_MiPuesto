@@ -85,6 +85,10 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
     motivo: "es un juego de opciones, y marca cuál está elegida",
   },
   { selector: ".interruptor", motivo: "es un interruptor: importa encendido o apagado" },
+  /* Van sobre la barra de color, encima de las secciones, como los enlaces de
+     al lado: con el aspecto de un botón del panel quedarían como una acción
+     más entre las secciones, y solo desplazan la barra. */
+  { selector: ".flechaNavegacion", motivo: "desplaza la barra de secciones; va sobre la barra de color" },
   { selector: ".masOpciones[open] > summary", motivo: "es el estado abierto, no otro aspecto" },
 
   /* Las que cuestan dinero cada vez que se usan llevan el degradado de IA. Es la

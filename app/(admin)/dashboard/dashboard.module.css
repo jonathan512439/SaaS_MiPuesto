@@ -105,10 +105,52 @@
 /* La navegación es una fila de pastillas que se desplaza en horizontal: con
    cinco secciones, repartirlas en columnas iguales corta las etiquetas largas
    en pantallas de 360 px. */
-.navegacion {
+/* La barra de secciones con sus flechas: las flechas van encima de los
+   bordes de la barra, que sigue desplazándose con el dedo o la rueda. */
+.navegacionMarco {
+  position: relative;
   display: flex;
   grid-row: 2;
   grid-column: 1 / -1;
+  min-width: 0;
+  align-items: center;
+}
+
+.flechaNavegacion {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  display: inline-flex;
+  width: var(--control-alto);
+  height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  border: var(--borde-fino) solid var(--color-superficie);
+  border-radius: var(--radius-status);
+  padding: 0 0 var(--spacing-1);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-elevada);
+  color: var(--color-marca-fuerte);
+  font: inherit;
+  font-size: var(--text-2xl);
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.flechaNavegacion[data-lado="antes"] {
+  left: 0;
+}
+
+.flechaNavegacion[data-lado="despues"] {
+  right: 0;
+}
+
+.navegacion {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
   gap: var(--spacing-2);
   overflow-x: auto;
   padding-bottom: var(--spacing-1);
@@ -188,9 +230,12 @@
     font-size: var(--text-xl);
   }
 
-  .navegacion {
+  .navegacionMarco {
     grid-row: 1;
     grid-column: 2;
+  }
+
+  .navegacion {
     /* `safe center`: centrada mientras entre, y alineada al principio cuando no.
        Con `center` a secas, lo que no entra se corta por los dos lados y el
        primer apartado queda inalcanzable. */
