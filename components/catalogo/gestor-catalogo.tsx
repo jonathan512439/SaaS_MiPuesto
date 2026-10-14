@@ -232,6 +232,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   );
   const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
+  /* La categoría nueva desde el formulario del producto, sin ir a «Mi
+     catálogo»: crear la categoría primero y el producto después confundía.
+     Pedido por el dueño el 2026-10-13. */
+  const [categoriaEnLinea, setCategoriaEnLinea] = useState<string | null>(null);
   /* Qué producto tiene abierta su tira de fotografías. Uno solo: dos tiras
      abiertas en una lista de trescientos productos es volver a la pantalla que
      esto vino a arreglar. */
@@ -581,7 +585,32 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     enfocarFormularioProducto();
   }
 
+  async function crearCategoriaEnLinea() {
+    const nombre = categoriaEnLinea?.trim() ?? "";
+    if (!nombre) return;
+    setOcupado(true);
+    try {
+      const { categoria } = await solicitarJson<{ categoria: CategoriaCatalogo }>(
+        "/api/catalogo/categorias",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre, icono: ICONO_PREDETERMINADO }),
+        },
+      );
+      setCategorias((actuales) => [...actuales, categoria]);
+      actualizarCampo("categoria_id", categoria.id);
+      setCategoriaEnLinea(null);
+      informarExito(`Categoría «${categoria.nombre}» creada y elegida`);
+    } catch (error) {
+      informarError("No se pudo crear la categoría", error);
+    } finally {
+      setOcupado(false);
+    }
+  }
+
   function cerrarFormulario() {
+    setCategoriaEnLinea(null);
     setFormularioAbierto(false);
     setProductoEditando(null);
     setErroresFormulario({});
@@ -1270,6 +1299,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               placeholder={textosProducto.descripcion}
               value={formulario.descripcion}
             />
+            {/* El desplegable y la categoría nueva van en un solo bloque: el
+                formulario es de dos columnas, y sueltos caían en columnas
+                distintas. */}
+            <div className={styles.grupoCategoria}>
             <Selector
               error={erroresFormulario.categoria_id}
               id="producto-categoria"
@@ -1280,6 +1313,59 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               <option value="">Sin categoría</option>
               {categorias.map((categoria) => <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>)}
             </Selector>
+            {categoriaEnLinea === null ? (
+              <div className={styles.categoriaEnLinea}>
+                <Boton
+                  className={styles.botonCategoriaEnLinea}
+                  disabled={ocupado}
+                  onClick={() => setCategoriaEnLinea("")}
+                  type="button"
+                  variante="discreto"
+                >
+                  + Nueva categoría
+                </Boton>
+                <small>
+                  {categorias.length === 0
+                    ? "Todavía no tienes categorías: crea la primera acá mismo."
+                    : "¿No está la que buscas? Créala acá sin salir del producto."}
+                </small>
+              </div>
+            ) : (
+              <div className={styles.categoriaEnLinea} role="group" aria-label="Nueva categoría">
+                <label htmlFor="producto-categoria-nueva">Nombre de la categoría nueva</label>
+                <div className={styles.filaCategoriaEnLinea}>
+                  <input
+                    autoFocus
+                    id="producto-categoria-nueva"
+                    maxLength={60}
+                    onChange={(evento) => setCategoriaEnLinea(evento.target.value)}
+                    /* Enter crea la categoría y no envía el producto a medio
+                       llenar: este campo vive dentro de su formulario. */
+                    onKeyDown={(evento) => {
+                      if (evento.key === "Enter") {
+                        evento.preventDefault();
+                        void crearCategoriaEnLinea();
+                      }
+                    }}
+                    placeholder="Por ejemplo: Bebidas"
+                    type="text"
+                    value={categoriaEnLinea}
+                  />
+                  <Boton
+                    disabled={ocupado || !categoriaEnLinea.trim()}
+                    onClick={() => void crearCategoriaEnLinea()}
+                    type="button"
+                  >
+                    Crear y elegir
+                  </Boton>
+                  <Boton onClick={() => setCategoriaEnLinea(null)} type="button" variante="discreto">
+                    Cancelar
+                  </Boton>
+                </div>
+                <small>El ícono y el orden los cambias después en «Mi catálogo».</small>
+              </div>
+            )}
+            </div>
             <Selector
               disabled={!formulario.categoria_id}
               error={erroresFormulario.subcategoria_id}
