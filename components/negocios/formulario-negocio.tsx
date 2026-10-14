@@ -11,6 +11,7 @@ import {
 } from "../../lib/negocios/validacion";
 import { rutaDespuesDeGuardarNegocio } from "../../lib/negocios/alta";
 import { nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
+import { nombreDeRubroPublico } from "../../lib/negocios/rubros-publicos";
 import { DOMINIO_MIPUESTO } from "../../lib/url-sitio";
 import { AreaTexto, Boton, Campo, Selector, useAvisos, Formulario } from "../ui";
 import styles from "../../app/(admin)/dashboard/negocio/negocio.module.css";
@@ -23,6 +24,10 @@ export type PerfilNegocioInicial = {
   subnombre: string | null;
   tipo_negocio: string;
   rubro?: string | null;
+  /* Cómo lo dijo el dueño al darse de alta: «Importados y variedades» y no la
+     siembra, «Otro». Es lo que muestra «Qué vendes», y las dos pantallas tienen
+     que decir lo mismo. */
+  rubro_publico?: string | null;
   rubro_bloqueado_en?: string | null;
   pide_numero_mesa?: boolean | null;
   telefono_whatsapp: string;
@@ -251,7 +256,11 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         <p className={styles.rubroInformado}>
           {rubro ? (
             <>
-              Tu negocio está registrado como <strong>{nombreDeRubro(rubro)}</strong>. Se elige
+              Tu negocio está registrado como{" "}
+              <strong>
+                {nombreDeRubroPublico(negocioInicial?.rubro_publico) ?? nombreDeRubro(rubro)}
+              </strong>
+              . Se elige
               una sola vez, al crear el catálogo, porque de él salen tus categorías y los
               datos de cada producto.
             </>

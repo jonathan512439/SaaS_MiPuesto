@@ -11,7 +11,7 @@ import { UsoAlmacenamientoPanel } from "../../../components/plataforma/uso-almac
 import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
 import { CerrarSesion } from "../../../components/negocios/cerrar-sesion";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
-import { nombreDeRubro } from "../../../lib/negocios/rubros";
+import { rubroQueVeElDueno } from "../../../lib/negocios/rubros-publicos";
 import type { UsoIa } from "../../../lib/ia/limites";
 import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/servidor";
 import { cupoDelPlan, planDe } from "../../../lib/planes";
@@ -244,7 +244,7 @@ export default async function PaginaPlataforma({
                     herramienta que cuesta dinero. Ninguno pide una consulta
                     nueva: los tres ya venían en la fila. */}
                 <ul className={styles.datos}>
-                  <li>{nombreDeRubro(negocio.rubro)}</li>
+                  <li>{rubroQueVeElDueno(negocio.rubro_publico, negocio.rubro)}</li>
                   <li>
                     Cliente desde {formatearFechaVencimiento(new Date(negocio.creado_en))}
                   </li>

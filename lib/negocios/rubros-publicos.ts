@@ -1,4 +1,4 @@
-import type { RubroId } from "./rubros";
+import { nombreDeRubro, type RubroId } from "./rubros";
 
 /* Lo que vende el negocio, dicho como lo busca el cliente. Fase 11.
  *
@@ -186,4 +186,20 @@ export function leerRubrosSecundarios(
     return { correcto: false, error: `Puedes sumar hasta ${MAXIMO_RUBROS_SECUNDARIOS} rubros extra.` };
   }
   return { correcto: true, secundarios };
+}
+
+/* El rubro de un negocio como lo ve su dueño, para la plataforma.
+ *
+ * La plataforma mostraba la siembra —«Otro»— y el panel del dueño su rubro
+ * público —«Importados»—: hablando por teléfono, cada uno leía otra cosa.
+ * Ahora manda el público, y si la siembra se llama distinto va al lado, porque
+ * es lo que decide qué categorías y campos tiene el catálogo. */
+export function rubroQueVeElDueno(rubroPublico: unknown, siembra: unknown): string {
+  const publico = RUBROS_PUBLICOS.find((rubro) => rubro.id === rubroPublico);
+  if (!publico) return nombreDeRubro(siembra);
+  /* Solo cuando la siembra es otro rubro: «Veterinaria» se siembra como
+     veterinaria y no hace falta decirlo dos veces. */
+  return !siembra || siembra === publico.id
+    ? publico.nombre
+    : `${publico.nombre} · catálogo de ${nombreDeRubro(siembra).toLowerCase()}`;
 }
