@@ -8,6 +8,9 @@
  * máscara desde CSS: así el color sale de la paleta del negocio y funciona en
  * las siete, incluida la oscura, donde el dibujo va más claro que el fondo.
  */
+import { GRUPOS_ICONOS } from "../components/iconos/catalogo";
+import { grupoSugeridoPara } from "./catalogo/categorias";
+
 export type PatronFondo =
   | "comida"
   | "herramientas"
@@ -80,20 +83,51 @@ export function acotarOpacidad(valor: unknown): number {
  * saber si dibujar el propio. Si cada uno lo resolviera a su manera, un día
  * pondrían los dos a la vez y el fondo saldría doble.
  *
- * Sin repetidos: dos categorías con el mismo ícono no tienen por qué ocupar dos
- * de las ocho posiciones de la baldosa. El tope es ese, ocho, que es lo que la
- * baldosa dibuja; pedir más sería trabajo que no se ve. */
-export const MAXIMO_ICONOS_PATRON = 8;
+ * Primero los de las categorías, sin repetidos. Hasta el 2026-10-14 eran los
+ * únicos, y un negocio con tres categorías tenía un fondo de tres dibujos
+ * repetidos; el dueño pidió el doble. Ahora se completa con otros del mismo
+ * juego —el grupo de cada ícono elegido, después el del rubro, al final los
+ * generales— hasta **el doble de los propios, nunca menos de ocho** y como
+ * mucho dieciséis, que es lo que la baldosa dibuja. Los propios van
+ * intercalados con los agregados, así no se juntan en una esquina.
+ *
+ * **Sin categorías con ícono devuelve vacío**, y eso no cambia: es la señal de
+ * poner el dibujo por rubro, que ya trae los suyos. */
+export const MAXIMO_ICONOS_PATRON = 16;
+const MINIMO_ICONOS_PATRON = 8;
 
 export function iconosDePatron(
   categorias: ReadonlyArray<{ icono?: string | null }>,
+  rubro?: string | null,
 ): string[] {
-  const vistos: string[] = [];
+  const propios: string[] = [];
   for (const { icono } of categorias) {
     const nombre = typeof icono === "string" ? icono.trim() : "";
-    if (nombre === "" || vistos.includes(nombre)) continue;
-    vistos.push(nombre);
-    if (vistos.length >= MAXIMO_ICONOS_PATRON) break;
+    if (nombre === "" || propios.includes(nombre)) continue;
+    propios.push(nombre);
+    if (propios.length >= MAXIMO_ICONOS_PATRON) break;
   }
-  return vistos;
+  if (propios.length === 0) return [];
+
+  const meta = Math.min(MAXIMO_ICONOS_PATRON, Math.max(propios.length * 2, MINIMO_ICONOS_PATRON));
+  const gruposDeLosPropios = GRUPOS_ICONOS.filter(({ iconos }) =>
+    propios.some((propio) => (iconos as ReadonlyArray<string>).includes(propio)),
+  ).map(({ id }) => id);
+  const orden = [...gruposDeLosPropios, grupoSugeridoPara(rubro), "general"];
+  const agregados: string[] = [];
+  for (const id of orden) {
+    const grupo = GRUPOS_ICONOS.find((candidato) => candidato.id === id);
+    for (const icono of grupo?.iconos ?? []) {
+      if (propios.length + agregados.length >= meta) break;
+      if (!propios.includes(icono) && !agregados.includes(icono)) agregados.push(icono);
+    }
+  }
+
+  /* Intercalados: propio, agregado, propio, agregado… */
+  const mezclados: string[] = [];
+  for (let indice = 0; mezclados.length < propios.length + agregados.length; indice += 1) {
+    if (indice < propios.length) mezclados.push(propios[indice]);
+    if (indice < agregados.length) mezclados.push(agregados[indice]);
+  }
+  return mezclados;
 }

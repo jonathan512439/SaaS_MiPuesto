@@ -51,7 +51,7 @@ export function PlantillaMipuesto({
      Vacío significa que este negocio no tiene categorías propias, y entonces el
      dibujo por rubro lo pone el contenedor con `data-patron`. Los dos nunca van
      juntos: quien pone el atributo consulta esta misma función. */
-  const iconosPatron = negocio.patronFondo ? iconosDePatron(esferas) : [];
+  const iconosPatron = negocio.patronFondo ? iconosDePatron(esferas, negocio.rubro) : [];
 
   /* Una vista previa no navega. Es la misma plantilla que el catálogo de verdad,
      y sin esta distinción tocar un producto de la portada sacaría al visitante

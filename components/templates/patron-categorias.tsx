@@ -27,24 +27,34 @@ import styles from "./patron-categorias.module.css";
 
 /* Las posiciones son fijas y no al azar: un `Math.random()` acá daría un dibujo
    en el servidor y otro en el navegador, y React marcaría la diferencia como
-   error de hidratación. Están repartidas a mano sobre la baldosa de 288 para que
-   no se lean como una grilla, con giros y tamaños distintos.
+   error de hidratación. Son dieciséis —eran ocho hasta el 2026-10-14, cuando
+   el dueño pidió el doble de dibujos—, repartidas a mano sobre una baldosa de
+   384 en una cuadrícula de 4 × 4 corrida, con giros y tamaños distintos para
+   que no se lea como grilla.
 
-   Ninguna se va del borde —la mayor mide 24 × 1.7 ≈ 41— porque el contenido de
-   un `pattern` se recorta en la baldosa y un ícono cortado por la mitad se ve
-   como un error de carga, no como una trama. */
+   Ninguna se va del borde —la mayor mide 24 × 1.6 ≈ 38, y la más corrida
+   empieza en 334— porque el contenido de un `pattern` se recorta en la baldosa
+   y un ícono cortado por la mitad se ve como un error de carga. */
 const POSICIONES = [
-  { x: 20, y: 26, escala: 1.6, giro: -12 },
-  { x: 150, y: 14, escala: 1.2, giro: 14 },
-  { x: 228, y: 70, escala: 1.4, giro: -6 },
-  { x: 72, y: 112, escala: 1.3, giro: 9 },
-  { x: 168, y: 146, escala: 1.7, giro: -16 },
-  { x: 26, y: 206, escala: 1.4, giro: 10 },
-  { x: 124, y: 232, escala: 1.2, giro: -8 },
-  { x: 230, y: 192, escala: 1.5, giro: 16 },
+  { x: 14, y: 18, escala: 1.5, giro: -12 },
+  { x: 112, y: 8, escala: 1.2, giro: 14 },
+  { x: 206, y: 30, escala: 1.4, giro: -6 },
+  { x: 300, y: 12, escala: 1.3, giro: 10 },
+  { x: 60, y: 104, escala: 1.3, giro: 9 },
+  { x: 158, y: 118, escala: 1.6, giro: -16 },
+  { x: 250, y: 96, escala: 1.2, giro: 12 },
+  { x: 332, y: 128, escala: 1.4, giro: -8 },
+  { x: 16, y: 196, escala: 1.4, giro: 10 },
+  { x: 108, y: 214, escala: 1.2, giro: -8 },
+  { x: 204, y: 190, escala: 1.5, giro: 16 },
+  { x: 296, y: 222, escala: 1.3, giro: -12 },
+  { x: 62, y: 300, escala: 1.2, giro: -6 },
+  { x: 160, y: 314, escala: 1.4, giro: 8 },
+  { x: 254, y: 292, escala: 1.6, giro: -14 },
+  { x: 334, y: 330, escala: 1.2, giro: 12 },
 ] as const;
 
-const LADO_BALDOSA = 288;
+const LADO_BALDOSA = 384;
 
 export function PatronCategorias({ iconos }: { iconos: string[] }) {
   /* Único por instancia: la vista previa del panel y el catálogo pueden quedar
@@ -72,8 +82,8 @@ export function PatronCategorias({ iconos }: { iconos: string[] }) {
           width={LADO_BALDOSA}
         >
           {POSICIONES.map(({ x, y, escala, giro }, posicion) => {
-            /* Las categorías se reparten por las posiciones y se repiten si son
-               menos que ocho: con tres categorías el fondo igual se ve lleno. */
+            /* Los íconos se reparten por las posiciones y se repiten si son
+               menos que dieciséis: el fondo siempre se ve lleno. */
             const seguro: NombreIconoCatalogo = normalizarIcono(
               iconos[posicion % iconos.length],
             );
