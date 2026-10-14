@@ -49,8 +49,17 @@ export function SelectorApariencia({
 
   /* La vista previa con la forma que se está eligiendo, no con la guardada. */
   const datosConForma = useMemo(
-    () => ({ ...datos, negocio: { ...datos.negocio, formaTarjeta: formaElegida } }),
-    [datos, formaElegida],
+    () => ({
+      ...datos,
+      negocio: {
+        ...datos.negocio,
+        formaTarjeta: formaElegida,
+        /* La vista previa muestra lo que se está eligiendo, no lo guardado. */
+        patronFondo: patronElegido,
+        patronOpacidad: opacidadElegida,
+      },
+    }),
+    [datos, formaElegida, patronElegido, opacidadElegida],
   );
 
   /* El diseño del catálogo es único: lo editable es la paleta, la forma de las

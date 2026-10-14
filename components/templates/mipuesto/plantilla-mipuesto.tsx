@@ -110,6 +110,11 @@ export function PlantillaMipuesto({
          conserva su curva, que ahí sí tiene contra qué recortarse. */
       data-con-portada={negocio.portadaUrl ? "si" : undefined}
       data-paleta={paleta}
+      /* La intensidad del fondo va acá y no solo en el contenedor: `.tema`
+         declara la de reserva (6 %), y como la plantilla también es `.tema`,
+         tapaba la que eligió el dueño. La barra de Apariencia no hacía nada,
+         ni en la vista previa ni en el catálogo, hasta el 2026-10-13. */
+      data-patron-opacidad={negocio.patronFondo ? negocio.patronOpacidad : undefined}
       aria-label={
         demostracion ? "Vista previa del catálogo" : `Catálogo de ${negocio.nombre}`
       }
