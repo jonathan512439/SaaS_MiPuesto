@@ -232,6 +232,23 @@
   text-decoration: none;
 }
 
+/* «Reservar pedido»: el paso que cierra el pedido, el más visible del carrito.
+   Más alto, con letra más grande y en relieve, y el mismo color de acción. */
+.confirmacion > .reservar {
+  min-height: var(--spacing-14);
+  margin-top: var(--spacing-2);
+  border-radius: var(--radius-control);
+  font-size: var(--text-lg);
+  letter-spacing: 0.01em;
+  box-shadow: var(--sombra-elevada);
+}
+
+.confirmacion > .reservar:disabled {
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .accionesExito {
   display: grid;
   gap: var(--spacing-2);

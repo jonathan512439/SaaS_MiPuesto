@@ -394,8 +394,12 @@ export function CarritoCatalogo({
             </p>
           ) : null}
 
+          {/* El paso que cierra el pedido, más grande que todo lo demás del
+              carrito: era del mismo tamaño que «Descargar QR» y se perdía.
+              Pedido por el dueño el 2026-10-13. */}
           <button
             aria-describedby={avisoTope ? "aviso-tope-unidades" : undefined}
+            className={styles.reservar}
             disabled={!puedeConfirmar || enviando}
             type="submit"
           >
