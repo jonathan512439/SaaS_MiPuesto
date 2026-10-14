@@ -55,14 +55,17 @@ se vacía, el vigilante avisa.
 
 ## Lo que falta, en orden
 
+Probado por el dueño el 2026-10-13: un catálogo grande en su teléfono aparece
+en pocos segundos.
+
+
 1. **Workers Paid** (5 dólares al mes), antes del piloto. El CPU medido —P50
    7,7 ms, P90 15,8 ms— pasa los 10 ms del plan gratuito en una de cada cuatro
    visitas.
-2. **Probar en un teléfono real** un catálogo grande, con datos móviles.
-3. **Dominio `mi-puesto.com`**: conectarlo al Worker y mover todo lo que apunta a
+2. **Dominio `mi-puesto.com`**: conectarlo al Worker y mover todo lo que apunta a
    la dirección de hoy —`NEXT_PUBLIC_SITE_URL` del build, las direcciones de
    Supabase Auth, el permiso de Turnstile para el dominio nuevo, el vigilante
    (`--sitio` y `--catalogo`), la variable `SITIO_URL` de GitHub— y recién ahí
    imprimir QR y grabar etiquetas NFC.
-4. **Alerta de errores 5xx** en Cloudflare, con el plan pago y el dominio.
-5. **Piloto de siete días** con dos o tres negocios reales.
+3. **Alerta de errores 5xx** en Cloudflare, con el plan pago y el dominio.
+4. **Piloto de siete días** con dos o tres negocios reales.
