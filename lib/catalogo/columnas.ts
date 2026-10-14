@@ -72,3 +72,7 @@ export const COLUMNAS_PRESENTACION_DE_PRODUCTO = "tipo_presentacion,categoria_id
    pistas de `tipoSugeridoPorCategoria`. */
 export const COLUMNAS_TIPO_DE_PRESENTACION = "tipo_presentacion" as const;
 export const COLUMNAS_ICONO_DE_CATEGORIA = "icono" as const;
+
+/* Los productos que un banner puede señalar: el código arma la dirección de la
+   ficha y el nombre es lo que el dueño elige. */
+export const COLUMNAS_DESTINO_PRODUCTO = "codigo,nombre" as const;

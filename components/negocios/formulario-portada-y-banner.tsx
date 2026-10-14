@@ -37,6 +37,7 @@ type TextoEnEdicion = {
   boton: string;
   destino: DestinoBanner["tipo"];
   categoriaDestino: string;
+  productoDestino: string;
   enlace: string;
 };
 
@@ -55,11 +56,12 @@ type BannerEnEdicion = TextoEnEdicion & {
 function desarmarDestino(
   enlace: string | null,
   contexto: ContextoDestino,
-): Pick<TextoEnEdicion, "destino" | "categoriaDestino" | "enlace"> {
+): Pick<TextoEnEdicion, "destino" | "categoriaDestino" | "productoDestino" | "enlace"> {
   const destino = leerDestino(enlace, contexto);
   return {
     destino: destino.tipo,
     categoriaDestino: destino.tipo === "categoria" ? destino.categoriaId : "",
+    productoDestino: destino.tipo === "producto" ? destino.codigo : "",
     enlace: destino.tipo === "otra" ? destino.url : "",
   };
 }
@@ -67,6 +69,9 @@ function desarmarDestino(
 function enlaceDe(texto: TextoEnEdicion, contexto: ContextoDestino): string | null {
   if (texto.destino === "categoria") {
     return armarEnlace({ tipo: "categoria", categoriaId: texto.categoriaDestino }, contexto);
+  }
+  if (texto.destino === "producto") {
+    return armarEnlace({ tipo: "producto", codigo: texto.productoDestino }, contexto);
   }
   if (texto.destino === "otra") {
     return armarEnlace({ tipo: "otra", url: texto.enlace }, contexto);
@@ -103,6 +108,7 @@ const TEXTO_VACIO: TextoEnEdicion = {
   boton: "",
   destino: "ninguno",
   categoriaDestino: "",
+  productoDestino: "",
   enlace: "",
 };
 
@@ -374,6 +380,9 @@ export function FormularioPortadaYBanner({
             {destinos.categorias.length > 0 ? (
               <option value="categoria">Una categoría de mi catálogo</option>
             ) : null}
+            {destinos.productos.length > 0 ? (
+              <option value="producto">Un producto de mi catálogo</option>
+            ) : null}
             <option value="whatsapp">Mi WhatsApp</option>
             {/* Sin ubicación publicada no se ofrece: elegirla dejaría un
                 botón que no lleva a ninguna parte sin haberlo pedido. */}
@@ -390,6 +399,21 @@ export function FormularioPortadaYBanner({
               <option value="">Elige una</option>
               {destinos.categorias.map(({ id, nombre }) => (
                 <option key={id} value={id}>
+                  {nombre}
+                </option>
+              ))}
+            </select>
+          ) : null}
+
+          {texto.destino === "producto" ? (
+            <select
+              aria-label="Qué producto"
+              onChange={(evento) => cambiar({ productoDestino: evento.target.value })}
+              value={texto.productoDestino}
+            >
+              <option value="">Elige uno</option>
+              {destinos.productos.map(({ codigo, nombre }) => (
+                <option key={codigo} value={codigo}>
                   {nombre}
                 </option>
               ))}

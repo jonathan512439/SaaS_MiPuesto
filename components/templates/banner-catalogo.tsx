@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import type { Banner } from "../../lib/negocios/banners";
+import { enlaceDelCartel } from "../../lib/negocios/destino-banner";
 import { tieneAlgoEncima } from "../../lib/negocios/texto-sobre-imagen";
 import styles from "./banner-catalogo.module.css";
 import { TextoSobreImagen } from "./texto-sobre-imagen";
@@ -58,9 +59,15 @@ export function BannerCatalogo({
      entera lleva; sin enlace, es un aviso y no se toca. Envolver un aviso en un
      enlace vacío daría un objetivo táctil enorme que no hace nada. */
   if (!tieneTexto) {
-    if (!banner.enlace) return <div className={clases}>{imagen}</div>;
+    const enlace = enlaceDelCartel(banner);
+    if (!enlace) return <div className={clases}>{imagen}</div>;
     return (
-      <a className={clases} href={banner.enlace} rel="noreferrer noopener" target="_blank">
+      <a
+        className={clases}
+        href={enlace.href}
+        rel={enlace.aparte ? "noreferrer noopener" : undefined}
+        target={enlace.aparte ? "_blank" : undefined}
+      >
         {imagen}
       </a>
     );

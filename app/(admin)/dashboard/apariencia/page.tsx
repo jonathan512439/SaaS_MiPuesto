@@ -13,6 +13,7 @@ import { FORMA_TARJETA_POR_OMISION, esFormaTarjeta } from "../../../../lib/apari
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { acotarOpacidad } from "../../../../lib/patrones-fondo";
+import { COLUMNAS_DESTINO_PRODUCTO } from "../../../../lib/catalogo/columnas";
 import { construirUrlPublicaNegocio } from "../../../../lib/url-sitio";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 import panel from "../panel.module.css";
@@ -51,12 +52,24 @@ export default async function PaginaPlantilla() {
      acá y no en el navegador: el formulario no tiene por qué conocer la forma de
      la tabla, y traerlas del servidor evita una consulta más al abrir la
      pantalla. */
-  const { data: categorias } = await supabase
-    .from("categorias")
-    .select("id,nombre")
-    .eq("negocio_id", negocio.id)
-    .eq("visible", true)
-    .order("orden");
+  const [{ data: categorias }, { data: productos }] = await Promise.all([
+    supabase
+      .from("categorias")
+      .select("id,nombre")
+      .eq("negocio_id", negocio.id)
+      .eq("visible", true)
+      .order("orden"),
+    /* Los productos visibles, para que un banner lleve a uno: «2x1 en
+       hamburguesas» lleva a la hamburguesa y no al principio del catálogo. */
+    supabase
+      .from("productos")
+      .select(COLUMNAS_DESTINO_PRODUCTO)
+      .eq("negocio_id", negocio.id)
+      .eq("visible", true)
+      .is("eliminado_en", null)
+      .order("nombre")
+      .limit(1000),
+  ]);
 
   const bannersGuardados = leerBanners(negocio.banners);
   const portadaGuardada = leerTextoPortada(negocio.portada_texto);
@@ -103,6 +116,7 @@ export default async function PaginaPlantilla() {
           telefonoWhatsapp: negocio.telefono_whatsapp,
           ubicacionUrl: negocio.ubicacion_url,
           categorias: categorias ?? [],
+          productos: productos ?? [],
         }}
         datos={datos}
         formaInicial={formaInicial}

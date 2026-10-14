@@ -1,4 +1,4 @@
-import { anclaDelCatalogo } from "../../lib/negocios/destino-banner";
+import { enlaceDelCartel } from "../../lib/negocios/destino-banner";
 import {
   tieneAlgoEncima,
   type TextoSobreImagen as Texto,
@@ -36,21 +36,21 @@ export function TextoSobreImagen({
 }) {
   if (!tieneAlgoEncima(texto)) return null;
 
-  /* Un destino dentro del catálogo baja en la misma página; uno de afuera abre
-     aparte, para no sacar al visitante del negocio. */
-  const ancla = anclaDelCatalogo(texto.enlace);
+  /* Un destino dentro del catálogo sigue en la misma pestaña; uno de afuera
+     abre aparte, y el WhatsApp lleva el mensaje de la promoción. */
+  const enlace = enlaceDelCartel(texto);
 
   return (
     <Etiqueta className={[styles.contenido, className].filter(Boolean).join(" ")}>
       {texto.eyebrow ? <p className={styles.eyebrow}>{texto.eyebrow}</p> : null}
       {texto.titulo ? <p className={styles.titulo}>{texto.titulo}</p> : null}
       {texto.copy ? <p className={styles.copy}>{texto.copy}</p> : null}
-      {texto.boton && texto.enlace ? (
+      {texto.boton && enlace ? (
         <a
           className={styles.boton}
-          href={ancla ?? texto.enlace}
-          rel={ancla ? undefined : "noreferrer noopener"}
-          target={ancla ? undefined : "_blank"}
+          href={enlace.href}
+          rel={enlace.aparte ? "noreferrer noopener" : undefined}
+          target={enlace.aparte ? "_blank" : undefined}
         >
           {texto.boton}
         </a>
