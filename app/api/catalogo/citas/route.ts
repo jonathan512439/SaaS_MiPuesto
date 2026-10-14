@@ -5,6 +5,7 @@ import {
   obtenerContextoAdminCatalogo,
 } from "../../../../lib/catalogo/servidor";
 import { esUuid } from "../../../../lib/catalogo/validacion";
+import { partirRango } from "../../../../lib/agenda/rango";
 
 /* El dueño y sus turnos: los resuelve, y carga los que llegan por fuera.
  *
@@ -17,6 +18,8 @@ import { esUuid } from "../../../../lib/catalogo/validacion";
 
 const ESTADOS = ["confirmada", "cancelada", "cumplida"] as const;
 const CHOQUE = "23P01";
+/* La clave del intento ya se usó: el mismo turno llegó dos veces. */
+const REPETIDO = "23505";
 /* Una regla de la tabla rechazó la fila: el rango, el teléfono, el estado. No es
    un choque con otra cita y no es un fallo nuestro, así que no es 409 ni 500. */
 const REGLA_DE_LA_TABLA = "23514";
@@ -120,6 +123,27 @@ export async function POST(solicitud: NextRequest) {
     categoriaId = producto.categoria_id;
   }
 
+  /* El mismo intento, otra vez: devuelve el turno que ya quedó guardado.
+   *
+   * Si Cloudflare corta la respuesta después de que la base guardó el turno, el
+   * dueño ve un error y vuelve a tocar «Guardar». Sin clave, ese reintento
+   * chocaba con su propio turno —«Ese horario ya está ocupado»— y el dueño no
+   * sabía que el turno sí había quedado; y al pausar las reservas, que crea un
+   * bloqueo por cupo, uno cortado a la mitad dejaba la mitad hecha. Pasó cargando
+   * turnos el 2026-09-26. Con la clave, el reintento recibe el turno guardado.
+   * Es lo mismo que hacen las reservas del público. Sin clave —un panel viejo
+   * abierto en otra pestaña— se comporta como antes. */
+  const idempotencia = esUuid(datos.idempotencia) ? (datos.idempotencia as string) : null;
+  const elMismoTurno = {
+    recursoId: datos.recursoId as string,
+    inicio: inicio.toISOString(),
+    cupo,
+  };
+  if (idempotencia) {
+    const guardado = await turnoDelIntento(contexto, idempotencia, elMismoTurno);
+    if (guardado) return guardado;
+  }
+
   const { data, error } = await contexto.supabase
     .from("citas")
     .insert({
@@ -135,10 +159,16 @@ export async function POST(solicitud: NextRequest) {
       origen: "manual",
       /* Lo que el dueño carga a mano nace confirmado: él es quien confirma. */
       estado: "confirmada",
+      ...(idempotencia ? { idempotencia } : {}),
     })
     .select("id,codigo")
     .maybeSingle();
 
+  /* Dos toques casi juntos: el segundo choca con la clave del primero. */
+  if (error?.code === REPETIDO && idempotencia) {
+    const guardado = await turnoDelIntento(contexto, idempotencia, elMismoTurno);
+    if (guardado) return guardado;
+  }
   if (error?.code === CHOQUE) {
     return NextResponse.json(
       { error: "Ese horario ya está ocupado para este recurso." },
@@ -163,6 +193,38 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json({ error: "No se pudo guardar el turno." }, { status: 500 });
   }
   return NextResponse.json({ cita: data }, { status: 201 });
+}
+
+/* El turno que ya guardó este intento, si lo hay. Si la clave se reusó para
+   otro turno —otro recurso, otra hora, otro cupo—, no se devuelve ese: se
+   rechaza, para no hacer pasar un turno por otro. */
+async function turnoDelIntento(
+  contexto: Extract<Awaited<ReturnType<typeof obtenerContextoAdminCatalogo>>, { correcto: true }>,
+  idempotencia: string,
+  pedido: { recursoId: string; inicio: string; cupo: number },
+) {
+  const { data: guardado } = await contexto.supabase
+    .from("citas")
+    .select("id,codigo,recurso_id,rango,cupo")
+    .eq("negocio_id", contexto.negocio.id)
+    .eq("idempotencia", idempotencia)
+    .maybeSingle();
+  if (!guardado) return null;
+  const { inicio } = partirRango(guardado.rango);
+  const esElMismo =
+    guardado.recurso_id === pedido.recursoId &&
+    guardado.cupo === pedido.cupo &&
+    new Date(inicio).getTime() === new Date(pedido.inicio).getTime();
+  if (!esElMismo) {
+    return NextResponse.json(
+      { error: "Ese intento ya se usó para otro turno. Vuelve a abrir el formulario." },
+      { status: 409 },
+    );
+  }
+  return NextResponse.json(
+    { cita: { id: guardado.id, codigo: guardado.codigo }, repetido: true },
+    { status: 200 },
+  );
 }
 
 /* De la regla de la base a algo que el dueño pueda arreglar.

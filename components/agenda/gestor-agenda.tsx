@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { describirCita } from "../../lib/agenda/horarios";
 import { resumirFranjas, leerFranjas } from "../../lib/agenda/franjas";
@@ -144,6 +144,14 @@ export function GestorAgenda({
     hora: string;
   } | null>(null);
   const [cargando, setCargando] = useState(false);
+  /* El intento en curso de cargar un turno y de pausar las reservas.
+     Si la respuesta se corta después de que la base guardó —pasó con los 503
+     de Cloudflare—, el dueño vuelve a tocar el botón: con la misma clave, el
+     servidor devuelve lo guardado en vez de chocar con eso. La clave vale
+     mientras se reintente **lo mismo**; si el dueño cambia algo, es otro
+     intento. */
+  const intentoManual = useRef<{ firma: string; clave: string } | null>(null);
+  const intentoPausa = useRef<{ firma: string; desde: string; claves: string[] } | null>(null);
   const [formulario, setFormulario] = useState<{
     abierto: boolean;
     recursoId: string;
@@ -236,7 +244,20 @@ export function GestorAgenda({
      dueño los cancela uno por uno —hablando con cada cliente— y recién entonces
      cierra el día. */
   async function pausarReservas(recurso: RecursoAdmin, hastaFecha: string, hastaHora: string) {
-    const desde = new Date();
+    const cupos = Math.max(1, recurso.cupo_por_franja);
+    const firma = `${recurso.id}|${hastaFecha}|${hastaHora}|${cupos}`;
+    /* El inicio de la pausa es «ahora», y un reintento lo cambiaría: se
+       conserva el del primer intento, para que el servidor reconozca los
+       bloqueos que ya guardó. */
+    if (intentoPausa.current?.firma !== firma) {
+      intentoPausa.current = {
+        firma,
+        desde: new Date().toISOString(),
+        claves: Array.from({ length: cupos }, () => crypto.randomUUID()),
+      };
+    }
+    const intento = intentoPausa.current;
+    const desde = new Date(intento.desde);
     const hasta = new Date(instanteDe(hastaFecha, hastaHora));
     const minutos = Math.ceil((hasta.getTime() - desde.getTime()) / 60_000);
 
@@ -263,7 +284,7 @@ export function GestorAgenda({
     setOcupado(recurso.id);
     try {
       const creadas: CitaAgenda[] = [];
-      for (let cupo = 1; cupo <= Math.max(1, recurso.cupo_por_franja); cupo += 1) {
+      for (let cupo = 1; cupo <= cupos; cupo += 1) {
         const inicio = desde.toISOString();
         const respuesta = await fetch("/api/catalogo/citas", {
           method: "POST",
@@ -275,6 +296,7 @@ export function GestorAgenda({
             duracionMinutos: minutos,
             cupo,
             nombre: MOTIVO_CIERRE,
+            idempotencia: intento.claves[cupo - 1],
           }),
         });
         const datos = (await respuesta.json().catch(() => ({}))) as {
@@ -299,6 +321,7 @@ export function GestorAgenda({
         });
       }
       setCitas((actuales) => [...actuales, ...creadas]);
+      intentoPausa.current = null;
       setPausando(null);
       mostrarAviso({
         titulo: `${recurso.nombre}: reservas en pausa`,
@@ -446,18 +469,23 @@ export function GestorAgenda({
     if (!formulario) return;
     setCargando(true);
     try {
+      const turno = {
+        recursoId: formulario.recursoId,
+        productoId: formulario.productoId || null,
+        inicio: instanteDe(formulario.fecha, formulario.hora),
+        duracionMinutos: Number(formulario.duracion),
+        nombre: formulario.nombre,
+        telefono: formulario.telefono,
+        notaInterna: formulario.notaInterna,
+      };
+      const firma = JSON.stringify(turno);
+      if (intentoManual.current?.firma !== firma) {
+        intentoManual.current = { firma, clave: crypto.randomUUID() };
+      }
       const respuesta = await fetch("/api/catalogo/citas", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          recursoId: formulario.recursoId,
-          productoId: formulario.productoId || null,
-          inicio: instanteDe(formulario.fecha, formulario.hora),
-          duracionMinutos: Number(formulario.duracion),
-          nombre: formulario.nombre,
-          telefono: formulario.telefono,
-          notaInterna: formulario.notaInterna,
-        }),
+        body: JSON.stringify({ ...turno, idempotencia: intentoManual.current.clave }),
       });
       const datos = (await respuesta.json().catch(() => ({}))) as {
         error?: string;
@@ -483,6 +511,7 @@ export function GestorAgenda({
           origen: "manual",
         },
       ]);
+      intentoManual.current = null;
       setDiaElegido(formulario.fecha);
       setFormulario(null);
       mostrarAviso({ titulo: "Turno cargado", variante: "exito" });
