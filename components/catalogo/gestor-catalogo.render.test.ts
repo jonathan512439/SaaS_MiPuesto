@@ -148,6 +148,19 @@ describe("las pantallas del catálogo del panel", () => {
     );
   });
 
+  /* «Crear producto» va primero y el buscador tiene forma de buscador: estaba
+     al final, debajo de los filtros, y el buscador se confundía con un campo
+     de «Nuevo producto». Pedido por el dueño el 2026-10-13. */
+  it("«Productos» pone «Crear producto» antes que el buscador", () => {
+    const html = dibujar("productos").replaceAll("<!-- -->", "");
+    const crear = html.indexOf("+ Crear producto");
+    const buscar = html.indexOf('id="buscar-producto"');
+    expect(crear).toBeGreaterThan(-1);
+    expect(buscar).toBeGreaterThan(crear);
+    expect(html).toContain('role="search"');
+    expect(html).toContain("Buscar entre tus productos");
+  });
+
   /* El precio se escribe igual que en el catálogo —«Bs 180», no «Bs 180,00»—,
      porque sale de la misma función: DESIGN.md §4 pide un solo formato en todo
      el producto y AGENTS.md, que los precios pasen por lib/precios.ts. */

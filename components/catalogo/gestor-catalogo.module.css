@@ -1112,15 +1112,50 @@
   font-weight: 800;
 }
 
+/* Con forma de buscador y no de campo de formulario: lupa, fondo hundido y
+   esquinas de píldora. Se confundía con un campo de «Nuevo producto». */
+.campoBusqueda {
+  position: relative;
+}
+
+.lupa {
+  position: absolute;
+  top: 50%;
+  left: var(--spacing-4);
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  color: var(--color-texto-suave);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
 .buscadorProductos input {
   width: 100%;
   min-height: var(--control-alto);
-  border: var(--borde-marcado) solid var(--color-borde-campo);
-  border-radius: var(--radius-control);
-  padding: var(--spacing-1) var(--spacing-4);
-  background: var(--color-superficie);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-4) var(--spacing-1) var(--spacing-12);
+  background: var(--color-fondo-hundido);
   color: var(--color-texto);
   font: inherit;
+  font-size: var(--text-base);
+}
+
+.buscadorProductos input:focus-visible {
+  background: var(--color-superficie);
+}
+
+/* «Crear producto», primero y solo en su fila: es la acción del día. */
+.filaCrear {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.botonCrear {
+  min-height: var(--spacing-12);
+  padding-inline: var(--spacing-6);
   font-size: var(--text-base);
 }
 

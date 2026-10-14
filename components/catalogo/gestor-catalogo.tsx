@@ -1530,25 +1530,47 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
         </Formulario>
       ) : null}
 
-      {/* Buscar, filtrar y crear van juntos y arriba de todo: es lo que se hace
-          todos los días. El filtro por categoría es un desplegable y no la lista
-          de categorías: acá se viene a trabajar sobre productos, y administrar
+      {/* Crear, buscar y filtrar, arriba de todo: es lo que se hace todos los
+          días. **Crear va primero y solo**, y el buscador tiene forma de
+          buscador —lupa, fondo hundido, esquinas redondas—: estaba debajo del
+          formulario de «Nuevo producto» con el mismo aspecto que sus campos, y
+          se confundía con uno más. Por lo mismo, con el formulario abierto la
+          barra no se muestra. Pedido por el dueño el 2026-10-13. El filtro por
+          categoría es un desplegable y no la lista de categorías: administrar
           las categorías es otra pantalla. */}
-      {vista === "productos" ? (
-        <section className={styles.barraCatalogo} aria-label="Buscar productos">
-          <div className={styles.buscadorProductos}>
-            <label htmlFor="buscar-producto">Buscar producto</label>
-            <input
-              autoComplete="off"
-              id="buscar-producto"
-              onChange={(evento) => {
-                setBusquedaProductos(evento.target.value);
-                setPaginaProductos(1);
-              }}
-              placeholder="Nombre, descripción o código"
-              type="search"
-              value={busquedaProductos}
-            />
+      {vista === "productos" && !formularioAbierto ? (
+        <section className={styles.barraCatalogo} aria-label="Crear y buscar productos">
+          <div className={styles.filaCrear}>
+            <Boton
+              aria-describedby={productosLlenos ? "aviso-tope-productos" : undefined}
+              className={styles.botonCrear}
+              disabled={productosLlenos}
+              onClick={abrirProductoNuevo}
+            >
+              + Crear producto
+            </Boton>
+            {productosLlenos ? (
+              <p className={styles.avisoEspacio} id="aviso-tope-productos">
+                {mensajeLimiteProductos(datosIniciales.negocio.plan_id)}
+              </p>
+            ) : null}
+          </div>
+          <div className={styles.buscadorProductos} role="search">
+            <label htmlFor="buscar-producto">Buscar entre tus productos</label>
+            <div className={styles.campoBusqueda}>
+              <Icono className={styles.lupa} nombre="lupa" />
+              <input
+                autoComplete="off"
+                id="buscar-producto"
+                onChange={(evento) => {
+                  setBusquedaProductos(evento.target.value);
+                  setPaginaProductos(1);
+                }}
+                placeholder="Escribe un nombre o un código"
+                type="search"
+                value={busquedaProductos}
+              />
+            </div>
           </div>
           <div className={styles.filtrosCatalogo}>
             <label htmlFor="filtrar-categoria">
@@ -1588,18 +1610,6 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 </button>
               ))}
             </div>
-            <Boton
-              aria-describedby={productosLlenos ? "aviso-tope-productos" : undefined}
-              disabled={productosLlenos}
-              onClick={abrirProductoNuevo}
-            >
-              Crear producto
-            </Boton>
-            {productosLlenos ? (
-              <p className={styles.avisoEspacio} id="aviso-tope-productos">
-                {mensajeLimiteProductos(datosIniciales.negocio.plan_id)}
-              </p>
-            ) : null}
           </div>
         </section>
       ) : null}
