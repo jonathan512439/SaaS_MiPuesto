@@ -281,6 +281,10 @@ export function FormularioIdentidad({
           <p>Pega el enlace completo que comienza con https://. Todos son opcionales.</p>
         </header>
 
+        {/* Los dos enlaces lado a lado en una pantalla ancha: uno debajo del
+            otro ocupaban media pantalla cada uno y dejaban la otra mitad
+            vacía. */}
+        <div className={styles.enlacesContacto}>
         {/* Se pide el enlace del mapa y no una dirección escrita: en un barrio
             boliviano una dirección rara vez lleva a la puerta, y el punto que el
             propio dueño verificó sí. */}
@@ -337,6 +341,7 @@ export function FormularioIdentidad({
           </small>
           {errores.resenas_url ? <small>{errores.resenas_url}</small> : null}
         </label>
+        </div>
         <div className={styles.camposRedes}>
           {([
             ["facebook", "Facebook"],

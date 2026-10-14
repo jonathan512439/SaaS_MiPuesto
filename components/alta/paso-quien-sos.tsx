@@ -134,6 +134,8 @@ export function PasoQuienSos({
         <p>Para saludarte por tu nombre y no por «usuario».</p>
       </div>
 
+      {/* Juntos: en una pantalla ancha van lado a lado. */}
+      <div className={styles.par}>
       <Campo
         autoComplete="given-name"
         error={errores.nombre_admin}
@@ -157,6 +159,7 @@ export function PasoQuienSos({
         required
         value={nombre}
       />
+      </div>
 
       <Campo
         ayuda="Solo minúsculas, números y guiones. Cambiarla después deja muertos los códigos QR que ya hayas impreso."

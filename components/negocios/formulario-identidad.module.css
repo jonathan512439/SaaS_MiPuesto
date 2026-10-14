@@ -199,6 +199,13 @@
   gap: var(--spacing-4);
 }
 
+.enlacesContacto {
+  display: grid;
+  width: 100%;
+  align-items: start;
+  gap: var(--spacing-5);
+}
+
 .camposRedes label {
   display: grid;
   gap: var(--spacing-2);
@@ -232,6 +239,10 @@
   }
 
   .camposRedes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .enlacesContacto {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

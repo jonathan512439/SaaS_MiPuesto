@@ -104,6 +104,30 @@
   }
 }
 
+/* En una pantalla ancha, las dos primeras preguntas —qué vendes y si quieres
+   que te encuentren— van lado a lado, y lo que depende de la segunda (dónde
+   estás) ocupa el ancho entero debajo. Estiradas a lo ancho, una por renglón,
+   se veían desordenadas en escritorio. Pedido por el dueño el 2026-10-13. */
+@media (min-width: 56rem) {
+  .formulario {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    column-gap: var(--spacing-8);
+  }
+
+  .formulario > * {
+    grid-column: 1 / -1;
+  }
+
+  .formulario > .bloque:nth-child(-n + 2) {
+    grid-column: auto;
+  }
+
+  .formulario > .bloque:nth-child(-n + 2) .opciones {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .opcion,
 .opcionElegida {
   display: grid;

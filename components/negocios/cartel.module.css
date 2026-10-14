@@ -98,6 +98,20 @@
   gap: var(--spacing-1);
 }
 
+/* Los cuatro textos del cartel, de a dos en una pantalla ancha. */
+.paresCartel {
+  display: grid;
+  align-items: start;
+  gap: var(--spacing-3);
+}
+
+@media (min-width: 48rem) {
+  .paresCartel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-5);
+  }
+}
+
 /* El enlace a «Mi negocio» dentro de la explicación: del color de marca y
    subrayado, para que se vea que se toca. */
 .paraQue a {

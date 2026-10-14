@@ -1,12 +1,13 @@
 @reference "../../app/globals.css";
 
-/* La tarjeta de un paso del alta. Angosta a propósito: son cuatro preguntas, no
-   un formulario de configuración. Un ancho de lectura hace que se vea cuánto
-   falta de un vistazo, y que no dé la sensación de trámite. */
+/* La tarjeta de un paso del alta. Ocupa la columna del alta, la misma que la
+   barra de pasos: antes medía 38rem en cualquier pantalla y en escritorio
+   quedaba como un celular pegado a la izquierda. En una pantalla ancha los
+   campos que van juntos se ponen lado a lado (`.par`), en vez de estirarse. */
 .paso {
   display: grid;
   gap: var(--spacing-5);
-  width: min(100%, 38rem);
+  width: 100%;
   border: var(--borde-fino) solid var(--color-borde-suave);
   border-radius: var(--radius-panel);
   padding: var(--spacing-6);
@@ -17,6 +18,31 @@
 .titulo {
   display: grid;
   gap: var(--spacing-2);
+}
+
+/* Dos campos que van juntos —tu nombre y el de tu negocio—: uno debajo del
+   otro en un teléfono, lado a lado en una pantalla ancha. */
+.par {
+  display: grid;
+  gap: var(--spacing-5);
+  min-width: 0;
+}
+
+@media (min-width: 48rem) {
+  .paso {
+    padding: var(--spacing-8);
+  }
+
+  .par {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-6);
+  }
+
+  /* Los tres caminos del último paso, en fila: son tres opciones del mismo
+     peso, y apiladas en una tarjeta ancha quedaban como renglones estirados. */
+  .caminos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .titulo h2 {

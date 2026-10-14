@@ -36,6 +36,22 @@
   padding-bottom: 0;
 }
 
+/* Dos campos que van juntos, lado a lado en una pantalla ancha: estirados a
+   todo el ancho, uno por renglón, la pantalla se veía desordenada en
+   escritorio. Pedido por el dueño el 2026-10-13. */
+.par {
+  display: grid;
+  min-width: 0;
+  align-items: start;
+  gap: var(--spacing-6);
+}
+
+@media (min-width: 48rem) {
+  .par {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .ayudaSlug,
 .slugDisponible,
 .slugNoDisponible {

@@ -162,6 +162,8 @@ export function CamposDelCartel({
 }) {
   return (
     <>
+      {/* Los cuatro textos, de a dos en una pantalla ancha. */}
+      <div className={styles.paresCartel}>
       <CampoDelCartel
         alCambiar={(eyebrow) => cambiar({ eyebrow })}
         ayuda="Una o dos palabras, en letra chica, que llamen la atención."
@@ -198,6 +200,7 @@ export function CamposDelCartel({
         placeholder="Ver la promoción"
         valor={texto.boton}
       />
+      </div>
 
       <label className={styles.campo} htmlFor={`${prefijo}-destino`}>
         <span>¿A dónde lleva el botón?</span>

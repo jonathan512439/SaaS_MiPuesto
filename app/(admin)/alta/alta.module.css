@@ -4,7 +4,11 @@
   display: grid;
   align-content: start;
   gap: var(--spacing-6);
-  width: min(calc(100% - var(--spacing-8)), var(--ancho-panel));
+  /* Una columna centrada y no todo el ancho del panel: en escritorio, el
+     alta pegado a la izquierda con dos tercios de pantalla vacíos se veía como
+     un formulario de celular olvidado en una pantalla grande. El dueño lo
+     señaló el 2026-10-13. */
+  width: min(calc(100% - var(--spacing-8)), 64rem);
   margin: 0 auto;
   padding: var(--spacing-6) 0 var(--spacing-16);
 }

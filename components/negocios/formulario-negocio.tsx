@@ -224,6 +224,8 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           numero={1}
           titulo="Datos principales"
         />
+        {/* El nombre y el renglón de abajo, lado a lado en una pantalla ancha. */}
+        <div className={styles.par}>
         <Campo
           autoComplete="organization"
           error={errores.nombre}
@@ -247,6 +249,7 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
           placeholder="Pollos a la brasa · Desde 1998"
           value={subnombre}
         />
+        </div>
         {/* Solo texto: el rubro se elige una sola vez, al crear el catálogo, y
             ofrecerlo acá como campo editable —aunque fuera de solo lectura— sigue
             sugiriendo que es una decisión de esta pantalla. Acá se informa, no se
