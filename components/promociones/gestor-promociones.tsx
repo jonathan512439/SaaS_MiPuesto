@@ -11,7 +11,8 @@ import {
 } from "../../lib/precios";
 import { validarPromocion } from "../../lib/promociones/validacion";
 import { normalizarBusqueda } from "../../lib/texto";
-import { Boton, EstadoVacio, useAvisos, useConfirmacion, Formulario } from "../ui";
+import { Boton, EstadoVacio, SelectorDeFecha, SelectorDeHora, useAvisos, useConfirmacion, Formulario } from "../ui";
+import { fechaHoyEnLaPaz } from "../../lib/horario";
 import styles from "./gestor-promociones.module.css";
 
 type Categoria = { id: string; nombre: string };
@@ -114,6 +115,20 @@ async function solicitarJson<T>(url: string, opciones: RequestInit) {
   return datos;
 }
 
+/* El texto `AAAA-MM-DDTHH:MM` de la promoción, partido y armado de nuevo para
+   el calendario y el selector de hora. Vacío es «sin fecha». */
+function fechaDe(valor: string): string {
+  return valor ? valor.slice(0, 10) : "";
+}
+
+function horaDe(valor: string, siVacio: string): string {
+  return valor.length >= 16 ? valor.slice(11, 16) : siVacio;
+}
+
+function unirFechaYHora(fecha: string, hora: string): string {
+  return fecha ? `${fecha}T${hora}` : "";
+}
+
 export function GestorPromociones({
   negocioNombre,
   categorias,
@@ -126,6 +141,8 @@ export function GestorPromociones({
   const [destino, setDestino] = useState<Destino>("producto");
   const [destinoId, setDestinoId] = useState(productos[0]?.id ?? "");
   const [busquedaDestino, setBusquedaDestino] = useState("");
+  /* Hoy, tomado una vez, para el calendario. */
+  const [hoy] = useState(() => fechaHoyEnLaPaz());
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
   const [horaInicio, setHoraInicio] = useState("");
@@ -381,18 +398,52 @@ export function GestorPromociones({
             ) : null}
             {errores.destino_id ? <small className={styles.errorCampo}>{errores.destino_id}</small> : null}
           </label>
-          <label>
-            Comienza <span>Opcional</span>
-            <input onChange={(evento) => setFechaInicio(evento.target.value)} type="datetime-local" value={fechaInicio} />
-            <small>Hora de Bolivia. Vacío significa desde ahora.</small>
+          {/* La fecha con el calendario del panel y la hora en 24 horas, en
+              vez del `datetime-local` del navegador —«mm/dd/yyyy --:-- --»—.
+              El valor sigue siendo el mismo texto `AAAA-MM-DDTHH:MM`. */}
+          <div className={styles.fechaYHora}>
+            <SelectorDeFecha
+              alCambiar={(fecha) => setFechaInicio(unirFechaYHora(fecha, horaDe(fechaInicio, "00:00")))}
+              ayuda="Hora de Bolivia. Sin fecha, empieza ahora."
+              etiqueta="Comienza (opcional)"
+              hoy={hoy}
+              id="promocion-inicio"
+              permiteVacio
+              textoVacio="Desde ahora"
+              valor={fechaDe(fechaInicio)}
+            />
+            {fechaInicio ? (
+              <SelectorDeHora
+                alCambiar={(hora) => setFechaInicio(unirFechaYHora(fechaDe(fechaInicio), hora))}
+                etiqueta="A las"
+                id="promocion-inicio-hora"
+                valor={horaDe(fechaInicio, "00:00")}
+              />
+            ) : null}
             {errores.fecha_inicio ? <small className={styles.errorCampo}>{errores.fecha_inicio}</small> : null}
-          </label>
-          <label>
-            Termina <span>Opcional</span>
-            <input onChange={(evento) => setFechaFin(evento.target.value)} type="datetime-local" value={fechaFin} />
-            <small>Si lo dejas vacío, no vencerá automáticamente.</small>
+          </div>
+          <div className={styles.fechaYHora}>
+            <SelectorDeFecha
+              alCambiar={(fecha) => setFechaFin(unirFechaYHora(fecha, horaDe(fechaFin, "23:45")))}
+              ayuda="Si no eliges fecha, no vence sola."
+              etiqueta="Termina (opcional)"
+              hoy={hoy}
+              id="promocion-fin"
+              minimo={fechaDe(fechaInicio) || hoy}
+              permiteVacio
+              textoVacio="Sin vencimiento"
+              valor={fechaDe(fechaFin)}
+            />
+            {fechaFin ? (
+              <SelectorDeHora
+                alCambiar={(hora) => setFechaFin(unirFechaYHora(fechaDe(fechaFin), hora))}
+                etiqueta="A las"
+                id="promocion-fin-hora"
+                valor={horaDe(fechaFin, "23:45")}
+              />
+            ) : null}
             {errores.fecha_fin ? <small className={styles.errorCampo}>{errores.fecha_fin}</small> : null}
-          </label>
+          </div>
         </div>
 
         {/* El horario va después de las fechas porque es un recorte dentro de
@@ -406,22 +457,22 @@ export function GestorPromociones({
             noche, y a la 01:00 sigue contando como el día que empezó.
           </p>
           <div className={styles.horas}>
-            <label>
-              Desde
-              <input
-                onChange={(evento) => setHoraInicio(evento.target.value)}
-                type="time"
-                value={horaInicio}
-              />
-            </label>
-            <label>
-              Hasta
-              <input
-                onChange={(evento) => setHoraFin(evento.target.value)}
-                type="time"
-                value={horaFin}
-              />
-            </label>
+            <SelectorDeHora
+              alCambiar={setHoraInicio}
+              etiqueta="Desde"
+              id="promocion-hora-desde"
+              paso={30}
+              textoVacio="Sin hora"
+              valor={horaInicio}
+            />
+            <SelectorDeHora
+              alCambiar={setHoraFin}
+              etiqueta="Hasta"
+              id="promocion-hora-hasta"
+              paso={30}
+              textoVacio="Sin hora"
+              valor={horaFin}
+            />
           </div>
           {errores.horario ? <small className={styles.errorCampo}>{errores.horario}</small> : null}
           <div className={styles.dias}>

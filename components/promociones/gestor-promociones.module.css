@@ -343,3 +343,21 @@
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
 }
+
+/* La fecha con su hora al lado, desde que dejó de ser un `datetime-local`. */
+.fechaYHora {
+  display: grid;
+  align-items: start;
+  gap: var(--spacing-3);
+  min-width: 0;
+}
+
+@media (min-width: 30rem) {
+  .fechaYHora {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 8rem);
+  }
+
+  .fechaYHora > small {
+    grid-column: 1 / -1;
+  }
+}

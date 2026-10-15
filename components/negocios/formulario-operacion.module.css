@@ -141,7 +141,21 @@
   gap: var(--spacing-2);
 }
 
-.intervalo label {
+/* Los selectores de hora del horario, del ancho de «23:30» con su galón. */
+.intervalo > div,
+.filaExcepcion > div {
+  flex: 1 1 7rem;
+  min-width: 0;
+  max-width: 10rem;
+}
+
+/* La fecha de la fecha especial, más ancha: «Miércoles 14 de octubre». */
+.filaExcepcion > div:first-child {
+  flex-basis: 15rem;
+  max-width: none;
+}
+
+.intervalo > label {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
@@ -149,7 +163,7 @@
   font-weight: 700;
 }
 
-.intervalo input {
+.intervalo > label > input {
   width: 7.5rem;
   min-width: 0;
   min-height: var(--spacing-10);
@@ -162,7 +176,7 @@
   font-size: var(--text-sm);
 }
 
-.intervalo button,
+.intervalo > button,
 .intervalos > button {
   min-height: var(--spacing-10);
   border: var(--borde-fino) solid var(--control-segundo-borde);
@@ -181,19 +195,19 @@
    estos controles se leían como rótulos, y el dueño no sabía cuáles se tocaban
    hasta probarlos. El hundido al presionar es la única confirmación que hay en
    un teléfono de que el dedo dio en el blanco. */
-.intervalo button:active:not(:disabled),
+.intervalo > button:active:not(:disabled),
 .intervalos > button:active:not(:disabled) {
   transform: translateY(1px);
   box-shadow: none;
 }
 
-.intervalo button:focus-visible,
+.intervalo > button:focus-visible,
 .intervalos > button:focus-visible {
   outline: var(--foco-ancho) solid var(--color-superficie);
   box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
-.intervalo button {
+.intervalo > button {
   color: var(--color-peligro);
 }
 
@@ -280,7 +294,7 @@
   gap: var(--spacing-2) var(--spacing-3);
 }
 
-.filaExcepcion label {
+.filaExcepcion > label {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
@@ -289,9 +303,9 @@
   font-weight: 700;
 }
 
-.filaExcepcion input[type="date"],
-.filaExcepcion input[type="time"],
-.filaExcepcion input[type="text"] {
+.filaExcepcion > label > input[type="date"],
+.filaExcepcion > label > input[type="time"],
+.filaExcepcion > label > input[type="text"] {
   min-width: 0;
   min-height: var(--spacing-10);
   border: var(--borde-marcado) solid var(--color-borde-campo);
@@ -303,12 +317,12 @@
   font-size: var(--text-sm);
 }
 
-.filaExcepcion input[type="date"],
-.filaExcepcion input[type="time"] {
+.filaExcepcion > label > input[type="date"],
+.filaExcepcion > label > input[type="time"] {
   width: 9rem;
 }
 
-.filaExcepcion input[type="text"] {
+.filaExcepcion > label > input[type="text"] {
   flex: 1 1 12rem;
 }
 
@@ -323,7 +337,7 @@
   accent-color: var(--color-marca);
 }
 
-.filaExcepcion button,
+.filaExcepcion > button,
 .agregarExcepcion {
   min-height: var(--spacing-10);
   border: var(--borde-fino) solid var(--control-segundo-borde);
@@ -342,19 +356,19 @@
    estos controles se leían como rótulos, y el dueño no sabía cuáles se tocaban
    hasta probarlos. El hundido al presionar es la única confirmación que hay en
    un teléfono de que el dedo dio en el blanco. */
-.filaExcepcion button:active:not(:disabled),
+.filaExcepcion > button:active:not(:disabled),
 .agregarExcepcion:active:not(:disabled) {
   transform: translateY(1px);
   box-shadow: none;
 }
 
-.filaExcepcion button:focus-visible,
+.filaExcepcion > button:focus-visible,
 .agregarExcepcion:focus-visible {
   outline: var(--foco-ancho) solid var(--color-superficie);
   box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
 }
 
-.filaExcepcion button {
+.filaExcepcion > button {
   margin-left: auto;
 }
 

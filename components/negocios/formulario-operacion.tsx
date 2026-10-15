@@ -16,7 +16,7 @@ import {
 } from "../../lib/horario";
 import { validarOperacionNegocio } from "../../lib/negocios/operacion";
 import { TOPE_UNIDADES_MAXIMO } from "../../lib/pedidos/tope-unidades";
-import { Boton, Campo, Selector, useAvisos, Formulario } from "../ui";
+import { Boton, Campo, Selector, SelectorDeFecha, SelectorDeHora, useAvisos, Formulario } from "../ui";
 import styles from "./formulario-operacion.module.css";
 
 export type OperacionNegocioInicial = {
@@ -295,28 +295,22 @@ export function FormularioOperacion({
                   <div className={styles.intervalos}>
                     {intervalos.map((intervalo, indice) => (
                       <div className={styles.intervalo} key={`${dia}-${indice}`}>
-                        <label>
-                          Abre
-                          <input
-                            aria-label={`${NOMBRES_DIAS[dia]}, hora de apertura ${indice + 1}`}
-                            onChange={(evento) =>
-                              cambiarIntervalo(dia, indice, "abre", evento.target.value)
-                            }
-                            type="time"
-                            value={intervalo.abre}
-                          />
-                        </label>
-                        <label>
-                          Cierra
-                          <input
-                            aria-label={`${NOMBRES_DIAS[dia]}, hora de cierre ${indice + 1}`}
-                            onChange={(evento) =>
-                              cambiarIntervalo(dia, indice, "cierra", evento.target.value)
-                            }
-                            type="time"
-                            value={intervalo.cierra}
-                          />
-                        </label>
+                        <SelectorDeHora
+                          alCambiar={(hora) => cambiarIntervalo(dia, indice, "abre", hora)}
+                          descripcion={`${NOMBRES_DIAS[dia]}, hora de apertura ${indice + 1}`}
+                          etiqueta="Abre"
+                          id={`horario-${dia}-${indice}-abre`}
+                          paso={30}
+                          valor={intervalo.abre}
+                        />
+                        <SelectorDeHora
+                          alCambiar={(hora) => cambiarIntervalo(dia, indice, "cierra", hora)}
+                          descripcion={`${NOMBRES_DIAS[dia]}, hora de cierre ${indice + 1}`}
+                          etiqueta="Cierra"
+                          id={`horario-${dia}-${indice}-cierra`}
+                          paso={30}
+                          valor={intervalo.cierra}
+                        />
                         {intervalos.length > 1 ? (
                           <button
                             aria-label={`Quitar horario ${indice + 1} de ${NOMBRES_DIAS[dia]}`}
@@ -367,17 +361,14 @@ export function FormularioOperacion({
               {horario.excepciones.map((excepcion, indice) => (
                 <li className={styles.excepcion} key={`excepcion-${indice}`}>
                   <div className={styles.filaExcepcion}>
-                    <label>
-                      Fecha
-                      <input
-                        min={fechaHoyEnLaPaz()}
-                        onChange={(evento) =>
-                          cambiarExcepcion(indice, { fecha: evento.target.value })
-                        }
-                        type="date"
-                        value={excepcion.fecha}
-                      />
-                    </label>
+                    <SelectorDeFecha
+                      alCambiar={(fecha) => cambiarExcepcion(indice, { fecha })}
+                      etiqueta="Fecha"
+                      hoy={fechaHoyEnLaPaz()}
+                      id={`excepcion-${indice}-fecha`}
+                      minimo={fechaHoyEnLaPaz()}
+                      valor={excepcion.fecha}
+                    />
                     <label>
                       Motivo
                       <input
@@ -412,42 +403,30 @@ export function FormularioOperacion({
                     </label>
                     {excepcion.cerrado ? null : (
                       <>
-                        <label>
-                          Abre
-                          <input
-                            aria-label={`Hora de apertura del ${excepcion.fecha}`}
-                            onChange={(evento) =>
-                              cambiarExcepcion(indice, {
-                                intervalos: [
-                                  {
-                                    abre: evento.target.value,
-                                    cierra: excepcion.intervalos[0]?.cierra ?? "13:00",
-                                  },
-                                ],
-                              })
-                            }
-                            type="time"
-                            value={excepcion.intervalos[0]?.abre ?? "09:00"}
-                          />
-                        </label>
-                        <label>
-                          Cierra
-                          <input
-                            aria-label={`Hora de cierre del ${excepcion.fecha}`}
-                            onChange={(evento) =>
-                              cambiarExcepcion(indice, {
-                                intervalos: [
-                                  {
-                                    abre: excepcion.intervalos[0]?.abre ?? "09:00",
-                                    cierra: evento.target.value,
-                                  },
-                                ],
-                              })
-                            }
-                            type="time"
-                            value={excepcion.intervalos[0]?.cierra ?? "13:00"}
-                          />
-                        </label>
+                        <SelectorDeHora
+                          alCambiar={(hora) =>
+                            cambiarExcepcion(indice, {
+                              intervalos: [{ abre: hora, cierra: excepcion.intervalos[0]?.cierra ?? "13:00" }],
+                            })
+                          }
+                          descripcion={`Hora de apertura del ${excepcion.fecha}`}
+                          etiqueta="Abre"
+                          id={`excepcion-${indice}-abre`}
+                          paso={30}
+                          valor={excepcion.intervalos[0]?.abre ?? "09:00"}
+                        />
+                        <SelectorDeHora
+                          alCambiar={(hora) =>
+                            cambiarExcepcion(indice, {
+                              intervalos: [{ abre: excepcion.intervalos[0]?.abre ?? "09:00", cierra: hora }],
+                            })
+                          }
+                          descripcion={`Hora de cierre del ${excepcion.fecha}`}
+                          etiqueta="Cierra"
+                          id={`excepcion-${indice}-cierra`}
+                          paso={30}
+                          valor={excepcion.intervalos[0]?.cierra ?? "13:00"}
+                        />
                       </>
                     )}
                   </div>

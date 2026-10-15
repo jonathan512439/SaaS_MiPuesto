@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { DIAS, resumirFranjas, type Franja } from "../../lib/agenda/franjas";
 import { Boton, useAvisos } from "../ui";
+import { horasDelDia } from "../../lib/calendario";
 import styles from "./editor-de-agenda.module.css";
 
 /* Cuándo atiende un recurso: un profesional, un consultorio, una silla.
@@ -34,6 +35,13 @@ const PREDETERMINADO = {
   anticipacionMinimaHoras: "2",
   diasMaximos: "30",
 };
+
+/* Las horas de cada cuarto, y la guardada aunque no caiga en un cuarto
+   —«09:10», cargada antes—, para no cambiarla sin que el dueño la toque. */
+const HORAS_DEL_DIA = horasDelDia(15);
+function opcionesDeHora(actual: string): string[] {
+  return actual && !HORAS_DEL_DIA.includes(actual) ? [...HORAS_DEL_DIA, actual].sort() : HORAS_DEL_DIA;
+}
 
 export function EditorDeAgenda({ recursoId }: { recursoId: string }) {
   const [ajustes, setAjustes] = useState(PREDETERMINADO);
@@ -259,22 +267,34 @@ export function EditorDeAgenda({ recursoId }: { recursoId: string }) {
 
           <label className={styles.control}>
             <span>Desde</span>
-            <input
+            {/* En 24 horas: el `type="time"` del navegador mostraba «02:30 PM». */}
+            <select
               disabled={guardando}
               onChange={(evento) => cambiarFranja(indice, { desde: evento.target.value })}
-              type="time"
               value={franja.desde}
-            />
+            >
+              {opcionesDeHora(franja.desde).map((hora) => (
+                <option key={hora} value={hora}>
+                  {hora}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label className={styles.control}>
             <span>Hasta</span>
-            <input
+            {/* En 24 horas: el `type="time"` del navegador mostraba «02:30 PM». */}
+            <select
               disabled={guardando}
               onChange={(evento) => cambiarFranja(indice, { hasta: evento.target.value })}
-              type="time"
               value={franja.hasta}
-            />
+            >
+              {opcionesDeHora(franja.hasta).map((hora) => (
+                <option key={hora} value={hora}>
+                  {hora}
+                </option>
+              ))}
+            </select>
           </label>
 
           <button

@@ -86,6 +86,10 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
     motivo: "es un juego de opciones, y marca cuál está elegida",
   },
   { selector: ".interruptor", motivo: "es un interruptor: importa encendido o apagado" },
+  /* El calendario del panel (`components/ui/calendario.tsx`). */
+  { selector: ".dia", motivo: "es un día del calendario: un juego de opciones que marca hoy y el elegido" },
+  { selector: ".irAHoy", motivo: "lleva al día de hoy: se lee como un enlace, no como una acción" },
+  { selector: ".campo", motivo: "el selector de fecha es un campo: se ve como los campos del panel, no como un botón" },
   /* Van sobre la barra de color, encima de las secciones, como los enlaces de
      al lado: con el aspecto de un botón del panel quedarían como una acción
      más entre las secciones, y solo desplazan la barra. */
@@ -103,7 +107,7 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
   { selector: ".foto button", motivo: "va encima de una fotografía y tiene que leerse sobre cualquiera" },
 
   /* Quitar un renglón de una lista: letra de peligro sobre la forma compartida. */
-  { selector: ".intervalo button", motivo: "quita un renglón: lleva la letra de peligro" },
+  { selector: ".intervalo > button", motivo: "quita un renglón: lleva la letra de peligro" },
 
   /* Una fila de una lista no es un botón. Con relieve y superficie propia se
      leería como una tarjeta suelta en vez de como un renglón de un listado, que

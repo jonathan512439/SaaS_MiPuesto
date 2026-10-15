@@ -177,10 +177,14 @@
   font-size: var(--text-base);
 }
 
+/* Los campos del turno a mano. Eran columnas de 8rem y en escritorio entraban
+   ocho en una fila, con las etiquetas partidas («Nombre / o / motivo»): ahora
+   cada una tiene sitio para una fecha escrita entera. */
 .rejilla {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
-  gap: var(--spacing-3);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  align-items: start;
+  gap: var(--spacing-4);
 }
 
 .accionesFormulario {
@@ -379,9 +383,9 @@
    A lo ancho de las dos columnas, debajo del botón que lo abrió. */
 .hastaCuando {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-32), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
   align-items: end;
-  gap: var(--spacing-2);
+  gap: var(--spacing-3);
   grid-column: 1 / -1;
   border-radius: var(--radius-control);
   padding: var(--spacing-3);
@@ -408,4 +412,47 @@
   color: var(--color-texto);
   font: inherit;
   font-size: var(--text-sm);
+}
+
+/* El cronograma: el mes a la vista y lo del día elegido. En un teléfono, el
+   calendario arriba y el día debajo; en una pantalla ancha, lado a lado, con
+   el calendario quieto mientras se recorre el día. Reemplazó a la tira de
+   catorce días el 2026-10-14. */
+.cronogramaCuerpo {
+  display: grid;
+  gap: var(--spacing-5);
+  min-width: 0;
+}
+
+.columnaCalendario {
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+}
+
+.columnaDia {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.tituloDia {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+}
+
+@media (min-width: 56rem) {
+  .cronogramaCuerpo {
+    grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--spacing-8);
+  }
+
+  .columnaCalendario {
+    position: sticky;
+    top: var(--spacing-4);
+    justify-items: stretch;
+  }
 }

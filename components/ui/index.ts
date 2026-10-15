@@ -1,5 +1,6 @@
 export { AreaTexto } from "./area-texto";
 export { Boton } from "./boton";
+export { Calendario } from "./calendario";
 export { Campo } from "./campo";
 export { CampoClave } from "./campo-clave";
 export { Esqueleto } from "./esqueleto";
@@ -11,6 +12,8 @@ export type { EstadoProducto } from "./indicador-estado";
 export { ProveedorAvisos, useAvisos } from "./proveedor-avisos";
 export { ProveedorConfirmacion, useConfirmacion } from "./proveedor-confirmacion";
 export { Selector } from "./selector";
+export { SelectorDeFecha } from "./selector-de-fecha";
+export { SelectorDeHora } from "./selector-de-hora";
 export { Toast } from "./toast";
 export { Trabajando } from "./trabajando";
 export type { VarianteToast } from "./toast";

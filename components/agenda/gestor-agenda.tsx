@@ -6,7 +6,17 @@ import { describirCita } from "../../lib/agenda/horarios";
 import { resumirFranjas, leerFranjas } from "../../lib/agenda/franjas";
 import { LARGO_MAXIMO_NOMBRE_RECURSO, nombreParaRenombrar } from "../../lib/agenda/recursos";
 import { EditorDeAgenda } from "../catalogo/editor-de-agenda";
-import { Boton, Campo, Selector, useAvisos, useConfirmacion } from "../ui";
+import {
+  Boton,
+  Calendario,
+  Campo,
+  Selector,
+  SelectorDeFecha,
+  SelectorDeHora,
+  useAvisos,
+  useConfirmacion,
+} from "../ui";
+import { conMayuscula, fechaParaLeer } from "../../lib/calendario";
 import styles from "./gestor-agenda.module.css";
 
 /* La agenda del negocio, entera y en un solo lugar.
@@ -166,19 +176,21 @@ export function GestorAgenda({
   const { mostrarAviso } = useAvisos();
   const confirmar = useConfirmacion();
 
-  /* Los próximos catorce días, con cuántos turnos tiene cada uno. El número al
-     lado del día es lo que le dice al dueño dónde mirar sin abrir uno por uno. */
-  const dias = useMemo(() => {
-    const hoy = hoyEnBolivia();
-    return Array.from({ length: 14 }, (_, salto) => {
-      const fecha = new Date(`${hoy}T00:00:00Z`);
-      fecha.setUTCDate(fecha.getUTCDate() + salto);
-      const clave = fecha.toISOString().slice(0, 10);
-      const cantidad = citas.filter(
-        (cita) => cita.estado !== "cancelada" && fechaDe(cita.inicio) === clave,
-      ).length;
-      return { fecha: clave, cantidad };
-    });
+  /* Hoy, tomado una vez: el calendario lo marca y no deja elegir días pasados. */
+  const [hoy] = useState(hoyEnBolivia);
+
+  /* Cuántos turnos tiene cada día, para el calendario. Era una tira de catorce
+     botones —en un teléfono se cortaba y no dejaba ver más allá de dos
+     semanas—; ahora es el mes entero, y el número sobre el día le dice al dueño
+     dónde mirar sin abrir uno por uno. */
+  const turnosPorDia = useMemo(() => {
+    const cuenta: Record<string, number> = {};
+    for (const cita of citas) {
+      if (cita.estado === "cancelada" || esPausa(cita)) continue;
+      const dia = fechaDe(cita.inicio);
+      cuenta[dia] = (cuenta[dia] ?? 0) + 1;
+    }
+    return cuenta;
   }, [citas]);
 
   /* La lista del día **no incluye las pendientes**: esas viven en el buzón de
@@ -562,20 +574,21 @@ export function GestorAgenda({
           </div>
         ) : null}
 
-        <div className={styles.dias}>
-          {dias.map((dia) => (
-            <button
-              aria-pressed={dia.fecha === diaElegido}
-              className={dia.fecha === diaElegido ? styles.diaActivo : styles.dia}
-              key={dia.fecha}
-              onClick={() => setDiaElegido(dia.fecha)}
-              type="button"
-            >
-              {rotuloDia(dia.fecha)}
-              {dia.cantidad > 0 ? <small>{dia.cantidad}</small> : null}
-            </button>
-          ))}
-        </div>
+        {/* El mes a la vista: a la izquierda en una pantalla ancha, arriba en un
+            teléfono. Lo del día elegido va al lado. */}
+        <div className={styles.cronogramaCuerpo}>
+          <div className={styles.columnaCalendario}>
+            <Calendario
+              alElegir={setDiaElegido}
+              etiqueta="Elige el día del cronograma"
+              hoy={hoy}
+              marcas={turnosPorDia}
+              minimo={hoy}
+              valor={diaElegido}
+            />
+          </div>
+          <div className={styles.columnaDia}>
+            <h3 className={styles.tituloDia}>{conMayuscula(fechaParaLeer(diaElegido, hoy))}</h3>
 
         <div className={styles.accionesDia}>
           <Boton disabled={recursos.length === 0} onClick={() => abrirFormulario()} type="button" variante="secundario">
@@ -643,27 +656,21 @@ export function GestorAgenda({
 
                     {eligiendo ? (
                       <div className={styles.hastaCuando}>
-                        <label>
-                          Hasta el día
-                          <input
-                            min={hoyEnBolivia()}
-                            onChange={(evento) =>
-                              setPausando({ ...eligiendo, fecha: evento.target.value })
-                            }
-                            type="date"
-                            value={eligiendo.fecha}
-                          />
-                        </label>
-                        <label>
-                          A las
-                          <input
-                            onChange={(evento) =>
-                              setPausando({ ...eligiendo, hora: evento.target.value })
-                            }
-                            type="time"
-                            value={eligiendo.hora}
-                          />
-                        </label>
+                        <SelectorDeFecha
+                          alCambiar={(fecha) => setPausando({ ...eligiendo, fecha })}
+                          etiqueta="Hasta el día"
+                          hoy={hoy}
+                          id={`pausa-fecha-${recurso.id}`}
+                          minimo={hoy}
+                          valor={eligiendo.fecha}
+                        />
+                        <SelectorDeHora
+                          alCambiar={(hora) => setPausando({ ...eligiendo, hora })}
+                          etiqueta="A las"
+                          id={`pausa-hora-${recurso.id}`}
+                          paso={30}
+                          valor={eligiendo.hora}
+                        />
                         <Boton
                           cargando={ocupado === recurso.id}
                           onClick={() =>
@@ -714,19 +721,18 @@ export function GestorAgenda({
                   </option>
                 ))}
               </Selector>
-              <Campo
+              <SelectorDeFecha
+                alCambiar={(fecha) => setFormulario({ ...formulario, fecha })}
                 etiqueta="Día"
+                hoy={hoy}
                 id="manual-fecha"
-                onChange={(evento) => setFormulario({ ...formulario, fecha: evento.target.value })}
-                type="date"
-                value={formulario.fecha}
+                valor={formulario.fecha}
               />
-              <Campo
+              <SelectorDeHora
+                alCambiar={(hora) => setFormulario({ ...formulario, hora })}
                 etiqueta="Hora"
                 id="manual-hora"
-                onChange={(evento) => setFormulario({ ...formulario, hora: evento.target.value })}
-                type="time"
-                value={formulario.hora}
+                valor={formulario.hora}
               />
               <Campo
                 etiqueta="Duración (minutos)"
@@ -798,6 +804,8 @@ export function GestorAgenda({
             ))}
           </ul>
         )}
+          </div>
+        </div>
       </section>
 
       {/* ── Quién atiende ─────────────────────────────────────────────── */}
