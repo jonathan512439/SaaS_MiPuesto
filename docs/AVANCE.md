@@ -1735,6 +1735,20 @@ motivo por el que este archivo existe.
 
 ### 2026-10-14
 
+- **Calendario propio en el panel** (`97d44f3`), en vez de los campos de fecha
+  y hora del navegador («10/15/2026», «02:30 PM», distintos en cada
+  teléfono). Mes en español desde el lunes, hoy y el elegido marcados también
+  con palabras, turnos por día en número, teclado; fecha escrita para leer y
+  horas en 24 horas. El Cronograma pasó de una tira de catorce días a un mes
+  entero (al lado en escritorio, arriba en el celular). Reemplazados en
+  pausar reservas, turno a mano, horario de atención, fechas especiales,
+  promociones y franjas de quien atiende; una guardia impide que vuelvan.
+  Sin dependencias nuevas. `verificar` con 1274 pruebas.
+- **El fondo con dibujos lleva el doble de íconos** (`f1d449a`): los de las
+  categorías más otros del mismo juego, hasta el doble —mínimo ocho, máximo
+  dieciséis—, en una baldosa de dieciséis posiciones. La barra «Cuánto se
+  nota» se respeta (medido en producción: 6 % y 30 %).
+
 - **Catorce observaciones del dueño sobre el panel, resueltas en orden** —
   primero los errores, después lo rápido y al final lo grande—, cada una con
   su commit, su prueba y revisada en el navegador contra ensayo:
