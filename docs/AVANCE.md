@@ -1733,6 +1733,14 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-10-16
+
+- **La hora del panel en dos toques** (`def2405`), en vez de un desplegable
+  con las 96 horas del día: las veinticuatro horas en cuatro filas
+  (madrugada, mañana, tarde, noche) y los minutos del paso; se abre como el
+  calendario. Las fechas quedan como estaban, y el calendario del catálogo
+  público no se toca, por decisión del dueño. `verificar` con 1277 pruebas.
+
 ### 2026-10-14
 
 - **Calendario propio en el panel** (`97d44f3`), en vez de los campos de fecha
