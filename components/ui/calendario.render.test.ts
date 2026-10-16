@@ -59,11 +59,19 @@ describe("los campos de fecha y hora", () => {
     expect(campo).toContain("Sin vencimiento");
   });
 
-  it("la hora va en 24 horas y conserva un valor fuera de paso", () => {
+  /* Desde el 2026-10-16 no es una lista de noventa y seis horas: es un campo
+     que abre la hora y los minutos en dos toques. */
+  it("la hora va en 24 horas, en un campo que se abre, y conserva un valor fuera de paso", () => {
     const campo = html(jsx(SelectorDeHora, { alCambiar: () => {}, etiqueta: "Hora", id: "hora", valor: "09:07" }));
-    expect(campo).toContain(">14:30<");
     expect(campo).toContain(">09:07<");
+    expect(campo).toContain('aria-haspopup="dialog"');
+    expect(campo).not.toMatch(/<select|<option/);
     expect(campo).not.toMatch(/AM|PM/);
+  });
+
+  it("vacía dice qué hacer", () => {
+    const campo = html(jsx(SelectorDeHora, { alCambiar: () => {}, etiqueta: "Desde", id: "desde", valor: "", textoVacio: "Sin hora" }));
+    expect(campo).toContain(">Sin hora<");
   });
 });
 

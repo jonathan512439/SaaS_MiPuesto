@@ -89,6 +89,7 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
   /* El calendario del panel (`components/ui/calendario.tsx`). */
   { selector: ".dia", motivo: "es un día del calendario: un juego de opciones que marca hoy y el elegido" },
   { selector: ".irAHoy", motivo: "lleva al día de hoy: se lee como un enlace, no como una acción" },
+  { selector: ".opcion", motivo: "es una hora o unos minutos del selector de hora: un juego de opciones que marca la elegida" },
   { selector: ".campo", motivo: "el selector de fecha es un campo: se ve como los campos del panel, no como un botón" },
   /* Van sobre la barra de color, encima de las secciones, como los enlaces de
      al lado: con el aspecto de un botón del panel quedarían como una acción

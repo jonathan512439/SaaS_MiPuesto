@@ -1,0 +1,97 @@
+@reference "../../app/globals.css";
+
+/* El selector de hora: lo de abrir y cerrar —el campo, el panel, la hoja en
+   un teléfono— es el mismo del de fecha (`selector-de-fecha.module.css`);
+   acá va solo lo propio, la cuadrícula de horas y minutos. */
+
+.filaEtiqueta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.requerido {
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.valor {
+  font-variant-numeric: tabular-nums;
+}
+
+.panel {
+  min-width: 20rem;
+}
+
+.paso {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.ratos {
+  display: grid;
+  gap: var(--spacing-2);
+  width: 100%;
+  max-width: 24rem;
+}
+
+/* Cada rato del día en una fila: el nombre arriba y sus seis horas. */
+.rato {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.nombreRato {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.horas {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--spacing-1);
+}
+
+.minutos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--spacing-14), 1fr));
+  gap: var(--spacing-2);
+  width: 100%;
+  max-width: 24rem;
+}
+
+/* Una hora o unos minutos: del tamaño de un dedo, y el elegido relleno con el
+   color del negocio y marcado con `aria-pressed`, no solo con color. */
+.opcion {
+  min-height: var(--control-alto);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-control);
+  padding: 0;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.opcion:hover:not(:disabled) {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+}
+
+.opcion[aria-pressed="true"] {
+  border-color: var(--color-marca);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.opcion:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}

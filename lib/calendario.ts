@@ -122,3 +122,21 @@ export function diaElegible(fecha: string, minimo?: string, maximo?: string): bo
   if (maximo && fecha > maximo) return false;
   return true;
 }
+
+/* Las horas del día agrupadas como se dicen, para elegirlas de un toque:
+   seis por fila, con el nombre del rato del día. */
+export const RATOS_DEL_DIA = [
+  { nombre: "Madrugada", horas: ["00", "01", "02", "03", "04", "05"] },
+  { nombre: "Mañana", horas: ["06", "07", "08", "09", "10", "11"] },
+  { nombre: "Tarde", horas: ["12", "13", "14", "15", "16", "17"] },
+  { nombre: "Noche", horas: ["18", "19", "20", "21", "22", "23"] },
+] as const;
+
+/* Los minutos que se ofrecen con un paso dado —«00, 15, 30, 45»—, más los de
+   la hora guardada si no caen en el paso: «09:07» sigue mostrando «07». */
+export function minutosDelPaso(paso: number, actual?: string): string[] {
+  const minutos: string[] = [];
+  for (let minuto = 0; minuto < 60; minuto += paso) minutos.push(String(minuto).padStart(2, "0"));
+  const delActual = actual && /^\d{2}:\d{2}$/.test(actual) ? actual.slice(3, 5) : null;
+  return delActual && !minutos.includes(delActual) ? [...minutos, delActual].sort() : minutos;
+}

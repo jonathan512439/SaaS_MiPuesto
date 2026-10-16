@@ -5,6 +5,8 @@ import {
   esFecha,
   fechaParaLeer,
   horasDelDia,
+  minutosDelPaso,
+  RATOS_DEL_DIA,
   semanasDelMes,
   sumarDias,
   tituloDelMes,
@@ -85,5 +87,22 @@ describe("los topes", () => {
     expect(diaElegible("2026-10-13", "2026-10-14")).toBe(false);
     expect(diaElegible("2026-10-14", "2026-10-14")).toBe(true);
     expect(diaElegible("2026-12-01", undefined, "2026-11-30")).toBe(false);
+  });
+});
+
+/* El selector de hora del panel, en dos toques: la hora y los minutos. */
+describe("la hora en dos toques", () => {
+  it("las veinticuatro horas, una sola vez, en cuatro ratos de seis", () => {
+    const horas = RATOS_DEL_DIA.flatMap(({ horas: deRato }) => deRato);
+    expect(horas).toHaveLength(24);
+    expect(new Set(horas).size).toBe(24);
+    expect(RATOS_DEL_DIA.map(({ nombre }) => nombre)).toEqual(["Madrugada", "Mañana", "Tarde", "Noche"]);
+  });
+
+  it("los minutos del paso, y los de la hora guardada si no caen en él", () => {
+    expect(minutosDelPaso(15)).toEqual(["00", "15", "30", "45"]);
+    expect(minutosDelPaso(30)).toEqual(["00", "30"]);
+    expect(minutosDelPaso(15, "09:07")).toEqual(["00", "07", "15", "30", "45"]);
+    expect(minutosDelPaso(15, "09:30")).toEqual(["00", "15", "30", "45"]);
   });
 });
