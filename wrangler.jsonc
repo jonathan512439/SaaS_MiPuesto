@@ -22,6 +22,12 @@
   "cache": {
     "enabled": true
   },
+  "r2_buckets": [
+    {
+      "binding": "TUTORIALES",
+      "bucket_name": "mipuesto-tutoriales"
+    }
+  ],
   "observability": {
     "enabled": true,
     "logs": {

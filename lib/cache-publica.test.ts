@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
-/* Solo tres respuestas se guardan en la caché pública.
+/* Solo cuatro respuestas se guardan en la caché pública.
  *
  * La caché de Workers está encendida (`wrangler.jsonc`) y guarda toda respuesta
  * que diga `Cache-Control: public`: la siguiente persona recibe la copia sin
@@ -14,7 +14,11 @@ import { describe, expect, it } from "vitest";
  *   llegue a la base;
  * - las sugerencias del directorio, treinta segundos: lo que se busca, no
  *   quién busca;
- * - el manifiesto de cada catálogo, cinco minutos: nombre y colores.
+ * - el manifiesto de cada catálogo, cinco minutos: nombre y colores;
+ * - los archivos de los tutoriales (`lib/tutoriales/archivos.ts`, desde el
+ *   2026-10-18), para siempre: el video y la portada son de la plataforma, sin
+ *   datos de nadie, y un nombre nunca se reutiliza. Solo el archivo entero:
+ *   las partes que pide el reproductor salen con `no-store`.
  *
  * El riesgo es el próximo: una ruta del panel, o una con el pedido de un
  * cliente, marcada `public` por copiar una cabecera. La caché se la serviría a
@@ -25,6 +29,7 @@ const CON_CACHE_PUBLICA = new Set([
   "app/api/salud/route.ts",
   "app/api/directorio/sugerencias/route.ts",
   "app/(public)/[slug]/manifest.webmanifest/route.ts",
+  "lib/tutoriales/archivos.ts",
 ]);
 const RAIZ = join(import.meta.dirname, "..");
 
@@ -52,13 +57,13 @@ describe("caché pública", () => {
     expect(pideCachePublica(`cacheControl: "31536000"`)).toBe(false);
   });
 
-  it("solo la piden las tres rutas sin datos de nadie", () => {
+  it("solo la piden las cuatro respuestas sin datos de nadie", () => {
     const conCache = ["app", "lib"]
       .flatMap((carpeta) => archivosTs(join(RAIZ, carpeta)))
       .filter((archivo) => pideCachePublica(readFileSync(archivo, "utf8")))
       .map((archivo) => relative(RAIZ, archivo).replaceAll("\\", "/"));
     expect(conCache.filter((ruta) => !CON_CACHE_PUBLICA.has(ruta))).toEqual([]);
-    // Si una de las tres deja de pedirla, se quita de la lista.
+    // Si una de las cuatro deja de pedirla, se quita de la lista.
     expect([...CON_CACHE_PUBLICA].filter((ruta) => !conCache.includes(ruta))).toEqual([]);
   });
 });
