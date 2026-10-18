@@ -19,6 +19,8 @@ import { cupoDelPlan, planDe } from "../../../lib/planes";
 import { UsoIaPanel } from "../../../components/plataforma/uso-ia";
 import { ZonasPlataforma } from "../../../components/plataforma/zonas-plataforma";
 import { BuscadorPlataforma } from "../../../components/plataforma/buscador-plataforma";
+import { TutorialesPlataforma } from "../../../components/plataforma/tutoriales-plataforma";
+import { COLUMNAS_TUTORIAL } from "../../../lib/catalogo/columnas";
 import { RubroPublicoPlataforma } from "../../../components/plataforma/rubro-publico-plataforma";
 import {
   ETIQUETAS_ESTADO,
@@ -72,6 +74,7 @@ export default async function PaginaPlataforma({
     { data: zonas },
     { data: sinonimos },
     { data: sinResultado, count: totalSinResultado },
+    { data: tutoriales },
   ] = await Promise.all([
     supabase
       .from("negocios")
@@ -107,6 +110,7 @@ export default async function PaginaPlataforma({
       .select("termino,ciudad,cantidad,ultima_vez", { count: "exact" })
       .order("cantidad", { ascending: false })
       .limit(20),
+    supabase.from("tutoriales").select(COLUMNAS_TUTORIAL).order("numero"),
   ]);
   const fotosPorNegocio = new Map(
     (usoIa ?? []).map(({ negocio_id, cantidad }) => [negocio_id, cantidad]),
@@ -190,6 +194,8 @@ export default async function PaginaPlataforma({
           totalSinResultado={totalSinResultado ?? 0}
         />
       ) : null}
+
+      {pestana === "tutoriales" ? <TutorialesPlataforma tutoriales={tutoriales ?? []} /> : null}
 
       {pestana === "zonas" ? (
         <ZonasPlataforma

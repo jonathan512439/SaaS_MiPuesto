@@ -50,6 +50,55 @@ export function tipoDeArchivo(nombre: string): (typeof TIPOS)[keyof typeof TIPOS
   return coincidencia ? TIPOS[coincidencia[1] as keyof typeof TIPOS] : null;
 }
 
+/* Guarda lo que llega en el balde sin juntarlo en memoria: se mira el comienzo
+ * —¿es de verdad un MP4, un JPG?— y el resto pasa de largo hacia R2.
+ *
+ * `largoFijo` es el `FixedLengthStream` de Workers (`balde.ts`): R2 necesita
+ * saber cuánto mide lo que recibe, y además corta si llega más o menos de lo
+ * que se declaró. Así un `Content-Length` mentiroso no deja nada guardado. */
+export async function guardarEnBalde(
+  balde: BaldeTutoriales,
+  nombre: string,
+  cuerpo: ReadableStream<Uint8Array>,
+  largo: number,
+  esFormato: (comienzo: Uint8Array) => boolean,
+  largoFijo: (largo: number) => TransformStream<Uint8Array, Uint8Array>,
+): Promise<"guardado" | "formato"> {
+  const tipo = tipoDeArchivo(nombre);
+  if (!tipo) throw new Error("Nombre de archivo fuera de forma.");
+  const lector = cuerpo.getReader();
+  let comienzo = new Uint8Array(0);
+  while (comienzo.length < 12) {
+    const { done, value } = await lector.read();
+    if (done) break;
+    const junto = new Uint8Array(comienzo.length + value.length);
+    junto.set(comienzo);
+    junto.set(value, comienzo.length);
+    comienzo = junto;
+  }
+  if (!esFormato(comienzo)) {
+    await lector.cancel();
+    return "formato";
+  }
+  const resto = new ReadableStream<Uint8Array>({
+    start(controlador) {
+      controlador.enqueue(comienzo);
+    },
+    async pull(controlador) {
+      const { done, value } = await lector.read();
+      if (done) controlador.close();
+      else controlador.enqueue(value);
+    },
+    cancel(motivo) {
+      return lector.cancel(motivo);
+    },
+  });
+  await balde.put(claveEnBalde(nombre), resto.pipeThrough(largoFijo(largo)), {
+    httpMetadata: { contentType: tipo },
+  });
+  return "guardado";
+}
+
 /* Un nombre nunca se reutiliza: reemplazar un video sube un archivo nuevo. Por
    eso cada archivo se puede guardar en caché para siempre. */
 const CACHE_PARA_SIEMPRE = "public, max-age=31536000, immutable";

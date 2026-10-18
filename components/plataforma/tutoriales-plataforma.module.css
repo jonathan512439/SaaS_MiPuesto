@@ -1,0 +1,181 @@
+@reference "../../app/globals.css";
+
+.panel {
+  display: grid;
+  gap: var(--spacing-3);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.panel h2 {
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.panel h3 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.panel header p,
+.vacio,
+.descripcion {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+/* El selector de archivos es uno solo y lo abren los botones: no se muestra. */
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.crear,
+.edicion {
+  display: grid;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+}
+
+.lista {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.fila {
+  display: grid;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+}
+
+.datos {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.numero {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--spacing-8);
+  height: var(--spacing-8);
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-suave);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+/* Publicado y borrador se distinguen por la palabra y por el borde, lleno o
+   punteado; el color acompaña. */
+.publicado,
+.borrador {
+  border-radius: var(--radius-control);
+  padding: 0 var(--spacing-2);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.publicado {
+  border: var(--borde-fino) solid var(--color-exito);
+  background: var(--color-exito-tenue);
+  color: var(--color-texto);
+}
+
+.borrador {
+  border: var(--borde-fino) dashed var(--color-borde-campo);
+  color: var(--color-texto-suave);
+}
+
+.archivos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.archivos li + li::before {
+  content: "· ";
+}
+
+.avance {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.avance small {
+  color: var(--color-texto);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+/* Las tres piezas a mano, como en `uso-almacenamiento.module.css`: cada motor
+   pinta `<progress>` con sus propias propiedades. */
+.barra {
+  appearance: none;
+  inline-size: 100%;
+  overflow: hidden;
+  block-size: var(--spacing-2);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-fondo-suave);
+}
+
+.barra::-webkit-progress-bar {
+  background: var(--color-fondo-suave);
+}
+
+.barra::-webkit-progress-value {
+  background: var(--color-marca);
+}
+
+.barra::-moz-progress-bar {
+  background: var(--color-marca);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+/* «Ver video» navega, no actúa: va como enlace y no como botón. */
+.acciones a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  padding: 0 var(--spacing-2);
+  color: var(--color-accion);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+@media (min-width: 40rem) {
+  .fila {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .acciones {
+    grid-column: 1 / -1;
+  }
+}

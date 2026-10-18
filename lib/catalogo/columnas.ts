@@ -76,3 +76,8 @@ export const COLUMNAS_ICONO_DE_CATEGORIA = "icono" as const;
 /* Los productos que un banner puede señalar: el código arma la dirección de la
    ficha y el nombre es lo que el dueño elige. */
 export const COLUMNAS_DESTINO_PRODUCTO = "codigo,nombre" as const;
+
+/* Los tutoriales de «Aprende». La plataforma y el panel leen lo mismo: no hay
+   nada en la fila que un dueño no pueda ver de un video publicado. */
+export const COLUMNAS_TUTORIAL =
+  "id,numero,titulo,descripcion,video,portada,duracion_segundos,publicado" as const;

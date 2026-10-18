@@ -35,6 +35,8 @@ export const PESTANAS_PLATAFORMA = [
   { id: "zonas", titulo: "Zonas", pregunta: "Dónde están tus negocios" },
   /* Fase 12: qué buscó la gente y no encontró, y los sinónimos. */
   { id: "buscador", titulo: "Buscador", pregunta: "Qué busca la gente" },
+  /* Los videos de «Aprende» que ven los dueños en su panel. */
+  { id: "tutoriales", titulo: "Tutoriales", pregunta: "Los videos de Aprende" },
 ] as const;
 
 export type PestanaPlataforma = (typeof PESTANAS_PLATAFORMA)[number]["id"];

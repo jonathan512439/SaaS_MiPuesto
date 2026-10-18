@@ -6,6 +6,7 @@ import {
   type RangoR2,
   claveEnBalde,
   entregarArchivo,
+  guardarEnBalde,
   leerRango,
   tipoDeArchivo,
 } from "./archivos";
@@ -46,6 +47,80 @@ function baldeEnMemoria(archivos: Record<string, Uint8Array<ArrayBuffer>>): Bald
 
 const pedir = (cabeceras: Record<string, string> = {}, metodo = "GET") =>
   new Request("https://mi-puesto.com/api/tutoriales/x", { method: metodo, headers: cabeceras });
+
+/* Lo que hace `FixedLengthStream` en Workers: deja pasar y corta si llega otra
+   cantidad que la declarada. */
+const largoFijo = (largo: number) => {
+  let llegados = 0;
+  return new TransformStream<Uint8Array, Uint8Array>({
+    transform(trozo, controlador) {
+      llegados += trozo.length;
+      if (llegados > largo) throw new Error("llegó de más");
+      controlador.enqueue(trozo);
+    },
+    flush() {
+      if (llegados !== largo) throw new Error("llegó de menos");
+    },
+  });
+};
+
+/* Un cuerpo que llega en trozos chicos, como por la red. */
+const enTrozos = (datos: Uint8Array, tamano = 5) =>
+  new ReadableStream<Uint8Array>({
+    start(controlador) {
+      for (let i = 0; i < datos.length; i += tamano) controlador.enqueue(datos.slice(i, i + tamano));
+      controlador.close();
+    },
+  });
+
+function baldeQueGuarda() {
+  const guardados: Record<string, { datos: Uint8Array; tipo?: string }> = {};
+  const balde: BaldeTutoriales = {
+    async head() {
+      return null;
+    },
+    async get() {
+      return null;
+    },
+    async put(clave, valor, opciones) {
+      const datos = new Uint8Array(await new Response(valor as ReadableStream<Uint8Array>).arrayBuffer());
+      guardados[clave] = { datos, tipo: opciones?.httpMetadata?.contentType };
+      return { size: datos.length, httpEtag: '"x"' };
+    },
+    async delete() {},
+  };
+  return { balde, guardados };
+}
+
+describe("guardarEnBalde", () => {
+  const MP4 = Uint8Array.from([0, 0, 0, 16, ...new TextEncoder().encode("ftypisom"), ...new Array(40).fill(7)]);
+  const esMp4 = (comienzo: Uint8Array) => new TextDecoder().decode(comienzo.subarray(4, 8)) === "ftyp";
+
+  it("guarda el archivo entero aunque llegue en trozos, con su tipo", async () => {
+    const { balde, guardados } = baldeQueGuarda();
+    expect(await guardarEnBalde(balde, VIDEO, enTrozos(MP4), MP4.length, esMp4, largoFijo)).toBe("guardado");
+    expect(guardados[`tutoriales/${VIDEO}`]).toEqual({ datos: MP4, tipo: "video/mp4" });
+  });
+
+  it("no guarda nada si el comienzo no es del formato", async () => {
+    const { balde, guardados } = baldeQueGuarda();
+    const html = new TextEncoder().encode("<html><script>alert(1)</script></html>");
+    expect(await guardarEnBalde(balde, VIDEO, enTrozos(html), html.length, esMp4, largoFijo)).toBe("formato");
+    expect(guardados).toEqual({});
+  });
+
+  it("no guarda nada si llega otra cantidad que la declarada", async () => {
+    const { balde, guardados } = baldeQueGuarda();
+    await expect(guardarEnBalde(balde, VIDEO, enTrozos(MP4), MP4.length + 10, esMp4, largoFijo)).rejects.toThrow();
+    await expect(guardarEnBalde(balde, VIDEO, enTrozos(MP4), MP4.length - 10, esMp4, largoFijo)).rejects.toThrow();
+    expect(guardados).toEqual({});
+  });
+
+  it("no acepta un nombre fuera de forma", async () => {
+    const { balde } = baldeQueGuarda();
+    await expect(guardarEnBalde(balde, "../x.mp4", enTrozos(MP4), MP4.length, esMp4, largoFijo)).rejects.toThrow();
+  });
+});
 
 describe("nombres de archivo", () => {
   it("acepta solo NN-<32 hex>.mp4 o .jpg", () => {
