@@ -64,6 +64,26 @@ export async function POST(solicitud: NextRequest) {
     return NextResponse.json({ error: "El código no es válido." }, { status: 400 });
   }
 
+  /* Borrar es para el código que nunca llegó a un plástico: el de prueba, el
+     creado de más. La política «for all» ya lo cubre, y la pantalla avisa antes
+     que una etiqueta grabada deja de abrir. Se devuelve el código para saber que
+     de verdad había una fila: borrar algo que no existe no es un éxito. */
+  if (datos.accion === "eliminar") {
+    const { data, error } = await supabase
+      .from("etiquetas")
+      .delete()
+      .eq("codigo", codigo)
+      .select("codigo")
+      .maybeSingle();
+    if (error?.code === "42501") {
+      return NextResponse.json({ error: "Tu cuenta no administra la plataforma." }, { status: 403 });
+    }
+    if (error || !data) {
+      return NextResponse.json({ error: "No se pudo eliminar la etiqueta." }, { status: 404 });
+    }
+    return NextResponse.json({ eliminada: data.codigo });
+  }
+
   if (datos.accion !== "asignar" && datos.accion !== "liberar") {
     return NextResponse.json({ error: "La acción no es válida." }, { status: 400 });
   }

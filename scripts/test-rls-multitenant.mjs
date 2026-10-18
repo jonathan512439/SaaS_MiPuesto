@@ -507,6 +507,34 @@ try {
     "un dueño común pudo crearse una etiqueta apuntando a su negocio",
   );
 
+  // Desde que la plataforma puede eliminar etiquetas, la puerta del borrado
+  // también es superficie: un dueño común no tiene que poder dejar sin destino
+  // la etiqueta pegada en la mesa de otro negocio.
+  const codigoAjeno = "ZZZ998";
+  await administrador.from("etiquetas").delete().eq("codigo", codigoAjeno);
+  const { error: errorEtiquetaAjena } = await administrador
+    .from("etiquetas")
+    .insert({ codigo: codigoAjeno, negocio_id: negocios[1].id });
+  comprobar(!errorEtiquetaAjena, "no se pudo preparar la etiqueta de prueba");
+  try {
+    const borradoAjeno = await clienteA
+      .from("etiquetas")
+      .delete()
+      .eq("codigo", codigoAjeno)
+      .select("codigo");
+    const { data: sigue } = await administrador
+      .from("etiquetas")
+      .select("codigo")
+      .eq("codigo", codigoAjeno)
+      .maybeSingle();
+    comprobar(
+      (Boolean(borradoAjeno.error) || (borradoAjeno.data ?? []).length === 0) && Boolean(sigue),
+      "un dueño común pudo eliminar una etiqueta de la plataforma",
+    );
+  } finally {
+    await administrador.from("etiquetas").delete().eq("codigo", codigoAjeno);
+  }
+
   const papeleraAjena = await clienteA
     .from("productos")
     .update({ eliminado_en: new Date().toISOString() })
