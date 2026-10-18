@@ -1,4 +1,4 @@
-# Estado de MiPuesto — 2026-10-14
+# Estado de MiPuesto — 2026-10-18
 
 Cómo está el proyecto hoy, en una pantalla. El detalle y la evidencia de cada
 cosa están en `docs/AVANCE.md`; los controles, en `SECURITY.md`. **Este archivo
@@ -13,8 +13,8 @@ que ya no es cierto.
 | Base de producción | Supabase `afhnxjdqaruwccgsdxzb` (São Paulo) |
 | Base de ensayo | Supabase `hwirzxnoyuuqgbwipiff` — recibe copias de los respaldos; credenciales rotadas el 2026-10-13 |
 | Dominio propio | Ninguno todavía. Será `mi-puesto.com`, con guion |
-| Última migración | `20261108090000` |
-| Pruebas | 1277 en `npm run verificar` |
+| Última migración | `20261110090000` |
+| Pruebas | 1306 en `npm run verificar` |
 
 ## Cómo se despliega
 
@@ -39,6 +39,11 @@ vigilante) los corre el dueño: el agente los prepara y los verifica.
 - Etiquetas QR y NFC (`/t/CODIGO`), panel de plataforma con segundo factor,
   lectura de fotos con Gemini, ajuste masivo de precios todo o nada.
 - Turnstile en `exigir` en pedidos y reservas.
+- **«Aprende»**: videos cortos de cómo usar el panel. Los sube la plataforma
+  (pestaña Tutoriales, con segundo factor) al balde R2 `mipuesto-tutoriales`, y
+  cada dueño ve los publicados en su Panel de administrador. Se entregan por
+  `/api/tutoriales/<archivo>`, por partes. Los videos se producen en
+  `MiPuesto_marketing` (`tutorial/PLAN.md`).
 
 ## Quién vigila qué
 
