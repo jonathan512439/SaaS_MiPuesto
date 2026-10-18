@@ -18,14 +18,20 @@ import { CabeceraSitio } from "../components/sitio/cabecera-sitio";
 import { PieSitio } from "../components/sitio/pie-sitio";
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
 import { RUBROS_PUBLICOS } from "../lib/negocios/rubros-publicos";
-import { CARGA_INICIAL, PLANES, TARJETA_ACRILICO } from "../lib/planes";
+import {
+  CARGA_INICIAL,
+  MOSTRAR_MES_GRATIS,
+  PLANES,
+  TARJETA_ACRILICO,
+  TARJETA_ACRILICO_GRANDE,
+} from "../lib/planes";
 import { qrComoSvg } from "../lib/qr-svg";
 import { DOMINIO_MIPUESTO, obtenerUrlBaseSitio } from "../lib/url-sitio";
 import styles from "./inicio.module.css";
 
 export const metadata: Metadata = {
   title: "MiPuesto, tu catálogo digital por WhatsApp",
-  description: `Catálogo propio para tu negocio, con pedidos que se cierran por WhatsApp. Desde Bs ${PRECIO_MENSUAL_BS} al mes y el primer mes gratis.`,
+  description: `Catálogo propio para tu negocio, con pedidos que se cierran por WhatsApp. Desde Bs ${PRECIO_MENSUAL_BS} al mes${MOSTRAR_MES_GRATIS ? " y el primer mes gratis" : ""}.`,
 };
 
 /* La portada, contada con ejemplos y no con párrafos.
@@ -40,7 +46,17 @@ export const metadata: Metadata = {
  * La de MiPuesto —el teal— queda para el panel y la tarjeta de acrílico, que es
  * una pieza de la marca sobre la mesa de un cliente. */
 
-const GARANTIAS = ["Primer mes gratis", "Sin comisión por venta", "Sin contrato"];
+/* Con el mes gratis apagado (`MOSTRAR_MES_GRATIS`) su lugar lo toma «Pagas mes a
+   mes»: tres garantías y no dos, para que la fila no se vea recortada. */
+const GARANTIAS = [
+  MOSTRAR_MES_GRATIS ? "Primer mes gratis" : "Pagas mes a mes",
+  "Sin comisión por venta",
+  "Sin contrato",
+];
+
+/* La acción principal de la portada, que se repite arriba, en el cierre y en
+   el botón fijo del teléfono. */
+const LLAMADA = MOSTRAR_MES_GRATIS ? "Pruébalo gratis un mes" : "Quiero mi catálogo";
 
 /* Una secuencia de verdad: lo que pasa, en orden, hasta el primer pedido. */
 const PASOS = [
@@ -68,7 +84,7 @@ const PREGUNTAS = [
   },
   {
     pregunta: "¿La tarjeta de acrílico incluye el catálogo?",
-    respuesta: `No. La tarjeta se paga una vez, Bs ${TARJETA_ACRILICO.precioBs} cada una, con diseño, QR y NFC configurados. El catálogo es la suscripción mensual, aparte.`,
+    respuesta: `No. La tarjeta se paga una vez, con diseño, QR y NFC configurados: Bs ${TARJETA_ACRILICO.precioBs} la de mesa y Bs ${TARJETA_ACRILICO_GRANDE.precioBs} la grande. El catálogo es la suscripción mensual, aparte.`,
   },
   /* Los números salen de `lib/planes.ts`, los mismos que aplica la base. */
   {
@@ -102,7 +118,11 @@ const RUBROS_EN_CINTA = RUBROS_PUBLICOS.filter(({ id }) => id !== "otro").map(({
 }));
 
 export default function Inicio() {
-  const enlaceAlta = construirEnlaceContacto("Hola, quiero probar MiPuesto el primer mes gratis.");
+  const enlaceAlta = construirEnlaceContacto(
+    MOSTRAR_MES_GRATIS
+      ? "Hola, quiero probar MiPuesto el primer mes gratis."
+      : "Hola, quiero mi catálogo en MiPuesto.",
+  );
   const enlaceTarjeta = construirEnlaceContacto(
     "Hola, quiero la tarjeta de acrílico con QR y NFC para mi negocio.",
   );
@@ -133,7 +153,7 @@ export default function Inicio() {
               </p>
               <div className={styles.acciones}>
                 <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
-                  Pruébalo gratis un mes
+                  {LLAMADA}
                 </a>
                 <Link className={styles.botonContorno} href="/directorio">
                   Ver negocios reales
@@ -381,7 +401,11 @@ export default function Inicio() {
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
               <h2 id="precio">Precios claros, en bolivianos</h2>
-              <p>El primer mes es gratis en los dos planes. Se paga mes a mes.</p>
+              <p>
+                {MOSTRAR_MES_GRATIS
+                  ? "El primer mes es gratis en los dos planes. Se paga mes a mes."
+                  : "Se paga mes a mes, sin contrato."}
+              </p>
             </div>
 
             <div className={styles.planes}>
@@ -447,11 +471,25 @@ export default function Inicio() {
                     <Icono nombre="nfc" />
                   </span>
                   <div>
-                    <p className={styles.extraNombre}>Tarjeta de acrílico con QR y NFC</p>
+                    <p className={styles.extraNombre}>{TARJETA_ACRILICO.nombre} con QR y NFC</p>
                     <p>Con tu diseño. {TARJETA_ACRILICO.medidas}.</p>
                   </div>
                   <p className={styles.extraPrecio}>
                     Bs {TARJETA_ACRILICO.precioBs}
+                    <span>por tarjeta</span>
+                  </p>
+                  <a href="#tarjeta">Verla</a>
+                </li>
+                <li>
+                  <span className={styles.extraIcono}>
+                    <Icono nombre="nfc" />
+                  </span>
+                  <div>
+                    <p className={styles.extraNombre}>{TARJETA_ACRILICO_GRANDE.nombre} con QR y NFC</p>
+                    <p>En porta-carteles para el mostrador. {TARJETA_ACRILICO_GRANDE.medidas}.</p>
+                  </div>
+                  <p className={styles.extraPrecio}>
+                    Bs {TARJETA_ACRILICO_GRANDE.precioBs}
                     <span>por tarjeta</span>
                   </p>
                   <a href="#tarjeta">Verla</a>
@@ -486,49 +524,113 @@ export default function Inicio() {
                   </span>
                 </li>
               </ul>
-              <div className={styles.tarjetaPrecio}>
-                <p>
-                  <strong>Bs {TARJETA_ACRILICO.precioBs}</strong> cada tarjeta
-                </p>
-                <p>{TARJETA_ACRILICO.medidas}. No incluye el mes del catálogo.</p>
-              </div>
+              {/* Las dos, con su medida al lado del precio: quien tiene poco
+                  mostrador decide por el tamaño antes que por la plata. */}
+              <ul className={styles.tarjetaPrecios}>
+                {[TARJETA_ACRILICO, TARJETA_ACRILICO_GRANDE].map((tarjeta) => (
+                  <li key={tarjeta.nombre}>
+                    <strong>Bs {tarjeta.precioBs}</strong>
+                    <span>
+                      {tarjeta.nombre}
+                      <small>{tarjeta.medidas}</small>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className={styles.tarjetaNota}>Precio por tarjeta. No incluye el mes del catálogo.</p>
               <a className={styles.botonClaro} href={enlaceTarjeta} rel="noreferrer" target="_blank">
                 Quiero mi tarjeta
               </a>
             </div>
 
-            {/* La tarjeta dibujada: un acrílico parado sobre su base, con lo que
-                lleva impreso. Se la describe entera para quien no la ve. */}
-            <figure className={styles.acrilico}>
-              <div className={styles.acrilicoPlaca}>
-                <div className={styles.impreso}>
-                  <p className={styles.impresoNegocio}>Tu negocio</p>
-                  <p className={styles.impresoLlamada}>Mira nuestro catálogo</p>
-                  <div className={styles.impresoQr} dangerouslySetInnerHTML={{ __html: qrDirectorio }} />
-                  <p className={styles.impresoNfc}>
-                    <Icono nombre="nfc" />o acerca tu celular
-                  </p>
-                  <div className={styles.impresoGoogle}>
-                    <Icono nombre="mapa" />
-                    <span>
-                      <span aria-hidden="true" className={styles.estrellas}>
-                        <Icono nombre="estrella" />
-                        <Icono nombre="estrella" />
-                        <Icono nombre="estrella" />
-                        <Icono nombre="estrella" />
-                        <Icono nombre="estrella" />
-                      </span>
-                      Califícanos en Google Maps
-                    </span>
+            {/* Las dos tarjetas dibujadas, una al lado de la otra y a escala: la
+                grande mide 21 cm de alto contra 17,5, y se ve. Se las describe
+                enteras para quien no las ve. */}
+            <figure className={styles.acrilicos}>
+              <div className={styles.parAcrilicos}>
+                <div className={styles.acrilico}>
+                  <div className={styles.acrilicoPlaca}>
+                    <div className={styles.impreso}>
+                      <p className={styles.impresoNegocio}>Tu negocio</p>
+                      <p className={styles.impresoLlamada}>Mira nuestro catálogo</p>
+                      <div className={styles.impresoQr} dangerouslySetInnerHTML={{ __html: qrDirectorio }} />
+                      <p className={styles.impresoNfc}>
+                        <Icono nombre="nfc" />o acerca tu celular
+                      </p>
+                      <div className={styles.impresoGoogle}>
+                        <Icono nombre="mapa" />
+                        <span>
+                          <span aria-hidden="true" className={styles.estrellas}>
+                            <Icono nombre="estrella" />
+                            <Icono nombre="estrella" />
+                            <Icono nombre="estrella" />
+                            <Icono nombre="estrella" />
+                            <Icono nombre="estrella" />
+                          </span>
+                          Califícanos en Google Maps
+                        </span>
+                      </div>
+                      <p className={styles.impresoMarca}>
+                        <Isotipo className={styles.impresoIsotipo} />
+                        MiPuesto
+                      </p>
+                    </div>
                   </div>
-                  <p className={styles.impresoMarca}>
-                    <Isotipo className={styles.impresoIsotipo} />
-                    MiPuesto
+                  <div aria-hidden="true" className={styles.acrilicoBase} />
+                  <p className={styles.acrilicoMedida}>
+                    {TARJETA_ACRILICO.nombre} · {TARJETA_ACRILICO.medidas}
+                  </p>
+                </div>
+
+                {/* La grande, en porta-carteles en L: la placa apenas inclinada hacia
+                    atrás y el pie doblado hacia adelante. Mismo diseño que la de mesa,
+                    ordenado como el cartel que se mira de más lejos: la llamada
+                    arriba y grande, el NFC y el QR al centro, y la marca al pie. */}
+                <div className={styles.acrilicoGrande}>
+                  <div className={styles.acrilicoPlaca}>
+                    <div className={styles.impresoGrande}>
+                      <p className={styles.impresoNegocio}>Tu negocio</p>
+                      <div className={styles.impresoTitulo}>
+                        <span>Abre nuestro</span>
+                        <strong>Catálogo digital</strong>
+                      </div>
+                      <p className={styles.impresoAcerca}>
+                        <Icono nombre="nfc" />
+                        Acerca tu celular aquí
+                      </p>
+                      <div className={styles.impresoCentro}>
+                        <p className={styles.impresoVentaja}>
+                          <Icono nombre="documento" />
+                          Menú actualizado
+                        </p>
+                        <div className={styles.impresoQrGrande}>
+                          <div dangerouslySetInnerHTML={{ __html: qrDirectorio }} />
+                          <span>Escanea el QR</span>
+                        </div>
+                        <p className={styles.impresoVentaja}>
+                          <Icono nombre="telefono" />
+                          Pedido fácil por celular
+                        </p>
+                      </div>
+                      <div className={styles.impresoFranja}>
+                        <span>Catálogo y experiencia digital impulsados por</span>
+                        <strong>
+                          <Isotipo className={styles.impresoIsotipo} />
+                          MiPuesto
+                        </strong>
+                        <span>{DOMINIO_MIPUESTO}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div aria-hidden="true" className={styles.pieEnL} />
+                  <p className={styles.acrilicoMedida}>
+                    {TARJETA_ACRILICO_GRANDE.nombre} · {TARJETA_ACRILICO_GRANDE.medidas}
                   </p>
                 </div>
               </div>
-              <div aria-hidden="true" className={styles.acrilicoBase} />
-              <figcaption>Escanea este QR: abre catálogos de negocios reales.</figcaption>
+              <figcaption>
+                Escanea cualquiera de los dos QR: abren catálogos de negocios reales.
+              </figcaption>
             </figure>
           </div>
         </section>
@@ -554,17 +656,23 @@ export default function Inicio() {
         <section aria-labelledby="cierre" className={styles.cierre}>
           <div className={styles.cierreContenido}>
             <Isotipo className={styles.isotipoCierre} titulo="MiPuesto" />
-            <h2 id="cierre">Tu primer mes corre por nuestra cuenta</h2>
-            <p>Escríbenos y lo armamos juntos. Si no te convence, no pagas nada.</p>
+            <h2 id="cierre">
+              {MOSTRAR_MES_GRATIS ? "Tu primer mes corre por nuestra cuenta" : "Tu catálogo, listo en una tarde"}
+            </h2>
+            <p>
+              {MOSTRAR_MES_GRATIS
+                ? "Escríbenos y lo armamos juntos. Si no te convence, no pagas nada."
+                : "Escríbenos y lo armamos juntos."}
+            </p>
             <a className={styles.botonNoche} href={enlaceAlta} rel="noreferrer" target="_blank">
-              Pruébalo gratis un mes
+              {LLAMADA}
             </a>
           </div>
         </section>
 
         <div className={styles.accionFija}>
           <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
-            Pruébalo gratis un mes
+            {LLAMADA}
           </a>
         </div>
       </main>

@@ -5,7 +5,13 @@ import { construirEnlaceContacto } from "../../../lib/contacto";
    el sistema, así que la página no puede prometer una cifra distinta de la que
    se cumple. Si mañana cambian, cambian en los dos lados a la vez. */
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
-import { CARGA_INICIAL, PLANES, TARJETA_ACRILICO, cupoDelPlan } from "../../../lib/planes";
+import {
+  CARGA_INICIAL,
+  PLANES,
+  TARJETA_ACRILICO,
+  TARJETA_ACRILICO_GRANDE,
+  cupoDelPlan,
+} from "../../../lib/planes";
 import { MAXIMO_ATRIBUTOS } from "../../../lib/catalogo/atributos";
 import { TOPE_ALMACENAMIENTO_BYTES } from "../../../lib/catalogo/almacenamiento";
 import { LIMITE_CATEGORIAS } from "../../../lib/catalogo/validacion";
@@ -55,7 +61,9 @@ export default function PaginaTerminos() {
         <p>
           Aparte, y solo si los pides: la carga del catálogo por nosotros, Bs{" "}
           {CARGA_INICIAL.precioBs} por única vez, y la tarjeta de acrílico con QR y
-          NFC, Bs {TARJETA_ACRILICO.precioBs} por unidad. La tarjeta es un producto
+          NFC, por unidad: Bs {TARJETA_ACRILICO.precioBs} la de mesa (
+          {TARJETA_ACRILICO.medidas}) y Bs {TARJETA_ACRILICO_GRANDE.precioBs} la grande (
+          {TARJETA_ACRILICO_GRANDE.medidas}). La tarjeta es un producto
           físico: incluye su diseño y su configuración, y no incluye ningún mes
           del catálogo.
         </p>

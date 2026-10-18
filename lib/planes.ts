@@ -182,11 +182,31 @@ export const CARGA_INICIAL = {
  * va incluida en el precio.
  *
  * Las medidas se publican porque son lo primero que pregunta quien tiene poco
- * mostrador. */
+ * mostrador. Van ancho × alto, las dos en la misma proporción de cinco por
+ * siete, así el mismo diseño entra en cualquiera de las dos sin rehacerlo. */
 export const TARJETA_ACRILICO = {
-  precioBs: 100,
+  nombre: "Tarjeta de mesa",
+  precioBs: 90,
   medidas: "12,5 × 17,5 cm",
 } as const;
+
+/* La grande, en porta-carteles en L: la placa inclinada y el pie doblado hacia
+   adelante, para el mostrador o la entrada, donde se mira de más lejos. Sumada
+   el 2026-10-18 para la feria de Oruro. */
+export const TARJETA_ACRILICO_GRANDE = {
+  nombre: "Tarjeta grande",
+  precioBs: 120,
+  medidas: "15 × 21 cm",
+} as const;
+
+/* Si la portada anuncia el primer mes gratis.
+ *
+ * Apagado el 2026-10-18 por decisión del dueño, para ofrecer el servicio en la
+ * feria de Oruro sin que el mes gratis esté en la información principal. **Solo
+ * esconde el anuncio**: no cambia ningún cobro ni lo que dicen los términos. Se
+ * vuelve a prender poniendo `true`, y todos los textos que lo nombran vuelven
+ * a la vez. */
+export const MOSTRAR_MES_GRATIS = false;
 
 /* El tope técnico por negocio, que ningún plan puede superar. Está acá para que
    se vea que los cupos de arriba caben dentro de él. */

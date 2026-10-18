@@ -5,6 +5,7 @@ import {
   PLANES,
   PLAN_ANUAL,
   TARJETA_ACRILICO,
+  TARJETA_ACRILICO_GRANDE,
   TOPE_TECNICO_MENSUAL,
   ahorroAnualBs,
   precioAnualSuelto,
@@ -41,9 +42,24 @@ describe("planes", () => {
     expect(PLANES.filter(({ destacado }) => destacado)).toHaveLength(1);
   });
 
-  it("la tarjeta de acrílico tiene precio y medidas", () => {
-    expect(TARJETA_ACRILICO.precioBs).toBeGreaterThan(0);
-    expect(TARJETA_ACRILICO.medidas).toMatch(/cm$/);
+  it("las dos tarjetas de acrílico tienen precio y medidas", () => {
+    for (const tarjeta of [TARJETA_ACRILICO, TARJETA_ACRILICO_GRANDE]) {
+      expect(tarjeta.precioBs).toBeGreaterThan(0);
+      expect(tarjeta.medidas).toMatch(/cm$/);
+    }
+  });
+
+  /* El dibujo de la portada usa una sola proporción para las dos: si alguien
+     cambia una medida y deja de ser cinco por siete, el dibujo miente. */
+  it("las dos tarjetas son de cinco por siete, y la grande es más grande", () => {
+    const medidas = (texto: string) =>
+      texto.replace(" cm", "").split(" × ").map((lado) => Number(lado.replace(",", ".")));
+    const [anchoMesa, altoMesa] = medidas(TARJETA_ACRILICO.medidas);
+    const [anchoGrande, altoGrande] = medidas(TARJETA_ACRILICO_GRANDE.medidas);
+    expect(anchoMesa / altoMesa).toBeCloseTo(5 / 7);
+    expect(anchoGrande / altoGrande).toBeCloseTo(5 / 7);
+    expect(anchoGrande).toBeGreaterThan(anchoMesa);
+    expect(TARJETA_ACRILICO_GRANDE.precioBs).toBeGreaterThan(TARJETA_ACRILICO.precioBs);
   });
 
   it("la carga inicial tiene precio y alcance", () => {
