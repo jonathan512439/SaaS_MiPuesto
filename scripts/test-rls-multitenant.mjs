@@ -712,7 +712,9 @@ try {
   await administrador.from("tutoriales").delete().in("numero", [97, 98]);
   const { error: errorSembrarTutoriales } = await administrador.from("tutoriales").insert([
     { numero: 97, titulo: "Sonda publicada", video: videoSonda, publicado: true },
-    { numero: 98, titulo: "Sonda borrador" },
+    /* Las dos filas con las mismas columnas: en una inserción de varias, PostgREST
+       llena con null lo que falta en alguna, no con el valor por omisión. */
+    { numero: 98, titulo: "Sonda borrador", video: null, publicado: false },
   ]);
   comprobar(!errorSembrarTutoriales, `no se pudieron sembrar los tutoriales: ${errorSembrarTutoriales?.message}`);
   try {
