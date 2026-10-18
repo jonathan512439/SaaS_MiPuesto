@@ -98,6 +98,7 @@
     "test:esquema:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/esquema-aplicado.sql",
     "test:vigilancia-catalogo:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/vigilancia-catalogo.sql",
     "test:archivos:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/revisar-archivos.sql",
+    "test:tutoriales:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/tutoriales.sql",
     "test:fase13:concurrencia": "node --env-file-if-exists=.env.local scripts/test-presentaciones-concurrencia.mjs",
     "test:tareas": "node scripts/check-tareas-programadas.mjs"
   },

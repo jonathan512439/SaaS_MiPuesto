@@ -704,6 +704,37 @@ try {
     .insert({ termino: palabraSonda, equivalentes: ["x"] });
   comprobar(errorSinonimoDueno, "un dueño pudo cargar un sinónimo");
 
+  /* 2026-10-18: los tutoriales de «Aprende» son de la plataforma. Un dueño ve
+     los publicados y nada más, y no los cambia; un visitante anónimo no los
+     ve. Que la plataforma escriba solo con segundo factor lo prueba
+     `npm run test:tutoriales:ensayo`: acá no hay una cuenta de plataforma. */
+  const videoSonda = `97-${"a".repeat(32)}.mp4`;
+  await administrador.from("tutoriales").delete().in("numero", [97, 98]);
+  const { error: errorSembrarTutoriales } = await administrador.from("tutoriales").insert([
+    { numero: 97, titulo: "Sonda publicada", video: videoSonda, publicado: true },
+    { numero: 98, titulo: "Sonda borrador" },
+  ]);
+  comprobar(!errorSembrarTutoriales, `no se pudieron sembrar los tutoriales: ${errorSembrarTutoriales?.message}`);
+  try {
+    const { data: tutorialesVistos } = await clienteA.from("tutoriales").select("numero").in("numero", [97, 98]);
+    comprobar(
+      tutorialesVistos?.length === 1 && tutorialesVistos[0].numero === 97,
+      "un dueño no vio el tutorial publicado, o vio el borrador",
+    );
+    const { error: errorTutorialDueno } = await clienteA.from("tutoriales").insert({ numero: 96, titulo: "Del dueño" });
+    comprobar(errorTutorialDueno, "un dueño pudo crear un tutorial");
+    const { data: tutorialCambiado } = await clienteA
+      .from("tutoriales")
+      .update({ publicado: false })
+      .eq("numero", 97)
+      .select("numero");
+    comprobar(!tutorialCambiado?.length, "un dueño pudo cambiar un tutorial");
+    const { data: tutorialesAnonimo } = await publico.from("tutoriales").select("numero");
+    comprobar(!tutorialesAnonimo?.length, "un visitante anónimo pudo leer los tutoriales");
+  } finally {
+    await administrador.from("tutoriales").delete().in("numero", [96, 97, 98]);
+  }
+
   /* 2026-09-24: el espacio de fotos de un negocio lo ve su dueño y nadie más,
      y las funciones que borran datos de clientes son solo de la plataforma.
      Se llaman con argumentos que no harían nada aunque el permiso estuviera
@@ -729,7 +760,7 @@ try {
   comprobar(errorBorrarViejos, "un dueño pudo correr el borrado de datos de clientes");
 
   console.log(
-    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, el buscador del directorio, el espacio de fotos, el borrado de datos de clientes, y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, el buscador del directorio, el espacio de fotos, el borrado de datos de clientes, los tutoriales, y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([

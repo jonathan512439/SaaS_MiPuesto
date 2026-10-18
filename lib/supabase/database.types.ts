@@ -1140,6 +1140,42 @@ export type Database = {
           },
         ]
       }
+      tutoriales: {
+        Row: {
+          creado_en: string
+          descripcion: string
+          duracion_segundos: number | null
+          id: string
+          numero: number
+          portada: string | null
+          publicado: boolean
+          titulo: string
+          video: string | null
+        }
+        Insert: {
+          creado_en?: string
+          descripcion?: string
+          duracion_segundos?: number | null
+          id?: string
+          numero: number
+          portada?: string | null
+          publicado?: boolean
+          titulo: string
+          video?: string | null
+        }
+        Update: {
+          creado_en?: string
+          descripcion?: string
+          duracion_segundos?: number | null
+          id?: string
+          numero?: number
+          portada?: string | null
+          publicado?: boolean
+          titulo?: string
+          video?: string | null
+        }
+        Relationships: []
+      }
       uso_ia_negocio: {
         Row: {
           cantidad: number
