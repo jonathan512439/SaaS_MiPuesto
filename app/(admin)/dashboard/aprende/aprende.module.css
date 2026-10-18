@@ -1,0 +1,54 @@
+@reference "../../../globals.css";
+
+/* Una columna en el celular; en pantallas anchas, las que entren. */
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--spacing-4);
+}
+
+.tarjeta {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-2);
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+/* Vertical, como se grabaron: 9 de ancho por 16 de alto. El alto se reserva
+   antes de que cargue nada, así la lista no salta al tocar reproducir. */
+.video {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 9 / 16;
+  background: var(--color-fondo-hundido);
+  object-fit: contain;
+}
+
+.texto {
+  display: grid;
+  gap: var(--spacing-1);
+  padding: 0 var(--spacing-3) var(--spacing-3);
+}
+
+.texto h2 {
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.texto p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.numero {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-marca);
+}
+
+.duracion {
+  font-variant-numeric: tabular-nums;
+}

@@ -41,6 +41,8 @@ export const RUTAS_PANEL = {
   importar: "/dashboard/herramientas/importar",
   desdeFoto: "/dashboard/herramientas/desde-foto",
   papelera: "/dashboard/herramientas/papelera",
+  /* Los videos que enseñan a usar el panel. Los sube la plataforma. */
+  aprende: "/dashboard/aprende",
 } as const;
 
 /* A dónde va quien entra al panel sin tener un negocio todavía.

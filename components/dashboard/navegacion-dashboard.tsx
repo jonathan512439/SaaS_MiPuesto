@@ -8,14 +8,14 @@ import styles from "../../app/(admin)/dashboard/dashboard.module.css";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import { BarraDesplazable } from "../ui/barra-desplazable";
 
-/* El ícono acompaña a la palabra, no la reemplaza. Con nueve secciones que se
+/* El ícono acompaña a la palabra, no la reemplaza. Con diez secciones que se
    recorren de reojo, la forma se reconoce antes que el texto y se vuelve a la
    sección de siempre sin leer; sin la palabra al lado, en cambio, habría que
-   aprenderse nueve dibujos. */
+   aprenderse diez dibujos. */
 const ENLACES: ReadonlyArray<{ href: string; etiqueta: string; icono: NombreIcono }> = [
   /* «Resumen» y no «Inicio», decidido con el dueño. «Inicio» dice dónde está la
      pantalla; «Resumen» dice qué hay adentro, que es lo que sirve para elegir
-     entre nueve secciones. */
+     entre diez secciones. */
   { href: RUTAS_PANEL.inicio, etiqueta: "Resumen", icono: "casa" },
   /* «Mi negocio» y «Mi catálogo» con el posesivo, y no «Negocio» y «Catálogo» a
      secas: son las dos pantallas que un dueño nuevo confunde con las de la
@@ -35,11 +35,13 @@ const ENLACES: ReadonlyArray<{ href: string; etiqueta: string; icono: NombreIcon
      barra es el de la frecuencia con que se entra, no el de la importancia. */
   { href: RUTAS_PANEL.herramientas, etiqueta: "Herramientas", icono: "grafico" },
   { href: RUTAS_PANEL.cuenta, etiqueta: "Cuenta", icono: "persona" },
+  /* Al final: se mira al empezar y cuando algo no sale, no todos los días. */
+  { href: RUTAS_PANEL.aprende, etiqueta: "Aprende", icono: "idea" },
 ];
 
 
 /* La barra se desplaza de costado y lleva flechas (`BarraDesplazable`): con
-   nueve secciones no entra entera en un celular ni, junto al logo y la
+   diez secciones no entra entera en un celular ni, junto al logo y la
    cuenta, en un escritorio angosto. */
 export function NavegacionDashboard() {
   const rutaActual = usePathname();
