@@ -12,6 +12,7 @@ import {
   formatearDuracion,
   leerCabeceraMp4,
 } from "../../lib/tutoriales/validacion";
+import { prepararInicioRapido } from "../../lib/tutoriales/inicio-rapido";
 import { AreaTexto, Boton, Campo, useAvisos, useConfirmacion } from "../ui";
 import styles from "./tutoriales-plataforma.module.css";
 
@@ -60,18 +61,38 @@ function subirArchivo(
   });
 }
 
+type Revision =
+  | { archivo: File; duracion: number | null; preparado: boolean }
+  | { error: string };
+
 /* Lo que se puede revisar antes de subir, para no mandar treinta megas que el
-   servidor va a rechazar. El servidor lo vuelve a mirar igual. */
-async function revisarArchivo(tipo: TipoArchivo, archivo: File): Promise<{ duracion: number | null } | { error: string }> {
+   servidor va a rechazar. El servidor lo vuelve a mirar igual.
+
+   Un video con el índice al final —como lo exportan los editores— no se
+   rechaza: se prepara para la web acá mismo (`prepararInicioRapido`) y se sube
+   el preparado. Rechazarlo obligaba a volver a exportar con ffmpeg. */
+async function revisarArchivo(tipo: TipoArchivo, archivo: File): Promise<Revision> {
   const datos = ARCHIVOS[tipo];
   if (archivo.size > datos.tope) return { error: `El archivo pesa más de ${datos.texto}.` };
   const comienzo = new Uint8Array(await archivo.slice(0, tipo === "video" ? BYTES_CABECERA_MP4 : 16).arrayBuffer());
   if (!esFormatoCorrecto(tipo, comienzo)) {
     return { error: tipo === "video" ? "El archivo no es un video MP4." : "La portada tiene que ser una imagen JPG." };
   }
-  if (tipo === "portada") return { duracion: null };
+  if (tipo === "portada") return { archivo, duracion: null, preparado: false };
+
   const cabecera = leerCabeceraMp4(comienzo);
-  return "error" in cabecera ? { error: MENSAJES_MP4[cabecera.error] } : { duracion: cabecera.duracion };
+  if (!("error" in cabecera)) return { archivo, duracion: cabecera.duracion, preparado: false };
+  if (cabecera.error !== "sin-inicio-rapido") return { error: MENSAJES_MP4[cabecera.error] };
+
+  const resultado = prepararInicioRapido(new Uint8Array(await archivo.arrayBuffer()));
+  if (resultado.estado === "no-se-pudo") return { error: MENSAJES_MP4["sin-inicio-rapido"] };
+  const preparada = leerCabeceraMp4(resultado.bytes.subarray(0, BYTES_CABECERA_MP4));
+  if ("error" in preparada) return { error: MENSAJES_MP4[preparada.error] };
+  return {
+    archivo: new File([resultado.bytes as BlobPart], archivo.name, { type: ARCHIVOS.video.tipo }),
+    duracion: preparada.duracion,
+    preparado: true,
+  };
 }
 
 export function TutorialesPlataforma({ tutoriales }: { tutoriales: TutorialPlataforma[] }) {
@@ -150,18 +171,27 @@ export function TutorialesPlataforma({ tutoriales }: { tutoriales: TutorialPlata
   async function alElegirArchivo(archivo: File | undefined) {
     const elegido = destino.current;
     if (!archivo || !elegido) return;
+    /* Ocupado desde ya y no recién al subir: preparar un video de 50 MB tarda
+       unos segundos, y en ese rato no se tiene que poder elegir otro. */
+    setOcupado(elegido.id);
     const revision = await revisarArchivo(elegido.tipo, archivo);
     if ("error" in revision) {
+      setOcupado("");
       mostrarAviso({ titulo: "Ese archivo no sirve", mensaje: revision.error, variante: "error" });
       return;
     }
-    setOcupado(elegido.id);
     setAvance({ ...elegido, fraccion: 0 });
     try {
-      await subirArchivo(elegido.id, elegido.tipo, archivo, revision.duracion, (fraccion) =>
+      await subirArchivo(elegido.id, elegido.tipo, revision.archivo, revision.duracion, (fraccion) =>
         setAvance({ ...elegido, fraccion }),
       );
-      mostrarAviso({ titulo: elegido.tipo === "video" ? "Video subido" : "Portada subida", variante: "exito" });
+      mostrarAviso({
+        titulo: elegido.tipo === "video" ? "Video subido" : "Portada subida",
+        mensaje: revision.preparado
+          ? "Venía con el índice al final, como lo exportan los editores: lo preparamos para que el celular empiece a reproducirlo enseguida."
+          : undefined,
+        variante: "exito",
+      });
       router.refresh();
     } catch (error) {
       avisarError(error);
@@ -177,8 +207,9 @@ export function TutorialesPlataforma({ tutoriales }: { tutoriales: TutorialPlata
         <h2 id="tutoriales">Tutoriales</h2>
         <p>
           Los videos de «Aprende», en el Panel de administrador de cada dueño. Sube el video en MP4
-          de 720×1280 y con inicio rápido (faststart), hasta {ARCHIVOS.video.texto}; la portada, en
-          JPG. Un tutorial se ve recién cuando lo publicas.
+          de 720×1280, hasta {ARCHIVOS.video.texto}, tal como sale del editor: si no viene preparado
+          para la web, lo preparamos al subirlo. La portada va en JPG. Un tutorial se ve recién
+          cuando lo publicas.
         </p>
       </header>
 
