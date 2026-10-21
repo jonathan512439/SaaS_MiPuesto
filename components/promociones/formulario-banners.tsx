@@ -239,7 +239,7 @@ export function FormularioBanners({
                   <small>
                     {subiendo === lugar
                       ? "Subiendo la imagen…"
-                      : `Una imagen acostada, el doble de ancha que de alta (por ejemplo, ${PROPORCION_BANNER.ejemplo}). Si tiene otra forma, se recorta por arriba y por abajo: pon lo importante al centro.`}
+                      : `Una imagen acostada, el doble de ancha que de alta (por ejemplo, ${PROPORCION_BANNER.ejemplo}): así se ve entera, en el celular y en la computadora. Si es más ancha, se cortan los costados; si es más alta, arriba y abajo. Y si le escribes un texto largo encima, en el celular la franja crece un poco hacia abajo y se cortan los costados: deja aire en los bordes.`}
                   </small>
                   {error("imagen") ? <strong className={cartel.error}>{error("imagen")}</strong> : null}
                 </label>
