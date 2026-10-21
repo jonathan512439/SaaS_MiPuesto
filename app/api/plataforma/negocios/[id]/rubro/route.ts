@@ -9,7 +9,7 @@ import {
 import { esRubroId } from "../../../../../../lib/negocios/rubros";
 import { RUBRO_PUBLICO_POR_SIEMBRA } from "../../../../../../lib/negocios/rubros-publicos";
 import { armarSiembra } from "../../../../../../lib/rubros/sembrar";
-import { crearClienteSupabaseServidor } from "../../../../../../lib/supabase/server";
+import { sesionDePlataforma } from "../../../../../../lib/plataforma/sesion-de-plataforma";
 
 /* Cambiar el rubro de un negocio: la única salida para quien se equivocó al
  * registrarse o cambió de giro.
@@ -34,11 +34,9 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const supabase = await crearClienteSupabaseServidor();
-  const { data: datosClaims } = await supabase.auth.getClaims();
-  if (!datosClaims?.claims.sub) {
-    return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
-  }
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
+  const { supabase } = sesion;
 
   if (!esUuid(id)) {
     return NextResponse.json({ error: "El negocio no es válido." }, { status: 400 });

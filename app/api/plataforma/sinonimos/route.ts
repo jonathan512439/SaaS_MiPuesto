@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { leerSinonimo, normalizarPalabra } from "../../../../lib/directorio-sinonimos";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { sesionDePlataforma } from "../../../../lib/plataforma/sesion-de-plataforma";
 
 /* Los sinónimos del buscador, desde la plataforma. Fase 12.
  *
@@ -9,12 +9,6 @@ import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
  * administrador de la plataforma **dentro de Postgres**. Si alguien sin permiso
  * llega hasta acá, la base lo frena y esta ruta lo dice.
  */
-async function sesion() {
-  const supabase = await crearClienteSupabaseServidor();
-  const { data } = await supabase.auth.getClaims();
-  return data?.claims.sub ? supabase : null;
-}
-
 async function leerEntrada(solicitud: NextRequest): Promise<Record<string, unknown> | null> {
   try {
     const datos = (await solicitud.json()) as unknown;
@@ -25,8 +19,9 @@ async function leerEntrada(solicitud: NextRequest): Promise<Record<string, unkno
 }
 
 export async function POST(solicitud: NextRequest) {
-  const supabase = await sesion();
-  if (!supabase) return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
+  const { supabase } = sesion;
   const entrada = await leerEntrada(solicitud);
   if (!entrada) return NextResponse.json({ error: "Los datos no son válidos." }, { status: 400 });
 
@@ -52,8 +47,9 @@ export async function POST(solicitud: NextRequest) {
 }
 
 export async function DELETE(solicitud: NextRequest) {
-  const supabase = await sesion();
-  if (!supabase) return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
+  const { supabase } = sesion;
   const entrada = await leerEntrada(solicitud);
   const termino = normalizarPalabra(String(entrada?.termino ?? ""));
   if (!termino) return NextResponse.json({ error: "Falta la palabra." }, { status: 400 });

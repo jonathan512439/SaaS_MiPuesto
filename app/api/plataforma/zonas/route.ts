@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { esUuid } from "../../../../lib/catalogo/validacion";
 import { estaEnBolivia, redondearPunto } from "../../../../lib/negocios/coordenadas";
 import { esCiudadId } from "../../../../lib/negocios/lugares";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { sesionDePlataforma } from "../../../../lib/plataforma/sesion-de-plataforma";
 
 /* Las zonas de cada ciudad, desde la plataforma. Fase 11.
  *
@@ -28,12 +28,6 @@ function leerZona(entrada: Entrada) {
   return { errores, fila: { nombre, ciudad: String(entrada.ciudad), latitud: punto.lat, longitud: punto.lng } };
 }
 
-async function sesion() {
-  const supabase = await crearClienteSupabaseServidor();
-  const { data } = await supabase.auth.getClaims();
-  return data?.claims.sub ? supabase : null;
-}
-
 async function leerEntrada(solicitud: NextRequest): Promise<Entrada | null> {
   try {
     const datos = (await solicitud.json()) as unknown;
@@ -44,8 +38,9 @@ async function leerEntrada(solicitud: NextRequest): Promise<Entrada | null> {
 }
 
 export async function POST(solicitud: NextRequest) {
-  const supabase = await sesion();
-  if (!supabase) return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
+  const { supabase } = sesion;
   const entrada = await leerEntrada(solicitud);
   if (!entrada) return NextResponse.json({ error: "Los datos no son válidos." }, { status: 400 });
 
@@ -65,8 +60,9 @@ export async function POST(solicitud: NextRequest) {
 }
 
 export async function PATCH(solicitud: NextRequest) {
-  const supabase = await sesion();
-  if (!supabase) return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
+  const { supabase } = sesion;
   const entrada = await leerEntrada(solicitud);
   if (!entrada) return NextResponse.json({ error: "Los datos no son válidos." }, { status: 400 });
 

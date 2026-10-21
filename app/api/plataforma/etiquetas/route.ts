@@ -6,7 +6,7 @@ import {
   generarCodigoEtiqueta,
   normalizarCodigoEtiqueta,
 } from "../../../../lib/plataforma/etiquetas";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { sesionDePlataforma } from "../../../../lib/plataforma/sesion-de-plataforma";
 
 /* La autorización vive en la política de RLS de `etiquetas`, que exige
  * `es_admin_plataforma()`. No se repite acá: una segunda fuente de verdad se
@@ -15,11 +15,9 @@ import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 const INTENTOS_CODIGO = 5;
 
 export async function POST(solicitud: NextRequest) {
-  const supabase = await crearClienteSupabaseServidor();
-  const { data: datosClaims } = await supabase.auth.getClaims();
-  if (!datosClaims?.claims.sub) {
-    return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
-  }
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
+  const { supabase } = sesion;
 
   let entrada: unknown;
   try {

@@ -100,7 +100,8 @@
     "test:archivos:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/revisar-archivos.sql",
     "test:tutoriales:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/tutoriales.sql",
     "test:fase13:concurrencia": "node --env-file-if-exists=.env.local scripts/test-presentaciones-concurrencia.mjs",
-    "test:tareas": "node scripts/check-tareas-programadas.mjs"
+    "test:tareas": "node scripts/check-tareas-programadas.mjs",
+    "test:plataforma-2fa:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/plataforma-segundo-factor.sql"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",

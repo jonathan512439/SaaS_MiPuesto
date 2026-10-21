@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { normalizarPalabra } from "../../../../lib/directorio-sinonimos";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { sesionDePlataforma } from "../../../../lib/plataforma/sesion-de-plataforma";
 
 /* Descartar una búsqueda sin resultado ya atendida. Fase 12.
  *
@@ -10,9 +10,9 @@ import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
  * ciudad», que es una fila más, no «todas».
  */
 export async function DELETE(solicitud: NextRequest) {
-  const supabase = await crearClienteSupabaseServidor();
-  const { data: sesion } = await supabase.auth.getClaims();
-  if (!sesion?.claims.sub) return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
+  const { supabase } = sesion;
 
   let entrada: Record<string, unknown> = {};
   try {

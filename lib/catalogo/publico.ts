@@ -6,7 +6,7 @@ import {
 import { evaluarHorario } from "../horario";
 import { obtenerComportamientoModalidad } from "../modalidades";
 import { leerBanners } from "../negocios/banners";
-import { leerTextoPortada } from "../negocios/texto-sobre-imagen";
+import { enlaceValido, leerTextoPortada } from "../negocios/texto-sobre-imagen";
 import type { DatosPlantilla } from "../plantillas/tipos";
 import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
 import { calcularCantidadDisponible } from "../reservas";
@@ -382,10 +382,12 @@ export function construirCatalogoPublico(
           ? negocio.forma_tarjeta
           : FORMA_TARJETA_POR_OMISION,
         qrPagoUrl: obtenerUrlPublicaImagenNegocio(urlSupabase, negocio.qr_pago_url ?? null, "qr"),
-        ubicacionUrl: negocio.ubicacion_url?.trim() || null,
+        /* Solo https: el dueño puede escribir estas dos columnas con su sesión, sin
+           pasar por la ruta que valida, y el catálogo las publica como enlace. */
+        ubicacionUrl: enlaceValido(negocio.ubicacion_url),
         pideNumeroMesa: negocio.pide_numero_mesa === true,
         topeUnidadesPedido: leerTopeUnidades(negocio.tope_unidades_pedido),
-        resenasUrl: negocio.resenas_url?.trim() || null,
+        resenasUrl: enlaceValido(negocio.resenas_url),
         rubro: negocio.rubro ?? null,
         /* Solo `false` apaga. Un negocio anterior a la columna llega sin el dato
            y no tendria sentido apagarle un fondo que nunca eligio apagar. */

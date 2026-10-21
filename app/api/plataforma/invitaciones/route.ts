@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { crearClienteSupabaseAdmin } from "../../../../lib/supabase/admin";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { sesionDePlataforma } from "../../../../lib/plataforma/sesion-de-plataforma";
 import { obtenerUrlBaseSitio } from "../../../../lib/url-sitio";
 
 const PATRON_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -12,24 +12,17 @@ const PATRON_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * de hacerlo con la sesión del administrador.
  *
  * La diferencia con «el panel corre sobre la clave de servicio» es que acá la
- * clave hace **una** cosa acotada, y solo después de preguntarle a la base si
- * quien pide administra la plataforma. Un fallo de autorización no abre la base:
- * abre la posibilidad de mandar una invitación de más.
+ * clave hace **una** cosa acotada, y solo después de comprobar que quien pide
+ * administra la plataforma **con segundo factor**. Un fallo de autorización no
+ * abre la base: abre la posibilidad de mandar una invitación de más.
+ *
+ * Hasta el 2026-10-21 solo se preguntaba si estaba en la lista: con la
+ * contraseña sola se podía invitar, porque la clave de servicio no pasa por
+ * ninguna política que pida el segundo factor.
  */
 export async function POST(solicitud: NextRequest) {
-  const supabase = await crearClienteSupabaseServidor();
-  const { data: datosClaims } = await supabase.auth.getClaims();
-  if (!datosClaims?.claims.sub) {
-    return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
-  }
-
-  const { data: esAdmin, error: errorAdmin } = await supabase.rpc("es_admin_plataforma");
-  if (errorAdmin || !esAdmin) {
-    return NextResponse.json(
-      { error: "Tu cuenta no administra la plataforma." },
-      { status: 403 },
-    );
-  }
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
 
   let entrada: unknown;
   try {
@@ -77,7 +70,7 @@ export async function POST(solicitud: NextRequest) {
 
   /* La bitácora la escriben solo funciones, nunca la aplicación: así ninguna
      fila puede aparecer sin pasar por un control de quién la escribe. */
-  await supabase.rpc("admin_registrar_invitacion", { p_correo: correo });
+  await sesion.supabase.rpc("admin_registrar_invitacion", { p_correo: correo });
 
   return NextResponse.json({ invitado: correo });
 }

@@ -4,10 +4,15 @@ import { crearClienteSupabaseServidor } from "../supabase/server";
 
 /* La sesión de quien administra la plataforma, **con segundo factor**.
  *
- * Las rutas que solo escriben en la base no lo necesitan: la política de la
- * tabla es la que decide. Este control es para las que además tocan algo que
- * la base no protege —un archivo en R2—, y para devolver un motivo claro en
- * vez de «no se pudo».
+ * La usan todas las rutas de `/api/plataforma`. La base también lo exige
+ * —`es_admin_plataforma_con_2fa()`, desde el 2026-10-21—, así que esto no es la
+ * única barrera: es la que devuelve un motivo claro en vez de «no se pudo», y
+ * la que cuida lo que la base no ve —un archivo en R2, una invitación hecha con
+ * la clave de servicio—.
+ *
+ * Hasta esa fecha las rutas que solo escribían en la base no la usaban, con la
+ * idea de que la política de la tabla decidía; pero las políticas pedían estar
+ * en la lista y no el segundo factor, y con la contraseña sola se podía todo.
  */
 export async function sesionDePlataforma() {
   const supabase = await crearClienteSupabaseServidor();

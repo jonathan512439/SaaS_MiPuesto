@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { esUuid } from "../../../../lib/catalogo/validacion";
-import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
+import { sesionDePlataforma } from "../../../../lib/plataforma/sesion-de-plataforma";
 import { esRubroPublicoId, siembraDeRubroPublico } from "../../../../lib/negocios/rubros-publicos";
 
 /* La autorización no se comprueba acá: la hacen las funciones de la base, que
@@ -18,11 +18,9 @@ function esAccion(valor: unknown): valor is Accion {
 }
 
 export async function POST(solicitud: NextRequest) {
-  const supabase = await crearClienteSupabaseServidor();
-  const { data: datosClaims } = await supabase.auth.getClaims();
-  if (!datosClaims?.claims.sub) {
-    return NextResponse.json({ error: "Sesión no válida." }, { status: 401 });
-  }
+  const sesion = await sesionDePlataforma();
+  if (sesion.rechazo) return sesion.rechazo;
+  const { supabase } = sesion;
 
   let entrada: unknown;
   try {
