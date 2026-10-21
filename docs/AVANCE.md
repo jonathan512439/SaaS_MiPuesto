@@ -1733,6 +1733,25 @@ Lo que **no** se puede reconstruir, y por eso no figura: qué se verificó a man
 en cada cierre y con qué resultado. Esa evidencia se perdió, y es exactamente el
 motivo por el que este archivo existe.
 
+### 2026-10-21
+
+- **Auditoría de seguridad** (`2473e67`, `c62189a`): la plataforma exige el
+  segundo factor también en la base y en cada ruta. Detalle en `SECURITY.md`.
+  Aplicada en producción (esquema `20261111090000`).
+- **Vuelve el banner superior** (`950b8bf`): debajo de las categorías y arriba
+  de los primeros productos; el de la mitad pasa a llamarse inferior y sigue en
+  el lugar 0 de la lista. Con uno solo, la portada se leía como el banner de
+  arriba. Promociones edita los dos en bloques con su nombre, un esquema de
+  dónde va cada uno y la vista previa del catálogo al costado. Migración
+  `20261112090000`, **pendiente de aplicar en producción**.
+- **Logo y portada en Apariencia** (`d35876c`), con el texto de la portada
+  justo debajo; «Mi negocio» se queda con el QR de cobro y el contacto.
+- **Panel lado a lado en escritorio** (`6ce1acf`): desde 64rem los bloques van
+  de a dos (Mi negocio y la agenda desde 80rem); el teléfono no cambia.
+- **El respaldo diario falla desde el 2026-10-18**: `pg_dump` no puede entrar a
+  la base («password authentication failed»). El secreto `SUPABASE_DB_URL` de
+  GitHub quedó con una contraseña vieja. Pendiente del dueño.
+
 ### 2026-10-16
 
 - **La hora del panel en dos toques** (`def2405`), en vez de un desplegable
