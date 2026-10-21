@@ -64,6 +64,27 @@ const GRUPOS = [
       jamon: ["ham", "jamón fiambre embutido"],
       bandeja: ["hand-platter", "bandeja servicio mesa mozo"],
       botella: ["bottle-wine", "botella licor bebida"],
+      /* Sumados el 2026-10-21, al final del grupo: el fondo de los catálogos
+         toma sus íconos del principio, y así ninguno publicado cambia. */
+      dona: ["donut", "dona rosquilla dulce masita"],
+      caramelo: ["candy", "caramelo dulce golosina confite"],
+      chupete: ["lollipop", "chupete chupetín golosina dulce"],
+      cereza: ["cherry", "cereza fruta frutilla"],
+      uva: ["grape", "uva fruta"],
+      platano: ["banana", "plátano banana guineo fruta"],
+      citricos: ["citrus", "limón naranja mandarina cítrico fruta jugo"],
+      frijol: ["bean", "frijol poroto grano legumbre"],
+      camaron: ["shrimp", "camarón marisco ceviche"],
+      "huevo-frito": ["egg-fried", "huevo frito desayuno"],
+      olla: ["cooking-pot", "olla comida casera guiso caldo"],
+      menu: ["utensils-crossed", "menú almuerzo plato del día"],
+      coctel: ["martini", "cóctel trago coctelería licor bar"],
+      "vaso-agua": ["glass-water", "agua jugo vaso bebida natural"],
+      hamburguesa: ["hamburger", "hamburguesa comida rápida"],
+      "copa-helado": ["ice-cream-bowl", "helado copa heladería postre"],
+      "paleta-helada": ["popsicle", "paleta helada chupete de hielo"],
+      pastel: ["cake", "pastel torta cumpleaños pastelería"],
+      postre: ["dessert", "postre flan gelatina dulce"],
     },
   },
   {
@@ -155,6 +176,9 @@ const GRUPOS = [
       aire: ["wind", "aire filtro ventilación"],
       "sin-luz": ["lightbulb-off", "luz apagada falla"],
       estacionamiento: ["circle-parking", "estacionamiento parqueo"],
+      /* Sumados el 2026-10-21, al final del grupo: el fondo de los catálogos
+         toma sus íconos del principio, y así ninguno publicado cambia. */
+      tractor: ["tractor", "tractor agro campo maquinaria"],
     },
   },
   {
@@ -178,6 +202,23 @@ const GRUPOS = [
       flor: ["flower-2", "flor planta vivero"],
       pino: ["tree-pine", "árbol pino planta"],
       brote: ["sprout", "brote semilla planta"],
+      /* Sumados el 2026-10-21, al final del grupo: el fondo de los catálogos
+         toma sus íconos del principio, y así ninguno publicado cambia. */
+      conejo: ["rabbit", "conejo mascota"],
+      tortuga: ["turtle", "tortuga mascota"],
+      huella: ["paw-print", "huella mascota pata"],
+      roedor: ["rat", "hámster ratón cuy roedor mascota"],
+      hospital: ["hospital", "clínica hospital consultorio salud"],
+      cruz: ["cross", "farmacia primeros auxilios cruz salud"],
+      termometro: ["thermometer", "termómetro fiebre temperatura"],
+      curita: ["bandage", "curita venda primeros auxilios"],
+      tabletas: ["tablets", "medicamentos tabletas pastillas farmacia"],
+      cerebro: ["brain", "psicología mente terapia"],
+      ojo: ["eye", "óptica vista ojos oftalmología"],
+      oido: ["ear", "oído audición fonoaudiología"],
+      sonrisa: ["smile", "dentista odontología sonrisa dientes"],
+      microscopio: ["microscope", "laboratorio análisis microscopio"],
+      botiquin: ["briefcase-medical", "botiquín médico emergencia"],
     },
   },
   {
@@ -203,6 +244,77 @@ const GRUPOS = [
       sofa: ["sofa", "sofá mueble living"],
       cama: ["bed", "cama colchón dormitorio"],
       "sin-humo": ["cigarette-off", "libre de humo prohibido fumar"],
+      /* Sumados el 2026-10-21, al final del grupo: el fondo de los catálogos
+         toma sus íconos del principio, y así ninguno publicado cambia. */
+      limpieza: ["brush-cleaning", "limpieza aseo escoba"],
+      jabon: ["soap-dispenser-droplet", "jabón shampoo higiene aseo"],
+      lavadora: ["washing-machine", "lavandería lavadora ropa lavado"],
+      destello: ["sparkle", "brillo belleza uñas maquillaje"],
+      cuidado: ["hand-heart", "cuidado bienestar spa masaje"],
+      "llave-redonda": ["key-round", "cerrajería copia de llaves llave"],
+      arboles: ["trees", "árboles vivero jardinería plantas"],
+    },
+  },
+  {
+    id: "hogar",
+    titulo: "Hogar y electrónica",
+    /* Grupo sumado el 2026-10-21, para los rubros que tenían pocos íconos. */
+    iconos: {
+      tele: ["tv", "televisor tele pantalla"],
+      teclado: ["keyboard", "teclado computación"],
+      raton: ["mouse", "mouse ratón computación"],
+      parlante: ["speaker", "parlante bocina sonido audio"],
+      cargador: ["plug-zap", "cargador enchufe carga celular"],
+      tablet: ["tablet-smartphone", "tablet celulares accesorios"],
+      procesador: ["cpu", "procesador componentes computación"],
+      "disco-duro": ["hard-drive", "disco duro memoria almacenamiento"],
+      router: ["router", "router internet módem red"],
+      sillon: ["armchair", "sillón silla mueble living"],
+      "lampara-escritorio": ["lamp-desk", "lámpara de escritorio velador"],
+      "lampara-pie": ["lamp-floor", "lámpara de pie iluminación"],
+      "cama-doble": ["bed-double", "cama matrimonial colchón dormitorio"],
+      cuadro: ["image", "cuadro marco decoración foto"],
+    },
+  },
+  {
+    id: "libreria",
+    titulo: "Librería, juguetes y fiestas",
+    /* Grupo sumado el 2026-10-21, para los rubros que tenían pocos íconos. */
+    iconos: {
+      lapiz: ["pencil", "lápiz útiles escolares librería"],
+      lapicero: ["pen-line", "lapicero bolígrafo útiles"],
+      cuaderno: ["notebook-pen", "cuaderno útiles escolares"],
+      clip: ["paperclip", "clip oficina útiles"],
+      escuela: ["school", "escuela colegio útiles escolares"],
+      pizarra: ["presentation", "clases cursos pizarra capacitación"],
+      calculadora: ["calculator", "calculadora oficina contabilidad"],
+      rompecabezas: ["puzzle", "rompecabezas juguete didáctico"],
+      dado: ["dice-5", "dado juego de mesa"],
+      fiesta: ["party-popper", "fiesta cotillón cumpleaños"],
+      globo: ["balloon", "globo cotillón fiesta decoración"],
+      formas: ["shapes", "artesanía manualidades figuras"],
+    },
+  },
+  {
+    id: "ocio",
+    titulo: "Deportes, música y viajes",
+    /* Grupo sumado el 2026-10-21, para los rubros que tenían pocos íconos. */
+    iconos: {
+      pesas: ["dumbbell", "gimnasio pesas deporte"],
+      pelota: ["volleyball", "pelota deporte fútbol vóley"],
+      trofeo: ["trophy", "trofeo premio campeonato"],
+      medalla: ["medal", "medalla premio"],
+      carpa: ["tent", "camping carpa aventura"],
+      microfono: ["mic", "micrófono karaoke sonido"],
+      piano: ["piano", "piano teclado instrumento música"],
+      guitarra: ["guitar", "guitarra instrumento música"],
+      tambor: ["drum", "tambor batería percusión"],
+      pelicula: ["film", "película cine video"],
+      bus: ["bus", "bus minibús transporte"],
+      avion: ["plane", "avión viajes pasajes turismo"],
+      barco: ["ship", "barco envíos importación"],
+      palmera: ["tree-palm", "palmera playa tropical"],
+      sol: ["sun", "sol verano día"],
     },
   },
   {
@@ -303,7 +415,7 @@ const terminos = grupos
 
 const archivo = `/* GENERADO por scripts/armar-iconos-catalogo.mjs. No se edita a mano.
 
-   Para agregar uno: sumalo a la lista de ese script y volvé a correrlo con
+   Para agregar uno: súmalo a la lista de ese script y vuelve a correrlo con
    \`npm run iconos:catalogo\`. Los trazos vienen de Lucide (licencia ISC).
 
    Este es el juego que el dueño elige para sus categorías. El de la interfaz
