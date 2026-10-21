@@ -371,7 +371,14 @@
  * apretaría también a los bloques donde el aire está bien. */
 .portada {
   position: relative;
-  aspect-ratio: 16 / 9;
+  /* 16:7 en todas las pantallas, la forma exacta que pide la ayuda del panel.
+     Era 16:9 en el celular, 21:9 en la tableta y 3:1 en la computadora, y una
+     imagen subida tal como decía la ayuda se veía recortada en las tres: el
+     dueño la subió bien y la vio cortada igual. Con una sola forma la imagen se
+     ve entera, tal como la subió. */
+  aspect-ratio: 16 / 7;
+  /* Para medir el alto mínimo del cartel contra el ancho de la portada. */
+  container-type: inline-size;
   overflow: hidden;
   margin-inline: calc(var(--margen-lateral) * -1);
   /* Pegada a la cabecera: se descuenta el `gap` entero del catálogo. Las dos son
@@ -388,12 +395,12 @@
   box-shadow: var(--catalogo-sombra-flotante);
 }
 
-/* En pantalla ancha, 16:9 deja una portada de media pantalla de alto y empuja
-   los productos abajo del pliegue. Más apaisada ocupa lo que tiene que ocupar. */
-@media (min-width: 48rem) {
-  .portada {
-    aspect-ratio: 21 / 9;
-  }
+/* Con cartel encima, la portada toma el alto del cartel si este no entra: en un
+   celular de 360 de ancho la franja mide 157 de alto, y un título con bajada y
+   botón no cabe. Crece hacia abajo, como el banner, y solo entonces la foto
+   pierde un poco de los costados; un cartel corto la deja en 16:7. */
+.portada:has(> .hero) {
+  aspect-ratio: auto;
 }
 
 .portadaImagen {
@@ -411,9 +418,9 @@
  * Solo existe si el dueño escribió algo: sin texto no se dibuja, y con eso la
  * foto va sin cortina. */
 .hero {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 1;
+  min-height: calc(100cqw * 7 / 16);
   align-content: center;
 }
 
@@ -1186,11 +1193,9 @@
     overflow: visible;
   }
 
-  /* La portada entra en la columna, con sus esquinas, y más apaisada: a lo
-     ancho de un monitor medía seiscientos píxeles de alto y recortaba la foto
-     por arriba y por abajo. */
+  /* La portada entra en la columna, con sus esquinas: a lo ancho de un monitor
+     medía seiscientos píxeles de alto. En la columna, a 16:7, son unos 500. */
   .catalogo:not([data-marco="telefono"] *) > .portada {
-    aspect-ratio: 3 / 1;
     margin: 0;
     border-radius: var(--radius-panel);
   }

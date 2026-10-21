@@ -17,14 +17,16 @@ import { PROPORCION_BANNER } from "./negocios/banners";
  * certera posible»—: una portada armada sin saberlo salía con el texto cortado
  * por los costados en el celular. Y, pedido el mismo día, la forma con su
  * número («16:7», «1:1») y el tamaño ideal y el mínimo, como instructivo: el
- * número es lo que se escribe en un editor de imágenes.
+ * número es lo que se escribe en un editor de imágenes. Ese mismo día la
+ * portada pasó a medir 16:7 en todas las pantallas: el dueño la subió tal como
+ * decía la ayuda y la vio cortada igual, porque la caja cambiaba de forma.
  */
 
 /* Cómo muestra el catálogo cada imagen: ancho dividido alto de su caja. Todas
    se recortan al centro para llenarla (`object-fit: cover`), salvo el QR de
    cobro y la ficha del producto, que se ven enteros. */
 export const FORMAS_DE_IMAGEN = {
-  portada: { telefono: 16 / 9, tableta: 21 / 9, computadora: 3 / 1 },
+  portada: 16 / 7,
   tarjeta: { cuadricula: 4 / 3, fila: 1 / 1, vitrina: 3 / 4 },
 } as const;
 
@@ -41,9 +43,9 @@ type Medidas = {
 
 /* Qué subir de cada imagen. Más grande que el ideal no molesta: la subida la
    achica sola, sin cortarla, a `LADO_MAXIMO_IMAGEN` por lado. Más chica que el
-   mínimo se ve borrosa. La portada va a mitad de camino entre la forma del
-   celular y la de la computadora (16:7), y el banner tiene la forma exacta de
-   su franja, que vive en `PROPORCION_BANNER`. */
+   mínimo se ve borrosa. La portada y el banner se piden con la forma exacta de
+   su caja: la de la portada es `FORMAS_DE_IMAGEN.portada` y la del banner vive
+   en `PROPORCION_BANNER`. */
 export const MEDIDAS_DE_IMAGEN = {
   portada: { forma: [16, 7], nombre: "acostada", ideal: [1600, 700], minimo: [1200, 525] },
   logo: { forma: [1, 1], nombre: "cuadrada", ideal: [500, 500], minimo: [200, 200] },
@@ -70,7 +72,7 @@ const { portada, logo, banner, producto, qr } = MEDIDAS_DE_IMAGEN;
 const { cuadricula, fila, vitrina } = FORMAS_DE_IMAGEN.tarjeta;
 const comoForma = (valor: number) => (valor === 4 / 3 ? "4:3" : valor === 3 / 4 ? "3:4" : valor === 1 ? "1:1" : String(valor));
 
-export const AYUDA_PORTADA = `${instructivoDeImagen(portada)} En el celular se cortan los costados y en la computadora, arriba y abajo: pon lo importante al centro y deja libre un octavo en cada borde. Si quieres un texto encima, escríbelo en «Texto sobre tu portada»: ese no se corta nunca.`;
+export const AYUDA_PORTADA = `${instructivoDeImagen(portada)} Con esa forma se ve entera, en el celular y en la computadora. Si es más ancha, se cortan los costados; si es más alta, arriba y abajo. Si quieres un texto encima, escríbelo en «Texto sobre tu portada», no en la imagen: ese se lee siempre. Y si es largo, en el celular la portada crece un poco hacia abajo: deja aire en los bordes.`;
 
 export const AYUDA_LOGO = `Cuadrada. ${instructivoDeImagen(logo)} Si no es cuadrada, se corta al centro. Se muestra chica, del tamaño de una moneda: si tiene letras finas no se van a leer.`;
 

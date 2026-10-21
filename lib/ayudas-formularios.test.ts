@@ -43,23 +43,19 @@ describe("ayudas de los formularios", () => {
      ayuda no, el dueño arma su imagen para una caja que ya no existe. */
   it("las formas anotadas son las que usa el catálogo", () => {
     const { portada, tarjeta } = FORMAS_DE_IMAGEN;
-    expect(formaEnElCss(/\.portada/)).toEqual(
-      expect.arrayContaining([portada.telefono, portada.tableta, portada.computadora]),
-    );
+    expect(formaEnElCss(/\.portada/)).toEqual([portada]);
     expect(formaEnElCss(/\.tarjetaFoto/)).toContain(tarjeta.cuadricula);
     expect(formaEnElCss(/\.tarjeta\[data-forma="fila"\] \.tarjetaFoto,\s*\.tarjeta\[data-forma="fila"\] \.sinFoto/)).toContain(tarjeta.fila);
     expect(formaEnElCss(/\.tarjeta\[data-forma="vitrina"\]/)).toContain(tarjeta.vitrina);
   });
 
-  /* La forma de la portada va a mitad de camino entre la del celular y la de
-     la computadora: así las dos recortan lo mismo. Si una de las dos cambia, la
-     forma tiene que moverse con ellas. */
-  it("la portada recorta parejo en el celular y en la computadora", () => {
+  /* La portada tiene una sola forma en todas las pantallas, y es la que pide la
+     ayuda. Cambiaba de forma según la pantalla, y una imagen subida tal como
+     decía la ayuda se veía cortada igual: el dueño lo vio el 2026-10-21. */
+  it("la portada se pide con la forma exacta de su caja", () => {
     const [ancho, alto] = MEDIDAS_DE_IMAGEN.portada.forma;
-    const { telefono, computadora } = FORMAS_DE_IMAGEN.portada;
-    expect(ancho / alto).toBeCloseTo(Math.sqrt(telefono * computadora), 1);
-    expect(AYUDA_PORTADA).toMatch(/celular se cortan los costados/);
-    expect(AYUDA_PORTADA).toMatch(/computadora, arriba y abajo/);
+    expect(ancho / alto).toBe(FORMAS_DE_IMAGEN.portada);
+    expect(AYUDA_PORTADA).toMatch(/se ve entera, en el celular y en la computadora/);
   });
 
   /* Un tamaño de ejemplo con otra forma que la anunciada es justo el error que

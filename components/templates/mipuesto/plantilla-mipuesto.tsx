@@ -218,7 +218,7 @@ export function PlantillaMipuesto({
             fetchPriority="high"
             fill
             preload
-            sizes="(min-width: 60rem) 800px, 100vw"
+            sizes="(min-width: 64rem) 1152px, 100vw"
             src={negocio.portadaUrl}
           />
           <TextoSobreImagen className={styles.hero} texto={negocio.portadaTexto} />

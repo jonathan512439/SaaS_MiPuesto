@@ -1,3 +1,5 @@
+import { LADO_MAXIMO_IMAGEN } from "../imagenes";
+
 /* Anchos y calidad elegidos midiendo, no estimando. La portada del catálogo se
  * servía cruda —106 KB, y es la primera imagen que pide el navegador— porque
  * este constructor devolvía la ruta tal cual mientras las fotos de producto sí
@@ -11,16 +13,21 @@
  *   800 px, calidad 70       71.752 b
  *   800 px, calidad 60       61.261 b
  *
- * Se toma 800 px, que es lo que declara `sizes` en las plantillas, con calidad
- * 70: por debajo de eso el ahorro se paga con una portada visiblemente sucia
- * detrás del nombre del negocio.
+ * Se tomó 800 px con calidad 70: por debajo de esa calidad el ahorro se paga
+ * con una portada visiblemente sucia detrás del nombre del negocio.
+ *
+ * **La portada y el banner se piden ahora a 1200**, el lado más largo que se
+ * guarda (`LADO_MAXIMO_IMAGEN`). A 800 se veían borrosos en la computadora,
+ * donde la columna del catálogo mide 1152 de ancho y el navegador estiraba la
+ * imagen casi al doble; el dueño lo vio el 2026-10-21. Pesa más, pero es una
+ * sola imagen, y una portada borrosa no se arregla con nada que haga el dueño.
  */
-export const ANCHO_PORTADA = 800;
+export const ANCHO_PORTADA = LADO_MAXIMO_IMAGEN;
 export const ANCHO_LOGO = 192;
 export const ANCHO_QR = 640;
 /* El banner ocupa el ancho del catálogo, igual que la portada, así que se sirve
-   con la misma medida y por el mismo motivo: es lo que declara su `sizes`. */
-export const ANCHO_BANNER = 800;
+   con la misma medida y por el mismo motivo. */
+export const ANCHO_BANNER = LADO_MAXIMO_IMAGEN;
 const CALIDAD = 70;
 
 export type RolImagenNegocio = "portada" | "logo" | "qr" | "banner" | "original";

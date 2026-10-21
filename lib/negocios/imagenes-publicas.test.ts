@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import { LADO_MAXIMO_IMAGEN } from "../imagenes";
 import {
+  ANCHO_BANNER,
   ANCHO_LOGO,
   ANCHO_PORTADA,
   obtenerUrlPublicaImagenNegocio,
@@ -16,9 +18,11 @@ describe("imágenes públicas del negocio", () => {
   });
 
   /* El transformador devuelve JPEG, así que un ancho de más engorda el archivo
-     en vez de aliviarlo: la portada tiene que pedirse al tamaño que se muestra. */
-  it("no pide la portada más grande de lo que se muestra", () => {
-    expect(ANCHO_PORTADA).toBeLessThanOrEqual(800);
+     sin ganar nada: nunca más grande de lo que se guarda. Y no menos que eso:
+     a 800 la portada se veía borrosa en la columna de 1152 de la computadora. */
+  it("pide la portada y el banner al tamaño en que se guardan, ni más ni menos", () => {
+    expect(ANCHO_PORTADA).toBe(LADO_MAXIMO_IMAGEN);
+    expect(ANCHO_BANNER).toBe(LADO_MAXIMO_IMAGEN);
   });
 
   it("pide el logotipo mucho más chico que la portada", () => {
