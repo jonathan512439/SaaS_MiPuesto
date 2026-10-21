@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 
+import { bannerDelLugar } from "../../../lib/negocios/banners";
 import { tieneAlgoEncima } from "../../../lib/negocios/texto-sobre-imagen";
 import { iconosDePatron } from "../../../lib/patrones-fondo";
 import { armarSecciones, posicionDelAnuncio } from "../../../lib/plantillas/secciones";
@@ -287,6 +288,16 @@ export function PlantillaMipuesto({
       {/* 5 · Franja de horario. Se dibuja sola solo cuando hay algo que decir. */}
       <AvisoHorario estado={negocio.atencion} />
 
+      {/* 5 bis · El banner superior: debajo de las categorías y arriba de los
+          primeros productos, que es donde lo pidió el dueño. Mientras el cliente
+          busca algo no se dibuja: lo que quiere ver ahí son los resultados. */}
+      {navegacion?.busqueda ? null : (
+        <BannerCatalogo
+          banner={bannerDelLugar(negocio.banners, "superior")}
+          className={styles.anuncioSuperior}
+        />
+      )}
+
       {navegacion ? (
         <p aria-live="polite" className={styles.conteo}>
           {navegacion.totalProductos === 1
@@ -363,7 +374,7 @@ export function PlantillaMipuesto({
             </section>
 
             {posicion === posicionAnuncio ? (
-              <BannerCatalogo banner={negocio.banners[0]} className={styles.anuncio} />
+              <BannerCatalogo banner={bannerDelLugar(negocio.banners, "inferior")} className={styles.anuncio} />
             ) : null}
           </Fragment>
         ))}

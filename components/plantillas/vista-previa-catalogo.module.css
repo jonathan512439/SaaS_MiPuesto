@@ -1,0 +1,49 @@
+@reference "../../app/globals.css";
+
+/* La vista previa del catálogo en el panel. Las reglas salieron del selector
+   de Apariencia, donde vivía, sin cambios: lo nuevo es que ahora también la usa
+   Promociones. */
+.vista {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-4);
+  min-width: 0;
+}
+
+.vista > header {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.vista > header > span {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.marco {
+  min-width: 0;
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  background: var(--color-fondo-suave);
+  box-shadow: var(--sombra-panel);
+}
+
+/* Fija al costado en escritorio, con su propio desplazamiento: el catálogo
+   entero es más alto que la pantalla, y sin esto la parte de abajo —donde va
+   el banner inferior— quedaría fuera de alcance mientras está fija. Arranca
+   debajo de la barra del panel, que también es fija. */
+@media (min-width: 64rem) {
+  .fija {
+    position: sticky;
+    top: var(--alto-barra-panel);
+    max-height: calc(100dvh - var(--alto-barra-panel) - var(--spacing-4));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: var(--spacing-2);
+  }
+}

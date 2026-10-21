@@ -23,6 +23,9 @@ type DatosNegocioDemo = {
      dueño escribe su texto; sin ellos, la muestra no tendría portada y el
      texto no se vería en ninguna parte. */
   portadaUrl?: string | null;
+  /* El logo de verdad, para que la vista previa del panel lo muestre apenas
+     se sube, sin esperar a abrir el catálogo. */
+  logoUrl?: string | null;
   portadaTexto?: TextoSobreImagen;
   /* La forma guardada, para que la vista previa de Apariencia arranque en la
      que el negocio tiene y no en la de omisión. */
@@ -39,6 +42,7 @@ export function crearDatosDemoPlantilla({
   patronOpacidad = OPACIDAD_PATRON_PREDETERMINADA,
   subnombre = null,
   portadaUrl = null,
+  logoUrl = null,
   portadaTexto = SIN_TEXTO,
   formaTarjeta = FORMA_TARJETA_POR_OMISION,
 }: DatosNegocioDemo): DatosPlantilla {
@@ -55,7 +59,7 @@ export function crearDatosDemoPlantilla({
       modalidad: modalidad.accion,
       descripcionModalidad: modalidad.descripcion,
       atencion: evaluarHorario({ modo: "siempre_abierto", dias: {} }),
-      logoUrl: null,
+      logoUrl,
       portadaUrl,
       portadaTexto,
       formaTarjeta,

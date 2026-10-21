@@ -1073,7 +1073,8 @@
 /* El anuncio intercalado entre categorías. Va con más aire arriba y abajo que
    una sección cualquiera: si se pega a los productos parece una categoría más
    y deja de leerse como lo que es, un espacio publicitario. */
-.anuncio {
+.anuncio,
+.anuncioSuperior {
   margin-block: var(--spacing-3);
 }
 
@@ -1201,7 +1202,8 @@
   /* El banner conserva su 2:1 —es la forma que el dueño preparó—, pero no a lo
      ancho de toda la columna: seiscientos píxeles de alto de publicidad cortan
      el catálogo en dos. */
-  .catalogo:not([data-marco="telefono"] *) .anuncio {
+  .catalogo:not([data-marco="telefono"] *) .anuncio,
+  .catalogo:not([data-marco="telefono"] *) .anuncioSuperior {
     justify-self: center;
     max-width: 52rem;
   }

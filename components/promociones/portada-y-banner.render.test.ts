@@ -6,6 +6,7 @@ import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
 import type { ContextoDestino } from "../../lib/negocios/destino-banner";
+import { armarVistaPrevia } from "../../lib/plantillas/vista-previa-del-negocio";
 import { FormularioPortada } from "../negocios/formulario-portada";
 import { ProveedorAvisos } from "../ui";
 import { FormularioBanners } from "./formulario-banners";
@@ -46,34 +47,71 @@ describe("el texto de la portada, en Apariencia", () => {
   });
 });
 
-describe("el banner, en Promociones", () => {
-  it("se dibuja en cuatro pasos con su vista previa", () => {
-    const html = conAvisos(
-      jsx(FormularioBanners, {
-        bannersIniciales: [
-          {
-            imagen: "neg/banner/a.webp",
-            alt: "Collares con descuento",
-            eyebrow: null,
-            titulo: "20 % en collares",
-            copy: null,
-            boton: "Quiero el mío",
-            enlace: "https://wa.me/59171234567",
-          },
-        ],
-        destinos: DESTINOS,
-        paleta: "mercado",
-        urlPorRuta: { "neg/banner/a.webp": "https://prueba.supabase.co/a.webp" },
-      }),
-    );
-    for (const paso of ["1 · La imagen", "2 · ¿Qué muestra la imagen?", "3 · Texto encima y botón", "4 · Así se ve en tu catálogo"]) {
+/* Desde el 2026-10-21 son dos, cada uno en su bloque con su nombre: el
+   superior primero, como en el catálogo, aunque se guarde en el lugar 1. */
+describe("los dos banners, en Promociones", () => {
+  const banner = (alt: string, titulo: string, imagen: string) => ({
+    imagen,
+    alt,
+    eyebrow: null,
+    titulo,
+    copy: null,
+    boton: "Quiero el mío",
+    enlace: "https://wa.me/59171234567",
+  });
+  const vista = armarVistaPrevia(
+    {
+      slug: "negocio-prueba",
+      nombre: "Negocio de prueba",
+      descripcion: null,
+      telefono_whatsapp: "71234567",
+      tipo_negocio: "tienda_virtual",
+      paleta_id: "mercado",
+      rubro: null,
+      patron_fondo: true,
+      patron_opacidad: null,
+      subnombre: null,
+      banners: [
+        banner("Aviso del feriado", "Cerramos el lunes", "neg/banner/inferior.webp"),
+        banner("Collares con descuento", "20 % en collares", "neg/banner/superior.webp"),
+      ],
+      logo_url: null,
+      portada_url: null,
+      portada_texto: null,
+      forma_tarjeta: null,
+    },
+    "https://prueba.supabase.co",
+  );
+
+  it("se dibujan en dos bloques con su nombre, el superior primero", () => {
+    const html = conAvisos(jsx(FormularioBanners, { destinos: DESTINOS, vista }));
+    const superior = html.indexOf("Banner superior</legend>");
+    const inferior = html.indexOf("Banner inferior</legend>");
+    expect(superior).toBeGreaterThan(-1);
+    expect(inferior).toBeGreaterThan(superior);
+    expect(html).toContain("Debajo de las categorías, arriba de tus primeros productos.");
+    expect(html).toContain("A la mitad del catálogo, entre dos categorías.");
+    /* Cada bloque con lo que tiene guardado su lugar, no el del otro. */
+    expect(html.indexOf('value="Collares con descuento"')).toBeGreaterThan(superior);
+    expect(html.indexOf('value="Collares con descuento"')).toBeLessThan(inferior);
+    expect(html.indexOf('value="Aviso del feriado"')).toBeGreaterThan(inferior);
+    for (const paso of ["1 · La imagen", "2 · ¿Qué muestra la imagen?", "3 · Texto encima y botón", "4 · Así se ve"]) {
       expect(html).toContain(paso);
     }
-    expect(html).toContain('value="Collares con descuento"');
-    /* La vista previa es el banner de verdad, con el mensaje de la promoción. */
-    expect(html).toContain("20 % en collares");
-    expect(html).toMatch(/href="https:\/\/wa\.me\/59171234567\?text=/);
+    expect(html).toContain('id="banner-imagen-superior"');
+    expect(html).toContain('id="banner-imagen-inferior"');
+    expect(html).toContain('href="https://wa.me/59171234567?text=');
     expect(html).toContain("A un producto de mi catálogo");
+  });
+
+  it("llevan al costado el catálogo entero con los dos banners", () => {
+    const html = conAvisos(jsx(FormularioBanners, { destinos: DESTINOS, vista }));
+    expect(html).toContain("Así se ve tu catálogo");
+    expect(html).toContain("Dónde va cada banner en tu catálogo");
+    /* Cada texto sale dos veces: en la muestra chica de su bloque y en el
+       catálogo entero. */
+    expect(html.split("20 % en collares").length - 1).toBeGreaterThanOrEqual(2);
+    expect(html.split("Cerramos el lunes").length - 1).toBeGreaterThanOrEqual(2);
   });
 });
 

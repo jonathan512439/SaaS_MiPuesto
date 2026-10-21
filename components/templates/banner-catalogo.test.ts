@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { MAXIMO_BANNERS } from "../../lib/negocios/banners";
+import { LUGAR_BANNER, MAXIMO_BANNERS } from "../../lib/negocios/banners";
 
 /* Que el modelo admita un banner y la plantilla no lo dibuje es una falla que no
    atrapa nadie: no la ve el compilador, no la ve el lint, y el dueño se entera
@@ -18,21 +18,21 @@ describe("los banners del catálogo", () => {
     "utf8",
   );
 
-  it("la plantilla dibuja todos los que el modelo admite", () => {
-    for (let posicion = 0; posicion < MAXIMO_BANNERS; posicion += 1) {
-      /* Se busca el par posición-prop y no la línea entera: el del medio lleva
-         además una clase propia, y una prueba que exige el texto literal falla
-         por agregarle una prop, sin que nada haya dejado de funcionar. */
-      expect(fuente, `no dibuja el banner ${posicion}`).toContain(
-        `banner={negocio.banners[${posicion}]}`,
+  /* Por nombre de lugar y no por posición: el superior está en el 1 y el
+     inferior en el 0 (ver `LUGAR_BANNER`), y un índice escrito a mano es
+     exactamente como se confunden. */
+  it("la plantilla dibuja todos los lugares que el modelo admite, por su nombre", () => {
+    expect(Object.keys(LUGAR_BANNER)).toHaveLength(MAXIMO_BANNERS);
+    for (const lugar of Object.keys(LUGAR_BANNER)) {
+      expect(fuente, `no dibuja el banner ${lugar}`).toContain(
+        `banner={bannerDelLugar(negocio.banners, "${lugar}")}`,
       );
     }
   });
 
-  /* Y ninguno de más: leer una posición que el modelo no llena deja una pieza
-     que nunca recibe nada, y con ella la duda de si el banner no se ve porque
-     está mal cargado o porque esa ranura no existe. */
-  it("no lee posiciones que el modelo no llena", () => {
-    expect(fuente).not.toContain(`negocio.banners[${MAXIMO_BANNERS}]`);
+  /* Y nunca por índice: leer una posición a mano deja la duda de si el banner
+     no se ve porque está mal cargado o porque esa ranura no es la que se cree. */
+  it("no lee los banners por índice", () => {
+    expect(fuente).not.toContain("negocio.banners[");
   });
 });

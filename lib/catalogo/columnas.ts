@@ -81,3 +81,8 @@ export const COLUMNAS_DESTINO_PRODUCTO = "codigo,nombre" as const;
    nada en la fila que un dueño no pueda ver de un video publicado. */
 export const COLUMNAS_TUTORIAL =
   "id,numero,titulo,descripcion,video,portada,duracion_segundos,publicado" as const;
+
+/* Lo que necesita la vista previa del catálogo en el panel —Apariencia y
+   Promociones—: cómo se ve el negocio, sus imágenes y sus banners. */
+export const COLUMNAS_VISTA_PREVIA_NEGOCIO =
+  "id,slug,nombre,descripcion,telefono_whatsapp,tipo_negocio,paleta_id,rubro,patron_fondo,patron_opacidad,subnombre,ubicacion_url,banners,logo_url,portada_url,portada_texto,forma_tarjeta" as const;

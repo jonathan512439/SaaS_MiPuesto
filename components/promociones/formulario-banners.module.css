@@ -1,0 +1,75 @@
+@reference "../../app/globals.css";
+
+/* Los dos banners en escritorio: los bloques a la izquierda y el catálogo
+ * fijo a la derecha. En el teléfono, una columna: los bloques y después la
+ * vista previa, como el resto de las pantallas. */
+.banners {
+  display: grid;
+  gap: var(--spacing-6);
+  min-width: 0;
+}
+
+.formulario {
+  min-width: 0;
+}
+
+/* El catálogo de arriba abajo en una tira de renglones, con los dos lugares
+   de banner resaltados: dice dónde va cada uno antes de leer los bloques. El
+   resaltado lleva borde y negrita además del color, que nunca va solo. */
+.esquema {
+  display: grid;
+  gap: var(--spacing-1);
+  max-width: 24rem;
+  margin: var(--spacing-2) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: lugar;
+}
+
+.esquema li {
+  border: var(--borde-fino) dashed var(--color-borde-suave);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-3);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.esquema .esquemaBanner {
+  border: var(--borde-marcado) solid var(--color-marca);
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+}
+
+/* Cada lugar es un bloque con su nombre bien a la vista: con un solo nombre,
+   «el banner», no se sabía cuál se estaba tocando. */
+fieldset.lugar {
+  border-left: var(--borde-marcado) solid var(--color-marca);
+}
+
+.lugar > .titulo {
+  padding: 0 var(--spacing-2);
+  color: var(--color-marca-fuerte);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 800;
+}
+
+.donde {
+  margin: 0;
+  max-width: var(--ancho-lectura);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.donde strong {
+  color: var(--color-texto);
+}
+
+@media (min-width: 64rem) {
+  .banners {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--spacing-8);
+  }
+}

@@ -5,7 +5,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   ESPERA_ANTES_DE_BORRAR_MS,
+  LUGAR_BANNER,
   MAXIMO_BANNERS,
+  bannerDelLugar,
   PROPORCION_BANNER,
   bannersSinGuardar,
   leerBanners,
@@ -32,6 +34,8 @@ describe("leerBanners", () => {
         boton: null,
         enlace: bueno.enlace,
       },
+      /* El lugar del superior, vacío: la lista siempre trae los dos. */
+      null,
     ]);
   });
 
@@ -69,18 +73,18 @@ describe("leerBanners", () => {
      Lo que se descarta deja su lugar **vacío**: el arreglo tiene siempre la
      misma cantidad de lugares y el hueco es parte de la respuesta. */
   it("descarta el que no tiene imagen o no tiene texto alternativo", () => {
-    expect(leerBanners([{ alt: "Sin imagen" }])).toEqual([null]);
-    expect(leerBanners([{ imagen: bueno.imagen }])).toEqual([null]);
-    expect(leerBanners([{ imagen: bueno.imagen, alt: "   " }])).toEqual([null]);
+    expect(leerBanners([{ alt: "Sin imagen" }])).toEqual([null, null]);
+    expect(leerBanners([{ imagen: bueno.imagen }])).toEqual([null, null]);
+    expect(leerBanners([{ imagen: bueno.imagen, alt: "   " }])).toEqual([null, null]);
   });
 
   /* La ruta se descarta si podría salirse del depósito. Que además sea de este
      negocio lo comprueba el servidor, que es donde se sabe cuál es. */
   it("descarta rutas que podrían salirse del depósito", () => {
-    expect(leerBanners([{ ...bueno, imagen: "../otro-negocio/banner/x.webp" }])).toEqual([null]);
-    expect(leerBanners([{ ...bueno, imagen: "/etc/passwd" }])).toEqual([null]);
-    expect(leerBanners([{ ...bueno, imagen: "carpeta\\archivo.webp" }])).toEqual([null]);
-    expect(leerBanners([{ ...bueno, imagen: "x".repeat(400) }])).toEqual([null]);
+    expect(leerBanners([{ ...bueno, imagen: "../otro-negocio/banner/x.webp" }])).toEqual([null, null]);
+    expect(leerBanners([{ ...bueno, imagen: "/etc/passwd" }])).toEqual([null, null]);
+    expect(leerBanners([{ ...bueno, imagen: "carpeta\\archivo.webp" }])).toEqual([null, null]);
+    expect(leerBanners([{ ...bueno, imagen: "x".repeat(400) }])).toEqual([null, null]);
   });
 
   it("descarta enlaces que no son https", () => {
@@ -93,9 +97,9 @@ describe("leerBanners", () => {
   });
 
   it("no rompe con lo que no es una lista", () => {
-    expect(leerBanners(null)).toEqual([null]);
-    expect(leerBanners("dos banners")).toEqual([null]);
-    expect(leerBanners([null, 7, "x"])).toEqual([null]);
+    expect(leerBanners(null)).toEqual([null, null]);
+    expect(leerBanners("dos banners")).toEqual([null, null]);
+    expect(leerBanners([null, 7, "x"])).toEqual([null, null]);
   });
 
   it("recorta un texto alternativo larguísimo en vez de descartarlo", () => {
@@ -115,13 +119,23 @@ describe("validarBanners", () => {
     expect(validarBanners([null]).correcto).toBe(true);
   });
 
-  /* Dos franjas de publicidad en un catálogo de barrio es un catálogo que no se
-     lee: el de arriba se sacó a pedido del dueño y lo que se escribía sobre él
-     va sobre la portada. El techo está acá y no solo en el formulario. */
-  it("rechaza el segundo", () => {
-    const resultado = validarBanners([bueno, bueno]);
+  /* Dos lugares, superior e inferior (desde el 2026-10-21). El techo está acá
+     y no solo en el formulario. */
+  it("acepta el superior y el inferior, y rechaza un tercero", () => {
+    expect(validarBanners([bueno, bueno]).correcto).toBe(true);
+    const resultado = validarBanners([bueno, bueno, bueno]);
     expect(resultado.correcto).toBe(false);
-    if (!resultado.correcto) expect(resultado.errores.banners).toContain("un solo banner");
+    if (!resultado.correcto) expect(resultado.errores.banners).toContain("hasta 2 banners");
+  });
+
+  /* El inferior se queda en el lugar 0, donde ya lo tienen guardado los
+     negocios: si el superior lo tomara, todos los banners se mudarían de lugar. */
+  it("el de la mitad sigue en el lugar 0 y el superior entra en el 1", () => {
+    expect(LUGAR_BANNER).toEqual({ inferior: 0, superior: 1 });
+    const banners = leerBanners([bueno, null]);
+    expect(bannerDelLugar(banners, "inferior")).not.toBeNull();
+    expect(bannerDelLugar(banners, "superior")).toBeNull();
+    expect(bannerDelLugar(null, "superior")).toBeNull();
   });
 
   /* Acá sí se avisa, y con el índice adentro de la clave, para que el

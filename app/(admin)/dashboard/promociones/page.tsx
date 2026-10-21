@@ -3,9 +3,8 @@ import { redirect } from "next/navigation";
 
 import { FormularioBanners } from "../../../../components/promociones/formulario-banners";
 import { GestorPromociones } from "../../../../components/promociones/gestor-promociones";
-import { esPaletaId } from "../../../../lib/plantillas/validacion";
-import { leerBanners } from "../../../../lib/negocios/banners";
-import { obtenerUrlPublicaImagenNegocio } from "../../../../lib/negocios/imagenes-publicas";
+import { COLUMNAS_VISTA_PREVIA_NEGOCIO } from "../../../../lib/catalogo/columnas";
+import { armarVistaPrevia } from "../../../../lib/plantillas/vista-previa-del-negocio";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import { construirUrlPublicaNegocio } from "../../../../lib/url-sitio";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
@@ -15,7 +14,7 @@ import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
   title: "Promociones | MiPuesto",
-  description: "Prepara descuentos por producto o categoría, y el banner publicitario de tu catálogo.",
+  description: "Prepara descuentos por producto o categoría, y los dos banners de tu catálogo.",
 };
 
 export default async function PaginaPromociones() {
@@ -26,7 +25,7 @@ export default async function PaginaPromociones() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("id,nombre,slug,paleta_id,banners,telefono_whatsapp,ubicacion_url")
+    .select(COLUMNAS_VISTA_PREVIA_NEGOCIO)
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
@@ -55,19 +54,10 @@ export default async function PaginaPromociones() {
     throw new Error("No se pudo cargar la configuración de promociones.");
   }
 
-  /* El banner publicitario vive acá desde el 2026-10-13: es publicidad, como
-     las promociones. Se arma lo mismo que necesitaba en Apariencia —la
-     dirección de su imagen, la paleta y a dónde puede llevar su botón—. */
-  const bannersGuardados = leerBanners(negocio.banners);
+  /* Los banners viven acá desde el 2026-10-13: son publicidad, como las
+     promociones. Con la misma vista previa del catálogo que Apariencia. */
   const { url: urlSupabase } = obtenerVariablesPublicasSupabase();
-  const urlPorRuta = Object.fromEntries(
-    bannersGuardados
-      .filter((banner) => banner !== null)
-      .map((banner) => [
-        banner.imagen,
-        obtenerUrlPublicaImagenNegocio(urlSupabase, banner.imagen, "banner") ?? "",
-      ]),
-  );
+  const vista = armarVistaPrevia(negocio, urlSupabase);
   const productosVisibles = (resultadoProductos.data ?? []).filter((producto) => producto.visible);
 
   return (
@@ -89,7 +79,6 @@ export default async function PaginaPromociones() {
         }))}
       />
       <FormularioBanners
-        bannersIniciales={bannersGuardados}
         destinos={{
           urlCatalogo: construirUrlPublicaNegocio(negocio.slug),
           telefonoWhatsapp: negocio.telefono_whatsapp,
@@ -97,8 +86,7 @@ export default async function PaginaPromociones() {
           categorias: (resultadoCategorias.data ?? []).map(({ id, nombre }) => ({ id, nombre })),
           productos: productosVisibles.map(({ codigo, nombre }) => ({ codigo, nombre })),
         }}
-        paleta={esPaletaId(negocio.paleta_id) ? negocio.paleta_id : "mercado"}
-        urlPorRuta={urlPorRuta}
+        vista={vista}
       />
     </main>
   );

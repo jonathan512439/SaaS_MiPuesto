@@ -1,4 +1,4 @@
-/* El banner de publicidad del catálogo: una franja ancha entre dos categorías.
+/* Los banners de publicidad del catálogo: franjas anchas entre los productos.
  *
  * Sirve para una promoción, un aviso —«cerrado el 6 de agosto»— o publicidad
  * propia, con la imagen y, encima, antetítulo, título, bajada y botón.
@@ -36,7 +36,26 @@ import {
   type TextoSobreImagen,
 } from "./texto-sobre-imagen";
 
-export const MAXIMO_BANNERS = 1;
+/* **Volvieron a ser dos** el 2026-10-21, a pedido del dueño. Con uno solo, el
+ * que tenía una imagen para arriba la subía como portada —era lo único que había
+ * arriba— y la portada se veía como un banner: el dueño lo leyó como que la
+ * portada se guardaba en el banner. Ahora la portada es la foto del negocio y
+ * cada banner tiene su lugar:
+ *
+ * - **superior**: debajo de las categorías y arriba de los primeros productos;
+ * - **inferior**: entre dos categorías, a la mitad del catálogo —el de siempre—.
+ *
+ * El inferior se queda en el lugar 0 de la lista, que es donde lo dejó la
+ * migración que sacó el de arriba: así ningún negocio ve su banner mudarse. El
+ * superior entra en el 1. Nadie tiene que acordarse de eso: se pide por nombre. */
+export const LUGAR_BANNER = { inferior: 0, superior: 1 } as const;
+export type LugarBanner = keyof typeof LUGAR_BANNER;
+
+export const MAXIMO_BANNERS = 2;
+
+export function bannerDelLugar<T>(banners: ReadonlyArray<T | null> | null | undefined, lugar: LugarBanner): T | null {
+  return banners?.[LUGAR_BANNER[lugar]] ?? null;
+}
 
 /* La forma de la imagen del banner, en un solo lugar.
  *
@@ -124,10 +143,7 @@ export function validarBanners(valor: unknown): ResultadoBanners {
     return {
       correcto: false,
       errores: {
-        banners:
-          MAXIMO_BANNERS === 1
-            ? "Se puede publicar un solo banner."
-            : `Se pueden publicar hasta ${MAXIMO_BANNERS} banners.`,
+        banners: `Se pueden publicar hasta ${MAXIMO_BANNERS} banners: el superior y el inferior.`,
       },
     };
   }
