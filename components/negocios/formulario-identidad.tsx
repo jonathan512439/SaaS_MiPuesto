@@ -1,21 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
-import { prepararImagenParaSubir } from "../../lib/imagenes";
-import {
-  obtenerRedesSociales,
-  type RedesSocialesNegocio,
-  type RespuestaSubidaIdentidad,
-  type TipoImagenIdentidad,
-} from "../../lib/negocios/identidad";
-import { obtenerUrlPublicaImagenNegocio } from "../../lib/negocios/imagenes-publicas";
-import { Boton, useAvisos, useConfirmacion, Formulario } from "../ui";
-import styles from "./formulario-identidad.module.css";
-import { AYUDA_LOGO, AYUDA_PORTADA, AYUDA_QR } from "../../lib/ayudas-formularios";
+import { obtenerRedesSociales, type RedesSocialesNegocio } from "../../lib/negocios/identidad";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
+import { Boton, Formulario, useAvisos } from "../ui";
+import { ImagenesDelNegocio } from "./imagenes-del-negocio";
+import styles from "./formulario-identidad.module.css";
 
+/* El QR de cobro y el contacto del negocio, en «Mi negocio».
+ *
+ * Hasta el 2026-10-21 acá estaban también el logo y la portada. Se mudaron a
+ * Apariencia, donde está la vista previa del catálogo: son lo que más cambia
+ * cómo se ve, y elegirlos sin verlos obligaba a abrir el catálogo en otra
+ * pestaña. Lo que queda acá es para que el cliente pague y encuentre al negocio.
+ */
 export type IdentidadNegocioInicial = {
   logo_url: string | null;
   portada_url: string | null;
@@ -31,53 +31,11 @@ type Propiedades = {
   urlSupabase: string;
 };
 
-type Imagenes = Record<TipoImagenIdentidad, { ruta: string | null; url: string | null }>;
-
-const TIPOS: Array<{
-  tipo: TipoImagenIdentidad;
-  titulo: string;
-  ayuda: string;
-}> = [
-  {
-    tipo: "portada",
-    titulo: "Foto de portada",
-    ayuda: AYUDA_PORTADA,
-  },
-  {
-    tipo: "logo",
-    titulo: "Logo",
-    ayuda: AYUDA_LOGO,
-  },
-  {
-    tipo: "qr",
-    titulo: "QR de cobro",
-    ayuda: AYUDA_QR,
-  },
-];
-
-function valoresIniciales(identidad: IdentidadNegocioInicial, urlSupabase: string): Imagenes {
-  return {
-    logo: {
-      ruta: identidad.logo_url,
-      url: obtenerUrlPublicaImagenNegocio(urlSupabase, identidad.logo_url),
-    },
-    portada: {
-      ruta: identidad.portada_url,
-      url: obtenerUrlPublicaImagenNegocio(urlSupabase, identidad.portada_url),
-    },
-    qr: {
-      ruta: identidad.qr_pago_url,
-      url: obtenerUrlPublicaImagenNegocio(urlSupabase, identidad.qr_pago_url),
-    },
-  };
-}
-
 export function FormularioIdentidad({
   identidadInicial,
   negocioNombre,
   urlSupabase,
 }: Propiedades) {
-  const [imagenes, setImagenes] = useState(() => valoresIniciales(identidadInicial, urlSupabase));
   const [ubicacion, setUbicacion] = useState(identidadInicial.ubicacion_url ?? "");
   const [resenas, setResenas] = useState(identidadInicial.resenas_url ?? "");
   const [redes, setRedes] = useState<RedesSocialesNegocio>(() =>
@@ -85,82 +43,11 @@ export function FormularioIdentidad({
   );
   const [errores, setErrores] = useState<Record<string, string>>({});
   const { mostrarAviso } = useAvisos();
-  const confirmar = useConfirmacion();
-  const [ocupado, setOcupado] = useState<TipoImagenIdentidad | "redes" | "">("");
+  const [ocupado, setOcupado] = useState<"redes" | "">("");
 
   function actualizarRed(campo: keyof RedesSocialesNegocio, valor: string) {
     setRedes((actuales) => ({ ...actuales, [campo]: valor }));
     setErrores((actuales) => ({ ...actuales, [campo]: "" }));
-  }
-
-  async function subirImagen(tipo: TipoImagenIdentidad, evento: ChangeEvent<HTMLInputElement>) {
-    const archivo = evento.target.files?.[0];
-    evento.target.value = "";
-    if (!archivo) return;
-    setOcupado(tipo);
-    try {
-      const imagen = await prepararImagenParaSubir(archivo);
-      const formulario = new FormData();
-      formulario.append("tipo", tipo);
-      formulario.append("archivo", imagen);
-      const respuesta = await fetch("/api/negocios/identidad", {
-        method: "POST",
-        body: formulario,
-      });
-      const datos = (await respuesta.json().catch(() => ({}))) as RespuestaSubidaIdentidad;
-      if (!respuesta.ok || !datos.imagen) {
-        throw new Error(datos.error || "No se pudo guardar la imagen.");
-      }
-      const imagenGuardada = datos.imagen;
-      setImagenes((actuales) => ({
-        ...actuales,
-        [tipo]: { ruta: imagenGuardada.ruta, url: imagenGuardada.url },
-      }));
-      mostrarAviso({
-        titulo: tipo === "qr" ? "QR de cobro guardado" : "Imagen guardada",
-        variante: "exito",
-      });
-    } catch (error) {
-      mostrarAviso({
-        titulo: "No se pudo guardar la imagen",
-        mensaje:
-          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
-        variante: "error",
-      });
-    } finally {
-      setOcupado("");
-    }
-  }
-
-  async function borrarImagen(tipo: TipoImagenIdentidad) {
-    const aceptado = await confirmar({
-      titulo: "Quitar esta imagen",
-      descripcion: "Ya no se ve en tu catálogo público.",
-      destructiva: true,
-      textoAccion: "Quitar imagen",
-    });
-    if (!aceptado) return;
-    setOcupado(tipo);
-    try {
-      const respuesta = await fetch("/api/negocios/identidad", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo }),
-      });
-      const datos = (await respuesta.json().catch(() => ({}))) as { error?: string };
-      if (!respuesta.ok) throw new Error(datos.error || "No se pudo quitar la imagen.");
-      setImagenes((actuales) => ({ ...actuales, [tipo]: { ruta: null, url: null } }));
-      mostrarAviso({ titulo: "Imagen quitada", variante: "exito" });
-    } catch (error) {
-      mostrarAviso({
-        titulo: "No se pudo quitar la imagen",
-        mensaje:
-          error instanceof Error ? error.message : "Revisa tu conexión e intenta nuevamente.",
-        variante: "error",
-      });
-    } finally {
-      setOcupado("");
-    }
   }
 
   async function guardarRedes(evento: FormEvent<HTMLFormElement>) {
@@ -210,70 +97,22 @@ export function FormularioIdentidad({
     <section className={styles.seccion} aria-labelledby="identidad-negocio">
       <header className={styles.cabecera}>
         <div>
-          <p>Fachada digital</p>
-          <h2 id="identidad-negocio">Imágenes y contacto de {negocioNombre}</h2>
+          <p>Cobro y contacto</p>
+          <h2 id="identidad-negocio">Cómo te pagan y cómo te encuentran</h2>
         </div>
-        <p>Los cambios aparecen en el catálogo sin alterar productos ni pedidos.</p>
+        <p>
+          El logo y la foto de portada se eligen en{" "}
+          <Link href={RUTAS_PANEL.apariencia}>Apariencia</Link>, al lado de la vista previa de tu
+          catálogo.
+        </p>
       </header>
 
-      <div className={styles.portadaPrevia}>
-        {imagenes.portada.url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img alt={`Portada de ${negocioNombre}`} src={imagenes.portada.url} />
-        ) : (
-          <span>La portada aparecerá aquí</span>
-        )}
-        <div className={styles.logoPrevio}>
-          {imagenes.logo.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img alt={`Logo de ${negocioNombre}`} src={imagenes.logo.url} />
-          ) : (
-            <span aria-hidden="true">{negocioNombre.slice(0, 1).toUpperCase()}</span>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.imagenes}>
-        {TIPOS.map(({ tipo, titulo, ayuda }) => (
-          <article key={tipo} className={styles.imagenFila}>
-            <div>
-              <h3>{titulo}</h3>
-              <p>{ayuda}</p>
-              {/* La portada se sube acá y su cartel se escribe en Apariencia,
-                  que es donde está la vista previa con la paleta. Sin esta
-                  línea, quien sube la foto no tiene cómo saber que puede
-                  escribirle un título encima. */}
-              {tipo === "portada" ? (
-                <p>
-                  El texto y el botón que van sobre la portada se escriben en{" "}
-                  <Link href={RUTAS_PANEL.apariencia}>Apariencia</Link>.
-                </p>
-              ) : null}
-            </div>
-            {tipo === "qr" && imagenes.qr.url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img className={styles.qrPrevio} alt={`QR de cobro de ${negocioNombre}`} src={imagenes.qr.url} />
-            ) : null}
-            <div className={styles.accionesImagen}>
-              <label className={styles.botonArchivo}>
-                {imagenes[tipo].ruta ? "Reemplazar imagen" : "Elegir imagen"}
-                <input
-                  accept="image/jpeg,image/png,image/webp"
-                  disabled={Boolean(ocupado)}
-                  onChange={(evento) => void subirImagen(tipo, evento)}
-                  type="file"
-                />
-              </label>
-              {imagenes[tipo].ruta ? (
-                <Boton disabled={Boolean(ocupado)} onClick={() => void borrarImagen(tipo)} variante="peligro">
-                  Quitar imagen
-                </Boton>
-              ) : null}
-              {ocupado === tipo ? <span className={styles.cargando}>Preparando imagen…</span> : null}
-            </div>
-          </article>
-        ))}
-      </div>
+      <ImagenesDelNegocio
+        negocioNombre={negocioNombre}
+        rutasIniciales={{ qr: identidadInicial.qr_pago_url }}
+        tipos={["qr"]}
+        urlSupabase={urlSupabase}
+      />
 
       <Formulario className={styles.redes} onSubmit={guardarRedes}>
         <header>

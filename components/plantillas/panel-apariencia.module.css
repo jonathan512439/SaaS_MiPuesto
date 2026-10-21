@@ -1,0 +1,61 @@
+@reference "../../app/globals.css";
+
+/* Apariencia en dos columnas en escritorio: los ajustes a la izquierda y el
+ * catálogo fijo a la derecha, para ver cada cambio sin subir y bajar.
+ *
+ * En el teléfono es una sola columna con el orden de antes: paleta, forma y
+ * fondo; la muestra; y después el logo, la portada y su texto. Lo resuelven las
+ * áreas: el mismo HTML, otra distribución. */
+.panel {
+  display: grid;
+  grid-template-areas:
+    "ajustes"
+    "vista"
+    "marca";
+  gap: var(--spacing-6);
+  min-width: 0;
+}
+
+.ajustes,
+.marca {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-6);
+  min-width: 0;
+}
+
+.ajustes {
+  grid-area: ajustes;
+}
+
+.vista {
+  grid-area: vista;
+}
+
+.marca {
+  grid-area: marca;
+}
+
+/* El logo y la portada, con el mismo trato de tarjeta que el texto de la
+   portada que va justo debajo: son dos pasos de lo mismo. */
+.bloque {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-5);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+@media (min-width: 64rem) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "ajustes vista"
+      "marca vista";
+    align-items: start;
+    gap: var(--spacing-6) var(--spacing-8);
+  }
+}

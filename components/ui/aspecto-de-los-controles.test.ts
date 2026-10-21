@@ -56,6 +56,7 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
   { selector: ".tituloSeccion a, .acciones a", motivo: "es un enlace, no un botón" },
   { selector: ".faltantes li a", motivo: "es un enlace, no un botón" },
   { selector: ".tarjeta h2 a", motivo: "es un enlace, no un botón" },
+  { selector: ".cabecera > p a", motivo: "es un enlace, no un botón" },
   { selector: ".noEncontrada a", motivo: "es un enlace, no un botón" },
   { selector: ".volver a", motivo: "es un enlace, no un botón" },
   { selector: ".paginacion a, .vacio a", motivo: "es un enlace, no un botón" },

@@ -44,6 +44,14 @@
 
 /* El enlace a «Apariencia» en la ayuda de la portada: del color de marca y
    subrayado, para que se vea que se toca. */
+/* El aviso de la cabecera de que el logo y la portada se mudaron a Apariencia
+   lleva el mismo trato. */
+.cabecera > p a {
+  color: var(--color-marca);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
 .imagenFila p a {
   color: var(--color-marca);
   font-weight: 800;
@@ -174,6 +182,19 @@
   border-radius: var(--radius-control);
   background: var(--color-superficie);
   object-fit: contain;
+}
+
+/* La portada en miniatura, en su proporción de catálogo: ancha y baja. Ahora
+   que se elige en Apariencia, la vista previa grande es el catálogo de al
+   lado; esta es la confirmación de qué archivo quedó guardado. */
+.miniaturaAncha {
+  width: 100%;
+  max-width: 20rem;
+  aspect-ratio: 16 / 7;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-control);
+  background: var(--color-superficie);
+  object-fit: cover;
 }
 
 .cargando {

@@ -28,8 +28,7 @@
 
 .ayuda,
 .avisoCambio,
-.avisoPendiente,
-.demostracion header > span {
+.avisoPendiente {
   margin: 0;
 }
 
@@ -161,39 +160,6 @@
 
 .muestraPaleta i:last-child {
   background: var(--catalogo-accion);
-}
-
-.demostracion {
-  display: grid;
-  gap: var(--spacing-4);
-  min-width: 0;
-}
-
-.demostracion > header {
-  display: flex;
-  align-items: end;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--spacing-3);
-}
-
-/* El título y la explicación del paso los dibuja `PasoNumerado` con su propio
-   estilo. Las reglas que había acá vestían el rótulo escrito a mano; dejarlas
-   puestas ahora pintaría la explicación del paso con el color y el tamaño de un
-   rótulo, o sea al revés de lo que se busca. */
-
-.demostracion header > span {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-}
-
-.marcoVista {
-  min-width: 0;
-  overflow: hidden;
-  border: var(--borde-fino) solid var(--color-borde-suave);
-  border-radius: var(--radius-panel);
-  background: var(--color-fondo-suave);
-  box-shadow: var(--sombra-panel);
 }
 
 .barra {

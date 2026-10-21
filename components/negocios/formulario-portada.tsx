@@ -18,10 +18,11 @@ import styles from "./cartel.module.css";
 
 /* El texto que va encima de la portada, en Apariencia.
  *
- * La portada es la foto grande del principio del catálogo; la foto se sube en
- * «Mi negocio» y acá se decide si lleva algo escrito y un botón. Hasta el
- * 2026-10-13 compartía formulario con el banner de publicidad, y el dueño no
- * sabía qué era cada cosa: el banner se fue a Promociones, que es lo que es.
+ * La portada es la foto grande del principio del catálogo; acá se decide si
+ * lleva algo escrito y un botón. Hasta el 2026-10-13 compartía formulario con el
+ * banner de publicidad, y el dueño no sabía qué era cada cosa: el banner se fue
+ * a Promociones, que es lo que es. Desde el 2026-10-21 la foto se elige en
+ * Apariencia, justo arriba de este formulario, y no en «Mi negocio».
  */
 export function FormularioPortada({
   portadaInicial,
@@ -82,21 +83,19 @@ export function FormularioPortada({
         <PasoNumerado numero={5} titulo="Texto sobre tu portada" />
         <p>
           La portada es la foto grande que aparece primero en tu catálogo. Acá eliges si lleva algo
-          escrito encima y un botón. Todo es opcional: sin texto, la foto se ve sola y limpia.
+          escrito encima y un botón: un saludo, lo que vendes, «pide por WhatsApp». Todo es opcional:
+          sin texto, la foto se ve sola y limpia.
         </p>
         <p>
           {tienePortada ? (
-            <>
-              La foto se cambia en <Link href={RUTAS_PANEL.negocio}>Mi negocio</Link>.
-            </>
+            "La foto se cambia justo arriba, en «Tu logo y tu portada»."
           ) : (
             <>
-              <strong>Todavía no subiste una foto de portada.</strong> Súbela en{" "}
-              <Link href={RUTAS_PANEL.negocio}>Mi negocio</Link>: este texto se va a ver cuando
-              esté.
+              <strong>Todavía no subiste una foto de portada.</strong> Súbela justo arriba: este
+              texto se va a ver cuando esté.
             </>
           )}{" "}
-          Para publicidad entre tus productos, usa el banner de{" "}
+          Para publicidad entre tus productos están los banners superior e inferior de{" "}
           <Link href={RUTAS_PANEL.promociones}>Promociones</Link>.
         </p>
       </header>

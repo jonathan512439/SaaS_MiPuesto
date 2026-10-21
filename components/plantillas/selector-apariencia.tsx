@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import {
   DEFINICIONES_FORMAS,
@@ -8,33 +8,39 @@ import {
   type FormaTarjeta,
   type PaletaId,
 } from "../../lib/apariencia";
-import {
-  OPACIDAD_PATRON_PREDETERMINADA,
-  PASOS_OPACIDAD_PATRON,
-  iconosDePatron,
-  patronDeRubro,
-} from "../../lib/patrones-fondo";
-import type { DatosPlantilla } from "../../lib/plantillas/tipos";
+import { OPACIDAD_PATRON_PREDETERMINADA, PASOS_OPACIDAD_PATRON } from "../../lib/patrones-fondo";
 import temaStyles from "../templates/tema-catalogo.module.css";
-import { PlantillaMipuesto } from "../templates/mipuesto/plantilla-mipuesto";
 import { Boton, useAvisos, Formulario } from "../ui";
 import styles from "./selector-apariencia.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
 
+/* Lo que se está eligiendo, aunque no esté guardado: la vista previa lo
+   dibuja mientras se elige. */
+export type EleccionApariencia = {
+  paleta: PaletaId;
+  forma: FormaTarjeta;
+  patron: boolean;
+  opacidad: number;
+};
+
 type PropiedadesSelector = {
-  datos: DatosPlantilla;
   paletaInicial: PaletaId;
   patronInicial: boolean;
   opacidadInicial: number;
   formaInicial: FormaTarjeta;
+  /* La vista previa ya no vive acá: la dibuja `PanelApariencia`, al costado
+     en escritorio, junto con el logo, la portada y su texto. Este aviso es lo
+     que la mantiene al día. Tiene que ser estable —un `setState`— porque se
+     llama desde un efecto. */
+  alCambiar: (eleccion: EleccionApariencia) => void;
 };
 
 export function SelectorApariencia({
-  datos,
   paletaInicial,
   patronInicial,
   opacidadInicial,
   formaInicial,
+  alCambiar,
 }: PropiedadesSelector) {
   const [paletaElegida, setPaletaElegida] = useState(paletaInicial);
   const [paletaGuardada, setPaletaGuardada] = useState(paletaInicial);
@@ -47,20 +53,9 @@ export function SelectorApariencia({
   const [guardando, setGuardando] = useState(false);
   const { mostrarAviso } = useAvisos();
 
-  /* La vista previa con la forma que se está eligiendo, no con la guardada. */
-  const datosConForma = useMemo(
-    () => ({
-      ...datos,
-      negocio: {
-        ...datos.negocio,
-        formaTarjeta: formaElegida,
-        /* La vista previa muestra lo que se está eligiendo, no lo guardado. */
-        patronFondo: patronElegido,
-        patronOpacidad: opacidadElegida,
-      },
-    }),
-    [datos, formaElegida, patronElegido, opacidadElegida],
-  );
+  useEffect(() => {
+    alCambiar({ paleta: paletaElegida, forma: formaElegida, patron: patronElegido, opacidad: opacidadElegida });
+  }, [alCambiar, paletaElegida, formaElegida, patronElegido, opacidadElegida]);
 
   /* El diseño del catálogo es único: lo editable es la paleta, la forma de las
      tarjetas y el fondo. */
@@ -254,39 +249,6 @@ export function SelectorApariencia({
           </label>
         ) : null}
       </fieldset>
-
-      <section className={styles.demostracion} aria-labelledby="titulo-demostracion">
-        {/* Con `PasoNumerado`, igual que el 1 y el 2. Estaba escrito a mano como
-            «3. Revisa el resultado», que es exactamente lo que el comentario de ese
-            componente dice que no hay que hacer: se lee como una lista y no como
-            un paso. Quedó atrás cuando los otros dos se convirtieron. */}
-        <header>
-          <PasoNumerado
-            descripcion="Así se verá la experiencia de tus clientes."
-            idTitulo="titulo-demostracion"
-            numero={4}
-            titulo="Revisa el resultado"
-          />
-          <span>Vista completa de demostración</span>
-        </header>
-        {/* El marco lleva `.tema` y las dos marcas porque el patrón se pinta con
-            `.tema[data-patron] > article`: sin el envoltorio, la vista previa
-            mostraría todo menos el fondo, que es justo lo que se está eligiendo. */}
-        <div
-          className={`${temaStyles.tema} ${styles.marcoVista}`}
-          data-paleta={paletaElegida}
-          /* Misma regla que el catálogo: el de rubro es el de reserva, y con
-             categorías propias el fondo lo dibuja la plantilla. */
-          data-patron={
-            patronElegido && iconosDePatron(datos.categorias).length === 0
-              ? patronDeRubro(datos.negocio.rubro)
-              : undefined
-          }
-          data-patron-opacidad={patronElegido ? opacidadElegida : undefined}
-        >
-          <PlantillaMipuesto datos={datosConForma} paleta={paletaElegida} />
-        </div>
-      </section>
 
       <div className={styles.barra}>
         <div className={styles.acciones}>
