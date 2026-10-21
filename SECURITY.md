@@ -408,6 +408,94 @@ paralelo quedan las dos.
   `revisar-archivos.yml` cada lunes. Solo lee. Primera revisión de producción:
   0 referencias rotas, 3 banners sin uso —subidos y nunca guardados—.
 
+## Auditoría de seguridad del 2026-10-21
+
+Recorrido completo pedido por el dueño: secretos, inyección, permisos de la
+base, rutas, puertas traseras, cabeceras, XSS, redirecciones, SSRF, archivos y
+dependencias. Lo que se pudo, se comprobó **contra la base real** con la clave
+pública o con consultas de solo lectura al catálogo de Postgres, y no solo
+leyendo migraciones.
+
+### 1. La plataforma pedía el segundo factor en la pantalla y no en la base — **grave, corregido**
+
+`/plataforma` exige `aal2` antes de mostrar nada, pero las ocho funciones
+`admin_*` (publicar o suspender, plan, suscripción, invitar, rubro, zona, IA)
+pasaban por `private.exigir_admin_plataforma()`, que solo miraba la lista de
+administradores; las políticas de `negocios`, `etiquetas`, `zonas`,
+`sinonimos_busqueda`, `bitacora_plataforma`, `busquedas_sin_resultado` y
+`vigilancia_salud` también. Con la contraseña sola se podía hacer todo eso
+directo contra la API, y la ruta de invitaciones usaba la clave de servicio
+después del mismo control. Ahora:
+
+- Base: `es_admin_plataforma_con_2fa()` autoriza; `es_admin_plataforma()`
+  queda para la pantalla (`20261111090000`). Prueba:
+  `npm run test:plataforma-2fa:ensayo`, rota a propósito.
+- Rutas: las siete de `/api/plataforma` pasan por `sesionDePlataforma()`. Lo
+  cuida `lib/plataforma/rutas-con-segundo-factor.test.ts`, por manejador.
+
+### 2. Tres ajustes menores — corregidos en la misma migración
+
+- `crear_pedido_reservado` con número de mesa era ejecutable por la clave
+  pública (el permiso se había quitado a la firma vieja). No era explotable:
+  corre con los permisos de quien llama y el visitante no escribe en ninguna
+  tabla. Ahora solo la llama el servidor.
+- `contar_intento_publico` tenía `search_path = public`; ahora vacío.
+- `resenas_url` y `ubicacion_url` exigen `https://` en la base, y el catálogo
+  los vuelve a validar al publicar. El dueño los puede escribir con su sesión
+  sin pasar por la ruta; React 19 y la política de contenido ya frenaban un
+  `javascript:`, pero eran dos defensas ajenas.
+
+### Revisado y sin problema
+
+- **Secretos:** el historial completo de git no tiene claves privadas (búsqueda
+  propia, además de `check-repository-secrets`). Lo que aparece es público por
+  diseño: la clave publicable de Supabase y la de sitio de Turnstile.
+- **Inyección:** no hay SQL dinámico en ninguna función, y los filtros de
+  PostgREST nunca se arman pegando texto: las dos búsquedas con `ilike` pasan
+  el texto como valor.
+- **Permisos de la base:** las 27 tablas de `public` tienen RLS; `private` no
+  está expuesto. Como visitante anónimo, contra producción: pedidos, citas,
+  administradores, bitácora, etiquetas e IA niegan todo; de `negocios` solo se
+  leen las columnas públicas (no el dueño, ni el punto exacto, ni el plan); el
+  visitante no puede escribir en ninguna tabla.
+- **Rutas:** las 46 piden sesión, sesión de plataforma o Turnstile según
+  corresponda; las de uso público hacen cosas acotadas. Cambiar el estado de un
+  pedido comprueba en la base que sea del negocio de quien llama. El servidor
+  decide siempre con `getClaims()`, que verifica la firma.
+- **Puertas traseras:** ningún correo ni identificador con permisos fijos,
+  ningún interruptor para saltar controles, nada que ejecute comandos.
+  Turnstile falla cerrado si su variable falta.
+- **Cabeceras:** HSTS, `nosniff`, `frame-ancestors 'none'`, `object-src
+  'none'` y scripts con *nonce* por solicitud.
+- **XSS:** el HTML crudo sale siempre de diccionarios del propio código.
+- **Redirecciones:** todas a rutas fijas. **SSRF:** el enlace de mapas solo
+  sigue dominios de Google, revisados en cada salto.
+- **Archivos:** cada dueño solo toca la carpeta de su negocio; WebP, JPG o PNG
+  (sin SVG), 2 MB y cuota por negocio. La ruta de tutoriales solo entrega
+  nombres `NN-<32 hex>`.
+- **GitHub:** ningún flujo corre con pull requests de terceros; el token es de
+  solo lectura por omisión y la entrada del flujo manual va por variable.
+
+### Pendiente
+
+- **Actualizar Next.js a 16.3.8 o más** siguiendo
+  `docs/ACTUALIZAR-DEPENDENCIAS.md`. `npm audit` marca un aviso crítico
+  (GHSA-vcvr-r3jv-pc5j, ejecución remota en `ImageResponse`) que **no alcanza
+  a MiPuesto** —afecta a la versión Node y vinext usa la Edge, y ninguna imagen
+  mete texto del dueño en un SVG— y avisos altos que tampoco aplican. Igual hay
+  que subir. Los demás avisos altos son de herramientas de desarrollo.
+- **El repositorio es público.** Ninguna clave está en él, pero la
+  documentación lleva los correos de las tiendas de demostración y el de envío
+  de correos, que son nombres de usuario. Conviene hacerlo privado; Workers
+  Builds funciona igual.
+- `productos` deja leer `precio_actualizado_por` a la clave pública: el
+  identificador del dueño que cambió el precio. El catálogo no lo pide, pero se
+  puede pedir. Cerrarlo pide pasar la tabla a permisos por columna.
+- La imagen para compartir pide desde el servidor el logo que haya escrito el
+  dueño, que puede ser cualquier `https://`. Desde Cloudflare no se alcanza
+  ninguna red interna; conviene igual aceptar solo rutas del almacenamiento.
+- `connect-src` admite cualquier `*.supabase.co`; se puede acotar al proyecto.
+
 ## Recuperación de contraseña — corregido el 2026-09-07
 
 Reportado en producción: se pide restablecer la contraseña, se abre el enlace del
