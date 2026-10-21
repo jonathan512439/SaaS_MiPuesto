@@ -57,3 +57,47 @@
 .contenido > * {
   min-width: 0;
 }
+
+/* En escritorio, los bloques de una pantalla van de a dos por fila.
+ *
+ * Pedido del dueño el 2026-10-21: con un bloque por fila, en una pantalla ancha
+ * cada uno se estiraba de borde a borde —un campo de nombre de un metro y
+ * medio— y había que bajar mucho para llegar al siguiente. Ahora el siguiente
+ * bloque va al costado, y recién cuando no entra baja a la fila de abajo.
+ *
+ * Solo desde 64rem (una laptop chica): en el teléfono y en la tablet vertical
+ * el panel queda exactamente como estaba. El encabezado de la pantalla —que es
+ * siempre su primer bloque— y lo que lleve `.ancho` ocupan la fila entera: una
+ * lista larga, un aviso, los accesos rápidos.
+ *
+ * `align-items: start` para que un bloque corto no se estire hasta el alto de
+ * su vecino y quede con media tarjeta vacía. */
+@media (min-width: 64rem) {
+  .columnas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    column-gap: var(--spacing-6);
+  }
+
+  .columnas > :first-child,
+  .columnas > .ancho {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Lo mismo, desde 80rem, para las pantallas cuyos bloques ya tienen dos
+   columnas adentro —«Mi negocio»: nombre al lado del renglón, «Qué vendes» al
+   lado de «Quieres que te encuentren»—. En media pantalla de 64rem esas
+   columnas internas quedaban en renglones de dos palabras. */
+@media (min-width: 80rem) {
+  .columnasAnchas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    column-gap: var(--spacing-6);
+  }
+
+  .columnasAnchas > :first-child,
+  .columnasAnchas > .ancho {
+    grid-column: 1 / -1;
+  }
+}

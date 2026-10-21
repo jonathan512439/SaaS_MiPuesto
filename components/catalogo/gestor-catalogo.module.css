@@ -362,6 +362,45 @@
 
 /* El título de la pantalla de categorías, donde antes iba el renglón que se
    tocaba para abrir. */
+/* En escritorio, «Nueva categoría» a la izquierda y la lista a la derecha
+   (pedido del dueño, 2026-10-21): una debajo de la otra, el formulario se
+   estiraba a todo el ancho y empujaba la lista hacia abajo. */
+@media (min-width: 64rem) {
+  .organizacion {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-areas:
+      "titulo titulo"
+      "nueva lista"
+      "nueva paginas";
+    align-items: start;
+  }
+
+  .organizacion > .tituloOrganizacion {
+    grid-area: titulo;
+  }
+
+  .organizacion > .nuevaCategoria {
+    grid-area: nueva;
+    /* La columna llega hasta el pie de la lista —el borde las separa a lo
+       alto—, pero lo de adentro va arriba: sin `align-content`, la rejilla
+       repartía el alto sobrante entre sus filas y el campo y el botón se
+       estiraban hasta medir lo que la lista. */
+    align-self: stretch;
+    align-content: start;
+    border-right: var(--borde-fino) solid var(--color-borde-suave);
+    border-bottom: 0;
+  }
+
+  .organizacion > .listaCategorias {
+    grid-area: lista;
+  }
+
+  .organizacion > .paginacion {
+    grid-area: paginas;
+  }
+}
+
 .tituloOrganizacion {
   display: flex;
   flex-wrap: wrap;

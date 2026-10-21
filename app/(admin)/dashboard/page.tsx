@@ -152,7 +152,7 @@ export default async function PaginaDashboard() {
   const entregados = pedidos.filter((pedido) => pedido.estado === "entregado").length;
 
   return (
-    <main className={panel.contenido}>
+    <main className={`${panel.contenido} ${panel.columnas}`}>
       <EncabezadoPanel
         descripcion="Sin nombres, teléfonos ni contenido de los pedidos."
         rotulo="Últimos 7 días"
@@ -170,7 +170,7 @@ export default async function PaginaDashboard() {
       {faltantes.length > 0 ? (
         <section
           aria-labelledby="falta-publicar"
-          className={styles.faltantes}
+          className={`${styles.faltantes} ${panel.ancho}`}
           data-impide={impiden.length > 0 ? "si" : undefined}
         >
           <h2 id="falta-publicar">
@@ -198,7 +198,7 @@ export default async function PaginaDashboard() {
       ) : null}
 
       {!negocio.activo ? (
-        <aside className={styles.inactivo} role="status">
+        <aside className={`${styles.inactivo} ${panel.ancho}`} role="status">
           <strong>Tu catálogo está temporalmente inactivo.</strong>
           <span>Conservas el acceso a tus datos, pero el enlace no aparece en el directorio.</span>
         </aside>
@@ -312,7 +312,7 @@ export default async function PaginaDashboard() {
         )}
       </section>
 
-      <section aria-labelledby="siguientes-pasos" className={styles.acciones}>
+      <section aria-labelledby="siguientes-pasos" className={`${styles.acciones} ${panel.ancho}`}>
         <h2 id="siguientes-pasos">Accesos rápidos</h2>
         <div>
           <Link href={RUTAS_PANEL.productos}>Administrar productos</Link>

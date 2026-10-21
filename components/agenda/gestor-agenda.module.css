@@ -5,6 +5,17 @@
   gap: var(--spacing-6);
 }
 
+/* En una pantalla ancha, «Quién atiende» va al costado del cronograma y no
+   debajo (pedido del dueño, 2026-10-21). Desde 80rem y no desde 64rem como el
+   resto del panel: el cronograma ya pone el calendario al lado del día, y con
+   menos de dos tercios de 80rem esas dos columnas se aprietan. */
+@media (min-width: 80rem) {
+  .pantalla {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
 .bloque {
   display: grid;
   gap: var(--spacing-4);
