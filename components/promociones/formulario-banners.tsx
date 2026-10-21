@@ -2,12 +2,12 @@
 
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 
+import { AYUDA_BANNER } from "../../lib/ayudas-formularios";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import {
   LARGO_MAXIMO_ALT,
   LUGAR_BANNER,
   MAXIMO_BANNERS,
-  PROPORCION_BANNER,
   type Banner,
   type LugarBanner,
 } from "../../lib/negocios/banners";
@@ -239,7 +239,7 @@ export function FormularioBanners({
                   <small>
                     {subiendo === lugar
                       ? "Subiendo la imagen…"
-                      : `Una imagen acostada, el doble de ancha que de alta (por ejemplo, ${PROPORCION_BANNER.ejemplo}): así se ve entera, en el celular y en la computadora. Si es más ancha, se cortan los costados; si es más alta, arriba y abajo. Y si le escribes un texto largo encima, en el celular la franja crece un poco hacia abajo y se cortan los costados: deja aire en los bordes.`}
+                      : AYUDA_BANNER}
                   </small>
                   {error("imagen") ? <strong className={cartel.error}>{error("imagen")}</strong> : null}
                 </label>

@@ -3,13 +3,16 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import {
+  AYUDA_BANNER,
   AYUDA_FOTO_PRODUCTO,
   AYUDA_LOGO,
   AYUDA_PORTADA,
   AYUDA_QR,
   FORMAS_DE_IMAGEN,
+  MEDIDAS_DE_IMAGEN,
 } from "./ayudas-formularios";
 import { PESO_MAXIMO_ORIGINAL } from "./imagenes";
+import { PROPORCION_BANNER } from "./negocios/banners";
 
 const CSS_CATALOGO = readFileSync(
   join(import.meta.dirname, "..", "components", "templates", "mipuesto", "plantilla-mipuesto.module.css"),
@@ -48,23 +51,50 @@ describe("ayudas de los formularios", () => {
     expect(formaEnElCss(/\.tarjeta\[data-forma="vitrina"\]/)).toContain(tarjeta.vitrina);
   });
 
-  /* El ejemplo de la portada va a mitad de camino entre la forma del celular y
-     la de la computadora: así las dos recortan lo mismo. Si una de las dos
-     cambia, el ejemplo tiene que moverse con ellas. */
-  it("el ejemplo de la portada recorta parejo en el celular y en la computadora", () => {
-    const [, ancho, alto] = /(\d+) de ancho por (\d+) de alto/.exec(AYUDA_PORTADA) ?? [];
-    const forma = Number(ancho) / Number(alto);
+  /* La forma de la portada va a mitad de camino entre la del celular y la de
+     la computadora: así las dos recortan lo mismo. Si una de las dos cambia, la
+     forma tiene que moverse con ellas. */
+  it("la portada recorta parejo en el celular y en la computadora", () => {
+    const [ancho, alto] = MEDIDAS_DE_IMAGEN.portada.forma;
     const { telefono, computadora } = FORMAS_DE_IMAGEN.portada;
-    expect(forma).toBeCloseTo(Math.sqrt(telefono * computadora), 1);
+    expect(ancho / alto).toBeCloseTo(Math.sqrt(telefono * computadora), 1);
     expect(AYUDA_PORTADA).toMatch(/celular se cortan los costados/);
     expect(AYUDA_PORTADA).toMatch(/computadora, arriba y abajo/);
   });
 
+  /* Un tamaño de ejemplo con otra forma que la anunciada es justo el error que
+     el instructivo quiere evitar. */
+  it("el tamaño ideal y el mínimo tienen la forma que anuncian", () => {
+    for (const [imagen, { forma, ideal, minimo }] of Object.entries(MEDIDAS_DE_IMAGEN)) {
+      const razon = forma[0] / forma[1];
+      expect(ideal[0] / ideal[1], `${imagen}: ideal`).toBeCloseTo(razon, 2);
+      expect(minimo[0] / minimo[1], `${imagen}: mínimo`).toBeCloseTo(razon, 2);
+      expect(minimo[0], `${imagen}: el mínimo no pasa del ideal`).toBeLessThanOrEqual(ideal[0]);
+    }
+  });
+
+  it("el banner se pide con la forma exacta de su franja", () => {
+    expect(MEDIDAS_DE_IMAGEN.banner.forma).toEqual([PROPORCION_BANNER.ancho, PROPORCION_BANNER.alto]);
+  });
+
+  /* El instructivo puntual: la forma con su número, el tamaño ideal y el
+     mínimo. Pedido del dueño el 2026-10-21. */
+  it("cada ayuda trae la forma, el tamaño ideal y el mínimo", () => {
+    const ayudas = { portada: AYUDA_PORTADA, logo: AYUDA_LOGO, banner: AYUDA_BANNER, producto: AYUDA_FOTO_PRODUCTO, qr: AYUDA_QR };
+    for (const [imagen, ayuda] of Object.entries(ayudas)) {
+      const { forma, ideal, minimo } = MEDIDAS_DE_IMAGEN[imagen as keyof typeof MEDIDAS_DE_IMAGEN];
+      expect(ayuda, imagen).toContain(`Forma ${forma[0]}:${forma[1]}`);
+      expect(ayuda, imagen).toContain(`${ideal[0]} × ${ideal[1]}`);
+      expect(ayuda, imagen).toContain(`${minimo[0]} × ${minimo[1]}`);
+    }
+  });
+
   /* Sin jerga: un dueño no tiene por qué saber qué es una proporción ni un
-     píxel. */
+     píxel. La forma va con su número —«16:7»—, que es lo que se escribe en un
+     editor de imágenes, pero sin esas palabras. */
   it("no usa palabras técnicas", () => {
-    for (const ayuda of [AYUDA_PORTADA, AYUDA_LOGO, AYUDA_FOTO_PRODUCTO, AYUDA_QR]) {
-      expect(ayuda).not.toMatch(/píxel|pixel|16:\d|resoluci|proporci/i);
+    for (const ayuda of [AYUDA_PORTADA, AYUDA_LOGO, AYUDA_FOTO_PRODUCTO, AYUDA_QR, AYUDA_BANNER]) {
+      expect(ayuda).not.toMatch(/píxel|pixel|resoluci|proporci/i);
     }
   });
 
@@ -82,7 +112,7 @@ describe("la ayuda de la foto del producto", () => {
   it("dice dónde se recorta y dónde se ve entera", () => {
     expect(AYUDA_FOTO_PRODUCTO).toContain("se recorta al centro");
     expect(AYUDA_FOTO_PRODUCTO).toContain("se ve entera");
-    for (const forma of ["Cuadrícula", "Una por fila", "Vitrina"]) {
+    for (const forma of ["4:3 en Cuadrícula", "1:1 en Una por fila", "3:4 en Vitrina"]) {
       expect(AYUDA_FOTO_PRODUCTO).toContain(forma);
     }
   });

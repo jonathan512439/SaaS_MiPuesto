@@ -1,4 +1,5 @@
 import { PESO_MAXIMO_ORIGINAL } from "./imagenes";
+import { PROPORCION_BANNER } from "./negocios/banners";
 
 /* Las ayudas de los formularios, escritas en un solo lugar.
  *
@@ -14,7 +15,9 @@ import { PESO_MAXIMO_ORIGINAL } from "./imagenes";
  * por 700 de alto»). Desde el 2026-10-21 dicen además **qué se corta y dónde**
  * en cada pantalla —pedido del dueño: «para que se suba una imagen lo más
  * certera posible»—: una portada armada sin saberlo salía con el texto cortado
- * por los costados en el celular.
+ * por los costados en el celular. Y, pedido el mismo día, la forma con su
+ * número («16:7», «1:1») y el tamaño ideal y el mínimo, como instructivo: el
+ * número es lo que se escribe en un editor de imágenes.
  */
 
 /* Cómo muestra el catálogo cada imagen: ancho dividido alto de su caja. Todas
@@ -27,21 +30,58 @@ export const FORMAS_DE_IMAGEN = {
 
 const MEGAS_MAXIMOS = Math.round(PESO_MAXIMO_ORIGINAL / (1024 * 1024));
 
-/* El ejemplo está a mitad de camino entre la forma del celular y la de la
-   computadora: así las dos recortan lo mismo, un octavo por lado. */
-export const AYUDA_PORTADA =
-  "Una foto acostada, de unos 1600 de ancho por 700 de alto. No se ve igual en todas las pantallas: en el celular se cortan los costados y en la computadora, arriba y abajo. Pon lo importante al centro y deja libre un octavo en cada borde. Si quieres un texto encima, escríbelo en «Texto sobre tu portada»: ese no se corta nunca.";
+type Medidas = {
+  forma: readonly [number, number];
+  /* Cómo se lee la forma: acostada, cuadrada o parada. */
+  nombre: string;
+  ideal: readonly [number, number];
+  /* Lo más chico que se sigue viendo nítido donde se muestra más grande. */
+  minimo: readonly [number, number];
+};
 
-export const AYUDA_LOGO =
-  "Cuadrada, por ejemplo de 500 de ancho por 500 de alto: si no lo es, se corta al centro. Se muestra chica, del tamaño de una moneda: si tiene letras finas no se van a leer.";
+/* Qué subir de cada imagen. Más grande que el ideal no molesta: la subida la
+   achica sola, sin cortarla, a `LADO_MAXIMO_IMAGEN` por lado. Más chica que el
+   mínimo se ve borrosa. La portada va a mitad de camino entre la forma del
+   celular y la de la computadora (16:7), y el banner tiene la forma exacta de
+   su franja, que vive en `PROPORCION_BANNER`. */
+export const MEDIDAS_DE_IMAGEN = {
+  portada: { forma: [16, 7], nombre: "acostada", ideal: [1600, 700], minimo: [1200, 525] },
+  logo: { forma: [1, 1], nombre: "cuadrada", ideal: [500, 500], minimo: [200, 200] },
+  banner: {
+    forma: [PROPORCION_BANNER.ancho, PROPORCION_BANNER.alto],
+    nombre: "acostada",
+    ideal: [1200, 600],
+    minimo: [800, 400],
+  },
+  producto: { forma: [1, 1], nombre: "cuadrada", ideal: [1200, 1200], minimo: [600, 600] },
+  qr: { forma: [1, 1], nombre: "cuadrada", ideal: [800, 800], minimo: [300, 300] },
+} as const satisfies Record<string, Medidas>;
 
-export const AYUDA_QR =
-  "Cuadrada, con el código ocupando casi toda la imagen, derecho y sin marco: se muestra entera dentro de un cuadrado. Sácale la foto apoyado en una mesa, no en la mano.";
+const tamano = ([ancho, alto]: readonly [number, number]) => `${ancho} × ${alto}`;
+
+/* El instructivo, igual en todas: la forma con su número, el tamaño ideal y el
+   mínimo. */
+export function instructivoDeImagen(medidas: Medidas) {
+  const [ancho, alto] = medidas.forma;
+  return `Forma ${ancho}:${alto} (${medidas.nombre}). Ideal: ${tamano(medidas.ideal)}; lo más chico que se ve nítido: ${tamano(medidas.minimo)}. Más grande no importa: la achicamos sola, sin cortarla.`;
+}
+
+const { portada, logo, banner, producto, qr } = MEDIDAS_DE_IMAGEN;
+const { cuadricula, fila, vitrina } = FORMAS_DE_IMAGEN.tarjeta;
+const comoForma = (valor: number) => (valor === 4 / 3 ? "4:3" : valor === 3 / 4 ? "3:4" : valor === 1 ? "1:1" : String(valor));
+
+export const AYUDA_PORTADA = `${instructivoDeImagen(portada)} En el celular se cortan los costados y en la computadora, arriba y abajo: pon lo importante al centro y deja libre un octavo en cada borde. Si quieres un texto encima, escríbelo en «Texto sobre tu portada»: ese no se corta nunca.`;
+
+export const AYUDA_LOGO = `Cuadrada. ${instructivoDeImagen(logo)} Si no es cuadrada, se corta al centro. Se muestra chica, del tamaño de una moneda: si tiene letras finas no se van a leer.`;
+
+export const AYUDA_QR = `Cuadrada. ${instructivoDeImagen(qr)} Que el código ocupe casi toda la imagen, derecho y sin marco: se muestra entera. Sácale la foto apoyado en una mesa, no en la mano.`;
+
+export const AYUDA_BANNER = `${instructivoDeImagen(banner)} Con esa forma se ve entera, en el celular y en la computadora. Si es más ancha, se cortan los costados; si es más alta, arriba y abajo. Y si le escribes un texto largo encima, en el celular la franja crece un poco hacia abajo: deja aire en los bordes.`;
 
 /* La tarjeta cambia de forma según lo que el dueño eligió en Apariencia, así
    que ninguna foto entra entera en las tres: la cuadrada es la que menos
    pierde, un octavo por lado en la más acostada y en la más parada. */
-export const AYUDA_FOTO_PRODUCTO = `Un producto por foto, de cerca y con buena luz. Lo más seguro es una foto cuadrada, de unos 1200 de ancho por 1200 de alto, con el producto al centro y un poco de aire alrededor: en la ficha del producto se ve entera, y en las tarjetas se recorta al centro según la forma que elegiste en Apariencia (acostada en Cuadrícula, cuadrada en Una por fila, parada en Vitrina). Puede ser la foto tal cual sale del celular, hasta ${MEGAS_MAXIMOS} MB: la achicamos sola.`;
+export const AYUDA_FOTO_PRODUCTO = `Un producto por foto, de cerca y con buena luz. ${instructivoDeImagen(producto)} Con el producto al centro y un poco de aire alrededor: en la ficha del producto se ve entera, y en las tarjetas se recorta al centro según la forma que elegiste en Apariencia (${comoForma(cuadricula)} en Cuadrícula, ${comoForma(fila)} en Una por fila, ${comoForma(vitrina)} en Vitrina). Puede ser la foto tal cual sale del celular, hasta ${MEGAS_MAXIMOS} MB.`;
 
 /* La ayuda de la categoría, el nombre y la descripción del producto dependen
    del rubro del negocio y viven en `catalogo/guias-por-rubro.ts`. */
