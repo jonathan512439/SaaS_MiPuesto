@@ -1,37 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { AccionesCliente } from "../../../components/plataforma/acciones-cliente";
-import { CambioDeRubro } from "../../../components/plataforma/cambio-de-rubro";
-import { BarraDesplazable } from "../../../components/ui/barra-desplazable";
-import { EtiquetasNfc } from "../../../components/plataforma/etiquetas-nfc";
+import { PantallaPlataforma, type ClientePlataforma } from "../../../components/plataforma/pantalla-plataforma";
 import type { EtiquetaPlataforma } from "../../../components/plataforma/etiquetas-nfc";
-import { InvitarNegocio } from "../../../components/plataforma/invitar-negocio";
-import { UsoAlmacenamientoPanel } from "../../../components/plataforma/uso-almacenamiento";
-import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
-import { CerrarSesion } from "../../../components/negocios/cerrar-sesion";
 import { SegundoFactor } from "../../../components/plataforma/segundo-factor";
-import { rubroQueVeElDueno } from "../../../lib/negocios/rubros-publicos";
+import type { UsoAlmacenamiento } from "../../../lib/plataforma/almacenamiento";
 import type { UsoIa } from "../../../lib/ia/limites";
 import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/servidor";
 import { cupoDelPlan, planDe } from "../../../lib/planes";
-import { UsoIaPanel } from "../../../components/plataforma/uso-ia";
-import { ZonasPlataforma } from "../../../components/plataforma/zonas-plataforma";
-import { BuscadorPlataforma } from "../../../components/plataforma/buscador-plataforma";
-import { TutorialesPlataforma } from "../../../components/plataforma/tutoriales-plataforma";
 import { COLUMNAS_TUTORIAL } from "../../../lib/catalogo/columnas";
-import { RubroPublicoPlataforma } from "../../../components/plataforma/rubro-publico-plataforma";
-import {
-  ETIQUETAS_ESTADO,
-  ordenarPorUrgencia,
-  resumirCliente,
-} from "../../../lib/plataforma/clientes";
-import { PESTANAS_PLATAFORMA, leerPestana } from "../../../lib/plataforma/pestanas";
-import { formatearFechaVencimiento } from "../../../lib/suscripcion";
+import { leerFiltroClientes, ordenarPorUrgencia, resumirCliente } from "../../../lib/plataforma/clientes";
+import { leerPestana } from "../../../lib/plataforma/pestanas";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
-import styles from "./plataforma.module.css";
-import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +26,9 @@ export default async function PaginaPlataforma({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const pestana = leerPestana((await searchParams).vista);
+  const parametros = await searchParams;
+  const pestana = leerPestana(parametros.vista);
+  const filtro = leerFiltroClientes(parametros.estado);
   const supabase = await crearClienteSupabaseServidor();
   const { data: datosClaims } = await supabase.auth.getClaims();
   if (!datosClaims?.claims.sub) redirect("/login?motivo=sesion");
@@ -117,208 +99,62 @@ export default async function PaginaPlataforma({
   );
   if (error) throw new Error("No se pudo leer la lista de negocios.");
 
-  const clientes = ordenarPorUrgencia(
+  const clientes: ClientePlataforma[] = ordenarPorUrgencia(
     (negocios ?? []).map((negocio) => resumirCliente(negocio)),
-  );
-  /* Cada negocio con el precio de su plan. Antes era la cantidad por el precio
-     de entrada, y un negocio en el Activo sumaba como si pagara el básico. */
-  const ingresoMensual = clientes
-    .filter(({ estado }) => estado !== "fuera_a_mano")
-    .reduce((suma, { negocio }) => suma + planDe(negocio.plan_id).precioBs, 0);
-  const atencion = clientes.filter(({ estado }) =>
-    ["suspendido", "vencida", "por_vencer"].includes(estado),
-  ).length;
+  ).map((cliente) => {
+    const plan = planDe(cliente.negocio.plan_id);
+    return {
+      ...cliente,
+      planId: plan.id,
+      planNombre: plan.nombre,
+      fotosUsadas: fotosPorNegocio.get(cliente.negocio.id) ?? 0,
+      topeFotos: cupoDelPlan(cliente.negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual,
+    };
+  });
 
   return (
-    <main className={styles.pagina}>
-      {/* Salir, arriba y a la vista: esta cuenta administra a todos los negocios,
-          y dejarla abierta en una computadora prestada es el riesgo más grande
-          que tiene. Plataforma no tiene la barra del panel, que es donde vive
-          el «Salir» del dueño. */}
-      <EncabezadoPanel
-        accion={<CerrarSesion texto="Salir" variante="secundario" />}
-        descripcion={`${clientes.length} negocios · ${atencion} necesitan atención · Bs ${ingresoMensual} al mes si todos pagan`}
-        rotulo="Administración"
-        titulo="Plataforma"
-      />
-
-      {/* Las pestañas van en la dirección y no en el estado del navegador: así
-          «Consumo» se puede guardar en favoritos, y volver de una acción no
-          devuelve al administrador a la primera. */}
-      <BarraDesplazable
-        claseBarra={styles.pestanas}
-        claseFlecha={styles.flechaPestanas}
-        claseMarco={styles.pestanasMarco}
-        clave={pestana}
-        etiqueta="Secciones de la plataforma"
-      >
-        {PESTANAS_PLATAFORMA.map(({ id, titulo, pregunta }) => (
-          <Link
-            aria-current={id === pestana ? "page" : undefined}
-            className={id === pestana ? styles.pestanaActiva : styles.pestana}
-            href={id === "negocios" ? "/plataforma" : `/plataforma?vista=${id}`}
-            key={id}
-          >
-            <strong>{titulo}</strong>
-            <small>{pregunta}</small>
-          </Link>
-        ))}
-      </BarraDesplazable>
-
-      {pestana === "consumo" ? (
-        <>
-          <UsoIaPanel
-            planes={Object.fromEntries(
-              (negocios ?? []).map((negocio) => [negocio.id, planDe(negocio.plan_id).id]),
-            )}
-            uso={(consumoIa as UsoIa | null) ?? null}
-          />
-          <UsoAlmacenamientoPanel uso={(uso as UsoAlmacenamiento | null) ?? null} />
-        </>
-      ) : null}
-
-      {pestana === "herramientas" ? (
-        <>
-          <InvitarNegocio />
-          <EtiquetasNfc
-            etiquetas={(etiquetas ?? []) as EtiquetaPlataforma[]}
-            negocios={(negocios ?? []).map(({ id, nombre }) => ({ id, nombre }))}
-          />
-        </>
-      ) : null}
-
-      {pestana === "buscador" ? (
-        <BuscadorPlataforma
-          sinResultado={sinResultado ?? []}
-          sinonimos={sinonimos ?? []}
-          totalSinResultado={totalSinResultado ?? 0}
-        />
-      ) : null}
-
-      {pestana === "tutoriales" ? <TutorialesPlataforma tutoriales={tutoriales ?? []} /> : null}
-
-      {pestana === "zonas" ? (
-        <ZonasPlataforma
-          sinZona={(negocios ?? [])
-            .filter((negocio) => negocio.ciudad && !negocio.zona_id)
-            .map(({ id, nombre, ciudad, zona_propuesta }) => ({
-              id,
-              nombre,
-              ciudad: ciudad as string,
-              zona_propuesta,
-            }))}
-          zonas={(zonas ?? []).map((zona) => ({
-            ...zona,
-            latitud: Number(zona.latitud),
-            longitud: Number(zona.longitud),
-          }))}
-        />
-      ) : null}
-
-      {pestana !== "negocios" ? null : clientes.length === 0 ? (
-        <p className={styles.vacio}>Todavía no hay negocios cargados.</p>
-      ) : (
-        <ul className={styles.lista}>
-          {clientes.map(({ negocio, estado, diasRestantes, diasDeGuardaRestantes }) => (
-            <li className={styles.cliente} data-estado={estado} key={negocio.id}>
-              <div className={styles.identidad}>
-                <h2>{negocio.nombre}</h2>
-                {/* La dirección es un enlace y no un renglón de texto: revisar el
-                    catálogo de un cliente es lo que se viene a hacer a esta
-                    lista, y copíar el slug a mano para pegarlo en la barra no
-                    es una forma de hacerlo.
-
-                    Se abre en otra pestaña para no perder el lugar en una lista
-                    larga, y con `a` en vez de `Link` a propósito: `Link`
-                    precargaría **todos** los catálogos de la lista al mostrarla.
-
-                    Fuera de línea no se enlaza. El catálogo público filtra por
-                    `activo`, así que el enlace llevaría a un «no encontrado» y
-                    se leería como un error del sistema en vez de como lo que
-                    es: un negocio dado de baja. */}
-                {negocio.activo ? (
-                  <a
-                    className={styles.direccion}
-                    href={`/${negocio.slug}`}
-                    rel="noreferrer noopener"
-                    target="_blank"
-                  >
-                    /{negocio.slug}
-                  </a>
-                ) : (
-                  <p className={styles.direccion}>
-                    /{negocio.slug} · <span>sin catálogo público</span>
-                  </p>
-                )}
-
-                {/* Los tres datos que hacen falta para hablar con este cliente,
-                    y que hasta ahora obligaban a abrir su panel: a qué se
-                    dedica, desde cuándo es cliente, y si tiene encendida la
-                    herramienta que cuesta dinero. Ninguno pide una consulta
-                    nueva: los tres ya venían en la fila. */}
-                <ul className={styles.datos}>
-                  <li>{rubroQueVeElDueno(negocio.rubro_publico, negocio.rubro)}</li>
-                  <li>
-                    Cliente desde {formatearFechaVencimiento(new Date(negocio.creado_en))}
-                  </li>
-                  {negocio.foto_ia_habilitada ? (
-                    <li data-ia="si">
-                      IA · {fotosPorNegocio.get(negocio.id) ?? 0} de{" "}
-                      {cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual} este
-                      mes
-                    </li>
-                  ) : null}
-                </ul>
-              </div>
-
-              <div className={styles.estado}>
-                <span className={styles.etiquetaEstado}>{ETIQUETAS_ESTADO[estado]}</span>
-                <p>
-                  {diasRestantes < 0
-                    ? `Venció hace ${Math.abs(diasRestantes)} día(s)`
-                    : diasRestantes === 0
-                      ? "Vence hoy"
-                      : `Vence en ${diasRestantes} día(s)`}
-                  {" · "}
-                  {formatearFechaVencimiento(new Date(negocio.suscripcion_vence_en))}
-                </p>
-                {/* Los datos se guardan noventa días desde que sale de línea:
-                    saber cuántos quedan es lo que permite escribir a tiempo. */}
-                {diasDeGuardaRestantes !== null ? (
-                  <p className={styles.guarda}>
-                    {diasDeGuardaRestantes > 0
-                      ? `Sus datos se guardan ${diasDeGuardaRestantes} día(s) más`
-                      : "El plazo de guarda venció: sus datos ya se pueden borrar"}
-                  </p>
-                ) : null}
-              </div>
-
-              <AccionesCliente
-                activo={negocio.activo}
-                fotoIaHabilitada={negocio.foto_ia_habilitada === true}
-                fotosUsadas={fotosPorNegocio.get(negocio.id) ?? 0}
-                negocioId={negocio.id}
-                nombre={negocio.nombre}
-                planId={planDe(negocio.plan_id).id}
-                suspendidoPorPago={estado === "suspendido"}
-                topeFotos={cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual}
-              />
-
-              <RubroPublicoPlataforma
-                negocioId={negocio.id}
-                rubroPublicoActual={negocio.rubro_publico ?? null}
-                siembra={negocio.rubro ?? null}
-              />
-
-              <CambioDeRubro
-                negocioId={negocio.id}
-                nombre={negocio.nombre}
-                rubroActual={negocio.rubro ?? null}
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
+    <PantallaPlataforma
+      buscador={{
+        sinResultado: sinResultado ?? [],
+        sinonimos: sinonimos ?? [],
+        totalSinResultado: totalSinResultado ?? 0,
+      }}
+      clientes={clientes}
+      consumo={{
+        ia: {
+          planes: Object.fromEntries((negocios ?? []).map((negocio) => [negocio.id, planDe(negocio.plan_id).id])),
+          uso: (consumoIa as UsoIa | null) ?? null,
+        },
+        almacenamiento: { uso: (uso as UsoAlmacenamiento | null) ?? null },
+      }}
+      etiquetas={{
+        etiquetas: (etiquetas ?? []) as EtiquetaPlataforma[],
+        negocios: (negocios ?? []).map(({ id, nombre }) => ({ id, nombre })),
+      }}
+      filtro={filtro}
+      pestana={pestana}
+      resumen={{
+        publicados: clientes.filter(({ negocio }) => negocio.activo).length,
+        atencion: clientes.filter(({ estado }) => ["suspendido", "vencida", "por_vencer"].includes(estado)).length,
+        /* Cada negocio con el precio de su plan. Antes era la cantidad por el
+           precio de entrada, y un negocio en el Activo sumaba como si pagara el
+           básico. */
+        ingresoMensual: clientes
+          .filter(({ estado }) => estado !== "fuera_a_mano")
+          .reduce((suma, { planId }) => suma + planDe(planId).precioBs, 0),
+        conIa: clientes.filter(({ negocio }) => negocio.foto_ia_habilitada === true).length,
+      }}
+      tutoriales={{ tutoriales: tutoriales ?? [] }}
+      zonas={{
+        sinZona: (negocios ?? [])
+          .filter((negocio) => negocio.ciudad && !negocio.zona_id)
+          .map(({ id, nombre, ciudad, zona_propuesta }) => ({ id, nombre, ciudad: ciudad as string, zona_propuesta })),
+        zonas: (zonas ?? []).map((zona) => ({
+          ...zona,
+          latitud: Number(zona.latitud),
+          longitud: Number(zona.longitud),
+        })),
+      }}
+    />
   );
 }

@@ -105,3 +105,42 @@ export const ETIQUETAS_ESTADO: Record<EstadoCliente, string> = {
   fuera_a_mano: "Bajado a mano",
   vigente: "Al día",
 };
+
+/* El estado en una o dos palabras, para la insignia de cada fila. La frase
+   larga de `ETIQUETAS_ESTADO` dice lo mismo con más detalle, y en una lista
+   que se recorre de un vistazo lo que se lee es la insignia. */
+export const ESTADO_CORTO: Record<EstadoCliente, string> = {
+  suspendido: "Fuera de línea",
+  vencida: "Vencida",
+  por_vencer: "Por vencer",
+  fuera_a_mano: "Bajado a mano",
+  vigente: "Al día",
+};
+
+/* Los filtros de la lista de negocios, por lo que hay que hacer con cada uno y
+ * no por estado técnico: «necesitan atención» junta a los que hay que
+ * escribirles hoy —vencidos, por vencer, fuera de línea por falta de pago—.
+ *
+ * Viajan en la dirección (`?estado=`), como las pestañas y los filtros del
+ * catálogo: un enlace a «necesitan atención» se puede guardar. */
+export const FILTROS_CLIENTES = [
+  { id: "todos", titulo: "Todos", estados: null },
+  { id: "atencion", titulo: "Necesitan atención", estados: ["suspendido", "vencida", "por_vencer"] },
+  { id: "al_dia", titulo: "Al día", estados: ["vigente"] },
+  { id: "bajados", titulo: "Bajados a mano", estados: ["fuera_a_mano"] },
+] as const satisfies ReadonlyArray<{ id: string; titulo: string; estados: ReadonlyArray<EstadoCliente> | null }>;
+
+export type FiltroClientes = (typeof FILTROS_CLIENTES)[number]["id"];
+
+/* Lo que venga en la dirección puede ser cualquier cosa: cae en «Todos». */
+export function leerFiltroClientes(valor: unknown): FiltroClientes {
+  const texto = Array.isArray(valor) ? valor[0] : valor;
+  return FILTROS_CLIENTES.find(({ id }) => id === texto)?.id ?? "todos";
+}
+
+export function filtrarClientes(clientes: ReadonlyArray<ClienteResumen>, filtro: FiltroClientes): ClienteResumen[] {
+  const estados = FILTROS_CLIENTES.find(({ id }) => id === filtro)?.estados ?? null;
+  return estados === null
+    ? [...clientes]
+    : clientes.filter(({ estado }) => (estados as ReadonlyArray<EstadoCliente>).includes(estado));
+}

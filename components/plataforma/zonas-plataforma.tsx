@@ -173,6 +173,8 @@ export function ZonasPlataforma({
         </div>
       </Formulario>
 
+      {/* Lo cargado, junto: en computadora va a la derecha del formulario. */}
+      <div className={styles.columnaLista}>
       {porCiudad.length === 0 ? (
         <p className={styles.vacio}>Todavía no hay zonas. Empieza por las de Oruro.</p>
       ) : (
@@ -281,6 +283,7 @@ export function ZonasPlataforma({
             })}
           </ul>
         )}
+      </div>
       </div>
     </section>
   );

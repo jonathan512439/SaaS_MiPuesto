@@ -25,7 +25,12 @@ describe("el rubro en la plataforma", () => {
   });
 
   it("es lo que dibuja la lista de negocios", () => {
-    const pagina = readFileSync(join(import.meta.dirname, "..", "..", "app/(admin)/plataforma/page.tsx"), "utf8");
-    expect(pagina).toContain("rubroQueVeElDueno(negocio.rubro_publico, negocio.rubro)");
+    /* Desde el rediseño del 2026-10-21 la lista la dibuja el componente de
+       pantalla, y la página solo lee la base. */
+    const pantalla = readFileSync(
+      join(import.meta.dirname, "..", "..", "components/plataforma/pantalla-plataforma.tsx"),
+      "utf8",
+    );
+    expect(pantalla).toContain("rubroQueVeElDueno(negocio.rubro_publico, negocio.rubro)");
   });
 });

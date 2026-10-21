@@ -144,3 +144,50 @@ details.ciudad > summary {
   align-items: center;
   cursor: pointer;
 }
+
+/* En computadora, el formulario a la izquierda y lo cargado a la derecha
+   (rediseño de la plataforma, 2026-10-21): uno debajo del otro, el formulario
+   y el mapa se estiraban a todo el ancho y la lista quedaba lejos. */
+.columnaLista {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-5);
+  min-width: 0;
+}
+
+@media (min-width: 64rem) {
+  .zonas {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--spacing-6);
+  }
+
+  .zonas > .cabecera {
+    grid-column: 1 / -1;
+  }
+
+  /* El buscador va por áreas y no con un envoltorio: sus partes no están
+     seguidas, y envolverlas cambiaría el orden en el teléfono. */
+  .buscador {
+    grid-template-areas:
+      "cabecera cabecera"
+      "pendientes formulario"
+      "cargados formulario";
+  }
+
+  .buscador > .cabecera {
+    grid-area: cabecera;
+  }
+
+  .buscador > .pendientes {
+    grid-area: pendientes;
+  }
+
+  .buscador > .formulario {
+    grid-area: formulario;
+  }
+
+  .buscador > .ciudad {
+    grid-area: cargados;
+  }
+}

@@ -86,7 +86,7 @@ export function BuscadorPlataforma({
   }
 
   return (
-    <section aria-labelledby="titulo-buscador" className={styles.zonas}>
+    <section aria-labelledby="titulo-buscador" className={`${styles.zonas} ${styles.buscador}`}>
       <header className={styles.cabecera}>
         <h2 id="titulo-buscador">Buscador del directorio</h2>
         <p>

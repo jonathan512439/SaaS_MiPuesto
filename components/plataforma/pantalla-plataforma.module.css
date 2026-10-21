@@ -1,0 +1,673 @@
+@reference "../../app/globals.css";
+
+/* ---- La consola: navegación y contenido ----
+ *
+ * En el teléfono, una barra arriba con la marca y «Salir», y debajo las
+ * secciones en una fila que se desplaza. En computadora, una barra lateral fija
+ * con las secciones una debajo de la otra: se cambia de sección sin volver
+ * arriba, y el contenido aprovecha el ancho. */
+.consola {
+  display: grid;
+  min-height: 100dvh;
+  background: var(--color-lienzo);
+}
+
+.lateral {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "marca salir"
+    "secciones secciones";
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-marca-fuerte);
+  color: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+}
+
+.marca {
+  grid-area: marca;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.isotipo {
+  flex: 0 0 auto;
+  width: auto;
+  height: var(--spacing-8);
+}
+
+.marca div {
+  display: grid;
+  line-height: 1.1;
+}
+
+.marca strong {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 900;
+}
+
+.marca span {
+  color: color-mix(in srgb, var(--color-superficie) 78%, transparent);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+.salir {
+  grid-area: salir;
+}
+
+.seccionesMarco {
+  position: relative;
+  display: flex;
+  grid-area: secciones;
+  min-width: 0;
+  align-items: center;
+}
+
+.secciones {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: var(--spacing-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.secciones::-webkit-scrollbar {
+  display: none;
+}
+
+.seccion,
+.seccionActiva {
+  display: flex;
+  flex: 0 0 auto;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  color: color-mix(in srgb, var(--color-superficie) 86%, transparent);
+  text-decoration: none;
+  transition: background-color var(--movimiento-rapido) ease;
+}
+
+.seccion span,
+.seccionActiva span {
+  display: grid;
+}
+
+.seccion strong,
+.seccionActiva strong {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+/* La pregunta de cada sección se lee en la barra lateral, donde hay lugar. En
+   la fila del teléfono, solo el nombre: con la pregunta entraban dos de seis. */
+.seccion small,
+.seccionActiva small {
+  display: none;
+  color: color-mix(in srgb, var(--color-superficie) 72%, transparent);
+  font-size: var(--text-xs);
+}
+
+.iconoSeccion {
+  flex: 0 0 auto;
+  font-size: var(--text-lg);
+}
+
+.seccion:hover {
+  background: color-mix(in srgb, var(--color-superficie) 10%, transparent);
+}
+
+/* «Acá estás»: fondo más claro y el texto entero. La forma de la fila cambia
+   además del color, que nunca va solo. */
+.seccionActiva {
+  background: color-mix(in srgb, var(--color-superficie) 18%, transparent);
+  color: var(--color-superficie);
+  box-shadow: inset var(--borde-marcado) 0 0 var(--color-superficie);
+}
+
+.seccion:focus-visible,
+.seccionActiva:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  outline-offset: calc(var(--foco-ancho) * -1);
+}
+
+.flechaSecciones {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  display: inline-flex;
+  width: var(--control-alto);
+  height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  border-radius: var(--radius-status);
+  padding: 0 0 var(--spacing-1);
+  background: var(--control-segundo-fondo);
+  box-shadow: var(--sombra-elevada);
+  color: var(--control-segundo-texto);
+  font: inherit;
+  font-size: var(--text-2xl);
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.flechaSecciones[data-lado="antes"] {
+  left: 0;
+}
+
+.flechaSecciones[data-lado="despues"] {
+  right: 0;
+}
+
+.contenido {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-6);
+  width: min(calc(100% - var(--spacing-8)), 90rem);
+  min-width: 0;
+  margin: 0 auto;
+  padding: var(--spacing-6) 0 var(--spacing-16);
+}
+
+/* El mismo contrato que el resto del panel: nada empuja la página a lo ancho. */
+.contenido > *,
+.fila > *,
+.resumenFila > * {
+  min-width: 0;
+}
+
+/* Que ningún desplegable de texto largo («Catálogo — 150 productos…»)
+   estire su tarjeta. */
+.contenido select {
+  max-width: 100%;
+}
+
+.encabezado {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.encabezado p {
+  margin: 0;
+  color: var(--color-marca);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.encabezado h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.encabezado span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 64rem) {
+  .consola {
+    grid-template-columns: 17rem minmax(0, 1fr);
+  }
+
+  .lateral {
+    height: 100dvh;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "marca"
+      "secciones"
+      "salir";
+    align-items: start;
+    gap: var(--spacing-8);
+    padding: var(--spacing-6) var(--spacing-4);
+    box-shadow: none;
+  }
+
+  .marca {
+    padding: 0 var(--spacing-2);
+  }
+
+  .secciones {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .seccion,
+  .seccionActiva {
+    padding: var(--spacing-3);
+  }
+
+  .seccion small,
+  .seccionActiva small {
+    display: block;
+  }
+
+  .salir {
+    padding: 0 var(--spacing-2);
+  }
+
+  .contenido {
+    width: min(calc(100% - var(--spacing-16)), 90rem);
+    padding-top: var(--spacing-8);
+  }
+
+  .encabezado h1 {
+    font-size: var(--text-3xl);
+  }
+}
+
+/* ---- Negocios ---- */
+
+/* Cuatro números en tarjetas: lo que se mira todos los días, antes que la
+   lista. «Necesitan atención» con algo adentro lleva borde de alerta, además
+   del número, que es lo que de verdad lo dice. */
+.indicadores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-3);
+  margin: 0;
+}
+
+.indicadores > div {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-1);
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+}
+
+.indicadores > div[data-alerta="si"] {
+  border-left: var(--borde-marcado) solid var(--color-alerta);
+}
+
+.indicadores dt {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.indicadores dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.indicadores small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+@media (min-width: 64rem) {
+  .indicadores {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-4);
+  }
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.filtro,
+.filtroActivo {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.filtro span,
+.filtroActivo span {
+  border-radius: var(--radius-status);
+  padding: 0 var(--spacing-2);
+  background: var(--color-fondo-hundido);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+/* El elegido con el color de marca y en negrita: la misma seña que «acá
+   estás» en el resto del panel. */
+.filtroActivo {
+  border-color: var(--color-marca);
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+}
+
+.filtro:hover {
+  border-color: var(--color-marca);
+}
+
+.filtro:focus-visible,
+.filtroActivo:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.vacio {
+  margin: 0;
+  border: var(--borde-fino) dashed var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-6);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.lista {
+  display: grid;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cada negocio, una fila. La franja de la izquierda dice el estado antes de
+   leer; la insignia lo dice en palabras. */
+.fila {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border: var(--borde-fino) solid var(--color-borde-tarjeta);
+  border-left: var(--spacing-1) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-suave);
+}
+
+.fila[data-estado="suspendido"] {
+  border-left-color: var(--color-peligro);
+}
+
+.fila[data-estado="vencida"] {
+  border-left-color: var(--color-alerta);
+}
+
+.fila[data-estado="por_vencer"] {
+  border-left-color: var(--color-accion);
+}
+
+.fila[data-estado="vigente"] {
+  border-left-color: var(--color-exito);
+}
+
+.resumenFila {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+}
+
+@media (min-width: 64rem) {
+  /* La última columna queda libre para el botón «Gestionar», que se ubica
+     encima de ella (ver `.gestionar summary`). */
+  .resumenFila {
+    grid-template-columns: 9rem minmax(0, 1fr) 15rem 9rem;
+    align-items: center;
+    gap: var(--spacing-5);
+    padding: var(--spacing-4) var(--spacing-5);
+  }
+}
+
+/* Un punto del color del estado y el estado en palabras. El texto va en el
+   color de siempre: un rojo o un naranja chico sobre su propio tinte no se lee. */
+.insignia {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-fondo-hundido);
+  color: var(--color-texto);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
+
+.insignia::before {
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  border-radius: 50%;
+  background: var(--color-borde);
+  content: "";
+}
+
+.insignia[data-estado="suspendido"]::before {
+  background: var(--color-peligro);
+}
+
+.insignia[data-estado="vencida"]::before {
+  background: var(--color-alerta);
+}
+
+.insignia[data-estado="por_vencer"]::before {
+  background: var(--color-accion);
+}
+
+.insignia[data-estado="vigente"]::before {
+  background: var(--color-exito);
+}
+
+.quien {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.quien h2 {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+
+.direccion,
+.direccionApagada {
+  width: fit-content;
+  font-size: var(--text-xs);
+}
+
+.direccion {
+  color: var(--color-marca);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.direccion:hover {
+  color: var(--color-marca-fuerte);
+}
+
+.direccionApagada {
+  color: var(--color-texto-suave);
+  font-style: italic;
+}
+
+.datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-2);
+  margin: var(--spacing-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.datos li {
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--color-fondo-hundido);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+/* La que cuesta dinero cada vez que se usa se distingue de las que solo
+   informan. */
+.datos li[data-ia="si"] {
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+}
+
+.vence {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.vence strong {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.vence small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.vence .guarda {
+  color: var(--color-peligro);
+  font-weight: 700;
+}
+
+/* «Gestionar»: los controles de cada negocio, plegados. */
+.gestionar {
+  border-top: var(--borde-fino) solid var(--color-borde-suave);
+  background: var(--color-lienzo);
+}
+
+.gestionar summary {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: var(--spacing-3) var(--spacing-4);
+  border: var(--borde-fino) solid var(--control-segundo-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--control-segundo-fondo);
+  color: var(--control-segundo-texto);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  list-style: none;
+  cursor: pointer;
+}
+
+.gestionar summary::-webkit-details-marker {
+  display: none;
+}
+
+.gestionar summary svg {
+  transition: transform var(--movimiento-rapido) ease;
+}
+
+.gestionar[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.gestionar summary:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.paneles {
+  display: grid;
+  gap: var(--spacing-5);
+  padding: 0 var(--spacing-4) var(--spacing-5);
+}
+
+.paneles > section {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-3);
+  min-width: 0;
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  background: var(--color-superficie);
+}
+
+/* En una grilla, el ancho mínimo de cada hijo es su contenido, y el del plan es
+   su opción más larga: sin esto, en un teléfono el desplegable se salía de la
+   tarjeta. */
+.paneles > section > * {
+  min-width: 0;
+}
+
+.paneles h3 {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+/* En computadora, cerrado, «Gestionar» va a la derecha de la fila y no en una
+   franja propia debajo: con la franja, una lista de diez negocios medía el
+   doble. Abierto, el panel se despliega debajo, con su borde. */
+@media (min-width: 64rem) {
+  .gestionar:not([open]) {
+    border-top: 0;
+    background: transparent;
+  }
+
+  .gestionar summary {
+    position: absolute;
+    top: var(--spacing-4);
+    right: var(--spacing-5);
+    margin: 0;
+  }
+
+  .gestionar[open] {
+    padding-top: var(--spacing-5);
+  }
+
+  .paneles {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    padding: 0 var(--spacing-5) var(--spacing-5);
+  }
+}
+
+/* ---- Las otras secciones ---- */
+
+.pila {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+.dosColumnas {
+  display: grid;
+  gap: var(--spacing-6);
+}
+
+@media (min-width: 64rem) {
+  .dosColumnas {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: start;
+  }
+}

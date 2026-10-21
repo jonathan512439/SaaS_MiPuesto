@@ -7,8 +7,12 @@
   gap: var(--spacing-2);
 }
 
+/* Cada grupo —meses, plan— en su renglón: desde el rediseño del 2026-10-21
+   viven en el panel «Gestionar», más angosto que la fila de antes, y en el
+   mismo renglón el plan empujaba el resto fuera de la tarjeta. */
 .renovar {
   display: flex;
+  flex: 1 1 100%;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-2);
@@ -22,6 +26,16 @@
   flex: 1 1 12rem;
   min-width: 0;
   max-width: 100%;
+  min-height: var(--control-alto);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-8) var(--spacing-1) var(--spacing-2);
+  /* En forma larga: `background` a secas borra el galón que dibuja
+     globals.css, y el desplegable parecería una caja de escribir. */
+  background-color: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-sm);
 }
 
 .renovar label {
@@ -52,7 +66,10 @@
   font: inherit;
   font-size: var(--text-sm);
   font-weight: 800;
-  white-space: nowrap;
+  /* Puede partirse en dos renglones antes que salirse de la tarjeta en un
+     teléfono: «Quitar lectura de fotos (37/60 este mes)» es largo. */
+  max-width: 100%;
+  white-space: normal;
   cursor: pointer;
   box-shadow: var(--sombra-suave);
 }

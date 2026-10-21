@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   DIAS_DE_GUARDA,
+  ESTADO_CORTO,
+  FILTROS_CLIENTES,
+  filtrarClientes,
+  leerFiltroClientes,
   ordenarPorUrgencia,
   resumirCliente,
   type NegocioPlataforma,
@@ -86,5 +90,38 @@ describe("orden por urgencia", () => {
       "Alfa",
       "Zeta",
     ]);
+  });
+});
+
+describe("filtros de la lista de negocios", () => {
+  const clientes = [
+    resumirCliente(negocio({ id: "al-dia" }), AHORA),
+    resumirCliente(negocio({ id: "por-vencer", suscripcion_vence_en: "2026-09-18T12:00:00-04:00" }), AHORA),
+    resumirCliente(negocio({ id: "vencida", suscripcion_vence_en: "2026-09-14T12:00:00-04:00" }), AHORA),
+    resumirCliente(negocio({ id: "suspendido", activo: false, suspendido_en: "2026-09-10T12:00:00-04:00" }), AHORA),
+    resumirCliente(negocio({ id: "a-mano", activo: false }), AHORA),
+  ];
+  const ids = (filtro: Parameters<typeof filtrarClientes>[1]) =>
+    filtrarClientes(clientes, filtro).map(({ negocio: n }) => n.id).sort();
+
+  it("«necesitan atención» junta a los que hay que escribirles hoy", () => {
+    expect(ids("atencion")).toEqual(["por-vencer", "suspendido", "vencida"]);
+  });
+
+  it("cada negocio cae en un solo filtro, y «todos» los trae a todos", () => {
+    expect(ids("todos")).toHaveLength(clientes.length);
+    const sinTodos = FILTROS_CLIENTES.filter(({ id }) => id !== "todos").flatMap(({ id }) => ids(id));
+    expect(sinTodos.sort()).toEqual(ids("todos"));
+  });
+
+  it("lo que venga en la dirección y no sea un filtro cae en «todos»", () => {
+    expect(leerFiltroClientes("atencion")).toBe("atencion");
+    expect(leerFiltroClientes(["al_dia", "x"])).toBe("al_dia");
+    expect(leerFiltroClientes("cualquier-cosa")).toBe("todos");
+    expect(leerFiltroClientes(undefined)).toBe("todos");
+  });
+
+  it("cada estado tiene su insignia corta", () => {
+    for (const { estado } of clientes) expect(ESTADO_CORTO[estado]).toBeTruthy();
   });
 });
