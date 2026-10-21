@@ -371,14 +371,10 @@
  * apretaría también a los bloques donde el aire está bien. */
 .portada {
   position: relative;
-  /* 16:7 en todas las pantallas, la forma exacta que pide la ayuda del panel.
-     Era 16:9 en el celular, 21:9 en la tableta y 3:1 en la computadora, y una
-     imagen subida tal como decía la ayuda se veía recortada en las tres: el
-     dueño la subió bien y la vio cortada igual. Con una sola forma la imagen se
-     ve entera, tal como la subió. */
-  aspect-ratio: 16 / 7;
-  /* Para medir el alto mínimo del cartel contra el ancho de la portada. */
-  container-type: inline-size;
+  /* Las reglas de abajo preguntan por el ancho de la portada y no por el de la
+     pantalla: en el teléfono dibujado de la vista previa la portada es angosta
+     aunque la pantalla sea de computadora. */
+  container: portada / inline-size;
   overflow: hidden;
   margin-inline: calc(var(--margen-lateral) * -1);
   /* Pegada a la cabecera: se descuenta el `gap` entero del catálogo. Las dos son
@@ -395,33 +391,60 @@
   box-shadow: var(--catalogo-sombra-flotante);
 }
 
-/* Con cartel encima, la portada toma el alto del cartel si este no entra: en un
-   celular de 360 de ancho la franja mide 157 de alto, y un título con bajada y
-   botón no cabe. Crece hacia abajo, como el banner, y solo entonces la foto
-   pierde un poco de los costados; un cartel corto la deja en 16:7. */
-.portada:has(> .hero) {
-  aspect-ratio: auto;
+/* 16:7 en todas las pantallas, la forma exacta que pide la ayuda del panel.
+   Era 16:9 en el celular, 21:9 en la tableta y 3:1 en la computadora, y una
+   imagen subida tal como decía la ayuda se veía recortada en las tres: el
+   dueño la subió bien y la vio cortada igual. Con una sola forma la imagen se
+   ve entera, tal como la subió. */
+.portadaMarco {
+  position: relative;
+  aspect-ratio: 16 / 7;
 }
 
 .portadaImagen {
   object-fit: cover;
 }
 
-/* El cartel sobre la portada.
+/* El cartel de la portada.
  *
  * La cortina, la letra y el botón son los de `texto-sobre-imagen.module.css`,
- * la misma pieza que lleva el banner de publicidad. Acá va solo lo que depende
- * de estar **encima de la portada**: cubrirla entera y centrar el texto en su
- * alto. El relleno lateral coincide con el de la cabecera, así el título
- * arranca justo debajo del nombre del negocio en vez de quedar corrido.
+ * la misma pieza que lleva el banner de publicidad. Acá va solo dónde se
+ * ubica, que depende del ancho:
+ *
+ * - **Angosta (el celular): debajo de la foto**, sobre el color de la cortina.
+ *   La franja 16:7 mide 157 de alto en un celular de 360, y un título con
+ *   bajada y botón pide unos 230: encima no entraba, la portada crecía para
+ *   hacerle lugar y la foto perdía los costados. El dueño la subió con la forma
+ *   justa y la vio cortada en el celular (2026-10-21).
+ * - **Ancha: encima de la foto**, cubriéndola y con el texto centrado en su
+ *   alto. Si un cartel muy largo no entra igual, la portada crece hacia abajo,
+ *   como el banner.
  *
  * Solo existe si el dueño escribió algo: sin texto no se dibuja, y con eso la
  * foto va sin cortina. */
-.hero {
-  position: relative;
-  z-index: 1;
-  min-height: calc(100cqw * 7 / 16);
-  align-content: center;
+@container portada (max-width: 39.99rem) {
+  .portada > .hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--spacing-4);
+    /* Liso, del mismo color con que arranca la cortina sobre la foto: el par
+       con la letra es el que el control de contraste ya comprueba. */
+    background: var(--catalogo-cortina);
+  }
+}
+
+@container portada (min-width: 40rem) {
+  .portada:has(> .hero) > .portadaMarco {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+  }
+
+  .portada > .hero {
+    position: relative;
+    z-index: 1;
+    min-height: calc(100cqw * 7 / 16);
+    align-content: center;
+  }
 }
 
 .conteo {

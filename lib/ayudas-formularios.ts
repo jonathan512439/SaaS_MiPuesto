@@ -72,7 +72,7 @@ const { portada, logo, banner, producto, qr } = MEDIDAS_DE_IMAGEN;
 const { cuadricula, fila, vitrina } = FORMAS_DE_IMAGEN.tarjeta;
 const comoForma = (valor: number) => (valor === 4 / 3 ? "4:3" : valor === 3 / 4 ? "3:4" : valor === 1 ? "1:1" : String(valor));
 
-export const AYUDA_PORTADA = `${instructivoDeImagen(portada)} Con esa forma se ve entera, en el celular y en la computadora. Si es más ancha, se cortan los costados; si es más alta, arriba y abajo. Si quieres un texto encima, escríbelo en «Texto sobre tu portada», no en la imagen: ese se lee siempre. Y si es largo, en el celular la portada crece un poco hacia abajo: deja aire en los bordes.`;
+export const AYUDA_PORTADA = `${instructivoDeImagen(portada)} Con esa forma se ve entera, en el celular y en la computadora. Si es más ancha, se cortan los costados; si es más alta, arriba y abajo. Si quieres un texto, escríbelo en «Texto sobre tu portada», no en la imagen: ese se lee siempre. En la computadora va encima de la foto, a la izquierda; en el celular, debajo, para que la foto no se corte.`;
 
 export const AYUDA_LOGO = `Cuadrada. ${instructivoDeImagen(logo)} Si no es cuadrada, se corta al centro. Se muestra chica, del tamaño de una moneda: si tiene letras finas no se van a leer.`;
 

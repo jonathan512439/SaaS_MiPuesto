@@ -212,15 +212,17 @@ export function PlantillaMipuesto({
           {/* `preload` y prioridad alta: es lo más grande que se ve al abrir el
               catálogo —el LCP—, y con la carga diferida de siempre el
               navegador la pedía recién después de armar la página. */}
-          <Image
-            alt={`Portada de ${negocio.nombre}`}
-            className={styles.portadaImagen}
-            fetchPriority="high"
-            fill
-            preload
-            sizes="(min-width: 64rem) 1152px, 100vw"
-            src={negocio.portadaUrl}
-          />
+          <div className={styles.portadaMarco}>
+            <Image
+              alt={`Portada de ${negocio.nombre}`}
+              className={styles.portadaImagen}
+              fetchPriority="high"
+              fill
+              preload
+              sizes="(min-width: 64rem) 1152px, 100vw"
+              src={negocio.portadaUrl}
+            />
+          </div>
           <TextoSobreImagen className={styles.hero} texto={negocio.portadaTexto} />
         </section>
       ) : null}
