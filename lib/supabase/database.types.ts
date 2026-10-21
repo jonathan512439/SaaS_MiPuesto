@@ -1447,6 +1447,7 @@ export type Database = {
         Returns: undefined
       }
       es_admin_plataforma: { Args: never; Returns: boolean }
+      es_admin_plataforma_con_2fa: { Args: never; Returns: boolean }
       esquema_aplicado: { Args: never; Returns: string }
       estado_tareas: {
         Args: never
