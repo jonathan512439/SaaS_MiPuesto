@@ -44,6 +44,13 @@ describe("la oferta publicada", () => {
     expect(PROMO_SEGUNDO_MES).toMatch(/segundo mes va por nuestra cuenta/);
   });
 
+  /* Hasta tener clientes del piloto, los catálogos del directorio son de
+     demostración. Llamarlos «reales» es lo primero que descubre quien escribe a
+     uno, y con eso se pierde la venta. */
+  it("la portada no llama reales a los catálogos de demostración", () => {
+    expect(PUBLICAS.portada).not.toMatch(/negocios reales|catálogos reales/i);
+  });
+
   it("la prueba es de quince días, quince productos y cinco lecturas", () => {
     expect(PLAN_PRUEBA).toMatchObject({ dias: 15, lecturasPorMes: 5, topes: { productos: 15 } });
   });

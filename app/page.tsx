@@ -134,7 +134,7 @@ export default function Inicio() {
   );
 
   /* Un QR de verdad: quien mira la portada en la computadora lo escanea y
-     termina recorriendo catálogos reales, que es lo que hace la tarjeta en una
+     termina recorriendo el directorio, que es lo que hace la tarjeta en una
      mesa. */
   const qrDirectorio = qrComoSvg(
     new URL("/directorio", obtenerUrlBaseSitio()).toString(),
@@ -161,8 +161,11 @@ export default function Inicio() {
                 <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
                   {LLAMADA}
                 </a>
+                {/* «Ejemplos», no negocios en funcionamiento: hasta el piloto, los
+                    catálogos del directorio son de demostración, y quien
+                    escribiera a uno descubriría que no existe (2026-10-22). */}
                 <Link className={styles.botonContorno} href="/directorio">
-                  Ver negocios reales
+                  Ver ejemplos
                 </Link>
               </div>
               {/* El precio arriba y no escondido al final: quien no lo encuentra
@@ -636,7 +639,7 @@ export default function Inicio() {
                 </div>
               </div>
               <figcaption>
-                Escanea cualquiera de los dos QR: abren catálogos de negocios reales.
+                Escanea cualquiera de los dos QR: abren el directorio, con catálogos de ejemplo.
               </figcaption>
             </figure>
           </div>
