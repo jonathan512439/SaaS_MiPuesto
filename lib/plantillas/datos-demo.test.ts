@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { TRAZOS_CATALOGO } from "../../components/iconos/catalogo";
@@ -40,11 +43,21 @@ describe("la muestra de la vista previa es del rubro del negocio", () => {
     expect(nombres(null)).toContain("Hamburguesa de la casa");
   });
 
-  /* Lo decidido en demos-rubro.ts: solo el restaurante lleva fotografías,
-     porque son las únicas que existen de verdad. */
+  /* Lo decidido en demos-rubro.ts: no se inventan fotografías. Desde el
+     2026-10-22 la ropa y la veterinaria llevan fotos de dominio público, y cada
+     una tiene que estar en el registro de créditos y existir de verdad. */
   it.each(RUBROS.filter((r) => r !== "restaurante"))("«%s» no inventa fotografías", (rubro) => {
-    const productos = muestra(rubro).categorias.flatMap((c) => c.productos);
-    expect(productos.every((p) => p.imagen === null && p.imagenes.length === 0)).toBe(true);
+    const raiz = join(import.meta.dirname, "..", "..");
+    const creditos = readFileSync(join(raiz, "docs", "creditos-fotos-demo.md"), "utf8");
+    const fotos = muestra(rubro)
+      .categorias.flatMap((c) => c.productos)
+      .flatMap((p) => p.imagenes);
+    for (const foto of fotos) {
+      const archivo = foto.src.split("/").at(-1)!;
+      expect(creditos, `${rubro}: ${archivo} no está en los créditos`).toContain(`\`${archivo}\``);
+      expect(existsSync(join(raiz, "public", foto.src)), `${rubro}: falta ${foto.src}`).toBe(true);
+      expect(foto.alt.length, `${rubro}: ${archivo} sin descripción`).toBeGreaterThan(0);
+    }
   });
 
   it.each(RUBROS)("«%s» usa íconos que existen", (rubro) => {

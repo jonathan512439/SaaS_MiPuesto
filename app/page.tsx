@@ -202,27 +202,6 @@ export default function Inicio() {
 
             <div className={styles.escena}>
               <VitrinaPortada />
-              {/* Lo que le pasa al dueño mientras el cliente mira: dos avisos de
-                  ejemplo, flotando junto al teléfono. Son decorado: lo mismo
-                  está dicho en texto en los pasos. */}
-              <div aria-hidden="true" className={styles.avisoPedido}>
-                <span className={styles.avisoIcono}>
-                  <Icono nombre="carrito" />
-                </span>
-                <span>
-                  <strong>Nuevo pedido</strong>
-                  <small>2 salteñas y 1 api, Bs 24</small>
-                </span>
-              </div>
-              <div aria-hidden="true" className={styles.avisoBusqueda}>
-                <span className={styles.avisoIcono}>
-                  <Icono nombre="lupa" />
-                </span>
-                <span>
-                  <strong>Te encontraron</strong>
-                  <small>buscando «salteñas»</small>
-                </span>
-              </div>
             </div>
           </div>
           <div aria-hidden="true" className={styles.cinta} />

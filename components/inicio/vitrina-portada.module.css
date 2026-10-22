@@ -4,7 +4,90 @@
   position: relative;
   display: grid;
   justify-items: center;
+  gap: var(--spacing-4);
   min-width: 0;
+}
+
+/* El carrusel de rubros (2026-10-22).
+ *
+ * Con desplazamiento nativo y no con un componente: se desliza con el dedo, con
+ * la rueda o con el teclado como cualquier lista, y si el JavaScript tarda, ya
+ * funciona. Cada diapositiva se ajusta al centro, y las de los costados asoman
+ * —atenuadas— para que se vea sin leer nada que hay más de un rubro. */
+.carrusel {
+  position: relative;
+  display: flex;
+  gap: var(--spacing-4);
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-block: var(--spacing-2);
+}
+
+/* Dos separadores invisibles en las puntas, lo justo para que la primera y la
+   última también puedan quedar al centro. Van como seudoelementos y no como
+   relleno porque su ancho depende del ancho del carrusel, y no son hijos: no
+   cuentan al buscar cuál está al centro. */
+.carrusel::before,
+.carrusel::after {
+  content: "";
+  flex: 0 0 calc(9% - var(--spacing-4));
+}
+
+.carrusel::-webkit-scrollbar {
+  display: none;
+}
+
+.diapositiva {
+  display: grid;
+  flex: 0 0 82%;
+  justify-items: center;
+  scroll-snap-align: center;
+  opacity: 0.5;
+  transform: scale(0.94);
+  transition:
+    opacity var(--movimiento-rapido) ease-out,
+    transform var(--movimiento-rapido) ease-out;
+}
+
+.diapositiva[data-activa="si"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Los rubros, debajo: el activo resaltado con el sol del sitio y con su borde,
+   no solo con el color. */
+.selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-2);
+}
+
+.selector button {
+  min-height: var(--control-alto);
+  border: var(--borde-marcado) solid color-mix(in srgb, var(--color-sitio-sobre-noche) 40%, transparent);
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-4);
+  background: transparent;
+  color: var(--color-sitio-sobre-noche);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.selector button[aria-pressed="true"] {
+  border-color: var(--color-sitio-sol);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+}
+
+.selector button:focus-visible {
+  outline: var(--borde-marcado) solid var(--color-sitio-sol);
+  outline-offset: var(--spacing-1);
 }
 
 /* El marco imita un celular porque ahí es donde el cliente final abre el
@@ -12,6 +95,7 @@
    no es una maqueta a escala: es el tamaño verdadero. */
 .telefono {
   width: min(100%, 20rem);
+  max-width: 100%;
   overflow: hidden;
   border: var(--spacing-2) solid var(--color-texto);
   border-radius: var(--radius-sheet);
@@ -68,43 +152,103 @@
   padding: var(--spacing-4);
 }
 
-/* El segundo teléfono no existe en móvil: ahí el ancho es el recurso escaso y
-   una pila de dos marcos empuja la llamada a la acción fuera de la pantalla. */
-.telefonoAtras {
-  display: none;
+/* Los dos avisos que flotan junto al teléfono: lo que ve el cliente y lo que
+   le llega al dueño, en la misma escena. Vivían en la portada; viven acá desde
+   que cambian con el rubro del carrusel. */
+.avisoPedido,
+.avisoBusqueda {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-3) var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  box-shadow: var(--sombra-flotante);
+  pointer-events: none;
+  animation: aparecer var(--movimiento-rapido) ease-out;
 }
 
+/* Más abajo que la cabecera del catálogo: el nombre del negocio es lo que dice
+   de qué rubro es cada teléfono, y el aviso lo tapaba. */
+.avisoPedido {
+  top: calc(var(--spacing-32) + var(--spacing-24));
+  left: 0;
+}
+
+.avisoBusqueda {
+  right: 0;
+  bottom: var(--spacing-24);
+}
+
+.avisoPedido > span:last-child,
+.avisoBusqueda > span:last-child {
+  display: grid;
+}
+
+.avisoPedido small,
+.avisoBusqueda small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+.avisoIcono {
+  display: grid;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  place-items: center;
+  border-radius: var(--radius-status);
+  background: var(--color-exito);
+  color: var(--color-superficie);
+  font-size: var(--text-lg);
+}
+
+.avisoBusqueda .avisoIcono {
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(var(--spacing-2));
+  }
+}
+
+/* En pantalla ancha cabe el teléfono entero con los vecinos asomando. */
 @media (min-width: 64rem) {
-  .vitrina {
-    justify-items: end;
-    padding-bottom: var(--spacing-8);
+  .diapositiva {
+    flex-basis: 20rem;
   }
 
-  .telefono {
-    position: relative;
-    z-index: 1;
-    transform: rotate(-2deg);
+  .carrusel::before,
+  .carrusel::after {
+    flex-basis: calc(50% - 10rem - var(--spacing-4));
   }
 
-  .telefonoAtras {
-    position: absolute;
-    z-index: 0;
-    right: var(--spacing-24);
-    bottom: 0;
-    display: block;
-    width: 17rem;
-    transform: rotate(5deg);
-    opacity: 0.92;
-  }
-
-  .telefonoAtras .pantalla {
-    max-height: 26rem;
+  /* Los vecinos se desvanecen hacia los bordes en vez de cortarse en seco. */
+  .carrusel {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      var(--color-texto) 18%,
+      var(--color-texto) 82%,
+      transparent
+    );
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .telefono,
-  .telefonoAtras {
-    transform: none;
+  .diapositiva,
+  .avisoPedido,
+  .avisoBusqueda {
+    transition: none;
+    animation: none;
+  }
+
+  .carrusel {
+    scroll-behavior: auto;
   }
 }

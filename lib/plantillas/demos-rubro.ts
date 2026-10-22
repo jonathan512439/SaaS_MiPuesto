@@ -8,11 +8,11 @@ import type { DatosPlantilla, ProductoPlantilla } from "./tipos";
  * producto. Un comerciante no se reconoce ahí; se reconoce en «así se ve una
  * ferretería», con tornillos y medidas.
  *
- * Solo el restaurante lleva fotografías, porque son las únicas que existen de
- * verdad y no se van a inventar las demás. Tampoco hace falta: los rubros sin
- * foto usan las plantillas donde la foto es lo de menos —la lista de precios y
- * el listado de servicios—, y de paso muestran cómo se ve un catálogo el primer
- * día, antes de cargar imágenes.
+ * Llevan fotografía el restaurante y, desde el 2026-10-22, la ropa y la
+ * veterinaria: son fotos de dominio público (CC0 o PDM), con su origen anotado
+ * en `docs/creditos-fotos-demo.md`, y no se inventan las demás. Los rubros sin
+ * foto muestran de paso cómo se ve un catálogo el primer día, antes de cargar
+ * imágenes.
  */
 export type DemoRubro = {
   id: string;
@@ -315,10 +315,10 @@ export const DEMOS_POR_RUBRO: DemoRubro[] = [
  * La vista previa mostraba hamburguesa, papas y limonada en cualquier rubro: una
  * ferretería elegía su color viendo comida. Ahora cada rubro ve cosas de su
  * rubro. Las que ya existían para la portada se reusan tal cual; las demás
- * siguen la misma regla de este archivo —sin fotografía, con los datos propios
- * del rubro escritos como se ven—, que además es como se ve un catálogo el
- * primer día. El restaurante no está: conserva la muestra de siempre, con las
- * únicas fotos que existen. */
+ * llevan los datos propios del rubro escritos como se ven, y foto solo donde
+ * hay una de dominio público —ropa y veterinaria, que además se muestran en el
+ * carrusel de la portada—. El restaurante no está: conserva la muestra de
+ * siempre. */
 type CategoriaMuestra = DatosPlantilla["categorias"][number];
 
 const demo = (id: string) => DEMOS_POR_RUBRO.find((d) => d.id === id)!.datos.categorias;
@@ -335,13 +335,15 @@ const MUESTRAS_NUEVAS: Record<string, CategoriaMuestra[]> = {
           descripcion: "Fresco y con vuelo, de algodón liviano.",
           precio: 190,
           disponibles: 4,
+          imagen: { src: "/demo/productos/vestido-rojo.webp", alt: "Vestido rojo con estampado de flores" },
           datosPropios: [{ nombre: "Color", texto: "Rojo" }],
         }),
         producto(2, {
-          nombre: "Blusa de lino",
-          descripcion: "Corte suelto, combina con jean o falda.",
-          precio: 135,
-          datosPropios: [{ nombre: "Color", texto: "Blanco" }],
+          nombre: "Chamarra de jean",
+          descripcion: "Clásica, de mezclilla gruesa. Combina con todo.",
+          precio: 240,
+          imagen: { src: "/demo/productos/chamarra-jean.webp", alt: "Chamarra de jean azul" },
+          datosPropios: [{ nombre: "Color", texto: "Azul" }],
         }),
       ],
     },
@@ -355,6 +357,7 @@ const MUESTRAS_NUEVAS: Record<string, CategoriaMuestra[]> = {
           descripcion: "Livianas, con suela antideslizante. Del 35 al 40.",
           precio: 280,
           disponibles: 3,
+          imagen: { src: "/demo/productos/zapatillas-blancas.webp", alt: "Zapatillas blancas de lona" },
           datosPropios: [{ nombre: "Color", texto: "Blanco" }],
         }),
       ],
@@ -439,12 +442,14 @@ const MUESTRAS_NUEVAS: Record<string, CategoriaMuestra[]> = {
           descripcion: "Croquetas para raza mediana.",
           precio: 95,
           disponibles: 7,
+          imagen: { src: "/demo/productos/alimento-perro.webp", alt: "Plato con croquetas para perro" },
           datosPropios: [{ nombre: "Para", texto: "Perro adulto" }],
         }),
         producto(2, {
           nombre: "Alimento gato 1,5 kg",
           descripcion: "Con pollo y arroz.",
           precio: 70,
+          imagen: { src: "/demo/productos/alimento-gato.webp", alt: "Gato comiendo de la mano de su dueña" },
           datosPropios: [{ nombre: "Para", texto: "Gato" }],
         }),
       ],
@@ -455,9 +460,10 @@ const MUESTRAS_NUEVAS: Record<string, CategoriaMuestra[]> = {
       icono: "tina",
       productos: [
         producto(3, {
-          nombre: "Champú antipulgas 250 ml",
-          descripcion: "Para perros y gatos desde los tres meses.",
-          precio: 45,
+          nombre: "Baño y peluquería",
+          descripcion: "Baño, corte y secado, con turno.",
+          precio: 60,
+          imagen: { src: "/demo/productos/bano-perro.webp", alt: "Perro recibiendo un baño" },
         }),
       ],
     },

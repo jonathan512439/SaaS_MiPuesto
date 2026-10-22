@@ -160,64 +160,12 @@
   color: var(--color-sitio-sol);
 }
 
-/* El teléfono con dos avisos alrededor: lo que ve el cliente y lo que le llega
-   al dueño, en la misma escena. */
+/* El carrusel de teléfonos con sus dos avisos (`vitrina-portada.module.css`). */
 .escena {
   position: relative;
   display: grid;
   min-width: 0;
   padding: var(--spacing-6) 0;
-}
-
-.avisoPedido,
-.avisoBusqueda {
-  position: absolute;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-3) var(--spacing-4) var(--spacing-3) var(--spacing-3);
-  background: var(--color-superficie);
-  color: var(--color-texto);
-  box-shadow: var(--sombra-flotante);
-}
-
-.avisoPedido {
-  top: var(--spacing-16);
-  left: 0;
-}
-
-.avisoBusqueda {
-  right: 0;
-  bottom: var(--spacing-16);
-}
-
-.avisoPedido > span:last-child,
-.avisoBusqueda > span:last-child {
-  display: grid;
-}
-
-.avisoPedido small,
-.avisoBusqueda small {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-}
-
-.avisoIcono {
-  display: grid;
-  width: var(--spacing-10);
-  height: var(--spacing-10);
-  place-items: center;
-  border-radius: var(--radius-status);
-  background: var(--color-exito);
-  color: var(--color-superficie);
-  font-size: var(--text-lg);
-}
-
-.avisoBusqueda .avisoIcono {
-  background: var(--color-sitio-sol);
-  color: var(--color-sitio-sobre-sol);
 }
 
 /* La cinta de aguayo, al pie de la noche. */
