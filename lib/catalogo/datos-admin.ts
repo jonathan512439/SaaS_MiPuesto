@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { leerLecturasUsadas } from "../ia/lecturas-usadas";
 import type { Database } from "../supabase/database.types";
 import { leerEspacioUsado } from "./almacenamiento";
 import {
@@ -66,7 +67,7 @@ export async function leerCatalogoAdmin(
     .maybeSingle();
   if (!negocio) return null;
 
-  const [categorias, atributos, recursos, subcategorias, productos, usoIa, espacioUsado] = await Promise.all([
+  const [categorias, atributos, recursos, subcategorias, productos, lecturasUsadas, espacioUsado] = await Promise.all([
     supabase
       .from("categorias")
       .select(COLUMNAS_CATEGORIA)
@@ -88,14 +89,8 @@ export async function leerCatalogoAdmin(
       .is("eliminado_en", null)
       .order("orden")
       .order("creado_en"),
-    /* El mes se guarda como su día 1, en hora de Bolivia. Si el negocio todavía
-       no usó la herramienta este mes no hay fila, y eso es cero. */
-    supabase
-      .from("uso_ia_negocio")
-      .select("cantidad")
-      .eq("negocio_id", negocio.id)
-      .eq("mes", `${new Date().toISOString().slice(0, 8)}01`)
-      .maybeSingle(),
+    /* Este mes en un plan pago; en la prueba, todo lo usado (`lecturas-usadas.ts`). */
+    leerLecturasUsadas(supabase, negocio.id, negocio.plan_id),
     leerEspacioUsado(supabase, negocio.id),
   ]);
 
@@ -113,7 +108,7 @@ export async function leerCatalogoAdmin(
     productos: (productos.data ?? []) as ProductoCatalogo[],
     atributos: atributos.data ?? [],
     recursos: recursos.data ?? [],
-    fotosUsadasMes: usoIa.data?.cantidad ?? 0,
+    fotosUsadasMes: lecturasUsadas,
     espacioUsado,
   };
 }

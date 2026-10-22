@@ -146,6 +146,41 @@ begin
       when check_violation then null;
     end;
 
+    -- -----------------------------------------------------------------------
+    -- 7. La prueba gratis (2026-10-22): 15 productos. Con más de 15 vivos no
+    --    entra otro, y editar los que ya están sigue andando. Y es el plan, con
+    --    su vencimiento a 15 días, con que nace un negocio.
+    -- -----------------------------------------------------------------------
+    update public.negocios set plan_id = 'prueba' where id = v_negocio;
+    update public.productos set precio = 3 where id = v_producto;
+
+    begin
+      insert into public.productos (negocio_id, nombre, precio, visible)
+      values (v_negocio, 'Uno más en la prueba', 1, true);
+      raise exception 'FALLO: la prueba aceptó un producto por encima de 15.';
+    exception
+      when raise_exception then
+        if sqlerrm <> 'LIMITE_PRODUCTOS' then raise; end if;
+    end;
+
+    if (select productos from private.topes_del_plan('prueba')) <> 15 then
+      raise exception 'FALLO: la prueba no tiene un tope de 15 productos.';
+    end if;
+
+    if (
+      select column_default from information_schema.columns
+      where table_schema = 'public' and table_name = 'negocios' and column_name = 'plan_id'
+    ) not like '%prueba%' then
+      raise exception 'FALLO: un negocio nuevo no nace en la prueba.';
+    end if;
+
+    if (
+      select column_default from information_schema.columns
+      where table_schema = 'public' and table_name = 'negocios' and column_name = 'suscripcion_vence_en'
+    ) not like '%15 days%' then
+      raise exception 'FALLO: la prueba no vence a los 15 días.';
+    end if;
+
     raise exception using errcode = 'P0001', message = 'TOPES_PLAN_TODO_EN_VERDE';
   exception
     when raise_exception then

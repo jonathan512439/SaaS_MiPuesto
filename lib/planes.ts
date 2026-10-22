@@ -13,9 +13,10 @@ import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./ia/limites";
  * eso se revisa una vez al año, no plan por plan.
  */
 /* El identificador que se guarda en `negocios.plan_id`. La restricción de la
-   base lista los mismos dos valores; si acá aparece un tercero sin migración, la
-   base lo rechaza al guardarlo. */
-export type PlanId = "catalogo" | "activo";
+   base lista los mismos tres valores; si acá aparece otro sin migración, la base
+   lo rechaza al guardarlo. `prueba` es la prueba gratis (`PLAN_PRUEBA`): no se
+   vende, así que no está en `PLANES`. */
+export type PlanId = "prueba" | "catalogo" | "activo";
 
 /* Cuánto puede cargar un negocio según su plan.
  *
@@ -37,9 +38,9 @@ export type Plan = {
   nombre: string;
   precioBs: number;
   topes: TopesDelPlan;
-  /* Lecturas de foto incluidas por mes. Cero sería un plan sin la herramienta;
-     hoy los dos la traen, porque una función que el dueño nunca puede tocar es
-     una función que nunca va a comprar. */
+  /* Lecturas de foto incluidas por mes —en la prueba, en total—. Cero sería un
+     plan sin la herramienta; hoy todos la traen, porque una función que el
+     dueño nunca puede tocar es una función que nunca va a comprar. */
   lecturasPorMes: number;
   para: string;
   destacado: boolean;
@@ -131,16 +132,61 @@ export function ahorroAnualBs(): number {
   return precioAnualSuelto() - PLAN_ANUAL.precioBs;
 }
 
+/* La prueba gratis: quince días, quince productos y cinco lecturas de foto.
+ *
+ * Decisión del dueño (2026-10-22): que quien duda pruebe el sistema de verdad,
+ * con su propio catálogo, antes de pagar. Es el plan con que nace todo negocio
+ * —la base lo pone por omisión, con el vencimiento a quince días— y el primer
+ * pago lo pasa al Catálogo (`admin_renovar_suscripcion`).
+ *
+ * Las cinco lecturas son **en total**, no por mes: una prueba que empieza el 25
+ * no puede leer cinco en octubre y otras cinco en noviembre. Y se pueden usar el
+ * mismo día, porque quien prueba quiere ver la herramienta funcionar ya, no
+ * repartirla en cuatro días.
+ *
+ * Los topes los aplica la base (`private.topes_del_plan`, migración
+ * `20261113090000_la_prueba_de_quince_dias.sql`), igual que los de los planes
+ * pagos. */
+export const PLAN_PRUEBA: Plan & { dias: number } = {
+  id: "prueba",
+  nombre: "Prueba gratis",
+  precioBs: 0,
+  dias: 15,
+  topes: { productos: 15, fotosPorProducto: 3 },
+  lecturasPorMes: 5,
+  para: "Para conocer el sistema con tu propio catálogo, sin pagar nada.",
+  destacado: false,
+  incluye: [],
+};
+
+/* Cómo se dice la prueba en una línea, igual en la portada, los términos y el
+   panel. */
+export function describirPrueba(): string {
+  return `${PLAN_PRUEBA.dias} días gratis, con hasta ${PLAN_PRUEBA.topes.productos} productos y ${PLAN_PRUEBA.lecturasPorMes} lecturas de foto con IA`;
+}
+
+/* La promoción del primer pago (decisión del dueño, 2026-10-22). No la aplica
+   la base: la plataforma suma dos meses al renovar por primera vez, y su
+   pantalla se lo recuerda. */
+export const PROMO_SEGUNDO_MES = "Por adquirir un mes con nosotros, el segundo mes va por nuestra cuenta.";
+
 /* Se cobra una vez y no todos los meses porque el trabajo se hace una vez. Un
    restaurante carga su carta al principio y después suma tres platos al mes:
    cobrarle todos los meses por eso es la forma más rápida de perderlo en el
    tercero. */
-/* El plan de quien todavía no tiene ninguno. Es el de entrada: un negocio recién
-   dado de alta paga el básico hasta que alguien diga lo contrario. */
+/* El plan de un valor que no se reconoce. Es el pago de entrada: un negocio con
+   un plan desconocido recibe el básico, en la base y acá. La prueba **no** es el
+   valor por omisión de esta función aunque sí lo sea de la columna: leer mal un
+   plan no puede dejar a un cliente que pagó con quince productos. */
 export const PLAN_POR_OMISION: PlanId = "catalogo";
 
 export function planDe(id: string | null | undefined): Plan {
+  if (id === PLAN_PRUEBA.id) return PLAN_PRUEBA;
   return PLANES.find((plan) => plan.id === id) ?? planDe(PLAN_POR_OMISION);
+}
+
+export function esPrueba(id: string | null | undefined): boolean {
+  return id === PLAN_PRUEBA.id;
 }
 
 export function topesDelPlan(id: string | null | undefined): TopesDelPlan {
@@ -164,7 +210,8 @@ export function cupoDelPlan(id: string | null | undefined, techoDiario: number) 
 
   return {
     mensual,
-    diario: Math.min(topeDiario(mensual), techoDiario),
+    /* La prueba no se reparte en días: son cinco y se usan cuando se quiera. */
+    diario: Math.min(esPrueba(id) ? mensual : topeDiario(mensual), techoDiario),
   };
 }
 
@@ -198,15 +245,6 @@ export const TARJETA_ACRILICO_GRANDE = {
   precioBs: 120,
   medidas: "15 × 21 cm",
 } as const;
-
-/* Si la portada anuncia el primer mes gratis.
- *
- * Apagado el 2026-10-18 por decisión del dueño, para ofrecer el servicio en la
- * feria de Oruro sin que el mes gratis esté en la información principal. **Solo
- * esconde el anuncio**: no cambia ningún cobro ni lo que dicen los términos. Se
- * vuelve a prender poniendo `true`, y todos los textos que lo nombran vuelven
- * a la vez. */
-export const MOSTRAR_MES_GRATIS = false;
 
 /* El tope técnico por negocio, que ningún plan puede superar. Está acá para que
    se vea que los cupos de arriba caben dentro de él. */

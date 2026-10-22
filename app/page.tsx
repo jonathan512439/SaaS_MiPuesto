@@ -20,10 +20,12 @@ import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
 import { RUBROS_PUBLICOS } from "../lib/negocios/rubros-publicos";
 import {
   CARGA_INICIAL,
-  MOSTRAR_MES_GRATIS,
+  PLAN_PRUEBA,
   PLANES,
+  PROMO_SEGUNDO_MES,
   TARJETA_ACRILICO,
   TARJETA_ACRILICO_GRANDE,
+  describirPrueba,
 } from "../lib/planes";
 import { qrComoSvg } from "../lib/qr-svg";
 import { DOMINIO_MIPUESTO, obtenerUrlBaseSitio } from "../lib/url-sitio";
@@ -31,7 +33,7 @@ import styles from "./inicio.module.css";
 
 export const metadata: Metadata = {
   title: "MiPuesto, tu catálogo digital por WhatsApp",
-  description: `Catálogo propio para tu negocio, con pedidos que se cierran por WhatsApp. Desde Bs ${PRECIO_MENSUAL_BS} al mes${MOSTRAR_MES_GRATIS ? " y el primer mes gratis" : ""}.`,
+  description: `Catálogo propio para tu negocio, con pedidos que se cierran por WhatsApp. Desde Bs ${PRECIO_MENSUAL_BS} al mes. Pruébalo gratis ${PLAN_PRUEBA.dias} días.`,
 };
 
 /* La portada, contada con ejemplos y no con párrafos.
@@ -46,17 +48,15 @@ export const metadata: Metadata = {
  * La de MiPuesto —el teal— queda para el panel y la tarjeta de acrílico, que es
  * una pieza de la marca sobre la mesa de un cliente. */
 
-/* Con el mes gratis apagado (`MOSTRAR_MES_GRATIS`) su lugar lo toma «Pagas mes a
-   mes»: tres garantías y no dos, para que la fila no se vea recortada. */
-const GARANTIAS = [
-  MOSTRAR_MES_GRATIS ? "Primer mes gratis" : "Pagas mes a mes",
-  "Sin comisión por venta",
-  "Sin contrato",
-];
+/* Desde el 2026-10-22, la primera garantía es la prueba gratis: quince días con
+   el catálogo propio, que es lo que saca la duda de «¿me va a servir?». El mes
+   gratis se retiró; en su lugar, el segundo mes va por nuestra cuenta al pagar
+   el primero (`PROMO_SEGUNDO_MES`). */
+const GARANTIAS = [`Prueba gratis de ${PLAN_PRUEBA.dias} días`, "Sin comisión por venta", "Sin contrato"];
 
 /* La acción principal de la portada, que se repite arriba, en el cierre y en
    el botón fijo del teléfono. */
-const LLAMADA = MOSTRAR_MES_GRATIS ? "Pruébalo gratis un mes" : "Quiero mi catálogo";
+const LLAMADA = `Pruébalo gratis ${PLAN_PRUEBA.dias} días`;
 
 /* Una secuencia de verdad: lo que pasa, en orden, hasta el primer pedido. */
 const PASOS = [
@@ -73,6 +73,14 @@ const LISTA_A_MANO = [
 ];
 
 const PREGUNTAS = [
+  {
+    pregunta: "¿Cómo es la prueba gratis?",
+    respuesta: `${describirPrueba()}. No pagas nada ni dejas ningún dato de pago. Si te convence, eliges tu plan y sigues con todo lo que cargaste; si no, tu catálogo deja de verse y listo.`,
+  },
+  {
+    pregunta: "¿Hay alguna promoción?",
+    respuesta: `Sí. ${PROMO_SEGUNDO_MES}`,
+  },
   {
     pregunta: "¿Mis clientes tienen que instalar algo?",
     respuesta: "No. Abren tu enlace en el navegador del celular, sin crear cuenta.",
@@ -119,9 +127,7 @@ const RUBROS_EN_CINTA = RUBROS_PUBLICOS.filter(({ id }) => id !== "otro").map(({
 
 export default function Inicio() {
   const enlaceAlta = construirEnlaceContacto(
-    MOSTRAR_MES_GRATIS
-      ? "Hola, quiero probar MiPuesto el primer mes gratis."
-      : "Hola, quiero mi catálogo en MiPuesto.",
+    `Hola, quiero probar MiPuesto gratis ${PLAN_PRUEBA.dias} días.`,
   );
   const enlaceTarjeta = construirEnlaceContacto(
     "Hola, quiero la tarjeta de acrílico con QR y NFC para mi negocio.",
@@ -402,9 +408,10 @@ export default function Inicio() {
             <div className={styles.encabezado}>
               <h2 id="precio">Precios claros, en bolivianos</h2>
               <p>
-                {MOSTRAR_MES_GRATIS
-                  ? "El primer mes es gratis en los dos planes. Se paga mes a mes."
-                  : "Se paga mes a mes, sin contrato."}
+                Se paga mes a mes, sin contrato. Antes de pagar, pruébalo gratis {PLAN_PRUEBA.dias} días.
+              </p>
+              <p>
+                <strong>{PROMO_SEGUNDO_MES}</strong>
               </p>
             </div>
 
@@ -657,12 +664,11 @@ export default function Inicio() {
           <div className={styles.cierreContenido}>
             <Isotipo className={styles.isotipoCierre} titulo="MiPuesto" />
             <h2 id="cierre">
-              {MOSTRAR_MES_GRATIS ? "Tu primer mes corre por nuestra cuenta" : "Tu catálogo, listo en una tarde"}
+              Pruébalo {PLAN_PRUEBA.dias} días sin pagar nada
             </h2>
             <p>
-              {MOSTRAR_MES_GRATIS
-                ? "Escríbenos y lo armamos juntos. Si no te convence, no pagas nada."
-                : "Escríbenos y lo armamos juntos."}
+              Escríbenos y te abrimos tu prueba: hasta {PLAN_PRUEBA.topes.productos} productos y{" "}
+              {PLAN_PRUEBA.lecturasPorMes} lecturas con IA. Si te convence, {PROMO_SEGUNDO_MES.charAt(0).toLowerCase() + PROMO_SEGUNDO_MES.slice(1)}
             </p>
             <a className={styles.botonNoche} href={enlaceAlta} rel="noreferrer" target="_blank">
               {LLAMADA}

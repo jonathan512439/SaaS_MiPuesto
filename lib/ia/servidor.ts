@@ -3,7 +3,8 @@ import { crearClienteSupabaseAdmin } from "../supabase/admin";
 import { crearClienteSupabaseServidor } from "../supabase/server";
 import { obtenerContextoAdminCatalogo } from "../catalogo/servidor";
 import { hayGemini } from "./gemini";
-import { cupoDelPlan } from "../planes";
+import { PLAN_PRUEBA, cupoDelPlan, esPrueba } from "../planes";
+import { lecturasDeMesesAnteriores } from "./lecturas-usadas";
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "./limites";
 import { describirReinicio } from "./reinicio";
 
@@ -60,9 +61,16 @@ export async function prepararLecturaDeFoto(): Promise<Preparacion> {
 
   const cupo = cupoDelPlan(negocio?.plan_id, TOPE_FOTOS_POR_DIA);
 
+  /* La prueba trae cinco lecturas **en total**, y el contador de la base es por
+     mes: una prueba que cruza el fin de mes leería cinco en cada uno. Lo que ya
+     usó en los meses anteriores se descuenta del tope de este. */
+  const tope = esPrueba(negocio?.plan_id)
+    ? Math.max(0, cupo.mensual - (await lecturasDeMesesAnteriores(admin, contexto.negocio.id)))
+    : cupo.mensual;
+
   const { data } = await admin.rpc("consumir_credito_ia", {
     p_negocio_id: contexto.negocio.id,
-    p_tope: Math.min(cupo.mensual, TOPE_FOTOS_POR_MES),
+    p_tope: Math.min(tope, TOPE_FOTOS_POR_MES),
     p_tope_diario: cupo.diario,
   });
   const credito = (data ?? {}) as {
@@ -74,6 +82,13 @@ export async function prepararLecturaDeFoto(): Promise<Preparacion> {
   };
 
   if (!credito.autorizado) {
+    if (credito.motivo === "tope_alcanzado" && esPrueba(negocio?.plan_id)) {
+      return {
+        correcto: false,
+        estado: 429,
+        error: `Usaste las ${PLAN_PRUEBA.lecturasPorMes} lecturas de tu prueba. Al elegir tu plan, tienes más cada mes.`,
+      };
+    }
     if (credito.motivo === "tope_alcanzado") {
       return {
         correcto: false,

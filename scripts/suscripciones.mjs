@@ -90,7 +90,7 @@ async function renovar() {
 
   const { data: negocio, error: errorLectura } = await supabase
     .from("negocios")
-    .select("nombre,activo,suspendido_en,suscripcion_vence_en")
+    .select("nombre,activo,suspendido_en,suscripcion_vence_en,plan_id")
     .eq("slug", slug)
     .maybeSingle();
   if (errorLectura) throw new Error(`No se pudo leer el negocio: ${errorLectura.message}`);
@@ -111,6 +111,10 @@ async function renovar() {
   const republica = !negocio.activo && negocio.suspendido_en !== null;
   const cambios = { suscripcion_vence_en: nuevaFecha.toISOString(), suspendido_en: null };
   if (republica) cambios.activo = true;
+  /* Renovar es cobrar: quien estaba en la prueba pasa al plan de entrada, igual
+     que con `admin_renovar_suscripcion` desde Plataforma. */
+  const saleDePrueba = negocio.plan_id === "prueba";
+  if (saleDePrueba) cambios.plan_id = "catalogo";
 
   const { error } = await supabase.from("negocios").update(cambios).eq("slug", slug);
   if (error) throw new Error(`No se pudo renovar: ${error.message}`);
@@ -119,9 +123,10 @@ async function renovar() {
     `${negocio.nombre}: ${meses} mes(es) sumados. Vence el ${formatearFecha.format(nuevaFecha)}.`,
   );
   if (republica) console.log("El catálogo volvió a publicarse.");
+  if (saleDePrueba) console.log("Salió de la prueba: ahora está en el plan Catálogo.");
   if (!negocio.activo && !republica) {
     console.log(
-      "Sigue fuera de línea: se bajó a mano y no por falta de pago. Republicalo vos si corresponde.",
+      "Sigue fuera de línea: se bajó a mano y no por falta de pago. Republícalo vos si corresponde.",
     );
   }
 }

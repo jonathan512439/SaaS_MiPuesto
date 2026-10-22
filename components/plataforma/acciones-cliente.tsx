@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { PLANES, describirTopes, planDe } from "../../lib/planes";
+import { PLANES, PLAN_PRUEBA, PROMO_SEGUNDO_MES, describirTopes, esPrueba, planDe } from "../../lib/planes";
 import { useAvisos, useConfirmacion } from "../ui";
 import styles from "./acciones-cliente.module.css";
 
@@ -34,7 +34,10 @@ export function AccionesCliente({
   planId,
 }: PropiedadesAcciones) {
   const router = useRouter();
-  const [meses, setMeses] = useState("1");
+  /* El primer pago sale de la prueba, y el segundo mes va por nuestra cuenta
+     (`PROMO_SEGUNDO_MES`): la cuenta propone los dos meses para que no dependa
+     de acordarse. Se puede cambiar antes de tocar «Renovar». */
+  const [meses, setMeses] = useState(esPrueba(planId) ? "2" : "1");
   const [plan, setPlan] = useState(planDe(planId).id);
   const [ocupado, setOcupado] = useState<Accion | null>(null);
   const { mostrarAviso } = useAvisos();
@@ -137,6 +140,11 @@ export function AccionesCliente({
         >
           {ocupado === "renovar" ? "Renovando…" : "Renovar"}
         </button>
+        {esPrueba(planId) ? (
+          <p className={styles.nota}>
+            En prueba. {PROMO_SEGUNDO_MES} Al renovar pasa al plan Catálogo.
+          </p>
+        ) : null}
       </div>
 
       {/* El plan decide cuánto puede leer el negocio con la IA, así que se
@@ -153,10 +161,10 @@ export function AccionesCliente({
           }}
           value={plan}
         >
-          {PLANES.map((opcion) => (
+          {[PLAN_PRUEBA, ...PLANES].map((opcion) => (
             <option key={opcion.id} value={opcion.id}>
               {opcion.nombre} — {opcion.topes.productos} productos, {opcion.topes.fotosPorProducto}{" "}
-              fotos c/u, {opcion.lecturasPorMes} lecturas/mes
+              fotos c/u, {opcion.lecturasPorMes} {esPrueba(opcion.id) ? "lecturas en total" : "lecturas/mes"}
             </option>
           ))}
         </select>

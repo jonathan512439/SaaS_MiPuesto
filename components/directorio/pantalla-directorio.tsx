@@ -10,7 +10,7 @@ import {
 } from "../../lib/directorio";
 import { registrarBusquedaSinResultado } from "../../lib/directorio-servidor";
 import { construirEnlaceContacto } from "../../lib/contacto";
-import { MOSTRAR_MES_GRATIS } from "../../lib/planes";
+import { PLAN_PRUEBA } from "../../lib/planes";
 import { nombreDeCiudad } from "../../lib/negocios/lugares";
 import {
   esRubroPublicoId,
@@ -312,7 +312,7 @@ export async function PantallaDirectorio({
           <div className={styles.sumateContenido}>
             <div>
               <h2>¿Tienes un negocio{huboTexto ? " que vende esto" : ""}?</h2>
-              <p>Que te encuentren acá.{MOSTRAR_MES_GRATIS ? " El primer mes es gratis." : ""}</p>
+              <p>Que te encuentren acá. Pruébalo gratis {PLAN_PRUEBA.dias} días.</p>
             </div>
             <div className={styles.sumateAcciones}>
               <a

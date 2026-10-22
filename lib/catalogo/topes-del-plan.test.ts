@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PLANES, describirTopes, planDe, topesDelPlan } from "../planes";
+import { PLANES, PLAN_PRUEBA, describirTopes, planDe, topesDelPlan } from "../planes";
 import {
   esRechazoDeTope,
   mensajeLimiteFotos,
@@ -12,8 +12,9 @@ import {
 import { LIMITE_PRODUCTOS, MAXIMO_FOTOS_POR_PRODUCTO } from "./validacion";
 
 const RAIZ = join(import.meta.dirname, "..", "..");
+/* La última versión de `private.topes_del_plan`: la de la prueba gratis. */
 const MIGRACION = readFileSync(
-  join(RAIZ, "supabase/migrations/20261029090000_topes_de_productos_y_fotos_por_plan.sql"),
+  join(RAIZ, "supabase/migrations/20261113090000_la_prueba_de_quince_dias.sql"),
   "utf8",
 );
 const ESQUEMA_INICIAL = readFileSync(
@@ -22,15 +23,18 @@ const ESQUEMA_INICIAL = readFileSync(
 );
 
 /* Lo que la base aplica, leído de la función `private.topes_del_plan`:
-   `case p_plan when 'activo' then 300 else 150 end` para productos y lo mismo
-   para fotos. */
+   `case p_plan when 'activo' then 300 when 'prueba' then 15 else 150 end` para
+   productos y lo mismo para fotos. */
 function topesEnLaBase() {
-  const casos = [...MIGRACION.matchAll(/case p_plan when 'activo' then (\d+) else (\d+) end/g)];
+  const casos = [
+    ...MIGRACION.matchAll(/case p_plan when 'activo' then (\d+) when 'prueba' then (\d+) else (\d+) end/g),
+  ];
   expect(casos, "no se encontraron los dos case de topes_del_plan").toHaveLength(2);
   const [productos, fotos] = casos;
   return {
     activo: { productos: Number(productos[1]), fotosPorProducto: Number(fotos[1]) },
-    catalogo: { productos: Number(productos[2]), fotosPorProducto: Number(fotos[2]) },
+    prueba: { productos: Number(productos[2]), fotosPorProducto: Number(fotos[2]) },
+    catalogo: { productos: Number(productos[3]), fotosPorProducto: Number(fotos[3]) },
   };
 }
 
@@ -41,7 +45,29 @@ describe("los topes de cada plan", () => {
     const base = topesEnLaBase();
     expect(topesDelPlan("catalogo")).toEqual(base.catalogo);
     expect(topesDelPlan("activo")).toEqual(base.activo);
+    expect(topesDelPlan("prueba")).toEqual(base.prueba);
     expect(PLANES.map(({ id }) => id).sort()).toEqual(["activo", "catalogo"]);
+  });
+
+  it("la prueba es la que decidió el dueño: 15 productos y 15 días", () => {
+    expect(PLAN_PRUEBA.topes.productos).toBe(15);
+    expect(PLAN_PRUEBA.dias).toBe(15);
+    expect(PLAN_PRUEBA.lecturasPorMes).toBe(5);
+  });
+
+  /* La base pone la prueba y su vencimiento por omisión: si el número de días
+     cambia en un lado y no en el otro, la portada promete quince y la cuenta
+     vence en otro plazo. */
+  it("todo negocio nace en la prueba, con su vencimiento a los mismos días", () => {
+    expect(MIGRACION).toMatch(/alter column plan_id set default 'prueba'/);
+    expect(MIGRACION).toContain(`interval '${PLAN_PRUEBA.dias} days'`);
+    expect(MIGRACION).toMatch(/check \(plan_id in \('prueba', 'catalogo', 'activo'\)\)/);
+  });
+
+  /* Sin esto, un cliente que pagó seguiría con quince productos hasta que
+     alguien se acordara de cambiarle el plan. */
+  it("el primer pago saca de la prueba", () => {
+    expect(MIGRACION).toMatch(/plan_id = case when v_sale_de_prueba then 'catalogo' else plan_id end/);
   });
 
   it("son los que decidió el dueño: 150 con 3 fotos y 300 con 4", () => {
@@ -52,7 +78,7 @@ describe("los topes de cada plan", () => {
   it("ningún plan pasa el techo técnico", () => {
     const techoDeFotos = Number(/check \(cardinality\(fotos\) <= (\d+)\)/.exec(ESQUEMA_INICIAL)?.[1]);
     expect(techoDeFotos).toBe(MAXIMO_FOTOS_POR_PRODUCTO);
-    for (const plan of PLANES) {
+    for (const plan of [PLAN_PRUEBA, ...PLANES]) {
       expect(plan.topes.productos, plan.nombre).toBeLessThanOrEqual(LIMITE_PRODUCTOS);
       expect(plan.topes.fotosPorProducto, plan.nombre).toBeLessThanOrEqual(MAXIMO_FOTOS_POR_PRODUCTO);
     }
@@ -80,6 +106,8 @@ describe("lo que se le dice al dueño en el tope", () => {
     expect(mensajeLimiteProductos("activo")).not.toContain("plan mayor");
     expect(mensajeLimiteFotos("catalogo")).toContain("hasta 3 fotos por producto");
     expect(mensajeLimiteFotos("activo")).not.toContain("plan mayor");
+    expect(mensajeLimiteProductos("prueba")).toContain("Prueba gratis incluye hasta 15 productos");
+    expect(mensajeLimiteProductos("prueba")).toContain("plan mayor");
   });
 
   it("reconoce el rechazo de la base por su código", () => {

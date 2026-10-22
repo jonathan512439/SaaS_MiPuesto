@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { PLANES, cupoDelPlan, planDe } from "../planes";
+import { PLANES, PLAN_PRUEBA, cupoDelPlan, planDe } from "../planes";
 import { CUOTA_REPARTIBLE_POR_DIA, TOPE_FOTOS_POR_DIA } from "./limites";
 
 const servidor = readFileSync(join(import.meta.dirname, "servidor.ts"), "utf8");
@@ -30,9 +30,22 @@ describe("el cupo de lectura de fotos", () => {
     expect(servidor).toContain('.select("plan_id")');
     expect(servidor).toContain("cupoDelPlan(");
 
-    /* Y que lo que le pasa a la base salga de ese cupo, no de una constante. */
-    expect(servidor).toContain("p_tope: Math.min(cupo.mensual");
+    /* Y que lo que le pasa a la base salga de ese cupo, no de una constante. La
+       prueba descuenta lo que gastó en meses anteriores, porque sus lecturas son
+       en total; los planes pagos pasan el cupo del mes tal cual. */
+    expect(servidor).toMatch(/cupo\.mensual - \(await lecturasDeMesesAnteriores\(/);
+    expect(servidor).toMatch(/: cupo\.mensual;/);
+    expect(servidor).toContain("p_tope: Math.min(tope");
     expect(servidor).toContain("p_tope_diario: cupo.diario");
+  });
+
+  /* La prueba se gasta cuando se quiera: cinco en total, y se pueden usar el
+     mismo día. Repartirlas en cuatro días sería hacer esperar a quien vino a
+     ver la herramienta funcionar. */
+  it("la prueba autoriza sus lecturas en total y en un solo día", () => {
+    const cupo = cupoDelPlan(PLAN_PRUEBA.id, TOPE_FOTOS_POR_DIA);
+    expect(cupo.mensual).toBe(PLAN_PRUEBA.lecturasPorMes);
+    expect(cupo.diario).toBe(PLAN_PRUEBA.lecturasPorMes);
   });
 
   it("cada plan autoriza exactamente lo que publica", () => {

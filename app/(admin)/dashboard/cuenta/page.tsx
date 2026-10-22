@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { construirEnlaceContacto } from "../../../../lib/contacto";
-import { describirTopes, planDe } from "../../../../lib/planes";
+import { PLAN_PRUEBA, PROMO_SEGUNDO_MES, describirTopes, esPrueba, planDe } from "../../../../lib/planes";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import {
   describirDiasRestantes,
@@ -26,6 +26,13 @@ const TITULOS = {
   vencida: "Tu mes venció",
 } as const;
 
+/* En la prueba gratis no hay «mes»: hay quince días y una decisión al final. */
+const TITULOS_PRUEBA = {
+  vigente: "Estás en tu prueba gratis",
+  por_vencer: "Tu prueba está por terminar",
+  vencida: "Tu prueba terminó",
+} as const;
+
 export default async function PaginaCuenta() {
   const supabase = await crearClienteSupabaseServidor();
   const { data: datosClaims } = await supabase.auth.getClaims();
@@ -45,8 +52,12 @@ export default async function PaginaCuenta() {
      catálogo todavía se ve. Anunciar que dejó de publicarse antes de que ocurra
      es la clase de mentira que esta fase vino a sacar. */
   const suspendidoPorPago = !negocio.activo && negocio.suspendido_en !== null;
+  const enPrueba = esPrueba(negocio.plan_id);
+  const plan = planDe(negocio.plan_id);
   const enlaceRenovar = construirEnlaceContacto(
-    `Hola, quiero renovar la suscripción de ${negocio.nombre} en MiPuesto.`,
+    enPrueba
+      ? `Hola, estoy probando MiPuesto con ${negocio.nombre} y quiero elegir mi plan.`
+      : `Hola, quiero renovar la suscripción de ${negocio.nombre} en MiPuesto.`,
   );
 
   return (
@@ -58,17 +69,30 @@ export default async function PaginaCuenta() {
       <section aria-labelledby="estado-plan" className={styles.estado} data-estado={suscripcion.estado}>
         <p className={styles.etiqueta}>{describirDiasRestantes(suscripcion.diasRestantes)}</p>
         <h2 id="estado-plan">
-          {suspendidoPorPago ? "Tu catálogo dejó de publicarse" : TITULOS[suscripcion.estado]}
+          {suspendidoPorPago
+            ? "Tu catálogo dejó de publicarse"
+            : (enPrueba ? TITULOS_PRUEBA : TITULOS)[suscripcion.estado]}
         </h2>
         <p className={styles.fecha}>
-          {suscripcion.estado === "vencida" ? "Venció el " : "Vence el "}
+          {enPrueba
+            ? suscripcion.estado === "vencida"
+              ? "Terminó el "
+              : "Termina el "
+            : suscripcion.estado === "vencida"
+              ? "Venció el "
+              : "Vence el "}
           <strong>{formatearFechaVencimiento(suscripcion.venceEn)}</strong>
         </p>
 
-        {suspendidoPorPago ? (
+        {enPrueba && !suspendidoPorPago && suscripcion.estado !== "vencida" ? (
           <p className={styles.explicacion}>
-            Tus productos, pedidos e historial siguen acá y no se borró nada. Al renovar,
-            tu catálogo vuelve tal cual estaba.
+            Para seguir después de la prueba, elige tu plan y págalo por WhatsApp: lo
+            activamos el mismo día y conservas todo lo que cargaste. {PROMO_SEGUNDO_MES}
+          </p>
+        ) : suspendidoPorPago ? (
+          <p className={styles.explicacion}>
+            Tus productos, pedidos e historial siguen acá y no se borró nada. Al{" "}
+            {enPrueba ? "elegir tu plan" : "renovar"}, tu catálogo vuelve tal cual estaba.
           </p>
         ) : suscripcion.estado === "vencida" ? (
           <p className={styles.explicacion}>
@@ -83,7 +107,7 @@ export default async function PaginaCuenta() {
         )}
 
         <a className={styles.renovar} href={enlaceRenovar} rel="noreferrer" target="_blank">
-          {suspendidoPorPago ? "Reactivar mi catálogo" : "Renovar por WhatsApp"}
+          {enPrueba ? "Elegir mi plan por WhatsApp" : suspendidoPorPago ? "Reactivar mi catálogo" : "Renovar por WhatsApp"}
         </a>
       </section>
 
@@ -112,12 +136,17 @@ export default async function PaginaCuenta() {
             {/* El de su plan, no el de entrada: el del plan Activo leía el precio
                 del básico y pagaba otro. */}
             <dd className={styles.monto}>
-              Bs {planDe(negocio.plan_id).precioBs} al mes, plan {planDe(negocio.plan_id).nombre}
+              {enPrueba
+                ? `Gratis: ${plan.nombre} de ${PLAN_PRUEBA.dias} días`
+                : `Bs ${plan.precioBs} al mes, plan ${plan.nombre}`}
             </dd>
           </div>
           <div>
             <dt>Incluye</dt>
-            <dd>{describirTopes(planDe(negocio.plan_id).topes)}</dd>
+            <dd>
+              {describirTopes(plan.topes)}
+              {enPrueba ? `, y ${plan.lecturasPorMes} lecturas de foto con IA en total` : ""}
+            </dd>
           </div>
           <div>
             <dt>Publicación</dt>
@@ -125,7 +154,9 @@ export default async function PaginaCuenta() {
               {negocio.activo
                 ? "Tu catálogo se ve"
                 : suspendidoPorPago
-                  ? "Fuera de línea por falta de pago"
+                  ? enPrueba
+                    ? "Fuera de línea: terminó tu prueba"
+                    : "Fuera de línea por falta de pago"
                   : "Fuera de línea"}
             </dd>
           </div>

@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 import { PRECIO_MENSUAL_BS } from "../lib/contacto";
 import { COLORES_MIPUESTO } from "../lib/identidad-visual";
-import { MOSTRAR_MES_GRATIS } from "../lib/planes";
+import { PLAN_PRUEBA } from "../lib/planes";
 
 /* La tarjeta que se ve cuando alguien pega el enlace de MiPuesto en WhatsApp.
  *
@@ -102,9 +102,9 @@ export default function ImagenPortada() {
             Desde Bs {PRECIO_MENSUAL_BS} al mes
           </span>
           {/* La imagen que se ve al compartir el enlace por WhatsApp también es
-              información principal: sigue al mismo interruptor que la portada. */}
+              información principal: dice la misma oferta que la portada. */}
           <span style={{ fontSize: "30px", opacity: 0.86 }}>
-            {MOSTRAR_MES_GRATIS ? "El primer mes es gratis" : "Sin comisión por venta"}
+            {`Pruébalo gratis ${PLAN_PRUEBA.dias} días`}
           </span>
         </div>
       </div>

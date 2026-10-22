@@ -13,11 +13,12 @@ import { TOPE_FOTOS_POR_DIA } from "../../../lib/ia/limites";
 import { faltantesParaPublicar } from "../../../lib/negocios/alta";
 import { LIMITE_CATEGORIAS } from "../../../lib/catalogo/validacion";
 import { leerSituacionDelNegocio } from "../../../lib/negocios/situacion";
-import { cupoDelPlan, planDe } from "../../../lib/planes";
+import { cupoDelPlan, esPrueba, planDe } from "../../../lib/planes";
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./resumen.module.css";
 import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
+import { leerLecturasUsadas } from "../../../lib/ia/lecturas-usadas";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../lib/panel/rutas";
 import panel from "./panel.module.css";
 
@@ -74,14 +75,9 @@ export default async function PaginaDashboard() {
    * la herramienta, que solo se ve estando por usarla. La pregunta «¿cuánto me
    * queda?» se hace **antes** de sentarse a trabajar, y este es el lugar donde
    * el dueño mira antes de empezar. */
-  const { data: usoIa } = negocio.foto_ia_habilitada
-    ? await supabase
-        .from("uso_ia_negocio")
-        .select("cantidad")
-        .eq("negocio_id", negocio.id)
-        .eq("mes", `${new Date().toISOString().slice(0, 8)}01`)
-        .maybeSingle()
-    : { data: null };
+  const lecturasUsadas = negocio.foto_ia_habilitada
+    ? await leerLecturasUsadas(supabase, negocio.id, negocio.plan_id)
+    : 0;
 
   const { actual, previa } = obtenerVentanasSemanales();
 
@@ -213,17 +209,18 @@ export default async function PaginaDashboard() {
         <dl>
           {negocio.foto_ia_habilitada ? (
             <div>
-              <dt>Lecturas con IA este mes</dt>
+              {/* La prueba las trae en total, no por mes (`PLAN_PRUEBA`). */}
+              <dt>{esPrueba(negocio.plan_id) ? "Lecturas con IA de tu prueba" : "Lecturas con IA este mes"}</dt>
               {/* El cupo del plan que paga, no el techo técnico del sistema.
                   Decían 200 y 40 —lo que aguanta la cuota compartida— mientras
                   el plan Catálogo da 10 al mes. El dueño leía un número que no
                   era el suyo y que además no era el que lo iba a frenar. */}
               <dd>
-                <strong>{usoIa?.cantidad ?? 0}</strong> de {cupo.mensual}
+                <strong>{lecturasUsadas}</strong> de {cupo.mensual}
               </dd>
               {/* El tope diario también, porque es el que frena primero a quien
                   carga su catálogo entero en una tarde. */}
-              <p>Hasta {cupo.diario} por día</p>
+              {esPrueba(negocio.plan_id) ? null : <p>Hasta {cupo.diario} por día</p>}
             </div>
           ) : null}
             <div>

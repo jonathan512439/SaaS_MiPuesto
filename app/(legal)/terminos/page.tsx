@@ -7,7 +7,9 @@ import { construirEnlaceContacto } from "../../../lib/contacto";
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
 import {
   CARGA_INICIAL,
+  PLAN_PRUEBA,
   PLANES,
+  PROMO_SEGUNDO_MES,
   TARJETA_ACRILICO,
   TARJETA_ACRILICO_GRANDE,
   cupoDelPlan,
@@ -22,7 +24,9 @@ export const metadata: Metadata = {
   description: "Condiciones de uso de MiPuesto: qué incluye, cuánto cuesta y qué pasa si dejas de pagar.",
 };
 
-const VIGENCIA = "7 de septiembre de 2026";
+/* El 22 de octubre de 2026 el primer mes sin cargo se cambió por la prueba de
+   quince días y la promoción del segundo mes. */
+const VIGENCIA = "22 de octubre de 2026";
 
 export default function PaginaTerminos() {
   return (
@@ -55,9 +59,9 @@ export default function PaginaTerminos() {
               Bs {plan.precioBs} al mes con el plan {plan.nombre}
             </span>
           ))}
-          . El primer mes es gratis. No cobramos comisión por venta ni cargo de
-          instalación.
+          . No cobramos comisión por venta ni cargo de instalación.
         </p>
+        <p>{PROMO_SEGUNDO_MES} Vale para el primer pago de cada negocio.</p>
         <p>
           Aparte, y solo si los pides: la carga del catálogo por nosotros, Bs{" "}
           {CARGA_INICIAL.precioBs} por única vez, y la tarjeta de acrílico con QR y
@@ -71,6 +75,25 @@ export default function PaginaTerminos() {
           El cobro es mensual y se coordina con vos por WhatsApp. No hay contrato de
           permanencia: puedes dejar de pagar cuando quieras y no se te cobra nada
           adicional.
+        </p>
+      </section>
+
+      {/* La prueba, con los números de `PLAN_PRUEBA`: los mismos que aplica la
+          base para el plan `prueba`. */}
+      <section className={styles.seccion}>
+        <h2>La prueba gratis</h2>
+        <p>
+          Todo negocio empieza con una prueba gratis de {PLAN_PRUEBA.dias} días, contados
+          desde que lo das de alta. En la prueba puedes cargar hasta{" "}
+          {PLAN_PRUEBA.topes.productos} productos con {PLAN_PRUEBA.topes.fotosPorProducto} fotos
+          en cada uno, y usar {PLAN_PRUEBA.lecturasPorMes} lecturas de foto con IA en total.
+          No pagas nada ni nos das ningún dato de pago.
+        </p>
+        <p>
+          Si al terminar quieres seguir, eliges tu plan y pagas tu primer mes: conservas
+          todo lo que cargaste. Si no, tu catálogo deja de publicarse igual que cuando se
+          deja de pagar, y se aplica lo que dice «Si dejas de pagar». Hay una sola prueba
+          por negocio.
         </p>
       </section>
 
