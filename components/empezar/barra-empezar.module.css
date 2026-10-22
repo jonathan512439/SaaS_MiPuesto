@@ -1,0 +1,183 @@
+@reference "../../app/globals.css";
+
+/* La barra fija con la opción elegida: siempre a la vista, al pie, para que
+   continuar esté a un toque desde cualquier parte de la página. */
+.barra {
+  position: sticky;
+  z-index: 20;
+  bottom: 0;
+  border-top: var(--borde-marcado) solid var(--color-sitio-sol);
+  padding: var(--spacing-3) 0;
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+  box-shadow: var(--sombra-elevada);
+}
+
+.barraContenido {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-sitio));
+  margin: 0 auto;
+}
+
+.eleccion {
+  display: grid;
+  margin: 0;
+  min-width: 0;
+}
+
+.eleccion span {
+  color: var(--color-sitio-sol);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.boton {
+  display: inline-flex;
+  flex: 1 1 auto;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-status);
+  padding: var(--spacing-2) var(--spacing-6);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.boton:focus-visible,
+.cerrar:focus-visible {
+  outline: var(--borde-marcado) solid var(--color-sitio-sol);
+  outline-offset: var(--spacing-1);
+}
+
+@media (min-width: 40rem) {
+  .boton {
+    flex: 0 0 auto;
+  }
+}
+
+/* ---- el formulario ---- */
+
+.dialogo {
+  width: min(calc(100% - var(--spacing-8)), 30rem);
+  margin: auto;
+  max-height: calc(100dvh - var(--spacing-8));
+  border: 0;
+  border-radius: var(--radius-sheet);
+  padding: 0;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  box-shadow: var(--sombra-elevada);
+}
+
+.dialogo::backdrop {
+  background: color-mix(in srgb, var(--color-sitio-noche) 70%, transparent);
+}
+
+.formulario {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: var(--spacing-6);
+}
+
+.cabecera {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.cabecera h2 {
+  margin: 0;
+  font-family: var(--font-marca);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.cerrar {
+  display: grid;
+  flex: 0 0 auto;
+  width: var(--control-alto);
+  height: var(--control-alto);
+  place-items: center;
+  border: var(--borde-fino) solid var(--color-borde);
+  border-radius: var(--radius-status);
+  background: transparent;
+  color: var(--color-texto);
+  font: inherit;
+  font-size: var(--text-xl);
+  cursor: pointer;
+}
+
+.ayuda {
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.campo {
+  display: grid;
+  gap: var(--spacing-1);
+  font-weight: 700;
+}
+
+.campo input,
+.campo select {
+  min-height: var(--control-alto);
+  border: var(--borde-marcado) solid var(--color-borde-campo);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: var(--color-superficie);
+  color: var(--color-texto);
+  font: inherit;
+  font-weight: 400;
+}
+
+.campo [aria-invalid="true"] {
+  border-color: var(--color-peligro);
+}
+
+.error {
+  color: var(--color-peligro);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.grupo {
+  display: grid;
+  gap: var(--spacing-1);
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.grupo legend {
+  margin-bottom: var(--spacing-1);
+  padding: 0;
+  font-weight: 700;
+}
+
+.grupo label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-height: var(--control-alto);
+}
+
+.grupo input {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  accent-color: var(--color-marca);
+}
+
+.formulario .boton {
+  width: 100%;
+}

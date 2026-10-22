@@ -37,6 +37,9 @@ const FUERA_DEL_PANEL = [
   "foto-producto",
   "selector-de-turno",
   "inicio",
+  /* La página de empezar es del sitio público, como la portada: sus botones
+     van con el sol y la noche del sitio, no con los aspectos del panel. */
+  "empezar",
   "muestra-plantillas",
   /* El sitio público —la cabecera y el directorio— tiene su propia paleta, la
      noche y el sol, y lo recorre un comprador, no el dueño en su panel. Sus

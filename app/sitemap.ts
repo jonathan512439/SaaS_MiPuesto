@@ -42,6 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: `${base}/`, lastModified: ahora, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/directorio`, lastModified: ahora, changeFrequency: "daily", priority: 0.9 },
+    { url: `${base}/empezar`, lastModified: ahora, changeFrequency: "monthly", priority: 0.8 },
     ...[...ciudades].map((ciudad) => ({
       url: `${base}/directorio/${ciudad}`,
       lastModified: ahora,

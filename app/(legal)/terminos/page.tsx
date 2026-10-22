@@ -7,12 +7,15 @@ import { construirEnlaceContacto } from "../../../lib/contacto";
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
 import {
   CARGA_INICIAL,
+  PLAN_ANUAL,
   PLAN_PRUEBA,
   PLANES,
   PROMO_SEGUNDO_MES,
   TARJETA_ACRILICO,
   TARJETA_ACRILICO_GRANDE,
   cupoDelPlan,
+  planDe,
+  precioAnualSuelto,
 } from "../../../lib/planes";
 import { MAXIMO_ATRIBUTOS } from "../../../lib/catalogo/atributos";
 import { TOPE_ALMACENAMIENTO_BYTES } from "../../../lib/catalogo/almacenamiento";
@@ -62,6 +65,11 @@ export default function PaginaTerminos() {
           . No cobramos comisión por venta ni cargo de instalación.
         </p>
         <p>{PROMO_SEGUNDO_MES} Vale para el primer pago de cada negocio.</p>
+        <p>
+          El plan {planDe(PLAN_ANUAL.planId).nombre} también se puede pagar por un año: Bs{" "}
+          {PLAN_ANUAL.precioBs} por doce meses, en lugar de Bs {precioAnualSuelto()}. El pago anual no
+          suma la promoción del segundo mes.
+        </p>
         <p>
           Aparte, y solo si los pides: la carga del catálogo por nosotros, Bs{" "}
           {CARGA_INICIAL.precioBs} por única vez, y la tarjeta de acrílico con QR y

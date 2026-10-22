@@ -51,6 +51,24 @@ describe("la oferta publicada", () => {
     expect(PUBLICAS.portada).not.toMatch(/negocios reales|catálogos reales/i);
   });
 
+  /* Cada botón de contratar lleva a `/empezar` con su opción, que es donde
+     está todo lo que incluye y el formulario corto (pedido del dueño,
+     2026-10-22). Un botón que saltara directo a WhatsApp se saltaría las dos
+     cosas. */
+  it("los botones de contratar llevan a /empezar con su opción", () => {
+    expect(PUBLICAS.portada).toContain('"/empezar?opcion=prueba"');
+    expect(PUBLICAS.portada).toContain("href={`/empezar?opcion=${plan.id}`}");
+    expect(PUBLICAS.portada).toContain('href="/empezar?opcion=anual"');
+    expect(PUBLICAS.portada).not.toMatch(/quiero probar (el plan|MiPuesto)/i);
+    expect(PUBLICAS.directorio).toContain('href="/empezar?opcion=prueba"');
+  });
+
+  it("la portada y los términos ofrecen el año", () => {
+    for (const pagina of ["portada", "terminos"] as const) {
+      expect(PUBLICAS[pagina], pagina).toContain("PLAN_ANUAL.precioBs");
+    }
+  });
+
   it("la prueba es de quince días, quince productos y cinco lecturas", () => {
     expect(PLAN_PRUEBA).toMatchObject({ dias: 15, lecturasPorMes: 5, topes: { productos: 15 } });
   });

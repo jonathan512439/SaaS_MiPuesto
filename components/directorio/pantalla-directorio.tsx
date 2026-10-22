@@ -9,7 +9,6 @@ import {
   type ResultadoDirectorio,
 } from "../../lib/directorio";
 import { registrarBusquedaSinResultado } from "../../lib/directorio-servidor";
-import { construirEnlaceContacto } from "../../lib/contacto";
 import { PLAN_PRUEBA } from "../../lib/planes";
 import { nombreDeCiudad } from "../../lib/negocios/lugares";
 import {
@@ -315,16 +314,9 @@ export async function PantallaDirectorio({
               <p>Que te encuentren acá. Pruébalo gratis {PLAN_PRUEBA.dias} días.</p>
             </div>
             <div className={styles.sumateAcciones}>
-              <a
-                className={styles.botonNoche}
-                href={construirEnlaceContacto(
-                  "Hola, quiero que mi negocio aparezca en MiPuesto.",
-                )}
-                rel="noreferrer"
-                target="_blank"
-              >
+              <Link className={styles.botonNoche} href="/empezar?opcion=prueba">
                 Quiero aparecer
-              </a>
+              </Link>
               <Link className={styles.enlaceNoche} href="/">
                 Conoce MiPuesto
               </Link>

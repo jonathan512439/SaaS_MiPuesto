@@ -1,0 +1,254 @@
+@reference "../globals.css";
+
+/* La página de empezar, con los mismos tiempos que la portada: la noche para
+ * la elección, el claro para lo que incluye y el teal de la marca para la
+ * tarjeta de acrílico. Abajo deja lugar a la barra fija, que si no tapa el
+ * final. */
+
+.pagina {
+  display: grid;
+  width: 100%;
+  padding-bottom: var(--spacing-24);
+  background: var(--color-lienzo);
+}
+
+.pagina h1,
+.pagina h2,
+.pagina h3 {
+  margin: 0;
+  font-family: var(--font-marca);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.pagina p,
+.pagina ul {
+  margin: 0;
+}
+
+.contenido {
+  display: grid;
+  gap: var(--spacing-8);
+  width: min(calc(100% - var(--spacing-8)), var(--ancho-sitio));
+  margin: 0 auto;
+}
+
+/* ---- 1 · la elección ---- */
+
+.portada {
+  padding: var(--spacing-12) 0;
+  background: var(--color-sitio-noche);
+  color: var(--color-sitio-sobre-noche);
+}
+
+.encabezado,
+.encabezadoClaro {
+  display: grid;
+  gap: var(--spacing-2);
+  max-width: 40rem;
+}
+
+.encabezado h1 {
+  font-size: var(--text-3xl);
+  line-height: 0.98;
+}
+
+.encabezado p {
+  color: color-mix(in srgb, var(--color-sitio-sobre-noche) 80%, transparent);
+  font-size: var(--text-lg);
+}
+
+.opciones {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: 0;
+  list-style: none;
+}
+
+/* La elegida, con su marca y su borde de sol: no solo el color dice cuál es. */
+.opcion {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--spacing-1) var(--spacing-3);
+  min-height: var(--control-alto);
+  border: var(--borde-marcado) solid color-mix(in srgb, var(--color-sitio-sobre-noche) 30%, transparent);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4);
+  color: var(--color-sitio-sobre-noche);
+  text-decoration: none;
+}
+
+.opcion:hover {
+  border-color: var(--color-sitio-sobre-noche);
+}
+
+.opcion[aria-current="true"] {
+  border-color: var(--color-sitio-sol);
+  background: color-mix(in srgb, var(--color-sitio-sol) 12%, transparent);
+}
+
+.opcionMarca {
+  display: grid;
+  width: var(--spacing-6);
+  height: var(--spacing-6);
+  place-items: center;
+  border: var(--borde-marcado) solid color-mix(in srgb, var(--color-sitio-sobre-noche) 50%, transparent);
+  border-radius: var(--radius-status);
+}
+
+.opcion[aria-current="true"] .opcionMarca {
+  border-color: var(--color-sitio-sol);
+  background: var(--color-sitio-sol);
+  color: var(--color-sitio-sobre-sol);
+}
+
+.opcion strong {
+  font-size: var(--text-lg);
+}
+
+.opcionPrecio {
+  color: var(--color-sitio-sol);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.opcionDetalle {
+  grid-column: 2 / -1;
+  color: color-mix(in srgb, var(--color-sitio-sobre-noche) 80%, transparent);
+  font-size: var(--text-sm);
+}
+
+.promo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-sitio-sol);
+  font-weight: 800;
+}
+
+@media (min-width: 48rem) {
+  .opciones {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .opciones {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .opcion {
+    grid-template-columns: auto 1fr;
+    align-content: start;
+    height: 100%;
+  }
+
+  .opcionPrecio,
+  .opcionDetalle {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---- 2 · lo que incluye ---- */
+
+.seccion,
+.seccionTarjeta {
+  padding: var(--spacing-14) 0;
+}
+
+.encabezadoClaro h2 {
+  font-size: var(--text-2xl);
+  line-height: 1.02;
+}
+
+.encabezadoClaro p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-lg);
+}
+
+.beneficios,
+.tarjetas {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: 0;
+  list-style: none;
+}
+
+.beneficios li,
+.tarjetas li {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-5);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.beneficios h3,
+.tarjetas h3 {
+  font-size: var(--text-lg);
+}
+
+.beneficios p,
+.tarjetas p {
+  color: var(--color-texto-suave);
+  line-height: 1.5;
+}
+
+.beneficioIcono {
+  display: grid;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  place-items: center;
+  border-radius: var(--radius-status);
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-lg);
+}
+
+@media (min-width: 40rem) {
+  .beneficios,
+  .tarjetas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 64rem) {
+  .beneficios {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ---- 3 · las tarjetas de acrílico ---- */
+
+.seccionTarjeta {
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.seccionTarjeta .encabezadoClaro p,
+.seccionTarjeta .nota {
+  color: color-mix(in srgb, var(--color-superficie) 85%, transparent);
+}
+
+.tarjetas li {
+  color: var(--color-texto);
+}
+
+.tarjetaPrecio {
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-xl);
+  font-weight: 900;
+}
+
+.tarjetaPrecio span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.nota {
+  font-size: var(--text-sm);
+}

@@ -709,6 +709,18 @@
   font-weight: 900;
 }
 
+/* El pago por año, en una fila debajo de los planes. */
+.anual {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  border: var(--borde-marcado) dashed var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4) var(--spacing-5);
+}
+
 .plan h3,
 .planDestacado h3 {
   font-size: var(--text-xl);

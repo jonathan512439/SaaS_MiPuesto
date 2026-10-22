@@ -42,6 +42,10 @@ export type Plan = {
      plan sin la herramienta; hoy todos la traen, porque una función que el
      dueño nunca puede tocar es una función que nunca va a comprar. */
   lecturasPorMes: number;
+  /* Cuánta IA trae, en dos o tres palabras. Las dos tarjetas de la portada la
+     llevan: antes solo el Activo decía «Con IA» y parecía que el Catálogo no
+     tenía, cuando trae diez lecturas al mes. */
+  etiquetaIa: string;
   para: string;
   destacado: boolean;
   incluye: readonly string[];
@@ -76,6 +80,7 @@ export const PLANES: readonly Plan[] = [
     precioBs: PRECIO_MENSUAL_BS,
     topes: TOPES_CATALOGO,
     lecturasPorMes: 10,
+    etiquetaIa: "IA para empezar",
     para: "Para la mayoría: un catálogo que se arma una vez y se retoca de vez en cuando.",
     destacado: false,
     incluye: [
@@ -87,7 +92,7 @@ export const PLANES: readonly Plan[] = [
          diez. La cuenta sale del registro para que no vuelva a pasar. */
       `${PALETAS.length} paletas de color y el fondo de tu oficio`,
       "Tu negocio en el directorio público",
-      `10 lecturas de foto al mes, hasta ${topeDiario(10)} por día`,
+      `IA para empezar: 10 lecturas de foto al mes, hasta ${topeDiario(10)} por día`,
     ],
   },
   {
@@ -96,13 +101,13 @@ export const PLANES: readonly Plan[] = [
     precioBs: 150,
     topes: TOPES_ACTIVO,
     lecturasPorMes: 60,
-    para: "Con las herramientas de IA: para quien carga y cambia mercadería seguido.",
+    etiquetaIa: "IA para cargar seguido",
+    para: "Para quien carga y cambia mercadería seguido: seis veces más lecturas con IA.",
     destacado: true,
     incluye: [
       "Todo lo del plan Catálogo",
       describirTopes(TOPES_ACTIVO),
-      "Herramientas de IA: una foto de tu lista de precios se vuelve productos cargados",
-      `60 lecturas de foto al mes, hasta ${topeDiario(60)} por día`,
+      `IA para cargar seguido: 60 lecturas de foto al mes, hasta ${topeDiario(60)} por día`,
       "Prioridad cuando escribes por WhatsApp",
     ],
   },
@@ -154,6 +159,7 @@ export const PLAN_PRUEBA: Plan & { dias: number } = {
   dias: 15,
   topes: { productos: 15, fotosPorProducto: 3 },
   lecturasPorMes: 5,
+  etiquetaIa: "IA para probar",
   para: "Para conocer el sistema con tu propio catálogo, sin pagar nada.",
   destacado: false,
   incluye: [],
@@ -187,6 +193,53 @@ export function planDe(id: string | null | undefined): Plan {
 
 export function esPrueba(id: string | null | undefined): boolean {
   return id === PLAN_PRUEBA.id;
+}
+
+/* Lo que se puede elegir al empezar: la prueba, los dos planes por mes y el año
+ * del plan Catálogo. Cada botón de contratar de la portada lleva a `/empezar`
+ * con una de estas, y es la que viaja en el mensaje de WhatsApp.
+ *
+ * El año no suma la promoción del segundo mes: ya trae su descuento
+ * (`ahorroAnualBs`), y las dos juntas regalarían casi tres meses. */
+export type OpcionAlta = "prueba" | "catalogo" | "activo" | "anual";
+
+export const OPCIONES_ALTA: readonly {
+  id: OpcionAlta;
+  nombre: string;
+  precio: string;
+  detalle: string;
+  /* Lo que dice el botón fijo de la página. */
+  llamada: string;
+  plan: PlanId;
+}[] = [
+  {
+    id: "prueba",
+    nombre: "Prueba gratis",
+    precio: `${PLAN_PRUEBA.dias} días gratis`,
+    detalle: `Hasta ${PLAN_PRUEBA.topes.productos} productos y ${PLAN_PRUEBA.lecturasPorMes} lecturas con IA. Sin pagar nada.`,
+    llamada: `Empezar mi prueba de ${PLAN_PRUEBA.dias} días`,
+    plan: "prueba",
+  },
+  ...PLANES.map((plan) => ({
+    id: plan.id,
+    nombre: `Plan ${plan.nombre}`,
+    precio: `Bs ${plan.precioBs} al mes`,
+    detalle: `${describirTopes(plan.topes)}. ${plan.etiquetaIa}: ${plan.lecturasPorMes} lecturas al mes. El segundo mes va por nuestra cuenta.`,
+    llamada: `Quiero el plan ${plan.nombre}`,
+    plan: plan.id,
+  })),
+  {
+    id: "anual",
+    nombre: "Plan Catálogo por un año",
+    precio: `Bs ${PLAN_ANUAL.precioBs} al año`,
+    detalle: `Todo el plan Catálogo por doce meses. Ahorras Bs ${ahorroAnualBs()} frente a pagar mes a mes.`,
+    llamada: "Quiero el año",
+    plan: PLAN_ANUAL.planId,
+  },
+];
+
+export function opcionAlta(id: unknown) {
+  return OPCIONES_ALTA.find((opcion) => opcion.id === id) ?? OPCIONES_ALTA[0];
 }
 
 export function topesDelPlan(id: string | null | undefined): TopesDelPlan {

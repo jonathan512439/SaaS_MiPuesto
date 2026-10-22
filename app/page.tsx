@@ -20,11 +20,13 @@ import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
 import { RUBROS_PUBLICOS } from "../lib/negocios/rubros-publicos";
 import {
   CARGA_INICIAL,
+  PLAN_ANUAL,
   PLAN_PRUEBA,
   PLANES,
   PROMO_SEGUNDO_MES,
   TARJETA_ACRILICO,
   TARJETA_ACRILICO_GRANDE,
+  ahorroAnualBs,
   describirPrueba,
 } from "../lib/planes";
 import { qrComoSvg } from "../lib/qr-svg";
@@ -143,9 +145,9 @@ const RUBROS_EN_CINTA = RUBROS_PUBLICOS.filter(({ id }) => id !== "otro").map(({
 }));
 
 export default function Inicio() {
-  const enlaceAlta = construirEnlaceContacto(
-    `Hola, quiero probar MiPuesto gratis ${PLAN_PRUEBA.dias} días.`,
-  );
+  /* Todo botón de contratar lleva a `/empezar`, con la opción elegida: ahí
+     está todo lo que incluye y el formulario corto que arma el WhatsApp. */
+  const enlaceAlta = "/empezar?opcion=prueba";
   const enlaceTarjeta = construirEnlaceContacto(
     "Hola, quiero la tarjeta de acrílico con QR y NFC para mi negocio.",
   );
@@ -175,9 +177,9 @@ export default function Inicio() {
                 Tus productos con foto y precio. Te eligen, y el pedido te llega por WhatsApp.
               </p>
               <div className={styles.acciones}>
-                <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
+                <Link className={styles.botonSol} href={enlaceAlta}>
                   {LLAMADA}
-                </a>
+                </Link>
                 {/* «Ejemplos», no negocios en funcionamiento: hasta el piloto, los
                     catálogos del directorio son de demostración, y quien
                     escribiera a uno descubriría que no existe (2026-10-22). */}
@@ -417,7 +419,9 @@ export default function Inicio() {
             <div className={styles.planes}>
               {PLANES.map((plan) => (
                 <article className={plan.destacado ? styles.planDestacado : styles.plan} key={plan.id}>
-                  {plan.destacado ? <p className={styles.sello}>Con IA</p> : null}
+                  {/* Las dos llevan su sello de IA: con uno solo parecía que el
+                      plan Catálogo no la tenía, y trae diez lecturas al mes. */}
+                  <p className={styles.sello}>{plan.etiquetaIa}</p>
                   <h3>{plan.nombre}</h3>
                   <p className={styles.monto}>
                     Bs {plan.precioBs}
@@ -432,16 +436,26 @@ export default function Inicio() {
                       </li>
                     ))}
                   </ul>
-                  <a
+                  <Link
                     className={plan.destacado ? styles.botonSol : styles.botonNoche}
-                    href={construirEnlaceContacto(`Hola, quiero probar el plan ${plan.nombre} de MiPuesto.`)}
-                    rel="noreferrer"
-                    target="_blank"
+                    href={`/empezar?opcion=${plan.id}`}
                   >
                     Empezar con este
-                  </a>
+                  </Link>
                 </article>
               ))}
+            </div>
+
+            {/* El año, debajo de los dos planes y no como un tercero: es el mismo
+                plan Catálogo, pagado de una vez. */}
+            <div className={styles.anual}>
+              <p>
+                <strong>¿Prefieres pagar el año?</strong> El plan Catálogo por doce meses, Bs{" "}
+                {PLAN_ANUAL.precioBs}: ahorras Bs {ahorroAnualBs()}.
+              </p>
+              <Link className={styles.botonNoche} href="/empezar?opcion=anual">
+                Elegir el año
+              </Link>
             </div>
 
             {/* Filas y no tarjetas: se pagan una vez, y presentarlos como un
@@ -669,16 +683,16 @@ export default function Inicio() {
               Escríbenos y te abrimos tu prueba: hasta {PLAN_PRUEBA.topes.productos} productos y{" "}
               {PLAN_PRUEBA.lecturasPorMes} lecturas con IA. Si te convence, {PROMO_SEGUNDO_MES.charAt(0).toLowerCase() + PROMO_SEGUNDO_MES.slice(1)}
             </p>
-            <a className={styles.botonNoche} href={enlaceAlta} rel="noreferrer" target="_blank">
+            <Link className={styles.botonNoche} href={enlaceAlta}>
               {LLAMADA}
-            </a>
+            </Link>
           </div>
         </section>
 
         <div className={styles.accionFija}>
-          <a className={styles.botonSol} href={enlaceAlta} rel="noreferrer" target="_blank">
+          <Link className={styles.botonSol} href={enlaceAlta}>
             {LLAMADA}
-          </a>
+          </Link>
         </div>
       </main>
       <PieSitio />
