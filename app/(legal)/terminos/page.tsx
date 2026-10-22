@@ -72,7 +72,8 @@ export default function PaginaTerminos() {
           del catálogo.
         </p>
         <p>
-          El cobro es mensual y se coordina con vos por WhatsApp. No hay contrato de
+          El cobro es mensual, se paga con QR y se coordina con vos por WhatsApp. Por
+          ahora no emitimos factura. No hay contrato de
           permanencia: puedes dejar de pagar cuando quieras y no se te cobra nada
           adicional.
         </p>

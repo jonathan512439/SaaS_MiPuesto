@@ -81,6 +81,23 @@ const PREGUNTAS = [
     pregunta: "¿Hay alguna promoción?",
     respuesta: `Sí. ${PROMO_SEGUNDO_MES}`,
   },
+  /* Lo que pasa después de escribir, dicho antes de que lo pregunten: quien no
+     sabe cómo se paga ni cuándo empieza, no escribe (respuestas del dueño,
+     2026-10-22). */
+  {
+    pregunta: "¿Cuánto tarda en estar lista mi cuenta?",
+    respuesta:
+      "El mismo día. Nos escribes por WhatsApp, te habilitamos la prueba y empiezas a cargar tus productos.",
+  },
+  {
+    pregunta: "¿Cómo se paga?",
+    respuesta:
+      "Con QR, desde la aplicación de tu banco. Lo coordinamos por WhatsApp y, si prefieres, nos reunimos en persona o por videollamada para mostrarte el sistema antes.",
+  },
+  {
+    pregunta: "¿Emiten factura?",
+    respuesta: "Por ahora no emitimos factura. El pago es directo, con QR.",
+  },
   {
     pregunta: "¿Mis clientes tienen que instalar algo?",
     respuesta: "No. Abren tu enlace en el navegador del celular, sin crear cuenta.",
