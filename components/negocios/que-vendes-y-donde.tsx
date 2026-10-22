@@ -317,9 +317,10 @@ export function QueVendesYDonde({
       <fieldset className={styles.bloque}>
         <legend className={styles.pregunta}>¿Quieres que te encuentren en el buscador de MiPuesto?</legend>
         <p className={styles.explicacion}>
-          Si alguien busca en MiPuesto algo que vendes —por ejemplo, «juguetes en Oruro»— puede
-          encontrar tu catálogo. Para eso necesitamos tu ciudad y, si tienes local, dónde está.{" "}
-          <strong>Tu dirección exacta no se publica: se muestra solo tu zona.</strong>
+          Quien busque algo que vendes —«juguetes en Oruro»— puede encontrarte.{" "}
+          {/* El aviso de privacidad va una sola vez, acá. Hasta el 2026-10-22
+              se repetía en las opciones de abajo. */}
+          <strong>Tu dirección exacta no se publica: solo tu zona.</strong>
         </p>
         <div className={styles.opciones}>
           <label className={aparece === true ? styles.opcionElegida : styles.opcion}>
@@ -331,7 +332,7 @@ export function QueVendesYDonde({
             />
             <span>
               <strong>Sí, quiero aparecer</strong>
-              <small>Te pedimos tu ciudad y, si tienes local, que lo marques en el mapa.</small>
+              <small>Con tu ciudad y, si tienes local, tu puerta en el mapa.</small>
             </span>
           </label>
           <label className={aparece === false ? styles.opcionElegida : styles.opcion}>
@@ -391,7 +392,7 @@ export function QueVendesYDonde({
                 />
                 <span>
                   <strong>En mi local</strong>
-                  <small>Marcas en el mapa dónde está tu puerta. Se muestra solo tu zona.</small>
+                  <small>Marcas tu puerta en el mapa.</small>
                 </span>
               </label>
               <label className={sinLocal ? styles.opcionElegida : styles.opcion}>
@@ -403,7 +404,7 @@ export function QueVendesYDonde({
                 />
                 <span>
                   <strong>Sin local</strong>
-                  <small>Vendes por internet, con envíos o entregas. Apareces en tu ciudad, sin mapa.</small>
+                  <small>Vendes con envíos o entregas. Sin mapa.</small>
                 </span>
               </label>
             </div>

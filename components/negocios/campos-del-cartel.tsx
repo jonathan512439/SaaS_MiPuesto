@@ -107,7 +107,13 @@ const QUE_HACE_EL_BOTON: Record<TextoEnEdicion["destino"], string> = {
   otra: "Abre esa página aparte, sin cerrar tu catálogo. Tiene que empezar con https://",
 };
 
-/* Un campo de una línea con su explicación y su tope dicho en palabras. */
+/* Un campo de una línea con su contador.
+ *
+ * Hasta el 2026-10-22 cada campo llevaba además una frase —«Una o dos
+ * palabras, en letra chica…»— que decía lo mismo que su etiqueta y su ejemplo,
+ * y como estos campos están en la portada y en los dos banners, cada frase se
+ * leía tres veces en el panel. Queda solo la del botón, que es la única que no
+ * se deduce sola. */
 function CampoDelCartel({
   id,
   etiqueta,
@@ -119,7 +125,7 @@ function CampoDelCartel({
 }: {
   id: string;
   etiqueta: string;
-  ayuda: string;
+  ayuda?: string;
   maximo: number;
   placeholder: string;
   valor: string;
@@ -137,7 +143,8 @@ function CampoDelCartel({
         value={valor}
       />
       <small>
-        {ayuda} Hasta {maximo} caracteres{valor.length > 0 ? ` (llevas ${valor.length})` : ""}.
+        {ayuda ? `${ayuda} ` : ""}
+        {valor.length} de {maximo}
       </small>
     </label>
   );
@@ -166,7 +173,6 @@ export function CamposDelCartel({
       <div className={styles.paresCartel}>
       <CampoDelCartel
         alCambiar={(eyebrow) => cambiar({ eyebrow })}
-        ayuda="Una o dos palabras, en letra chica, que llamen la atención."
         etiqueta="Frase corta arriba del título (opcional)"
         id={`${prefijo}-eyebrow`}
         maximo={LARGO_MAXIMO_EYEBROW}
@@ -175,7 +181,6 @@ export function CamposDelCartel({
       />
       <CampoDelCartel
         alCambiar={(titulo) => cambiar({ titulo })}
-        ayuda="Lo más importante, en letra grande."
         etiqueta="Título (opcional)"
         id={`${prefijo}-titulo`}
         maximo={LARGO_MAXIMO_TITULO}
@@ -184,7 +189,6 @@ export function CamposDelCartel({
       />
       <CampoDelCartel
         alCambiar={(copy) => cambiar({ copy })}
-        ayuda="Un detalle más: hasta cuándo, para quién, dónde."
         etiqueta="Texto debajo del título (opcional)"
         id={`${prefijo}-copy`}
         maximo={LARGO_MAXIMO_COPY}
@@ -193,7 +197,7 @@ export function CamposDelCartel({
       />
       <CampoDelCartel
         alCambiar={(boton) => cambiar({ boton })}
-        ayuda="Lo que dice el botón. Aparece solo si también eliges a dónde lleva."
+        ayuda="Se ve solo si eliges a dónde lleva."
         etiqueta="Texto del botón (opcional)"
         id={`${prefijo}-boton`}
         maximo={LARGO_MAXIMO_BOTON}

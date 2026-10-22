@@ -1386,35 +1386,8 @@
   font-weight: 800;
 }
 
-.pasosIa {
-  display: grid;
-  width: 100%;
-  gap: var(--spacing-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
 
-.pasosIa li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: var(--spacing-2);
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
-}
 
-.pasosIa li b {
-  display: grid;
-  width: var(--spacing-6);
-  height: var(--spacing-6);
-  place-items: center;
-  border-radius: 50%;
-  background: var(--ia-degradado);
-  color: var(--color-ia-sobre);
-  font-size: var(--text-xs);
-  font-weight: 800;
-}
 
 .abrirIa {
   display: inline-flex;
@@ -1475,11 +1448,6 @@
   font-size: var(--text-xs);
 }
 
-@media (min-width: 40rem) {
-  .pasosIa {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
 
 /* Debajo de la etiqueta y antes del campo: leída así evita el error, leída
    después solo explica por qué salió mal. */

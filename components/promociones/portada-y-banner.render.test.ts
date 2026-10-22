@@ -30,7 +30,7 @@ const conAvisos = (hijo: ReturnType<typeof jsx>) =>
   renderToString(jsx(ProveedorAvisos, { children: hijo })).replaceAll("<!-- -->", "");
 
 describe("el texto de la portada, en Apariencia", () => {
-  it("se dibuja solo con la portada, y manda el banner a Promociones", () => {
+  it("se dibuja con sus campos y avisa cuando falta la foto", () => {
     const html = conAvisos(
       jsx(FormularioPortada, {
         destinos: DESTINOS,
@@ -40,9 +40,11 @@ describe("el texto de la portada, en Apariencia", () => {
     );
     expect(html).toContain("Texto sobre tu portada");
     expect(html).toContain("Pollo crocante");
-    expect(html).toContain("Todavía no subiste una foto de portada.");
+    expect(html).toContain("Todavía no subiste una foto de portada:");
     expect(html).toContain("Frase corta arriba del título");
-    expect(html).toContain('href="/dashboard/promociones"');
+    /* Una frase y no dos párrafos (2026-10-22): no vuelve a explicar qué es
+       la portada ni dónde se cambia, que está justo arriba. */
+    expect(html).not.toContain("La portada es la foto grande");
     expect(html).not.toContain("banner-imagen-0");
   });
 });

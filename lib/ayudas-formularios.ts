@@ -68,6 +68,16 @@ export function instructivoDeImagen(medidas: Medidas) {
   return `Forma ${ancho}:${alto} (${medidas.nombre}). Ideal: ${tamano(medidas.ideal)}; lo más chico que se ve nítido: ${tamano(medidas.minimo)}. Más grande no importa: la achicamos sola, sin cortarla.`;
 }
 
+/* La línea que siempre se ve junto al botón de subir; el instructivo completo
+   (`AYUDA_*`) queda a un toque, en «Cómo preparar la imagen». Salen de las
+   mismas medidas, así que no pueden decir números distintos. Desde el
+   2026-10-22: con el instructivo entero a la vista, la foto de un producto
+   llevaba 93 palabras debajo del botón. */
+export function resumenDeImagen(medidas: Medidas) {
+  const [ancho, alto] = medidas.forma;
+  return `Forma ${ancho}:${alto} (${medidas.nombre}) · ideal ${tamano(medidas.ideal)} · mínimo ${tamano(medidas.minimo)}`;
+}
+
 const { portada, logo, banner, producto, qr } = MEDIDAS_DE_IMAGEN;
 const { cuadricula, fila, vitrina } = FORMAS_DE_IMAGEN.tarjeta;
 const comoForma = (valor: number) => (valor === 4 / 3 ? "4:3" : valor === 3 / 4 ? "3:4" : valor === 1 ? "1:1" : String(valor));
@@ -94,4 +104,12 @@ export const AYUDA_SUBCATEGORIA =
 /* Desde la fase 13 cada talla, número o tamaño puede tener su propio precio,
    y eso se carga en el producto ya creado, no duplicándolo. */
 export const AYUDA_PRECIO =
-  "Solo el número, en bolivianos. Si el precio cambia por talla o tamaño, después de crear el producto le agregas esas opciones, cada una con su precio.";
+  "¿Cambia por talla o tamaño? Agrega esas opciones después de crear el producto.";
+
+export const RESUMEN_IMAGEN = {
+  portada: resumenDeImagen(portada),
+  logo: resumenDeImagen(logo),
+  banner: resumenDeImagen(banner),
+  producto: `Un producto por foto. ${resumenDeImagen(producto)}`,
+  qr: resumenDeImagen(qr),
+} as const;

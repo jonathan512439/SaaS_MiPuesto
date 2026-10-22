@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 
-import { AYUDA_BANNER } from "../../lib/ayudas-formularios";
+import { AYUDA_BANNER, RESUMEN_IMAGEN } from "../../lib/ayudas-formularios";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import {
   LARGO_MAXIMO_ALT,
@@ -25,7 +25,7 @@ import { VistaPreviaCatalogo } from "../plantillas/vista-previa-catalogo";
 import { BannerCatalogo } from "../templates/banner-catalogo";
 import temaStyles from "../templates/tema-catalogo.module.css";
 import { PasoNumerado } from "../dashboard/paso-numerado";
-import { Boton, Formulario, useAvisos } from "../ui";
+import { AyudaPlegable, Boton, Formulario, useAvisos } from "../ui";
 import styles from "./formulario-banners.module.css";
 
 /* Los dos banners de publicidad, en Promociones.
@@ -56,13 +56,13 @@ const LUGARES: ReadonlyArray<{ lugar: LugarBanner; titulo: string; donde: string
     lugar: "superior",
     titulo: "Banner superior",
     donde: "Debajo de las categorías, arriba de tus primeros productos.",
-    paraQue: "Es lo primero que ven al empezar a mirar: va bien para tu promoción principal.",
+    paraQue: "Para tu promoción principal.",
   },
   {
     lugar: "inferior",
     titulo: "Banner inferior",
     donde: "A la mitad del catálogo, entre dos categorías.",
-    paraQue: "Lo ven mientras recorren tus productos: va bien para un aviso o una segunda promoción.",
+    paraQue: "Para un aviso o una segunda promoción.",
   },
 ];
 
@@ -198,9 +198,8 @@ export function FormularioBanners({
         <header className={cartel.cabecera}>
           <PasoNumerado icono="etiqueta" titulo="Tus banners" />
           <p>
-            Son franjas con imagen entre tus productos, para una promoción, una marca que vendes o un
-            aviso («cerramos el feriado»). Tienes dos lugares, y los dos son opcionales: el que dejes
-            vacío no deja hueco.
+            Franjas con imagen entre tus productos: una promoción, una marca o un aviso. Las dos son
+            opcionales.
           </p>
           {/* El catálogo de arriba abajo, con los dos lugares marcados: dice
               dónde va cada banner antes de leer los bloques. */}
@@ -236,11 +235,15 @@ export function FormularioBanners({
                     onChange={(evento) => subirImagen(lugar, evento)}
                     type="file"
                   />
-                  <small>
-                    {subiendo === lugar
-                      ? "Subiendo la imagen…"
-                      : AYUDA_BANNER}
-                  </small>
+                  {/* La forma y el tamaño a la vista; el instructivo entero, a un
+                      toque. */}
+                  {subiendo === lugar ? (
+                    <small>Subiendo la imagen…</small>
+                  ) : (
+                    <AyudaPlegable resumen={RESUMEN_IMAGEN.banner} titulo="Cómo preparar la imagen">
+                      {AYUDA_BANNER}
+                    </AyudaPlegable>
+                  )}
                   {error("imagen") ? <strong className={cartel.error}>{error("imagen")}</strong> : null}
                 </label>
               </section>
@@ -261,8 +264,7 @@ export function FormularioBanners({
                       usa lector de pantalla, y un banner puede ser el aviso de
                       que el negocio cierra por feriado. */}
                   <small>
-                    La escucha quien no puede ver la imagen, y la muestra el teléfono si la foto no
-                    carga. Hasta {LARGO_MAXIMO_ALT} caracteres.
+                    Para quien no puede ver la imagen. {banner.alt.length} de {LARGO_MAXIMO_ALT}
                   </small>
                   {error("alt") ? <strong className={cartel.error}>{error("alt")}</strong> : null}
                 </label>
@@ -270,10 +272,7 @@ export function FormularioBanners({
 
               <section className={cartel.pasoBanner} aria-labelledby={`paso-texto-${lugar}`}>
                 <h3 id={`paso-texto-${lugar}`}>3 · Texto encima y botón (opcional)</h3>
-                <p className={cartel.paraQue}>
-                  Si tu imagen ya tiene el texto, deja esto vacío. Si escribes algo, aparece sobre la
-                  imagen con un sombreado para que se lea.
-                </p>
+                <p className={cartel.paraQue}>Si tu imagen ya tiene el texto, deja esto vacío.</p>
                 <CamposDelCartel
                   cambiar={(cambio) => cambiarBanner(lugar, cambio)}
                   destinos={destinos}

@@ -10,6 +10,7 @@ import {
   AYUDA_QR,
   FORMAS_DE_IMAGEN,
   MEDIDAS_DE_IMAGEN,
+  RESUMEN_IMAGEN,
 } from "./ayudas-formularios";
 import { PESO_MAXIMO_ORIGINAL } from "./imagenes";
 import { PROPORCION_BANNER } from "./negocios/banners";
@@ -110,6 +111,35 @@ describe("la ayuda de la foto del producto", () => {
     expect(AYUDA_FOTO_PRODUCTO).toContain("se ve entera");
     for (const forma of ["4:3 en Cuadrícula", "1:1 en Una por fila", "3:4 en Vitrina"]) {
       expect(AYUDA_FOTO_PRODUCTO).toContain(forma);
+    }
+  });
+});
+
+/* La línea que se ve siempre junto al botón de subir (2026-10-22): corta, y con
+   los mismos números que el instructivo que queda a un toque. */
+describe("el resumen de cada imagen", () => {
+  const instructivos = {
+    portada: AYUDA_PORTADA,
+    logo: AYUDA_LOGO,
+    banner: AYUDA_BANNER,
+    producto: AYUDA_FOTO_PRODUCTO,
+    qr: AYUDA_QR,
+  } as const;
+
+  it("cabe en un renglón", () => {
+    for (const [tipo, resumen] of Object.entries(RESUMEN_IMAGEN)) {
+      expect(resumen.split(/s+/).length, tipo).toBeLessThanOrEqual(16);
+    }
+  });
+
+  it("dice los mismos números que el instructivo completo", () => {
+    for (const [tipo, { ideal, minimo }] of Object.entries(MEDIDAS_DE_IMAGEN)) {
+      const resumen = RESUMEN_IMAGEN[tipo as keyof typeof RESUMEN_IMAGEN];
+      const instructivo = instructivos[tipo as keyof typeof instructivos];
+      for (const [ancho, alto] of [ideal, minimo]) {
+        expect(resumen, tipo).toContain(`${ancho} × ${alto}`);
+        expect(instructivo, tipo).toContain(`${ancho} × ${alto}`);
+      }
     }
   });
 });

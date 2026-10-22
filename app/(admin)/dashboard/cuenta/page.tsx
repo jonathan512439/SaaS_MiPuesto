@@ -52,7 +52,6 @@ export default async function PaginaCuenta() {
   return (
     <main className={`${panel.contenido} ${panel.columnas}`}>
       <EncabezadoPanel
-        descripcion="Administra tu suscripción y los datos de tu negocio."
         titulo="Tu cuenta"
       />
 

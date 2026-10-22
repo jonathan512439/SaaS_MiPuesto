@@ -11,7 +11,7 @@ import {
 } from "../../lib/precios";
 import { validarPromocion } from "../../lib/promociones/validacion";
 import { normalizarBusqueda } from "../../lib/texto";
-import { Boton, EstadoVacio, SelectorDeFecha, SelectorDeHora, useAvisos, useConfirmacion, Formulario } from "../ui";
+import { AyudaPlegable, Boton, EstadoVacio, SelectorDeFecha, SelectorDeHora, useAvisos, useConfirmacion, Formulario } from "../ui";
 import { fechaHoyEnLaPaz } from "../../lib/horario";
 import styles from "./gestor-promociones.module.css";
 
@@ -322,7 +322,6 @@ export function GestorPromociones({
             <p>Nueva oferta</p>
             <h2>Define el descuento</h2>
           </div>
-          <p>Puedes pausarlo o borrarlo después sin cambiar el precio normal.</p>
         </header>
 
         <div className={styles.campos}>
@@ -451,11 +450,12 @@ export function GestorPromociones({
             en qué momentos de ese período se aplica. */}
         <fieldset className={styles.horario}>
           <legend>Solo a ciertas horas <span>Opcional</span></legend>
-          <p>
-            Deja todo vacío y el descuento vale siempre. Si el fin es menor que el
-            inicio, la ventana cruza la medianoche: de 22:00 a 02:00 es una sola
-            noche, y a la 01:00 sigue contando como el día que empezó.
-          </p>
+          {/* La regla de la medianoche es para quien la necesita: a un toque, no
+              siempre a la vista (2026-10-22). */}
+          <AyudaPlegable resumen="Vacío, vale todo el día." titulo="¿Y si pasa la medianoche?">
+            Si el fin es menor que el inicio, cruza la medianoche: de 22:00 a 02:00 es una sola noche,
+            y a la 01:00 sigue contando como el día que empezó.
+          </AyudaPlegable>
           <div className={styles.horas}>
             <SelectorDeHora
               alCambiar={setHoraInicio}

@@ -229,7 +229,6 @@ export function FormularioOperacion({
 
       <div className={styles.controles}>
         <Selector
-          ayuda="Puedes cambiarlo cuando quieras."
           error={errores.horario}
           etiqueta="Horario del negocio"
           id="modo-horario"
@@ -241,7 +240,7 @@ export function FormularioOperacion({
           <option value="programado">Horario programado</option>
         </Selector>
         <Campo
-          ayuda="Cuando un cliente envía su pedido, apartamos esos productos para él durante estos minutos, mientras te escribe por WhatsApp. Si no confirmas la venta antes, vuelven a estar disponibles."
+          ayuda="Lo pedido queda apartado mientras te escribe. Si no confirmas, se libera."
           error={errores.reserva_minutos}
           etiqueta="Minutos que se guarda una reserva"
           id="reserva-minutos"
@@ -256,7 +255,7 @@ export function FormularioOperacion({
         />
         {conCarrito ? (
           <Campo
-            ayuda="Cuántas unidades puede pedir un cliente en total, sumando todos los productos. Déjalo vacío si no quieres límite."
+            ayuda="Sumando todos los productos. Vacío, sin límite."
             error={errores.tope_unidades_pedido}
             etiqueta="Máximo de unidades por pedido"
             id="tope-unidades"
@@ -338,7 +337,7 @@ export function FormularioOperacion({
         <p className={styles.explicacionModo}>
           {horario.modo === "siempre_abierto"
             ? "Los pedidos estarán disponibles todos los días y a cualquier hora."
-            : "No mostraremos un horario y las acciones permanecerán disponibles."}
+            : "Sin horario: siempre se puede pedir."}
         </p>
       )}
 

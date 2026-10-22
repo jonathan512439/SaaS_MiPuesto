@@ -35,7 +35,6 @@ export default async function PaginaProductos() {
   return (
     <main className={panel.contenido}>
       <EncabezadoPanel
-        descripcion="Gestiona tus productos y mantén tu negocio siempre al día."
         titulo="Productos"
       />
 

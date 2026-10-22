@@ -10,8 +10,7 @@ import {
   validarSlug,
 } from "../../lib/negocios/validacion";
 import { rutaDespuesDeGuardarNegocio } from "../../lib/negocios/alta";
-import { nombreDeRubro, rubroOfrece } from "../../lib/negocios/rubros";
-import { nombreDeRubroPublico } from "../../lib/negocios/rubros-publicos";
+import { rubroOfrece } from "../../lib/negocios/rubros";
 import { DOMINIO_MIPUESTO } from "../../lib/url-sitio";
 import { AreaTexto, Boton, Campo, Selector, useAvisos, Formulario } from "../ui";
 import styles from "../../app/(admin)/dashboard/negocio/negocio.module.css";
@@ -219,7 +218,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
     <Formulario className={styles.formulario} onSubmit={guardar}>
       <section className={styles.bloqueFormulario} aria-labelledby="datos-principales">
         <PasoNumerado
-          descripcion="Así reconocerán tu negocio quienes abran el catálogo."
           idTitulo="datos-principales"
           numero={1}
           titulo="Datos principales"
@@ -258,24 +256,15 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
             El caso sin rubro no es hipotético: existen negocios anteriores al
             alta. Si no dijera nada, la lista de «lo que falta» los manda a esta
             pantalla y no encuentran cómo resolverlo. */}
-        <p className={styles.rubroInformado}>
-          {rubro ? (
-            <>
-              Tu negocio está registrado como{" "}
-              <strong>
-                {nombreDeRubroPublico(negocioInicial?.rubro_publico) ?? nombreDeRubro(rubro)}
-              </strong>
-              . Se elige
-              una sola vez, al crear el catálogo, porque de él salen tus categorías y los
-              datos de cada producto.
-            </>
-          ) : (
-            <>
-              Tu negocio todavía no tiene un rubro elegido. Escríbenos y lo configuramos:
-              de él salen tus categorías y los datos de cada producto.
-            </>
-          )}
-        </p>
+        {/* Con rubro no se dice nada acá: «Qué vendes y dónde», en esta misma
+            pantalla, ya lo muestra y dice cómo cambiarlo (2026-10-22: se leía
+            dos veces). Sin rubro sí, porque es lo que falta. */}
+        {rubro ? null : (
+          <p className={styles.rubroInformado}>
+            Tu negocio todavía no tiene un rubro elegido. Escríbenos y lo configuramos: de él salen
+            tus categorías y los datos de cada producto.
+          </p>
+        )}
         <AreaTexto
           error={errores.descripcion}
           etiqueta="Descripción"
@@ -290,7 +279,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
 
       <section className={styles.bloqueFormulario} aria-labelledby="direccion-catalogo">
         <PasoNumerado
-          descripcion="Será el nombre corto que usarás para compartir tu catálogo."
           idTitulo="direccion-catalogo"
           numero={2}
           titulo="Dirección del catálogo"
@@ -334,7 +322,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
 
       <section className={styles.bloqueFormulario} aria-labelledby="atencion-negocio">
         <PasoNumerado
-          descripcion="Elige cómo usarás el catálogo y dónde recibirás consultas."
           idTitulo="atencion-negocio"
           numero={3}
           titulo="Atención y modalidad"
@@ -359,7 +346,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         <div className={styles.modalidadExplicacion} aria-live="polite">
           <h3>{EXPLICACIONES_MODALIDAD[tipo].titulo}</h3>
           <p>{EXPLICACIONES_MODALIDAD[tipo].descripcion}</p>
-          <p>Puedes cambiar esta modalidad más adelante si tu negocio lo necesita.</p>
         </div>
         {/* Aparece pegado al rubro porque solo tiene sentido ahí: pedirle la
             mesa a quien compra ropa por WhatsApp es un campo más entre él y el
@@ -401,7 +387,6 @@ export function FormularioNegocio({ negocioInicial }: PropiedadesFormularioNegoc
         <Boton cargando={guardando} type="submit">
           {negocioInicial ? "Guardar cambios" : "Crear mi negocio"}
         </Boton>
-        <p>Solo vos puedes ver y modificar los datos de este negocio.</p>
       </div>
     </Formulario>
   );

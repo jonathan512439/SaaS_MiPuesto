@@ -109,7 +109,7 @@ export function PanelApariencia({
       <div className={styles.marca}>
         <section aria-labelledby="titulo-logo-portada" className={styles.bloque}>
           <PasoNumerado
-            descripcion="Tu logo va en la cabecera del catálogo; la portada es la foto grande de arriba. Cada una se guarda apenas la eliges."
+            descripcion="Se guardan apenas las eliges."
             idTitulo="titulo-logo-portada"
             numero={4}
             titulo="Tu logo y tu portada"
@@ -118,8 +118,7 @@ export function PanelApariencia({
             alCambiar={alCambiarImagen}
             negocioNombre={negocioNombre}
             notas={{
-              portada:
-                "Es la foto de tu negocio, no un anuncio: para promociones están los banners de Promociones. Lo que va escrito encima se elige justo abajo.",
+              portada: "La foto de tu negocio. Para anuncios están los banners de Promociones.",
             }}
             rutasIniciales={rutasImagenes}
             tipos={["logo", "portada"]}

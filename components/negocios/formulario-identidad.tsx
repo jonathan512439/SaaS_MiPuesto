@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 
 import { obtenerRedesSociales, type RedesSocialesNegocio } from "../../lib/negocios/identidad";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
-import { Boton, Formulario, useAvisos } from "../ui";
+import { AyudaPlegable, Boton, Formulario, useAvisos } from "../ui";
 import { ImagenesDelNegocio } from "./imagenes-del-negocio";
 import styles from "./formulario-identidad.module.css";
 
@@ -101,9 +101,7 @@ export function FormularioIdentidad({
           <h2 id="identidad-negocio">Cómo te pagan y cómo te encuentran</h2>
         </div>
         <p>
-          El logo y la foto de portada se eligen en{" "}
-          <Link href={RUTAS_PANEL.apariencia}>Apariencia</Link>, al lado de la vista previa de tu
-          catálogo.
+          El logo y la portada están en <Link href={RUTAS_PANEL.apariencia}>Apariencia</Link>.
         </p>
       </header>
 
@@ -117,7 +115,7 @@ export function FormularioIdentidad({
       <Formulario className={styles.redes} onSubmit={guardarRedes}>
         <header>
           <h3>Contacto y ubicación</h3>
-          <p>Abre cada página —tu Facebook, tu Instagram—, copia su dirección y pégala acá. Todos son opcionales.</p>
+          <p>Pega la dirección de cada página. Todos son opcionales.</p>
         </header>
 
         {/* Los dos enlaces lado a lado en una pantalla ancha: uno debajo del
@@ -138,8 +136,7 @@ export function FormularioIdentidad({
             value={ubicacion}
           />
           <small className={styles.ayudaUbicacion}>
-            Abre Google Maps, busca tu negocio, toca «Compartir» y pega acá el enlace. Tus
-            clientes verán un botón «Cómo llegar».
+            En Google Maps: tu negocio, «Compartir», y pégalo acá. Suma el botón «Cómo llegar».
           </small>
           {errores.ubicacion_url ? <small>{errores.ubicacion_url}</small> : null}
         </label>
@@ -157,27 +154,23 @@ export function FormularioIdentidad({
               sacar ese enlace **mientras** está mirando este campo, y un enlace
               de Maps que no es el de calificar se pega igual y no falla —lleva a
               ver la ficha en vez de a puntuarla, y nadie se entera—. */}
-          <small className={styles.ayudaUbicacion}>
-            Se lo mostramos a tu cliente al terminar el pedido, que es cuando está
-            contento y con el teléfono en la mano.
-          </small>
-          {/* «Desde una computadora» va primero y no como aclaración al final:
-              en el teléfono, Maps abre su aplicación en vez del navegador y no
-              hay barra de direcciones de donde copiar. Quien lo intente ahí se
-              queda trabado sin entender por qué. */}
-          <ol className={styles.pasosResenas}>
-            <li>
-              <strong>Desde una computadora</strong>, abre Google Maps y busca tu
-              negocio.
-            </li>
-            <li>Haz clic en tu ficha y baja hasta «Reseñas».</li>
-            <li>Haz clic en «Escribir una reseña».</li>
-            <li>Copia la dirección que se abre y pégala acá.</li>
-          </ol>
-          <small className={styles.ayudaUbicacion}>
-            No sirve el enlace de «Compartir»: ese lleva a ver tu ficha, no a
-            calificarla.
-          </small>
+          {/* Los pasos, plegados: sirven mientras se saca el enlace, no cada vez
+              que se abre la pantalla (2026-10-22). «Desde una computadora» va primero porque en el
+              teléfono Maps abre su aplicación y no hay de dónde copiar. */}
+          <AyudaPlegable
+            resumen="Lo ve tu cliente al terminar el pedido."
+            titulo="Cómo sacar este enlace"
+          >
+            <ol>
+              <li>
+                <strong>Desde una computadora</strong>, abre Google Maps y busca tu negocio.
+              </li>
+              <li>Haz clic en tu ficha y baja hasta «Reseñas».</li>
+              <li>Haz clic en «Escribir una reseña».</li>
+              <li>Copia la dirección que se abre y pégala acá.</li>
+            </ol>
+            <span>No sirve el enlace de «Compartir»: ese lleva a ver tu ficha, no a calificarla.</span>
+          </AyudaPlegable>
           {errores.resenas_url ? <small>{errores.resenas_url}</small> : null}
         </label>
         </div>

@@ -1,0 +1,66 @@
+@reference "../../app/globals.css";
+
+.ayuda {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.resumen {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}
+
+/* Se ve como un enlace —se toca para leer más— y no como un botón: no hace
+   nada, solo muestra. El alto mínimo es el del dedo, aunque el texto sea
+   chico. */
+.plegable summary {
+  display: inline-flex;
+  width: fit-content;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-1);
+  color: var(--color-marca);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  text-decoration: underline;
+  list-style: none;
+  cursor: pointer;
+}
+
+.plegable summary::-webkit-details-marker {
+  display: none;
+}
+
+.plegable summary::after {
+  content: "▾";
+  text-decoration: none;
+}
+
+.plegable[open] summary::after {
+  content: "▴";
+}
+
+.plegable summary:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-texto);
+  outline-offset: var(--borde-fino);
+}
+
+.detalle {
+  display: grid;
+  gap: var(--spacing-2);
+  max-width: var(--ancho-lectura);
+  border-left: var(--borde-marcado) solid var(--color-borde-suave);
+  padding: var(--spacing-1) 0 var(--spacing-2) var(--spacing-3);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.detalle ol,
+.detalle ul {
+  display: grid;
+  gap: var(--spacing-1);
+  margin: 0;
+  padding-left: var(--spacing-4);
+}

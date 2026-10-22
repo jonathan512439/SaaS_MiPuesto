@@ -17,3 +17,4 @@ export { SelectorDeHora } from "./selector-de-hora";
 export { Toast } from "./toast";
 export { Trabajando } from "./trabajando";
 export type { VarianteToast } from "./toast";
+export { AyudaPlegable } from "./ayuda-plegable";

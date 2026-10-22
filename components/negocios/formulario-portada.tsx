@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
 import type { ContextoDestino } from "../../lib/negocios/destino-banner";
 import type { TextoSobreImagen } from "../../lib/negocios/texto-sobre-imagen";
-import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import { PasoNumerado } from "../dashboard/paso-numerado";
 import { Boton, Formulario, useAvisos } from "../ui";
 import {
@@ -81,22 +79,17 @@ export function FormularioPortada({
     <Formulario className={styles.seccion} onSubmit={guardar}>
       <header className={styles.cabecera}>
         <PasoNumerado numero={5} titulo="Texto sobre tu portada" />
+        {/* Una frase, y el aviso solo cuando falta la foto. Hasta el
+            2026-10-22 eran dos párrafos que volvían a explicar qué es la
+            portada y dónde se cambia, justo debajo de donde se cambia. */}
         <p>
-          La portada es la foto grande que aparece primero en tu catálogo. Acá eliges si lleva algo
-          escrito encima y un botón: un saludo, lo que vendes, «pide por WhatsApp». Todo es opcional:
-          sin texto, la foto se ve sola y limpia.
-        </p>
-        <p>
-          {tienePortada ? (
-            "La foto se cambia justo arriba, en «Tu logo y tu portada»."
-          ) : (
+          Opcional: un saludo o lo que vendes, con un botón. Sin texto, la foto se ve sola.
+          {tienePortada ? null : (
             <>
-              <strong>Todavía no subiste una foto de portada.</strong> Súbela justo arriba: este
-              texto se va a ver cuando esté.
+              {" "}
+              <strong>Todavía no subiste una foto de portada:</strong> súbela justo arriba.
             </>
-          )}{" "}
-          Para publicidad entre tus productos están los banners superior e inferior de{" "}
-          <Link href={RUTAS_PANEL.promociones}>Promociones</Link>.
+          )}
         </p>
       </header>
 

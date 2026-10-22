@@ -48,7 +48,6 @@ export default async function PaginaConfiguracion() {
   return (
     <main className={`${panel.contenido} ${panel.columnasAnchas}`}>
       <EncabezadoPanel
-        descripcion="Configura la información de tu negocio para que tus clientes te encuentren en el catálogo."
         titulo={negocio ? "Tu negocio" : "Crea el perfil de tu negocio"}
       />
 

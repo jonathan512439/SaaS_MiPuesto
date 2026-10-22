@@ -2,11 +2,11 @@
 
 import { useState, type ChangeEvent, type ReactNode } from "react";
 
-import { AYUDA_LOGO, AYUDA_PORTADA, AYUDA_QR } from "../../lib/ayudas-formularios";
+import { AYUDA_LOGO, AYUDA_PORTADA, AYUDA_QR, RESUMEN_IMAGEN } from "../../lib/ayudas-formularios";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import type { RespuestaSubidaIdentidad, TipoImagenIdentidad } from "../../lib/negocios/identidad";
 import { obtenerUrlPublicaImagenNegocio } from "../../lib/negocios/imagenes-publicas";
-import { Boton, useAvisos, useConfirmacion } from "../ui";
+import { AyudaPlegable, Boton, useAvisos, useConfirmacion } from "../ui";
 import styles from "./formulario-identidad.module.css";
 
 /* Las imágenes del negocio —portada, logo, QR de cobro—: subir, reemplazar y
@@ -135,8 +135,12 @@ export function ImagenesDelNegocio({
           <article className={styles.imagenFila} key={tipo}>
             <div>
               <h3>{titulo}</h3>
-              <p>{ayuda}</p>
               {notas?.[tipo] ? <p>{notas[tipo]}</p> : null}
+              {/* La forma y el tamaño a la vista; el instructivo entero, que
+                  explica qué se corta en cada pantalla, a un toque. */}
+              <AyudaPlegable resumen={RESUMEN_IMAGEN[tipo]} titulo="Cómo preparar la imagen">
+                {ayuda}
+              </AyudaPlegable>
             </div>
             {imagen.url ? (
               // eslint-disable-next-line @next/next/no-img-element

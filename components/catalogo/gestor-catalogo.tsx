@@ -10,6 +10,7 @@ import { estaEnLaCartaDeHoy } from "../../lib/catalogo/carta-del-dia";
 import {
   AYUDA_FOTO_PRODUCTO,
   AYUDA_PRECIO,
+  RESUMEN_IMAGEN,
 } from "../../lib/ayudas-formularios";
 import { leerAtributos, type Atributo } from "../../lib/catalogo/atributos";
 import { leerValores, type ValorAtributo } from "../../lib/catalogo/valores";
@@ -58,6 +59,7 @@ import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { construirUrlPublicaProducto } from "../../lib/url-sitio";
 import {
   AreaTexto,
+  AyudaPlegable,
   Boton,
   Campo,
   EstadoVacio,
@@ -1203,19 +1205,6 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               <div className={styles.tarjetaIaCuerpo}>
                 <span className={styles.selloIa}>Herramienta con IA</span>
                 <h3 id="titulo-ia-producto">Completa los campos con una foto del producto</h3>
-                <ol className={styles.pasosIa}>
-                  <li>
-                    <b>1</b> Sacas o eliges la foto del producto
-                  </li>
-                  <li>
-                    <b>2</b> Se completan el nombre y la descripción
-                  </li>
-                  {/* El tercer paso se dice porque no se ve: la foto queda
-                      adjunta sola y quien no lo sabe la vuelve a subir. */}
-                  <li>
-                    <b>3</b> Esa misma foto queda adjunta abajo
-                  </li>
-                </ol>
                 {/* Con el producto en la mano, sacarle la foto ahí mismo es un paso
                     menos que buscarla en la galería. `capture` abre la cámara de
                     atrás; en una computadora se ignora, y por eso ese botón solo
@@ -1242,8 +1231,21 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                     />
                   </label>
                 </div>
-                <small>{AYUDA_PRODUCTO.advertencia}</small>
+                {/* El aviso de privacidad, a la vista: es lo que hay que saber
+                    antes de usarla. Cómo funciona, a un toque (2026-10-22: con
+                    los tres pasos y la explicación, el formulario abría con
+                    sesenta palabras antes del primer campo). El tercer paso se
+                    dice porque no se ve: la foto queda adjunta sola y quien no
+                    lo sabe la vuelve a subir. */}
                 <small>{AVISO_PRIVACIDAD_IA}</small>
+                <AyudaPlegable titulo="Cómo funciona">
+                  <ol>
+                    <li>Sacas o eliges la foto del producto.</li>
+                    <li>Se completan el nombre y la descripción.</li>
+                    <li>Esa misma foto queda adjunta abajo.</li>
+                  </ol>
+                  <span>{AYUDA_PRODUCTO.advertencia}</span>
+                </AyudaPlegable>
               </div>
               {/* Cuántas quedan, en un renglón y pegado al botón que las gasta.
                   Del mes y no del día: el mes es el tope que el negocio tiene
@@ -1582,7 +1584,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   ))}
                 </ul>
               ) : null}
-              <small className={styles.ayudaCampo}>{AYUDA_FOTO_PRODUCTO}</small>
+              <AyudaPlegable
+                resumen={RESUMEN_IMAGEN.producto}
+                titulo="Cómo preparar la foto"
+              >
+                {AYUDA_FOTO_PRODUCTO}
+              </AyudaPlegable>
               {/* Cuánto ocupan las fotos del negocio, y el aviso antes del
                   tope: llegar sin saberlo es encontrarse con una foto que no
                   sube en el peor momento. */}

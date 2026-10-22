@@ -158,14 +158,6 @@ export default async function PaginaHerramientas() {
             <Link className={styles.abrirIa} href={RUTAS_PANEL.desdeFoto}>
               Abrir la herramienta
             </Link>
-            {/* Las dos herramientas cargan muchos productos juntos, y desde
-                afuera parecen la misma. La diferencia es el archivo: acá va una
-                foto o un PDF; un Excel va a «Importar una planilla», que lo lee
-                tal cual y no gasta lecturas. */}
-            <p className={styles.notaIa}>
-              ¿Ya tienes tus productos en un Excel u otra planilla? Usa <strong>Importar una planilla</strong>,
-              más abajo: es gratis y no gasta lecturas.
-            </p>
           </div>
         </section>
       ) : null}
