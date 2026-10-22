@@ -28,6 +28,11 @@ export const SLUGS_RESERVADOS = new Set([
   /* La puerta de las etiquetas NFC. Sin reservarla, un negocio con el nombre
      «t» quedaría tapado por la ruta en cuanto tuviera una segunda página. */
   "t",
+  /* El alta del dueño y la página de los planes (2026-10-22). Las dos son
+     rutas estáticas; `slugs-reservados.test.ts` compara esta lista con las
+     carpetas de `app/` para que no vuelva a faltar ninguna. */
+  "alta",
+  "empezar",
 ]);
 
 export type DatosNegocioValidados = {
