@@ -41,6 +41,13 @@ describe("el renglón de existencias", () => {
   /* La ficha decía «Quedan 25 unidades» arriba y «38 · Quedan 3» en el
      selector: dos números que no se contradicen pero confunden, porque 25 no se
      pueden pedir de ninguna talla. */
+  /* Agotado o vendido no puede decir cuántas quedan: el número contradice a la
+     pastilla y al botón apagado. */
+  it("no dice cuántas quedan de un producto agotado o vendido", () => {
+    expect(textoDeExistencias(producto({ estado: "vendido" }))).toBe("Sin unidades disponibles");
+    expect(textoDeExistencias(producto({ estado: "agotado" }))).toBe("Sin unidades disponibles");
+  });
+
   it("calla el total cuando el producto tiene presentaciones", () => {
     expect(textoDeExistencias(producto({ variantes: NUMEROS }))).toBeNull();
   });

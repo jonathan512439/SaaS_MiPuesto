@@ -6,7 +6,7 @@ import { rutaProductoPublico } from "../../../lib/url-sitio";
 import { AccionProducto } from "../accion-producto";
 import { EstadoStockProducto } from "../estado-stock-producto";
 import { FotoProducto } from "../foto-producto";
-import { InsigniaProducto, insigniaDe } from "../insignias-producto";
+import { InsigniaProducto, estaAgotado, insigniaDe } from "../insignias-producto";
 import { LineaAtributos } from "../linea-atributos";
 import type { PropiedadesTarjeta } from "./tipos";
 import styles from "./plantilla-mipuesto.module.css";
@@ -67,7 +67,7 @@ export function TarjetaMipuesto({
   return (
     <li
       className={styles.tarjeta}
-      data-agotado={producto.estado === "agotado" ? "si" : undefined}
+      data-agotado={estaAgotado(producto) ? "si" : undefined}
       data-forma={forma}
       id={producto.anclaCategoria}
     >

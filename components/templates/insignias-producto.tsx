@@ -27,8 +27,16 @@ export type Insignia = { tipo: "agotado" | "ultimas" | "oferta"; texto: string }
    mismo escrito dos veces en la misma tarjeta. Preguntando acá, la plantilla
    calla el renglón cuando la pastilla ya lo dijo, y las dos formas no se pueden
    desincronizar. */
+/* Agotado para quien compra: lo que el dueño marcó así y lo que una venta dejó
+   en cero (`vendido`). Antes solo se miraba «agotado», y un producto vendido
+   salía sin pastilla, con «Quedan 20 unidades» y el botón apagado sin decir por
+   qué (2026-10-22). */
+export function estaAgotado(producto: Pick<ProductoPlantilla, "estado">): boolean {
+  return producto.estado === "agotado" || producto.estado === "vendido";
+}
+
 export function insigniaDe(producto: ProductoPlantilla): Insignia | null {
-  if (producto.estado === "agotado") return { tipo: "agotado", texto: "Agotado" };
+  if (estaAgotado(producto)) return { tipo: "agotado", texto: "Agotado" };
 
   /* Con presentaciones no se suma: «Quedan 2» cuando queda 1 del 38 y 1 del 39
      promete dos de algo que no existe. */

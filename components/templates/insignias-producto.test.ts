@@ -83,6 +83,16 @@ describe("la pastilla de una tarjeta", () => {
     });
   });
 
+  /* Lo que una venta dejó en cero llega como «vendido». Para quien compra es lo
+     mismo que agotado, y sin pastilla el botón quedaba apagado sin explicación
+     (2026-10-22). */
+  it("un producto vendido se ve agotado", () => {
+    expect(insigniaDe(producto({ estado: "vendido", controlaStock: true, cantidadDisponible: 20 }))).toEqual({
+      tipo: "agotado",
+      texto: "Agotado",
+    });
+  });
+
   it("no pone nada en un producto corriente", () => {
     expect(insigniaDe(producto())).toBeNull();
   });
