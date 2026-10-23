@@ -102,7 +102,8 @@
     "test:fase13:concurrencia": "node --env-file-if-exists=.env.local scripts/test-presentaciones-concurrencia.mjs",
     "test:tareas": "node scripts/check-tareas-programadas.mjs",
     "test:plataforma-2fa:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/plataforma-segundo-factor.sql",
-    "test:dos-banners:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/dos-banners.sql"
+    "test:dos-banners:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/dos-banners.sql",
+    "test:estado-existencias:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/estado-sigue-existencias.sql"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",
