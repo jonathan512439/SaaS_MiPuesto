@@ -12,6 +12,7 @@ import {
   instruccionDeCategoriasDelNegocio,
   type ListaLeida,
 } from "../../../../lib/ia/instrucciones";
+import { camposDeOtrosDatos } from "../../../../lib/ia/otros-datos";
 import { presentacionesDelRenglon } from "../../../../lib/ia/presentaciones-leidas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { TIPOS_LISTA, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
@@ -118,6 +119,10 @@ export async function POST(solicitud: NextRequest) {
         precio,
         presentaciones,
         tipoPresentacion,
+        /* Lo demás que el renglón dice, con la forma de las columnas de una
+           planilla: la revisión lo cruza con los campos de la categoría, o
+           arma con ello los de una categoría nueva. */
+        campos: camposDeOtrosDatos(producto.otros_datos),
         descripcion: (producto.descripcion ?? "").trim().slice(0, 300),
         /* La categoría sale del título de sección de la propia lista: esa lista
            ya trae la estructura del catálogo escrita por el dueño. Si el renglón

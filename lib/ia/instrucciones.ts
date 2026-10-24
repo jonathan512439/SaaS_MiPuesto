@@ -145,6 +145,20 @@ export function esquemaLista(categorias: readonly string[]) {
               required: ["nombre"],
             },
           },
+          /* Lo demás que el renglón trae escrito —color, material, capacidad—,
+             por su nombre y no por una clave: con esto una categoría nueva
+             nace con sus campos (`otros-datos.ts`). */
+          otros_datos: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                nombre: { type: "string" },
+                valor: { type: "string" },
+              },
+              required: ["nombre", "valor"],
+            },
+          },
           /* Los datos que la categoría del negocio pide: la marca de un
              repuesto, el volumen de una gaseosa. Van como lista de pares y no
              como un objeto con propiedades fijas porque **cada negocio tiene
@@ -202,6 +216,7 @@ export type ListaLeida = {
     confianza: "alta" | "media" | "baja";
     datos?: Array<{ clave: string; valor: string }>;
     se_elige_por?: string;
+    otros_datos?: Array<{ nombre?: string; valor?: string }>;
     presentaciones?: Array<{ nombre?: string; precio?: number }>;
   }>;
   es_lista_de_precios: boolean;
@@ -260,6 +275,7 @@ Reglas que no se rompen:
 - Los títulos de sección NO son productos, pero tampoco se tiran: "BEBIDAS", "ALMUERZOS", "FERRETERÍA" son la categoría de todos los productos que vienen debajo, hasta el título siguiente. Pon ese título en el campo categoria de cada producto, escrito como nombre propio y no en mayúsculas: "Bebidas", "Almuerzos".
 - Si la lista no tiene títulos de sección, deja categoria vacía en todos.
 - descripcion: solo si el renglón trae detalle además del nombre, por ejemplo "Silpancho — carne apanada, arroz, papa y huevo". Si no hay detalle, déjala vacía. No la inventes ni la deduzcas de lo que sabes del plato.
+- otros_datos: si el renglón trae escritos otros datos del producto —color, material, medida, capacidad, marca, para quién es— que no vayan en "datos", devuélvelos con el nombre del dato como lo diría el vendedor ("Color", "Material", "Capacidad (litros)") y el valor tal cual está escrito. Usa el mismo nombre para el mismo dato en todos los renglones. Solo lo que está escrito: NO lo deduzcas del nombre ni de lo que sabes del producto. Nunca devuelvas costos, códigos ni precios en otros_datos.
 - confianza: "alta" si el nombre y el precio se leen sin esfuerzo; "baja" si tuviste que adivinar alguna letra o número.
 - Escribe TODO en español, incluidos los nombres y las categorías. Si la lista tiene una palabra en otro idioma que es el nombre propio del producto, déjala como está; todo lo demás va en español.
 - es_lista_de_precios: false si lo que recibiste no es una lista de precios, por ejemplo si es la foto de una estantería, de una vitrina o de un producto suelto, o un PDF que es un contrato, un folleto o una factura. En ese caso devuelve la lista de productos vacía.

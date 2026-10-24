@@ -141,3 +141,43 @@ describe("el resultado de crear", () => {
     expect(html).not.toContain("Ver mi catálogo");
   });
 });
+
+/* Una categoría nueva nace con sus campos: la casilla dice cuáles, y solo
+   aparece si la sección se crea. A una categoría que ya existe no se le tocan. */
+describe("los campos de una categoría nueva", () => {
+  const MOCHILA: ProductoLeido = {
+    nombre: "Mochila escolar azul",
+    precio: 150,
+    descripcion: "",
+    categoria: "Mochilas escolares",
+    confianza: "alta",
+    campos: { Color: "Azul", "Capacidad (litros)": "20", Costo: "90" },
+  };
+
+  function dibujarMochila(categorias: Array<{ id: string; nombre: string }>) {
+    return renderToString(
+      jsx(ProveedorAvisos, {
+        children: jsx(RevisionDeProductos, {
+          categorias: categorias as never,
+          controlaStock: false,
+          introduccion: "Prueba",
+          onTerminado: () => undefined,
+          productos: [MOCHILA],
+          planId: "catalogo",
+          productosActuales: 0,
+        }),
+      }),
+    ).replaceAll("<!-- -->", "");
+  }
+
+  it("dice con qué campos se crea, sin las columnas internas", () => {
+    const html = dibujarMochila([]);
+    expect(html).toContain("Con sus campos: Color, Capacidad (litros)");
+    expect(html).not.toContain("Costo");
+  });
+
+  it("si la sección va a una categoría que ya existe, no ofrece campos", () => {
+    const html = dibujarMochila([{ id: "c1", nombre: "Mochilas escolares" }]);
+    expect(html).not.toContain("Con sus campos");
+  });
+});

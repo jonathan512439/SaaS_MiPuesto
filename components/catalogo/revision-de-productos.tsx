@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 import {
   CREAR,
@@ -9,10 +9,12 @@ import {
   SIN_TITULO,
   proponerDestinos,
 } from "../../lib/catalogo/destinos-de-lista";
-import type { Atributo } from "../../lib/catalogo/atributos";
+import { leerAtributos, type Atributo } from "../../lib/catalogo/atributos";
+import { iconoSugeridoPara } from "../../lib/catalogo/categorias";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { etiquetaDePresentacion, type TipoPresentacion } from "../../lib/catalogo/variantes";
 import { valoresDesdePlanilla } from "../../lib/importacion/datos-de-planilla";
+import { camposDeCategoriaNueva } from "../../lib/importacion/diseno-de-categoria";
 import { posicionesYaExistentes } from "../../lib/importacion/ya-existentes";
 import type { PresentacionDePlanilla } from "../../lib/importacion/planilla";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
@@ -48,9 +50,9 @@ export type ProductoLeido = {
      título de la sección no coincida. Solo la trae la lectura con IA; la
      planilla no. */
   categoriaSugeridaId?: string | null;
-  /* Solo de la planilla: las tallas, números o tamaños —una fila de la
-     planilla cada una—, las columnas de datos por su título y lo que se vio
-     raro al leerla. */
+  /* Las tallas, números o tamaños —de la planilla, una fila cada una, o de la
+     lectura con IA—, los datos por su título —las columnas de la planilla, o
+     lo que la IA leyó escrito en el renglón— y lo que se vio raro al leer. */
   presentaciones?: PresentacionDePlanilla[];
   tipoPresentacion?: TipoPresentacion | null;
   campos?: Record<string, string>;
@@ -144,6 +146,20 @@ export function RevisionDeProductos({
      Lo que el dueño cambie después manda. */
   const [propuesta] = useState(() => proponerDestinos(productos, categorias));
   const [destinos, setDestinos] = useState<Record<string, string>>(propuesta.destinos);
+  /* Los campos con los que nacería cada sección si se crea como categoría
+     nueva: uno por columna de datos. Se calculan una vez, de lo leído; el dueño
+     decide con la casilla si se crean. */
+  const [diseno] = useState(() => {
+    const porTitulo = new Map<string, ProductoLeido[]>();
+    for (const producto of productos) {
+      const titulo = producto.categoria || SIN_TITULO;
+      porTitulo.set(titulo, [...(porTitulo.get(titulo) ?? []), producto]);
+    }
+    return Object.fromEntries(
+      [...porTitulo].map(([titulo, suyos]) => [titulo, camposDeCategoriaNueva(suyos)]),
+    );
+  });
+  const [conCampos, setConCampos] = useState<Record<string, boolean>>({});
 
   /* Cada vista previa es una dirección que el navegador reserva hasta que se le
      diga que ya no hace falta. Con veintiocho productos y cuatro fotos cada uno
@@ -277,6 +293,10 @@ export function RevisionDeProductos({
        sus productos van sin categoría en vez de perderse: es más fácil mover un
        producto después que volver a leer el archivo. */
     const idPorTitulo = new Map<string, string>();
+    /* Los campos de las categorías que nacen acá, para cruzar con ellos los
+       datos de cada producto: todavía no están en `atributosPorCategoria`,
+       que es lo que el negocio tenía al abrir la pantalla. */
+    const camposNuevos = new Map<string, Atributo[]>();
     for (const titulo of titulos) {
       const destino = destinos[titulo] ?? SIN_CATEGORIA;
       if (titulo === SIN_TITULO || destino === SIN_CATEGORIA) continue;
@@ -285,8 +305,10 @@ export function RevisionDeProductos({
         continue;
       }
       try {
+        /* Con el ícono que le corresponde por el nombre, en vez de la caja
+           genérica para todas. */
         const respuesta = await fetch("/api/catalogo/categorias", {
-          body: JSON.stringify({ nombre: titulo }),
+          body: JSON.stringify({ nombre: titulo, icono: iconoSugeridoPara(titulo) }),
           headers: { "content-type": "application/json" },
           method: "POST",
         });
@@ -294,6 +316,25 @@ export function RevisionDeProductos({
         if (respuesta.ok && datos.categoria) idPorTitulo.set(titulo, datos.categoria.id);
       } catch {
         /* Sin categoría, pero con el producto. */
+      }
+
+      /* Y con sus campos, por la misma ruta que el editor de la categoría. Si
+         fallan, la categoría queda creada sin ellos y los datos se avisan. */
+      const id = idPorTitulo.get(titulo);
+      const propuestos = diseno[titulo] ?? [];
+      if (id && propuestos.length > 0 && conCampos[titulo] !== false) {
+        try {
+          const guardado = await fetch(`/api/catalogo/categorias/${id}/atributos`, {
+            body: JSON.stringify({ atributos: propuestos }),
+            headers: { "content-type": "application/json" },
+            method: "PUT",
+          });
+          const datos = (await guardado.json().catch(() => ({}))) as { atributos?: unknown };
+          if (!guardado.ok) throw new Error("rechazado");
+          camposNuevos.set(id, leerAtributos(datos.atributos));
+        } catch {
+          advertencias.push(`La categoría «${titulo}» se creó sin sus campos. Agrégalos desde Mi catálogo.`);
+        }
       }
     }
 
@@ -322,7 +363,10 @@ export function RevisionDeProductos({
          destino. Lo que no calza se avisa y no se manda: la ruta rechazaría el
          producto entero por un valor que no es opción. */
       const deLaPlanilla = producto.campos
-        ? valoresDesdePlanilla(categoriaId ? (atributosPorCategoria[categoriaId] ?? []) : [], producto.campos)
+        ? valoresDesdePlanilla(
+            categoriaId ? (camposNuevos.get(categoriaId) ?? atributosPorCategoria[categoriaId] ?? []) : [],
+            producto.campos,
+          )
         : { valores: {}, problemas: [] };
       for (const problema of deLaPlanilla.problemas) {
         advertencias.push(`${producto.nombre}: ${problema}.`);
@@ -523,25 +567,50 @@ export function RevisionDeProductos({
           ) : null}
           {titulos
             .filter((titulo) => titulo !== SIN_TITULO)
-            .map((titulo) => (
-              <Selector
-                etiqueta={titulo}
-                id={`destino-${titulo}`}
-                key={titulo}
-                onChange={(evento) =>
-                  setDestinos((actuales) => ({ ...actuales, [titulo]: evento.target.value }))
-                }
-                value={destinos[titulo] ?? CREAR}
-              >
-                <option value={CREAR}>Crear la categoría «{titulo}»</option>
-                {categorias.map((categoria) => (
-                  <option key={categoria.id} value={categoria.id}>
-                    Poner en {categoria.nombre}
-                  </option>
-                ))}
-                <option value={SIN_CATEGORIA}>Sin categoría</option>
-              </Selector>
-            ))}
+            .map((titulo) => {
+              const propuestos = diseno[titulo] ?? [];
+              const seCrea = (destinos[titulo] ?? CREAR) === CREAR;
+              return (
+                <Fragment key={titulo}>
+                  <Selector
+                    etiqueta={titulo}
+                    id={`destino-${titulo}`}
+                    onChange={(evento) =>
+                      setDestinos((actuales) => ({ ...actuales, [titulo]: evento.target.value }))
+                    }
+                    value={destinos[titulo] ?? CREAR}
+                  >
+                    <option value={CREAR}>Crear la categoría «{titulo}»</option>
+                    {categorias.map((categoria) => (
+                      <option key={categoria.id} value={categoria.id}>
+                        Poner en {categoria.nombre}
+                      </option>
+                    ))}
+                    <option value={SIN_CATEGORIA}>Sin categoría</option>
+                  </Selector>
+                  {/* Solo si se crea: a una categoría que ya existe no se le
+                      tocan los campos. */}
+                  {seCrea && propuestos.length > 0 ? (
+                    <label className={styles.conCampos}>
+                      <input
+                        checked={conCampos[titulo] !== false}
+                        disabled={guardando}
+                        onChange={(evento) =>
+                          setConCampos((actuales) => ({ ...actuales, [titulo]: evento.target.checked }))
+                        }
+                        type="checkbox"
+                      />
+                      <span>
+                        Con sus campos:{" "}
+                        {propuestos
+                          .map(({ nombre, unidad }) => (unidad ? `${nombre} (${unidad})` : nombre))
+                          .join(", ")}
+                      </span>
+                    </label>
+                  ) : null}
+                </Fragment>
+              );
+            })}
         </div>
       ) : null}
 

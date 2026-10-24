@@ -116,6 +116,24 @@
   background: var(--color-fondo-suave);
 }
 
+/* «Con sus campos»: la casilla va debajo de su sección y en letra chica, porque
+   es un detalle de la categoría nueva y no otra decisión del mismo peso. */
+.conCampos {
+  display: flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.conCampos input {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  flex-shrink: 0;
+  accent-color: var(--color-marca);
+}
+
 /* La sugerencia de la lectura, en la letra de marca y no en la de aviso: no es
    un problema, es una ayuda que conviene revisar. */
 .sugerencia {

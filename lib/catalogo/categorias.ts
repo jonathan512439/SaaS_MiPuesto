@@ -150,3 +150,45 @@ export function grupoSugeridoPara(rubro: string | null | undefined): string {
 }
 
 export type { NombreIconoCatalogo };
+
+/* Las formas de una palabra que valen como la misma: «mochilas», «mochila»;
+   «carteras», «cartera»; «accesorios», «accesorio». No es gramática completa:
+   alcanza para nombres de categoría. */
+function singulares(palabra: string): string[] {
+  const formas = [palabra];
+  if (palabra.endsWith("es") && palabra.length > 4) formas.push(palabra.slice(0, -2));
+  if (palabra.endsWith("s") && palabra.length > 3) formas.push(palabra.slice(0, -1));
+  return formas;
+}
+
+/* El ícono que le corresponde a una categoría por su nombre, para la que nace
+ * en una importación —del Excel o de la lectura con IA— y llegaba siempre con la
+ * caja genérica: un catálogo de cinco categorías con cinco cajas iguales.
+ *
+ * Busca palabra por palabra, en orden, entre el nombre y los términos de cada
+ * ícono: «Mochilas escolares» da la mochila y «Bebidas frías» el vaso. Palabras
+ * enteras y no pedazos: buscando por pedazo, «Casacas» encontraría la casa.
+ * Si nada calza, la caja de siempre: el dueño la cambia con un toque, y un
+ * ícono equivocado confunde más que uno genérico. */
+export function iconoSugeridoPara(nombre: string): NombreIconoCatalogo {
+  const palabras = sinTildes(nombre)
+    .split(/[^a-z0-9ñ]+/)
+    .filter((palabra) => palabra.length >= 3);
+  const iconos = Object.keys(TRAZOS_CATALOGO) as NombreIconoCatalogo[];
+  const terminos = new Map(
+    iconos.map((icono) => [
+      icono,
+      new Set(sinTildes(`${icono} ${TERMINOS_ICONOS[icono]}`).split(/[^a-z0-9ñ]+/).flatMap(singulares)),
+    ]),
+  );
+
+  for (const palabra of palabras) {
+    for (const forma of singulares(palabra)) {
+      const exacto = iconos.find((icono) => icono === forma);
+      if (exacto) return exacto;
+      const porTermino = iconos.find((icono) => terminos.get(icono)!.has(forma));
+      if (porTermino) return porTermino;
+    }
+  }
+  return ICONO_PREDETERMINADO;
+}

@@ -27,12 +27,18 @@ function normalizar(texto: string): string {
 }
 
 /* «Potencia (W)» → «potencia». */
-function tituloSinUnidad(titulo: string): string {
+export function tituloSinUnidad(titulo: string): string {
   return normalizar(titulo.replace(/\([^)]*\)\s*$/, ""));
 }
 
 const SI = new Set(["si", "s", "x", "yes", "true", "1", "verdadero"]);
 const NO = new Set(["no", "n", "false", "0", "falso"]);
+
+/* «Sí», «x», «no»: true, false, o null si no es ninguna de las dos. */
+export function leerSiNo(texto: string): boolean | null {
+  const llave = normalizar(texto);
+  return SI.has(llave) ? true : NO.has(llave) ? false : null;
+}
 
 function leerValor(
   atributo: Atributo,
@@ -41,9 +47,8 @@ function leerValor(
   const texto = escrito.trim();
 
   if (atributo.tipo === "si_no") {
-    const llave = normalizar(texto);
-    if (SI.has(llave)) return { valor: true };
-    if (NO.has(llave)) return { valor: false };
+    const siNo = leerSiNo(texto);
+    if (siNo !== null) return { valor: siNo };
     return { problema: `${atributo.nombre} se escribe «Sí» o «No», y decía «${texto}»` };
   }
 

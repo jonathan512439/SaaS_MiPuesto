@@ -7,6 +7,7 @@ import {
   esFormaDeVender,
   esIconoCatalogo,
   grupoSugeridoPara,
+  iconoSugeridoPara,
   normalizarFormaDeVender,
   normalizarIcono,
   validarIdentidadCategoria,
@@ -199,6 +200,31 @@ describe("grupoSugeridoPara", () => {
     const ids = new Set(GRUPOS_ICONOS.map((grupo) => grupo.id));
     for (const rubro of ["restaurante", "ferreteria", "ropa_y_calzado", "otro", null]) {
       expect(ids.has(grupoSugeridoPara(rubro)), String(rubro)).toBe(true);
+    }
+  });
+});
+
+describe("el ícono que se sugiere por el nombre", () => {
+  it("encuentra el del oficio, en plural y con tildes", () => {
+    expect(iconoSugeridoPara("Mochilas escolares")).toBe("mochila");
+    expect(iconoSugeridoPara("Maletas")).toBe("maleta");
+    expect(iconoSugeridoPara("Carteras")).toBe("cartera");
+    expect(iconoSugeridoPara("PIZZAS")).toBe("pizza");
+    expect(iconoSugeridoPara("Cafés")).toBe("cafe");
+  });
+
+  it("compara palabras enteras, no pedazos", () => {
+    expect(iconoSugeridoPara("Casacas")).not.toBe("casa");
+  });
+
+  it("sin nada que calce, la caja de siempre", () => {
+    expect(iconoSugeridoPara("Zzz qwerty")).toBe(ICONO_PREDETERMINADO);
+    expect(iconoSugeridoPara("")).toBe(ICONO_PREDETERMINADO);
+  });
+
+  it("siempre devuelve uno del juego", () => {
+    for (const nombre of ["Herramientas", "Bebidas frías", "Ropa de dama", "Loncheras y accesorios"]) {
+      expect(esIconoCatalogo(iconoSugeridoPara(nombre)), nombre).toBe(true);
     }
   });
 });
