@@ -137,6 +137,10 @@ export async function POST(
       NO_AUTORIZADO: "No tienes permiso para cambiar el rubro de un negocio.",
     };
     const mensaje = Object.entries(conocidos).find(([clave]) => error.message.includes(clave))?.[1];
+    /* Lo desconocido se anota con el mensaje de la base: «no se pudo» en
+       pantalla y nada en el registro fue lo que escondió que la analítica
+       trababa el borrado de productos. */
+    if (!mensaje) console.error("rubro: la base rechazó el cambio", error.message);
     return NextResponse.json(
       { error: mensaje ?? "No se pudo cambiar el rubro. No se cambió nada." },
       { status: mensaje ? 400 : 500 },
