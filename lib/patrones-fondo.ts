@@ -22,6 +22,7 @@ export type PatronFondo =
   | "autopartes"
   | "mascotas"
   | "equipaje"
+  | "cosmetica"
   | "comercio";
 
 const POR_RUBRO: Record<string, PatronFondo> = {
@@ -35,6 +36,7 @@ const POR_RUBRO: Record<string, PatronFondo> = {
   repuestos: "autopartes",
   veterinaria: "mascotas",
   mochilas: "equipaje",
+  cosmeticos: "cosmetica",
   /* Sin oficio que dibujar, se dibuja lo unico que todos comparten: la venta. */
   otro: "comercio",
 };

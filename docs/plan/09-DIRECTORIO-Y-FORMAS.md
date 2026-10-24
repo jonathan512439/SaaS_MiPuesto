@@ -283,6 +283,7 @@ y sin tráfico en el directorio, el costo es nulo.
 | Vehículos | Repuestos de auto y moto | `repuestos` |
 | Vehículos | Taller mecánico | `servicios` |
 | Belleza | Barbería y peluquería, Salón de belleza y uñas | `belleza` |
+| Belleza | Cosméticos y cuidado de la piel (sumado el 2026-10-24, con siembra propia: tipo de piel, cuándo se usa e ingrediente, tamaños en ml como presentaciones) | `cosmeticos` |
 | Servicios | Consultorio, Clases y cursos, Otros servicios | `servicios` |
 | Mascotas | Veterinaria, Tienda de mascotas | `veterinaria` |
 | — | Otro | `otro` |

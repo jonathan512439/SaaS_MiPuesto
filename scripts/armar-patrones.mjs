@@ -108,6 +108,20 @@ function componer({ archivo, nombres, semilla, trazo }) {
 }
 
 const BALDOSAS = [
+  /* Cosméticos y cuidado de la piel (2026-10-24): la rutina entera —el agua,
+     el sol, la noche, la flor y el frasco—, no solo una gota repetida. */
+  {
+    archivo: "cosmeticos.svg",
+    semilla: 20261024,
+    trazo: 1.7,
+    nombres: [
+      "droplet", "sun", "sparkles", "flower-2", "leaf",
+      "soap-dispenser-droplet", "flask-round", "pipette", "moon", "heart",
+      "spray-can", "hand-heart", "gift", "shopping-bag", "eye",
+      "smile", "star", "shell", "feather", "gem",
+      "droplets", "citrus", "sprout", "waves", "ribbon",
+    ],
+  },
   /* Mochilas, bolsos y maletas (2026-10-23): lo que se carga y a dónde se
      lleva —el colegio, el viaje, el cerro—, no solo la mochila repetida. */
   {

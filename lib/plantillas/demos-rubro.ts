@@ -541,6 +541,51 @@ const MUESTRAS_NUEVAS: Record<string, CategoriaMuestra[]> = {
       ],
     },
   ],
+  cosmeticos: [
+    {
+      id: "demo-cosmeticos-serums",
+      nombre: "Sérums",
+      icono: "gota",
+      productos: [
+        producto(1, {
+          nombre: "Sérum de vitamina C",
+          descripcion: "Ilumina y empareja el tono. Unas gotas en la mañana.",
+          precio: 120,
+          disponibles: 6,
+          datosPropios: [
+            { nombre: "Tipo de piel", texto: "Todo tipo" },
+            { nombre: "Ingrediente principal", texto: "Vitamina C" },
+          ],
+        }),
+        producto(2, {
+          nombre: "Sérum de niacinamida",
+          descripcion: "Controla el brillo y cierra los poros.",
+          precio: 110,
+          datosPropios: [
+            { nombre: "Tipo de piel", texto: "Grasa" },
+            { nombre: "Ingrediente principal", texto: "Niacinamida" },
+          ],
+        }),
+      ],
+    },
+    {
+      id: "demo-cosmeticos-protector",
+      nombre: "Protector solar",
+      icono: "sol",
+      productos: [
+        producto(3, {
+          nombre: "Protector solar toque seco",
+          descripcion: "No deja la cara blanca ni brillosa.",
+          precio: 110,
+          disponibles: 3,
+          datosPropios: [
+            { nombre: "Tipo de piel", texto: "Todo tipo" },
+            { nombre: "FPS", texto: "50" },
+          ],
+        }),
+      ],
+    },
+  ],
   otro: [
     {
       id: "demo-mas-pedido",

@@ -88,6 +88,7 @@ export const RUBROS_PUBLICOS = [
   { id: "taller_mecanico", nombre: "Taller mecánico", grupo: "Vehículos", siembra: "servicios" },
   { id: "barberia", nombre: "Barbería y peluquería", grupo: "Belleza", siembra: "belleza" },
   { id: "salon_belleza", nombre: "Salón de belleza y uñas", grupo: "Belleza", siembra: "belleza" },
+  { id: "cosmeticos", nombre: "Cosméticos y cuidado de la piel", grupo: "Belleza", siembra: "cosmeticos" },
   { id: "consultorio", nombre: "Consultorio", grupo: "Servicios", siembra: "servicios" },
   { id: "clases", nombre: "Clases y cursos", grupo: "Servicios", siembra: "servicios" },
   { id: "otros_servicios", nombre: "Otros servicios", grupo: "Servicios", siembra: "servicios" },
@@ -125,6 +126,7 @@ export const RUBRO_PUBLICO_POR_SIEMBRA: Record<RubroId, RubroPublicoId> = {
   repuestos: "repuestos",
   veterinaria: "veterinaria",
   mochilas: "mochilas",
+  cosmeticos: "cosmeticos",
   otro: "otro",
 };
 

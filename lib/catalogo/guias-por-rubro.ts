@@ -555,6 +555,25 @@ const GUIAS: Record<Exclude<RubroPublicoId, "otro">, GuiaDeRubro> = {
       precio: "120",
     },
   },
+  cosmeticos: {
+    id: "cosmeticos",
+    palabras: ["crema", "serum", "protector", "bloqueador", "hidratante", "limpiador", "micelar", "mascarilla", "skincare", "piel", "maquillaje", "labial", "base", "tonico"],
+    categorias: ["Limpieza", "Sérums", "Protector solar"],
+    campos: {
+      preguntas: "para qué tipo de piel es, cuándo se pone, qué ingrediente trae",
+      texto: { nombre: "Ingrediente principal", muestra: "Niacinamida" },
+      numero: { nombre: "FPS", muestra: "50" },
+      opcion: { nombre: "Tipo de piel", opciones: ["Todo tipo", "Grasa", "Seca", "Mixta", "Sensible"] },
+      si_no: { nombre: "Con color" },
+    },
+    producto: {
+      nombre: "Sérum de niacinamida para piel grasa",
+      evitar: "Sérum N10",
+      queContar: "para qué piel es, qué hace, cuándo se pone y cuánto dura el frasco",
+      descripcion: "Controla el brillo y cierra los poros. Unas gotas en la mañana y en la noche; el frasco de 30 ml dura dos meses.",
+      precio: "120",
+    },
+  },
   consultorio: {
     id: "consultorio",
     palabras: ["consulta", "tratamiento", "control", "terapia", "dental", "odontologia", "psicologia", "nutricion", "fisioterapia", "examen", "analisis", "ecografia"],

@@ -1,3 +1,4 @@
+import { COSMETICOS } from "./cosmeticos";
 import { DISTRIBUIDORA } from "./distribuidora";
 import { FERRETERIA } from "./ferreteria";
 import { MOCHILAS } from "./mochilas";
@@ -10,7 +11,7 @@ import type { SiembraDeRubro } from "./tipos";
 export type { SiembraDeRubro, CategoriaSembrada, AtributoSembrado } from "./tipos";
 
 /* Las seis siembras del MVP, y las que se suman cuando llega el primer cliente
- * de un rubro que no estaba: mochilas, en octubre de 2026.
+ * de un rubro que no estaba: mochilas y cosméticos, en octubre de 2026.
  *
  * Los otros cuatro rubros —tienda de barrio, servicios, belleza y «otro»— no
  * tienen siembra **a propósito**: se les arma cuando llegue el primer cliente de
@@ -28,6 +29,7 @@ export const SIEMBRAS: ReadonlyArray<SiembraDeRubro> = [
   REPUESTOS,
   VETERINARIA,
   MOCHILAS,
+  COSMETICOS,
 ];
 
 export function siembraDeRubro(rubro: unknown): SiembraDeRubro | null {

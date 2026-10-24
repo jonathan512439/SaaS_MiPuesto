@@ -31,6 +31,7 @@ export const ICONO_DE_RUBRO: Record<RubroPublicoId, NombreIconoCatalogo> = {
   taller_mecanico: "engranaje",
   barberia: "tijeras",
   salon_belleza: "chispas",
+  cosmeticos: "gota",
   consultorio: "estetoscopio",
   clases: "libro-abierto",
   otros_servicios: "maletin",

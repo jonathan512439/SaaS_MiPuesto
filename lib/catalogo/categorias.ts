@@ -137,6 +137,7 @@ const GRUPO_POR_RUBRO: Record<string, string> = {
   ferreteria: "ferreteria",
   ropa_y_calzado: "ropa",
   mochilas: "ropa",
+  cosmeticos: "servicios",
   distribuidora: "distribuidora",
   repuestos: "repuestos",
   veterinaria: "veterinaria",

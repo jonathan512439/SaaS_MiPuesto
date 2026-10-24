@@ -481,6 +481,11 @@ select {
   --patron-relleno: var(--patron-tinta);
 }
 
+[data-patron="cosmetica"] {
+  --patron-mascara: url("/patrones/cosmeticos.svg");
+  --patron-relleno: var(--patron-tinta);
+}
+
 [data-patron="comercio"] {
   --patron-mascara: url("/patrones/otro.svg");
   --patron-relleno: var(--patron-tinta);

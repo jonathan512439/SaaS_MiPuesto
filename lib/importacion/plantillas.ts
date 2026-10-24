@@ -10,7 +10,7 @@ import { MAXIMO_FILAS } from "./planilla";
  * para que entre completo y sin errores.
  *
  * **Solo para los rubros con siembra** —restaurante, ferretería, ropa y
- * calzado, distribuidora, repuestos, veterinaria y mochilas—, porque la plantilla se arma
+ * calzado, distribuidora, repuestos, veterinaria, mochilas y cosméticos—, porque la plantilla se arma
  * con sus categorías y sus campos: los mismos nombres que el negocio tiene en
  * MiPuesto desde el alta, y por eso la importación los reconoce sin preguntar.
  *
@@ -404,6 +404,68 @@ const PLANTILLAS: ReadonlyArray<PlantillaDeRubro> = [
         precio: "60",
         cantidad: "10",
         datos: { Color: "Rosado", "Para quién": "Niño" },
+      },
+    ],
+  },
+  {
+    rubro: "cosmeticos",
+    conPresentaciones: true,
+    consejos: [
+      "Si el mismo sérum viene en 30 ml y en 50 ml, escribe una fila por tamaño con el mismo nombre y pon «Tamaño» en «Se elige por». Cada tamaño lleva su precio y su cantidad.",
+      "«Tipo de piel» se escribe tal cual: Todo tipo, Grasa, Seca, Mixta o Sensible. Es lo primero que te preguntan.",
+      "El «FPS» es solo el número: 50, no «FPS 50+».",
+      "Si una base o un labial viene en varios tonos, carga un producto por tono, con el tono en su campo: así la clienta ve el color en la tarjeta.",
+      "El tipo de piel, el ingrediente y los demás datos se escriben una vez, en la primera fila del producto.",
+    ],
+    ejemplos: [
+      {
+        producto: "Sérum de vitamina C",
+        categoria: "Sérums",
+        precio: "120",
+        cantidad: "6",
+        seEligePor: "tamano",
+        presentacion: "30 ml",
+        descripcion: "Ilumina y empareja el tono. Unas gotas en la mañana, antes del protector.",
+        datos: { "Tipo de piel": "Todo tipo", "Ingrediente principal": "Vitamina C", "Cuándo se usa": "Día" },
+      },
+      { producto: "Sérum de vitamina C", categoria: "Sérums", precio: "180", cantidad: "3", seEligePor: "tamano", presentacion: "50 ml" },
+      {
+        producto: "Gel limpiador para piel grasa",
+        categoria: "Limpieza",
+        precio: "65",
+        cantidad: "10",
+        descripcion: "Limpia sin resecar. En la mañana y en la noche.",
+        datos: { "Tipo de piel": "Grasa", "Cuándo se usa": "Día y noche", "Ingrediente principal": "Ácido salicílico" },
+      },
+      {
+        producto: "Protector solar toque seco",
+        categoria: "Protector solar",
+        precio: "110",
+        cantidad: "8",
+        descripcion: "No deja la cara blanca ni brillosa. Se repite cada tres horas.",
+        datos: { "Tipo de piel": "Todo tipo", FPS: "50", "Con color": "No" },
+      },
+      {
+        producto: "Crema de noche reparadora",
+        categoria: "Hidratantes",
+        precio: "130",
+        cantidad: "5",
+        datos: { "Tipo de piel": "Seca", "Cuándo se usa": "Noche", "Ingrediente principal": "Ceramidas" },
+      },
+      {
+        producto: "Labial mate rojo",
+        categoria: "Maquillaje",
+        precio: "45",
+        cantidad: "12",
+        datos: { Tono: "Rojo", Acabado: "Mate" },
+      },
+      {
+        producto: "Kit rutina básica",
+        categoria: "Kits y regalos",
+        precio: "260",
+        cantidad: "4",
+        descripcion: "Limpiador, sérum de vitamina C y protector solar.",
+        datos: { "Tipo de piel": "Todo tipo" },
       },
     ],
   },
