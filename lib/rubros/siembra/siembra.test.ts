@@ -25,8 +25,8 @@ import { SIEMBRAS, siembraDeRubro } from "./index";
  * escritos acá: si la base cambia un límite, esto lo sigue.
  */
 describe("las siembras de rubro", () => {
-  it("son seis, sin rubros repetidos y todos válidos", () => {
-    expect(SIEMBRAS).toHaveLength(6);
+  it("son siete, sin rubros repetidos y todos válidos", () => {
+    expect(SIEMBRAS).toHaveLength(7);
     expect(new Set(SIEMBRAS.map(({ rubro }) => rubro)).size).toBe(SIEMBRAS.length);
     for (const { rubro } of SIEMBRAS) {
       expect(RUBROS, `«${rubro}» no es un rubro del sistema`).toContain(rubro);

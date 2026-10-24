@@ -422,6 +422,25 @@ const GUIAS: Record<Exclude<RubroPublicoId, "otro">, GuiaDeRubro> = {
       precio: "120",
     },
   },
+  mochilas: {
+    id: "mochilas",
+    palabras: ["mochila", "maleta", "maletin", "lonchera", "morral", "canguro", "equipaje", "escolar", "viaje", "estuche"],
+    categorias: ["Mochilas escolares", "Mochilas de viaje", "Maletas"],
+    campos: {
+      preguntas: "cuánto le entra, para quién es, de qué material está hecha",
+      texto: { nombre: "Material", muestra: "Lona impermeable" },
+      numero: { nombre: "Capacidad", unidad: "litros", muestra: "25" },
+      opcion: { nombre: "Para quién", opciones: ["Niño", "Joven", "Adulto"] },
+      si_no: { nombre: "Impermeable" },
+    },
+    producto: {
+      nombre: "Mochila escolar con ruedas azul",
+      evitar: "Mochila mod. 2231",
+      queContar: "cuánto le entra, cuántos bolsillos tiene, si entra una laptop, de qué material es",
+      descripcion: "Lona impermeable, 25 litros, dos bolsillos y espaldar acolchado. Entra una laptop de 15 pulgadas.",
+      precio: "180",
+    },
+  },
   ferreteria: {
     id: "ferreteria",
     palabras: ["herramienta", "electricidad", "electrico", "plomeria", "pintura", "construccion", "cemento", "fierro", "foco", "tuberia", "tornillo", "clavo", "cerrajeria", "material"],

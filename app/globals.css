@@ -476,6 +476,11 @@ select {
   --patron-relleno: var(--patron-tinta);
 }
 
+[data-patron="equipaje"] {
+  --patron-mascara: url("/patrones/mochilas.svg");
+  --patron-relleno: var(--patron-tinta);
+}
+
 [data-patron="comercio"] {
   --patron-mascara: url("/patrones/otro.svg");
   --patron-relleno: var(--patron-tinta);

@@ -277,6 +277,7 @@ y sin tráfico en el directorio, el costo es nulo.
 | Tiendas | Tienda de barrio, Minimarket y abarrotes, Licorería, Juguetería, Librería y papelería, Regalos y cotillón, Celulares y electrónica, Muebles y hogar, Artesanías | `tienda_barrio` |
 | Tiendas | Importados y variedades (sumado el 2026-09-25: empieza sin categorías y las arma con su planilla) | `otro` |
 | Ropa | Ropa y calzado, Accesorios y bisutería | `ropa_y_calzado` |
+| Ropa | Mochilas, bolsos y maletas (sumado el 2026-10-23, con siembra propia: capacidad en litros y para quién, tamaños como presentaciones) | `mochilas` |
 | Construcción | Ferretería y materiales | `ferreteria` |
 | Por mayor | Distribuidora | `distribuidora` |
 | Vehículos | Repuestos de auto y moto | `repuestos` |

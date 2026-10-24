@@ -499,6 +499,48 @@ const MUESTRAS_NUEVAS: Record<string, CategoriaMuestra[]> = {
       ],
     },
   ],
+  mochilas: [
+    {
+      id: "demo-mochilas-escolares",
+      nombre: "Mochilas escolares",
+      icono: "mochila",
+      productos: [
+        producto(1, {
+          nombre: "Mochila escolar con ruedas azul",
+          descripcion: "Dos bolsillos, espaldar acolchado y asa extensible.",
+          precio: 150,
+          disponibles: 5,
+          datosPropios: [
+            { nombre: "Para quién", texto: "Niño" },
+            { nombre: "Capacidad", texto: "20 litros" },
+          ],
+        }),
+        producto(2, {
+          nombre: "Mochila juvenil para laptop",
+          descripcion: "Entra una laptop de 15 pulgadas. Puerto para cargador.",
+          precio: 190,
+          datosPropios: [
+            { nombre: "Para quién", texto: "Joven" },
+            { nombre: "Capacidad", texto: "25 litros" },
+          ],
+        }),
+      ],
+    },
+    {
+      id: "demo-maletas",
+      nombre: "Maletas",
+      icono: "maleta",
+      productos: [
+        producto(3, {
+          nombre: "Maleta rígida de cabina",
+          descripcion: "Cabe en el compartimiento del avión. Candado de clave.",
+          precio: 450,
+          disponibles: 2,
+          datosPropios: [{ nombre: "Capacidad", texto: "35 litros" }],
+        }),
+      ],
+    },
+  ],
   otro: [
     {
       id: "demo-mas-pedido",

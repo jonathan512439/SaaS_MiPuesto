@@ -81,6 +81,7 @@ export const RUBROS_PUBLICOS = [
   { id: "importados", nombre: "Importados y variedades", grupo: "Tiendas", siembra: "otro" },
   { id: "ropa_y_calzado", nombre: "Ropa y calzado", grupo: "Ropa", siembra: "ropa_y_calzado" },
   { id: "accesorios", nombre: "Accesorios y bisutería", grupo: "Ropa", siembra: "ropa_y_calzado" },
+  { id: "mochilas", nombre: "Mochilas, bolsos y maletas", grupo: "Ropa", siembra: "mochilas" },
   { id: "ferreteria", nombre: "Ferretería y materiales", grupo: "Construcción", siembra: "ferreteria" },
   { id: "distribuidora", nombre: "Distribuidora", grupo: "Por mayor", siembra: "distribuidora" },
   { id: "repuestos", nombre: "Repuestos de auto y moto", grupo: "Vehículos", siembra: "repuestos" },
@@ -123,6 +124,7 @@ export const RUBRO_PUBLICO_POR_SIEMBRA: Record<RubroId, RubroPublicoId> = {
   distribuidora: "distribuidora",
   repuestos: "repuestos",
   veterinaria: "veterinaria",
+  mochilas: "mochilas",
   otro: "otro",
 };
 

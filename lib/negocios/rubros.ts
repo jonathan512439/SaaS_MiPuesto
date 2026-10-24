@@ -18,6 +18,10 @@ export const RUBROS = [
   "distribuidora",
   "repuestos",
   "veterinaria",
+  /* Llegó con la primera tienda de mochilas (2026-10-23), que había caído en
+     «Otro»: lo que pregunta quien compra una mochila es cuánto entra y para
+     quién es, y eso no lo traía ningún otro rubro. */
+  "mochilas",
   /* «Otro» va último y no en orden alfabético: es la opción de descarte, y
      ofrecerla en el medio de la lista invita a elegirla sin mirar el resto. */
   "otro",
@@ -88,6 +92,12 @@ export const DEFINICIONES_RUBROS: ReadonlyArray<{
     id: "veterinaria",
     nombre: "Veterinaria y mascotas",
     ejemplo: "Alimento, accesorios, consultas con turno",
+    funciones: [],
+  },
+  {
+    id: "mochilas",
+    nombre: "Mochilas, bolsos y maletas",
+    ejemplo: "Escolares, de viaje, carteras, loncheras",
     funciones: [],
   },
   {

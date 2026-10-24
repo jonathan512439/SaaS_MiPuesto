@@ -135,6 +135,8 @@ const GRUPOS = [
       corona: ["crown", "corona premium exclusivo"],
       bolso: ["shopping-bag", "bolso cartera bolsa"],
       mochila: ["backpack", "mochila escolar bolso"],
+      maleta: ["luggage", "maleta viaje equipaje"],
+      cartera: ["handbag", "cartera bolso de mano"],
       paraguas: ["umbrella", "paraguas lluvia"],
       bebe: ["baby", "bebé infantil niño"],
       costura: ["pen-tool", "costura sastre arreglo"],

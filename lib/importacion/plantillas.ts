@@ -10,7 +10,7 @@ import { MAXIMO_FILAS } from "./planilla";
  * para que entre completo y sin errores.
  *
  * **Solo para los rubros con siembra** —restaurante, ferretería, ropa y
- * calzado, distribuidora, repuestos y veterinaria—, porque la plantilla se arma
+ * calzado, distribuidora, repuestos, veterinaria y mochilas—, porque la plantilla se arma
  * con sus categorías y sus campos: los mismos nombres que el negocio tiene en
  * MiPuesto desde el alta, y por eso la importación los reconoce sin preguntar.
  *
@@ -348,6 +348,63 @@ const PLANTILLAS: ReadonlyArray<PlantillaDeRubro> = [
       },
       { producto: "Vacuna antirrábica", categoria: "Vacunación", precio: "60", descripcion: "Incluye el carnet." },
       { producto: "Baño perro mediano", categoria: "Baño y peluquería", precio: "70" },
+    ],
+  },
+  {
+    rubro: "mochilas",
+    conPresentaciones: true,
+    consejos: [
+      "Si la misma mochila viene en chica, mediana y grande, escribe una fila por tamaño con el mismo nombre y pon «Tamaño» en «Se elige por». Cada tamaño lleva su precio y su cantidad.",
+      "La «Capacidad (litros)» es solo el número: 25, no «25 L». Es lo primero que pregunta quien compra una mochila de viaje o una maleta.",
+      "«Para quién» se escribe tal cual: Niño, Joven o Adulto.",
+      "Si un modelo viene en varios colores, carga un producto por color: «Mochila escolar azul», «Mochila escolar rosada».",
+      "El color, el material y los demás datos se escriben una vez, en la primera fila del producto.",
+    ],
+    ejemplos: [
+      {
+        producto: "Mochila escolar con ruedas azul",
+        categoria: "Mochilas escolares",
+        precio: "150",
+        cantidad: "5",
+        seEligePor: "tamano",
+        presentacion: "Mediana",
+        descripcion: "Dos bolsillos, espaldar acolchado y asa extensible.",
+        datos: { Color: "Azul", "Para quién": "Niño", Capacidad: "20", Material: "Poliéster" },
+      },
+      { producto: "Mochila escolar con ruedas azul", categoria: "Mochilas escolares", precio: "180", cantidad: "3", seEligePor: "tamano", presentacion: "Grande" },
+      {
+        producto: "Mochila de viaje 40 litros",
+        categoria: "Mochilas de viaje",
+        precio: "320",
+        cantidad: "2",
+        descripcion: "Abre como maleta, con funda para la lluvia.",
+        datos: { Color: "Negro", Capacidad: "40", Material: "Lona", Impermeable: "Sí" },
+      },
+      {
+        producto: "Cartera de cuero café",
+        categoria: "Bolsos y carteras",
+        precio: "210",
+        cantidad: "4",
+        datos: { Color: "Café", Material: "Cuero" },
+      },
+      {
+        producto: "Maleta rígida de cabina",
+        categoria: "Maletas",
+        precio: "450",
+        cantidad: "2",
+        seEligePor: "tamano",
+        presentacion: "Chica",
+        descripcion: "Cabe en el compartimiento del avión. Candado de clave.",
+        datos: { Color: "Gris", Capacidad: "35", Material: "Policarbonato", Ruedas: "4" },
+      },
+      { producto: "Maleta rígida de cabina", categoria: "Maletas", precio: "620", cantidad: "1", seEligePor: "tamano", presentacion: "Grande" },
+      {
+        producto: "Lonchera térmica",
+        categoria: "Loncheras y accesorios",
+        precio: "60",
+        cantidad: "10",
+        datos: { Color: "Rosado", "Para quién": "Niño" },
+      },
     ],
   },
 ];

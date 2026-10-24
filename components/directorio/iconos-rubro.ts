@@ -24,6 +24,7 @@ export const ICONO_DE_RUBRO: Record<RubroPublicoId, NombreIconoCatalogo> = {
   importados: "caja-abierta",
   ropa_y_calzado: "remera",
   accesorios: "joya",
+  mochilas: "mochila",
   ferreteria: "martillo",
   distribuidora: "cajas",
   repuestos: "disco-de-freno",

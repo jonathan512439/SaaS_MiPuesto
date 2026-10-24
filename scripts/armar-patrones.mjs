@@ -108,6 +108,20 @@ function componer({ archivo, nombres, semilla, trazo }) {
 }
 
 const BALDOSAS = [
+  /* Mochilas, bolsos y maletas (2026-10-23): lo que se carga y a dónde se
+     lleva —el colegio, el viaje, el cerro—, no solo la mochila repetida. */
+  {
+    archivo: "mochilas.svg",
+    semilla: 20261023,
+    trazo: 1.7,
+    nombres: [
+      "backpack", "luggage", "briefcase", "handbag", "shopping-bag",
+      "wallet", "plane", "map", "tent", "mountain-snow",
+      "compass", "school", "pencil", "book-open", "notebook-pen",
+      "ruler", "tag", "umbrella", "key-round", "sun",
+      "bike", "sandwich", "globe", "ticket", "graduation-cap",
+    ],
+  },
   /* Los tres que suma la fase 8. Cada rubro lleva su propio dibujo y no uno
      prestado: el fondo es lo primero que se ve de un catálogo, y compartirlo
      hacía que no dijera nada del negocio. */
