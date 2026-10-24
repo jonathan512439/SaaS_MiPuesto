@@ -308,8 +308,10 @@
   background: var(--color-fondo-hundido);
 }
 
-/* 1 · La lista escrita en un papel, con el sello de que se carga sola. */
-.papel {
+/* 1 · La lista escrita en un papel, con el sello de que la lee la IA. La de la
+   sección de IA es el mismo papel, más largo y con sus títulos. */
+.papel,
+.papelSecciones {
   position: relative;
   display: grid;
   width: min(100%, 15rem);
@@ -321,7 +323,8 @@
   transform: rotate(-2deg);
 }
 
-.papel p {
+.papel p,
+.papelSecciones p {
   display: flex;
   justify-content: space-between;
   gap: var(--spacing-3);
@@ -331,7 +334,8 @@
   font-weight: 600;
 }
 
-.papel p span:last-child {
+.papel p span:last-child,
+.papelSecciones p span:last-child {
   font-style: normal;
   font-weight: 800;
 }
@@ -482,6 +486,250 @@
   font-weight: 900;
 }
 
+/* La escena grande: tres cuadros de historieta, como los pasos de arriba, con
+   el del medio angosto porque es solo la marca de que la IA está leyendo. En el
+   teléfono se apilan y el orden se lee igual. */
+.iaGuia {
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+.iaRecorrido {
+  display: grid;
+  gap: var(--spacing-4);
+  padding: 0;
+  list-style: none;
+}
+
+.iaRecorrido > li {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--spacing-3);
+}
+
+.iaCuadro {
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sheet);
+  padding: var(--spacing-6) var(--spacing-4);
+  background: var(--color-fondo-hundido);
+}
+
+.iaPaso {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--spacing-3);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* La lista con títulos: el título va subrayado y sin la línea punteada de los
+   renglones, como lo escribe quien arma su lista a mano. */
+.papelSecciones {
+  gap: var(--spacing-1);
+  font-size: var(--text-sm);
+}
+
+.papelSecciones > div {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.papelSecciones > div + div {
+  margin-top: var(--spacing-3);
+}
+
+.papelSecciones .papelTitulo {
+  border-bottom: 0;
+  font-style: normal;
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* El precio que no se entiende en el papel: es el que en la revisión aparece
+   marcado para revisar. */
+.borroso {
+  filter: blur(0.12em);
+}
+
+/* 2 · La lectura: la marca de IA y lo que dice el panel mientras lee. */
+.iaLeyendo {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--spacing-2);
+}
+
+.iaLeyendoTexto {
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: var(--color-superficie);
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: var(--sombra-suave);
+}
+
+/* 3 · La pantalla «Revisa antes de crear» dentro de un teléfono. Lleva el teal
+   de MiPuesto porque es el panel, no el sitio: el mismo criterio que la
+   tarjeta de acrílico. */
+.telefono {
+  width: min(100%, 17rem);
+  border-radius: var(--radius-sheet);
+  padding: var(--spacing-2);
+  background: var(--color-sitio-noche);
+  box-shadow: var(--sombra-panel);
+}
+
+.pantalla {
+  display: grid;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-4) var(--spacing-3);
+  background: var(--color-superficie);
+  font-size: var(--text-xs);
+  line-height: 1.3;
+}
+
+.pantallaTitulo {
+  color: var(--color-marca-fuerte);
+  font-family: var(--font-marca);
+  font-size: var(--text-md);
+  font-weight: 800;
+}
+
+.pantallaGrupo {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.pantallaCategoria {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  color: var(--color-texto-suave);
+  font-weight: 800;
+}
+
+.leido,
+.leidoDudoso {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--spacing-2);
+  row-gap: var(--spacing-1);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: var(--color-fondo-hundido);
+}
+
+/* El dudoso, como en el panel: fondo de peligro, la palabra «revisa» y la
+   casilla vacía. Tres señales, ninguna solo de color. */
+.leidoDudoso {
+  background: var(--color-peligro-tenue);
+}
+
+.leido strong,
+.leidoDudoso strong {
+  color: var(--color-marca-fuerte);
+  font-size: var(--text-sm);
+}
+
+.leidoNombre {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.casilla,
+.casillaVacia {
+  display: grid;
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+  place-items: center;
+  border-radius: var(--radius-control);
+  font-size: var(--text-xs);
+}
+
+.casilla {
+  background: var(--color-marca);
+  color: var(--color-superficie);
+}
+
+.casillaVacia {
+  border: var(--borde-marcado) solid var(--color-borde-campo);
+  background: var(--color-superficie);
+}
+
+.leidoOpciones {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 2 / -1;
+  gap: var(--spacing-1);
+}
+
+.leidoOpciones span {
+  border-radius: var(--radius-status);
+  padding: 0 var(--spacing-2);
+  background: var(--color-marca-tenue);
+  color: var(--color-marca-fuerte);
+  font-weight: 800;
+}
+
+.leidoRevisa {
+  grid-column: 2 / -1;
+  color: var(--color-peligro);
+  font-weight: 800;
+}
+
+.pantallaBoton {
+  display: grid;
+  min-height: var(--spacing-10);
+  margin-top: var(--spacing-1);
+  place-items: center;
+  border-radius: var(--radius-status);
+  background: var(--color-marca);
+  color: var(--color-superficie);
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+/* Qué hace con la lista: una lista simple y no tarjetas, porque son cuatro
+   frases que se leen seguidas. */
+.iaHace {
+  display: grid;
+  gap: var(--spacing-3);
+}
+
+.iaHace h3,
+.iaTambien {
+  font-size: var(--text-xl);
+  line-height: 1.1;
+}
+
+.iaHace ul {
+  display: grid;
+  gap: var(--spacing-3);
+  padding: 0;
+  list-style: none;
+}
+
+.iaHace li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--spacing-2);
+}
+
+.iaHace svg {
+  margin-top: var(--spacing-1);
+  color: var(--color-exito);
+}
+
 .ia {
   display: grid;
   gap: var(--spacing-5);
@@ -493,9 +741,12 @@
   gap: var(--spacing-2);
 }
 
-.iaEjemplo h3 {
+.iaEjemplo h4 {
   margin-top: var(--spacing-2);
-  font-size: var(--text-xl);
+  font-family: var(--font-marca);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .iaEjemplo > p {
@@ -578,8 +829,27 @@
   font-size: var(--text-xs);
 }
 
+.iaFicha .iaVacio {
+  font-style: italic;
+}
+
+/* Como en la revisión del panel: la palabra dice que es sugerida, el color
+   de IA solo lo acompaña. */
+.iaFicha .iaSugerida {
+  justify-self: start;
+  border-radius: var(--radius-status);
+  padding: 0 var(--spacing-2);
+  background: var(--ia-degradado);
+  color: var(--color-ia-sobre);
+  font-weight: 800;
+}
+
 .iaNota {
+  display: grid;
+  gap: var(--spacing-2);
   max-width: 48rem;
+  border-left: var(--borde-marcado) solid var(--color-ia-inicio);
+  padding-left: var(--spacing-4);
   color: var(--color-texto-suave);
 }
 
@@ -606,6 +876,32 @@
   .ia {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--spacing-6);
+  }
+
+  .iaHace ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-8);
+  }
+}
+
+/* Los tres cuadros en fila recién cuando el teléfono dibujado entra entero al
+   lado del papel. */
+/* Cada paso ocupa las dos filas de la lista con `subgrid`: así los tres
+   números quedan en la misma línea aunque el texto de uno ocupe dos renglones. */
+@media (min-width: 60rem) {
+  .iaRecorrido {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.65fr) minmax(0, 1.15fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    row-gap: var(--spacing-3);
+  }
+
+  .iaRecorrido > li {
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+  }
+
+  .iaPaso {
+    align-self: start;
   }
 }
 

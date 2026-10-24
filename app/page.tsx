@@ -62,7 +62,7 @@ const LLAMADA = `Pruébalo gratis ${PLAN_PRUEBA.dias} días`;
 
 /* Una secuencia de verdad: lo que pasa, en orden, hasta el primer pedido. */
 const PASOS = [
-  { titulo: "Sácale foto a tu lista", detalle: "O carga producto por producto." },
+  { titulo: "Sácale foto a tu lista", detalle: "La IA arma tus productos. O los cargas uno por uno." },
   { titulo: "Comparte tu enlace", detalle: "En tu estado, tus redes y tu mostrador." },
   { titulo: "Recibe el pedido", detalle: "Con el detalle y el total, en tu WhatsApp." },
 ];
@@ -73,6 +73,60 @@ const LISTA_A_MANO = [
   { nombre: "Api con pastel", precio: 10 },
   { nombre: "Tucumana", precio: 6 },
 ];
+
+/* La escena grande de IA: la lista con sus títulos de sección, un renglón con
+   dos tamaños y un precio borroneado, que son las tres cosas que la lectura
+   resuelve —o marca— sola. Lo leído es lo que muestra de verdad «Revisa antes
+   de crear»: el dudoso queda sin elegir, por eso se crean cuatro y no cinco. */
+const LISTA_CON_SECCIONES = [
+  {
+    seccion: "Salteñas",
+    renglones: [
+      { escrito: "Salteña de pollo", precio: "7" },
+      { escrito: "Salteña de carne", precio: "7" },
+    ],
+  },
+  {
+    seccion: "Bebidas",
+    renglones: [
+      { escrito: "Mocochinchi", precio: "4" },
+      { escrito: "Refresco chico/grande", precio: "5/9" },
+      { escrito: "Api morado", precio: "6", borroso: true },
+    ],
+  },
+];
+
+const LISTA_LEIDA = [
+  {
+    categoria: "Salteñas",
+    productos: [
+      { nombre: "Salteña de pollo", precio: "Bs 7" },
+      { nombre: "Salteña de carne", precio: "Bs 7" },
+    ],
+  },
+  {
+    categoria: "Bebidas",
+    productos: [
+      { nombre: "Mocochinchi", precio: "Bs 4" },
+      { nombre: "Refresco", opciones: ["Chico Bs 5", "Grande Bs 9"] },
+      { nombre: "Api morado", precio: "Bs 6", dudoso: true },
+    ],
+  },
+];
+
+/* Lo que hace con la lista, dicho como lo ve el dueño en la revisión. Cada
+   renglón tiene su ejemplo en el dibujo de al lado. */
+const LO_QUE_HACE_LA_IA = [
+  "Separa cada renglón en un producto, con su precio en bolivianos.",
+  "Los títulos de tu lista, como «Salteñas» o «Bebidas», pasan a ser tus categorías.",
+  "Lo que viene en tamaños o tallas queda como un solo producto con sus opciones.",
+  "Lo que no se lee bien queda marcado y sin elegir, para que lo corrijas.",
+];
+
+/* Las lecturas de foto de cada plan, del mismo lugar que las cobra el sistema:
+   si la portada dijera otro número, el reclamo llega por WhatsApp y con razón.
+   Va antes de las preguntas, que también las nombran. */
+const LECTURAS = Object.fromEntries(PLANES.map((plan) => [plan.id, plan.lecturasPorMes]));
 
 const PREGUNTAS = [
   {
@@ -99,6 +153,17 @@ const PREGUNTAS = [
   {
     pregunta: "¿Emiten factura?",
     respuesta: "Por ahora no emitimos factura. El pago es directo, con QR.",
+  },
+  /* Las dos dudas de la IA que la sección no alcanza a cerrar: qué es una
+     lectura y qué pasa si lee mal. */
+  {
+    pregunta: "¿Qué es una lectura con IA?",
+    respuesta: `Cada vez que la IA lee una foto o un PDF. Una lista entera, aunque tenga varias páginas, gasta una sola. La foto de un producto también gasta una. Tienes ${PLAN_PRUEBA.lecturasPorMes} en la prueba gratis, ${LECTURAS.catalogo} al mes en Catálogo y ${LECTURAS.activo} en Catálogo Activo.`,
+  },
+  {
+    pregunta: "¿Y si la IA lee mal un precio?",
+    respuesta:
+      "Lo que no se lee con seguridad queda marcado y sin elegir. Igual ves cada producto con su precio antes de crearlo, y lo corriges ahí mismo o después desde Productos.",
   },
   {
     pregunta: "¿Mis clientes tienen que instalar algo?",
@@ -131,10 +196,6 @@ const PREGUNTAS = [
     respuesta: "Sí. En vez de carrito, tus clientes reservan hora: barberías, consultorios, talleres.",
   },
 ];
-
-/* Las lecturas de foto de cada plan, del mismo lugar que las cobra el sistema:
-   si la portada dijera otro número, el reclamo llega por WhatsApp y con razón. */
-const LECTURAS = Object.fromEntries(PLANES.map((plan) => [plan.id, plan.lecturasPorMes]));
 
 /* La cinta de rubros: el nombre corto, sin la segunda mitad («Pollería y
    broaster» pasa a «Pollería»), que en una cinta que corre se lee de un vistazo. */
@@ -263,7 +324,7 @@ export default function Inicio() {
                         ))}
                         <span className={styles.selloIa}>
                           <Icono nombre="rayo" />
-                          Se carga sola
+                          La lee la IA
                         </span>
                       </div>
                     ) : indice === 1 ? (
@@ -315,8 +376,13 @@ export default function Inicio() {
           </div>
         </section>
 
-        {/* 5 · Las herramientas de IA, en dos ejemplos: lo que entra y lo que
-            sale. El texto es el mínimo; lo explican los dibujos. */}
+        {/* 5 · Las herramientas de IA.
+            Antes eran dos dibujos de «entra esto, sale esto» y no quedaba claro
+            qué hacía la IA ni qué le tocaba al dueño (2026-10-24). Ahora va la
+            escena entera, en el orden en que pasa: la lista en papel, la lectura
+            y la pantalla «Revisa antes de crear» tal como la ve en el panel. Al
+            lado, qué resuelve sola; debajo, las otras dos ayudas y lo que la IA
+            no hace, que es lo que da confianza para probarla. */}
         <section aria-labelledby="con-ia" className={styles.seccion}>
           <div className={styles.seccionContenido}>
             <div className={styles.encabezado}>
@@ -324,34 +390,114 @@ export default function Inicio() {
                 <Icono nombre="rayo" />
                 Herramientas de IA
               </p>
-              <h2 id="con-ia">Una foto, y tu catálogo se carga solo</h2>
+              <h2 id="con-ia">Le sacas foto a tu lista y la IA te arma el catálogo</h2>
+              <p>
+                Sirve la lista escrita a mano, la impresa o el PDF de tu proveedor. La IA separa cada
+                producto con su precio, y vos revisas todo antes de publicar.
+              </p>
             </div>
-            <div className={styles.ia}>
-              <article className={styles.iaEjemplo}>
-                <div aria-hidden="true" className={styles.iaDibujo}>
-                  <div className={styles.papel}>
-                    {LISTA_A_MANO.map(({ nombre, precio }) => (
-                      <p key={nombre}>
-                        <span>{nombre}</span>
-                        <span>{precio}</span>
-                      </p>
-                    ))}
+
+            <div className={styles.iaGuia}>
+              {/* Una secuencia de verdad, por eso lleva números: lo que haces,
+                  lo que hace la IA y lo que haces de nuevo. Los dibujos se
+                  esconden del lector de pantalla; los pasos y la lista de al
+                  lado dicen lo mismo con palabras. */}
+              <ol className={styles.iaRecorrido}>
+                <li>
+                  <div aria-hidden="true" className={styles.iaCuadro}>
+                    <div className={styles.papelSecciones}>
+                      {LISTA_CON_SECCIONES.map(({ seccion, renglones }) => (
+                        <div key={seccion}>
+                          <p className={styles.papelTitulo}>{seccion}</p>
+                          {renglones.map(({ escrito, precio, borroso }) => (
+                            <p key={escrito}>
+                              <span>{escrito}</span>
+                              <span className={borroso ? styles.borroso : undefined}>{precio}</span>
+                            </p>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <span className={styles.iaMarca}>
-                    <Icono nombre="rayo" />
-                  </span>
-                  <ul className={styles.iaProductos}>
-                    {LISTA_A_MANO.map(({ nombre, precio }) => (
-                      <li key={nombre}>
-                        <span>{nombre}</span>
-                        <strong>Bs {precio}</strong>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <h3>Tu lista de precios</h3>
-                <p>Escrita a mano o impresa: sale separada producto por producto.</p>
-              </article>
+                  <p className={styles.iaPaso}>
+                    <span aria-hidden="true" className={styles.numero}>
+                      1
+                    </span>
+                    Le sacas foto a tu lista, o subes el PDF
+                  </p>
+                </li>
+                <li>
+                  <div aria-hidden="true" className={styles.iaLeyendo}>
+                    <span className={styles.iaMarca}>
+                      <Icono nombre="rayo" />
+                    </span>
+                    <span className={styles.iaLeyendoTexto}>Leyendo tu lista…</span>
+                  </div>
+                  <p className={styles.iaPaso}>
+                    <span aria-hidden="true" className={styles.numero}>
+                      2
+                    </span>
+                    La IA la lee en segundos
+                  </p>
+                </li>
+                <li>
+                  <div aria-hidden="true" className={styles.iaCuadro}>
+                    <div className={styles.telefono}>
+                      <div className={styles.pantalla}>
+                        <p className={styles.pantallaTitulo}>Revisa antes de crear</p>
+                        {LISTA_LEIDA.map(({ categoria, productos }) => (
+                          <div className={styles.pantallaGrupo} key={categoria}>
+                            <p className={styles.pantallaCategoria}>
+                              <Icono nombre="carpeta" />
+                              {categoria}
+                            </p>
+                            {productos.map(({ nombre, precio, opciones, dudoso }) => (
+                              <div className={dudoso ? styles.leidoDudoso : styles.leido} key={nombre}>
+                                <span className={dudoso ? styles.casillaVacia : styles.casilla}>
+                                  {dudoso ? null : <Icono nombre="listo" />}
+                                </span>
+                                <span className={styles.leidoNombre}>{nombre}</span>
+                                {precio ? <strong>{precio}</strong> : null}
+                                {opciones ? (
+                                  <span className={styles.leidoOpciones}>
+                                    {opciones.map((opcion) => (
+                                      <span key={opcion}>{opcion}</span>
+                                    ))}
+                                  </span>
+                                ) : null}
+                                {dudoso ? <span className={styles.leidoRevisa}>revisa</span> : null}
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                        <span className={styles.pantallaBoton}>Crear 4 productos</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className={styles.iaPaso}>
+                    <span aria-hidden="true" className={styles.numero}>
+                      3
+                    </span>
+                    Revisas, corriges y tocas Crear
+                  </p>
+                </li>
+              </ol>
+
+              <div className={styles.iaHace}>
+                <h3>Qué hace con tu lista</h3>
+                <ul>
+                  {LO_QUE_HACE_LA_IA.map((cosa) => (
+                    <li key={cosa}>
+                      <Icono nombre="listo" />
+                      {cosa}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <h3 className={styles.iaTambien}>Y también te ayuda con</h3>
+            <div className={styles.ia}>
               <article className={styles.iaEjemplo}>
                 <div aria-hidden="true" className={styles.iaDibujo}>
                   <Image
@@ -369,16 +515,55 @@ export default function Inicio() {
                     <span>Doble carne, queso, vegetales frescos y salsa de la casa.</span>
                   </div>
                 </div>
-                <h3>La foto de un producto</h3>
-                <p>Se completan el nombre y la descripción.</p>
+                <h4>La foto de un producto</h4>
+                <p>
+                  Desde Productos, le sacas foto y la IA propone el nombre, la descripción y la
+                  categoría. El precio lo pones vos.
+                </p>
+              </article>
+              <article className={styles.iaEjemplo}>
+                <div aria-hidden="true" className={styles.iaDibujo}>
+                  {/* Una que cumple las reglas de `lib/ia/descripciones.ts`: solo
+                      con el nombre y la categoría, sin ingredientes que el
+                      renglón no dice. Si la portada mostrara una más rica que
+                      las que salen, prometería lo que la IA tiene prohibido. */}
+                  <div className={styles.iaFicha}>
+                    <strong>Mocochinchi</strong>
+                    <span className={styles.iaVacio}>Sin descripción</span>
+                  </div>
+                  <span className={styles.iaMarca}>
+                    <Icono nombre="rayo" />
+                  </span>
+                  <div className={styles.iaFicha}>
+                    <strong>Mocochinchi</strong>
+                    <span>Mocochinchi de la casa, para acompañar tu pedido.</span>
+                    <span className={styles.iaSugerida}>Sugerida</span>
+                  </div>
+                </div>
+                <h4>Las descripciones que faltan</h4>
+                <p>
+                  Si tu lista o tu Excel trae solo nombres, escribe una frase corta con lo que dice
+                  cada renglón, sin inventar. Quedan marcadas como sugeridas hasta que las lees.
+                </p>
               </article>
             </div>
-            <p className={styles.iaNota}>
-              Revisas todo antes de publicar y el precio lo pones vos.{" "}
-              <strong>
-                {LECTURAS.catalogo} fotos al mes en Catálogo, {LECTURAS.activo} en Catálogo Activo.
-              </strong>
-            </p>
+
+            {/* Lo que la IA no hace y lo que cuesta, al final de la sección y con
+                los números de `lib/planes.ts`: la duda que frena a probarla es
+                «¿y si inventa?» y la segunda, «¿me alcanza?». Una lista entera
+                gasta una sola lectura, y sin decirlo diez al mes parecían diez
+                productos. */}
+            <div className={styles.iaNota}>
+              <p>
+                <strong>No inventa ni publica sola.</strong> Lo que no se lee, no lo pone, y nada
+                aparece en tu catálogo hasta que tocas Crear.
+              </p>
+              <p>
+                <strong>Una foto o un PDF es una lectura, aunque traiga la lista entera.</strong>{" "}
+                {PLAN_PRUEBA.lecturasPorMes} en la prueba gratis, {LECTURAS.catalogo} al mes en
+                Catálogo y {LECTURAS.activo} en Catálogo Activo. Importar tu Excel no gasta ninguna.
+              </p>
+            </div>
           </div>
         </section>
 
