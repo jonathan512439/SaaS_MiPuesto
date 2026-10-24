@@ -18,10 +18,12 @@ import { camposDeCategoriaNueva } from "../../lib/importacion/diseno-de-categori
 import { posicionesYaExistentes } from "../../lib/importacion/ya-existentes";
 import type { PresentacionDePlanilla } from "../../lib/importacion/planilla";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
+import type { CupoDeLecturas } from "../../lib/ia/cupo-de-lecturas";
 import { MAXIMO_PARA_DESCRIBIR } from "../../lib/ia/descripciones";
 import { planDe } from "../../lib/planes";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { Boton, Selector, useAvisos } from "../ui";
+import { ContadorLecturas } from "./contador-lecturas";
 import styles from "./revision-de-productos.module.css";
 
 /* El paso que va entre «leímos algo» y «está publicado», y que es el mismo
@@ -96,6 +98,8 @@ export function RevisionDeProductos({
   productosActuales,
   enlaceCatalogo,
   describirConIa = false,
+  lecturas,
+  alGastarLectura,
 }: {
   /* Los campos de cada categoría por su id. Con ellos, las columnas de datos
      de la planilla se guardan en la categoría donde termina el producto. */
@@ -124,6 +128,11 @@ export function RevisionDeProductos({
      planilla —la foto y el PDF las escriben en la misma lectura— y solo si el
      negocio tiene la IA habilitada: gasta una lectura del cupo. */
   describirConIa?: boolean;
+  /* Cuántas lecturas le quedan, para decirlo al lado del botón que gasta. El
+     estado vive en la pantalla que monta la revisión y no acá: una revisión
+     nueva se monta con cada archivo, y el cupo tiene que sobrevivirla. */
+  lecturas?: CupoDeLecturas;
+  alGastarLectura?: () => void;
 }) {
   const plan = planDe(planId);
   const topeFotos = plan.topes.fotosPorProducto;
@@ -260,6 +269,7 @@ export function RevisionDeProductos({
       if (!respuesta.ok || !datos.descripciones) {
         throw new Error(datos.error ?? "No pudimos escribir las descripciones.");
       }
+      alGastarLectura?.();
       const porFila = new Map(
         datos.descripciones.map(({ indice, descripcion }) => [sinDescripcion[indice]?.indice, descripcion]),
       );
@@ -623,6 +633,7 @@ export function RevisionDeProductos({
             inventar nada más. Gasta 1 lectura
             {faltanDescripciones > MAXIMO_PARA_DESCRIBIR ? ` por cada ${MAXIMO_PARA_DESCRIBIR} productos` : ""}.
           </p>
+          {lecturas ? <ContadorLecturas cupo={lecturas} /> : null}
         </div>
       ) : null}
 

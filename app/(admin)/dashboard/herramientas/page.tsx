@@ -3,8 +3,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
+import { ContadorLecturas } from "../../../../components/catalogo/contador-lecturas";
 import { Icono, type NombreIcono } from "../../../../components/iconos/icono";
 import { esAvisoDeFotoReciente } from "../../../../lib/ia/ayuda";
+import { cupoDeLecturas } from "../../../../lib/ia/cupo-de-lecturas";
+import { leerLecturasUsadas } from "../../../../lib/ia/lecturas-usadas";
 import { rubroOfrece } from "../../../../lib/negocios/rubros";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
@@ -51,18 +54,23 @@ export default async function PaginaHerramientas() {
 
   const { data: negocio } = await supabase
     .from("negocios")
-    .select("id,slug,rubro,foto_ia_habilitada,foto_ia_habilitada_en")
+    .select("id,slug,rubro,plan_id,foto_ia_habilitada,foto_ia_habilitada_en")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
 
   /* Solo el número: la papelera se abre pocas veces, y traer sus filas acá sería
      peso en cada visita para una pantalla que casi nadie mira. */
-  const { count } = await supabase
-    .from("productos")
-    .select("id", { count: "exact", head: true })
-    .eq("negocio_id", negocio.id)
-    .not("eliminado_en", "is", null);
+  const [{ count }, lecturasUsadas] = await Promise.all([
+    supabase
+      .from("productos")
+      .select("id", { count: "exact", head: true })
+      .eq("negocio_id", negocio.id)
+      .not("eliminado_en", "is", null),
+    /* Las lecturas, para decir en la tarjeta de IA cuántas le quedan antes de
+       entrar. Sin la IA no hay tarjeta y no se consultan. */
+    negocio.foto_ia_habilitada ? leerLecturasUsadas(supabase, negocio.id, negocio.plan_id) : 0,
+  ]);
   const enPapelera = count ?? 0;
 
   const avisarFotoNueva =
@@ -155,6 +163,7 @@ export default async function PaginaHerramientas() {
                 <b>3</b> Confirmas y se crean los productos
               </li>
             </ol>
+            <ContadorLecturas cupo={cupoDeLecturas(negocio.plan_id, lecturasUsadas)} />
             <Link className={styles.abrirIa} href={RUTAS_PANEL.desdeFoto}>
               Abrir la herramienta
             </Link>

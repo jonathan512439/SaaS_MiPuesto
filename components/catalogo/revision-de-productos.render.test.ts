@@ -225,3 +225,41 @@ describe("las descripciones que escribe la IA", () => {
     expect(dibujarCon(false)).not.toContain("Escribir una descripción corta donde falte");
   });
 });
+
+/* El botón de las descripciones gasta una lectura: el contador va pegado a él,
+   y en la prueba no habla de meses (2026-10-24). */
+describe("las descripciones con IA dicen cuántas lecturas quedan", () => {
+  function conIa(lecturas?: { quedan: number; total: number; prueba: boolean }) {
+    return renderToString(
+      jsx(ProveedorAvisos, {
+        children: jsx(RevisionDeProductos, {
+          categorias: [],
+          controlaStock: false,
+          describirConIa: true,
+          introduccion: "Prueba",
+          lecturas,
+          onTerminado: () => undefined,
+          planId: "catalogo",
+          productos: [POLERA],
+          productosActuales: 0,
+        }),
+      }),
+    ).replaceAll("<!-- -->", "");
+  }
+
+  it("al lado del botón, con lo que queda del mes", () => {
+    const html = conIa({ quedan: 7, total: 10, prueba: false });
+    expect(html).toContain("Escribir una descripción corta donde falte");
+    expect(html).toMatch(/Te quedan <strong>7<\/strong> de 10\s*lecturas con IA este mes/);
+  });
+
+  it("en la prueba, sin meses; en cero, qué pasa después", () => {
+    const html = conIa({ quedan: 0, total: 5, prueba: true });
+    expect(html).toContain("lecturas con IA de tu prueba");
+    expect(html).toContain("Al elegir tu plan, tienes más cada mes.");
+  });
+
+  it("sin cupo pasado, no inventa un número", () => {
+    expect(conIa()).not.toContain("Te quedan");
+  });
+});

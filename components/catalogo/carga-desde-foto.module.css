@@ -133,7 +133,14 @@
   }
 }
 
+/* El contador, pegado a los botones que gastan, con la regla de cuánto gasta
+   cada cosa debajo y más chica. */
 .cupo {
+  display: grid;
+  gap: var(--spacing-1);
+}
+
+.cupo > p:last-child {
   color: var(--color-texto-suave);
   font-size: var(--text-xs);
 }

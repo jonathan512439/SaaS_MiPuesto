@@ -73,8 +73,8 @@ import {
   Formulario,
 } from "../ui";
 import styles from "./gestor-catalogo.module.css";
-import { TOPE_FOTOS_POR_DIA } from "../../lib/ia/limites";
-import { cupoDelPlan } from "../../lib/planes";
+import { cupoDeLecturas, gastarLectura } from "../../lib/ia/cupo-de-lecturas";
+import { ContadorLecturas } from "./contador-lecturas";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import { normalizarBusqueda as normalizarTexto } from "../../lib/texto";
 
@@ -169,9 +169,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
      negativo se leería como una deuda. */
   /* Lo que le queda **de su plan**. Decía «de 200», que es el techo técnico
      del sistema y no lo que compró: el dueño del plan Catálogo leía que le
-     quedaban 190 cuando en realidad le quedaban cero a la décima lectura. */
-  const cupoDeLecturas = cupoDelPlan(datosIniciales.negocio.plan_id, TOPE_FOTOS_POR_DIA);
-  const lecturasQueQuedan = Math.max(0, cupoDeLecturas.mensual - datosIniciales.fotosUsadasMes);
+     quedaban 190 cuando en realidad le quedaban cero a la décima lectura.
+     Es estado y no un cálculo: baja apenas se lee una foto, sin esperar a que
+     el dueño recargue la pantalla (2026-10-24). */
+  const [lecturasIa, setLecturasIa] = useState(() =>
+    cupoDeLecturas(datosIniciales.negocio.plan_id, datosIniciales.fotosUsadasMes),
+  );
   const [leyendoFoto, setLeyendoFoto] = useState(false);
   const [categoriaActiva, setCategoriaActiva] = useState("");
   const [paginaCategorias, setPaginaCategorias] = useState(1);
@@ -948,6 +951,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imagen: foto.base64, tipo: foto.tipo }),
       });
+      setLecturasIa(gastarLectura);
 
       /* La categoría la elige el modelo entre las del negocio, o ninguna si no
          corresponde. Crear una categoría nueva desde acá no: eso es una
@@ -1252,16 +1256,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   contratado —el diario es un reparto interno de la cuota— y es
                   además el único que el dueño puede consultar. Decirle dos
                   números lo obligaría a calcular cuál lo frena antes. */}
-              <p className={styles.usosIa}>
-                <span>
-                  Te quedan <strong>{lecturasQueQuedan}</strong> de {cupoDeLecturas.mensual} lecturas
-                  este mes
-                </span>
-                {/* En cero no se esconde ni se cambia de color: se dice qué pasa
-                    después, que es lo único que sirve cuando ya no se puede
-                    usar. */}
-                {lecturasQueQuedan === 0 ? <small>Vuelven el día 1</small> : null}
-              </p>
+              <ContadorLecturas className={styles.usosIa} cupo={lecturasIa} />
             </section>
           ) : null}
           <div className={styles.camposProducto}>

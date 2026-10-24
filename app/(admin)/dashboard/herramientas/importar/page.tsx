@@ -12,6 +12,7 @@ import {
   COLUMNAS_NOMBRE_PRODUCTO,
 } from "../../../../../lib/catalogo/columnas";
 import { leerAtributos } from "../../../../../lib/catalogo/atributos";
+import { leerLecturasUsadas } from "../../../../../lib/ia/lecturas-usadas";
 import { nombreDeRubro, plantillasDelNegocio } from "../../../../../lib/importacion/plantillas";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../../../lib/panel/rutas";
 import panel from "../../panel.module.css";
@@ -45,7 +46,7 @@ export default async function PaginaImportarPlanilla() {
 
   /* Los campos de cada categoría, para guardar los datos que trae la planilla
      —«Color», «Potencia (W)»— en la categoría donde termine cada producto. */
-  const [{ data: categorias }, { data: filasAtributos }, { data: productosActuales }] = await Promise.all([
+  const [{ data: categorias }, { data: filasAtributos }, { data: productosActuales }, lecturasUsadas] = await Promise.all([
     supabase
       .from("categorias")
       .select(COLUMNAS_CATEGORIA)
@@ -64,6 +65,9 @@ export default async function PaginaImportarPlanilla() {
       .select(COLUMNAS_NOMBRE_PRODUCTO)
       .eq("negocio_id", negocio.id)
       .is("eliminado_en", null),
+    /* Las lecturas gastadas, solo si hay IA: sin ella no hay botón que las
+       gaste ni contador que mostrar. */
+    negocio.foto_ia_habilitada ? leerLecturasUsadas(supabase, negocio.id, negocio.plan_id) : 0,
   ]);
   const atributosPorCategoria: Record<string, ReturnType<typeof leerAtributos>> = {};
   for (const fila of filasAtributos ?? []) {
@@ -97,6 +101,7 @@ export default async function PaginaImportarPlanilla() {
         atributosPorCategoria={atributosPorCategoria}
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
         describirConIa={negocio.foto_ia_habilitada === true}
+        lecturasUsadas={lecturasUsadas}
         enlaceCatalogo={`/${negocio.slug}`}
         negocioLlevaStock={negocioLlevaStock}
         nombresDelCatalogo={(productosActuales ?? []).map(({ nombre }) => nombre)}

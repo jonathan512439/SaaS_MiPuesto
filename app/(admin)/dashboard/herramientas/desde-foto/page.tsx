@@ -4,8 +4,6 @@ import { redirect } from "next/navigation";
 
 import { CargaDesdeFoto } from "../../../../../components/catalogo/carga-desde-foto";
 import type { CategoriaCatalogo } from "../../../../../lib/catalogo/tipos";
-import { TOPE_FOTOS_POR_DIA } from "../../../../../lib/ia/servidor";
-import { cupoDelPlan } from "../../../../../lib/planes";
 import { crearClienteSupabaseServidor } from "../../../../../lib/supabase/server";
 import { EncabezadoPanel } from "../../../../../components/dashboard/encabezado-panel";
 import { COLUMNAS_CATEGORIA, COLUMNAS_NOMBRE_PRODUCTO } from "../../../../../lib/catalogo/columnas";
@@ -85,7 +83,6 @@ export default async function PaginaCargaDesdeFoto() {
         nombresDelCatalogo={(productosActuales ?? []).map(({ nombre }) => nombre)}
         planId={negocio.plan_id}
         productosActuales={(productosActuales ?? []).length}
-        topeFotos={cupoDelPlan(negocio.plan_id, TOPE_FOTOS_POR_DIA).mensual}
       />
     </main>
   );

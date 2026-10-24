@@ -4,6 +4,7 @@ import { useMemo, useState, type ChangeEvent } from "react";
 
 import type { Atributo } from "../../lib/catalogo/atributos";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
+import { cupoDeLecturas, gastarLectura } from "../../lib/ia/cupo-de-lecturas";
 import { columnasDeDatos, type Mapeo } from "../../lib/importacion/columnas";
 import {
   MAXIMO_FILAS,
@@ -41,6 +42,7 @@ export function ImportarPlanilla({
   nombresDelCatalogo = [],
   planId,
   describirConIa = false,
+  lecturasUsadas = 0,
   plantillas,
   productosActuales,
   enlaceCatalogo,
@@ -65,11 +67,17 @@ export function ImportarPlanilla({
   /* Si el negocio tiene la IA habilitada: la revisión ofrece escribir las
      descripciones que faltan, con una lectura del cupo. */
   describirConIa?: boolean;
+  /* Las que ya gastó, para que la revisión diga cuántas le quedan al lado del
+     botón de las descripciones. */
+  lecturasUsadas?: number;
   productosActuales: number;
   /* La dirección del catálogo público, para el «Ver mi catálogo» del final. */
   enlaceCatalogo?: string;
 }) {
   const { mostrarAviso } = useAvisos();
+  /* Acá y no en la revisión: cada archivo monta una revisión nueva, y lo
+     gastado en la anterior tiene que seguir descontado. */
+  const [lecturas, setLecturas] = useState(() => cupoDeLecturas(planId, lecturasUsadas));
   const [leyendo, setLeyendo] = useState(false);
   const [lectura, setLectura] = useState<ResultadoLectura | null>(null);
   const [nombreArchivo, setNombreArchivo] = useState("");
@@ -400,8 +408,10 @@ export function ImportarPlanilla({
           nombresDelCatalogo={nombresDelCatalogo}
           categorias={categorias}
           controlaStock={conStock}
+          alGastarLectura={() => setLecturas(gastarLectura)}
           describirConIa={describirConIa}
           enlaceCatalogo={enlaceCatalogo}
+          lecturas={lecturas}
           introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agrégales fotos si quieres y saca los que no vayas a publicar.`}
           key={nombreArchivo}
           onTerminado={() => setConfirmado(true)}

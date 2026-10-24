@@ -5,10 +5,12 @@ import { useState, type ChangeEvent } from "react";
 
 import { AVISO_PRIVACIDAD_IA, AYUDA_LISTA } from "../../lib/ia/ayuda";
 import { esPlanilla, prepararArchivoParaLectura } from "../../lib/ia/adjunto";
+import { cupoDeLecturas, gastarLectura } from "../../lib/ia/cupo-de-lecturas";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { Trabajando, useAvisos } from "../ui";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
+import { ContadorLecturas } from "./contador-lecturas";
 import { RevisionDeProductos, type ProductoLeido } from "./revision-de-productos";
 import styles from "./carga-desde-foto.module.css";
 
@@ -19,7 +21,6 @@ export function CargaDesdeFoto({
   nombresDelCatalogo = [],
   planId,
   productosActuales,
-  topeFotos,
   enlaceCatalogo,
 }: {
   categorias: CategoriaCatalogo[];
@@ -35,7 +36,6 @@ export function CargaDesdeFoto({
      no entra en el plan (`lib/planes.ts`). */
   planId: string;
   productosActuales: number;
-  topeFotos: number;
   /* La dirección del catálogo público, para el «Ver mi catálogo» del final. */
   enlaceCatalogo?: string;
 }) {
@@ -56,6 +56,10 @@ export function CargaDesdeFoto({
      Prendido de entrada: va en la misma lectura y no gasta otra, y una lista de
      precios casi nunca trae descripciones. Llegan marcadas como sugeridas. */
   const [describir, setDescribir] = useState(true);
+  /* Lo que le queda, descontado apenas se lee una lista: decía «llevas X de Y»
+     con el número de cuando abrió la pantalla, y después de tres listas seguía
+     diciendo lo mismo. */
+  const [lecturas, setLecturas] = useState(() => cupoDeLecturas(planId, fotosUsadas));
 
   async function leerArchivo(evento: ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0];
@@ -90,6 +94,7 @@ export function CargaDesdeFoto({
         throw new Error(datos.error ?? "No pudimos leer el archivo.");
       }
 
+      setLecturas(gastarLectura);
       setProductos(datos.productos);
       setCobertura(datos.cobertura);
       setLectura((numero) => numero + 1);
@@ -196,10 +201,13 @@ export function CargaDesdeFoto({
           />
         </label>
       </div>
-      <p className={styles.cupo}>
-        Llevas {fotosUsadas} de {topeFotos} lecturas este mes.{" "}
-        <strong>Importar un Excel o un CSV no gasta ninguna.</strong>
-      </p>
+      <div className={styles.cupo}>
+        <ContadorLecturas cupo={lecturas} />
+        <p>
+          Cada foto o PDF gasta una, aunque traiga la lista entera.{" "}
+          <strong>Importar un Excel o un CSV no gasta ninguna.</strong>
+        </p>
+      </div>
 
       {planillaElegida ? (
         <section aria-live="polite" className={styles.esPlanilla}>

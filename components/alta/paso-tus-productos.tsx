@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Boton, useAvisos } from "../ui";
 import styles from "./paso.module.css";
+import { describirLecturasQueQuedan, type CupoDeLecturas } from "../../lib/ia/cupo-de-lecturas";
 import { cerrarAlta } from "../../lib/negocios/cerrar-alta";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 
@@ -29,11 +30,14 @@ export function PasoTusProductos({
   productos,
   categorias,
   conFotoIa,
+  lecturas,
 }: {
   productos: number;
   categorias: number;
   /* Si la plataforma le habilitó la lectura de fotos con IA. */
   conFotoIa: boolean;
+  /* Cuántas lecturas tiene, dicho antes de elegir el camino que las gasta. */
+  lecturas?: CupoDeLecturas;
 }) {
   const router = useRouter();
   const { mostrarAviso } = useAvisos();
@@ -90,6 +94,11 @@ export function PasoTusProductos({
             >
               <strong>Sácale una foto a tu lista de precios</strong>
               <span>La leemos y armamos los productos. Es lo más rápido si ya la tienes escrita.</span>
+              {lecturas ? (
+                <span>
+                  La lista entera gasta una lectura. {describirLecturasQueQuedan(lecturas)}
+                </span>
+              ) : null}
             </Link>
           </li>
         ) : null}

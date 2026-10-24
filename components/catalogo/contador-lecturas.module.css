@@ -1,0 +1,32 @@
+@reference "../../app/globals.css";
+
+/* El contador sobre fondo claro: el rayo en el color de IA, que es el mismo
+   que marca los botones que gastan, y el número en negrita. */
+.contador {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-1) var(--spacing-3);
+  margin: 0;
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.contador svg {
+  margin-right: var(--spacing-1);
+  color: var(--color-ia-inicio);
+  vertical-align: -0.125em;
+}
+
+.contador strong {
+  color: var(--color-texto);
+  font-size: var(--text-base);
+  font-weight: 900;
+}
+
+.contador small {
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
