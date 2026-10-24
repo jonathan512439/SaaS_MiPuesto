@@ -12,6 +12,7 @@ import {
   instruccionDeCategoriasDelNegocio,
   type ListaLeida,
 } from "../../../../lib/ia/instrucciones";
+import { INSTRUCCION_DESCRIPCION_EN_LISTA, limpiarDescripcionSugerida } from "../../../../lib/ia/descripciones";
 import { camposDeOtrosDatos } from "../../../../lib/ia/otros-datos";
 import { presentacionesDelRenglon } from "../../../../lib/ia/presentaciones-leidas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
@@ -62,11 +63,15 @@ export async function POST(solicitud: NextRequest) {
      ubica cada renglón en la más parecida —«BEBIDAS» en «Refrescos»— o dice que
      ninguna corresponde. No gasta una lectura más: va en la misma consulta. */
   const nombresDeCategorias = categoriasParaElegir(categorias.map(({ nombre }) => nombre));
+  /* Si el dueño pidió que se escriba una descripción corta donde falte. Va en
+     la misma consulta: no gasta otra lectura. */
+  const describir = entrada.correcto && (entrada.datos as { describir?: unknown }).describir === true;
 
   const lectura = await analizarArchivo<ListaLeida>(
     INSTRUCCION_LISTA +
       instruccionDeCamposDeCategoria(camposPorCategoria) +
-      instruccionDeCategoriasDelNegocio(nombresDeCategorias),
+      instruccionDeCategoriasDelNegocio(nombresDeCategorias) +
+      (describir ? INSTRUCCION_DESCRIPCION_EN_LISTA : ""),
     esquemaLista(nombresDeCategorias),
     { base64: archivo.base64, tipo: archivo.tipo },
   );
@@ -114,6 +119,8 @@ export async function POST(solicitud: NextRequest) {
       /* Un producto en tres tamaños llega como uno, con sus tres
          presentaciones: las crea la revisión, como las de la planilla. */
       const { precio, presentaciones, tipoPresentacion } = presentacionesDelRenglon(producto);
+      const escrita = (producto.descripcion ?? "").trim().slice(0, 300);
+      const escritaPorIa = describir && !escrita ? limpiarDescripcionSugerida(producto.descripcion_sugerida) : "";
       return {
         nombre: (producto.nombre ?? "").trim().slice(0, 80),
         precio,
@@ -123,7 +130,9 @@ export async function POST(solicitud: NextRequest) {
            planilla: la revisión lo cruza con los campos de la categoría, o
            arma con ello los de una categoría nueva. */
         campos: camposDeOtrosDatos(producto.otros_datos),
-        descripcion: (producto.descripcion ?? "").trim().slice(0, 300),
+        descripcion: escrita || escritaPorIa,
+        /* La revisión la marca: es texto que el dueño no escribió. */
+        descripcionSugerida: escritaPorIa !== "",
         /* La categoría sale del título de sección de la propia lista: esa lista
            ya trae la estructura del catálogo escrita por el dueño. Si el renglón
            no tiene título, se usa la categoría del negocio que eligió el modelo,

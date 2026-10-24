@@ -37,7 +37,8 @@ export default async function PaginaImportarPlanilla() {
     .from("negocios")
     /* El rubro y los secundarios deciden qué plantillas se ofrecen. */
     /* El plan, para avisar en la revisión si lo que se importa no entra. */
-    .select("id,slug,rubro,rubro_publico,rubros_secundarios,plan_id")
+    /* Con la IA habilitada, la revisión ofrece escribir las descripciones. */
+    .select("id,slug,rubro,rubro_publico,rubros_secundarios,plan_id,foto_ia_habilitada")
     .eq("admin_user_id", idUsuario)
     .maybeSingle();
   if (!negocio) redirect(RUTA_SIN_NEGOCIO);
@@ -95,6 +96,7 @@ export default async function PaginaImportarPlanilla() {
       <ImportarPlanilla
         atributosPorCategoria={atributosPorCategoria}
         categorias={(categorias ?? []) as CategoriaCatalogo[]}
+        describirConIa={negocio.foto_ia_habilitada === true}
         enlaceCatalogo={`/${negocio.slug}`}
         negocioLlevaStock={negocioLlevaStock}
         nombresDelCatalogo={(productosActuales ?? []).map(({ nombre }) => nombre)}

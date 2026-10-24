@@ -126,6 +126,10 @@ export function esquemaLista(categorias: readonly string[]) {
           nombre: { type: "string" },
           precio: { type: "number" },
           descripcion: { type: "string" },
+          /* Solo si el dueño la pidió y el renglón no trae descripción: va
+             aparte de `descripcion` para que la revisión la marque como
+             sugerida y nunca se confunda con lo que estaba escrito. */
+          descripcion_sugerida: { type: "string" },
           categoria: { type: "string" },
           ...propiedadesExtra,
           confianza: { type: "string", enum: ["alta", "media", "baja"] },
@@ -211,6 +215,7 @@ export type ListaLeida = {
     nombre: string;
     precio: number;
     descripcion: string;
+    descripcion_sugerida?: string;
     categoria: string;
     categoria_del_negocio?: string;
     confianza: "alta" | "media" | "baja";

@@ -32,11 +32,14 @@ export function hayGemini(): boolean {
 }
 
 /* Un solo reintento y solo ante fallas de red o del proveedor. Reintentar una
-   respuesta que llegó pero no gustó es pagar dos veces por el mismo error. */
+   respuesta que llegó pero no gustó es pagar dos veces por el mismo error.
+
+   Sin archivo, el pedido es solo la instrucción: así se escriben las
+   descripciones de una planilla, que ya es texto (`/api/ia/descripciones`). */
 export async function analizarArchivo<T>(
   instruccion: string,
   esquema: Record<string, unknown>,
-  archivo: ArchivoParaAnalizar,
+  archivo: ArchivoParaAnalizar | null,
 ): Promise<ResultadoAnalisis<T>> {
   const clave = process.env.GEMINI_API_KEY ?? "";
   if (clave.length <= 20) return { correcto: false, motivo: "sin_clave" };
@@ -46,7 +49,7 @@ export async function analizarArchivo<T>(
       {
         parts: [
           { text: instruccion },
-          { inline_data: { mime_type: archivo.tipo, data: archivo.base64 } },
+          ...(archivo ? [{ inline_data: { mime_type: archivo.tipo, data: archivo.base64 } }] : []),
         ],
       },
     ],

@@ -222,3 +222,21 @@
   padding-left: var(--spacing-3);
   font-size: var(--text-sm);
 }
+
+/* Va antes de los botones porque se decide antes de leer: la descripción se
+   escribe en la misma lectura. */
+.describirFaltantes {
+  display: flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  gap: var(--spacing-2);
+  max-width: var(--ancho-lectura);
+  font-size: var(--text-sm);
+}
+
+.describirFaltantes input {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  flex-shrink: 0;
+  accent-color: var(--color-marca);
+}

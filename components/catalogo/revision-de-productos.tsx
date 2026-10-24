@@ -18,6 +18,7 @@ import { camposDeCategoriaNueva } from "../../lib/importacion/diseno-de-categori
 import { posicionesYaExistentes } from "../../lib/importacion/ya-existentes";
 import type { PresentacionDePlanilla } from "../../lib/importacion/planilla";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
+import { MAXIMO_PARA_DESCRIBIR } from "../../lib/ia/descripciones";
 import { planDe } from "../../lib/planes";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { Boton, Selector, useAvisos } from "../ui";
@@ -36,6 +37,9 @@ export type ProductoLeido = {
   nombre: string;
   precio: number;
   descripcion: string;
+  /* La descripción la escribió la IA porque la fuente no traía ninguna. Se
+     marca en la revisión, y deja de ser sugerida en cuanto el dueño la toca. */
+  descripcionSugerida?: boolean;
   categoria: string;
   confianza: "alta" | "media" | "baja";
   /* `null` o ausente significa «no sabemos»: una foto no dice cuántos quedan y
@@ -91,6 +95,7 @@ export function RevisionDeProductos({
   planId,
   productosActuales,
   enlaceCatalogo,
+  describirConIa = false,
 }: {
   /* Los campos de cada categoría por su id. Con ellos, las columnas de datos
      de la planilla se guardan en la categoría donde termina el producto. */
@@ -115,6 +120,10 @@ export function RevisionDeProductos({
   productosActuales: number;
   /* La dirección del catálogo público, para el «Ver mi catálogo» del final. */
   enlaceCatalogo?: string;
+  /* Si se ofrece escribir con IA las descripciones que faltan. Solo para la
+     planilla —la foto y el PDF las escriben en la misma lectura— y solo si el
+     negocio tiene la IA habilitada: gasta una lectura del cupo. */
+  describirConIa?: boolean;
 }) {
   const plan = planDe(planId);
   const topeFotos = plan.topes.fotosPorProducto;
@@ -124,6 +133,7 @@ export function RevisionDeProductos({
   const [guardando, setGuardando] = useState(false);
   const [progreso, setProgreso] = useState("");
   const [resultado, setResultado] = useState<ResultadoDeCarga | null>(null);
+  const [describiendo, setDescribiendo] = useState(false);
 
   /* El estado arranca de las propiedades una sola vez. Quien llama vuelve a
      montar este componente con una `key` distinta cuando hay una lectura nueva:
@@ -196,6 +206,8 @@ export function RevisionDeProductos({
   }, [guardando]);
 
   const yaExistentes = filas.filter(({ yaExiste }) => yaExiste).length;
+  const faltanDescripciones = filas.filter(({ descripcion }) => descripcion.trim() === "").length;
+  const sugeridas = filas.filter(({ descripcionSugerida }) => descripcionSugerida).length;
   const elegidos = filas.filter(({ elegido }) => elegido);
   const sobran = Math.max(0, elegidos.length - lugarLibre);
   const totalFotos = elegidos.reduce((suma, fila) => suma + fila.imagenes.length, 0);
@@ -215,6 +227,65 @@ export function RevisionDeProductos({
     setFilas((actuales) =>
       actuales.map((fila, posicion) => (posicion === indice ? { ...fila, ...cambios } : fila)),
     );
+  }
+
+  /* Las descripciones que faltan, escritas por la IA en una sola lectura. Se
+     piden las de los marcados primero —son los que se van a publicar—, de a
+     `MAXIMO_PARA_DESCRIBIR`; si quedan más, el botón sigue ahí. */
+  async function describirLasQueFaltan() {
+    const sinDescripcion = filas
+      .map((fila, indice) => ({ fila, indice }))
+      .filter(({ fila }) => fila.descripcion.trim() === "")
+      .sort((a, b) => Number(b.fila.elegido) - Number(a.fila.elegido))
+      .slice(0, MAXIMO_PARA_DESCRIBIR);
+    if (sinDescripcion.length === 0) return;
+
+    setDescribiendo(true);
+    try {
+      const respuesta = await fetch("/api/ia/descripciones", {
+        body: JSON.stringify({
+          productos: sinDescripcion.map(({ fila }) => ({
+            nombre: fila.nombre,
+            categoria: fila.categoria,
+            datos: fila.campos ?? {},
+          })),
+        }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      });
+      const datos = (await respuesta.json().catch(() => ({}))) as {
+        error?: string;
+        descripciones?: Array<{ indice: number; descripcion: string }>;
+      };
+      if (!respuesta.ok || !datos.descripciones) {
+        throw new Error(datos.error ?? "No pudimos escribir las descripciones.");
+      }
+      const porFila = new Map(
+        datos.descripciones.map(({ indice, descripcion }) => [sinDescripcion[indice]?.indice, descripcion]),
+      );
+      setFilas((actuales) =>
+        actuales.map((fila, indice) => {
+          const descripcion = porFila.get(indice);
+          /* Si el dueño escribió una mientras tanto, manda la suya. */
+          return descripcion && fila.descripcion.trim() === ""
+            ? { ...fila, descripcion, descripcionSugerida: true }
+            : fila;
+        }),
+      );
+      mostrarAviso({
+        titulo: `Escribimos ${porFila.size} descripción(es)`,
+        mensaje: "Están marcadas como sugeridas. Léelas antes de crear.",
+        variante: "exito",
+      });
+    } catch (error) {
+      mostrarAviso({
+        titulo: "No se escribieron las descripciones",
+        mensaje: error instanceof Error ? error.message : "Prueba de nuevo en un momento.",
+        variante: "error",
+      });
+    } finally {
+      setDescribiendo(false);
+    }
   }
 
   function marcarTodos(elegido: boolean) {
@@ -536,6 +607,34 @@ export function RevisionDeProductos({
         </p>
       ) : null}
 
+      {describirConIa && faltanDescripciones > 0 ? (
+        <div className={styles.describir}>
+          <button
+            className={styles.cargar}
+            disabled={guardando || describiendo}
+            onClick={() => void describirLasQueFaltan()}
+            type="button"
+          >
+            {describiendo ? "Escribiendo…" : "Escribir una descripción corta donde falte"}
+          </button>
+          <p>
+            {faltanDescripciones === 1 ? "A 1 producto le falta" : `A ${faltanDescripciones} productos les falta`}{" "}
+            descripción. La IA la escribe con el nombre, la categoría y los datos de cada uno, sin
+            inventar nada más. Gasta 1 lectura
+            {faltanDescripciones > MAXIMO_PARA_DESCRIBIR ? ` por cada ${MAXIMO_PARA_DESCRIBIR} productos` : ""}.
+          </p>
+        </div>
+      ) : null}
+
+      {sugeridas > 0 ? (
+        <p className={styles.sugerencia}>
+          {sugeridas === 1
+            ? "1 descripción la escribió la IA y está marcada como sugerida."
+            : `${sugeridas} descripciones las escribió la IA y están marcadas como sugeridas.`}{" "}
+          Léelas antes de crear: si tocas una, queda como tuya.
+        </p>
+      ) : null}
+
       {/* Con una planilla de doscientos renglones, marcar de a uno no es una
           opción. Con una foto de doce tampoco molesta tenerlo. */}
       <div className={styles.seleccion}>
@@ -657,13 +756,16 @@ export function RevisionDeProductos({
                       vacío por producto alarga la revisión sin agregar nada. */}
                   {fila.descripcion ? (
                     <input
-                      aria-label="Descripción"
+                      aria-label={fila.descripcionSugerida ? "Descripción sugerida" : "Descripción"}
                       className={styles.descripcion}
                       disabled={guardando}
-                      onChange={(evento) => cambiar(indice, { descripcion: evento.target.value })}
+                      onChange={(evento) =>
+                        cambiar(indice, { descripcion: evento.target.value, descripcionSugerida: false })
+                      }
                       value={fila.descripcion}
                     />
                   ) : null}
+                  {fila.descripcionSugerida ? <span className={styles.sugerida}>Descripción sugerida</span> : null}
 
                   {/* La cantidad y las fotos van en su propio renglón, debajo del
                       nombre y el precio. En un teléfono, cinco columnas en una

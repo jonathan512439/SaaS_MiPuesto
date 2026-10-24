@@ -52,6 +52,10 @@ export function CargaDesdeFoto({
      pantalla y no en un aviso que se va solo: lo que hay que hacer es ir a otro
      lado, y el botón para ir tiene que quedarse a la vista. */
   const [planillaElegida, setPlanillaElegida] = useState("");
+  /* Que la IA escriba una descripción corta donde la lista no trae ninguna.
+     Prendido de entrada: va en la misma lectura y no gasta otra, y una lista de
+     precios casi nunca trae descripciones. Llegan marcadas como sugeridas. */
+  const [describir, setDescribir] = useState(true);
 
   async function leerArchivo(evento: ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0];
@@ -73,7 +77,7 @@ export function CargaDesdeFoto({
       setNombreArchivo(adjunto.nombre);
 
       const respuesta = await fetch("/api/ia/lista", {
-        body: JSON.stringify({ imagen: adjunto.base64, tipo: adjunto.tipo }),
+        body: JSON.stringify({ imagen: adjunto.base64, tipo: adjunto.tipo, describir }),
         headers: { "content-type": "application/json" },
         method: "POST",
       });
@@ -156,6 +160,18 @@ export function CargaDesdeFoto({
           la galería, para la foto que ya se sacó o el PDF del proveedor. La
           cámara solo se ofrece en pantallas táctiles: en una computadora
           `capture` se ignora y los dos botones harían lo mismo. */}
+      <label className={styles.describirFaltantes}>
+        <input
+          checked={describir}
+          disabled={leyendo}
+          onChange={(evento) => setDescribir(evento.target.checked)}
+          type="checkbox"
+        />
+        <span>
+          Escribir una descripción corta donde falte. La IA usa solo lo que dice tu lista, y te
+          las marca para que las revises.
+        </span>
+      </label>
       <div className={styles.acciones}>
         <label className={`${styles.cargar} ${styles.soloTactil}`}>
           {leyendo ? "Leyendo tu lista…" : "Sacar foto a la lista"}

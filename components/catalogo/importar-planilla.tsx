@@ -40,6 +40,7 @@ export function ImportarPlanilla({
   negocioLlevaStock,
   nombresDelCatalogo = [],
   planId,
+  describirConIa = false,
   plantillas,
   productosActuales,
   enlaceCatalogo,
@@ -61,6 +62,9 @@ export function ImportarPlanilla({
   /* El plan y cuántos productos vivos tiene: la revisión avisa si lo marcado
      no entra en el plan (`lib/planes.ts`). */
   planId: string;
+  /* Si el negocio tiene la IA habilitada: la revisión ofrece escribir las
+     descripciones que faltan, con una lectura del cupo. */
+  describirConIa?: boolean;
   productosActuales: number;
   /* La dirección del catálogo público, para el «Ver mi catálogo» del final. */
   enlaceCatalogo?: string;
@@ -396,6 +400,7 @@ export function ImportarPlanilla({
           nombresDelCatalogo={nombresDelCatalogo}
           categorias={categorias}
           controlaStock={conStock}
+          describirConIa={describirConIa}
           enlaceCatalogo={enlaceCatalogo}
           introduccion={`${resultado.productos.length} producto(s) de tu planilla, tal como estaban escritos. Agrégales fotos si quieres y saca los que no vayas a publicar.`}
           key={nombreArchivo}

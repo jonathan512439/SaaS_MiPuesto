@@ -181,3 +181,47 @@ describe("los campos de una categoría nueva", () => {
     expect(html).not.toContain("Con sus campos");
   });
 });
+
+/* La descripción que escribió la IA se dice con palabras, y el botón para
+   escribir las que faltan solo aparece si el negocio tiene la IA. */
+describe("las descripciones que escribe la IA", () => {
+  const SUGERIDA: ProductoLeido = {
+    nombre: "Mochila de viaje",
+    precio: 320,
+    descripcion: "Mochila de viaje negra de 40 litros.",
+    descripcionSugerida: true,
+    categoria: "",
+    confianza: "alta",
+  };
+  const SIN_DESCRIPCION: ProductoLeido = { ...SUGERIDA, nombre: "Lonchera", descripcion: "", descripcionSugerida: false };
+
+  function dibujarCon(describirConIa: boolean) {
+    return renderToString(
+      jsx(ProveedorAvisos, {
+        children: jsx(RevisionDeProductos, {
+          categorias: [],
+          controlaStock: false,
+          describirConIa,
+          introduccion: "Prueba",
+          onTerminado: () => undefined,
+          productos: [SUGERIDA, SIN_DESCRIPCION],
+          planId: "catalogo",
+          productosActuales: 0,
+        }),
+      }),
+    ).replaceAll("<!-- -->", "");
+  }
+
+  it("marca la sugerida y lo dice arriba", () => {
+    const html = dibujarCon(false);
+    expect(html).toContain("Descripción sugerida");
+    expect(html).toContain('aria-label="Descripción sugerida"');
+    expect(html).toContain("1 descripción la escribió la IA");
+  });
+
+  it("ofrece escribir las que faltan solo con la IA habilitada", () => {
+    expect(dibujarCon(true)).toContain("Escribir una descripción corta donde falte");
+    expect(dibujarCon(true)).toContain("A 1 producto le falta descripción");
+    expect(dibujarCon(false)).not.toContain("Escribir una descripción corta donde falte");
+  });
+});

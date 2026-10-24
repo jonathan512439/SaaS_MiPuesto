@@ -419,3 +419,62 @@
   border-color: var(--color-accion-fuerte);
   background: var(--color-accion-fuerte);
 }
+
+/* Escribir descripciones con IA. Lleva el degradado de las herramientas que
+   gastan una lectura del cupo: es la señal que avisa antes de tocar. */
+.describir {
+  display: grid;
+  gap: var(--spacing-2);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+  background: var(--color-fondo-suave);
+}
+
+.describir p {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+}
+
+.cargar {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  border: 0;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-5);
+  background: var(--ia-degradado);
+  color: var(--color-ia-sobre);
+  box-shadow: 0 0.25rem 0.75rem -0.25rem color-mix(in srgb, var(--color-ia-fin) 60%, transparent);
+  font-size: var(--text-base);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cargar:hover {
+  filter: brightness(1.08);
+}
+
+.cargar:disabled {
+  cursor: progress;
+  filter: grayscale(0.4);
+}
+
+.cargar:focus-visible {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+/* La descripción que escribió la IA se dice con palabra, no solo con color:
+   es texto que el dueño no escribió y tiene que leerlo antes de publicarlo. */
+.sugerida {
+  grid-column: 2 / -1;
+  justify-self: start;
+  border-radius: var(--radius-status);
+  padding: 0 var(--spacing-2);
+  background: var(--ia-degradado);
+  color: var(--color-ia-sobre);
+  font-size: var(--text-xs);
+  font-weight: 800;
+}
