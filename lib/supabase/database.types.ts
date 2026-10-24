@@ -381,6 +381,7 @@ export type Database = {
       eventos_analitica: {
         Row: {
           creado_en: string
+          era_de_producto: boolean
           id: string
           negocio_id: string
           producto_id: string | null
@@ -389,6 +390,7 @@ export type Database = {
         }
         Insert: {
           creado_en?: string
+          era_de_producto?: boolean
           id?: string
           negocio_id: string
           producto_id?: string | null
@@ -397,6 +399,7 @@ export type Database = {
         }
         Update: {
           creado_en?: string
+          era_de_producto?: boolean
           id?: string
           negocio_id?: string
           producto_id?: string | null
