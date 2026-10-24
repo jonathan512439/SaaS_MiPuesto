@@ -102,6 +102,18 @@ jobs:
             echo "Falta el secreto SUPABASE_DB_URL." >&2
             exit 1
           fi
+          # **Que sea la base de producción.** El 2026-10-24 el secreto quedó con
+          # la dirección de ensayo y el respaldo salió en verde copiando la base
+          # equivocada: los datos reales se quedaron sin respaldo y nada avisó.
+          # El identificador de producción no es secreto —va en la dirección
+          # pública del sitio—, así que se compara acá.
+          PRODUCCION="afhnxjdqaruwccgsdxzb"
+          proyecto=$(printf '%s' "$SUPABASE_DB_URL" | grep -oE 'postgres\.[a-z0-9]{16,}' | head -1)
+          if [ "$proyecto" != "postgres.${PRODUCCION}" ]; then
+            echo "::error::SUPABASE_DB_URL no apunta a producción (${PRODUCCION}): apunta a «${proyecto#postgres.}»."
+            echo "Pega la cadena del pooler de producción, en modo session." >&2
+            exit 1
+          fi
           # El esquema y los datos por separado: restaurar solo los datos sobre
           # un esquema sano es lo que se necesita casi siempre.
           #
