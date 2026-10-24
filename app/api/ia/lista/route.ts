@@ -12,6 +12,7 @@ import {
   instruccionDeCategoriasDelNegocio,
   type ListaLeida,
 } from "../../../../lib/ia/instrucciones";
+import { presentacionesDelRenglon } from "../../../../lib/ia/presentaciones-leidas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { TIPOS_LISTA, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
 import {
@@ -109,9 +110,14 @@ export async function POST(solicitud: NextRequest) {
       const sugerida = nombresDeCategorias.length
         ? categoriaQueEligio(producto.categoria_del_negocio, categorias)
         : null;
+      /* Un producto en tres tamaños llega como uno, con sus tres
+         presentaciones: las crea la revisión, como las de la planilla. */
+      const { precio, presentaciones, tipoPresentacion } = presentacionesDelRenglon(producto);
       return {
         nombre: (producto.nombre ?? "").trim().slice(0, 80),
-        precio: Number(producto.precio),
+        precio,
+        presentaciones,
+        tipoPresentacion,
         descripcion: (producto.descripcion ?? "").trim().slice(0, 300),
         /* La categoría sale del título de sección de la propia lista: esa lista
            ya trae la estructura del catálogo escrita por el dueño. Si el renglón

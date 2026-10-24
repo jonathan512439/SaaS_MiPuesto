@@ -1,4 +1,5 @@
 import type { CampoDeCategoria } from "./cobertura";
+import { SE_ELIGE_POR_LEIDO } from "./presentaciones-leidas";
 
 /* Las instrucciones al modelo viven acá y no dentro de las rutas: son el
    verdadero código de estas funciones. Ajustar una coma cambia el resultado
@@ -128,6 +129,22 @@ export function esquemaLista(categorias: readonly string[]) {
           categoria: { type: "string" },
           ...propiedadesExtra,
           confianza: { type: "string", enum: ["alta", "media", "baja"] },
+          /* Las tallas, números o tamaños del renglón, para que un producto en
+             tres tamaños sea un producto y no tres. Fuera de los obligatorios,
+             como `datos`: la mayoría de los renglones no los tiene. Se
+             limpian al volver (`presentaciones-leidas.ts`). */
+          se_elige_por: { type: "string", enum: [...SE_ELIGE_POR_LEIDO] },
+          presentaciones: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                nombre: { type: "string" },
+                precio: { type: "number" },
+              },
+              required: ["nombre"],
+            },
+          },
           /* Los datos que la categoría del negocio pide: la marca de un
              repuesto, el volumen de una gaseosa. Van como lista de pares y no
              como un objeto con propiedades fijas porque **cada negocio tiene
@@ -184,6 +201,8 @@ export type ListaLeida = {
     categoria_del_negocio?: string;
     confianza: "alta" | "media" | "baja";
     datos?: Array<{ clave: string; valor: string }>;
+    se_elige_por?: string;
+    presentaciones?: Array<{ nombre?: string; precio?: number }>;
   }>;
   es_lista_de_precios: boolean;
 };
@@ -235,7 +254,8 @@ Reglas que no se rompen:
 - NO INVENTES productos. Si un renglón no se lee, no lo incluyas. Es preferible devolver menos productos que uno que no está.
 - No completes precios que no se leen. Si el nombre está pero el precio no, no incluyas ese renglón.
 - Los precios son bolivianos. "10.-", "Bs 10", "10 Bs" y "10" son todos 10.
-- Si un renglón trae dos precios (por ejemplo "35/45" o dos tamaños), devuelve dos productos con el tamaño en el nombre.
+- Si un mismo producto viene en varias tallas, números, tamaños u opciones —"grande/chico 60/35", "Chica 120 · Mediana 150 · Grande 180", "Tallas S, M, L", "Números 36 al 40"—, devuelve UN solo producto, con el nombre sin la talla ni el tamaño, y pon cada una en "presentaciones" con su nombre ("Grande", "M", "38") y su precio. En "se_elige_por" di cómo se elige: "talla" para ropa (S, M, L), "numero" para calzado, "tamano" para chico, mediano, grande, litros o porciones, y "opcion" para cualquier otra cosa (un sabor, un color). En "precio" va el precio de la primera. Si las tallas comparten un solo precio, cada presentación lleva ese precio. Solo las que estén escritas: NO completes tallas ni números que la lista no dice.
+- Si el renglón es un solo producto, sin tallas ni tamaños, pon "ninguna" en "se_elige_por" y no devuelvas "presentaciones".
 - Si dice "2x15", el precio del producto es 15 y aclaras "por 2" en el nombre.
 - Los títulos de sección NO son productos, pero tampoco se tiran: "BEBIDAS", "ALMUERZOS", "FERRETERÍA" son la categoría de todos los productos que vienen debajo, hasta el título siguiente. Pon ese título en el campo categoria de cada producto, escrito como nombre propio y no en mayúsculas: "Bebidas", "Almuerzos".
 - Si la lista no tiene títulos de sección, deja categoria vacía en todos.

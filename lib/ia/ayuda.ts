@@ -32,6 +32,7 @@ export const AYUDA_LISTA = {
     "Listas escritas a mano, si la letra se entiende",
     "El nombre y el precio en el mismo renglón",
     "Títulos de sección: los usamos como tus categorías",
+    "Tallas y tamaños: un solo producto, con cada talla y su precio",
     "Detalles del plato, si están escritos al lado del nombre",
   ],
   noFunciona: [
@@ -42,7 +43,8 @@ export const AYUDA_LISTA = {
     "Cantidades en stock: eso lo sabes vos, no la lista",
     "PDF de más de 4 MB: sube tu lista por páginas",
   ],
-  /* El ejemplo va con los casos raros de verdad —«2x15», dos tamaños, el título
+  /* El ejemplo va con los casos raros de verdad —«2x15», dos tamaños que son un
+     solo producto con dos presentaciones (desde el 2026-10-23), el título
      de sección— porque son los que hacen dudar al comerciante de si va a
      funcionar con su lista, que nunca es la lista limpia del manual. */
   ejemplo: {
@@ -56,8 +58,7 @@ export const AYUDA_LISTA = {
     ],
     salida: [
       { nombre: "Silpancho", precio: "Bs 38", categoria: "Almuerzos" },
-      { nombre: "Pique macho grande", precio: "Bs 60", categoria: "Almuerzos" },
-      { nombre: "Pique macho chico", precio: "Bs 35", categoria: "Almuerzos" },
+      { nombre: "Pique macho", precio: "grande Bs 60 · chico Bs 35", categoria: "Almuerzos" },
       { nombre: "Refresco (por 2)", precio: "Bs 15", categoria: "Almuerzos" },
       { nombre: "Postre del día", precio: "Bs 10", categoria: "Almuerzos" },
     ],
