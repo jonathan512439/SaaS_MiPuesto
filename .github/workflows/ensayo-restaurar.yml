@@ -62,8 +62,14 @@ jobs:
             echo "Se necesita la cadena del pooler, en modo session." >&2
             exit 1
           fi
+          # Se dice a qué proyecto apunta cada secreto. El identificador no es
+          # secreto —va en la dirección pública del sitio— y sin él, un error de
+          # copiado entre los dos secretos no se puede encontrar: GitHub no deja
+          # ver sus valores.
+          echo "SUPABASE_DB_URL apunta a: ${real#postgres.} (tiene que ser producción, afhnxjdqaruwccgsdxzb)"
+          echo "ENSAYO_DB_URL apunta a:   ${ensayo#postgres.} (tiene que ser ensayo, hwirzxnoyuuqgbwipiff)"
           if [ "$ensayo" = "$real" ]; then
-            echo "ENSAYO_DB_URL apunta al proyecto REAL. No se hace nada." >&2
+            echo "ENSAYO_DB_URL apunta al mismo proyecto que SUPABASE_DB_URL. No se hace nada." >&2
             exit 1
           fi
           echo "Destino verificado: es un proyecto distinto del de producción."
