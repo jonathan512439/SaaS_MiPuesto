@@ -73,6 +73,7 @@
     "archivos:revisar": "node --env-file-if-exists=.env.local scripts/revisar-archivos.mjs",
     "plataforma:admin": "node --env-file-if-exists=.env.local scripts/plataforma-admin.mjs",
     "respaldo:verificar": "node --env-file-if-exists=.env.local scripts/verificar-respaldo.mjs",
+    "cadenas:probar": "node --env-file-if-exists=.env.local scripts/probar-cadenas.mjs",
     "planilla:diagnosticar": "node --experimental-strip-types --no-warnings scripts/diagnosticar-planilla.mjs",
     "iconos": "node scripts/armar-iconos.mjs",
     "iconos:catalogo": "node scripts/armar-iconos-catalogo.mjs",
