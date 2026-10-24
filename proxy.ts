@@ -6,6 +6,7 @@ import {
   crearNonce,
   politicaDeContenido,
 } from "./lib/seguridad/politica-contenido";
+import { destinoCanonico } from "./lib/dominio-canonico";
 import { actualizarSesionSupabase } from "./lib/supabase/proxy";
 
 const RUTAS_AUTH = new Set(["/login", "/recuperar-clave", "/actualizar-clave"]);
@@ -38,6 +39,12 @@ function debeForzarHttps(solicitud: NextRequest) {
 }
 
 export async function proxy(solicitud: NextRequest) {
+  /* Una sola dirección por página: lo que llega por `workers.dev` o por `www`
+     se manda a `mi-puesto.com`. Permanente (308): Google pasa el puesto a la
+     dirección nueva, y un formulario que se envía conserva su método. */
+  const canonica = destinoCanonico(new URL(solicitud.url));
+  if (canonica) return NextResponse.redirect(canonica, 308);
+
   if (debeForzarHttps(solicitud)) {
     const destino = solicitud.nextUrl.clone();
     destino.protocol = "https:";
