@@ -58,6 +58,7 @@ begin
 
     update public.pedidos
     set cliente_nombre = 'Ana Viejo', cliente_telefono = '59170000001',
+        nota = 'Dejar en la calle Sucre 123',
         estado = 'expirado', creado_en = now() - interval '6 months 1 day',
         datos_cliente_borrados_en = null
     where id = v_viejo;
@@ -100,8 +101,8 @@ begin
 
     select * into v_fila from public.pedidos where id = v_viejo;
     if v_fila.cliente_nombre is not null or v_fila.cliente_telefono is not null
-       or v_fila.datos_cliente_borrados_en is null then
-      raise exception 'FALLO: el pedido cerrado de hace seis meses y un día conserva al cliente.';
+       or v_fila.nota is not null or v_fila.datos_cliente_borrados_en is null then
+      raise exception 'FALLO: el pedido cerrado de hace seis meses y un día conserva al cliente o su nota.';
     end if;
     if v_fila.total is null or v_fila.items is null then
       raise exception 'FALLO: se borró más que el cliente: el pedido perdió su total o sus productos.';
@@ -160,12 +161,14 @@ begin
     end if;
 
     -- Un pedido reciente del mismo cliente también se borra si lo pide.
-    update public.pedidos set cliente_telefono = '59170000009', cliente_nombre = 'Fede'
+    update public.pedidos set cliente_telefono = '59170000009', cliente_nombre = 'Fede',
+      nota = 'Es para regalo'
       where id = v_otro_pedido;
     select * into v_resultado from public.borrar_datos_de_un_cliente('59170000009');
     if v_resultado.pedidos <> 1
-       or (select cliente_nombre from public.pedidos where id = v_otro_pedido) is not null then
-      raise exception 'FALLO: el borrado a pedido no borró el pedido reciente.';
+       or (select cliente_nombre from public.pedidos where id = v_otro_pedido) is not null
+       or (select nota from public.pedidos where id = v_otro_pedido) is not null then
+      raise exception 'FALLO: el borrado a pedido no borró el pedido reciente o su nota.';
     end if;
     if (select cliente_telefono from public.pedidos where id = v_reciente) is distinct from '59170000002' then
       raise exception 'FALLO: el borrado a pedido tocó a otro cliente.';

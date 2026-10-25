@@ -549,6 +549,7 @@ export type Database = {
           paleta_id: string
           patron_fondo: boolean
           patron_opacidad: number
+          pide_nota_pedido: boolean
           pide_numero_mesa: boolean
           plan_id: string
           portada_texto: Json
@@ -609,6 +610,7 @@ export type Database = {
           paleta_id?: string
           patron_fondo?: boolean
           patron_opacidad?: number
+          pide_nota_pedido?: boolean
           pide_numero_mesa?: boolean
           plan_id?: string
           portada_texto?: Json
@@ -669,6 +671,7 @@ export type Database = {
           paleta_id?: string
           patron_fondo?: boolean
           patron_opacidad?: number
+          pide_nota_pedido?: boolean
           pide_numero_mesa?: boolean
           plan_id?: string
           portada_texto?: Json
@@ -798,6 +801,7 @@ export type Database = {
           idempotencia: string
           items: Json
           negocio_id: string
+          nota: string | null
           numero_mesa: string | null
           total: number
         }
@@ -818,6 +822,7 @@ export type Database = {
           idempotencia?: string
           items: Json
           negocio_id: string
+          nota?: string | null
           numero_mesa?: string | null
           total: number
         }
@@ -838,6 +843,7 @@ export type Database = {
           idempotencia?: string
           items?: Json
           negocio_id?: string
+          nota?: string | null
           numero_mesa?: string | null
           total?: number
         }
@@ -1440,6 +1446,7 @@ export type Database = {
           p_huella_ip: string
           p_idempotencia: string
           p_items: Json
+          p_nota?: string
           p_numero_mesa?: string
           p_slug: string
         }
