@@ -67,6 +67,26 @@ describe("mesa en el mensaje de pedido", () => {
   });
 });
 
+describe("notas del pedido en el mensaje", () => {
+  const items = [{ nombre: "Silpancho", precio: 38, cantidad: 1 }];
+
+  /* Después del total y entre comillas: lo escribió el cliente, y no tiene
+     que poder pasar por un renglón del pedido. */
+  it("va después del total, entre comillas", () => {
+    const lineas = construirMensajePedido("Sabor Camba", items, "PED-1", null, " Sin cebolla ").split(
+      String.fromCharCode(10),
+    );
+    const total = lineas.findIndex((linea) => linea.startsWith("Total reservado"));
+    expect(lineas[total + 1]).toBe("Notas del pedido: «Sin cebolla»");
+    expect(lineas.at(-1)).toBe("Quisiera coordinar la entrega y el pago.");
+  });
+
+  it("no aparece cuando no la hay", () => {
+    expect(construirMensajePedido("Sabor Camba", items, "PED-1", null, null)).not.toContain("Notas");
+    expect(construirMensajePedido("Sabor Camba", items, "PED-1", null, "   ")).not.toContain("Notas");
+  });
+});
+
 describe("los datos propios del producto en el mensaje", () => {
   const datos = [
     { nombre: "Potencia", texto: "9 W" },

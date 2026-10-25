@@ -37,6 +37,8 @@ type PedidoGuardado = {
   total: number;
   expira_en: string;
   items: ItemPedidoGuardado[];
+  /* La nota tal como quedó guardada: nula si el negocio no pide notas. */
+  nota?: string | null;
   repetido: boolean;
 };
 
@@ -198,6 +200,7 @@ export async function POST(solicitud: NextRequest) {
     p_cliente_nombre: validacion.datos.clienteNombre as string,
     p_cliente_telefono: validacion.datos.clienteTelefono as string,
     p_numero_mesa: validacion.datos.numeroMesa as string,
+    p_nota: validacion.datos.nota as string,
     p_idempotencia: validacion.datos.idempotencia,
     p_huella_ip: huellaIp,
   });
@@ -237,6 +240,9 @@ export async function POST(solicitud: NextRequest) {
     items,
     data.codigo,
     validacion.datos.numeroMesa,
+    /* La guardada y no la que llegó: si el negocio apagó las notas, o si es un
+       reintento de un pedido ya creado, el mensaje dice lo mismo que el panel. */
+    data.nota,
   );
   const enlaceWhatsapp = construirEnlaceWhatsapp(negocio.telefono_whatsapp, mensaje);
   if (!enlaceWhatsapp) {

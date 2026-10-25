@@ -58,6 +58,7 @@ export function construirMensajePedido(
   items: ItemPedidoWhatsapp[],
   codigoPedido?: string,
   numeroMesa?: string | null,
+  nota?: string | null,
 ) {
   const validos = items.filter(
     (item) =>
@@ -83,6 +84,9 @@ export function construirMensajePedido(
       ...lineaDeDatos(item),
     ]),
     `Total reservado: ${formatearPrecioBolivianos(total)}.`,
+    /* Después del total y entre comillas: es lo que escribió el cliente, y así
+       no se confunde con un renglón del pedido. */
+    ...(nota?.trim() ? [`Notas del pedido: «${nota.trim()}»`] : []),
     "Quisiera coordinar la entrega y el pago.",
   ].join("\n");
 }

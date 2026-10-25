@@ -2,6 +2,8 @@ import { esUuid } from "../catalogo/validacion";
 
 export const LIMITE_ITEMS_PEDIDO = 30;
 export const LIMITE_CANTIDAD_ITEM = 99;
+/* Lo mismo que la nota de las citas y que el `check` de `pedidos.nota`. */
+export const LIMITE_NOTA_PEDIDO = 300;
 
 export type ItemSolicitudPedido = {
   productoId: string;
@@ -17,6 +19,9 @@ export type SolicitudPedidoValidada = {
   clienteNombre: string | null;
   clienteTelefono: string | null;
   numeroMesa: string | null;
+  /* «Notas del pedido». Que el negocio las pida lo decide la base: si no, la
+     descarta y el pedido sale igual. */
+  nota: string | null;
   idempotencia: string;
 };
 
@@ -113,6 +118,17 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
     return { correcto: false, error: "El número de mesa admite hasta 10 caracteres." };
   }
 
+  /* En un solo renglón, como todos los textos del cliente: los saltos de línea
+     se juntan. Así la nota no puede armar en el mensaje un renglón que parezca
+     del pedido. */
+  const nota = normalizarTextoOpcional(valor.nota, LIMITE_NOTA_PEDIDO);
+  if (nota === undefined) {
+    return {
+      correcto: false,
+      error: `Las notas del pedido admiten hasta ${LIMITE_NOTA_PEDIDO} caracteres.`,
+    };
+  }
+
   if (!esUuid(valor.idempotencia)) {
     return { correcto: false, error: "No se pudo identificar este intento de pedido." };
   }
@@ -125,6 +141,7 @@ export function validarSolicitudPedido(entrada: unknown): ResultadoValidacion {
       clienteNombre,
       clienteTelefono,
       numeroMesa,
+      nota,
       idempotencia: valor.idempotencia,
     },
   };

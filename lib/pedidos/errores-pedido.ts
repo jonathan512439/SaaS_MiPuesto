@@ -70,6 +70,10 @@ export const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }>
     estado: 400,
     mensaje: "El número de mesa admite hasta 10 caracteres.",
   },
+  NOTA_INVALIDA: {
+    estado: 400,
+    mensaje: "Las notas del pedido admiten hasta 300 caracteres.",
+  },
 };
 
 const ERROR_DESCONOCIDO = {
