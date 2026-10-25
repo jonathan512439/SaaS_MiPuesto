@@ -34,9 +34,12 @@ export async function POST(solicitud: NextRequest) {
       horario: validacion.datos.horario as unknown as Json,
       reserva_minutos: validacion.datos.reserva_minutos,
       tope_unidades_pedido: validacion.datos.tope_unidades_pedido,
+      ...(validacion.datos.pide_nota_pedido === undefined
+        ? {}
+        : { pide_nota_pedido: validacion.datos.pide_nota_pedido }),
     })
     .eq("admin_user_id", idUsuario)
-    .select("slug,horario,reserva_minutos,tope_unidades_pedido")
+    .select("slug,horario,reserva_minutos,tope_unidades_pedido,pide_nota_pedido")
     .maybeSingle();
 
   if (error || !negocio) {

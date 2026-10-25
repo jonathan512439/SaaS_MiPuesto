@@ -66,6 +66,7 @@ export function crearDatosDemoPlantilla({
       qrPagoUrl: null,
       ubicacionUrl: null,
     pideNumeroMesa: false,
+    pideNotaPedido: false,
     topeUnidadesPedido: null,
     resenasUrl: null,
     rubro,

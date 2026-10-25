@@ -23,6 +23,7 @@ export type OperacionNegocioInicial = {
   horario: unknown;
   reserva_minutos: number;
   tope_unidades_pedido: number | null;
+  pide_nota_pedido?: boolean | null;
 };
 
 type PropiedadesFormularioOperacion = {
@@ -85,6 +86,7 @@ export function FormularioOperacion({
   const [topeUnidades, setTopeUnidades] = useState(() =>
     textoTope(operacionInicial.tope_unidades_pedido),
   );
+  const [pideNota, setPideNota] = useState(operacionInicial.pide_nota_pedido === true);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const { mostrarAviso } = useAvisos();
   const [guardando, setGuardando] = useState(false);
@@ -177,6 +179,7 @@ export function FormularioOperacion({
       horario,
       reserva_minutos: reservaMinutos,
       tope_unidades_pedido: topeUnidades,
+      pide_nota_pedido: pideNota,
     });
     if (!validacion.correcto) {
       setErrores(validacion.errores);
@@ -203,6 +206,7 @@ export function FormularioOperacion({
       setHorario(horarioInicial(datos.negocio.horario));
       setReservaMinutos(String(datos.negocio.reserva_minutos));
       setTopeUnidades(textoTope(datos.negocio.tope_unidades_pedido));
+      setPideNota(datos.negocio.pide_nota_pedido === true);
       mostrarAviso({ titulo: "Atención guardada", variante: "exito" });
     } catch (error) {
       mostrarAviso({
@@ -268,6 +272,22 @@ export function FormularioOperacion({
             type="number"
             value={topeUnidades}
           />
+        ) : null}
+        {/* Solo con carrito, como el tope: es el único lugar donde el cliente
+            confirma un pedido. Apagado, el dato queda; el carrito deja de
+            preguntar. */}
+        {conCarrito ? (
+          <label className={styles.interruptor}>
+            <input
+              checked={pideNota}
+              onChange={(evento) => setPideNota(evento.target.checked)}
+              type="checkbox"
+            />
+            <span>
+              <strong>Notas del pedido</strong>
+              <small>Tu cliente puede escribir una aclaración al pedir.</small>
+            </span>
+          </label>
         ) : null}
       </div>
 

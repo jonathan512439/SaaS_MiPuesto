@@ -7,6 +7,10 @@ export type DatosOperacionNegocio = {
   /* Vacío: sin tope propio. Solo lo usa la tienda con carrito, pero se guarda
      igual en cualquier modalidad: el rubro oculta el control, no el dato. */
   tope_unidades_pedido: number | null;
+  /* Si el carrito ofrece «Notas del pedido». Ausente cuando no llega —una
+     pestaña abierta antes de que existiera—: entonces no se toca lo guardado,
+     en vez de apagarlo sin que el dueño lo haya pedido. */
+  pide_nota_pedido?: boolean;
 };
 
 export type ResultadoValidacionOperacion =
@@ -42,6 +46,9 @@ export function validarOperacionNegocio(entrada: unknown): ResultadoValidacionOp
       horario: horario.horario,
       reserva_minutos: reservaMinutos,
       tope_unidades_pedido: tope.tope,
+      ...(typeof objeto.pide_nota_pedido === "boolean"
+        ? { pide_nota_pedido: objeto.pide_nota_pedido }
+        : {}),
     },
   };
 }

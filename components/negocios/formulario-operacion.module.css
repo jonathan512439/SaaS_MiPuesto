@@ -425,3 +425,40 @@
   }
 
 }
+
+/* «Notas del pedido»: casilla con su nombre y una línea que dice qué hace.
+   El mismo interruptor que «Pedir el número de mesa». */
+.interruptor {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  align-self: start;
+  gap: var(--spacing-2);
+  border: var(--borde-fino) solid var(--color-borde-suave);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3);
+  cursor: pointer;
+}
+
+.interruptor:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.interruptor input {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  margin: 0;
+  accent-color: var(--color-marca);
+}
+
+.interruptor strong {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.interruptor small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+}

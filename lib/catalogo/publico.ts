@@ -43,6 +43,7 @@ type NegocioPublico = {
   qr_pago_url?: string | null;
   ubicacion_url?: string | null;
   pide_numero_mesa?: boolean | null;
+  pide_nota_pedido?: boolean | null;
   tope_unidades_pedido?: number | null;
   resenas_url?: string | null;
   rubro?: string | null;
@@ -386,6 +387,7 @@ export function construirCatalogoPublico(
            pasar por la ruta que valida, y el catálogo las publica como enlace. */
         ubicacionUrl: enlaceValido(negocio.ubicacion_url),
         pideNumeroMesa: negocio.pide_numero_mesa === true,
+        pideNotaPedido: negocio.pide_nota_pedido === true,
         topeUnidadesPedido: leerTopeUnidades(negocio.tope_unidades_pedido),
         resenasUrl: enlaceValido(negocio.resenas_url),
         rubro: negocio.rubro ?? null,

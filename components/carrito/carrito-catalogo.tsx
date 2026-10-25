@@ -7,6 +7,7 @@ import { construirFirmaCarrito } from "../../lib/pedidos/firma";
 import { useVerificacionHumana } from "../../lib/turnstile-cliente";
 import { MENSAJE_SIN_RESPUESTA, enviarConReintento } from "../../lib/pedidos/enviar-con-reintento";
 import { itemDeRenglon } from "../../lib/pedidos/linea";
+import { LIMITE_NOTA_PEDIDO } from "../../lib/pedidos/validacion";
 import { resumenSigueVigente } from "../../lib/pedidos/resumen-vigente";
 import { avisoDeTopeUnidades } from "../../lib/pedidos/tope-unidades";
 import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
@@ -63,6 +64,7 @@ export function CarritoCatalogo({
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
   const [numeroMesa, setNumeroMesa] = useState("");
+  const [nota, setNota] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [descargandoQr, setDescargandoQr] = useState(false);
   const [error, setError] = useState("");
@@ -149,6 +151,9 @@ export function CarritoCatalogo({
             clienteNombre,
             clienteTelefono,
             numeroMesa,
+            /* Solo si el negocio las pide: si las apagó con la página abierta,
+               la base la descarta igual y el pedido sale. */
+            nota: datos.negocio.pideNotaPedido ? nota : "",
             idempotencia,
             verificacion: await obtenerToken(),
           }),
@@ -373,6 +378,32 @@ export function CarritoCatalogo({
                 value={clienteTelefono}
               />
             </div>
+            {/* Lo último y a lo ancho: es lo único que se escribe en más de
+                una línea. El contador aparece recién cerca del tope, para no
+                sumar ruido a un campo que casi siempre queda corto. */}
+            {datos.negocio.pideNotaPedido ? (
+              <div className={styles.campoNota}>
+                <label htmlFor="pedido-nota">
+                  Notas del pedido <span>Opcional</span>
+                </label>
+                <textarea
+                  aria-describedby={
+                    LIMITE_NOTA_PEDIDO - nota.length <= 50 ? "pedido-nota-contador" : undefined
+                  }
+                  id="pedido-nota"
+                  maxLength={LIMITE_NOTA_PEDIDO}
+                  onChange={(evento) => setNota(evento.target.value)}
+                  placeholder="Ej.: sin cebolla, o entregar después de las 18:00"
+                  rows={3}
+                  value={nota}
+                />
+                {LIMITE_NOTA_PEDIDO - nota.length <= 50 ? (
+                  <small id="pedido-nota-contador">
+                    {nota.length} de {LIMITE_NOTA_PEDIDO} caracteres
+                  </small>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           {datos.negocio.qrPagoUrl ? (

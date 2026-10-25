@@ -392,6 +392,31 @@
   font-weight: 400;
 }
 
+/* Las notas ocupan toda la fila, también cuando los campos van de a dos. */
+.campoNota {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.campoNota small {
+  color: var(--catalogo-texto-tenue);
+  font-size: var(--text-xs);
+}
+
+.campos textarea {
+  min-width: 0;
+  min-height: calc(var(--control-alto) * 2);
+  border: var(--borde-fino) solid var(--catalogo-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  background: var(--catalogo-superficie);
+  color: var(--catalogo-texto);
+  font: inherit;
+  resize: vertical;
+}
+
 .campos input {
   min-width: 0;
   min-height: var(--control-alto);

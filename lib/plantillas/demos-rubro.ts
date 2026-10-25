@@ -85,6 +85,7 @@ function negocio(
     qrPagoUrl: null,
     ubicacionUrl: null,
     pideNumeroMesa: false,
+    pideNotaPedido: false,
     topeUnidadesPedido: null,
     resenasUrl: null,
     rubro: null,

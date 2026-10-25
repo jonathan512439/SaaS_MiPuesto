@@ -50,6 +50,8 @@ const DEL_DUENO = [
   "rubro_publico", "rubros_secundarios",
   /* El máximo de unidades por pedido, desde «Atención y reservas». */
   "tope_unidades_pedido",
+  /* Si el carrito ofrece «Notas del pedido», desde el mismo lugar. */
+  "pide_nota_pedido",
 ];
 
 /* Lo que el catálogo público lee. Se saca del propio archivo, no de una copia. */

@@ -52,4 +52,21 @@ describe("validarOperacionNegocio", () => {
     expect(malo.correcto).toBe(false);
     if (!malo.correcto) expect(malo.errores.tope_unidades_pedido).toBeTruthy();
   });
+
+  /* Ausente no es «apagado»: un formulario de antes de que existiera no lo
+     manda, y guardar el horario no tiene por qué apagarle las notas. */
+  it("las notas del pedido se guardan solo si llegan como sí o no", () => {
+    const base = { reserva_minutos: 30, horario: { modo: "siempre_abierto" } };
+
+    const prendidas = validarOperacionNegocio({ ...base, pide_nota_pedido: true });
+    expect(prendidas.correcto && prendidas.datos.pide_nota_pedido).toBe(true);
+
+    const apagadas = validarOperacionNegocio({ ...base, pide_nota_pedido: false });
+    expect(apagadas.correcto && apagadas.datos.pide_nota_pedido).toBe(false);
+
+    for (const valor of [undefined, "true", 1]) {
+      const resultado = validarOperacionNegocio({ ...base, pide_nota_pedido: valor });
+      expect(resultado.correcto && "pide_nota_pedido" in resultado.datos).toBe(false);
+    }
+  });
 });
