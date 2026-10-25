@@ -49,6 +49,7 @@ export default function PaginaPrivacidad() {
         <ul>
           <li>Su nombre, si decide escribirlo. Es opcional.</li>
           <li>Su teléfono, si decide escribirlo. También es opcional.</li>
+          <li>Sus notas del pedido, si el negocio las pide y decide escribirlas.</li>
           <li>Los productos, cantidades y precios de ese pedido.</li>
         </ul>
         <p>
@@ -153,8 +154,8 @@ export default function PaginaPrivacidad() {
           imágenes y los pedidos asociados dentro de los treinta días siguientes.
         </p>
         <p>
-          El nombre y el teléfono de quien te hace un pedido se guardan por su propio
-          plazo, más corto: pasados seis meses de un pedido cerrado los quitamos, aunque
+          El nombre, el teléfono y las notas de quien te hace un pedido se guardan por su
+          propio plazo, más corto: pasados seis meses de un pedido cerrado los quitamos, aunque
           tu cuenta siga activa. Son datos de tu cliente y no hay motivo para conservarlos
           más tiempo.
         </p>
@@ -173,7 +174,7 @@ export default function PaginaPrivacidad() {
         </p>
         <p>
           Si le hiciste un pedido o reservaste un turno a un negocio de MiPuesto y quieres
-          que borremos tu nombre y tu teléfono antes de los seis meses, escríbenos desde
+          que borremos tu nombre, tu teléfono y tus notas antes de los seis meses, escríbenos desde
           ese número. Los borramos en todos los negocios.
         </p>
         <a

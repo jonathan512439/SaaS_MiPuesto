@@ -34,6 +34,9 @@ export type PedidoAdmin = {
   codigo: string;
   cliente_nombre: string | null;
   numero_mesa: string | null;
+  /* «Notas del pedido», como la escribió el cliente. Opcional para los
+     pedidos armados en las pruebas. */
+  nota?: string | null;
   cliente_telefono: string | null;
   total: number;
   estado: string;
@@ -73,6 +76,9 @@ function ResumenPedido({ pedido }: { pedido: PedidoAdmin }) {
             decide a dónde va el plato, y quien confirma lo lee de un vistazo. */}
         {pedido.numero_mesa ? <> · <strong>Mesa {pedido.numero_mesa}</strong></> : null}
       </p>
+      {/* Antes del detalle: «sin cebolla» cambia cómo se prepara lo que viene
+          abajo, y quien confirma tiene que leerlo antes de aceptar. */}
+      <NotaDelPedido pedido={pedido} />
       {pedido.pedido_items.length > 0 ? (
         <ul className={styles.items}>
           {pedido.pedido_items.map((item) => (
@@ -92,6 +98,18 @@ function ResumenPedido({ pedido }: { pedido: PedidoAdmin }) {
         <strong>{formatearPrecioBolivianos(Number(pedido.total))}</strong>
       </p>
     </div>
+  );
+}
+
+/* La nota del cliente, entre comillas: es texto suyo, no del sistema. Con los
+   datos borrados por privacidad la nota también se borró, y no se dice nada
+   aparte: ya lo dice el nombre. */
+function NotaDelPedido({ pedido }: { pedido: PedidoAdmin }) {
+  if (!pedido.nota) return null;
+  return (
+    <p className={styles.nota}>
+      <span>Notas del pedido</span>«{pedido.nota}»
+    </p>
   );
 }
 
@@ -246,6 +264,8 @@ export function GestorPedidos({ pedidosIniciales }: PropiedadesGestor) {
                     <span>Sin teléfono</span>
                   )}
                 </div>
+
+                <NotaDelPedido pedido={pedido} />
 
                 <div className={styles.plata}>
                   <strong>{formatearPrecioBolivianos(Number(pedido.total))}</strong>

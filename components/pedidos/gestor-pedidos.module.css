@@ -187,6 +187,23 @@
   font-weight: 700;
 }
 
+/* La nota del cliente: con su rótulo encima y una raya al costado, como una
+   cita. Se lee aparte del resto de la tarjeta sin competir con el total. */
+.nota {
+  display: grid;
+  gap: var(--spacing-1);
+  border-left: var(--borde-marcado) solid var(--color-borde);
+  padding-left: var(--spacing-3);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.nota span {
+  color: var(--color-texto-suave);
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
 /* Cuánto. Va solo en su renglón y con el color de acción: es el dato por el que
    se abre la pantalla. */
 .plata {
