@@ -13,7 +13,7 @@
       "TURNSTILE_SECRET_KEY"
     ]
   },
-  "main": "vinext/server/fetch-handler",
+  "main": "./worker/entrada.ts",
   "assets": {
     "directory": "dist/client",
     "not_found_handling": "none",

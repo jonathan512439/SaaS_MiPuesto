@@ -4,8 +4,11 @@ import {
   type BaldeTutoriales,
   type ObjetoR2,
   type RangoR2,
+  VERSION_ENTREGA,
   claveEnBalde,
+  direccionDeArchivo,
   entregarArchivo,
+  tutorialPedido,
   guardarEnBalde,
   leerRango,
   tipoDeArchivo,
@@ -36,7 +39,9 @@ function baldeEnMemoria(archivos: Record<string, Uint8Array<ArrayBuffer>>): Bald
         if (rango.offset >= datos.length) throw new Error("InvalidRange");
         trozo = datos.slice(rango.offset, rango.length === undefined ? undefined : rango.offset + rango.length);
       }
-      return { ...objeto(datos), range: rango, body: new Blob([trozo]).stream() };
+      /* Sin `range` en la respuesta, como el R2 de verdad devuelve algo que no
+         sirve para armar `Content-Range`: el código no puede depender de eso. */
+      return { ...objeto(datos), body: new Blob([trozo]).stream() };
     },
     async put() {
       throw new Error("no se usa");
@@ -158,10 +163,17 @@ describe("leerRango", () => {
 });
 
 describe("entregarArchivo", () => {
+  /* Lo que pasa por el largo fijo, para comprobar que la respuesta lo usa. */
+  const largosFijados: number[] = [];
+  const entregar = (b: BaldeTutoriales, n: string, s: Request) =>
+    entregarArchivo(b, n, s, (largo) => {
+      largosFijados.push(largo);
+      return largoFijo(largo);
+    });
   const balde = () => baldeEnMemoria({ [claveEnBalde(VIDEO)]: CONTENIDO });
 
   it("entrega el archivo entero, para guardar en caché para siempre", async () => {
-    const respuesta = await entregarArchivo(balde(), VIDEO, pedir());
+    const respuesta = await entregar(balde(), VIDEO, pedir());
     expect(respuesta.status).toBe(200);
     expect(respuesta.headers.get("Content-Type")).toBe("video/mp4");
     expect(respuesta.headers.get("Content-Length")).toBe("100");
@@ -171,7 +183,7 @@ describe("entregarArchivo", () => {
   });
 
   it("entrega una parte con 206 y dice cuál", async () => {
-    const respuesta = await entregarArchivo(balde(), VIDEO, pedir({ Range: "bytes=10-19" }));
+    const respuesta = await entregar(balde(), VIDEO, pedir({ Range: "bytes=10-19" }));
     expect(respuesta.status).toBe(206);
     expect(respuesta.headers.get("Content-Range")).toBe("bytes 10-19/100");
     expect(respuesta.headers.get("Content-Length")).toBe("10");
@@ -180,33 +192,33 @@ describe("entregarArchivo", () => {
   });
 
   it("recorta una parte que se pasa del final", async () => {
-    const respuesta = await entregarArchivo(balde(), VIDEO, pedir({ Range: "bytes=90-500" }));
+    const respuesta = await entregar(balde(), VIDEO, pedir({ Range: "bytes=90-500" }));
     expect(respuesta.status).toBe(206);
     expect(respuesta.headers.get("Content-Range")).toBe("bytes 90-99/100");
     expect(respuesta.headers.get("Content-Length")).toBe("10");
   });
 
   it("entrega los últimos bytes", async () => {
-    const respuesta = await entregarArchivo(balde(), VIDEO, pedir({ Range: "bytes=-30" }));
+    const respuesta = await entregar(balde(), VIDEO, pedir({ Range: "bytes=-30" }));
     expect(respuesta.headers.get("Content-Range")).toBe("bytes 70-99/100");
     expect(new Uint8Array(await respuesta.arrayBuffer())).toEqual(CONTENIDO.slice(70));
   });
 
   it("responde 416 con el tamaño a una parte que empieza después del final", async () => {
-    const respuesta = await entregarArchivo(balde(), VIDEO, pedir({ Range: "bytes=100-" }));
+    const respuesta = await entregar(balde(), VIDEO, pedir({ Range: "bytes=100-" }));
     expect(respuesta.status).toBe(416);
     expect(respuesta.headers.get("Content-Range")).toBe("bytes */100");
   });
 
   it("no vuelve a mandar lo que el navegador ya tiene", async () => {
-    const respuesta = await entregarArchivo(balde(), VIDEO, pedir({ "If-None-Match": '"100"' }));
+    const respuesta = await entregar(balde(), VIDEO, pedir({ "If-None-Match": '"100"' }));
     expect(respuesta.status).toBe(304);
     expect(respuesta.body).toBeNull();
   });
 
   it("a HEAD le dice el tamaño sin bajar el archivo", async () => {
     const enMemoria = balde();
-    const respuesta = await entregarArchivo(enMemoria, VIDEO, pedir({}, "HEAD"));
+    const respuesta = await entregar(enMemoria, VIDEO, pedir({}, "HEAD"));
     expect(respuesta.status).toBe(200);
     expect(respuesta.headers.get("Content-Length")).toBe("100");
     expect(enMemoria.pedidos).toEqual([`head tutoriales/${VIDEO}`]);
@@ -214,14 +226,65 @@ describe("entregarArchivo", () => {
 
   it("un nombre fuera de forma no llega al balde", async () => {
     const enMemoria = balde();
-    const respuesta = await entregarArchivo(enMemoria, "../respaldos/base.sql.gz", pedir());
+    const respuesta = await entregar(enMemoria, "../respaldos/base.sql.gz", pedir());
     expect(respuesta.status).toBe(404);
     expect(enMemoria.pedidos).toEqual([]);
   });
 
+  /* Sin largo fijo, vinext manda el cuerpo en trozos y sin `Content-Length`, y
+     la caché de Cloudflare deja de entregar partes (2026-10-28). */
+  it("el cuerpo pasa por el largo fijo, entero y por partes", async () => {
+    largosFijados.length = 0;
+    await (await entregar(balde(), VIDEO, pedir())).arrayBuffer();
+    await (await entregar(balde(), VIDEO, pedir({ Range: "bytes=10-19" }))).arrayBuffer();
+    expect(largosFijados).toEqual([100, 10]);
+  });
+
+  it("la parte se dice con números aunque R2 no devuelva cuál entregó", async () => {
+    for (const [pedido, esperado] of [
+      ["bytes=0-1023", "bytes 0-99/100"],
+      ["bytes=0-", "bytes 0-99/100"],
+      ["bytes=50-", "bytes 50-99/100"],
+    ]) {
+      const respuesta = await entregar(balde(), VIDEO, pedir({ Range: pedido }));
+      expect(respuesta.headers.get("Content-Range")).toBe(esperado);
+      const recibido = new Uint8Array(await respuesta.arrayBuffer());
+      expect(String(recibido.length)).toBe(respuesta.headers.get("Content-Length"));
+    }
+  });
+
   it("un archivo que no está es 404", async () => {
     const otro = "02-0123456789abcdef0123456789abcdef.mp4";
-    expect((await entregarArchivo(balde(), otro, pedir())).status).toBe(404);
-    expect((await entregarArchivo(balde(), otro, pedir({}, "HEAD"))).status).toBe(404);
+    expect((await entregar(balde(), otro, pedir())).status).toBe(404);
+    expect((await entregar(balde(), otro, pedir({}, "HEAD"))).status).toBe(404);
+  });
+});
+
+describe("direccionDeArchivo", () => {
+  /* La versión en la dirección es la que deja atrás lo que la caché guardó sin
+     largo: si alguien la saca, vuelven las copias viejas. */
+  it("lleva la versión de la entrega", () => {
+    expect(direccionDeArchivo(VIDEO)).toBe(`/api/tutoriales/${VIDEO}?entrega=${VERSION_ENTREGA}`);
+    expect(VERSION_ENTREGA).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe("tutorialPedido", () => {
+  /* Lo que la entrada del Worker atiende antes que vinext: solo leer un
+     archivo de tutoriales. Todo lo demás —subirlos, la plataforma, el resto
+     del sitio— sigue por vinext. */
+  const pedido = (ruta: string, metodo = "GET") => new Request(`https://mi-puesto.com${ruta}`, { method: metodo });
+
+  it("reconoce el archivo, con o sin la versión en la dirección", () => {
+    expect(tutorialPedido(pedido(`/api/tutoriales/${VIDEO}?entrega=2`))).toBe(VIDEO);
+    expect(tutorialPedido(pedido(`/api/tutoriales/${VIDEO}`, "HEAD"))).toBe(VIDEO);
+  });
+
+  it("deja pasar lo que no es leer un tutorial", () => {
+    expect(tutorialPedido(pedido(`/api/tutoriales/${VIDEO}`, "POST"))).toBeNull();
+    expect(tutorialPedido(pedido("/api/plataforma/tutoriales"))).toBeNull();
+    expect(tutorialPedido(pedido("/api/tutoriales/"))).toBeNull();
+    expect(tutorialPedido(pedido("/api/tutoriales/a/b"))).toBeNull();
+    expect(tutorialPedido(pedido("/dashboard/aprende"))).toBeNull();
   });
 });

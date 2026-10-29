@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { EstadoVacio } from "../../../../components/ui";
 import { COLUMNAS_TUTORIAL } from "../../../../lib/catalogo/columnas";
+import { direccionDeArchivo } from "../../../../lib/tutoriales/archivos";
 import { formatearDuracion } from "../../../../lib/tutoriales/validacion";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import panel from "../panel.module.css";
@@ -30,7 +31,10 @@ export default async function PaginaAprende() {
   if (!datosClaims?.claims.sub) redirect("/login?motivo=sesion");
 
   const { data: tutoriales } = await supabase.from("tutoriales").select(COLUMNAS_TUTORIAL).order("numero");
-  const publicados = (tutoriales ?? []).filter((tutorial) => tutorial.publicado && tutorial.video);
+  const publicados = (tutoriales ?? []).filter(
+    (tutorial): tutorial is typeof tutorial & { video: string } =>
+      tutorial.publicado && Boolean(tutorial.video),
+  );
 
   return (
     <main className={panel.contenido}>
@@ -52,9 +56,9 @@ export default async function PaginaAprende() {
                 className={styles.video}
                 controls
                 playsInline
-                poster={tutorial.portada ? `/api/tutoriales/${tutorial.portada}` : undefined}
+                poster={tutorial.portada ? direccionDeArchivo(tutorial.portada) : undefined}
                 preload="none"
-                src={`/api/tutoriales/${tutorial.video}`}
+                src={direccionDeArchivo(tutorial.video)}
               />
               <div className={styles.texto}>
                 <h2>

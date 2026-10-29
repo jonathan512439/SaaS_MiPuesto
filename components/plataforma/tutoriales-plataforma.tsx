@@ -12,6 +12,7 @@ import {
   formatearDuracion,
   leerCabeceraMp4,
 } from "../../lib/tutoriales/validacion";
+import { direccionDeArchivo } from "../../lib/tutoriales/archivos";
 import { prepararInicioRapido } from "../../lib/tutoriales/inicio-rapido";
 import { AreaTexto, Boton, Campo, useAvisos, useConfirmacion } from "../ui";
 import styles from "./tutoriales-plataforma.module.css";
@@ -363,7 +364,7 @@ export function TutorialesPlataforma({ tutoriales }: { tutoriales: TutorialPlata
                   {/* Abre el archivo tal cual lo van a ver: es la forma de
                       revisar que se subió bien antes de publicarlo. */}
                   {tutorial.video ? (
-                    <a href={`/api/tutoriales/${tutorial.video}`} rel="noreferrer" target="_blank">
+                    <a href={direccionDeArchivo(tutorial.video)} rel="noreferrer" target="_blank">
                       Ver video
                     </a>
                   ) : null}

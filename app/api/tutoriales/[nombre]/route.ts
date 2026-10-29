@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 
 import { entregarArchivo } from "../../../../lib/tutoriales/archivos";
-import { baldeTutoriales } from "../../../../lib/tutoriales/balde";
+import { baldeTutoriales, largoFijo } from "../../../../lib/tutoriales/balde";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 async function responder(solicitud: NextRequest, { params }: { params: Promise<{ nombre: string }> }) {
   const balde = baldeTutoriales();
   if (!balde) return new Response("No existe.", { status: 404, headers: { "Cache-Control": "no-store" } });
-  return entregarArchivo(balde, (await params).nombre, solicitud);
+  return entregarArchivo(balde, (await params).nombre, solicitud, largoFijo);
 }
 
 export { responder as GET, responder as HEAD };

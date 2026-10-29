@@ -14,10 +14,11 @@
    recortada: el tipo completo vendría con una dependencia que no hace falta. */
 export type RangoR2 = { offset: number; length?: number } | { suffix: number };
 
+/* Sin `range`: el R2 de verdad no devuelve ahí lo que se le pidió, y la parte
+   que se entrega se calcula con el pedido y el tamaño (`bytesEntregados`). */
 export interface ObjetoR2 {
   size: number;
   httpEtag: string;
-  range?: RangoR2;
 }
 
 export interface ObjetoR2ConCuerpo extends ObjetoR2 {
@@ -44,6 +45,29 @@ const TIPOS = { mp4: "video/mp4", jpg: "image/jpeg" } as const;
 /* Todo va dentro de una carpeta del balde, por si el balde llega a guardar
    otra cosa. */
 export const claveEnBalde = (nombre: string) => `tutoriales/${nombre}`;
+
+/* La versión de la entrega, en la dirección de cada archivo.
+ *
+ * La caché de Cloudflare guarda cada dirección para siempre
+ * (`CACHE_PARA_SIEMPRE`). Hasta la versión 2 los videos se guardaron sin
+ * `Content-Length`, y sin él la caché no sabe entregar partes: devolvía el
+ * video entero a cada pedido, el navegador no podía soltar los que quedaban en
+ * pausa y, con tres o cuatro abiertos, el siguiente se quedaba cargando
+ * (2026-10-28). Subir este número cambia la dirección y deja atrás lo guardado
+ * mal, sin tener que purgar a mano. */
+export const VERSION_ENTREGA = 2;
+
+export const direccionDeArchivo = (nombre: string) =>
+  `/api/tutoriales/${nombre}?entrega=${VERSION_ENTREGA}`;
+
+/* El nombre del archivo si la dirección es la de un tutorial, para que la
+   entrada del Worker (`worker/entrada.ts`) lo atienda antes que vinext. Solo
+   GET y HEAD: lo demás sigue su camino y vinext responde lo de siempre. */
+export function tutorialPedido(solicitud: Request): string | null {
+  if (solicitud.method !== "GET" && solicitud.method !== "HEAD") return null;
+  const coincidencia = /^\/api\/tutoriales\/([^/]+)$/.exec(new URL(solicitud.url).pathname);
+  return coincidencia ? coincidencia[1] : null;
+}
 
 export function tipoDeArchivo(nombre: string): (typeof TIPOS)[keyof typeof TIPOS] | null {
   const coincidencia = NOMBRE_ARCHIVO.exec(nombre);
@@ -122,7 +146,9 @@ export function leerRango(cabecera: string | null): RangoR2 | null {
   return fin >= inicio ? { offset: inicio, length: fin - inicio + 1 } : null;
 }
 
-/* Qué bytes van de verdad, ya recortados al tamaño del archivo. */
+/* Qué bytes van de verdad, ya recortados al tamaño del archivo. Sale del
+   pedido y del tamaño, nunca de lo que R2 devuelva en `range`: confiar en eso
+   armaba `bytes NaN-…`, una cabecera que el navegador rechaza. */
 function bytesEntregados(rango: RangoR2, tamano: number) {
   if ("suffix" in rango) return { inicio: Math.max(0, tamano - rango.suffix), fin: tamano - 1 };
   const fin = rango.length === undefined ? tamano - 1 : Math.min(rango.offset + rango.length, tamano) - 1;
@@ -142,7 +168,19 @@ function cabecerasBase(tipo: string, etiqueta: string) {
 const noEncontrado = () =>
   new Response("No existe.", { status: 404, headers: { "Cache-Control": "no-store" } });
 
-export async function entregarArchivo(balde: BaldeTutoriales, nombre: string, solicitud: Request) {
+/* El cuerpo pasa por `largoFijo` —el `FixedLengthStream` de Workers— con el
+ * largo que se anuncia. No es un adorno: vinext rearma la respuesta para
+ * sumarle las cabeceras del proxy, y en ese paso un flujo sin largo conocido
+ * sale en trozos y **sin `Content-Length`**, aunque la cabecera esté puesta.
+ * Con el largo fijo, sale. Y sin `Content-Length` la caché de delante del
+ * Worker —que es la que atiende los pedidos por partes, porque al Worker le
+ * llega el pedido sin `Range`— entrega siempre el archivo entero. */
+export async function entregarArchivo(
+  balde: BaldeTutoriales,
+  nombre: string,
+  solicitud: Request,
+  largoFijo: (largo: number) => TransformStream<Uint8Array, Uint8Array>,
+) {
   const tipo = tipoDeArchivo(nombre);
   if (!tipo) return noEncontrado();
   const clave = claveEnBalde(nombre);
@@ -179,15 +217,16 @@ export async function entregarArchivo(balde: BaldeTutoriales, nombre: string, so
   }
   if (!rango) {
     cabeceras.set("Content-Length", String(objeto.size));
-    return new Response(objeto.body, { status: 200, headers: cabeceras });
+    return new Response(objeto.body.pipeThrough(largoFijo(objeto.size)), { status: 200, headers: cabeceras });
   }
 
-  const { inicio, fin } = bytesEntregados(objeto.range ?? rango, objeto.size);
+  const { inicio, fin } = bytesEntregados(rango, objeto.size);
+  const largo = fin - inicio + 1;
   /* Una parte no se guarda en la caché compartida: la caché de Workers está
      encendida, guarda por dirección, y un trozo guardado bajo la dirección del
      video se le podría servir a quien pide el video entero. */
   cabeceras.set("Cache-Control", "no-store");
   cabeceras.set("Content-Range", `bytes ${inicio}-${fin}/${objeto.size}`);
-  cabeceras.set("Content-Length", String(fin - inicio + 1));
-  return new Response(objeto.body, { status: 206, headers: cabeceras });
+  cabeceras.set("Content-Length", String(largo));
+  return new Response(objeto.body.pipeThrough(largoFijo(largo)), { status: 206, headers: cabeceras });
 }
