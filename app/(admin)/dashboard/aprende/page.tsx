@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
+import { VideosDeUnoEnUno } from "../../../../components/dashboard/videos-de-uno-en-uno";
 import { EstadoVacio } from "../../../../components/ui";
 import { COLUMNAS_TUTORIAL } from "../../../../lib/catalogo/columnas";
 import { direccionDeArchivo } from "../../../../lib/tutoriales/archivos";
@@ -20,10 +21,11 @@ export const metadata: Metadata = {
  * La política de `tutoriales` le muestra al dueño solo los publicados, así que
  * acá no se filtra nada: lo que llega es lo que puede ver.
  *
- * El reproductor es el del navegador, sin componente propio: ya sabe
- * reproducir, pausar, adelantar y pantalla completa, y no suma un `"use
- * client"`. `preload="none"`: nada se baja hasta que el dueño toca reproducir;
- * dieciséis videos abiertos de golpe se comerían sus datos móviles.
+ * El reproductor es el del navegador: ya sabe reproducir, pausar, adelantar y
+ * pantalla completa. Lo único propio es `VideosDeUnoEnUno`, que al reproducir
+ * uno pausa los demás y les hace soltar la descarga. `preload="none"`: nada se
+ * baja hasta que el dueño toca reproducir; dieciséis videos abiertos de golpe
+ * se comerían sus datos móviles.
  */
 export default async function PaginaAprende() {
   const supabase = await crearClienteSupabaseServidor();
@@ -49,7 +51,7 @@ export default async function PaginaAprende() {
           titulo="Todavía no hay videos"
         />
       ) : (
-        <ol className={styles.lista}>
+        <VideosDeUnoEnUno className={styles.lista}>
           {publicados.map((tutorial) => (
             <li className={styles.tarjeta} key={tutorial.id}>
               <video
@@ -71,7 +73,7 @@ export default async function PaginaAprende() {
               </div>
             </li>
           ))}
-        </ol>
+        </VideosDeUnoEnUno>
       )}
     </main>
   );
