@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
-/* Solo cuatro respuestas se guardan en la caché pública.
+/* Solo cinco respuestas se guardan en la caché pública.
  *
  * La caché de Workers está encendida (`wrangler.jsonc`) y guarda toda respuesta
  * que diga `Cache-Control: public`: la siguiente persona recibe la copia sin
@@ -30,6 +30,11 @@ const CON_CACHE_PUBLICA = new Set([
   "app/api/directorio/sugerencias/route.ts",
   "app/(public)/[slug]/manifest.webmanifest/route.ts",
   "lib/tutoriales/archivos.ts",
+  /* La portada de cada catálogo, un minuto (desde el 2026-10-31): es pública
+     por definición, igual para cualquiera, sin sesión ni cookies. Solo la
+     dirección sin nada después, solo un 200 en HTML y nunca con `Set-Cookie`;
+     lo comprueba `lib/catalogo/cache-portada.test.ts`. */
+  "lib/catalogo/cache-portada.ts",
 ]);
 const RAIZ = join(import.meta.dirname, "..");
 
@@ -57,13 +62,13 @@ describe("caché pública", () => {
     expect(pideCachePublica(`cacheControl: "31536000"`)).toBe(false);
   });
 
-  it("solo la piden las cuatro respuestas sin datos de nadie", () => {
+  it("solo la piden las cinco respuestas sin datos de nadie", () => {
     const conCache = ["app", "lib"]
       .flatMap((carpeta) => archivosTs(join(RAIZ, carpeta)))
       .filter((archivo) => pideCachePublica(readFileSync(archivo, "utf8")))
       .map((archivo) => relative(RAIZ, archivo).replaceAll("\\", "/"));
     expect(conCache.filter((ruta) => !CON_CACHE_PUBLICA.has(ruta))).toEqual([]);
-    // Si una de las cuatro deja de pedirla, se quita de la lista.
+    // Si una de las cinco deja de pedirla, se quita de la lista.
     expect([...CON_CACHE_PUBLICA].filter((ruta) => !conCache.includes(ruta))).toEqual([]);
   });
 });

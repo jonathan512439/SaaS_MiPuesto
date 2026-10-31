@@ -53,7 +53,7 @@ export type ResultadoValidacionNegocio =
   | { correcto: true; datos: DatosNegocioValidados }
   | { correcto: false; errores: Record<string, string> };
 
-const PATRON_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const PATRON_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const PATRON_TELEFONO_BOLIVIA = /^(?:591)?[67]\d{7}$/;
 
 function textoDesde(valor: unknown) {

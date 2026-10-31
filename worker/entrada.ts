@@ -1,5 +1,6 @@
 import vinext from "vinext/server/fetch-handler";
 
+import { conCacheDePortada } from "../lib/catalogo/cache-portada";
 import { entregarArchivo, tutorialPedido } from "../lib/tutoriales/archivos";
 import { baldeTutoriales, largoFijo } from "../lib/tutoriales/balde";
 
@@ -36,7 +37,9 @@ const entrada = {
         });
       }
     }
-    return vinext.fetch(solicitud, env, ctx);
+    /* La portada de cada catálogo, guardada un minuto: con el plan gratuito de
+       Workers, armarla en cada visita la dejaba en 503 (lib/catalogo/cache-portada.ts). */
+    return conCacheDePortada(solicitud, await vinext.fetch(solicitud, env, ctx));
   },
 };
 

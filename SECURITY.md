@@ -267,7 +267,7 @@ conteo de límites por IP — y que sí pueda guardar lo suyo.
 |---|---|
 | ~~`/api/salud` sin límite y con clave de servicio~~ | **Resuelto**: responde de memoria durante 15 s y con `Cache-Control`, así que martillarla no toca la base. Esta tabla no lo decía; se corrigió el 2026-09-24 |
 | ~~La huella de IP se firmaba con la clave de servicio~~ | **Resuelto el 2026-09-24**: secreto propio `HUELLA_IP_SECRETO`, obligatorio en `wrangler.jsonc`; sin él las rutas responden «no disponible» en vez de firmar con algo débil |
-| ~~`'unsafe-inline'` en `script-src`~~ | **Resuelto el 2026-09-24**: `proxy.ts` pone un nonce nuevo en cada solicitud (`lib/seguridad/politica-contenido.ts`) y vinext lo aplica a todos sus scripts en línea. `'unsafe-inline'` sigue escrito solo para navegadores sin CSP 2, que lo usan; los actuales lo ignoran en cuanto hay nonce. Sin costo de caché: ninguna página se guardaba (`no-store`) |
+| ~~`'unsafe-inline'` en `script-src`~~ | **Resuelto el 2026-09-24**: `proxy.ts` pone un nonce nuevo en cada solicitud (`lib/seguridad/politica-contenido.ts`) y vinext lo aplica a todos sus scripts en línea. `'unsafe-inline'` sigue escrito solo para navegadores sin CSP 2, que lo usan; los actuales lo ignoran en cuanto hay nonce. Sin costo de caché: ninguna página se guardaba (`no-store`). Desde el 2026-10-31 la portada de cada catálogo se guarda un minuto (ver «Pendiente», plan pago): el nonce se repite en ese minuto junto con su cabecera, y sigue sin poder adivinarse al armar la página |
 | ~~Sin tope de almacenamiento por negocio~~ | **Resuelto el 2026-09-24**: 150 MB por negocio en una regla restrictiva de Storage, con aviso en el panel desde el 80 % |
 | Invitaciones sin límite | Exige una cuenta con segundo factor ya comprometida |
 | Acaparar stock o turnos con un programa que cambia de IP | **Mitigado el 2026-09-24** con Cloudflare Turnstile en pedidos y reservas (`lib/turnstile.ts`). Arrancó en `TURNSTILE_MODO=observar`; tres pruebas reales del dueño pasaron verificadas y desde el 2026-09-24 está en **`exigir`**. El tope por IP sigue de segunda línea: desde el 2026-09-24 es de 15 cada quince minutos, por la IP compartida de las redes móviles, y cada vez que alguien choca con él queda anotado en el registro del Worker |
@@ -326,7 +326,14 @@ contesta, el envío pasa con el tope por IP: los pedidos no se caen por eso.
 
 ### Pendiente
 
-- **Plan pago de Workers** y una regla de límite por IP en el WAF cuando el
+- **Plan pago de Workers.** Ya no es teórico: el 2026-10-31 las portadas de
+  Kallpa Zapatillas y Kantuta Moda respondían 503 en cada visita («Worker
+  exceeded CPU time limit», cortadas a los 10 ms de CPU del plan gratuito; un
+  catálogo cuesta entre 40 y 100). Mientras tanto, la portada de cada catálogo
+  se guarda un minuto en la caché de Workers (`lib/catalogo/cache-portada.ts`),
+  lo que baja las veces que se arma pero no lo resuelve: las direcciones con
+  búsqueda, categoría o página siguen armándose en cada visita.
+- **Una regla de límite por IP** en el WAF cuando el
   dominio propio esté en Cloudflare; después, apagar `workers.dev`. Con el plan
   gratuito, una ráfaga de pedidos tumba el sitio hasta que el contador se
   reinicia.
