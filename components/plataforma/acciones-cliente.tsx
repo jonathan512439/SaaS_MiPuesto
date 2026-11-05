@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { PLANES, PLAN_PRUEBA, PROMO_SEGUNDO_MES, describirTopes, esPrueba, planDe } from "../../lib/planes";
+import { avisoDePaseManual } from "../../lib/plataforma/pase-de-plan";
 import { useAvisos, useConfirmacion } from "../ui";
 import styles from "./acciones-cliente.module.css";
 
@@ -16,7 +17,13 @@ type PropiedadesAcciones = {
   fotosUsadas: number;
   topeFotos: number;
   planId: string;
+  venceEn: string;
 };
+
+/* El primer pago sale de la prueba, y el segundo mes va por nuestra cuenta
+   (`PROMO_SEGUNDO_MES`): la cuenta propone los dos meses para que no dependa de
+   acordarse. Se puede cambiar antes de tocar «Renovar». */
+const mesesPropuestos = (planId: string) => (esPrueba(planId) ? "2" : "1");
 
 type Accion = "renovar" | "publicar" | "despublicar" | "foto_ia" | "plan";
 
@@ -32,13 +39,24 @@ export function AccionesCliente({
   fotosUsadas,
   topeFotos,
   planId,
+  venceEn,
 }: PropiedadesAcciones) {
   const router = useRouter();
-  /* El primer pago sale de la prueba, y el segundo mes va por nuestra cuenta
-     (`PROMO_SEGUNDO_MES`): la cuenta propone los dos meses para que no dependa
-     de acordarse. Se puede cambiar antes de tocar «Renovar». */
-  const [meses, setMeses] = useState(esPrueba(planId) ? "2" : "1");
-  const [plan, setPlan] = useState(planDe(planId).id);
+  const [meses, setMeses] = useState(mesesPropuestos(planId));
+  /* El selector dice lo que está guardado. `planElegido` es solo lo que se
+     acaba de tocar, mientras se guarda: con el plan entero en un estado propio,
+     un cambio que fallaba seguía mostrándose como hecho, y renovar una prueba
+     dejaba «Prueba» en el selector de un negocio ya en Catálogo (2026-11-05). */
+  const [planElegido, setPlanElegido] = useState<string | null>(null);
+  const plan = planElegido ?? planDe(planId).id;
+  /* Cuando llega otro plan del servidor, manda ese. Los meses también: después
+     de la prueba, seguir proponiendo dos regalaría otro mes al renovar. */
+  const [planConocido, setPlanConocido] = useState(planId);
+  if (planId !== planConocido) {
+    setPlanConocido(planId);
+    setPlanElegido(null);
+    setMeses(mesesPropuestos(planId));
+  }
   const [ocupado, setOcupado] = useState<Accion | null>(null);
   const { mostrarAviso } = useAvisos();
   const confirmar = useConfirmacion();
@@ -84,7 +102,20 @@ export function AccionesCliente({
           textoCancelar: "Dejarlo como está",
         });
         if (!aceptado) {
-          setPlan(planDe(planId).id);
+          setPlanElegido(null);
+          return;
+        }
+      }
+
+      const aviso = avisoDePaseManual(nombre, planId, plan, venceEn);
+      if (aviso) {
+        const aceptado = await confirmar({
+          ...aviso,
+          textoAccion: "Cambiar sin pago",
+          textoCancelar: "Dejarlo como está",
+        });
+        if (!aceptado) {
+          setPlanElegido(null);
           return;
         }
       }
@@ -109,6 +140,7 @@ export function AccionesCliente({
       mostrarAviso({ titulo: `${nombre}: cambio aplicado`, variante: "exito" });
       router.refresh();
     } catch (error) {
+      setPlanElegido(null);
       mostrarAviso({
         titulo: "No se pudo aplicar el cambio",
         mensaje: error instanceof Error ? error.message : "Intenta nuevamente.",
@@ -156,7 +188,7 @@ export function AccionesCliente({
           disabled={ocupado !== null}
           id={`plan-${negocioId}`}
           onChange={(evento) => {
-            setPlan(evento.target.value as typeof plan);
+            setPlanElegido(evento.target.value);
             void ejecutar("plan", evento.target.value);
           }}
           value={plan}

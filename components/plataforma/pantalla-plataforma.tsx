@@ -300,6 +300,7 @@ function FilaNegocio({ cliente }: { cliente: ClientePlataforma }) {
               planId={cliente.planId}
               suspendidoPorPago={estado === "suspendido"}
               topeFotos={cliente.topeFotos}
+              venceEn={negocio.suscripcion_vence_en}
             />
           </section>
           <section aria-label={`Rubro de ${negocio.nombre}`}>
