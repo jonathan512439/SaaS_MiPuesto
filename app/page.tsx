@@ -19,10 +19,12 @@ import { PieSitio } from "../components/sitio/pie-sitio";
 import { PRECIO_MENSUAL_BS, construirEnlaceContacto } from "../lib/contacto";
 import { RUBROS_PUBLICOS } from "../lib/negocios/rubros-publicos";
 import {
+  CARGA_AMPLIA,
   CARGA_INICIAL,
   PLAN_ANUAL,
   PLAN_PRUEBA,
   PLANES,
+  PRODUCTOS_MAXIMOS_EN_PLANES,
   PROMO_SEGUNDO_MES,
   TARJETA_ACRILICO,
   TARJETA_ACRILICO_GRANDE,
@@ -185,6 +187,11 @@ const PREGUNTAS = [
       (plan) =>
         `Con el plan ${plan.nombre}, hasta ${plan.topes.productos} productos con ${plan.topes.fotosPorProducto} fotos cada uno`,
     ).join("; ")}. Lo que mandas a la papelera no cuenta.`,
+  },
+  {
+    pregunta: `¿Y si tengo más de ${PRODUCTOS_MAXIMOS_EN_PLANES} productos?`,
+    respuesta:
+      "Escríbenos y armamos un catálogo a medida: acordamos el precio según tu cantidad de productos.",
   },
   {
     pregunta: "¿Qué pasa si un mes no pago?",
@@ -643,6 +650,18 @@ export default function Inicio() {
               </Link>
             </div>
 
+            {/* Como el año: debajo y no como un plan más. No tiene precio
+                publicado, lo acuerda el dueño en persona según la cantidad. */}
+            <div className={styles.anual}>
+              <p>
+                <strong>¿Más de {PRODUCTOS_MAXIMOS_EN_PLANES} productos?</strong> Escríbenos y acordamos un
+                precio según tu cantidad.
+              </p>
+              <Link className={styles.botonNoche} href="/empezar?opcion=a_medida">
+                Hablar de mi catálogo
+              </Link>
+            </div>
+
             {/* Filas y no tarjetas: se pagan una vez, y presentarlos como un
                 tercer y cuarto plan obligaría a comparar cuatro cuando la
                 decisión es entre dos. */}
@@ -655,7 +674,10 @@ export default function Inicio() {
                   </span>
                   <div>
                     <p className={styles.extraNombre}>Te cargamos el catálogo</p>
-                    <p>Nos mandas tu lista, hasta {CARGA_INICIAL.productosMaximos} productos.</p>
+                    <p>
+                      Nos mandas tu lista y tus fotos, hasta {CARGA_INICIAL.productosMaximos} productos. Hasta{" "}
+                      {CARGA_AMPLIA.productosMaximos}, Bs {CARGA_AMPLIA.precioBs}.
+                    </p>
                   </div>
                   <p className={styles.extraPrecio}>
                     Bs {CARGA_INICIAL.precioBs}

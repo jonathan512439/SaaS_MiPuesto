@@ -113,6 +113,10 @@ export const PLANES: readonly Plan[] = [
   },
 ];
 
+/* Lo más que entra en un plan con precio publicado. Más que esto se acuerda en
+   persona (`OPCIONES_ALTA`, «Catálogo a medida»). */
+export const PRODUCTOS_MAXIMOS_EN_PLANES = Math.max(...PLANES.map(({ topes }) => topes.productos));
+
 /* El pago por año, para quien prefiere resolverlo de una vez.
  *
  * Vale solo para el plan Catálogo, que es el que se ofrece así. El Catálogo
@@ -201,7 +205,7 @@ export function esPrueba(id: string | null | undefined): boolean {
  *
  * El año no suma la promoción del segundo mes: ya trae su descuento
  * (`ahorroAnualBs`), y las dos juntas regalarían casi tres meses. */
-export type OpcionAlta = "prueba" | "catalogo" | "activo" | "anual";
+export type OpcionAlta = "prueba" | "catalogo" | "activo" | "anual" | "a_medida";
 
 export const OPCIONES_ALTA: readonly {
   id: OpcionAlta;
@@ -235,6 +239,18 @@ export const OPCIONES_ALTA: readonly {
     detalle: `Todo el plan Catálogo por doce meses. Ahorras Bs ${ahorroAnualBs()} frente a pagar mes a mes.`,
     llamada: "Quiero el año",
     plan: PLAN_ANUAL.planId,
+  },
+  /* Para quien no entra en el plan más grande. No tiene precio publicado: lo
+     acuerda el dueño del proyecto en persona, según la cantidad de productos
+     (decisión del 2026-11-05). Por eso va como una conversación y no como un
+     tercer plan. */
+  {
+    id: "a_medida",
+    nombre: "Catálogo a medida",
+    precio: "Precio a acordar",
+    detalle: `Para más de ${PRODUCTOS_MAXIMOS_EN_PLANES} productos. Nos escribes y acordamos el precio según tu cantidad.`,
+    llamada: "Quiero hablar de mi catálogo",
+    plan: "activo",
   },
 ];
 
@@ -272,6 +288,20 @@ export const CARGA_INICIAL = {
   precioBs: 250,
   productosMaximos: 150,
 } as const;
+
+/* La misma carga para un catálogo más grande. Las fotos entran en los dos
+   precios (decisión del dueño, 2026-11-05). Pasando este número ya no hay
+   precio publicado: es el catálogo a medida. */
+export const CARGA_AMPLIA = {
+  precioBs: 300,
+  productosMaximos: 300,
+} as const;
+
+/* Qué carga le corresponde a un catálogo de esa cantidad; `null` si es más
+   grande que cualquiera de las dos. */
+export function cargaPara(productos: number) {
+  return [CARGA_INICIAL, CARGA_AMPLIA].find(({ productosMaximos }) => productos <= productosMaximos) ?? null;
+}
 
 /* La tarjeta de acrílico para el mostrador o la mesa.
  *

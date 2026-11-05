@@ -47,7 +47,7 @@ describe("el formulario de empezar", () => {
 
 describe("las opciones para empezar", () => {
   it("son la prueba, los dos planes y el año", () => {
-    expect(OPCIONES_ALTA.map(({ id }) => id)).toEqual(["prueba", "catalogo", "activo", "anual"]);
+    expect(OPCIONES_ALTA.map(({ id }) => id)).toEqual(["prueba", "catalogo", "activo", "anual", "a_medida"]);
   });
 
   it("una opción que no existe cae en la prueba", () => {

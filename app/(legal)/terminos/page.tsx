@@ -6,6 +6,7 @@ import { construirEnlaceContacto } from "../../../lib/contacto";
    se cumple. Si mañana cambian, cambian en los dos lados a la vez. */
 import { TOPE_FOTOS_POR_DIA, TOPE_FOTOS_POR_MES } from "../../../lib/ia/limites";
 import {
+  CARGA_AMPLIA,
   CARGA_INICIAL,
   PLAN_ANUAL,
   PLAN_PRUEBA,
@@ -71,8 +72,10 @@ export default function PaginaTerminos() {
           suma la promoción del segundo mes.
         </p>
         <p>
-          Aparte, y solo si los pides: la carga del catálogo por nosotros, Bs{" "}
-          {CARGA_INICIAL.precioBs} por única vez, y la tarjeta de acrílico con QR y
+          Aparte, y solo si los pides: la carga del catálogo por nosotros, con sus
+          fotos, por única vez: Bs {CARGA_INICIAL.precioBs} hasta{" "}
+          {CARGA_INICIAL.productosMaximos} productos y Bs {CARGA_AMPLIA.precioBs} hasta{" "}
+          {CARGA_AMPLIA.productosMaximos}. Y la tarjeta de acrílico con QR y
           NFC, por unidad: Bs {TARJETA_ACRILICO.precioBs} la de mesa (
           {TARJETA_ACRILICO.medidas}) y Bs {TARJETA_ACRILICO_GRANDE.precioBs} la grande (
           {TARJETA_ACRILICO_GRANDE.medidas}). La tarjeta es un producto
