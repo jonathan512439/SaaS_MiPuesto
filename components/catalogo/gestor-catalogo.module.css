@@ -1659,6 +1659,7 @@
 }
 
 .usosIa svg {
+  display: inline;
   margin-right: var(--spacing-1);
   vertical-align: -0.125em;
 }

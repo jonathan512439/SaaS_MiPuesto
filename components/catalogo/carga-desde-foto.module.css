@@ -244,14 +244,68 @@
   display: flex;
   min-height: var(--control-alto);
   align-items: center;
-  gap: var(--spacing-2);
+  gap: var(--spacing-3);
   max-width: var(--ancho-lectura);
-  font-size: var(--text-sm);
+  border: var(--borde-marcado) solid var(--color-borde);
+  border-radius: var(--radius-panel);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-superficie);
+  cursor: pointer;
+}
+
+/* Prendido lleva el borde de las herramientas con IA, el mismo de la tarjeta de
+   Herramientas: va adentro de la lectura y conviene que se vea. Apagado queda
+   neutro, y la casilla dice lo mismo sin depender del color. */
+.describirFaltantes:has(input:checked) {
+  border-color: transparent;
+  background:
+    linear-gradient(
+        color-mix(in srgb, var(--color-ia-inicio) 7%, var(--color-superficie)),
+        color-mix(in srgb, var(--color-ia-inicio) 7%, var(--color-superficie))
+      )
+      padding-box,
+    var(--ia-degradado) border-box;
+}
+
+.describirFaltantes:has(input:focus-visible) {
+  outline: var(--foco-ancho) solid var(--color-superficie);
+  box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
+}
+
+.describirFaltantes:has(input:disabled) {
+  cursor: default;
+  opacity: 0.7;
 }
 
 .describirFaltantes input {
-  width: var(--spacing-5);
-  height: var(--spacing-5);
+  width: var(--spacing-6);
+  height: var(--spacing-6);
   flex-shrink: 0;
-  accent-color: var(--color-marca);
+  margin: 0;
+  accent-color: var(--color-ia-inicio);
+}
+
+.describirTexto {
+  display: grid;
+  gap: var(--spacing-1);
+  min-width: 0;
+}
+
+.describirTexto strong {
+  font-size: var(--text-base);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.describirTexto strong svg {
+  display: inline;
+  margin-right: var(--spacing-1);
+  color: var(--color-ia-inicio);
+  vertical-align: -0.125em;
+}
+
+.describirTexto small {
+  color: var(--color-texto-suave);
+  font-size: var(--text-sm);
+  line-height: 1.35;
 }

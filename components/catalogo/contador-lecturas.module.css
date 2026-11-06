@@ -13,7 +13,10 @@
   font-weight: 600;
 }
 
+/* En línea: el reinicio de estilos deja cada `svg` como bloque, y el rayo se iba
+   a un renglón propio, encima del texto. */
 .contador svg {
+  display: inline;
   margin-right: var(--spacing-1);
   color: var(--color-ia-inicio);
   vertical-align: -0.125em;

@@ -12,6 +12,7 @@ import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { Trabajando, useAvisos, useConfirmacion } from "../ui";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
+import { Icono } from "../iconos/icono";
 import { ContadorLecturas } from "./contador-lecturas";
 import { RevisionDeProductos, type ProductoLeido } from "./revision-de-productos";
 import { SalidasCatalogo } from "./salidas-catalogo";
@@ -303,9 +304,15 @@ export function CargaDesdeFoto({
           onChange={(evento) => setDescribir(evento.target.checked)}
           type="checkbox"
         />
-        <span>
-          Escribir una descripción corta donde falte. La IA usa solo lo que dice tu lista, y te
-          las marca para que las revises.
+        <span className={styles.describirTexto}>
+          <strong>
+            <Icono nombre="rayo" />
+            Escribir una descripción corta donde falte
+          </strong>
+          <small>
+            La IA usa solo lo que dice tu lista y te las marca para que las revises. No gasta otra
+            lectura.
+          </small>
         </span>
       </label>
       <div className={styles.acciones}>
