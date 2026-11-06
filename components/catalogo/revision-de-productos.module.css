@@ -422,6 +422,31 @@
 
 /* Escribir descripciones con IA. Lleva el degradado de las herramientas que
    gastan una lectura del cupo: es la señal que avisa antes de tocar. */
+/* Cuando lo marcado no entra en el plan: el aviso y sus dos salidas. */
+.topePlan {
+  display: grid;
+  gap: var(--spacing-2);
+}
+
+.salidasPlan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.pasarPlan {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  border: var(--borde-fino) solid var(--control-principal-borde);
+  border-radius: var(--radius-control);
+  padding: var(--spacing-2) var(--spacing-4);
+  background: var(--control-principal-fondo);
+  color: var(--control-principal-texto);
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .describir {
   display: grid;
   gap: var(--spacing-2);

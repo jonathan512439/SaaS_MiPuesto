@@ -27,6 +27,7 @@ export const AYUDA_LISTA = {
   ],
   funciona: [
     "PDF de listas de precios, el del proveedor incluido",
+    "Catálogos en PDF con fotos, por grandes que sean: las fotos no se suben",
     "Fotos de listas impresas o tipeadas",
     "Cartas de restaurante",
     "Listas escritas a mano, si la letra se entiende",
@@ -41,7 +42,6 @@ export const AYUDA_LISTA = {
     "Letra que ni vos puedes leer en la foto",
     "Fotografías de cada producto: esas las subes vos",
     "Cantidades en stock: eso lo sabes vos, no la lista",
-    "PDF de más de 4 MB: sube tu lista por páginas",
   ],
   /* El ejemplo va con los casos raros de verdad —«2x15», dos tamaños que son un
      solo producto con dos presentaciones (desde el 2026-10-23), el título

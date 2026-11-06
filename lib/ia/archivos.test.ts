@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { TIPOS_FOTO, TIPOS_LISTA, leerArchivoDeLaPeticion } from "./archivos";
+import { TIPOS_FOTO, TIPOS_LISTA, leerArchivoDeLaPeticion, leerPaginasDeLaPeticion } from "./archivos";
+import { CARACTERES_MAXIMOS, PAGINAS_MAXIMAS } from "./pdf-texto";
 
 /* Prefijos reales: son los primeros bytes de cada formato escritos en base64.
    Si alguien cambia la tabla de `servidor.ts` por unos inventados, estos dejan
@@ -66,5 +67,36 @@ describe("qué archivo se acepta para leer", () => {
     expect(
       leerArchivoDeLaPeticion({ imagen: PDF, tipo: "application/msword" }, TIPOS_LISTA),
     ).toBeNull();
+  });
+});
+
+/* El texto de un PDF grande llega del navegador, y el navegador se puede evitar:
+   cada tanda es una llamada al modelo, así que los topes se miran de nuevo. */
+describe("el texto de un PDF grande", () => {
+  const pagina = (numero: number, texto = "Mochila Bs 80") => ({ numero, texto });
+
+  it("acepta las páginas con su número y su texto", () => {
+    expect(leerPaginasDeLaPeticion({ paginas: [pagina(1), pagina(3)] })).toEqual([pagina(1), pagina(3)]);
+  });
+
+  it("sin páginas no es esta clase de pedido", () => {
+    expect(leerPaginasDeLaPeticion({ imagen: "x", tipo: "image/webp" })).toBeNull();
+    expect(leerPaginasDeLaPeticion({ paginas: [] })).toBeNull();
+    expect(leerPaginasDeLaPeticion(null)).toBeNull();
+  });
+
+  it("rechaza lo que no tiene forma de página", () => {
+    expect(leerPaginasDeLaPeticion({ paginas: [{ numero: 0, texto: "a" }] })).toBeNull();
+    expect(leerPaginasDeLaPeticion({ paginas: [{ numero: 1.5, texto: "a" }] })).toBeNull();
+    expect(leerPaginasDeLaPeticion({ paginas: [{ numero: 1, texto: "   " }] })).toBeNull();
+    expect(leerPaginasDeLaPeticion({ paginas: [{ numero: 1, texto: 5 }] })).toBeNull();
+    expect(leerPaginasDeLaPeticion({ paginas: ["hola"] })).toBeNull();
+  });
+
+  it("no acepta más de lo que entra en una lectura", () => {
+    const muchas = Array.from({ length: PAGINAS_MAXIMAS + 1 }, (_, i) => pagina(i + 1));
+    expect(leerPaginasDeLaPeticion({ paginas: muchas })).toBeNull();
+    expect(leerPaginasDeLaPeticion({ paginas: [pagina(1, "x".repeat(CARACTERES_MAXIMOS + 1))] })).toBeNull();
+    expect(leerPaginasDeLaPeticion({ paginas: [pagina(1, "x".repeat(CARACTERES_MAXIMOS))] })).toHaveLength(1);
   });
 });

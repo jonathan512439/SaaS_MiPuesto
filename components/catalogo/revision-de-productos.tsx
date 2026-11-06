@@ -23,6 +23,7 @@ import { MAXIMO_PARA_DESCRIBIR } from "../../lib/ia/descripciones";
 import { planDe } from "../../lib/planes";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { Boton, Selector, useAvisos } from "../ui";
+import { pasoSiguiente } from "../../lib/catalogo/catalogo-grande";
 import { ContadorLecturas } from "./contador-lecturas";
 import styles from "./revision-de-productos.module.css";
 
@@ -220,6 +221,8 @@ export function RevisionDeProductos({
   const elegidos = filas.filter(({ elegido }) => elegido);
   const sobran = Math.max(0, elegidos.length - lugarLibre);
   const totalFotos = elegidos.reduce((suma, fila) => suma + fila.imagenes.length, 0);
+  /* Con todo lo marcado, cuántos tendría, y qué se le propone si no entra. */
+  const paso = sobran > 0 ? pasoSiguiente(planId, productosActuales + elegidos.length) : null;
 
   /* Los títulos en el orden en que aparecieron, sin repetir. El orden importa:
      es el de la hoja que el dueño tiene delante. */
@@ -296,6 +299,19 @@ export function RevisionDeProductos({
     } finally {
       setDescribiendo(false);
     }
+  }
+
+  /* Deja marcados los primeros que entran, en el orden de la lista: con 127
+     leídos y lugar para 15, desmarcar 112 a mano no lo haría nadie. */
+  function marcarLosQueEntran() {
+    setFilas((actuales) => {
+      let lugar = lugarLibre;
+      return actuales.map((fila) => {
+        if (!fila.elegido) return fila;
+        lugar -= 1;
+        return lugar >= 0 ? fila : { ...fila, elegido: false };
+      });
+    });
   }
 
   function marcarTodos(elegido: boolean) {
@@ -863,13 +879,27 @@ export function RevisionDeProductos({
       ) : null}
 
       {sobran > 0 ? (
-        <p className={styles.aviso} id="aviso-tope-importacion" role="status">
-          <strong>
-            Tu plan {plan.nombre} incluye hasta {plan.topes.productos} productos y ya tienes{" "}
-            {productosActuales}: entran {lugarLibre} más.
-          </strong>{" "}
-          Desmarca {sobran} para poder crear los demás.
-        </p>
+        <div className={styles.topePlan}>
+          <p className={styles.aviso} id="aviso-tope-importacion" role="status">
+            <strong>
+              Tu plan {plan.nombre} incluye hasta {plan.topes.productos} productos y ya tienes{" "}
+              {productosActuales}: entran {lugarLibre} más.
+            </strong>{" "}
+            Desmarca {sobran} para poder crear los demás.{paso ? ` ${paso.texto}` : ""}
+          </p>
+          <div className={styles.salidasPlan}>
+            {lugarLibre > 0 ? (
+              <button className={styles.cargar} onClick={marcarLosQueEntran} type="button">
+                Dejar marcados los {lugarLibre} que entran
+              </button>
+            ) : null}
+            {paso ? (
+              <a className={styles.pasarPlan} href={paso.enlace} rel="noreferrer" target="_blank">
+                {paso.accion}
+              </a>
+            ) : null}
+          </div>
+        </div>
       ) : null}
 
       <div className={styles.confirmar}>

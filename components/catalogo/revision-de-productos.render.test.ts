@@ -263,3 +263,63 @@ describe("las descripciones con IA dicen cuántas lecturas quedan", () => {
     expect(conIa()).not.toContain("Te quedan");
   });
 });
+
+/* Quien no entra en su plan nunca se queda sin salida: ve cuántos entran, puede
+   dejar marcados solo esos y tiene el paso siguiente a mano (2026-11-05). */
+describe("lo leído no entra en el plan", () => {
+  const leidos = (cantidad: number): ProductoLeido[] =>
+    Array.from({ length: cantidad }, (_, i) => ({
+      nombre: `Producto ${i + 1}`,
+      precio: 10 + i,
+      descripcion: "",
+      categoria: "",
+      confianza: "alta" as const,
+    }));
+
+  function revisar(cantidad: number, planId: string, productosActuales = 0) {
+    return renderToString(
+      jsx(ProveedorAvisos, {
+        children: jsx(RevisionDeProductos, {
+          categorias: [],
+          controlaStock: false,
+          introduccion: "Prueba",
+          onTerminado: () => undefined,
+          planId,
+          productos: leidos(cantidad),
+          productosActuales,
+        }),
+      }),
+    ).replaceAll("<!-- -->", "");
+  }
+
+  it("en la prueba, ofrece quedarse con los que entran y pasar al plan donde entra todo", () => {
+    const html = revisar(127, "prueba");
+    expect(html).toContain("Dejar marcados los 15 que entran");
+    expect(html).toContain("Con el plan Catálogo entran 150.");
+    expect(html).toContain("Pasar al plan Catálogo");
+  });
+
+  it("del Catálogo, propone el Activo", () => {
+    expect(revisar(220, "catalogo")).toContain("Con el plan Catálogo Activo entran 300.");
+  });
+
+  it("más de 300 es una conversación, y lleva la cantidad", () => {
+    const html = revisar(320, "activo");
+    expect(html).toContain("armamos un precio a medida");
+    expect(html).toContain("Hablar de mi catálogo");
+    expect(html).toContain("Dejar marcados los 300 que entran");
+    expect(html).toContain(encodeURIComponent("unos 320 productos"));
+  });
+
+  it("si ya no entra ninguno, no ofrece marcar cero", () => {
+    const html = revisar(10, "catalogo", 150);
+    expect(html).not.toContain("Dejar marcados");
+    expect(html).toContain("Pasar al plan Catálogo Activo");
+  });
+
+  it("si entra todo, no aparece nada de esto", () => {
+    const html = revisar(100, "catalogo");
+    expect(html).not.toContain("Dejar marcados");
+    expect(html).not.toContain("Pasar al plan");
+  });
+});

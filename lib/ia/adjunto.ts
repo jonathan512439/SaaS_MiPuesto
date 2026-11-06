@@ -13,6 +13,10 @@ import { detectarTipoImagen, prepararFotoParaLectura } from "../imagenes";
 
 export const PESO_MAXIMO_PDF = 4 * 1024 * 1024;
 
+/* Un PDF más pesado no se sube: se abre en el navegador y viaja su texto
+   (`lib/ia/pdf-grande.ts`). Lo que pesa casi siempre son las fotos del catálogo. */
+export const esPdfGrande = (cabecera: Uint8Array, peso: number) => esPdf(cabecera) && peso > PESO_MAXIMO_PDF;
+
 export type AdjuntoParaLectura = {
   base64: string;
   tipo: string;
@@ -70,11 +74,6 @@ export async function prepararArchivoParaLectura(archivo: File): Promise<Adjunto
   const cabecera = new Uint8Array(await archivo.slice(0, 12).arrayBuffer());
 
   if (esPdf(cabecera)) {
-    if (archivo.size > PESO_MAXIMO_PDF) {
-      throw new Error(
-        "El PDF debe pesar como máximo 4 MB. Si es un catálogo largo, sube las páginas de tu lista por separado.",
-      );
-    }
     const bytes = new Uint8Array(await archivo.arrayBuffer());
     return {
       base64: aBase64(bytes),

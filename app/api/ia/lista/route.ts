@@ -5,6 +5,7 @@ import { analizarArchivo } from "../../../../lib/ia/gemini";
 import { informeDeCobertura, type CampoDeCategoria } from "../../../../lib/ia/cobertura";
 import {
   INSTRUCCION_LISTA,
+  INSTRUCCION_TEXTO_DE_PDF,
   categoriaQueEligio,
   categoriasParaElegir,
   esquemaLista,
@@ -16,7 +17,9 @@ import { INSTRUCCION_DESCRIPCION_EN_LISTA, limpiarDescripcionSugerida } from "..
 import { camposDeOtrosDatos } from "../../../../lib/ia/otros-datos";
 import { presentacionesDelRenglon } from "../../../../lib/ia/presentaciones-leidas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
-import { TIPOS_LISTA, leerArchivoDeLaPeticion } from "../../../../lib/ia/archivos";
+import { TIPOS_LISTA, leerArchivoDeLaPeticion, leerPaginasDeLaPeticion } from "../../../../lib/ia/archivos";
+import { leerPorTandas } from "../../../../lib/ia/lectura-por-tandas";
+import { dividirEnTandas } from "../../../../lib/ia/pdf-texto";
 import {
   devolverCredito,
   leerCategoriasDelNegocio,
@@ -30,6 +33,10 @@ import {
  */
 const MAXIMO_PRODUCTOS = 100;
 
+/* El texto de un catálogo entero no es una foto: un número grande acá no huele a
+   invento, es lo que el negocio vende. Treinta tandas dan para unos mil. */
+const MAXIMO_PRODUCTOS_DE_TEXTO = 1_000;
+
 export async function POST(solicitud: NextRequest) {
   const preparacion = await prepararLecturaDeFoto();
   if (!preparacion.correcto) {
@@ -37,8 +44,9 @@ export async function POST(solicitud: NextRequest) {
   }
 
   const entrada = await leerJson(solicitud);
-  const archivo = entrada.correcto ? leerArchivoDeLaPeticion(entrada.datos, TIPOS_LISTA) : null;
-  if (!archivo) {
+  const paginas = entrada.correcto ? leerPaginasDeLaPeticion(entrada.datos) : null;
+  const archivo = entrada.correcto && !paginas ? leerArchivoDeLaPeticion(entrada.datos, TIPOS_LISTA) : null;
+  if (!archivo && !paginas) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);
     return NextResponse.json(
       { error: "El archivo no es válido. Aceptamos una foto o un PDF de hasta 4 MB." },
@@ -67,24 +75,49 @@ export async function POST(solicitud: NextRequest) {
      la misma consulta: no gasta otra lectura. */
   const describir = entrada.correcto && (entrada.datos as { describir?: unknown }).describir === true;
 
-  const lectura = await analizarArchivo<ListaLeida>(
+  const instruccion =
     INSTRUCCION_LISTA +
-      instruccionDeCamposDeCategoria(camposPorCategoria) +
-      instruccionDeCategoriasDelNegocio(nombresDeCategorias) +
-      (describir ? INSTRUCCION_DESCRIPCION_EN_LISTA : ""),
-    esquemaLista(nombresDeCategorias),
-    { base64: archivo.base64, tipo: archivo.tipo },
-  );
+    instruccionDeCamposDeCategoria(camposPorCategoria) +
+    instruccionDeCategoriasDelNegocio(nombresDeCategorias) +
+    (describir ? INSTRUCCION_DESCRIPCION_EN_LISTA : "");
+  const esquema = esquemaLista(nombresDeCategorias);
 
-  await registrarLlamada(
-    preparacion.admin,
-    preparacion.negocioId,
-    "lista",
-    lectura.correcto ? lectura.tokens : 0,
-    lectura.correcto,
-  );
+  /* Una foto o un PDF chico son una llamada. El texto de un catálogo son varias,
+     una por tanda, y sigue siendo **una sola lectura** del cupo: para el dueño
+     es un documento, no doce. */
+  const lecturas = await leerPorTandas(paginas ? dividirEnTandas(paginas) : [null], async (tanda) => {
+    const lectura = tanda
+      ? await analizarArchivo<ListaLeida>(
+          `${instruccion}${INSTRUCCION_TEXTO_DE_PDF}\n\n<catalogo>\n${tanda}\n</catalogo>`,
+          esquema,
+          null,
+        )
+      : await analizarArchivo<ListaLeida>(instruccion, esquema, {
+          base64: archivo!.base64,
+          tipo: archivo!.tipo,
+        });
+    await registrarLlamada(
+      preparacion.admin,
+      preparacion.negocioId,
+      "lista",
+      lectura.correcto ? lectura.tokens : 0,
+      lectura.correcto,
+    );
+    return lectura;
+  });
 
-  if (!lectura.correcto) {
+  const correctas = lecturas.flatMap((lectura) => (lectura.correcto ? [lectura.datos] : []));
+  /* Si se perdió una tanda y otras salieron, se entrega lo leído y se avisa: no
+     tiene sentido tirar cien productos porque treinta no respondieron. Pero una
+     lectura a medias no se cobra: la vuelve a subir, y lo que ya creó le llega
+     desmarcado (`posicionesYaExistentes`). */
+  const tandasPerdidas = lecturas.length - correctas.length;
+  if (tandasPerdidas > 0 && correctas.length > 0) {
+    await devolverCredito(preparacion.admin, preparacion.negocioId);
+  }
+  const lectura = lecturas.find((una) => !una.correcto) ?? lecturas[0];
+
+  if (correctas.length === 0 && !lectura.correcto) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);
     return NextResponse.json(
       {
@@ -99,7 +132,7 @@ export async function POST(solicitud: NextRequest) {
 
   /* Decirle «esto no parece una lista de precios» es mejor que devolverle una
      invención sobre la foto de su estantería. */
-  if (!lectura.datos.es_lista_de_precios) {
+  if (!correctas.some(({ es_lista_de_precios }) => es_lista_de_precios)) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);
     return NextResponse.json(
       {
@@ -110,7 +143,8 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  const productos = (lectura.datos.productos ?? [])
+  const productos = correctas
+    .flatMap((leida) => (leida.es_lista_de_precios ? (leida.productos ?? []) : []))
     .map((producto) => {
       const titulo = (producto.categoria ?? "").trim().slice(0, 60);
       const sugerida = nombresDeCategorias.length
@@ -162,7 +196,7 @@ export async function POST(solicitud: NextRequest) {
         producto.precio > 0 &&
         producto.precio <= 99999,
     )
-    .slice(0, MAXIMO_PRODUCTOS);
+    .slice(0, paginas ? MAXIMO_PRODUCTOS_DE_TEXTO : MAXIMO_PRODUCTOS);
 
   if (productos.length === 0) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);
@@ -180,7 +214,7 @@ export async function POST(solicitud: NextRequest) {
      descubrir a cuáles les falta la marca. */
   const cobertura = informeDeCobertura(productos, camposPorCategoria);
 
-  return NextResponse.json({ productos, cobertura });
+  return NextResponse.json({ productos, cobertura, tandasPerdidas });
 }
 
 /* Los campos de cada categoría, indexados por el nombre de la categoría en

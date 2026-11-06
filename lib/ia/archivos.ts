@@ -5,6 +5,8 @@
    prueba. Esta es la parte que decide si se gasta o no una llamada, o sea la
    que más conviene poder probar. */
 
+import { CARACTERES_MAXIMOS, PAGINAS_MAXIMAS } from "./pdf-texto";
+
 /* Un megabyte y medio en base64 son algo más de un megabyte de imagen. El
    navegador ya comprime a unos 150 KB antes de mandarla, así que este tope solo
    se alcanza si alguien evita la pantalla y manda la foto a mano.
@@ -41,6 +43,27 @@ const PREFIJOS_BASE64: Record<string, string> = {
 };
 
 export type PeticionFoto = { base64: string; tipo: string };
+
+/* El texto de un PDF grande, que el navegador ya sacó (`lib/ia/pdf-grande.ts`).
+   Los topes se vuelven a mirar acá: cada tanda es una llamada al modelo, y el
+   recorte del navegador no vale para quien evita la pantalla. */
+export function leerPaginasDeLaPeticion(datos: unknown): { numero: number; texto: string }[] | null {
+  if (typeof datos !== "object" || datos === null) return null;
+  const { paginas } = datos as { paginas?: unknown };
+  if (!Array.isArray(paginas) || paginas.length === 0 || paginas.length > PAGINAS_MAXIMAS) return null;
+
+  const leidas: { numero: number; texto: string }[] = [];
+  let caracteres = 0;
+  for (const pagina of paginas) {
+    const { numero, texto } = (pagina ?? {}) as { numero?: unknown; texto?: unknown };
+    if (!Number.isInteger(numero) || (numero as number) < 1) return null;
+    if (typeof texto !== "string" || texto.trim() === "") return null;
+    caracteres += texto.length;
+    if (caracteres > CARACTERES_MAXIMOS) return null;
+    leidas.push({ numero: numero as number, texto });
+  }
+  return leidas;
+}
 
 export function leerArchivoDeLaPeticion(
   datos: unknown,

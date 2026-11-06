@@ -145,6 +145,14 @@
   font-size: var(--text-xs);
 }
 
+/* Lo que hay que saber sobre lo leído, antes de revisarlo. */
+.avisoLectura {
+  border-left: var(--borde-marcado) solid var(--color-alerta);
+  padding-left: var(--spacing-3);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+}
+
 /* La foto se queda a la vista mientras se revisa: comparar de memoria es
    justamente lo que hace que un precio equivocado se publique. */
 .previa {

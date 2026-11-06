@@ -4,15 +4,39 @@ import Link from "next/link";
 import { useState, type ChangeEvent } from "react";
 
 import { AVISO_PRIVACIDAD_IA, AYUDA_LISTA } from "../../lib/ia/ayuda";
-import { esPlanilla, prepararArchivoParaLectura } from "../../lib/ia/adjunto";
-import { cupoDeLecturas, gastarLectura } from "../../lib/ia/cupo-de-lecturas";
+import { esPdfGrande, esPlanilla, prepararArchivoParaLectura } from "../../lib/ia/adjunto";
+import { cupoDeLecturas, gastarLectura, periodoDeLecturas } from "../../lib/ia/cupo-de-lecturas";
+import { prepararFotoParaLectura } from "../../lib/imagenes";
+import { dividirEnTandas, recortarPaginas } from "../../lib/ia/pdf-texto";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
-import { Trabajando, useAvisos } from "../ui";
+import { Trabajando, useAvisos, useConfirmacion } from "../ui";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
 import { ContadorLecturas } from "./contador-lecturas";
 import { RevisionDeProductos, type ProductoLeido } from "./revision-de-productos";
+import { SalidasCatalogo } from "./salidas-catalogo";
 import styles from "./carga-desde-foto.module.css";
+
+/* Lo que contesta la lectura, venga de una foto o del texto de un PDF. */
+type RespuestaLectura = {
+  error?: string;
+  productos?: ProductoLeido[];
+  cobertura?: InformeDeCobertura;
+  tandasPerdidas?: number;
+};
+
+async function pedirLectura(cuerpo: unknown) {
+  const respuesta = await fetch("/api/ia/lista", {
+    body: JSON.stringify(cuerpo),
+    headers: { "content-type": "application/json" },
+    method: "POST",
+  });
+  const datos = (await respuesta.json().catch(() => ({}))) as RespuestaLectura;
+  if (!respuesta.ok || !datos.productos) {
+    throw new Error(datos.error ?? "No pudimos leer el archivo.");
+  }
+  return datos as RespuestaLectura & { productos: ProductoLeido[] };
+}
 
 export function CargaDesdeFoto({
   categorias,
@@ -40,9 +64,18 @@ export function CargaDesdeFoto({
   enlaceCatalogo?: string;
 }) {
   const { mostrarAviso } = useAvisos();
+  const confirmar = useConfirmacion();
   const [vistaPrevia, setVistaPrevia] = useState("");
   const [nombreArchivo, setNombreArchivo] = useState("");
   const [leyendo, setLeyendo] = useState(false);
+  /* Qué se está haciendo con un PDF grande, para decirlo mientras dura: abrirlo
+     en el teléfono lleva tiempo y no se debe ver como una pantalla trabada. */
+  const [avance, setAvance] = useState("");
+  /* Por qué no se pudo leer. Con esto a la vista, el dueño ve qué puede hacer
+     en vez de un error que se va solo. */
+  const [motivoSalida, setMotivoSalida] = useState("");
+  /* Lo que conviene avisar sobre lo leído, junto a la revisión. */
+  const [avisoLectura, setAvisoLectura] = useState("");
   const [productos, setProductos] = useState<ProductoLeido[]>([]);
   const [cobertura, setCobertura] = useState<InformeDeCobertura | undefined>(undefined);
   /* Cambia con cada lectura y sirve de `key` del paso de revisión: una lectura
@@ -61,38 +94,132 @@ export function CargaDesdeFoto({
      diciendo lo mismo. */
   const [lecturas, setLecturas] = useState(() => cupoDeLecturas(planId, fotosUsadas));
 
+  /* Un PDF grande no se sube: sus fotos se quedan en el teléfono y viaja el
+     texto. Si no trae texto —escaneado, o exportado como imagen— se leen sus
+     páginas como fotos, avisando antes, porque ahí sí gasta una lectura por
+     página. */
+  async function leerPdfGrande(archivo: File) {
+    setLeyendo(true);
+    setProductos([]);
+    setVistaPrevia("");
+    setNombreArchivo(archivo.name);
+    setAvisoLectura("");
+    setAvance("Abriendo tu catálogo…");
+    try {
+      const { abrirPdf, paginaComoImagen, PdfIlegible } = await import("../../lib/ia/pdf-grande");
+      let abierto;
+      try {
+        abierto = await abrirPdf(archivo, (hecho, total) =>
+          setAvance(`Leyendo tu catálogo: página ${hecho} de ${total}…`),
+        );
+      } catch (error) {
+        if (error instanceof PdfIlegible) {
+          setMotivoSalida(error.message);
+          setNombreArchivo("");
+          return;
+        }
+        throw error;
+      }
+
+      const avisos: string[] = [];
+      const { entran, afuera } = recortarPaginas(abierto.paginas);
+      if (afuera > 0) avisos.push(`${afuera} página(s) del final no entraron en esta lectura.`);
+
+      if (entran.length >= abierto.sinTexto.length) {
+        if (abierto.sinTexto.length > 0) {
+          avisos.push(`Las páginas ${abierto.sinTexto.join(", ")} son imágenes: esas no se leyeron.`);
+        }
+        const tandas = dividirEnTandas(entran).length;
+        setAvance(
+          tandas > 1 ? `Separando tus productos, en ${tandas} partes…` : "Separando tus productos…",
+        );
+        const datos = await pedirLectura({ paginas: entran, describir });
+        if (datos.tandasPerdidas) {
+          /* No se descuenta: el servidor devolvió la lectura. */
+          avisos.push(
+            "Una parte del catálogo no se pudo leer porque el servicio estaba saturado. No te gastamos la lectura: crea estos y vuelve a subir el PDF en un rato. Lo que ya creaste viene desmarcado.",
+          );
+        } else {
+          setLecturas(gastarLectura);
+        }
+        setProductos(datos.productos);
+        setCobertura(datos.cobertura);
+      } else {
+        const paginas = abierto.sinTexto.slice(0, lecturas.quedan);
+        if (paginas.length === 0) {
+          setMotivoSalida(`Tu catálogo viene como imágenes y ya no te quedan lecturas ${periodoDeLecturas(lecturas)}.`);
+          setNombreArchivo("");
+          return;
+        }
+        const aceptado = await confirmar({
+          titulo: "Tu catálogo viene como imágenes",
+          descripcion: `Trae ${abierto.sinTexto.length} página(s) sin texto, y cada una gasta 1 lectura. Te quedan ${lecturas.quedan}: leemos ${paginas.length === abierto.sinTexto.length ? "todas" : `las primeras ${paginas.length}`}.`,
+          textoAccion: `Leer ${paginas.length} página(s)`,
+          textoCancelar: "Ver otras opciones",
+        });
+        if (!aceptado) {
+          setMotivoSalida("Tu catálogo viene como imágenes y leerlo gasta una lectura por página.");
+          setNombreArchivo("");
+          return;
+        }
+        const leidos: ProductoLeido[] = [];
+        for (const [indice, numero] of paginas.entries()) {
+          setAvance(`Leyendo la página ${indice + 1} de ${paginas.length}…`);
+          try {
+            const foto = await prepararFotoParaLectura(await paginaComoImagen(abierto.documento, numero));
+            const datos = await pedirLectura({ imagen: foto.base64, tipo: foto.tipo, describir });
+            setLecturas(gastarLectura);
+            leidos.push(...datos.productos);
+          } catch (error) {
+            /* Lo que ya se leyó costó lecturas: no se tira porque falló una. */
+            if (leidos.length === 0) throw error;
+            avisos.push(`La lectura se cortó en la página ${numero}.`);
+            break;
+          }
+        }
+        if (paginas.length < abierto.sinTexto.length) {
+          avisos.push(`Quedaron ${abierto.sinTexto.length - paginas.length} página(s) sin leer: no alcanzaron tus lecturas.`);
+        }
+        setProductos(leidos);
+        setCobertura(undefined);
+      }
+      setAvisoLectura(avisos.join(" "));
+      setLectura((numero) => numero + 1);
+    } catch (error) {
+      setNombreArchivo("");
+      setMotivoSalida(error instanceof Error ? error.message : "No pudimos leer tu catálogo.");
+    } finally {
+      setLeyendo(false);
+      setAvance("");
+    }
+  }
+
   async function leerArchivo(evento: ChangeEvent<HTMLInputElement>) {
     const archivo = evento.target.files?.[0];
     evento.target.value = "";
     if (!archivo) return;
 
     setPlanillaElegida("");
+    setMotivoSalida("");
     const cabecera = new Uint8Array(await archivo.slice(0, 8).arrayBuffer());
     if (esPlanilla(cabecera, archivo.name)) {
       setPlanillaElegida(archivo.name);
       return;
     }
+    if (esPdfGrande(cabecera, archivo.size)) {
+      await leerPdfGrande(archivo);
+      return;
+    }
 
     setLeyendo(true);
     setProductos([]);
+    setAvisoLectura("");
     try {
       const adjunto = await prepararArchivoParaLectura(archivo);
       setVistaPrevia(adjunto.vistaPrevia);
       setNombreArchivo(adjunto.nombre);
 
-      const respuesta = await fetch("/api/ia/lista", {
-        body: JSON.stringify({ imagen: adjunto.base64, tipo: adjunto.tipo, describir }),
-        headers: { "content-type": "application/json" },
-        method: "POST",
-      });
-      const datos = (await respuesta.json()) as {
-        error?: string;
-        productos?: ProductoLeido[];
-        cobertura?: InformeDeCobertura;
-      };
-      if (!respuesta.ok || !datos.productos) {
-        throw new Error(datos.error ?? "No pudimos leer el archivo.");
-      }
+      const datos = await pedirLectura({ imagen: adjunto.base64, tipo: adjunto.tipo, describir });
 
       setLecturas(gastarLectura);
       setProductos(datos.productos);
@@ -157,7 +284,11 @@ export function CargaDesdeFoto({
 
       <Trabajando
         abierto={leyendo}
-        detalle="Estamos leyendo la lista y separando cada producto con su precio. Cuanto más larga, más tarda."
+        detalle={
+          avance
+            ? `${avance} Las fotos se quedan en tu teléfono: no gasta tus datos.`
+            : "Estamos leyendo la lista y separando cada producto con su precio. Cuanto más larga, más tarda."
+        }
         titulo="Leyendo tu lista…"
       />
 
@@ -220,6 +351,14 @@ export function CargaDesdeFoto({
           </p>
           <Link href={RUTAS_PANEL.importar}>Ir a Importar una planilla</Link>
         </section>
+      ) : null}
+
+      {motivoSalida ? <SalidasCatalogo motivo={motivoSalida} /> : null}
+
+      {avisoLectura ? (
+        <p className={styles.avisoLectura} role="status">
+          {avisoLectura}
+        </p>
       ) : null}
 
       {/* De una foto se muestra la foto, para poder comparar renglón por
