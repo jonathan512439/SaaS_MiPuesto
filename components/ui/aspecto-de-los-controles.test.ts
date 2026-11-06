@@ -91,6 +91,7 @@ const PERMITIDOS: ReadonlyArray<{ selector: string; motivo: string }> = [
     motivo: "es un juego de opciones, y marca cuál está elegida",
   },
   { selector: ".interruptor", motivo: "es un interruptor: importa encendido o apagado" },
+  { selector: ".describirFaltantes", motivo: "es una casilla con su explicación: importa encendida o apagada" },
   /* El calendario del panel (`components/ui/calendario.tsx`). */
   { selector: ".dia", motivo: "es un día del calendario: un juego de opciones que marca hoy y el elegido" },
   { selector: ".irAHoy", motivo: "lleva al día de hoy: se lee como un enlace, no como una acción" },

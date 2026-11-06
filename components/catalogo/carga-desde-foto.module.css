@@ -242,7 +242,6 @@
    escribe en la misma lectura. */
 .describirFaltantes {
   display: flex;
-  min-height: var(--control-alto);
   align-items: center;
   gap: var(--spacing-3);
   max-width: var(--ancho-lectura);
