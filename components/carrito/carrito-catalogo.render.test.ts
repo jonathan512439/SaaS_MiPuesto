@@ -85,4 +85,9 @@ describe("las hojas del carrito", () => {
   it("el formulario se oculta de verdad: su `display` le gana a `hidden`", () => {
     expect(regla(".confirmacion[hidden]")).toContain("display: none");
   });
+
+  it("la reserva recibe el foco sin el anillo, que no es solo `outline`", () => {
+    expect(regla(".resultado:focus")).toContain("outline: none");
+    expect(regla(".resultado:focus")).toContain("box-shadow: none");
+  });
 });

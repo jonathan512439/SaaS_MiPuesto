@@ -465,7 +465,8 @@ export function CarritoCatalogo({
             <h3>Reserva {pedidoVigente.codigo} creada</h3>
             <p>
               Total verificado: {formatearPrecioBolivianos(pedidoVigente.total)}. Se mantiene hasta el{" "}
-              {FORMATEADOR_HORA.format(new Date(pedidoVigente.expiraEn))}.
+              {/* Sin punto final: la hora ya termina en el de «a. m.». */}
+              {FORMATEADOR_HORA.format(new Date(pedidoVigente.expiraEn))}
             </p>
             <div className={styles.accionesExito}>
               {pedidoVigente.enlaceWhatsapp ? (

@@ -331,9 +331,11 @@
   padding: 0 var(--spacing-4) var(--spacing-4);
 }
 
-/* Recibe el foco por código, no con el teclado: no es un control. */
+/* Recibe el foco por código, no con el teclado: no es un control, y el anillo
+   global lo encerraba en un marco negro. El anillo también usa `box-shadow`. */
 .resultado:focus {
   outline: none;
+  box-shadow: none;
 }
 
 .introduccion h3,
