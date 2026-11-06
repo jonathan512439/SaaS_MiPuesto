@@ -154,6 +154,7 @@ export function SelectorDeTurno({
   }
 
   const horariosDelDia = dias.find(({ fecha }) => fecha === diaElegido)?.horarios ?? [];
+  const faltanDatos = nombre.trim() === "" || telefono.trim() === "";
 
   async function reservar() {
     if (!horarioElegido) return;
@@ -319,12 +320,17 @@ export function SelectorDeTurno({
           {/* Donde Cloudflare dibuja la verificación: invisible, no ocupa lugar. */}
           <div ref={contenedorVerificacion} />
 
+          {faltanDatos ? (
+            <p className={styles.falta}>Escribe tu nombre y tu WhatsApp para apartarlo.</p>
+          ) : null}
+
           <button
             className={styles.confirmar}
-            disabled={reservando || nombre.trim() === "" || telefono.trim() === ""}
+            disabled={reservando || faltanDatos}
             onClick={() => void reservar()}
             type="button"
           >
+            <Icono nombre="calendario" />
             {reservando ? "Apartando…" : "Apartar este turno"}
           </button>
         </div>

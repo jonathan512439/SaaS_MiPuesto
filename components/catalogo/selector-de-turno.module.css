@@ -9,7 +9,12 @@
  * sobre un fondo claro del panel: no se leia. El dueño lo vio en «Agendar».
  *
  * `--catalogo-*` sigue a la paleta que eligio el dueño, y sus parejas estan
- * comprobadas por el control de contraste en las dieciseis. */
+ * comprobadas por el control de contraste en las dieciseis.
+ *
+ * Los botones llevan `.seccion` delante, y no es adorno: `.tema button` pinta
+ * todo botón del catálogo y pesa más que una clase sola. Con la clase sola,
+ * «Apartar este turno» salía sin relleno, como texto suelto, y el día y la hora
+ * elegidos se distinguían por un borde de 0,8 px. */
 
 .seccion {
   display: grid;
@@ -58,8 +63,8 @@
   padding-bottom: var(--spacing-1);
 }
 
-.dia,
-.diaActivo {
+.seccion .dia,
+.seccion .diaActivo {
   flex-shrink: 0;
   min-height: var(--control-alto);
   padding: var(--spacing-2) var(--spacing-3);
@@ -74,7 +79,7 @@
   cursor: pointer;
 }
 
-.diaActivo {
+.seccion .diaActivo {
   border-color: var(--catalogo-marca);
   background: var(--catalogo-marca);
   color: var(--catalogo-sobre-marca);
@@ -88,8 +93,8 @@
   gap: var(--spacing-2);
 }
 
-.hora,
-.horaActiva {
+.seccion .hora,
+.seccion .horaActiva {
   display: grid;
   gap: var(--spacing-1);
   min-height: var(--control-alto);
@@ -104,7 +109,7 @@
   cursor: pointer;
 }
 
-.horaActiva {
+.seccion .horaActiva {
   border-color: var(--catalogo-marca);
   background: var(--catalogo-marca);
   color: var(--catalogo-sobre-marca);
@@ -112,7 +117,7 @@
 
 /* El ocupado se dibuja igual pero apagado: esconderlo haría parecer que el
    negocio no atiende a esa hora, y eso es otra cosa. */
-.hora:disabled {
+.seccion .hora:disabled {
   background: var(--catalogo-fondo-hundido);
   color: var(--catalogo-texto-tenue);
   cursor: not-allowed;
@@ -183,19 +188,26 @@
   letter-spacing: var(--tracking-etiqueta);
 }
 
+/* Confirmar con el negocio: lo que queda por hacer una vez apartado el turno,
+   así que pesa lo mismo que el botón de apartar. */
 .whatsapp {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--control-alto);
+  min-height: var(--spacing-14);
   margin-top: var(--spacing-2);
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--radius-control);
-  background: var(--catalogo-marca);
-  color: var(--catalogo-sobre-marca);
-  font-size: var(--text-sm);
-  font-weight: 800;
+  background: var(--catalogo-accion);
+  color: var(--catalogo-sobre-accion);
+  font-size: var(--text-lg);
+  font-weight: 900;
   text-decoration: none;
+  box-shadow: var(--catalogo-sombra-flotante);
+}
+
+.whatsapp:active {
+  transform: translateY(1px);
 }
 
 /* El error del formulario, junto al botón que lo produjo. En el catálogo público
@@ -208,12 +220,24 @@
   line-height: 1.4;
 }
 
-/* El botón de confirmar el turno. Era el botón del panel —el de MiPuesto—, y
-   por eso llevaba sus colores y no los del negocio. Acá va del color de acción
-   de la paleta, como todo lo que se toca en el catálogo. */
-.confirmar {
+/* Qué falta para poder apartar: el botón apagado no lo dice solo. */
+.falta {
+  margin: 0;
+  color: var(--catalogo-texto-suave);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* El botón de confirmar el turno, lo más importante de la ficha: es el mismo
+   gesto que «Reservar pedido» en el carrito y lleva su mismo peso. Era el botón
+   del panel —el de MiPuesto—, y por eso llevaba sus colores y no los del negocio.
+   Acá va del color de acción de la paleta, como todo lo que se toca en el
+   catálogo. */
+.seccion .confirmar {
   display: inline-flex;
-  min-height: var(--control-alto);
+  gap: var(--spacing-2);
+  min-height: var(--spacing-14);
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -223,15 +247,22 @@
   background: var(--catalogo-accion);
   color: var(--catalogo-sobre-accion);
   font: inherit;
-  font-size: var(--text-base);
-  font-weight: 800;
+  font-size: var(--text-lg);
+  font-weight: 900;
+  box-shadow: var(--catalogo-sombra-flotante);
   cursor: pointer;
 }
 
-.confirmar:disabled {
-  background: var(--catalogo-fondo-hundido);
-  color: var(--catalogo-texto-tenue);
+.seccion .confirmar:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* Apagado sigue siendo el botón: quien acaba de elegir la hora ve qué le espera.
+   En gris y sin relieve se leía como un rótulo más, no como el paso que falta. */
+.seccion .confirmar:disabled {
+  box-shadow: none;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Los íconos de los títulos y los avisos: acompañan a la palabra y toman su
