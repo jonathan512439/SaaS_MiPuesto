@@ -1663,6 +1663,17 @@
   vertical-align: -0.125em;
 }
 
+/* Mientras llegan las tandas de un catálogo grande: la búsqueda todavía no ve
+   todo, y se dice para que nadie crea que un producto no está. */
+.cargaTandas {
+  margin: 0;
+  border-radius: var(--radius-control);
+  padding: var(--spacing-3);
+  background: var(--color-marca-tenue);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+}
+
 /* En lugar del campo de existencias, cuando el producto las lleva por
    presentación: dice dónde se cargan en vez de pedir un número que la base
    descartaría. */

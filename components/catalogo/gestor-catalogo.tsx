@@ -74,6 +74,7 @@ import {
 } from "../ui";
 import styles from "./gestor-catalogo.module.css";
 import { cupoDeLecturas, gastarLectura } from "../../lib/ia/cupo-de-lecturas";
+import { sumarTanda } from "../../lib/catalogo/productos-por-tandas";
 import { ContadorLecturas } from "./contador-lecturas";
 import { RUTAS_PANEL } from "../../lib/panel/rutas";
 import { normalizarBusqueda as normalizarTexto } from "../../lib/texto";
@@ -153,6 +154,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   const [categorias, setCategorias] = useState(datosIniciales.categorias);
   const [subcategorias, setSubcategorias] = useState(datosIniciales.subcategorias);
   const [productos, setProductos] = useState(datosIniciales.productos);
+  /* Con más de una tanda de productos, el resto llega de a poco: `null` es que ya
+     está todo. Se cuenta aparte de `productos`, porque mientras llegan el dueño
+     puede crear o borrar alguno y el largo de la lista deja de servir de marca. */
+  const [tandaPendiente, setTandaPendiente] = useState<number | null>(
+    datosIniciales.productos.length < datosIniciales.totalProductos ? datosIniciales.productos.length : null,
+  );
+  const [errorTanda, setErrorTanda] = useState(false);
   /* El rubro apaga botones, nunca datos: quien no eligió rubro los ve todos, y
      cambiar de rubro no borra ninguna marca ya puesta. */
   const ofreceCartaDelDia = rubroOfrece(datosIniciales.negocio.rubro, "carta_del_dia");
@@ -161,7 +169,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
      antes, para que el dueño no se entere con un producto que no se guarda. */
   const plan = planDe(datosIniciales.negocio.plan_id);
   const topeFotos = plan.topes.fotosPorProducto;
-  const productosLlenos = productos.length >= plan.topes.productos;
+  /* Con el total, no con lo que ya llegó: si no, a mitad de la carga parecería
+     que queda lugar. */
+  const productosDelNegocio = Math.max(
+    productos.length,
+    tandaPendiente === null ? 0 : datosIniciales.totalProductos,
+  );
+  const productosLlenos = productosDelNegocio >= plan.topes.productos;
   /* Cuántas lecturas le quedan al negocio este mes. Se dice acá, pegado al
      botón que las gasta, y no en otra pantalla: la pregunta «¿me queda?» aparece
      justo cuando se está por tocar, y una cuenta que hay que ir a buscar no la
@@ -235,6 +249,30 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     },
     [previasPendientes],
   );
+  /* Las tandas que siguen a la primera, una por vez: cada pedido es chico, que es
+     todo el sentido de partirlas. Si una falla, el dueño sigue trabajando con lo
+     que tiene y puede reintentar. */
+  useEffect(() => {
+    if (tandaPendiente === null || errorTanda) return;
+    let cancelada = false;
+    solicitarJson<{ productos: ProductoCatalogo[]; total: number }>(
+      `/api/catalogo/productos?desde=${tandaPendiente}`,
+      {},
+    )
+      .then(({ productos: tanda, total }) => {
+        if (cancelada) return;
+        setProductos((actuales) => sumarTanda(actuales, tanda));
+        const hasta = tandaPendiente + tanda.length;
+        setTandaPendiente(tanda.length > 0 && hasta < total ? hasta : null);
+      })
+      .catch(() => {
+        if (!cancelada) setErrorTanda(true);
+      });
+    return () => {
+      cancelada = true;
+    };
+  }, [tandaPendiente, errorTanda]);
+
   const [erroresFormulario, setErroresFormulario] = useState<Record<string, string>>({});
   const [ocupado, setOcupado] = useState(false);
   /* La categoría nueva desde el formulario del producto, sin ir a «Mi
@@ -1924,11 +1962,27 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   {busquedaProductos.trim() ? ` para «${busquedaProductos.trim()}»` : ""}
                 </p>
                 <p>
-                  Tu plan {plan.nombre}: {productos.length} de {plan.topes.productos} productos,
+                  Tu plan {plan.nombre}: {productosDelNegocio} de {plan.topes.productos} productos,
                   hasta {topeFotos} fotos en cada uno.
                 </p>
               </div>
             </div>
+
+            {tandaPendiente !== null ? (
+              <p className={styles.cargaTandas} role="status">
+                {errorTanda ? (
+                  <>
+                    No pudimos traer todos tus productos: ves {productos.length} de{" "}
+                    {datosIniciales.totalProductos}.{" "}
+                    <Boton onClick={() => setErrorTanda(false)} variante="discreto">
+                      Reintentar
+                    </Boton>
+                  </>
+                ) : (
+                  `Trayendo tus productos: ${productos.length} de ${datosIniciales.totalProductos}…`
+                )}
+              </p>
+            ) : null}
 
             {/* Ajustar precios de a uno sobre trescientos productos es lo que hace
                 que un catálogo quede desactualizado. Va acá arriba y no escondido

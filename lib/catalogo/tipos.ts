@@ -103,6 +103,9 @@ export type DatosCatalogoAdmin = {
   categorias: CategoriaCatalogo[];
   subcategorias: SubcategoriaCatalogo[];
   productos: ProductoCatalogo[];
+  /* Cuántos tiene en total: con más de una tanda, `productos` trae solo la
+     primera (`productos-por-tandas.ts`). */
+  totalProductos: number;
   /* Quién atiende: los recursos del negocio, para que un servicio elija el suyo. */
   recursos: Array<{ id: string; nombre: string; activo: boolean }>;
   /* Las definiciones de campos de todas las categorías, tal como vienen de la

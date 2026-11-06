@@ -15,12 +15,33 @@ import {
   validarJerarquiaProducto,
 } from "../../../../lib/catalogo/servidor";
 import { COLUMNAS_PRODUCTO_ADMIN } from "../../../../lib/catalogo/columnas";
+import { consultarTandaDeProductos, leerDesde } from "../../../../lib/catalogo/productos-por-tandas";
 import {
   esRechazoDeTope,
   mensajeLimiteProductos,
 } from "../../../../lib/catalogo/topes-del-plan";
 import { topesDelPlan } from "../../../../lib/planes";
 
+
+/* Las tandas que siguen a la primera, para la pantalla de Productos. Con la
+   sesión del dueño: la política de `productos` y el filtro por negocio hacen que
+   solo vea lo suyo. */
+export async function GET(solicitud: NextRequest) {
+  const contexto = await obtenerContextoAdminCatalogo();
+  if (!contexto.correcto) {
+    return NextResponse.json({ error: contexto.error }, { status: contexto.estado });
+  }
+
+  const desde = leerDesde(solicitud.nextUrl.searchParams.get("desde"));
+  const { data, error, count } = await consultarTandaDeProductos(contexto.supabase, contexto.negocio.id, desde);
+  if (error) {
+    return NextResponse.json({ error: "No pudimos traer tus productos." }, { status: 500 });
+  }
+  return NextResponse.json(
+    { productos: data ?? [], total: count ?? 0 },
+    { headers: { "Cache-Control": "no-store" } },
+  );
+}
 
 export async function POST(solicitud: NextRequest) {
   const contexto = await obtenerContextoAdminCatalogo();

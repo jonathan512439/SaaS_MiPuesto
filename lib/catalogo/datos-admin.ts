@@ -3,11 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { leerLecturasUsadas } from "../ia/lecturas-usadas";
 import type { Database } from "../supabase/database.types";
 import { leerEspacioUsado } from "./almacenamiento";
-import {
-  COLUMNAS_ATRIBUTO_CATEGORIA,
-  COLUMNAS_CATEGORIA,
-  COLUMNAS_PRODUCTO_ADMIN,
-} from "./columnas";
+import { COLUMNAS_ATRIBUTO_CATEGORIA, COLUMNAS_CATEGORIA } from "./columnas";
+import { consultarTandaDeProductos } from "./productos-por-tandas";
 import type {
   CategoriaCatalogo,
   DatosCatalogoAdmin,
@@ -82,13 +79,9 @@ export async function leerCatalogoAdmin(
       .eq("categorias.negocio_id", negocio.id)
       .order("orden")
       .order("nombre"),
-    supabase
-      .from("productos")
-      .select(COLUMNAS_PRODUCTO_ADMIN)
-      .eq("negocio_id", negocio.id)
-      .is("eliminado_en", null)
-      .order("orden")
-      .order("creado_en"),
+    /* Solo la primera tanda: el resto lo pide el navegador
+       (`productos-por-tandas.ts`). */
+    consultarTandaDeProductos(supabase, negocio.id, 0),
     /* Este mes en un plan pago; en la prueba, todo lo usado (`lecturas-usadas.ts`). */
     leerLecturasUsadas(supabase, negocio.id, negocio.plan_id),
     leerEspacioUsado(supabase, negocio.id),
@@ -106,6 +99,7 @@ export async function leerCatalogoAdmin(
       orden,
     })) as SubcategoriaCatalogo[],
     productos: (productos.data ?? []) as ProductoCatalogo[],
+    totalProductos: productos.count ?? productos.data?.length ?? 0,
     atributos: atributos.data ?? [],
     recursos: recursos.data ?? [],
     fotosUsadasMes: lecturasUsadas,

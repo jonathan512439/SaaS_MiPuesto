@@ -114,14 +114,15 @@ const datos = {
     { id: RECURSO, nombre: "Dra. Pérez", activo: true, agenda_recurso: [{ duracion_minutos: 60 }] },
   ],
   fotosUsadasMes: 3,
+  totalProductos: 1,
   espacioUsado: 5 * 1024 * 1024,
 } as unknown as DatosCatalogoAdmin;
 
-function dibujar(vista: "productos" | "categorias") {
+function dibujar(vista: "productos" | "categorias", datosIniciales: DatosCatalogoAdmin = datos) {
   /* Con `jsx` y no con JSX: la suite solo incluye archivos `.ts`, y un `.ts`
      no puede llevar etiquetas. Es la misma función a la que compila el JSX. */
   const pantalla = jsx(GestorCatalogo, {
-    datosIniciales: datos,
+    datosIniciales,
     urlSupabase: "https://prueba.supabase.co",
     vista,
   });
@@ -185,5 +186,21 @@ describe("las pantallas del catálogo del panel", () => {
     expect(html).toContain("«Consultas»");
     expect(html).toContain("«Alimentos»");
     expect(html).toContain('placeholder="Ej.: Consultas"');
+  });
+});
+
+/* Con más de una tanda, el servidor manda solo la primera. El dueño tiene que
+   saber que faltan, y el plan se cuenta con el total: si no, a mitad de la carga
+   parecería que queda lugar. */
+describe("un catálogo de más de una tanda", () => {
+  it("dice cuántos lleva, y el plan cuenta el total", () => {
+    const html = dibujar("productos", { ...datos, totalProductos: 250 }).replaceAll("<!-- -->", "");
+    expect(html).toContain("Trayendo tus productos:");
+    expect(html).toContain("de 250");
+    expect(html).toContain("250 de 150 productos");
+  });
+
+  it("con todo a mano, no aparece", () => {
+    expect(dibujar("productos")).not.toContain("Trayendo tus productos");
   });
 });
