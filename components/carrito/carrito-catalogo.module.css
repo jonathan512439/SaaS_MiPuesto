@@ -233,11 +233,17 @@
 }
 
 /* «Reservar pedido»: el paso que cierra el pedido, el más visible del carrito.
-   Más alto, con letra más grande y en relieve, y el mismo color de acción. */
+   Más alto, con letra más grande y en relieve, y el mismo color de acción.
+
+   El color se repite acá a propósito: `.tema button` pinta todo botón del
+   catálogo y empata en especificidad con `.confirmacion > button`, así que
+   ganaba por el orden de las hojas y el botón salía del color de la superficie. */
 .confirmacion > .reservar {
   min-height: var(--spacing-14);
   margin-top: var(--spacing-2);
   border-radius: var(--radius-control);
+  background: var(--catalogo-accion);
+  color: var(--catalogo-sobre-accion);
   font-size: var(--text-lg);
   letter-spacing: 0.01em;
   box-shadow: var(--sombra-elevada);
@@ -254,7 +260,8 @@
   gap: var(--spacing-2);
 }
 
-.descargarQr {
+/* Con `.exito` delante por lo mismo: sola, la clase pierde contra `.tema button`. */
+.exito .descargarQr {
   border: var(--borde-fino) solid var(--catalogo-accion);
   background: transparent;
   color: var(--catalogo-accion);
@@ -306,6 +313,11 @@
   padding: var(--spacing-4);
 }
 
+/* `hidden` no alcanza solo: el `display` de arriba le gana. */
+.confirmacion[hidden] {
+  display: none;
+}
+
 .introduccion,
 .campos,
 .exito {
@@ -317,6 +329,11 @@
   display: grid;
   gap: var(--spacing-2);
   padding: 0 var(--spacing-4) var(--spacing-4);
+}
+
+/* Recibe el foco por código, no con el teclado: no es un control. */
+.resultado:focus {
+  outline: none;
 }
 
 .introduccion h3,

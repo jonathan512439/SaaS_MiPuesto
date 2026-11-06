@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { jsx } from "react/jsx-runtime";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -55,5 +58,31 @@ describe("el formulario del pedido", () => {
     const html = dibujar({ pideNumeroMesa: true, pideNotaPedido: true });
     expect(html).toContain('id="pedido-numero-mesa"');
     expect(html).toContain('id="pedido-nota"');
+  });
+
+  it("se ve mientras no hay una reserva", () => {
+    expect(dibujar()).not.toMatch(/<form[^>]*hidden/);
+  });
+});
+
+/* Dos cosas que TypeScript no ve y que solo se notan abriendo un catálogo. El
+   aspecto se valida a mano; esto cuida las dos reglas que ya se perdieron. */
+describe("las hojas del carrito", () => {
+  const hoja = readFileSync(
+    join(process.cwd(), "components/carrito/carrito-catalogo.module.css"),
+    "utf8",
+  );
+  const regla = (selector: string) => {
+    const inicio = hoja.indexOf(`${selector} {`);
+    return inicio < 0 ? "" : hoja.slice(inicio, hoja.indexOf("}", inicio));
+  };
+
+  it("«Reservar pedido» declara su color: el tema pinta todos los botones", () => {
+    expect(regla(".confirmacion > .reservar")).toContain("background: var(--catalogo-accion)");
+    expect(regla(".confirmacion > .reservar")).toContain("color: var(--catalogo-sobre-accion)");
+  });
+
+  it("el formulario se oculta de verdad: su `display` le gana a `hidden`", () => {
+    expect(regla(".confirmacion[hidden]")).toContain("display: none");
   });
 });

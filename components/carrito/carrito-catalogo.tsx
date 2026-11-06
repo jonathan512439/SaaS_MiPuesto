@@ -77,6 +77,7 @@ export function CarritoCatalogo({
   const [entregado, setEntregado] = useState(false);
   const [qrDescargado, setQrDescargado] = useState(false);
   const intento = useRef<{ firma: string; id: string } | null>(null);
+  const resultado = useRef<HTMLDivElement | null>(null);
   /* Que el pedido lo haga una persona: sin esto, un programa que cambia de IP
      podía apartar todo el stock sin comprar nada. */
   const {
@@ -122,6 +123,18 @@ export function CarritoCatalogo({
   useEffect(() => {
     if (abierto && puedeConfirmar && !hayReservaALaVista) prepararVerificacion();
   }, [abierto, puedeConfirmar, hayReservaALaVista, prepararVerificacion]);
+
+  /* Lo que responde el pedido se dibuja debajo del formulario, y sin esto
+     quedaba fuera de la pantalla: el 2026-11-06, medido en producción, el código
+     quedaba 52 px por debajo y «Continuar por WhatsApp» 155 px, con «Reservar
+     pedido» a la vista como si nada hubiera pasado. El foco va acá porque el
+     botón que lo tenía se acaba de ocultar. */
+  const codigoVigente = pedidoVigente?.codigo ?? null;
+  useEffect(() => {
+    if (!codigoVigente && !error) return;
+    if (codigoVigente) resultado.current?.focus({ preventScroll: true });
+    resultado.current?.scrollIntoView({ block: "nearest" });
+  }, [codigoVigente, error]);
 
   async function reservarPedido(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -321,7 +334,13 @@ export function CarritoCatalogo({
       </div>
 
       {items.length > 0 ? (
-        <Formulario className={styles.confirmacion} onSubmit={reservarPedido}>
+        /* Oculto y no desmontado: adentro vive la verificación de Cloudflare, y
+           si cambia una cantidad el formulario vuelve con lo que ya escribió. */
+        <Formulario
+          className={styles.confirmacion}
+          hidden={hayReservaALaVista}
+          onSubmit={reservarPedido}
+        >
           <div className={styles.introduccion}>
             <h3>Reserva antes de escribir</h3>
             <p>
@@ -439,7 +458,7 @@ export function CarritoCatalogo({
         </Formulario>
       ) : null}
 
-      <div aria-live="polite" className={styles.resultado}>
+      <div aria-live="polite" className={styles.resultado} ref={resultado} tabIndex={-1}>
         {error ? <p className={styles.error}>{error}</p> : null}
         {pedidoVigente ? (
           <div className={styles.exito}>
