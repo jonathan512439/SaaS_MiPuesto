@@ -237,8 +237,11 @@
   display: none;
 }
 
-.accion button,
-.accion a {
+/* Con `.detalle` delante: `.accion button` empata con `.tema button` y gana el
+   que cargue después, y en la ficha cargaba después el tema. «Agregar al pedido»
+   salía sin relleno y con letra normal en la página de cada producto. */
+.detalle .accion button,
+.detalle .accion a {
   display: inline-flex;
   width: 100%;
   min-height: var(--control-alto);
@@ -257,7 +260,7 @@
   cursor: pointer;
 }
 
-.accion button:disabled {
+.detalle .accion button:disabled {
   background: var(--catalogo-fondo-hundido);
   color: var(--catalogo-texto-tenue);
   cursor: not-allowed;
