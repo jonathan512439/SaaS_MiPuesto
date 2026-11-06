@@ -243,7 +243,8 @@
   width: 100%;
   border: 0;
   border-radius: var(--radius-control);
-  padding: var(--spacing-2) var(--spacing-4);
+  /* Poco a los lados: con más, a 360 px se partía en dos renglones. */
+  padding: var(--spacing-2);
   background: var(--catalogo-accion);
   color: var(--catalogo-sobre-accion);
   font: inherit;
@@ -266,8 +267,11 @@
 }
 
 /* Los íconos de los títulos y los avisos: acompañan a la palabra y toman su
-   color. */
-.seccion svg {
+   color. `display` porque un `svg` es de bloque, y en la confirmación cada uno
+   quedaba solo en su renglón, encima de lo que acompaña. */
+.seccion svg,
+.confirmacion svg {
+  display: inline-block;
   flex-shrink: 0;
   vertical-align: -0.125em;
 }

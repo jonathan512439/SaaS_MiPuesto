@@ -43,6 +43,14 @@ describe("los botones del turno le ganan al tema", () => {
     expect(boton).toContain("box-shadow:");
   });
 
+  it("entra en un renglón a 360 px: letra grande y poco relleno a los lados", () => {
+    expect(regla(".seccion .confirmar")).toContain("padding: var(--spacing-2);");
+  });
+
+  it("los íconos de la confirmación acompañan a la palabra, no van en su renglón", () => {
+    expect(regla(".confirmacion svg")).toContain("display: inline-block");
+  });
+
   it("apagado sigue siendo el botón, no un rótulo gris", () => {
     const apagado = regla(".seccion .confirmar:disabled");
     expect(apagado).toContain("opacity:");
