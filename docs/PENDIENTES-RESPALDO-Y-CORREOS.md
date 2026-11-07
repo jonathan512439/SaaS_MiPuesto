@@ -86,6 +86,10 @@ por IPv6.
 
 ## 2. El correo de invitación y el de bienvenida
 
+**Actualizado el 2026-11-06:** el envío con dominio propio y las plantillas con
+la marca están en `docs/CONFIGURACION-MANUAL.md`, «Correo con dominio propio».
+Lo de abajo describe el estado anterior.
+
 ### Cómo funciona hoy
 
 - Plataforma → Herramientas → «Invitar negocio» llama a

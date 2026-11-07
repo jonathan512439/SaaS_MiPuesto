@@ -335,6 +335,8 @@ e **Invite user**:
 
 En la de invitación, `type=invite` en lugar de `type=recovery`.
 
+Hoy se pegan enteras desde `supabase/templates/`: ver «Correo con dominio propio».
+
 Con eso, quien visite el enlace sin ser la persona no consume nada: la página
 muestra un botón «Continuar» y el enlace se usa recién ahí.
 
@@ -448,6 +450,104 @@ tercero es el que protege.**
 **El orden importa.** El paso 3 es el único que un cliente puede leer, y es el
 que convierte «pagamos la API» en algo que le sirve a él. Sin ese paso, pagar
 mejora la situación legal y no cambia nada de lo que el cliente sabe.
+
+## Correo con dominio propio
+
+Salía por `app.mipuesto@gmail.com` con una clave de aplicación: un Gmail enviando
+correos automáticos en nombre de un negocio, sin DKIM propio y con un dominio sin
+SPF ni DMARC. Eso es lo que lo manda a spam, y ninguna plantilla lo compensa.
+
+Decidido: **Resend** para enviar, porque su plan gratuito cubre el volumen de hoy
+(3.000 al mes y 100 por día, revisado el 2026-11-06). Cloudflare Email Sending
+exige Workers de pago. **Cloudflare Email Routing**, gratis, para recibir las
+respuestas en `hola@mi-puesto.com`.
+
+Las plantillas viven en `supabase/templates/` y se pegan a mano en la consola. La
+guardia `lib/auth/plantillas-correo.test.ts` las revisa.
+
+**No corras `supabase config push`:** `supabase/config.toml` trae
+`site_url = "http://localhost:3000"` y lo escribiría en producción.
+
+### Antes de empezar
+
+La cabecera `public/marca/correo-cabecera.png` tiene que estar publicada: abre
+`https://mi-puesto.com/marca/correo-cabecera.png` y comprueba que se ve.
+
+### 1. Verificar el dominio en Resend
+
+1. En resend.com: **Domains → Add domain**, `mi-puesto.com`, región São Paulo.
+2. Elige **Sign in to Cloudflare**: agrega los registros solo. Si lo haces a mano,
+   copia los valores de Resend; el `send` y el `resend._domainkey` van sin el
+   dominio al final y con la nube gris (DNS only).
+3. Espera a que el dominio diga **Verified**.
+4. En la configuración del dominio, deja **apagados** Click Tracking y Open
+   Tracking: reescriben los enlaces y rompen los de un solo uso.
+
+Se usa el dominio raíz porque desde acá solo sale correo de la cuenta. Si un día se
+manda publicidad, esa sale por un subdominio aparte, para no gastar esta reputación.
+
+### 2. Publicar DMARC
+
+En Cloudflare → DNS → Records, agrega un `TXT`:
+
+| Nombre | Contenido |
+|---|---|
+| `_dmarc` | `v=DMARC1; p=none; rua=mailto:hola@mi-puesto.com` |
+
+`p=none` solo observa. Pasadas dos semanas sin fallos en los informes, cámbialo a
+`p=quarantine`.
+
+### 3. Recibir en hola@mi-puesto.com
+
+1. Cloudflare → Email → **Email Routing → Get started**.
+2. Crea la dirección `hola` y como destino el Gmail donde quieras leer las
+   respuestas. Confirma el correo que te llega a ese Gmail.
+3. Acepta los registros que propone Cloudflare (MX y SPF del dominio raíz). No
+   chocan con los de Resend, que viven en el subdominio `send`.
+
+### 4. Conectar Supabase
+
+1. En Resend: **API Keys → Create**, permiso **Sending access**, solo para
+   `mi-puesto.com`. Se muestra una vez. No va al repositorio ni a ningún chat.
+2. En Supabase: **Authentication → Emails → SMTP Settings → Enable custom SMTP**.
+
+| Campo | Valor |
+|---|---|
+| Sender email | `hola@mi-puesto.com` |
+| Sender name | `MiPuesto` |
+| Host | `smtp.resend.com` |
+| Port | `465` |
+| Username | `resend` |
+| Password | La clave de Resend |
+
+3. En **Authentication → URL Configuration**: Site URL `https://mi-puesto.com` y,
+   en Redirect URLs, `https://mi-puesto.com/**`.
+
+### 5. Pegar las plantillas
+
+En **Authentication → Emails → Templates**:
+
+| Plantilla | Asunto | Archivo |
+|---|---|---|
+| Invite user | `Tu invitación a MiPuesto` | `supabase/templates/invite.html` |
+| Reset password | `Restablece tu contraseña de MiPuesto` | `supabase/templates/recovery.html` |
+
+### 6. Probar
+
+1. Pide un enlace en `/recuperar-clave` con una cuenta de prueba, e invita desde
+   Plataforma a un correo que no sea del equipo.
+2. En Gmail: **⋮ → Mostrar original**. Tienen que decir `PASS` SPF, DKIM y DMARC.
+3. Abre el enlace y define la contraseña: comprueba que entra.
+4. Manda una invitación a la dirección que da mail-tester.com y mira el puntaje.
+
+Si no llega, sigue «Cuando el correo no llega», más arriba.
+
+### Lo que esto no da
+
+- Un dominio nuevo no tiene reputación: los primeros envíos pueden caer en spam.
+  Marcarlos como «No es spam» ayuda.
+- El logo redondo junto al remitente en la bandeja es BIMI: exige DMARC estricto y
+  un certificado de marca de pago. No vale la pena hoy.
 
 ## El aviso de que el sitio se cayó
 
