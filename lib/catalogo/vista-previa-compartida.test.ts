@@ -38,8 +38,9 @@ describe("construirUrlVistaPrevia", () => {
     expect(construirUrlVistaPrevia(URL_SUPABASE, "productos", null)).toBeNull();
   });
 
-  it("respeta una dirección absoluta ya guardada", () => {
-    const externa = "https://otro.sitio/foto.jpg";
-    expect(construirUrlVistaPrevia(URL_SUPABASE, "negocios", externa)).toBe(externa);
+  /* Antes la devolvía tal cual, y el servidor la pedía. El resto de los casos
+     está en `lib/rutas-de-almacenamiento.test.ts`. */
+  it("no pide una dirección absoluta guardada en la columna", () => {
+    expect(construirUrlVistaPrevia(URL_SUPABASE, "negocios", "https://otro.sitio/foto.jpg")).toBeNull();
   });
 });

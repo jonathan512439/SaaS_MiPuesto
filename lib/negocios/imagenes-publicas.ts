@@ -1,4 +1,5 @@
 import { LADO_MAXIMO_IMAGEN } from "../imagenes";
+import { esRutaDeAlmacenamiento } from "../rutas-de-almacenamiento";
 
 /* Anchos y calidad elegidos midiendo, no estimando. La portada del catálogo se
  * servía cruda —106 KB, y es la primera imagen que pide el navegador— porque
@@ -53,8 +54,10 @@ export function obtenerUrlPublicaImagenNegocio(
   ruta: string | null,
   rol: RolImagenNegocio = "original",
 ) {
-  if (!ruta) return null;
-  if (ruta.startsWith("https://")) return ruta;
+  /* Solo una ruta del depósito. Una dirección `https://` escrita en la columna
+     —el dueño puede hacerlo con su sesión— ya no se publica tal cual
+     (`lib/rutas-de-almacenamiento.ts`): la imagen no aparece. */
+  if (!esRutaDeAlmacenamiento(ruta)) return null;
 
   const base = urlSupabase.replace(/\/$/, "");
   const segura = rutaSegura(ruta);
