@@ -16,6 +16,24 @@ describe("la dirección única del sitio", () => {
     );
   });
 
+  /* Una ruta que empieza con dos barras, pegada a un origen, se lee como otro
+     servidor: `new URL("//otro.sitio/x", "https://mi-puesto.com")` es
+     `https://otro.sitio/x`. Con eso, un enlace a la dirección vieja habría
+     redirigido a cualquier sitio con el nombre de MiPuesto adelante. Hoy vinext
+     contesta 404 a esas rutas antes de llegar acá (comprobado en producción el
+     2026-11-15), pero esa es una defensa ajena. */
+  it("nunca redirige fuera de mi-puesto.com, venga la ruta que venga", () => {
+    for (const ruta of ["//otro.sitio/x", "///otro.sitio/x", "/\\otro.sitio/x", "//otro.sitio/x?a=1"]) {
+      for (const origen of [`https://${DIRECCION_ANTERIOR}`, "https://www.mi-puesto.com"]) {
+        const llegada = new URL(origen);
+        /* Tal como llega al Worker: la ruta cruda, sin que nadie la normalice. */
+        const destino = destinoCanonico(new URL(`${llegada.origin}${ruta}`), SITIO);
+        expect(destino?.hostname, `${origen}${ruta}`).toBe("mi-puesto.com");
+        expect(destino?.protocol).toBe("https:");
+      }
+    }
+  });
+
   it("no toca lo que ya llega por mi-puesto.com", () => {
     expect(destinoCanonico(new URL("https://mi-puesto.com/kantuta-moda"), SITIO)).toBeNull();
   });
