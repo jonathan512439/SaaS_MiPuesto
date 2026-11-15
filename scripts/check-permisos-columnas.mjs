@@ -54,6 +54,18 @@ const DEL_DUENO = [
   "pide_nota_pedido",
 ];
 
+/* Lo que el dueño puede poner **al dar de alta** su negocio, y nada más: lo que
+   manda `app/api/negocios/perfil/route.ts`. Hasta el 2026-11-15 el permiso de
+   insertar era sobre la tabla entera, y con su sesión un dueño creaba su negocio
+   con el plan Activo, vencimiento en 2099, publicado y verificado
+   (`20261119090000_el_dueno_no_elige_su_plan.sql`). Acá se mira en los dos
+   sentidos: una de menos rompe el alta; una de más le deja elegir lo que
+   decide la plataforma. */
+const DEL_ALTA = [
+  "admin_user_id", "nombre", "slug", "descripcion", "subnombre", "tipo_negocio",
+  "telefono_whatsapp", "rubro", "pide_numero_mesa",
+];
+
 /* Lo que el catálogo público lee. Se saca del propio archivo, no de una copia. */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
@@ -132,6 +144,13 @@ for (const columna of DEL_DUENO) {
     faltan.push(`authenticated no puede escribir «${columna}»`);
   }
 }
+const insertables = concedido.get("authenticated:INSERT") ?? new Set();
+for (const columna of DEL_ALTA) {
+  if (!insertables.has(columna)) {
+    faltan.push(`authenticated no puede insertar «${columna}», y el alta del negocio la manda`);
+  }
+}
+const sobran = [...insertables].filter((columna) => !DEL_ALTA.includes(columna)).sort();
 for (const columna of DEL_VISITANTE) {
   if (!concedido.get("anon:SELECT")?.has(columna)) {
     faltan.push(`anon no puede leer «${columna}», y el catálogo público la pide`);
@@ -155,8 +174,20 @@ if (faltan.length > 0) {
   process.exit(1);
 }
 
+if (sobran.length > 0) {
+  console.error(
+    "\nEl dueño puede elegir, al dar de alta su negocio, columnas que no son del alta:\n" +
+      `  ${sobran.join(", ")}\n\n` +
+      "Con eso se pone el plan, el vencimiento o la publicación que quiera.\n" +
+      "Se arregla aplicando 20261119090000_el_dueno_no_elige_su_plan.sql, o con una\n" +
+      "migración que quite el permiso de insertar sobre la tabla entera.",
+  );
+  process.exit(1);
+}
+
 console.log(
-  `Permisos de columna: correcto. ${DEL_DUENO.length} escribibles por el dueño, ` +
+  `Permisos de columna: correcto. ${DEL_ALTA.length} del alta, ` +
+  `${DEL_DUENO.length} escribibles por el dueño, ` +
   `${DEL_PANEL.size} legibles por el panel, ` +
     `${DEL_VISITANTE.length} legibles por un visitante.`,
 );
