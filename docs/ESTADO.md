@@ -1,4 +1,4 @@
-# Estado de MiPuesto — 2026-10-18
+# Estado de MiPuesto — 2026-11-15
 
 Cómo está el proyecto hoy, en una pantalla. El detalle y la evidencia de cada
 cosa están en `docs/AVANCE.md`; los controles, en `SECURITY.md`. **Este archivo
@@ -9,12 +9,12 @@ que ya no es cierto.
 
 | | |
 |---|---|
-| Producción | `https://mipuesto-dev.mipuesto-app.workers.dev` (Cloudflare Workers, plan gratuito) |
+| Producción | `https://mi-puesto.com` (Cloudflare Workers). La dirección anterior, `mipuesto-dev.mipuesto-app.workers.dev`, y `www` redirigen con 308 |
 | Base de producción | Supabase `afhnxjdqaruwccgsdxzb` (São Paulo) |
-| Base de ensayo | Supabase `hwirzxnoyuuqgbwipiff` — recibe copias de los respaldos; credenciales rotadas el 2026-10-13 |
-| Dominio propio | Ninguno todavía. Será `mi-puesto.com`, con guion |
-| Última migración | `20261110090000` |
-| Pruebas | 1306 en `npm run verificar` |
+| Base de ensayo | Supabase `hwirzxnoyuuqgbwipiff` — recibe copias de los respaldos. **Al 2026-11-15 la contraseña de `ENSAYO_DB_URL` en `.env.local` está vencida y la base está atrasada** (le faltan al menos `20261116090000` a `20261118090000`) |
+| Última migración aplicada en producción | `20261118090000` (lo dice `/api/salud`) |
+| Migraciones en el repositorio, sin aplicar | `20261119090000` y `20261120090000`, de la auditoría del 2026-11-15. **Sin probar en ensayo** |
+| Pruebas | 1532 en `npm run verificar` |
 
 ## Cómo se despliega
 
@@ -22,7 +22,8 @@ que ya no es cierto.
 2. **Después el código**: empujar a `main`. Workers Builds corre `verificar`,
    compila y despliega solo. Antes de desplegar, `predeploy:vinext` le pregunta
    a `/api/salud` qué migración tiene la base y **frena si falta alguna**.
-3. Al cierre de cada fase: `npm run test:rls:linked`.
+3. Al cierre de cada fase: `npm run test:rls:linked`, que desde el 2026-11-15
+   empieza por comprobar que el registro de usuarios esté cerrado.
 
 Los cambios a producción (`supabase:push`, `deploy`, la configuración del
 vigilante) los corre el dueño: el agente los prepara y los verifica.
@@ -30,20 +31,30 @@ vigilante) los corre el dueño: el agente los prepara y los verifica.
 ## Qué hay en producción
 
 - Catálogo público con **un solo diseño** (plantilla MiPuesto), **tres formas de
-  tarjeta** y **dieciséis paletas**, a elección del dueño.
-- Tres modalidades: catálogo, acción por producto, y carrito con reserva temporal.
-- Rubros con su preset; la categoría declara sus campos; presentaciones y tallas.
+  tarjeta** y **dieciséis paletas**, a elección del dueño. Dos banners, el
+  superior y el inferior.
+- Tres modalidades: catálogo, acción por producto, y carrito con reserva
+  temporal. El carrito puede pedir **notas del pedido**, detrás de un
+  interruptor del negocio.
+- Rubros con su preset —los últimos, mochilas y cosméticos—; la categoría
+  declara sus campos; presentaciones y tallas. El estado de un producto sigue a
+  sus existencias en la base.
+- **Prueba gratis de quince días**: todo negocio nace en el plan `prueba`, con
+  15 productos y 5 lecturas con IA en total. El primer pago lo pasa al plan
+  Catálogo.
 - Agenda de citas con cupos, horarios y reintento seguro.
 - Directorio por ciudad y zona, con negocios «En mi local» y «Sin local». El
   punto exacto de un local nunca se publica.
-- Etiquetas QR y NFC (`/t/CODIGO`), panel de plataforma con segundo factor,
-  lectura de fotos con Gemini, ajuste masivo de precios todo o nada.
-- Turnstile en `exigir` en pedidos y reservas.
-- **«Aprende»**: videos cortos de cómo usar el panel. Los sube la plataforma
-  (pestaña Tutoriales, con segundo factor) al balde R2 `mipuesto-tutoriales`, y
-  cada dueño ve los publicados en su Panel de administrador. Se entregan por
-  `/api/tutoriales/<archivo>`, por partes. Los videos se producen en
-  `MiPuesto_marketing` (`tutorial/PLAN.md`).
+- Etiquetas QR y NFC (`/t/CODIGO`), panel de plataforma con segundo factor
+  exigido también en la base, ajuste masivo de precios todo o nada.
+- Lectura de fotos, listas y PDF con Gemini, con el cupo del plan a la vista en
+  cada lugar que lo gasta.
+- Turnstile en pedidos y reservas.
+- **«Aprende»**: videos cortos de cómo usar el panel, desde el balde R2
+  `mipuesto-tutoriales`, entregados por partes por la entrada del Worker.
+- La portada de cada catálogo se guarda un minuto en la caché de Workers.
+- Los correos de invitación y de contraseña llevan la marca
+  (`supabase/templates/`).
 
 ## Quién vigila qué
 
@@ -60,17 +71,24 @@ se vacía, el vigilante avisa.
 
 ## Lo que falta, en orden
 
-Probado por el dueño el 2026-10-13: un catálogo grande en su teléfono aparece
-en pocos segundos.
-
-
-1. **Workers Paid** (5 dólares al mes), antes del piloto. El CPU medido —P50
-   7,7 ms, P90 15,8 ms— pasa los 10 ms del plan gratuito en una de cada cuatro
-   visitas.
-2. **Dominio `mi-puesto.com`**: conectarlo al Worker y mover todo lo que apunta a
-   la dirección de hoy —`NEXT_PUBLIC_SITE_URL` del build, las direcciones de
-   Supabase Auth, el permiso de Turnstile para el dominio nuevo, el vigilante
-   (`--sitio` y `--catalogo`), la variable `SITIO_URL` de GitHub— y recién ahí
-   imprimir QR y grabar etiquetas NFC.
-3. **Alerta de errores 5xx** en Cloudflare, con el plan pago y el dominio.
-4. **Piloto de siete días** con dos o tres negocios reales.
+1. **Cerrar la auditoría de seguridad del 2026-11-15** (`SECURITY.md`). Dos
+   hallazgos graves, y los dos esperan al dueño:
+   - **Apagar el registro de usuarios** en Supabase, en producción y en ensayo:
+     hoy cualquiera se crea una cuenta con la clave pública. `npm run
+     test:registro:linked` tiene que pasar.
+   - **Poner al día la contraseña de la base de ensayo** en `.env.local`, y
+     después `npm run ensayo:push`, `npm run ensayo:verificar`,
+     `test:alta-columnas:ensayo` y `test:visitante:ensayo`.
+   - Con eso en verde, **aplicar `20261119090000` y `20261120090000`** a
+     producción: hasta entonces un dueño puede ponerse el plan que quiera. El
+     trabajo está en la rama `auditoria-seguridad-2026-11-15`.
+2. **Workers Paid** (5 dólares al mes), antes del piloto. Con el plan gratuito,
+   un catálogo que se arma en cada visita pasa los 10 ms de CPU; la portada
+   guardada un minuto lo alivia y no lo resuelve.
+3. **Lo que se movía con el dominio**: esta auditoría comprobó que
+   `mi-puesto.com` responde y que la dirección anterior redirige. No comprobó
+   el resto de la lista —las direcciones de Supabase Auth, el permiso de
+   Turnstile, el vigilante (`--sitio` y `--catalogo`) y la variable `SITIO_URL`
+   de GitHub—.
+4. **Alerta de errores 5xx** en Cloudflare, con el plan pago.
+5. **Piloto de siete días** con dos o tres negocios reales.
