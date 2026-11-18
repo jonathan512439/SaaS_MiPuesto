@@ -45,7 +45,11 @@ async function insertarUno(cliente, tabla, valores, clave = "id") {
   return data;
 }
 
-async function comprobarAislamiento(tabla, idAjeno, cambio, escrituraRevocada = false) {
+/* `borradoRevocado` va aparte de `escrituraRevocada` por `negocios`: el dueño
+   sigue pudiendo actualizar el suyo —y una fila ajena le da cero filas—, pero
+   desde `20261119090000_el_dueno_no_elige_su_plan.sql` no tiene permiso de
+   borrar ninguno, y la base lo rechaza con 42501 en vez de devolver cero. */
+async function comprobarAislamiento(tabla, idAjeno, cambio, escrituraRevocada = false, borradoRevocado = escrituraRevocada) {
   const lectura = await clienteA.from(tabla).select("id").eq("id", idAjeno);
   comprobar(!lectura.error, `${tabla}: la lectura ajena produjo un error inesperado`);
   comprobar(lectura.data?.length === 0, `${tabla}: A pudo leer una fila de B`);
@@ -66,7 +70,7 @@ async function comprobarAislamiento(tabla, idAjeno, cambio, escrituraRevocada = 
   }
 
   const borrado = await clienteA.from(tabla).delete().eq("id", idAjeno).select("id");
-  if (escrituraRevocada) {
+  if (borradoRevocado) {
     comprobar(
       borrado.error?.code === "42501",
       `${tabla}: el borrado sin permiso no fue rechazado como se esperaba`,
@@ -333,6 +337,10 @@ try {
       tabla === "pedidos" ||
         tabla === "pedido_items" ||
         tabla === "eventos_analitica",
+      tabla === "pedidos" ||
+        tabla === "pedido_items" ||
+        tabla === "eventos_analitica" ||
+        tabla === "negocios",
     );
   }
 
