@@ -86,4 +86,18 @@ describe("las presentaciones que lee la IA", () => {
     });
     expect(leido.presentaciones.map(({ precio }) => precio)).toEqual([null, null]);
   });
+
+  /* Un catálogo de proveedor no trae precios: el producto llega igual, sin
+     precio, y lo completa el dueño. Ni cero ni un renglón tirado. */
+  it("sin precio escrito, el producto llega con precio nulo", () => {
+    expect(presentacionesDelRenglon({ precio: undefined }).precio).toBeNull();
+    expect(presentacionesDelRenglon({ precio: 0 }).precio).toBeNull();
+    const tallas = presentacionesDelRenglon({
+      precio: undefined,
+      se_elige_por: "talla",
+      presentaciones: [{ nombre: "S" }, { nombre: "M" }],
+    });
+    expect(tallas.precio).toBeNull();
+    expect(tallas.presentaciones.map(({ precio }) => precio)).toEqual([null, null]);
+  });
 });

@@ -31,10 +31,10 @@ export const AYUDA_LISTA = {
     "Fotos de listas impresas o tipeadas",
     "Cartas de restaurante",
     "Listas escritas a mano, si la letra se entiende",
-    "El nombre y el precio en el mismo renglón",
+    "Catálogos sin precios, con marca y datos técnicos: los precios los pones vos al revisar",
     "Títulos de sección: los usamos como tus categorías",
     "Tallas y tamaños: un solo producto, con cada talla y su precio",
-    "Detalles del plato, si están escritos al lado del nombre",
+    "Detalles del producto, si están escritos al lado del nombre o en su ficha",
   ],
   noFunciona: [
     "Fotos de la estantería o de la vitrina",

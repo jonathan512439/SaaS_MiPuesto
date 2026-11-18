@@ -5,6 +5,8 @@ import {
   CARACTERES_POR_TANDA,
   dividirEnTandas,
   paginaTieneTexto,
+  heredarSecciones,
+  quitarEncabezadosRepetidos,
   recortarPaginas,
   renglonesDePagina,
   type TrozoDeTexto,
@@ -104,5 +106,52 @@ describe("lo que entra en una lectura", () => {
 
   it("si entra todo, no queda nada afuera", () => {
     expect(recortarPaginas([{ numero: 1, texto: "Api" }]).afuera).toBe(0);
+  });
+});
+
+describe("los encabezados y pies que se repiten", () => {
+  const pagina = (numero: number, cuerpo: string[]) => ({
+    numero,
+    texto: ["CATÁLOGO COMERCIAL • MATERIAL ELÉCTRICO", ...cuerpo, "Av. Circunvalación | FERROVOLT | 74223940"].join("\n"),
+  });
+
+  it("se quitan del borde de las páginas", () => {
+    const paginas = [1, 2, 3, 4].map((n) => pagina(n, [`Producto ${n}`, "Marca: Tramontina"]));
+    expect(quitarEncabezadosRepetidos(paginas).map(({ texto }) => texto)).toEqual(
+      [1, 2, 3, 4].map((n) => `Producto ${n}\nMarca: Tramontina`),
+    );
+  });
+
+  /* Adentro de la página, un renglón repetido es un dato del producto. */
+  it("un dato repetido en el medio de la página se queda", () => {
+    const cuerpo = (n: number) => ["a", "b", "c", `Producto ${n}`, "Instalación: empotrada", `Uso ${n}`, "x", "y", "z"];
+    const paginas = [1, 2, 3, 4].map((n) => pagina(n, cuerpo(n)));
+    for (const { texto } of quitarEncabezadosRepetidos(paginas)) {
+      expect(texto).toContain("Instalación: empotrada");
+      expect(texto).not.toContain("CATÁLOGO COMERCIAL");
+    }
+  });
+
+  it("con pocas páginas, o sin repetidos, no toca nada", () => {
+    const pocas = [1, 2, 3].map((n) => pagina(n, [`Producto ${n}`]));
+    expect(quitarEncabezadosRepetidos(pocas)).toEqual(pocas);
+    const distintas = [1, 2, 3, 4].map((n) => ({ numero: n, texto: `Producto ${n}\nBs ${n}` }));
+    expect(quitarEncabezadosRepetidos(distintas)).toEqual(distintas);
+  });
+});
+
+describe("la sección de los productos de otra tanda", () => {
+  it("un producto sin sección es de la última que se nombró", () => {
+    const leidos = heredarSecciones([
+      { nombre: "Placa 1P", categoria: "Placas" },
+      { nombre: "Placa 2P", categoria: "" },
+      { nombre: "Térmico 2P", categoria: "Protección" },
+      { nombre: "Térmico 3P", categoria: " " },
+    ]);
+    expect(leidos.map(({ categoria }) => categoria)).toEqual(["Placas", "Placas", "Protección", "Protección"]);
+  });
+
+  it("si nunca se nombró ninguna, siguen sin categoría", () => {
+    expect(heredarSecciones([{ categoria: "" }, { categoria: "" }])).toEqual([{ categoria: "" }, { categoria: "" }]);
   });
 });

@@ -36,7 +36,7 @@ export type ProductoLeidoConDatos = {
   /* El título de sección que la lectura le asignó. Vacío cuando la lista no
      tenía títulos. */
   categoria: string;
-  precio: number;
+  precio: number | null;
   descripcion: string;
   datos?: Array<{ clave: string; valor: string }>;
 };

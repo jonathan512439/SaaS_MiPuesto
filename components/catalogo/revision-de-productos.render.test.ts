@@ -323,3 +323,45 @@ describe("lo leído no entra en el plan", () => {
     expect(html).not.toContain("Pasar al plan");
   });
 });
+
+/* Un catálogo de proveedor sin precios: cada producto llega desmarcado y con el
+   precio vacío, y la revisión dice qué hacer. Sin precio no se crea. */
+describe("los productos que llegan sin precio", () => {
+  const PLACA: ProductoLeido = {
+    nombre: "Placa 1P horizontal 4x2",
+    precio: null,
+    descripcion: "Instalaciones eléctricas interiores.",
+    categoria: "Placas y módulos",
+    confianza: "alta",
+    campos: { Marca: "Tramontina", Material: "Termoplástico" },
+  };
+  const CON_PRECIO: ProductoLeido = { ...PLACA, nombre: "Módulo interruptor", precio: 25 };
+
+  const html = renderToString(
+    jsx(ProveedorAvisos, {
+      children: jsx(RevisionDeProductos, {
+        categorias: [],
+        controlaStock: false,
+        introduccion: "Prueba",
+        onTerminado: () => undefined,
+        productos: [PLACA, CON_PRECIO],
+        planId: "catalogo",
+        productosActuales: 0,
+      }),
+    }),
+  ).replaceAll("<!-- -->", "");
+  const casilla = (nombre: string) =>
+    html.match(new RegExp(`<input[^>]*aria-label="Incluir ${nombre}"[^>]*>`))?.[0] ?? "";
+
+  it("llega desmarcado, con el precio vacío, y se dice por qué", () => {
+    expect(casilla("Placa 1P horizontal 4x2")).not.toContain("checked");
+    expect(casilla("Módulo interruptor")).toContain("checked");
+    expect(html).toContain('aria-label="Precio, falta escribirlo"');
+    expect(html).toContain("1 producto llegó sin precio y quedó sin marcar.");
+  });
+
+  it("solo cuenta para crear los que tienen precio", () => {
+    expect(html).toMatch(/Crear 1 producto/);
+    expect(html).not.toContain("marcado no tiene precio");
+  });
+});

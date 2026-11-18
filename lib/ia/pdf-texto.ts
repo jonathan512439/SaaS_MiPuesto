@@ -114,3 +114,65 @@ export function recortarPaginas(paginas: readonly { numero: number; texto: strin
   }
   return { entran, afuera: paginas.length - entran.length };
 }
+
+/* Cuántos renglones de arriba y de abajo de cada página se miran. Un encabezado
+   o un pie no pasa de tres; más adentro ya es contenido. */
+const RENGLONES_DE_BORDE = 3;
+
+/* Los encabezados y pies que se repiten en las páginas, fuera.
+ *
+ * Un catálogo de proveedor repite en cada página el nombre del negocio, la
+ * dirección y el teléfono: en el de Ferrovolt (63 páginas) eran unos 150
+ * caracteres por página, una décima parte de cada tanda, mandados 63 veces para
+ * que el modelo los ignore. Se quita lo que aparece igual en el borde de la
+ * mitad de las páginas o más. Solo en el borde: adentro de la página un renglón
+ * repetido es un dato —«Instalación: empotrada»— y no se toca. Con menos de
+ * cuatro páginas no hay de dónde sacar qué es repetido, y se deja todo. */
+export function quitarEncabezadosRepetidos<P extends { numero: number; texto: string }>(paginas: readonly P[]): P[] {
+  if (paginas.length < 4) return [...paginas];
+
+  /* El borde no pasa de un tercio de la página: en una página corta, arriba y
+     abajo se tocarían y un dato del producto contaría como pie. */
+  const ancho = (renglones: string[]) => Math.min(RENGLONES_DE_BORDE, Math.floor(renglones.length / 3));
+  const borde = (renglones: string[]) =>
+    new Set([...renglones.slice(0, ancho(renglones)), ...renglones.slice(renglones.length - ancho(renglones))]);
+  const enCuantas = new Map<string, number>();
+  for (const { texto } of paginas) {
+    for (const renglon of borde(texto.split("\n"))) {
+      enCuantas.set(renglon, (enCuantas.get(renglon) ?? 0) + 1);
+    }
+  }
+  const repetidos = new Set(
+    [...enCuantas].filter(([, cuantas]) => cuantas >= paginas.length / 2).map(([renglon]) => renglon),
+  );
+  if (repetidos.size === 0) return [...paginas];
+
+  return paginas.map((pagina) => {
+    const renglones = pagina.texto.split("\n");
+    const ultimoDeArriba = ancho(renglones);
+    const primeroDeAbajo = renglones.length - ancho(renglones);
+    const quedan = renglones.filter(
+      (renglon, indice) => !((indice < ultimoDeArriba || indice >= primeroDeAbajo) && repetidos.has(renglon)),
+    );
+    return { ...pagina, texto: quedan.join("\n") };
+  });
+}
+
+/* La sección de los productos que quedaron en otra tanda que su título.
+ *
+ * El título «Protección termomagnética» está en la página 7 y sus productos
+ * siguen hasta la 10: si la página 9 cae en otra tanda, el modelo no ve el
+ * título y devuelve esos productos sin categoría. En el orden del catálogo, un
+ * producto sin sección es de la última sección que se nombró, porque un título
+ * vale hasta el siguiente. Si nunca se nombró ninguna, siguen sin categoría. */
+export function heredarSecciones<P extends { categoria?: string }>(productos: readonly P[]): P[] {
+  let ultima = "";
+  return productos.map((producto) => {
+    const propia = (producto.categoria ?? "").trim();
+    if (propia) {
+      ultima = propia;
+      return producto;
+    }
+    return ultima ? { ...producto, categoria: ultima } : producto;
+  });
+}

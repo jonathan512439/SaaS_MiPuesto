@@ -19,7 +19,7 @@ import { presentacionesDelRenglon } from "../../../../lib/ia/presentaciones-leid
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { TIPOS_LISTA, leerArchivoDeLaPeticion, leerPaginasDeLaPeticion } from "../../../../lib/ia/archivos";
 import { leerPorTandas } from "../../../../lib/ia/lectura-por-tandas";
-import { dividirEnTandas } from "../../../../lib/ia/pdf-texto";
+import { dividirEnTandas, heredarSecciones, quitarEncabezadosRepetidos } from "../../../../lib/ia/pdf-texto";
 import {
   devolverCredito,
   leerCategoriasDelNegocio,
@@ -85,7 +85,12 @@ export async function POST(solicitud: NextRequest) {
   /* Una foto o un PDF chico son una llamada. El texto de un catálogo son varias,
      una por tanda, y sigue siendo **una sola lectura** del cupo: para el dueño
      es un documento, no doce. */
-  const lecturas = await leerPorTandas(paginas ? dividirEnTandas(paginas) : [null], async (tanda) => {
+  /* Sin los encabezados y pies que se repiten en cada página: son texto que se
+     paga en cada tanda para que el modelo lo ignore. */
+  const tandas = paginas
+    ? dividirEnTandas(quitarEncabezadosRepetidos(paginas).filter(({ texto }) => texto.trim() !== ""))
+    : [null];
+  const lecturas = await leerPorTandas(tandas, async (tanda) => {
     const lectura = tanda
       ? await analizarArchivo<ListaLeida>(
           `${instruccion}${INSTRUCCION_TEXTO_DE_PDF}\n\n<catalogo>\n${tanda}\n</catalogo>`,
@@ -130,21 +135,23 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  /* Decirle «esto no parece una lista de precios» es mejor que devolverle una
-     invención sobre la foto de su estantería. */
-  if (!correctas.some(({ es_lista_de_precios }) => es_lista_de_precios)) {
+  /* Decirle «esto no parece una lista» es mejor que devolverle una invención
+     sobre la foto de su estantería. Un catálogo sin precios sí es una lista. */
+  if (!correctas.some(({ es_lista_de_productos }) => es_lista_de_productos)) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);
     return NextResponse.json(
       {
         error:
-          "Eso no parece una lista de precios. Necesitamos la lista escrita, con el nombre y el precio en el mismo renglón.",
+          "Eso no parece una lista de productos. Necesitamos una lista o un catálogo con el nombre de cada producto escrito.",
       },
       { status: 422 },
     );
   }
 
-  const productos = correctas
-    .flatMap((leida) => (leida.es_lista_de_precios ? (leida.productos ?? []) : []))
+  const leidos = correctas.flatMap((leida) => (leida.es_lista_de_productos ? (leida.productos ?? []) : []));
+  /* Con varias tandas, el título de una sección puede haber quedado en la
+     anterior: sus productos heredan la última sección nombrada. */
+  const productos = (paginas ? heredarSecciones(leidos) : leidos)
     .map((producto) => {
       const titulo = (producto.categoria ?? "").trim().slice(0, 60);
       const sugerida = nombresDeCategorias.length
@@ -187,15 +194,10 @@ export async function POST(solicitud: NextRequest) {
         ),
       };
     })
-    /* Se descarta acá lo que la base rechazaría igual, pero con la ventaja de
-       que el dueño nunca ve un renglón que no podría guardar. */
-    .filter(
-      (producto) =>
-        producto.nombre.length > 0 &&
-        Number.isFinite(producto.precio) &&
-        producto.precio > 0 &&
-        producto.precio <= 99999,
-    )
+    /* Sin nombre no hay producto. Sin precio sí: viene de un catálogo que no
+       los trae, y la revisión se lo pide al dueño antes de crearlo
+       (`presentacionesDelRenglon` ya dejó en nulo el que no es un precio). */
+    .filter((producto) => producto.nombre.length > 0)
     .slice(0, paginas ? MAXIMO_PRODUCTOS_DE_TEXTO : MAXIMO_PRODUCTOS);
 
   if (productos.length === 0) {

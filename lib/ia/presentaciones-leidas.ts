@@ -28,8 +28,9 @@ const TIPO_POR_LEIDO: Record<string, TipoPresentacion> = {
 
 export type PresentacionesDelRenglon = {
   /* El precio del producto: el que el renglón trae, o el de la primera
-     presentación si el renglón solo trae los de cada una. */
-  precio: number;
+     presentación si el renglón solo trae los de cada una. `null` si no hay
+     ninguno escrito —un catálogo de proveedor—: lo completa el dueño. */
+  precio: number | null;
   presentaciones: PresentacionDePlanilla[];
   tipoPresentacion: TipoPresentacion | null;
 };
@@ -39,11 +40,14 @@ function esPrecio(valor: unknown): valor is number {
 }
 
 export function presentacionesDelRenglon(renglon: {
-  precio: unknown;
+  precio?: unknown;
   se_elige_por?: unknown;
   presentaciones?: unknown;
 }): PresentacionesDelRenglon {
-  const precioLeido = Number(renglon.precio);
+  const precioCrudo = Number(renglon.precio);
+  /* Un precio que no es precio —0, negativo, de más— queda como «sin precio»,
+     y no como un renglón tirado: el producto existe aunque su precio no se lea. */
+  const precioLeido = esPrecio(precioCrudo) ? precioCrudo : null;
   const sinPresentaciones = { precio: precioLeido, presentaciones: [], tipoPresentacion: null };
 
   const tipo = TIPO_POR_LEIDO[String(renglon.se_elige_por ?? "")];
@@ -67,7 +71,7 @@ export function presentacionesDelRenglon(renglon: {
 
   /* El precio del producto es el del renglón si el modelo lo leyó; si no, el
      de la primera presentación, que es el que se ve primero en la lista. */
-  const precio = esPrecio(precioLeido) ? precioLeido : (leidas.find((una) => una.precio !== null)?.precio ?? NaN);
+  const precio = precioLeido ?? leidas.find((una) => una.precio !== null)?.precio ?? null;
 
   return {
     precio,

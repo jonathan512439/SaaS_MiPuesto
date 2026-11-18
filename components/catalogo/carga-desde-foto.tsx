@@ -288,7 +288,7 @@ export function CargaDesdeFoto({
         detalle={
           avance
             ? `${avance} Las fotos se quedan en tu teléfono: no gasta tus datos.`
-            : "Estamos leyendo la lista y separando cada producto con su precio. Cuanto más larga, más tarda."
+            : "Estamos leyendo la lista y separando cada producto con sus datos. Cuanto más larga, más tarda."
         }
         titulo="Leyendo tu lista…"
       />
