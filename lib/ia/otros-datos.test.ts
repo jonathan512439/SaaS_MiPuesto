@@ -27,4 +27,11 @@ describe("los otros datos que lee la IA en un renglón", () => {
     expect(camposDeOtrosDatos(undefined)).toEqual({});
     expect(camposDeOtrosDatos("Color: azul")).toEqual({});
   });
+
+  it("sin el punto final de las fichas de catálogo", () => {
+    expect(camposDeOtrosDatos([{ nombre: "Marca", valor: "Gacia." }, { nombre: "Medida", valor: "4,5 mm" }])).toEqual({
+      Marca: "Gacia",
+      Medida: "4,5 mm",
+    });
+  });
 });

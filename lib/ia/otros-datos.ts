@@ -21,7 +21,14 @@ export function camposDeOtrosDatos(crudos: unknown): Record<string, string> {
   const vistos = new Set<string>();
   for (const crudo of crudos as Array<{ nombre?: unknown; valor?: unknown }>) {
     const nombre = String(crudo?.nombre ?? "").replace(/\s+/g, " ").trim().slice(0, LARGO_NOMBRE);
-    const valor = String(crudo?.valor ?? "").replace(/\s+/g, " ").trim().slice(0, LARGO_VALOR_TEXTO);
+    /* Sin el punto final: las fichas de catálogo escriben «Marca: Tramontina.», y
+       en la tarjeta se leería «Tramontina. · 10 A.». */
+    const valor = String(crudo?.valor ?? "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .replace(/\.+$/, "")
+      .trim()
+      .slice(0, LARGO_VALOR_TEXTO);
     const llave = nombre.toLowerCase();
     if (!nombre || !valor || vistos.has(llave) || esColumnaInterna(nombre)) continue;
     vistos.add(llave);

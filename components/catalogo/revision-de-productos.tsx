@@ -38,7 +38,9 @@ import styles from "./revision-de-productos.module.css";
 
 export type ProductoLeido = {
   nombre: string;
-  precio: number;
+  /* `null` cuando la fuente no lo trae: un catálogo de proveedor con fichas
+     y sin precios. El dueño lo escribe acá; sin precio no se crea. */
+  precio: number | null;
   descripcion: string;
   /* La descripción la escribió la IA porque la fuente no traía ninguna. Se
      marca en la revisión, y deja de ser sugerida en cuanto el dueño la toca. */
@@ -65,6 +67,11 @@ export type ProductoLeido = {
   campos?: Record<string, string>;
   avisos?: string[];
 };
+
+/* Un precio que se puede guardar: un número mayor a cero. */
+function tienePrecio(precio: number | null | undefined): precio is number {
+  return typeof precio === "number" && Number.isFinite(precio) && precio > 0 && precio <= 99_999;
+}
 
 type ImagenPendiente = { archivo: File; vistaPrevia: string };
 
@@ -154,7 +161,9 @@ export function RevisionDeProductos({
     return productos.map((producto, posicion) => ({
       ...producto,
       yaExiste: yaExistentes.has(posicion),
-      elegido: producto.confianza !== "baja" && !yaExistentes.has(posicion),
+      /* Sin precio llega desmarcado: no se puede crear así, y se marca solo en
+         cuanto el dueño escribe el suyo. */
+      elegido: producto.confianza !== "baja" && !yaExistentes.has(posicion) && tienePrecio(producto.precio),
       cantidad: producto.cantidad === null || producto.cantidad === undefined
         ? ""
         : String(producto.cantidad),
@@ -219,6 +228,9 @@ export function RevisionDeProductos({
   const faltanDescripciones = filas.filter(({ descripcion }) => descripcion.trim() === "").length;
   const sugeridas = filas.filter(({ descripcionSugerida }) => descripcionSugerida).length;
   const elegidos = filas.filter(({ elegido }) => elegido);
+  const sinPrecio = filas.filter(({ precio }) => !tienePrecio(precio)).length;
+  /* Uno marcado a mano sin precio: la ruta lo rechazaría a mitad de la carga. */
+  const elegidosSinPrecio = elegidos.filter(({ precio }) => !tienePrecio(precio)).length;
   const sobran = Math.max(0, elegidos.length - lugarLibre);
   const totalFotos = elegidos.reduce((suma, fila) => suma + fila.imagenes.length, 0);
   /* Con todo lo marcado, cuántos tendría, y qué se le propone si no entra. */
@@ -314,8 +326,23 @@ export function RevisionDeProductos({
     });
   }
 
+  /* «Marcar todos» deja afuera los que no tienen precio: marcarlos solo
+     trabaría el botón de crear. */
   function marcarTodos(elegido: boolean) {
-    setFilas((actuales) => actuales.map((fila) => ({ ...fila, elegido })));
+    setFilas((actuales) =>
+      actuales.map((fila) => ({ ...fila, elegido: elegido && tienePrecio(fila.precio) })),
+    );
+  }
+
+  /* Escribir el precio de uno que llegó sin precio lo marca: es la forma de
+     decir «este sí». Borrarlo lo desmarca, porque así no se podría crear. */
+  function cambiarPrecio(indice: number, escrito: string) {
+    const precio = escrito.trim() === "" ? null : Number(escrito);
+    const fila = filas[indice];
+    cambiar(indice, {
+      precio,
+      elegido: !tienePrecio(precio) ? false : tienePrecio(fila.precio) ? fila.elegido : !fila.yaExiste,
+    });
   }
 
   /* Las fotos se comprimen al elegirlas y no al enviarlas. Comprimir veintiocho
@@ -623,6 +650,15 @@ export function RevisionDeProductos({
         </aside>
       ) : null}
 
+      {sinPrecio > 0 ? (
+        <p className={styles.yaExistentes} role="status">
+          {sinPrecio === 1
+            ? "1 producto llegó sin precio y quedó sin marcar."
+            : `${sinPrecio} productos llegaron sin precio y quedaron sin marcar.`}{" "}
+          Escribe el precio de los que quieras crear: al escribirlo, se marcan solos.
+        </p>
+      ) : null}
+
       {yaExistentes > 0 ? (
         <p className={styles.yaExistentes}>
           {yaExistentes === 1
@@ -772,12 +808,15 @@ export function RevisionDeProductos({
                     value={fila.nombre}
                   />
                   <input
-                    aria-label="Precio"
+                    aria-invalid={fila.elegido && !tienePrecio(fila.precio) ? true : undefined}
+                    aria-label={tienePrecio(fila.precio) ? "Precio" : "Precio, falta escribirlo"}
                     disabled={guardando}
                     inputMode="decimal"
-                    onChange={(evento) => cambiar(indice, { precio: Number(evento.target.value) })}
+                    min={0}
+                    onChange={(evento) => cambiarPrecio(indice, evento.target.value)}
+                    placeholder="Falta"
                     type="number"
-                    value={fila.precio}
+                    value={fila.precio ?? ""}
                   />
                   {/* La descripción solo aparece si el archivo la traía: un campo
                       vacío por producto alarga la revisión sin agregar nada. */}
@@ -902,11 +941,24 @@ export function RevisionDeProductos({
         </div>
       ) : null}
 
+      {elegidosSinPrecio > 0 ? (
+        <p className={styles.aviso} id="aviso-sin-precio" role="status">
+          <strong>
+            {elegidosSinPrecio === 1
+              ? "1 producto marcado no tiene precio."
+              : `${elegidosSinPrecio} productos marcados no tienen precio.`}
+          </strong>{" "}
+          Escríbelo o desmárcalo para poder crear los demás.
+        </p>
+      ) : null}
+
       <div className={styles.confirmar}>
         <Boton
           cargando={guardando}
-          aria-describedby={sobran > 0 ? "aviso-tope-importacion" : undefined}
-          disabled={guardando || elegidos.length === 0 || sobran > 0}
+          aria-describedby={
+            sobran > 0 ? "aviso-tope-importacion" : elegidosSinPrecio > 0 ? "aviso-sin-precio" : undefined
+          }
+          disabled={guardando || elegidos.length === 0 || sobran > 0 || elegidosSinPrecio > 0}
           onClick={() => void crear()}
         >
           Crear {elegidos.length} producto(s)
