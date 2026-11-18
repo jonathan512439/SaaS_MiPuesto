@@ -30,7 +30,7 @@ la página, son sus categorías, sus campos y sus acciones.
 | [`08-VOCABULARIO.md`](08-VOCABULARIO.md) | Cómo escribe el sistema. Lista de palabras prohibidas |
 | [`09-DIRECTORIO-Y-FORMAS.md`](09-DIRECTORIO-Y-FORMAS.md) | Fases 10 a 12: tres formas de tarjeta, ubicación y rubro público, y el directorio buscable |
 | [`10-TALLAS-Y-PRESENTACIONES.md`](10-TALLAS-Y-PRESENTACIONES.md) | Fase 13: tallas, números de calzado y tamaños que se reservan, se cobran y llegan al pedido |
-| [`11-PRODUCTOS-SIN-PRECIO.md`](11-PRODUCTOS-SIN-PRECIO.md) | Fase 14: un producto se guarda sin precio y no se publica hasta que el dueño le pone uno |
+| [`11-PRODUCTOS-SIN-PRECIO.md`](11-PRODUCTOS-SIN-PRECIO.md) | Fase 14: un producto sin precio se muestra sin precio y con «Consultar por WhatsApp», y no entra al carrito |
 
 ## Las reglas que no se rompen
 
