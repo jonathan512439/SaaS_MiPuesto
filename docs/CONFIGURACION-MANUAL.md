@@ -148,7 +148,7 @@ Estado: **parcialmente completado el 2026-09-01**. La aplicación ya implementa 
    - **Site URL**: `https://mipuesto-dev.mipuesto-app.workers.dev`.
    - **Redirect URLs**: `https://mipuesto-dev.mipuesto-app.workers.dev/actualizar-clave` y `http://localhost:3000/actualizar-clave`.
 4. En **Authentication → Rate Limits**, dejá habilitados los límites de inicio de sesión y envío de correos. El valor por persona para recuperación debe ser como mínimo 60 segundos.
-5. Configurá un SMTP propio en **Authentication → SMTP Settings** antes de invitar un negocio real. **Completado temporalmente el 2026-09-02 con `app.mipuesto@gmail.com` y contraseña de aplicación**, sin incorporar credenciales al proyecto. El primer intento devolvió `Gateway Timeout` por un dígito incorrecto en la contraseña; al corregirlo, la invitación llegó al correo de prueba. Para producción se migrará a Resend Free con un dominio propio. El SMTP gratuito predeterminado de Supabase solo entrega a miembros del equipo y limita los correos, por lo que no es suficiente para administradores externos.
+5. Configurá un SMTP propio en **Authentication → SMTP Settings** antes de invitar un negocio real. **Completado temporalmente el 2026-09-02 con `app.mipuesto@gmail.com` y contraseña de aplicación**, sin incorporar credenciales al proyecto. El primer intento devolvió `Gateway Timeout` por un dígito incorrecto en la contraseña; al corregirlo, la invitación llegó al correo de prueba. **Reemplazado el 2026-11-07 por Resend con `hola@mi-puesto.com`: ver «Correo con dominio propio».** El SMTP gratuito predeterminado de Supabase solo entrega a miembros del equipo y limita los correos, por lo que no es suficiente para administradores externos.
 6. Después de guardar, desde la raíz del proyecto ejecutá:
 
 ```powershell
@@ -159,7 +159,7 @@ La CLI ya enlazada solicita la clave administrativa solo en memoria. No copies `
 
 7. Abrí el correo recibido, definí una contraseña en el enlace y comprobá que podés ingresar y crear el negocio. La verificación del enlace ocurre en Supabase antes de la redirección: si alguna vez el enlace apunta a una URL incorrecta (por ejemplo, `localhost` desde otro dispositivo), la cuenta puede quedar creada aunque la página no cargue. En ese caso, después de corregir la URL, pedí recuperación de contraseña para ese correo y usá el enlace nuevo; no es necesario reenviar otra invitación.
 
-   Para reducir spam antes de producción, se personalizará la plantilla de invitación y se sustituirá Gmail por un proveedor con dominio propio y registros SPF, DKIM y DMARC. No modifiques aún la plantilla mientras se completa esta validación funcional.
+   El envío con dominio propio, SPF, DKIM, DMARC y las plantillas con la marca quedaron activos el 2026-11-07: ver «Correo con dominio propio».
 
    Luego ejecutá:
 
@@ -453,6 +453,9 @@ mejora la situación legal y no cambia nada de lo que el cliente sabe.
 
 ## Correo con dominio propio
 
+Activo desde el 2026-11-07: un correo real de recuperación llegó a la bandeja
+principal de Gmail con SPF, DKIM y DMARC en `pass`.
+
 Salía por `app.mipuesto@gmail.com` con una clave de aplicación: un Gmail enviando
 correos automáticos en nombre de un negocio, sin DKIM propio y con un dominio sin
 SPF ni DMARC. Eso es lo que lo manda a spam, y ninguna plantilla lo compensa.
@@ -482,6 +485,11 @@ La cabecera `public/marca/correo-cabecera.png` tiene que estar publicada: abre
 3. Espera a que el dominio diga **Verified**.
 4. En la configuración del dominio, deja **apagados** Click Tracking y Open
    Tracking: reescriben los enlaces y rompen los de un solo uso.
+5. En Cloudflare, comprueba que `resend._domainkey` tenga **un solo** `TXT`, igual
+   al de Resend. Con dos, un filtro puede leer la clave equivocada y DKIM falla.
+
+`send` y `rsend` quedan como `CNAME` hacia `forge.rmta.net`: son de Resend, y está
+bien. Por ahí pasan el SPF y los rebotes.
 
 Se usa el dominio raíz porque desde acá solo sale correo de la cuenta. Si un día se
 manda publicidad, esa sale por un subdominio aparte, para no gastar esta reputación.
@@ -499,11 +507,14 @@ En Cloudflare → DNS → Records, agrega un `TXT`:
 
 ### 3. Recibir en hola@mi-puesto.com
 
-1. Cloudflare → Email → **Email Routing → Get started**.
-2. Crea la dirección `hola` y como destino el Gmail donde quieras leer las
-   respuestas. Confirma el correo que te llega a ese Gmail.
-3. Acepta los registros que propone Cloudflare (MX y SPF del dominio raíz). No
-   chocan con los de Resend, que viven en el subdominio `send`.
+1. Cloudflare → **Compute → Email Service → Email Routing → Incorporar dominio**.
+   Elige `mi-puesto.com` y acepta los registros que propone (MX, SPF y DKIM del
+   dominio raíz). No chocan con los de Resend, que viven en `send`.
+2. En **Destination Addresses**, agrega el Gmail donde quieras leer las respuestas
+   y confirma el correo que te llega ahí. Sin eso, la regla queda apagada.
+3. En **Routing Rules → Create routing rule**: patrón `hola`, acción **Send to an
+   email** y, como destino, ese Gmail.
+4. Prueba desde otra cuenta, no desde el mismo Gmail de destino.
 
 ### 4. Conectar Supabase
 
