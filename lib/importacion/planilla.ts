@@ -117,7 +117,8 @@ export type PresentacionDePlanilla = {
 
 export type ProductoDePlanilla = {
   nombre: string;
-  precio: number;
+  /* `null`: la fila no trae precio, y se crea sin precio (fase 14). */
+  precio: number | null;
   descripcion: string;
   categoria: string;
   confianza: "alta";
@@ -224,11 +225,17 @@ export function productosDeLaPlanilla(
 
     /* Se descarta lo que la base rechazaría igual, y se cuenta cuánto: un
        renglón que desaparece sin dejar rastro es la forma más fácil de que
-       alguien publique un catálogo incompleto sin enterarse. */
-    if (nombre === "" || precio === null || precio <= 0 || precio > 99_999) {
+       alguien publique un catálogo incompleto sin enterarse.
+
+       Sin precio ya no se descarta (fase 14): la celda vacía, en 0 o con
+       «a convenir» se crea sin precio, y el catálogo lo muestra con
+       «Consultar por WhatsApp». Un número desmedido sí: es más probable un
+       código leído como precio que un producto de cien mil bolivianos. */
+    if (nombre === "" || (precio !== null && precio > 99_999)) {
       descartadas += 1;
       continue;
     }
+    const precioDeLaFila = precio !== null && precio > 0 ? precio : null;
 
     const celda = (indice: number | null) => (indice === null ? "" : (fila[indice] ?? "").trim());
     const descripcion = celda(mapeo.descripcion).slice(0, 300);
@@ -254,7 +261,7 @@ export function productosDeLaPlanilla(
       }
       existente.presentaciones.push({
         nombre: presentacion,
-        precio: precio === existente.precio ? null : precio,
+        precio: precioDeLaFila === existente.precio ? null : precioDeLaFila,
         cantidad,
       });
       if (!existente.descripcion && descripcion) existente.descripcion = descripcion;
@@ -269,7 +276,7 @@ export function productosDeLaPlanilla(
 
     const producto: ProductoDePlanilla = {
       nombre,
-      precio,
+      precio: precioDeLaFila,
       descripcion,
       categoria,
       confianza: "alta",

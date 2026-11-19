@@ -1,3 +1,4 @@
+import { tienePrecio } from "../precios";
 import { armarXlsx } from "./xlsx";
 
 /* El catálogo del negocio, en una planilla que el propio importador vuelve a
@@ -25,7 +26,8 @@ export type ProductoExportable = {
   codigo: string;
   nombre: string;
   descripcion: string | null;
-  precio: number;
+  /* Nulo: sin precio (fase 14). */
+  precio: number | null;
   categoria: string | null;
   subcategoria: string | null;
   controla_stock: boolean;
@@ -51,8 +53,10 @@ const TITULOS = [
 /* Con punto decimal y sin separador de miles: es la única forma que el XML de
    Excel acepta como número, y la que el importador vuelve a leer sin depender de
    si la computadora del dueño usa coma o punto. */
-function precioDePlanilla(precio: number): string {
-  return Number(precio).toFixed(2);
+function precioDePlanilla(precio: number | null): string {
+  /* Sin precio, la celda vacía y no «0.00» (fase 14): al volver a importarla,
+     vacía es «sin precio», y un 0 escrito diría otra cosa a quien la lee. */
+  return tienePrecio(precio) ? Number(precio).toFixed(2) : "";
 }
 
 export function filasDelCatalogo(

@@ -216,7 +216,7 @@ export function ImportarPlanilla({
             <ul className={styles.ojo}>
               <li>Leemos la primera hoja que tenga datos, no todas</li>
               <li>El formato viejo .xls hay que guardarlo antes como .xlsx</li>
-              <li>Los renglones sin nombre o sin precio se descartan y te lo decimos</li>
+              <li>Los renglones sin nombre se descartan y te lo decimos; los que no tienen precio se crean sin precio</li>
               <li>Hasta {MAXIMO_FILAS} productos por vez</li>
               <li>Las fotos de cada producto las subes vos después</li>
             </ul>
@@ -386,7 +386,7 @@ export function ImportarPlanilla({
             Con esta elección entran <strong>{resultado?.productos.length ?? 0} producto(s)</strong>
             {conPresentaciones > 0 ? `, ${conPresentaciones} con tallas, números o tamaños` : ""}
             {resultado && resultado.descartadas > 0
-              ? `, y se descartan ${resultado.descartadas} fila(s) que no tienen nombre o no tienen un precio válido.`
+              ? `, y se descartan ${resultado.descartadas} fila(s) que no tienen nombre o traen un número que no puede ser un precio.`
               : "."}
             {resultado && resultado.ejemplos > 0
               ? ` Dejamos afuera ${resultado.ejemplos} fila(s) de ejemplo de la plantilla.`

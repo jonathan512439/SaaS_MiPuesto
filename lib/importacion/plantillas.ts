@@ -583,7 +583,7 @@ export function filasDeInstrucciones(rubro: RubroId): string[][] {
   const pasos = [
     "Escribe tus productos en la hoja «Productos», una fila por producto.",
     "Las filas que empiezan con «Ejemplo:» son de muestra. Bórralas o escribe debajo: al importar se dejan afuera solas.",
-    "«Producto» y «Precio» son obligatorios. El precio va solo con el número, en bolivianos: 25 o 12,50.",
+    "«Producto» es obligatorio. El precio va solo con el número, en bolivianos: 25 o 12,50. Si lo dejas vacío, el producto se crea sin precio y tus clientes lo consultan por WhatsApp.",
     "«Categoría»: el nombre de tu categoría en MiPuesto, escrito igual. Así el producto cae en ella con todos sus datos.",
     "«Cantidad»: cuántas unidades tienes. Déjala vacía si no llevas la cuenta; un 0 publica el producto como agotado.",
     ...(plantilla.conPresentaciones

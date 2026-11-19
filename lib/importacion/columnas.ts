@@ -83,7 +83,16 @@ function buscarPorTitulo(cabeceras: string[], campo: keyof Mapeo, tomadas: Set<n
 function pareceCabecera(filas: string[][]): boolean {
   if (filas.length < 2) return false;
   const conPrecio = (fila: string[]) => fila.some((celda) => (leerPrecio(celda) ?? 0) > 0);
-  return !conPrecio(filas[0]) && filas.slice(1, 8).some(conPrecio);
+  if (conPrecio(filas[0])) return false;
+  if (filas.slice(1, 8).some(conPrecio)) return true;
+  /* Un catálogo sin ningún precio (fase 14) no da esa señal, y la fila de
+     títulos se habría creado como un producto llamado «Producto». Ahí manda
+     lo que dice: si nombra la columna del producto y la del precio, son
+     títulos. */
+  return (
+    buscarPorTitulo(filas[0], "nombre", new Set()) !== null &&
+    buscarPorTitulo(filas[0], "precio", new Set()) !== null
+  );
 }
 
 /* Cuando no hay títulos hay que mirar el contenido. La columna de precios es la

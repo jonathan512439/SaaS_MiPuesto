@@ -157,3 +157,26 @@ function nombresDeLasPartes(archivo: Uint8Array): string[] {
 
   return nombres;
 }
+
+/* Fase 14: un producto sin precio sale con la celda vacía, no con «0.00», y
+   vuelve a entrar sin precio. */
+describe("la exportación de un catálogo sin precios", () => {
+  const SIN_PRECIO: ProductoExportable[] = [
+    { ...CATALOGO[0], codigo: "P-003", nombre: "Placa 1P horizontal 4x2", precio: null },
+    { ...CATALOGO[1], codigo: "P-004", nombre: "Interruptor doble", precio: 0 },
+  ];
+
+  it("deja vacía la celda del precio", () => {
+    const [placa, interruptor] = filasDelCatalogo(SIN_PRECIO).slice(1);
+    expect(placa[1]).toBe("");
+    expect(interruptor[1]).toBe("");
+  });
+
+  it("al volver a importarla, entran sin precio y con sus títulos reconocidos", async () => {
+    const filas = await volverALeer(exportarCatalogo(SIN_PRECIO));
+    const planilla = analizarPlanilla(filas);
+    expect(planilla.cabeceras).not.toBeNull();
+    expect(planilla.filas).toHaveLength(2);
+    for (const fila of planilla.filas) expect(leerPrecio(fila[planilla.mapeo.precio] ?? "")).toBeNull();
+  });
+});

@@ -324,8 +324,10 @@ describe("lo leído no entra en el plan", () => {
   });
 });
 
-/* Un catálogo de proveedor sin precios: cada producto llega desmarcado y con el
-   precio vacío, y la revisión dice qué hacer. Sin precio no se crea. */
+/* Un catálogo de proveedor sin precios. Desde la fase 14 llegan **marcados** y
+   se crean sin precio, sin que el dueño tenga que hacer nada: el catálogo los
+   muestra con «Consultar por WhatsApp». Antes llegaban desmarcados y no se
+   podían crear sin escribir el precio de cada uno (`9af2dfd`). */
 describe("los productos que llegan sin precio", () => {
   const PLACA: ProductoLeido = {
     nombre: "Placa 1P horizontal 4x2",
@@ -353,15 +355,20 @@ describe("los productos que llegan sin precio", () => {
   const casilla = (nombre: string) =>
     html.match(new RegExp(`<input[^>]*aria-label="Incluir ${nombre}"[^>]*>`))?.[0] ?? "";
 
-  it("llega desmarcado, con el precio vacío, y se dice por qué", () => {
-    expect(casilla("Placa 1P horizontal 4x2")).not.toContain("checked");
+  it("llega marcado, con «Sin precio» en su fila, y se dice qué pasa", () => {
+    expect(casilla("Placa 1P horizontal 4x2")).toContain("checked");
     expect(casilla("Módulo interruptor")).toContain("checked");
-    expect(html).toContain('aria-label="Precio, falta escribirlo"');
-    expect(html).toContain("1 producto llegó sin precio y quedó sin marcar.");
+    expect(html).toContain('placeholder="Sin precio"');
+    expect(html).toContain('aria-label="Precio, vacío: se crea sin precio"');
+    expect(html).toContain(
+      "1 producto llegó sin precio. Se crea igual: tus clientes lo ven sin precio y lo consultan por WhatsApp.",
+    );
+    expect(html).toContain("Puedes ponerles precio después desde Productos.");
   });
 
-  it("solo cuenta para crear los que tienen precio", () => {
-    expect(html).toMatch(/Crear 1 producto/);
+  it("cuenta los dos para crear, y no hay nada que lo trabe", () => {
+    expect(html).toMatch(/Crear 2 producto/);
     expect(html).not.toContain("marcado no tiene precio");
+    expect(html).not.toContain("aviso-sin-precio");
   });
 });

@@ -21,6 +21,7 @@ import type { InformeDeCobertura } from "../../lib/ia/cobertura";
 import type { CupoDeLecturas } from "../../lib/ia/cupo-de-lecturas";
 import { MAXIMO_PARA_DESCRIBIR } from "../../lib/ia/descripciones";
 import { planDe } from "../../lib/planes";
+import { tienePrecio } from "../../lib/precios";
 import { prepararImagenParaSubir } from "../../lib/imagenes";
 import { Boton, Selector, useAvisos } from "../ui";
 import { pasoSiguiente } from "../../lib/catalogo/catalogo-grande";
@@ -39,7 +40,8 @@ import styles from "./revision-de-productos.module.css";
 export type ProductoLeido = {
   nombre: string;
   /* `null` cuando la fuente no lo trae: un catálogo de proveedor con fichas
-     y sin precios. El dueño lo escribe acá; sin precio no se crea. */
+     y sin precios. Se crea igual, sin precio (fase 14): el catálogo lo muestra
+     con «Consultar por WhatsApp», y el dueño le pone precio cuando quiera. */
   precio: number | null;
   descripcion: string;
   /* La descripción la escribió la IA porque la fuente no traía ninguna. Se
@@ -67,11 +69,6 @@ export type ProductoLeido = {
   campos?: Record<string, string>;
   avisos?: string[];
 };
-
-/* Un precio que se puede guardar: un número mayor a cero. */
-function tienePrecio(precio: number | null | undefined): precio is number {
-  return typeof precio === "number" && Number.isFinite(precio) && precio > 0 && precio <= 99_999;
-}
 
 type ImagenPendiente = { archivo: File; vistaPrevia: string };
 
@@ -161,9 +158,9 @@ export function RevisionDeProductos({
     return productos.map((producto, posicion) => ({
       ...producto,
       yaExiste: yaExistentes.has(posicion),
-      /* Sin precio llega desmarcado: no se puede crear así, y se marca solo en
-         cuanto el dueño escribe el suyo. */
-      elegido: producto.confianza !== "baja" && !yaExistentes.has(posicion) && tienePrecio(producto.precio),
+      /* Sin precio llega marcado igual (fase 14): se crea sin precio, sin que
+         el dueño tenga que hacer nada. */
+      elegido: producto.confianza !== "baja" && !yaExistentes.has(posicion),
       cantidad: producto.cantidad === null || producto.cantidad === undefined
         ? ""
         : String(producto.cantidad),
@@ -229,8 +226,6 @@ export function RevisionDeProductos({
   const sugeridas = filas.filter(({ descripcionSugerida }) => descripcionSugerida).length;
   const elegidos = filas.filter(({ elegido }) => elegido);
   const sinPrecio = filas.filter(({ precio }) => !tienePrecio(precio)).length;
-  /* Uno marcado a mano sin precio: la ruta lo rechazaría a mitad de la carga. */
-  const elegidosSinPrecio = elegidos.filter(({ precio }) => !tienePrecio(precio)).length;
   const sobran = Math.max(0, elegidos.length - lugarLibre);
   const totalFotos = elegidos.reduce((suma, fila) => suma + fila.imagenes.length, 0);
   /* Con todo lo marcado, cuántos tendría, y qué se le propone si no entra. */
@@ -326,23 +321,14 @@ export function RevisionDeProductos({
     });
   }
 
-  /* «Marcar todos» deja afuera los que no tienen precio: marcarlos solo
-     trabaría el botón de crear. */
   function marcarTodos(elegido: boolean) {
-    setFilas((actuales) =>
-      actuales.map((fila) => ({ ...fila, elegido: elegido && tienePrecio(fila.precio) })),
-    );
+    setFilas((actuales) => actuales.map((fila) => ({ ...fila, elegido })));
   }
 
-  /* Escribir el precio de uno que llegó sin precio lo marca: es la forma de
-     decir «este sí». Borrarlo lo desmarca, porque así no se podría crear. */
+  /* Vacío es «sin precio», y se crea igual (fase 14). */
   function cambiarPrecio(indice: number, escrito: string) {
-    const precio = escrito.trim() === "" ? null : Number(escrito);
-    const fila = filas[indice];
-    cambiar(indice, {
-      precio,
-      elegido: !tienePrecio(precio) ? false : tienePrecio(fila.precio) ? fila.elegido : !fila.yaExiste,
-    });
+    const precio = escrito.trim() === "" ? null : Number(escrito.replace(",", "."));
+    cambiar(indice, { precio: Number.isFinite(precio) ? precio : null });
   }
 
   /* Las fotos se comprimen al elegirlas y no al enviarlas. Comprimir veintiocho
@@ -507,7 +493,8 @@ export function RevisionDeProductos({
           body: JSON.stringify({
             nombre: producto.nombre,
             descripcion: producto.descripcion.trim() || null,
-            precio: producto.precio,
+            /* Nulo y nunca 0: sin precio es nulo en todo el sistema. */
+            precio: tienePrecio(producto.precio) ? producto.precio : null,
             categoria_id: categoriaId,
             subcategoria_id: null,
             /* Lo que la lectura completó de los campos de la categoría. La ruta
@@ -653,9 +640,9 @@ export function RevisionDeProductos({
       {sinPrecio > 0 ? (
         <p className={styles.yaExistentes} role="status">
           {sinPrecio === 1
-            ? "1 producto llegó sin precio y quedó sin marcar."
-            : `${sinPrecio} productos llegaron sin precio y quedaron sin marcar.`}{" "}
-          Escribe el precio de los que quieras crear: al escribirlo, se marcan solos.
+            ? "1 producto llegó sin precio. Se crea igual: tus clientes lo ven sin precio y lo consultan por WhatsApp."
+            : `${sinPrecio} productos llegaron sin precio. Se crean igual: tus clientes los ven sin precio y los consultan por WhatsApp.`}{" "}
+          Puedes ponerles precio después desde Productos.
         </p>
       ) : null}
 
@@ -808,13 +795,12 @@ export function RevisionDeProductos({
                     value={fila.nombre}
                   />
                   <input
-                    aria-invalid={fila.elegido && !tienePrecio(fila.precio) ? true : undefined}
-                    aria-label={tienePrecio(fila.precio) ? "Precio" : "Precio, falta escribirlo"}
+                    aria-label={tienePrecio(fila.precio) ? "Precio" : "Precio, vacío: se crea sin precio"}
                     disabled={guardando}
                     inputMode="decimal"
                     min={0}
                     onChange={(evento) => cambiarPrecio(indice, evento.target.value)}
-                    placeholder="Falta"
+                    placeholder="Sin precio"
                     type="number"
                     value={fila.precio ?? ""}
                   />
@@ -941,24 +927,11 @@ export function RevisionDeProductos({
         </div>
       ) : null}
 
-      {elegidosSinPrecio > 0 ? (
-        <p className={styles.aviso} id="aviso-sin-precio" role="status">
-          <strong>
-            {elegidosSinPrecio === 1
-              ? "1 producto marcado no tiene precio."
-              : `${elegidosSinPrecio} productos marcados no tienen precio.`}
-          </strong>{" "}
-          Escríbelo o desmárcalo para poder crear los demás.
-        </p>
-      ) : null}
-
       <div className={styles.confirmar}>
         <Boton
           cargando={guardando}
-          aria-describedby={
-            sobran > 0 ? "aviso-tope-importacion" : elegidosSinPrecio > 0 ? "aviso-sin-precio" : undefined
-          }
-          disabled={guardando || elegidos.length === 0 || sobran > 0 || elegidosSinPrecio > 0}
+          aria-describedby={sobran > 0 ? "aviso-tope-importacion" : undefined}
+          disabled={guardando || elegidos.length === 0 || sobran > 0}
           onClick={() => void crear()}
         >
           Crear {elegidos.length} producto(s)

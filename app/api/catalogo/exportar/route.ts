@@ -68,7 +68,7 @@ export async function GET() {
     codigo: producto.codigo,
     nombre: producto.nombre,
     descripcion: producto.descripcion,
-    precio: Number(producto.precio),
+    precio: producto.precio === null ? null : Number(producto.precio),
     categoria: producto.categoria_id ? (nombreCategoria.get(producto.categoria_id) ?? null) : null,
     subcategoria: producto.subcategoria_id
       ? (nombreSubcategoria.get(producto.subcategoria_id) ?? null)

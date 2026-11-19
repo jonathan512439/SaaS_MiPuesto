@@ -78,6 +78,9 @@ describe("abrir la planilla que trae el dueño", () => {
 
   /* Lo que no entra no puede desaparecer sin dejar rastro: un renglón perdido
      en silencio es un producto que el dueño cree publicado y no está. */
+  /* Desde la fase 14 una fila sin precio —vacía, en 0 o «a convenir»— no se
+     descarta: se crea sin precio. Lo que se descarta es lo que no tiene nombre
+     o trae un número desmedido. */
   it("cuenta las filas que descarta en vez de tragárselas", () => {
     const { productos, descartadas } = productosDeLaPlanilla(
       [
@@ -85,6 +88,7 @@ describe("abrir la planilla que trae el dueño", () => {
         ["Sin precio", "a convenir"],
         ["", "5"],
         ["Regalo", "0"],
+        ["Código leído como precio", "7791234"],
       ],
       {
         nombre: 0,
@@ -97,8 +101,28 @@ describe("abrir la planilla que trae el dueño", () => {
       },
     );
 
-    expect(productos).toHaveLength(1);
-    expect(descartadas).toBe(3);
+    expect(productos.map(({ nombre, precio }) => [nombre, precio])).toEqual([
+      ["Pan", 3],
+      ["Sin precio", null],
+      ["Regalo", null],
+    ]);
+    expect(descartadas).toBe(2);
+  });
+
+  /* Un catálogo de proveedor sin ningún precio: la fila de títulos no se
+     reconocía por «no trae precio», y se habría creado como un producto. */
+  it("con ningún precio, reconoce los títulos y crea todo sin precio", async () => {
+    const lectura = await leerArchivoDePlanilla(
+      archivoDeTexto(
+        "Producto,Precio,Marca\nPlaca 1P horizontal 4x2,,Tramontina\nInterruptor doble,,Tramontina",
+      ),
+    );
+    const { productos, descartadas } = productosDeLaPlanilla(lectura.filas, lectura.mapeo, lectura.cabeceras);
+    expect(productos.map(({ nombre, precio }) => [nombre, precio])).toEqual([
+      ["Placa 1P horizontal 4x2", null],
+      ["Interruptor doble", null],
+    ]);
+    expect(descartadas).toBe(0);
   });
 
   /* «Sin columna» y «cero» no son lo mismo. Cero es «no queda ninguno» y sale
