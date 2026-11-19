@@ -2,11 +2,26 @@ const URL_LOCAL = "http://localhost:3000";
 
 /* La dirección con que MiPuesto se presenta al dueño: «mi-puesto.com/tu-negocio».
    Con guion: el dominio sin guion lo tiene un tercero desde 2004. Decidido por
-   el dueño el 2026-09-25. Mientras no esté conectado, el sitio sigue sirviendo
-   desde `NEXT_PUBLIC_SITE_URL`; esto es solo lo que se escribe en pantalla. */
+   el dueño el 2026-09-25. El sitio sirve desde `NEXT_PUBLIC_SITE_URL`; esto es
+   solo lo que se escribe en pantalla. */
 export const DOMINIO_MIPUESTO = "mi-puesto.com";
 
-export function obtenerUrlBaseSitio(valor = process.env.NEXT_PUBLIC_SITE_URL) {
+/* La dirección desde la que el navegador abrió la página, o nada en el servidor.
+ *
+ * `NEXT_PUBLIC_SITE_URL` llega al navegador solo si existía **al compilar**:
+ * vinext la escribe adentro del código en ese momento. En Workers Builds estaba
+ * cargada para atender pero no para compilar, y el navegador recibió
+ * `{}.NEXT_PUBLIC_SITE_URL`: «Copiar enlace» de un producto copiaba
+ * `http://localhost:3000/…` y Plataforma decía que mi-puesto.com no estaba
+ * conectado (2026-11-19). Sin la variable, la dirección de la propia página es
+ * la respuesta correcta: el panel siempre se abre desde el sitio. */
+function origenDelNavegador(): string | undefined {
+  return typeof window === "undefined" ? undefined : window.location.origin;
+}
+
+export function obtenerUrlBaseSitio(
+  valor = process.env.NEXT_PUBLIC_SITE_URL || origenDelNavegador(),
+) {
   try {
     const url = new URL(valor || URL_LOCAL);
     if (url.protocol !== "http:" && url.protocol !== "https:") return URL_LOCAL;

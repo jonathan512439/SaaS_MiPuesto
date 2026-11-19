@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   construirUrlPublicaNegocio,
@@ -34,5 +34,35 @@ describe("URL pública del sitio", () => {
 
   it("descarta protocolos inseguros", () => {
     expect(obtenerUrlBaseSitio("javascript:alert(1)")).toBe("http://localhost:3000");
+  });
+});
+
+/* En el navegador, la variable existe solo si estaba al compilar. Cuando falta,
+   la dirección sale de la página abierta y no de `localhost`: con `localhost`,
+   el enlace que el dueño copiaba para WhatsApp no le abría a nadie. */
+describe("la dirección en el navegador", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("sin la variable, usa la dirección de la página", () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
+    vi.stubGlobal("window", { location: { origin: "https://mi-puesto.com" } });
+    expect(obtenerUrlBaseSitio()).toBe("https://mi-puesto.com");
+    expect(construirUrlPublicaProducto("kantuta-moda", "PRD-1")).toBe(
+      "https://mi-puesto.com/kantuta-moda/p/PRD-1",
+    );
+  });
+
+  it("con la variable, manda la variable", () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://mi-puesto.com");
+    vi.stubGlobal("window", { location: { origin: "https://otra.direccion" } });
+    expect(obtenerUrlBaseSitio()).toBe("https://mi-puesto.com");
+  });
+
+  it("en el servidor, sin la variable, sigue siendo la local", () => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
+    expect(obtenerUrlBaseSitio()).toBe("http://localhost:3000");
   });
 });
