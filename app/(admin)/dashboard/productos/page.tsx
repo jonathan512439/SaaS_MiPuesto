@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { EncabezadoPanel } from "../../../../components/dashboard/encabezado-panel";
 import { GestorCatalogo } from "../../../../components/catalogo/gestor-catalogo";
 import { leerCatalogoAdmin } from "../../../../lib/catalogo/datos-admin";
+import { PARAMETRO_FILTRO, leerFiltroEstado } from "../../../../lib/catalogo/filtro-productos";
 import { RUTA_SIN_NEGOCIO } from "../../../../lib/panel/rutas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
@@ -21,7 +22,11 @@ export const metadata: Metadata = {
  * lista. El filtro por categoría acá es un desplegable, que es lo que hace falta
  * cuando se viene a trabajar sobre productos y no sobre categorías.
  */
-export default async function PaginaProductos() {
+export default async function PaginaProductos({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const supabase = await crearClienteSupabaseServidor();
   const { data: datosClaims } = await supabase.auth.getClaims();
   const idUsuario = datosClaims?.claims.sub;
@@ -31,6 +36,8 @@ export default async function PaginaProductos() {
   if (!datos) redirect(RUTA_SIN_NEGOCIO);
 
   const { url } = obtenerVariablesPublicasSupabase();
+  /* `?filtro=sin-precio`: el enlace de Inicio a los productos sin precio. */
+  const filtroInicial = leerFiltroEstado((await searchParams)[PARAMETRO_FILTRO]);
 
   return (
     <main className={panel.contenido}>
@@ -38,7 +45,12 @@ export default async function PaginaProductos() {
         titulo="Productos"
       />
 
-      <GestorCatalogo datosIniciales={datos} urlSupabase={url} vista="productos" />
+      <GestorCatalogo
+        datosIniciales={datos}
+        filtroInicial={filtroInicial}
+        urlSupabase={url}
+        vista="productos"
+      />
     </main>
   );
 }

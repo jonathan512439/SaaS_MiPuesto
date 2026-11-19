@@ -80,7 +80,8 @@ export function EditorDeVariantes({
   alGuardar,
 }: {
   productoId: string;
-  precioProducto: number;
+  /* `null`: el producto no tiene precio (fase 14). */
+  precioProducto: number | null;
   controlaStock: boolean;
   vendeTiempo: boolean;
   /* Para que el formulario del producto sepa si ahora las existencias van por
@@ -246,10 +247,21 @@ export function EditorDeVariantes({
     <section className={styles.seccion}>
       <header className={styles.cabecera}>
         <h3>Presentaciones</h3>
-        <p>
-          Tallas, números de calzado o tamaños. Deja el precio vacío si cuesta lo mismo que el
-          producto ({formatearPrecioBolivianos(precioProducto)}).
-        </p>
+        {precioProducto === null ? (
+          /* Decisión 4 de la fase 14: sin precio base, el catálogo muestra el
+             producto entero con «Consultar por WhatsApp», aunque una talla
+             tenga el suyo. Se dice acá, que es donde el dueño pone esos
+             precios esperando que se vean. */
+          <p className={styles.aviso} role="note">
+            Ponle precio al producto; las tallas que cuestan distinto mantienen el suyo. Mientras
+            no tenga precio, tu catálogo lo muestra con «Consultar por WhatsApp».
+          </p>
+        ) : (
+          <p>
+            Tallas, números de calzado o tamaños. Deja el precio vacío si cuesta lo mismo que el
+            producto ({formatearPrecioBolivianos(precioProducto)}).
+          </p>
+        )}
       </header>
 
       {/* Qué son: decide cómo se pregunta en el catálogo («Elige tu número»),

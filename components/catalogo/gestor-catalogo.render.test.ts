@@ -204,3 +204,52 @@ describe("un catálogo de más de una tanda", () => {
     expect(dibujar("productos")).not.toContain("Trayendo tus productos");
   });
 });
+
+/* Fase 14: un producto sin precio en la lista. El dueño tiene que verlo
+   escrito —no solo de color— y poder ponerle precio ahí mismo. */
+describe("un producto sin precio en «Productos»", () => {
+  const sinPrecio = {
+    ...datos.productos[0],
+    id: "00000000-0000-4000-8000-000000000102",
+    codigo: "PRD-3",
+    nombre: "Placa 1P horizontal 4x2",
+    precio: null,
+    precio_anterior: null,
+    precio_actualizado_en: null,
+    fotos: [],
+  };
+  const conSinPrecio = { ...datos, productos: [...datos.productos, sinPrecio] } as DatosCatalogoAdmin;
+
+  it("lleva la etiqueta «Sin precio» y el campo para ponérselo", () => {
+    const html = dibujar("productos", conSinPrecio).replaceAll("<!-- -->", "");
+    const fila = html.slice(html.indexOf("Placa 1P horizontal 4x2"));
+    expect(fila).toContain("Sin precio");
+    expect(fila).toContain(`id="precio-fila-${sinPrecio.id}"`);
+    expect(fila).toContain("Ponle precio");
+    /* Ni «Bs 0» ni «Bs NaN» en su lugar. */
+    expect(fila.slice(0, fila.indexOf("</li>"))).not.toMatch(/Bs (0|NaN)\b/);
+  });
+
+  it("ofrece el filtro «Sin precio» con la cuenta, solo si hay alguno", () => {
+    expect(dibujar("productos", conSinPrecio).replaceAll("<!-- -->", "")).toContain("Sin precio (1)");
+    expect(dibujar("productos").replaceAll("<!-- -->", "")).not.toContain("Sin precio (");
+  });
+
+  it("abre filtrada si llega con «?filtro=sin-precio»", () => {
+    const pantalla = jsx(GestorCatalogo, {
+      datosIniciales: conSinPrecio,
+      filtroInicial: "sin-precio",
+      urlSupabase: "https://prueba.supabase.co",
+      vista: "productos",
+    });
+    const html = renderToString(
+      jsx(ProveedorSupabaseNavegador, {
+        clavePublica: "clave-de-prueba",
+        url: "https://prueba.supabase.co",
+        children: jsx(ProveedorAvisos, { children: jsx(ProveedorConfirmacion, { children: pantalla }) }),
+      }),
+    );
+    expect(html).toContain("Placa 1P horizontal 4x2");
+    expect(html).not.toContain("Alimento adulto 10 kg");
+  });
+});

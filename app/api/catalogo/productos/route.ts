@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   esUuid,
   estadoPorStock,
+  leerPrecioProducto,
   validarProducto,
 } from "../../../../lib/catalogo/validacion";
 import { fechaHoyBolivia } from "../../../../lib/catalogo/carta-del-dia";
@@ -185,6 +186,32 @@ export async function PATCH(solicitud: NextRequest) {
       .maybeSingle();
     if (error || !data) {
       return NextResponse.json({ error: "No se pudo cambiar la visibilidad." }, { status: 404 });
+    }
+    return NextResponse.json({ producto: data });
+  }
+
+  /* Ponerle precio desde la fila de la lista, sin abrir el producto (fase 14).
+     Con 181 productos que llegaron sin precio de una importación, es la
+     diferencia entre una tarde y 181 formularios. Se valida igual que el
+     formulario entero: vacío o 0 lo deja sin precio. */
+  if ("precio" in datos && Object.keys(datos).every((clave) => clave === "id" || clave === "precio")) {
+    const precio = leerPrecioProducto(datos.precio);
+    if (!precio.correcto) {
+      return NextResponse.json(
+        { error: precio.error, errores: { precio: precio.error } },
+        { status: 400 },
+      );
+    }
+    const { data, error } = await contexto.supabase
+      .from("productos")
+      .update({ precio: precio.precio })
+      .eq("id", datos.id)
+      .eq("negocio_id", contexto.negocio.id)
+      .is("eliminado_en", null)
+      .select(COLUMNAS_PRODUCTO_ADMIN)
+      .maybeSingle();
+    if (error || !data) {
+      return NextResponse.json({ error: "No se pudo guardar el precio." }, { status: 404 });
     }
     return NextResponse.json({ producto: data });
   }

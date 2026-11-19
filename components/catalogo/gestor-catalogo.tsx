@@ -33,7 +33,12 @@ import { prepararFotoParaLectura } from "../../lib/imagenes";
 import { DIAS_PAPELERA } from "../../lib/catalogo/papelera";
 import { mensajeLimiteProductos } from "../../lib/catalogo/topes-del-plan";
 import { planDe } from "../../lib/planes";
-import { formatearPrecioBolivianos } from "../../lib/precios";
+import { formatearPrecioBolivianos, tienePrecio } from "../../lib/precios";
+import {
+  rutaConFiltro,
+  type FiltroEstadoProducto,
+} from "../../lib/catalogo/filtro-productos";
+import { PrecioEnLaFila } from "./precio-en-la-fila";
 import { rubroOfrece } from "../../lib/negocios/rubros";
 import { Icono } from "../iconos/icono";
 import { IconoCatalogo } from "../iconos/icono-catalogo";
@@ -106,6 +111,9 @@ type PropiedadesGestorCatalogo = {
   vista: VistaCatalogo;
   datosIniciales: DatosCatalogoAdmin;
   urlSupabase: string;
+  /* El filtro de estado con que abre la lista, leído de `?filtro=`. Es lo que
+     deja llegar desde Inicio directo a «Sin precio». */
+  filtroInicial?: FiltroEstadoProducto;
 };
 
 type FormularioProducto = {
@@ -150,7 +158,12 @@ async function solicitarJson<T>(ruta: string, opciones: RequestInit) {
   return datos;
 }
 
-export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: PropiedadesGestorCatalogo) {
+export function GestorCatalogo({
+  datosIniciales,
+  urlSupabase,
+  vista,
+  filtroInicial = "todos",
+}: PropiedadesGestorCatalogo) {
   const [categorias, setCategorias] = useState(datosIniciales.categorias);
   const [subcategorias, setSubcategorias] = useState(datosIniciales.subcategorias);
   const [productos, setProductos] = useState(datosIniciales.productos);
@@ -284,9 +297,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
      esto vino a arreglar. */
   const [fotosAbiertas, setFotosAbiertas] = useState<string | null>(null);
   const [busquedaProductos, setBusquedaProductos] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState<"todos" | "visibles" | "ocultos">(
-    "todos",
-  );
+  const [filtroEstado, setFiltroEstado] = useState<FiltroEstadoProducto>(filtroInicial);
   const [ajustePorcentaje, setAjustePorcentaje] = useState("");
   const [ajusteCategoria, setAjusteCategoria] = useState("");
   const [ajustando, setAjustando] = useState(false);
@@ -309,6 +320,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
       if (categoriaActiva && producto.categoria_id !== categoriaActiva) return false;
       if (filtroEstado === "visibles" && !producto.visible) return false;
       if (filtroEstado === "ocultos" && producto.visible) return false;
+      if (filtroEstado === "sin-precio" && tienePrecio(producto.precio)) return false;
       if (terminos.length === 0) return true;
 
       const texto = normalizarTexto(
@@ -319,6 +331,10 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
   }, [busquedaProductos, categoriaActiva, filtroEstado, productos]);
   const ocultos = useMemo(
     () => productos.filter((producto) => !producto.visible).length,
+    [productos],
+  );
+  const sinPrecio = useMemo(
+    () => productos.filter((producto) => !tienePrecio(producto.precio)).length,
     [productos],
   );
   /* Agrupadas una sola vez y no en cada dibujo: el formulario se vuelve a
@@ -603,7 +619,9 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
     setFormulario({
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? "",
-      precio: String(producto.precio),
+      /* Sin precio, el campo vacío: «null» escrito en el campo sería un error
+         de validación al guardar. */
+      precio: producto.precio === null ? "" : String(producto.precio),
       categoria_id: producto.categoria_id ?? "",
       subcategoria_id: producto.subcategoria_id ?? "",
       controla_stock: producto.controla_stock,
@@ -1235,13 +1253,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
           <header className={styles.cabeceraFormulario}>
             <div>
               <h2>{productoEditando ? "Editar producto" : "Nuevo producto"}</h2>
-              <p>Solo el nombre y el precio son obligatorios. Lo demás lo puedes completar después.</p>
+              <p>Solo el nombre es obligatorio. Lo demás lo puedes completar después.</p>
             </div>
             <Boton onClick={cerrarFormulario} variante="discreto">Cerrar</Boton>
           </header>
           {/* Antes de los campos y no después: sirve para empezar, no para
-              corregir lo que ya se escribió. El precio se pide igual, porque
-              ninguna foto sabe cuánto cobra este negocio. */}
+              corregir lo que ya se escribió. El precio no sale de la foto,
+              porque ninguna foto sabe cuánto cobra este negocio. */}
           {ofreceLecturaDeFotos ? (
             <section aria-labelledby="titulo-ia-producto" className={styles.tarjetaIa}>
               <div className={styles.tarjetaIaCuerpo}>
@@ -1313,12 +1331,11 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
               error={erroresFormulario.precio}
               id="producto-precio"
               ayuda={AYUDA_PRECIO}
-              etiqueta="Precio en bolivianos"
+              etiqueta="Precio en bolivianos (opcional)"
               inputMode="decimal"
               min="0"
               onChange={(evento) => actualizarCampo("precio", evento.target.value)}
               placeholder={textosProducto.precio}
-              required
               type="number"
               step="0.01"
               value={formulario.precio}
@@ -1472,7 +1489,7 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                 setFormulario((actual) => ({ ...actual, controla_stock: controlaStock }));
               }}
               controlaStock={formulario.controla_stock}
-              precioProducto={Number(formulario.precio) || 0}
+              precioProducto={tienePrecio(formulario.precio) ? Number(formulario.precio) : null}
               productoId={productoEditando}
               vendeTiempo={
                 categorias.find(({ id }) => id === formulario.categoria_id)?.vende === "tiempo"
@@ -1720,6 +1737,12 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   ["todos", `Todos (${productos.length})`],
                   ["visibles", `Publicados (${productos.length - ocultos})`],
                   ["ocultos", `Ocultos (${ocultos})`],
+                  /* Solo si hay alguno: un chip con «(0)» en un catálogo
+                     donde todo tiene precio es ruido. Si es el elegido, se
+                     queda aunque llegue a cero, para poder salir de él. */
+                  ...(sinPrecio > 0 || filtroEstado === "sin-precio"
+                    ? ([["sin-precio", `Sin precio (${sinPrecio})`]] as const)
+                    : []),
                 ] as const
               ).map(([valor, etiqueta]) => (
                 <button
@@ -1729,6 +1752,13 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                   onClick={() => {
                     setFiltroEstado(valor);
                     setPaginaProductos(1);
+                    /* A la dirección, sin pedirle nada al servidor: recargar
+                       deja el mismo filtro, y el enlace se puede compartir. */
+                    window.history.replaceState(
+                      window.history.state,
+                      "",
+                      rutaConFiltro(window.location.pathname, valor),
+                    );
                   }}
                   type="button"
                 >
@@ -2133,11 +2163,18 @@ export function GestorCatalogo({ datosIniciales, urlSupabase, vista }: Propiedad
                       <div className={styles.nombreProducto}>
                         <h3>{producto.nombre}</h3>
                         {producto.visible ? null : <IndicadorEstado estado="oculto" />}
+                        {tienePrecio(producto.precio) ? null : <IndicadorEstado estado="sin_precio" />}
                         {producto.estado === "disponible" ? null : (
                           <IndicadorEstado estado={producto.estado as EstadoProducto} />
                         )}
                       </div>
-                      <strong>{formatearPrecioBolivianos(Number(producto.precio))}</strong>
+                      {/* Sin precio, el campo para ponérselo ahí mismo, sin abrir
+                          el producto (fase 14). */}
+                      {tienePrecio(producto.precio) ? (
+                        <strong>{formatearPrecioBolivianos(Number(producto.precio))}</strong>
+                      ) : (
+                        <PrecioEnLaFila producto={producto} alGuardar={reemplazarProducto} />
+                      )}
                       <small>
                         {producto.codigo}
                         {" · "}

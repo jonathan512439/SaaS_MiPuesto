@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
 
 import { obtenerProductoAgendable } from "./agenda/servidor";
+import { leerFiltroEstado, rutaConFiltro } from "./catalogo/filtro-productos";
 import { cambiosDeAjuste } from "./catalogo/precios-lote";
 import { validarProducto } from "./catalogo/validacion";
 import { avisoDeRenglonesQueSalieron, renglonesQueSalenDelPedido } from "./pedidos/sin-precio";
@@ -238,5 +239,22 @@ describe("el pedido guardado suelta lo que ya no tiene precio", () => {
       expect(aviso).toContain("WhatsApp");
       expect(aviso).not.toMatch(/precio|Bs|cotiz/i);
     }
+  });
+});
+
+describe("el filtro «Sin precio» de la lista vive en la dirección", () => {
+  it("lee los cuatro filtros y cae en «todos» con lo demás", () => {
+    expect(leerFiltroEstado("sin-precio")).toBe("sin-precio");
+    expect(leerFiltroEstado(["ocultos", "visibles"])).toBe("ocultos");
+    for (const otro of [undefined, "", "precio", "<script>"]) {
+      expect(leerFiltroEstado(otro)).toBe("todos");
+    }
+  });
+
+  it("arma el enlace que usa Inicio", () => {
+    expect(rutaConFiltro("/dashboard/productos", "sin-precio")).toBe(
+      "/dashboard/productos?filtro=sin-precio",
+    );
+    expect(rutaConFiltro("/dashboard/productos", "todos")).toBe("/dashboard/productos");
   });
 });

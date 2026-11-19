@@ -334,6 +334,15 @@
   color: var(--color-texto);
 }
 
+/* Informativo y no alarma (fase 14): el dueño eligió no poner precio, o la
+   importación lo trajo así. Punteado para distinguirlo de «Oculto» de reojo,
+   además de la palabra. */
+.estadoSinPrecio {
+  border-style: dotted;
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+
 .hojaModal {
   width: 100%;
   max-width: 40rem;

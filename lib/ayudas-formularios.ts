@@ -104,7 +104,7 @@ export const AYUDA_SUBCATEGORIA =
 /* Desde la fase 13 cada talla, número o tamaño puede tener su propio precio,
    y eso se carga en el producto ya creado, no duplicándolo. */
 export const AYUDA_PRECIO =
-  "¿Cambia por talla o tamaño? Agrega esas opciones después de crear el producto.";
+  "Si lo dejas vacío, tu catálogo lo muestra sin precio y con el botón «Consultar por WhatsApp». ¿Cambia por talla o tamaño? Agrega esas opciones después de crear el producto.";
 
 export const RESUMEN_IMAGEN = {
   portada: resumenDeImagen(portada),
