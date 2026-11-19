@@ -77,9 +77,18 @@ function leerValor(
 export function valoresDesdePlanilla(
   atributos: ReadonlyArray<Atributo>,
   campos: Readonly<Record<string, string>>,
-): { valores: Record<string, ValorAtributo>; problemas: string[] } {
+): {
+  valores: Record<string, ValorAtributo>;
+  problemas: string[];
+  /* Los datos escritos que no tienen campo en esta categoría, con su título tal
+     cual. Quien llama decide qué hacer con ellos (`datos-a-la-descripcion.ts`):
+     antes se salteaban, y un catálogo con fichas largas perdía un dato de cada
+     diez sin que nadie lo supiera. */
+  sinCampo: Array<{ titulo: string; valor: string }>;
+} {
   const valores: Record<string, ValorAtributo> = {};
   const problemas: string[] = [];
+  const sinCampo: Array<{ titulo: string; valor: string }> = [];
 
   for (const [titulo, escrito] of Object.entries(campos)) {
     if (escrito.trim() === "") continue;
@@ -90,12 +99,16 @@ export function valoresDesdePlanilla(
     /* Una columna que no es campo de esta categoría no es un error: la
        plantilla lleva en una sola hoja los datos de todas, y cada fila completa
        los de la suya. */
-    if (!atributo || atributo.clave in valores) continue;
+    if (!atributo) {
+      sinCampo.push({ titulo: titulo.trim(), valor: escrito.trim() });
+      continue;
+    }
+    if (atributo.clave in valores) continue;
 
     const leido = leerValor(atributo, escrito);
     if ("valor" in leido) valores[atributo.clave] = leido.valor;
     else problemas.push(leido.problema);
   }
 
-  return { valores, problemas };
+  return { valores, problemas, sinCampo };
 }

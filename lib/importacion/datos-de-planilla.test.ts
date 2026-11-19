@@ -72,10 +72,16 @@ describe("los datos de la planilla, cruzados con los campos de la categoría", (
     expect(problemas[0]).toContain("E40");
   });
 
-  it("una columna que no es campo de esta categoría no es un error", () => {
+  /* No es un error, pero tampoco se pierde: vuelve aparte, y quien importa la
+     lleva a la descripción (`datos-a-la-descripcion.ts`). */
+  it("una columna que no es campo de esta categoría no es un error: vuelve aparte", () => {
     expect(valoresDesdePlanilla(FOCOS, { Temporada: "Verano", Código: "PRD-1" })).toEqual({
       valores: {},
       problemas: [],
+      sinCampo: [
+        { titulo: "Temporada", valor: "Verano" },
+        { titulo: "Código", valor: "PRD-1" },
+      ],
     });
   });
 

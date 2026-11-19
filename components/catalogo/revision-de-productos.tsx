@@ -13,6 +13,7 @@ import { leerAtributos, type Atributo } from "../../lib/catalogo/atributos";
 import { iconoSugeridoPara } from "../../lib/catalogo/categorias";
 import type { CategoriaCatalogo } from "../../lib/catalogo/tipos";
 import { etiquetaDePresentacion, type TipoPresentacion } from "../../lib/catalogo/variantes";
+import { datosALaDescripcion } from "../../lib/importacion/datos-a-la-descripcion";
 import { valoresDesdePlanilla } from "../../lib/importacion/datos-de-planilla";
 import { camposDeCategoriaNueva } from "../../lib/importacion/diseno-de-categoria";
 import { posicionesYaExistentes } from "../../lib/importacion/ya-existentes";
@@ -398,6 +399,11 @@ export function RevisionDeProductos({
     let fotosFallidas = 0;
     const fallidos: string[] = [];
     const advertencias: string[] = [];
+    /* Los datos que no tenían campo y fueron a la descripción: se cuentan para
+       decirlo al terminar, porque el dueño no los ve en la tabla de arriba. */
+    let datosEnDescripcion = 0;
+    let productosConDatosEnDescripcion = 0;
+    let datosSinLugar = 0;
 
     /* Primero las categorías, porque los productos las necesitan. Si una falla,
        sus productos van sin categoría en vez de perderse: es más fácil mover un
@@ -477,10 +483,19 @@ export function RevisionDeProductos({
             categoriaId ? (camposNuevos.get(categoriaId) ?? atributosPorCategoria[categoriaId] ?? []) : [],
             producto.campos,
           )
-        : { valores: {}, problemas: [] };
+        : { valores: {}, problemas: [], sinCampo: [] };
       for (const problema of deLaPlanilla.problemas) {
         advertencias.push(`${producto.nombre}: ${problema}.`);
       }
+      /* Lo que no tiene campo —pasó del tope de diez, o la categoría elegida no
+         lo trae— va al final de la descripción, para que no se pierda. Salvo si
+         el dueño desmarcó «Con sus campos» en una categoría nueva: ahí dijo que
+         esos datos no los quiere. */
+      const declinoLosCampos =
+        (destinos[titulo] ?? SIN_CATEGORIA) === CREAR && conCampos[titulo] === false;
+      const conDatos = declinoLosCampos
+        ? { descripcion: producto.descripcion.trim(), agregados: 0, sinLugar: 0 }
+        : datosALaDescripcion(producto.descripcion, deLaPlanilla.sinCampo);
       const atributos = {
         ...(producto.datos?.length
           ? Object.fromEntries(producto.datos.map(({ clave, valor }) => [clave, valor]))
@@ -492,7 +507,7 @@ export function RevisionDeProductos({
         const respuesta = await fetch("/api/catalogo/productos", {
           body: JSON.stringify({
             nombre: producto.nombre,
-            descripcion: producto.descripcion.trim() || null,
+            descripcion: conDatos.descripcion || null,
             /* Nulo y nunca 0: sin precio es nulo en todo el sistema. */
             precio: tienePrecio(producto.precio) ? producto.precio : null,
             categoria_id: categoriaId,
@@ -518,6 +533,11 @@ export function RevisionDeProductos({
         if (!respuesta.ok) throw new Error("rechazado");
         const datos = (await respuesta.json()) as { producto?: { id: string } };
         creados += 1;
+        if (conDatos.agregados > 0) {
+          datosEnDescripcion += conDatos.agregados;
+          productosConDatosEnDescripcion += 1;
+        }
+        datosSinLugar += conDatos.sinLugar;
 
         /* Las fotos van después de crear el producto porque se guardan en su
            carpeta, y esa carpeta lleva el identificador que la base recién
@@ -581,6 +601,17 @@ export function RevisionDeProductos({
       } catch {
         fallidos.push(producto.nombre);
       }
+    }
+
+    if (datosEnDescripcion > 0) {
+      advertencias.push(
+        `${datosEnDescripcion} dato(s) que no tenían campo en su categoría se agregaron al final de la descripción de ${productosConDatosEnDescripcion} producto(s).`,
+      );
+    }
+    if (datosSinLugar > 0) {
+      advertencias.push(
+        `${datosSinLugar} dato(s) no entraron porque la descripción llegó a su máximo de 1000 caracteres.`,
+      );
     }
 
     setProgreso("");
