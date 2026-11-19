@@ -1,4 +1,4 @@
-# Estado de MiPuesto — 2026-11-18
+# Estado de MiPuesto — 2026-11-19
 
 Cómo está el proyecto hoy, en una pantalla. El detalle y la evidencia de cada
 cosa están en `docs/AVANCE.md`; los controles, en `SECURITY.md`. **Este archivo
@@ -12,9 +12,9 @@ que ya no es cierto.
 | Producción | `https://mi-puesto.com` (Cloudflare Workers). La dirección anterior, `mipuesto-dev.mipuesto-app.workers.dev`, y `www` redirigen con 308 |
 | Base de producción | Supabase `afhnxjdqaruwccgsdxzb` (São Paulo) |
 | Base de ensayo | Supabase `hwirzxnoyuuqgbwipiff` — recibe copias de los respaldos. Contraseña de `ENSAYO_DB_URL` renovada el 2026-11-18; al día hasta `20261121090000` |
-| Última migración aplicada en producción | `20261120090000`, la segunda de la auditoría (lo dice `supabase migration list --linked`) |
-| Migraciones en el repositorio, sin aplicar | `20261121090000`, productos sin precio (fase 14). **Probada en ensayo** |
-| Pruebas | 1613 en `npm run verificar`, en la rama `fase-14-productos-sin-precio` |
+| Última migración aplicada en producción | `20261121090000`, productos sin precio (fase 14), aplicada el 2026-11-19 (lo dice `supabase migration list --linked`) |
+| Migraciones en el repositorio, sin aplicar | Ninguna |
+| Pruebas | 1613 en `npm run verificar` |
 
 ## Cómo se despliega
 
@@ -79,9 +79,9 @@ se vacía, el vigilante avisa.
    acepta las varias sentencias de `fase2-audit.sql` en una consulta; el mismo
    archivo pasa contra producción con `--linked`.
 2. **Fase 14, productos sin precio** (`docs/plan/11-PRODUCTOS-SIN-PRECIO.md`):
-   pasos 1 a 6 hechos en la rama `fase-14-productos-sin-precio`, que sale de
-   `main` con la auditoría ya unida. Falta aplicar `20261121090000` a producción, después
-   el código, y la prueba a mano con el PDF de Ferrovolt (paso 7).
+   pasos 1 a 6 hechos. `20261121090000` se aplicó a producción el 2026-11-19
+   (`test:rls:linked` en verde después) y el código se unió a `main` el mismo
+   día. Falta la prueba a mano con el PDF de Ferrovolt (paso 7).
 3. **Workers Paid** (5 dólares al mes), antes del piloto. Con el plan gratuito,
    un catálogo que se arma en cada visita pasa los 10 ms de CPU; la portada
    guardada un minuto lo alivia y no lo resuelve.
