@@ -895,7 +895,7 @@ export type Database = {
           negocio_id: string
           nombre: string
           orden: number
-          precio: number
+          precio: number | null
           precio_actualizado_en: string | null
           precio_actualizado_por: string | null
           precio_anterior: number | null
@@ -925,7 +925,7 @@ export type Database = {
           negocio_id: string
           nombre: string
           orden?: number
-          precio: number
+          precio?: number | null
           precio_actualizado_en?: string | null
           precio_actualizado_por?: string | null
           precio_anterior?: number | null
@@ -955,7 +955,7 @@ export type Database = {
           negocio_id?: string
           nombre?: string
           orden?: number
-          precio?: number
+          precio?: number | null
           precio_actualizado_en?: string | null
           precio_actualizado_por?: string | null
           precio_anterior?: number | null

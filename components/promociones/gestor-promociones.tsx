@@ -500,7 +500,7 @@ export function GestorPromociones({
           {errores.dias ? <small className={styles.errorCampo}>{errores.dias}</small> : null}
         </fieldset>
 
-        {precioEjemplo && productoEjemplo ? (
+        {precioEjemplo && !precioEjemplo.sinPrecio && productoEjemplo ? (
           <aside className={styles.ejemplo} aria-label="Ejemplo del precio promocional">
             <span>Ejemplo con {productoEjemplo.nombre}</span>
             <s>{formatearPrecioBolivianos(precioEjemplo.precioOriginal)}</s>

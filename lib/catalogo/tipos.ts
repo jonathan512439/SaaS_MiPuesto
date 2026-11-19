@@ -29,7 +29,7 @@ export type ProductoCatalogo = {
   subcategoria_id: string | null;
   nombre: string;
   descripcion: string | null;
-  precio: number;
+  precio: number | null;
   precio_anterior: number | null;
   precio_actualizado_en: string | null;
   precio_actualizado_por: string | null;
@@ -62,7 +62,7 @@ export type ProductoCatalogo = {
 export type DatosProductoEntrada = {
   nombre: string;
   descripcion: string | null;
-  precio: number;
+  precio: number | null;
   categoria_id: string | null;
   subcategoria_id: string | null;
   controla_stock: boolean;

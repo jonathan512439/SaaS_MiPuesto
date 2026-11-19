@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { tienePrecio } from "../precios";
 import { leerFranjas } from "./franjas";
 import type { Agenda, Ocupado } from "./horarios";
 
@@ -58,7 +59,10 @@ export function agendaDesdeFila(fila: FilaAgenda, duracionProducto?: number | nu
  *
  * Devuelve nulo en varios casos distintos y **a propósito no los distingue**: el
  * producto no existe, no es de este negocio, su categoría vende cosas, no tiene
- * recurso, el recurso no acepta reservas, o no tiene horario. Para quien
+ * recurso, el recurso no acepta reservas, no tiene horario, o no tiene precio.
+ * Sin precio se consulta por WhatsApp y no se agenda en línea (fase 14,
+ * decisión 3): esta es la guardia del servidor, porque las citas del visitante
+ * solo entran por la ruta que pregunta acá. Para quien
  * pregunta desde afuera todos significan «acá no se agenda», y separarlos le
  * diría a un curioso qué productos existen en negocios ajenos.
  */
@@ -82,6 +86,7 @@ export async function obtenerProductoAgendable(
     .maybeSingle();
 
   if (!data || !data.categoria_id || !data.recurso_id) return null;
+  if (!tienePrecio(data.precio)) return null;
 
   const categoria = unaFila<{ vende?: string }>(data.categorias);
   if (categoria?.vende !== "tiempo") return null;

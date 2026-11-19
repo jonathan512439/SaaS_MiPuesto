@@ -21,12 +21,49 @@ export type PromocionPrecio = {
   dias?: number[] | null;
 };
 
-export type PrecioCalculado = {
-  precioOriginal: number;
-  precioFinal: number;
-  ahorro: number;
-  promocion: PromocionPrecio | null;
-};
+/* Lo que resulta de calcular el precio de un producto: con precio, o «sin
+   precio» (fase 14). Son dos formas distintas y no un número en 0 para que
+   ninguna pantalla pueda dibujar «Bs 0» por descuido: quien quiera el precio
+   tiene que preguntar antes si lo hay. */
+export type PrecioCalculado =
+  | {
+      sinPrecio: false;
+      precioOriginal: number;
+      precioFinal: number;
+      ahorro: number;
+      promocion: PromocionPrecio | null;
+    }
+  | {
+      sinPrecio: true;
+      precioOriginal: null;
+      precioFinal: null;
+      ahorro: 0;
+      promocion: null;
+    };
+
+const SIN_PRECIO = {
+  sinPrecio: true,
+  precioOriginal: null,
+  precioFinal: null,
+  ahorro: 0,
+  promocion: null,
+} as const satisfies PrecioCalculado;
+
+/* Si un producto tiene precio. **La única regla de «sin precio» del sistema**
+ * (fase 14, `docs/plan/11-PRODUCTOS-SIN-PRECIO.md`): nulo o 0 es sin precio, y
+ * las dos cosas significan lo mismo. Ningún componente lo decide por su cuenta:
+ * pregunta acá. Es el espejo de `coalesce(producto.precio, 0) = 0` en
+ * `crear_pedido_reservado`.
+ *
+ * Acepta texto porque algunas filas llegan de la base como `numeric` en texto. */
+export function tienePrecio(
+  precio: number | string | null | undefined,
+): precio is number | string {
+  if (precio === null || precio === undefined) return false;
+  if (typeof precio === "string" && precio.trim() === "") return false;
+  const numero = Number(precio);
+  return Number.isFinite(numero) && numero > 0;
+}
 
 function redondearMoneda(valor: number) {
   return Math.round((valor + Number.EPSILON) * 100) / 100;
@@ -129,14 +166,15 @@ function calcularPrecioConUnaPromocion(
 }
 
 export function calcularPrecioProducto(
-  precioBase: number,
+  precioBase: number | null,
   destino: { productoId: string; categoriaId: string | null },
   promociones: PromocionPrecio[],
   fecha: Date = new Date(),
 ): PrecioCalculado {
-  const precioOriginal = Number.isFinite(precioBase)
-    ? redondearMoneda(Math.max(0, precioBase))
-    : 0;
+  /* Sin precio no hay nada que rebajar: ni promoción ni ahorro. La base hace
+     lo mismo en `private.calcular_precio_producto`. */
+  if (!tienePrecio(precioBase)) return SIN_PRECIO;
+  const precioOriginal = redondearMoneda(precioBase);
   const candidatas = promociones
     .filter(
       (promocion) =>
@@ -161,6 +199,7 @@ export function calcularPrecioProducto(
   const precioFinal = mejor?.precio ?? precioOriginal;
 
   return {
+    sinPrecio: false,
     precioOriginal,
     precioFinal,
     ahorro: redondearMoneda(precioOriginal - precioFinal),

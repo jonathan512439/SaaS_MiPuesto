@@ -35,7 +35,10 @@ export async function POST(solicitud: NextRequest) {
     .from("productos")
     .select("id,precio")
     .eq("negocio_id", contexto.negocio.id)
-    .is("eliminado_en", null);
+    .is("eliminado_en", null)
+    /* Solo los que tienen precio (fase 14): los sin precio no entran en el
+       ajuste, ni en la cuenta de revisados. `gt` deja afuera el nulo y el 0. */
+    .gt("precio", 0);
   if (categoria_id) consulta = consulta.eq("categoria_id", categoria_id);
 
   const { data: productos, error: errorLectura } = await consulta;

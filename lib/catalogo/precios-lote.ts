@@ -1,3 +1,5 @@
+import { tienePrecio } from "../precios";
+
 export const AJUSTE_MINIMO = -50;
 export const AJUSTE_MAXIMO = 50;
 export const PRECIO_MAXIMO = 999999.99;
@@ -29,10 +31,13 @@ export function aplicarPorcentaje(precio: number, porcentaje: number): number {
 export type CambioDePrecio = { id: string; precio_actual: number; precio_nuevo: number };
 
 export function cambiosDeAjuste(
-  productos: ReadonlyArray<{ id: string; precio: number | string }>,
+  productos: ReadonlyArray<{ id: string; precio: number | string | null }>,
   porcentaje: number,
 ): CambioDePrecio[] {
   return productos.flatMap(({ id, precio }) => {
+    /* Un producto sin precio no se ajusta (fase 14): un porcentaje de nada
+       sigue siendo nada. La base también lo salta. */
+    if (!tienePrecio(precio)) return [];
     const actual = Number(precio);
     const nuevo = aplicarPorcentaje(actual, porcentaje);
     return nuevo === actual ? [] : [{ id, precio_actual: actual, precio_nuevo: nuevo }];

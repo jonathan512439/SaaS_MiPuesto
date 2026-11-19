@@ -53,6 +53,22 @@ export function construirMensajeProducto(
   ].join("\n");
 }
 
+/* El mensaje de «Consultar por WhatsApp», para un producto sin precio (fase 14).
+ *
+ * **No habla de precio**, ni para decir que falta: es lo que el dueño pidió con
+ * sus palabras, «únicamente no muestra el precio». Lleva el enlace a la página
+ * del producto para que quien lo recibe vea de cuál le hablan, con su foto. */
+export function construirMensajeConsulta(
+  negocio: string,
+  producto: { nombre: string },
+  enlace?: string | null,
+) {
+  return [
+    `Hola, quiero consultar por este producto de ${negocio}: ${producto.nombre}.`,
+    ...(enlace ? [enlace] : []),
+  ].join("\n");
+}
+
 export function construirMensajePedido(
   negocio: string,
   items: ItemPedidoWhatsapp[],

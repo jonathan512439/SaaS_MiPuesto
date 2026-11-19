@@ -108,7 +108,8 @@ type ProductoPublico = {
   subcategoria_id: string | null;
   nombre: string;
   descripcion: string | null;
-  precio: number;
+  /* Nulo o 0: sin precio (fase 14). */
+  precio: number | null;
   fotos: string[];
   estado: string;
   controla_stock?: boolean;
@@ -185,12 +186,14 @@ export function construirCatalogoPublico(
   const convertirProducto = (producto: ProductoPublico) => {
     const definiciones = atributosPorCategoria.get(producto.categoria_id ?? "") ?? [];
     const precioCalculado = calcularPrecioProducto(
-      Number(producto.precio),
+      producto.precio === null ? null : Number(producto.precio),
       { productoId: producto.id, categoriaId: producto.categoria_id },
       promociones,
       fecha,
     );
-    const precio = precioCalculado.precioFinal;
+    /* Transitorio, hasta el paso 3 de la fase 14: la plantilla todavía espera
+       un número. */
+    const precio = precioCalculado.precioFinal ?? 0;
     const presentaciones = variantesPorProducto.get(producto.id) ?? [];
     const tipoPresentacion = esTipoPresentacion(producto.tipo_presentacion)
       ? producto.tipo_presentacion
@@ -224,7 +227,7 @@ export function construirCatalogoPublico(
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? "",
       precio,
-      precioOriginal: precioCalculado.precioOriginal,
+      precioOriginal: precioCalculado.precioOriginal ?? 0,
       tienePromocion: precioCalculado.promocion !== null,
       estado,
       controlaStock: producto.controla_stock === true,

@@ -60,10 +60,18 @@ export function validarProducto(
     typeof valor.descripcion === "string" && valor.descripcion.trim()
       ? valor.descripcion.trim()
       : null;
-  const precio =
-    typeof valor.precio === "number"
+  /* El precio es opcional (fase 14): vacío es «sin precio», y el catálogo
+     muestra el producto con «Consultar por WhatsApp». Vacío, nulo o 0 se
+     guardan como nulo, para que haya un solo valor. El campo tiene que venir
+     igual —vacío, pero venir—: un guardado al que le falta no borra un precio
+     por descuido. */
+  const precioVacio =
+    valor.precio === null || (typeof valor.precio === "string" && valor.precio.trim() === "");
+  const precio = precioVacio
+    ? null
+    : typeof valor.precio === "number"
       ? valor.precio
-      : typeof valor.precio === "string" && valor.precio.trim()
+      : typeof valor.precio === "string"
         ? Number(valor.precio.replace(",", "."))
         : Number.NaN;
   const controlaStock = valor.controla_stock === true;
@@ -87,8 +95,10 @@ export function validarProducto(
     errores.descripcion = "Usa como máximo 1000 caracteres.";
   }
 
-  if (!Number.isFinite(precio) || precio < 0 || precio > 9_999_999.99) {
-    errores.precio = "Escribe un precio válido mayor o igual a cero.";
+  if (precio === null) {
+    /* Sin precio: es una decisión del dueño, no un error. */
+  } else if (!Number.isFinite(precio) || precio < 0 || precio > 9_999_999.99) {
+    errores.precio = "Escribe un precio válido, o déjalo vacío para que te lo consulten.";
   } else if (Math.round(precio * 100) !== precio * 100) {
     errores.precio = "El precio admite como máximo dos decimales.";
   }
@@ -144,7 +154,7 @@ export function validarProducto(
     datos: {
       nombre,
       descripcion,
-      precio: Number(precio.toFixed(2)),
+      precio: precio === null || precio === 0 ? null : Number(precio.toFixed(2)),
       categoria_id: categoriaId as string | null,
       subcategoria_id: subcategoriaId as string | null,
       controla_stock: controlaStock,
