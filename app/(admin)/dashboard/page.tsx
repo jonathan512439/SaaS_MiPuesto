@@ -17,6 +17,7 @@ import { cupoDelPlan, esPrueba, planDe } from "../../../lib/planes";
 import { formatearPrecioBolivianos } from "../../../lib/precios";
 import { crearClienteSupabaseServidor } from "../../../lib/supabase/server";
 import styles from "./resumen.module.css";
+import { rutaConFiltro } from "../../../lib/catalogo/filtro-productos";
 import { EncabezadoPanel } from "../../../components/dashboard/encabezado-panel";
 import { leerLecturasUsadas } from "../../../lib/ia/lecturas-usadas";
 import { RUTAS_PANEL, RUTA_SIN_NEGOCIO } from "../../../lib/panel/rutas";
@@ -83,7 +84,7 @@ export default async function PaginaDashboard() {
 
   /* Las dos semanas se piden juntas: un número suelto no dice si está bien.
      «240 visitas» no significa nada; «240, un 30 % más» sí. */
-  const [conteosActuales, conteosPrevios, eventosProducto, pedidosSemana] =
+  const [conteosActuales, conteosPrevios, eventosProducto, pedidosSemana, sinPrecio] =
     await Promise.all([
       Promise.all(
         METRICAS.map(({ tipo }) =>
@@ -118,7 +119,16 @@ export default async function PaginaDashboard() {
         .select("id,total,estado")
         .eq("negocio_id", negocio.id)
         .gte("creado_en", actual.desde),
+      /* Cuántos productos no tienen precio (fase 14): nulo o 0, como dice
+         `tienePrecio`. Solo la cuenta. */
+      supabase
+        .from("productos")
+        .select("id", { count: "exact", head: true })
+        .eq("negocio_id", negocio.id)
+        .is("eliminado_en", null)
+        .or("precio.is.null,precio.eq.0"),
     ]);
+  const productosSinPrecio = sinPrecio.error ? 0 : (sinPrecio.count ?? 0);
 
   if (
     conteosActuales.some(({ error }) => error) ||
@@ -197,6 +207,23 @@ export default async function PaginaDashboard() {
         <aside className={`${styles.inactivo} ${panel.ancho}`} role="status">
           <strong>Tu catálogo está temporalmente inactivo.</strong>
           <span>Conservas el acceso a tus datos, pero el enlace no aparece en el directorio.</span>
+        </aside>
+      ) : null}
+
+      {/* Los productos sin precio (fase 14). Informativo y no alarma: el
+          catálogo funciona igual, y sus clientes los consultan por WhatsApp.
+          Lleva directo a la lista filtrada, donde se les pone precio en la
+          fila. Sin flecha en el enlace: DESIGN.md §3. */}
+      {productosSinPrecio > 0 ? (
+        <aside className={`${styles.sinPrecio} ${panel.ancho}`} role="status">
+          <span>
+            {productosSinPrecio === 1
+              ? "1 producto sin precio: tus clientes lo consultan por WhatsApp."
+              : `${productosSinPrecio} productos sin precio: tus clientes los consultan por WhatsApp.`}
+          </span>
+          <Link href={rutaConFiltro(RUTAS_PANEL.productos, "sin-precio")}>
+            {productosSinPrecio === 1 ? "Ponle precio" : "Ponles precio"}
+          </Link>
         </aside>
       ) : null}
 

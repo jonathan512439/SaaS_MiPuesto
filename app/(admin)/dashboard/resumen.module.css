@@ -23,6 +23,27 @@
   font-size: var(--text-sm);
 }
 
+/* Los productos sin precio (fase 14). Del color de marca y no de alerta: no
+   es un problema, es una tarea pendiente que el dueño hace cuando quiere. */
+.sinPrecio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2) var(--spacing-3);
+  border-left: var(--spacing-1) solid var(--color-marca);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-superficie);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+}
+
+.sinPrecio a {
+  display: inline-flex;
+  min-height: var(--control-alto);
+  align-items: center;
+  font-weight: 700;
+}
+
 .actividad,
 .acciones {
   border: var(--borde-fino) solid var(--color-borde-suave);

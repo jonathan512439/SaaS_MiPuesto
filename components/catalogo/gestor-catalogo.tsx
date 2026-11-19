@@ -1143,7 +1143,10 @@ export function GestorCatalogo({
       intentoDeAjuste.current = null;
       setProductos((actuales) =>
         actuales.map((producto) =>
-          !ajusteCategoria || producto.categoria_id === ajusteCategoria
+          /* Los sin precio no se ajustan, como en la base: si no, la lista
+             mostraría un 0 que no está guardado. */
+          (!ajusteCategoria || producto.categoria_id === ajusteCategoria) &&
+          tienePrecio(producto.precio)
             ? {
                 ...producto,
                 precio_anterior: producto.precio,

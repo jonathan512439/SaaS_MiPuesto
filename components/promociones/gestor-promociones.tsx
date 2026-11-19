@@ -6,6 +6,7 @@ import {
   calcularPrecioProducto,
   formatearPrecioBolivianos,
   promocionEstaVigente,
+  tienePrecio,
   type PromocionPrecio,
   type TipoPromocion,
 } from "../../lib/precios";
@@ -19,7 +20,8 @@ type Categoria = { id: string; nombre: string };
 type Producto = {
   id: string;
   nombre: string;
-  precio: number;
+  /* Nulo: sin precio (fase 14). */
+  precio: number | null;
   categoria_id: string | null;
   visible: boolean;
 };
@@ -135,11 +137,18 @@ export function GestorPromociones({
   productos,
   promocionesIniciales,
 }: Propiedades) {
+  /* Lo que se puede promocionar: solo lo que tiene precio (fase 14). Una
+     rebaja sobre nada no existe, y la base tampoco la aplicaría. Los nombres de
+     todos se siguen usando para las promociones ya hechas. */
+  const promocionables = useMemo(
+    () => productos.filter((producto) => tienePrecio(producto.precio)),
+    [productos],
+  );
   const [promociones, setPromociones] = useState(promocionesIniciales);
   const [tipo, setTipo] = useState<TipoPromocion>("porcentaje");
   const [valor, setValor] = useState("");
   const [destino, setDestino] = useState<Destino>("producto");
-  const [destinoId, setDestinoId] = useState(productos[0]?.id ?? "");
+  const [destinoId, setDestinoId] = useState(promocionables[0]?.id ?? "");
   const [busquedaDestino, setBusquedaDestino] = useState("");
   /* Hoy, tomado una vez, para el calendario. */
   const [hoy] = useState(() => fechaHoyEnLaPaz());
@@ -163,8 +172,8 @@ export function GestorPromociones({
   );
   const productoEjemplo =
     destino === "producto"
-      ? productos.find((producto) => producto.id === destinoId)
-      : productos.find((producto) => producto.categoria_id === destinoId);
+      ? promocionables.find((producto) => producto.id === destinoId)
+      : promocionables.find((producto) => producto.categoria_id === destinoId);
   const valorNumerico = Number(valor.replace(",", "."));
   const precioEjemplo =
     productoEjemplo && Number.isFinite(valorNumerico) && valorNumerico > 0
@@ -188,7 +197,7 @@ export function GestorPromociones({
   function cambiarDestino(nuevoDestino: Destino) {
     setDestino(nuevoDestino);
     setDestinoId(
-      nuevoDestino === "producto" ? (productos[0]?.id ?? "") : (categorias[0]?.id ?? ""),
+      nuevoDestino === "producto" ? (promocionables[0]?.id ?? "") : (categorias[0]?.id ?? ""),
     );
     /* Lo que se escribio buscando un producto no significa nada entre las
        categorias, y dejarlo ahi mostraria una lista vacia sin motivo visible. */
@@ -294,7 +303,7 @@ export function GestorPromociones({
     }
   }
 
-  const opcionesDisponibles = destino === "producto" ? productos : categorias;
+  const opcionesDisponibles = destino === "producto" ? promocionables : categorias;
 
   /* Las opciones que quedan después de escribir.
    *

@@ -235,3 +235,17 @@ describe("el mensaje de la consulta", () => {
     expect(productoDe(datos, CON_PRECIO).consultaWhatsapp).toBeNull();
   });
 });
+
+/* La vista previa del panel (Apariencia, Promociones) dibuja con
+   `demostracion`: el botón se ve y no abre nada. Sin precio, igual que en el
+   catálogo. */
+describe("la vista previa del panel", () => {
+  it("dibuja la tarjeta sin precio igual que el catálogo, con el botón apagado", () => {
+    const { datos } = armarCatalogo("tienda_virtual");
+    const html = renderToString(jsx(PlantillaMipuesto, { datos, demostracion: true }));
+    const tarjeta = tarjetaDe(html, SIN_PRECIO.nulo);
+    noMencionaElPrecio(tarjeta, "la vista previa");
+    soloConsulta(tarjeta, "la vista previa");
+    expect(tarjeta).not.toContain("wa.me");
+  });
+});

@@ -71,7 +71,7 @@ export default async function PaginaPromociones() {
         negocioNombre={negocio.nombre}
         productos={(resultadoProductos.data ?? []).map((producto) => ({
           ...producto,
-          precio: Number(producto.precio),
+          precio: producto.precio === null ? null : Number(producto.precio),
         }))}
         promocionesIniciales={(resultadoPromociones.data ?? []).map((promocion) => ({
           ...promocion,
