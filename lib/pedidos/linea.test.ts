@@ -19,6 +19,7 @@ const ZAPATILLA: ProductoPlantilla = {
   cantidadDisponible: 5,
   maximoCantidad: 5,
   accionWhatsapp: null,
+  consultaWhatsapp: null,
   lineaAtributos: null,
   especificaciones: [],
   vendeTiempo: false,

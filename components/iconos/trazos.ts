@@ -1,6 +1,6 @@
 /* GENERADO por scripts/armar-iconos.mjs. No se edita a mano.
 
-   Para agregar un ícono: sumalo a la lista de ese script y vuelve a correrlo con
+   Para agregar un ícono: sumalo a la lista de ese script y volvé a correrlo con
    `npm run iconos`. Los trazos vienen de Lucide (licencia ISC) y se guardan
    acá para no depender de la librería en producción.
 
@@ -40,6 +40,7 @@ export const TRAZOS = {
   lupa: `<path d="m21 21-4.34-4.34" /><circle cx="11" cy="11" r="8" />`,
   nfc: `<path d="M6 8.32a7.43 7.43 0 0 1 0 7.36" /><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58" /><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8" /><path d="M16.37 2a20.16 20.16 0 0 1 0 20" />`,
   estrella: `<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />`,
+  whatsapp: `<path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" />`,
 } as const;
 
 export type NombreIcono = keyof typeof TRAZOS;

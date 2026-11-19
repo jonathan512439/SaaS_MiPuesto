@@ -14,8 +14,12 @@ export type ProductoPlantilla = {
   codigo: string;
   nombre: string;
   descripcion: string;
-  precio: number;
-  precioOriginal: number;
+  /* `null`: sin precio (fase 14). El producto se muestra igual, sin precio y
+     **sin decir que le falta**, con «Consultar por WhatsApp» como única acción.
+     Es nulo y no 0 para que ninguna pantalla pueda dibujar «Bs 0» por descuido:
+     quien dibuja un precio tiene que preguntar antes si lo hay. */
+  precio: number | null;
+  precioOriginal: number | null;
   tienePromocion: boolean;
   imagen: {
     src: string;
@@ -30,6 +34,11 @@ export type ProductoPlantilla = {
   cantidadDisponible: number | null;
   maximoCantidad: number;
   accionWhatsapp: string | null;
+  /* El enlace de «Consultar por WhatsApp»: solo en un producto sin precio, en
+     las tres modalidades. Armado en el servidor con `construirMensajeConsulta`,
+     que no habla de precio. Nulo en uno con precio, o si el negocio no tiene
+     un WhatsApp válido. */
+  consultaWhatsapp: string | null;
   /* Los datos propios de su categoría, ya formateados y filtrados.
      `lineaAtributos` es lo que va en la tarjeta —«9 W · E27 · Cálida»— y
      `especificaciones` lo que va en la ficha, con su nombre al lado. Llegan
@@ -56,7 +65,9 @@ export type ProductoPlantilla = {
   variantes: Array<{
     id: string;
     nombre: string;
-    precio: number;
+    /* `null` en las tallas de un producto sin precio: se consulta entero, aunque
+       una talla tenga el suyo (decisión 4 de la fase 14). */
+    precio: number | null;
     /* Cuántas quedan para pedir, o `null` si el producto no lleva la cuenta. */
     disponibles?: number | null;
     /* Su propio enlace, armado en el servidor con su nombre y su precio. Se

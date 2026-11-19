@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { formatearPrecioBolivianos } from "../../../lib/precios";
+import { formatearPrecioBolivianos, tienePrecio } from "../../../lib/precios";
 import { IconoCatalogo } from "../../iconos/icono-catalogo";
 import { rutaProductoPublico } from "../../../lib/url-sitio";
 import { AccionProducto } from "../accion-producto";
@@ -60,7 +60,11 @@ export function TarjetaMipuesto({
      direcciones distintas del mismo producto. */
   const href = slug ? rutaProductoPublico(slug, producto.codigo) : null;
   const insignia = insigniaDe(producto);
-  const precios = producto.variantes.map(({ precio }) => precio);
+  /* Sin precio (fase 14), la tarjeta se arma como si nunca hubiera tenido uno:
+     sin bloque de precio, sin hueco donde iría, y con «Consultar por WhatsApp»
+     como única acción. */
+  const conPrecio = tienePrecio(producto.precio);
+  const precios = producto.variantes.flatMap(({ precio }) => (precio === null ? [] : [precio]));
   const desde =
     precios.length > 0 && Math.min(...precios) !== Math.max(...precios) ? Math.min(...precios) : null;
 
@@ -123,18 +127,20 @@ export function TarjetaMipuesto({
         ) : null}
 
         <div className={styles.tarjetaPie}>
-          <div className={styles.tarjetaPrecio}>
-            {producto.tienePromocion && !desde ? (
-              <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
-            ) : null}
-            {/* Con presentaciones de precios distintos, el menor con «Desde»:
-                mostrar el del producto prometería un precio que la talla
-                elegida quizás no tiene. */}
-            <strong>
-              {desde ? <small className={styles.desde}>Desde</small> : null}
-              {formatearPrecioBolivianos(desde ?? producto.precio)}
-            </strong>
-          </div>
+          {conPrecio ? (
+            <div className={styles.tarjetaPrecio}>
+              {producto.tienePromocion && !desde && producto.precioOriginal !== null ? (
+                <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
+              ) : null}
+              {/* Con presentaciones de precios distintos, el menor con «Desde»:
+                  mostrar el del producto prometería un precio que la talla
+                  elegida quizás no tiene. */}
+              <strong>
+                {desde ? <small className={styles.desde}>Desde</small> : null}
+                {formatearPrecioBolivianos(desde ?? Number(producto.precio))}
+              </strong>
+            </div>
+          ) : null}
           <AccionProducto
             alAgregarProducto={alAgregarProducto}
             alAbrirWhatsapp={alAbrirWhatsapp}
@@ -145,8 +151,9 @@ export function TarjetaMipuesto({
             modalidad={modalidad}
             permiteAcciones={permiteAcciones}
             /* Solo el ícono: al lado del precio no entra una frase. La ficha,
-               que tiene la pantalla entera, la usa con palabras. */
-            presentacion="icono"
+               que tiene la pantalla entera, la usa con palabras. Sin precio
+               no hay nada al lado, y «Consultar por WhatsApp» va escrito. */
+            presentacion={conPrecio ? "icono" : "completa"}
             producto={producto}
           />
         </div>

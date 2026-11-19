@@ -9,7 +9,7 @@ import { consultarContextoPublico, presentacionesDe } from "../../../../../lib/c
 import { construirCatalogoPublico } from "../../../../../lib/catalogo/publico";
 import { Icono } from "../../../../../components/iconos/icono";
 import { ProductoConPedido } from "../../../../../components/catalogo/producto-con-pedido";
-import { formatearPrecioBolivianos } from "../../../../../lib/precios";
+import { formatearPrecioBolivianos, tienePrecio } from "../../../../../lib/precios";
 import { crearClienteSupabasePublico } from "../../../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../../../lib/supabase/variables";
 import { construirUrlPublicaProducto } from "../../../../../lib/url-sitio";
@@ -104,9 +104,14 @@ export async function generateMetadata({ params }: PropiedadesPagina): Promise<M
 
   const { negocio, producto } = datos;
   const titulo = `${producto.nombre} | ${negocio.nombre}`;
+  /* Sin precio (fase 14), lo que se comparte tampoco lo menciona: ni el
+     precio ni que falta. */
+  const precio = tienePrecio(producto.precio) ? formatearPrecioBolivianos(Number(producto.precio)) : null;
   const descripcion =
     producto.descripcion.trim() ||
-    `${producto.nombre} a ${formatearPrecioBolivianos(producto.precio)} en ${negocio.nombre}.`;
+    (precio
+      ? `${producto.nombre} a ${precio} en ${negocio.nombre}.`
+      : `${producto.nombre} en ${negocio.nombre}.`);
   const urlProducto = construirUrlPublicaProducto(negocio.slug, producto.codigo);
 
   return {
@@ -117,7 +122,7 @@ export async function generateMetadata({ params }: PropiedadesPagina): Promise<M
       type: "website",
       locale: "es_BO",
       siteName: "MiPuesto",
-      title: `${producto.nombre}, ${formatearPrecioBolivianos(producto.precio)}`,
+      title: precio ? `${producto.nombre}, ${precio}` : producto.nombre,
       description: descripcion,
       url: urlProducto,
     },

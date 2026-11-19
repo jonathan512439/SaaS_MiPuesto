@@ -13,8 +13,9 @@ import {
   type FiltrosCatalogo,
 } from "../../lib/catalogo/consulta-publica";
 import { construirFirmaCarrito } from "../../lib/pedidos/firma";
+import { avisoDeRenglonesQueSalieron, renglonesQueSalenDelPedido } from "../../lib/pedidos/sin-precio";
 import { usePedido } from "../../lib/pedidos/use-pedido";
-import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
+import { calcularSubtotal, formatearPrecioBolivianos, tienePrecio } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { CarritoCatalogo } from "../carrito/carrito-catalogo";
 import { HojaCatalogo } from "./hoja-catalogo";
@@ -126,6 +127,17 @@ export function CatalogoInteractivo({
   const enPantalla = { ...datos, categorias };
   const productosPagina = obtenerProductos(enPantalla);
 
+  /* Lo que el pedido guardado trae y ya no se pide: un producto al que el dueño
+     le quitó el precio (fase 14). Sale del pedido acá, durante el dibujo y no en
+     un efecto, para que el carrito nunca se muestre con él adentro; y el carrito
+     dice qué salió. Sin esto, la base rechazaría el pedido entero al reservar. */
+  const [salieronDelPedido, setSalieronDelPedido] = useState<string[]>([]);
+  const salen = renglonesQueSalenDelPedido(cantidades, elegidos, productosPagina);
+  if (salen.length > 0) {
+    for (const renglon of salen) cambiarPedido(renglon, 0);
+    setSalieronDelPedido((anteriores) => [...anteriores, ...salen.map(({ nombre }) => nombre)]);
+  }
+
   const [trayendo, setTrayendo] = useState(false);
   const finDeLaLista = useRef<HTMLDivElement | null>(null);
 
@@ -198,7 +210,11 @@ export function CatalogoInteractivo({
     firmaReservada !== "" && firmaReservada === construirFirmaCarrito(cantidades);
   const totalEnCarrito = calcularSubtotal(
     productos
-      .map((producto) => ({ precio: producto.precio, cantidad: cantidades[producto.id] ?? 0 }))
+      .flatMap((producto) =>
+        tienePrecio(producto.precio)
+          ? [{ precio: Number(producto.precio), cantidad: cantidades[producto.id] ?? 0 }]
+          : [],
+      )
       .filter(({ cantidad }) => cantidad > 0),
   );
   const productosEnCarrito = productos.filter(
@@ -374,6 +390,7 @@ export function CatalogoInteractivo({
           >
             <CarritoCatalogo
               abierto={pedidoAbierto}
+              aviso={avisoDeRenglonesQueSalieron(salieronDelPedido)}
               cantidades={cantidades}
               datos={datos}
               onCambiarCantidad={cambiarCantidad}

@@ -22,6 +22,7 @@ function producto(cambios: Partial<ProductoPlantilla> = {}): ProductoPlantilla {
     cantidadDisponible: null,
     maximoCantidad: 10,
     accionWhatsapp: null,
+    consultaWhatsapp: null,
     ...cambios,
   };
 }

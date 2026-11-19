@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { TEXTOS_DE_PRESENTACION } from "../../lib/catalogo/variantes";
 import { renglonDePresentacion } from "../../lib/pedidos/linea";
-import { formatearPrecioBolivianos } from "../../lib/precios";
+import { formatearPrecioBolivianos, tienePrecio } from "../../lib/precios";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { AccionProducto } from "../templates/accion-producto";
 import { EstadoStockProducto } from "../templates/estado-stock-producto";
@@ -66,6 +66,10 @@ export function FichaProducto({
      mientras no haya ninguna. Se calcula acá y no en el JSX para que el botón de
      WhatsApp y el número de arriba no puedan decir cosas distintas. */
   const variante = producto.variantes.find(({ id }) => id === varianteElegida) ?? null;
+  /* Sin precio (fase 14): ni precio, ni talla que elegir, ni calendario. La
+     ficha se arma como si nunca hubiera tenido precio, con «Consultar por
+     WhatsApp» como única acción, también en un servicio (decisión 3). */
+  const conPrecio = tienePrecio(producto.precio);
   const precioMostrado = variante ? variante.precio : producto.precio;
   const textosPresentacion = TEXTOS_DE_PRESENTACION[producto.tipoPresentacion ?? "presentacion"];
   /* Lo que se agrega: la presentación elegida como su propio renglón, o el
@@ -165,32 +169,32 @@ export function FichaProducto({
         {/* El precio y el estado comparten renglón, que es como se ven en las
             referencias: «Bs 245» y la pastilla «En stock» al mismo nivel. Lo
             primero que se mira es cuánto cuesta y si lo hay. */}
-        <div className={styles.precioYEstado}>
-          <div className={styles.precio}>
-            {producto.tienePromocion ? (
-              <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
-            ) : null}
-            {/* El precio sigue a la presentación elegida: si «7,5 kg» cuesta otra
-                cosa, el número de arriba tiene que decirlo antes de que la persona
-                toque el botón, no después. */}
-            <strong>{formatearPrecioBolivianos(precioMostrado)}</strong>
-            {producto.tienePromocion ? <small>Precio promocional</small> : null}
+        {/* Sin precio, solo los estados: ni el bloque del precio ni el renglón
+            que lo comparte con ellos. */}
+        {conPrecio && precioMostrado !== null ? (
+          <div className={styles.precioYEstado}>
+            <div className={styles.precio}>
+              {producto.tienePromocion && producto.precioOriginal !== null ? (
+                <s>{formatearPrecioBolivianos(producto.precioOriginal)}</s>
+              ) : null}
+              {/* El precio sigue a la presentación elegida: si «7,5 kg» cuesta otra
+                  cosa, el número de arriba tiene que decirlo antes de que la persona
+                  toque el botón, no después. */}
+              <strong>{formatearPrecioBolivianos(precioMostrado)}</strong>
+              {producto.tienePromocion ? <small>Precio promocional</small> : null}
+            </div>
+            <EstadosDelProducto producto={producto} />
           </div>
-
-          <div className={styles.estados}>
-            {producto.estado === "agotado" ? (
-              <span className={styles.agotado}>Agotado</span>
-            ) : null}
-            <EstadoStockProducto className={styles.stock} producto={producto} />
-          </div>
-        </div>
+        ) : (
+          <EstadosDelProducto producto={producto} />
+        )}
 
         {/* Botones y no un desplegable: todas las tallas a la vista, que es
             como se elige un número de calzado. Lo agotado se ve tachado **y**
             dice «Agotado» —el color no es el único aviso— y no se puede elegir.
             Nada viene elegido: preseleccionar haría que quien no mira pida la
             primera sin saberlo. */}
-        {producto.variantes.length > 0 ? (
+        {conPrecio && producto.variantes.length > 0 ? (
           <fieldset className={styles.variantes}>
             <legend>{textosPresentacion.elegir}</legend>
             {producto.variantes.map((opcion) => {
@@ -208,7 +212,7 @@ export function FichaProducto({
                     value={opcion.id}
                   />
                   <span className={styles.varianteNombre}>{opcion.nombre}</span>
-                  {opcion.precio !== producto.precio ? (
+                  {opcion.precio !== null && opcion.precio !== producto.precio ? (
                     <small>{formatearPrecioBolivianos(opcion.precio)}</small>
                   ) : null}
                   {agotada ? <small>Agotado</small> : pocas ? <small>Quedan {opcion.disponibles}</small> : null}
@@ -252,7 +256,17 @@ export function FichaProducto({
 
             Un catálogo de solo mostrar **no reserva**: esa modalidad existe para
             el negocio que publica lo que tiene y atiende por su cuenta. */}
-        {producto.vendeTiempo && modalidad !== "solo_lectura" ? (
+        {!conPrecio ? (
+          <div className={styles.accion}>
+            <AccionProducto
+              alAbrirWhatsapp={alAbrirWhatsapp}
+              demostracion={false}
+              modalidad={modalidad}
+              permiteAcciones={permiteAcciones}
+              producto={producto}
+            />
+          </div>
+        ) : producto.vendeTiempo && modalidad !== "solo_lectura" ? (
           <SelectorDeTurno
             productoId={producto.id}
             productoNombre={producto.nombre}
@@ -285,5 +299,15 @@ export function FichaProducto({
         )}
       </div>
     </>
+  );
+}
+
+/* Si está agotado y cuántos quedan. Va al lado del precio, o solo si no hay. */
+function EstadosDelProducto({ producto }: { producto: ProductoPlantilla }) {
+  return (
+    <div className={styles.estados}>
+      {producto.estado === "agotado" ? <span className={styles.agotado}>Agotado</span> : null}
+      <EstadoStockProducto className={styles.stock} producto={producto} />
+    </div>
   );
 }

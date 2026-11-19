@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Icono } from "../iconos/icono";
+import { tienePrecio } from "../../lib/precios";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { TEXTOS_DE_PRESENTACION } from "../../lib/catalogo/variantes";
 
@@ -22,6 +23,48 @@ import { TEXTOS_DE_PRESENTACION } from "../../lib/catalogo/variantes";
  * viene resuelto desde el servidor, porque es su categoría la que lo sabe. */
 function IconoDeAccion({ producto }: { producto: ProductoPlantilla }) {
   return <Icono nombre={producto.vendeTiempo ? "calendario" : "carrito"} />;
+}
+
+const CONSULTAR = "Consultar por WhatsApp";
+
+/* La acción del producto sin precio. Se apaga como «Pedir por WhatsApp»: en
+   las vistas previas del panel, con el negocio cerrado, o sin un WhatsApp
+   válido. Abre una conversación aparte y no toca el carrito (decisión 1). */
+function ConsultarPorWhatsapp({
+  producto,
+  permiteAcciones,
+  demostracion,
+  alAbrirWhatsapp,
+  soloIcono,
+}: {
+  producto: ProductoPlantilla;
+  permiteAcciones: boolean;
+  demostracion: boolean;
+  alAbrirWhatsapp?: (productoId: string | null) => void;
+  soloIcono: boolean;
+}) {
+  const etiqueta = `${CONSULTAR}: ${producto.nombre}`;
+  if (demostracion || !producto.consultaWhatsapp || !permiteAcciones) {
+    return (
+      <button aria-label={etiqueta} data-accion="consultar" disabled={!demostracion} type="button">
+        <Icono nombre="whatsapp" />
+        {soloIcono ? null : <span>{CONSULTAR}</span>}
+      </button>
+    );
+  }
+  return (
+    <a
+      aria-label={etiqueta}
+      data-accion="consultar"
+      href={producto.consultaWhatsapp}
+      onClick={() => alAbrirWhatsapp?.(producto.id)}
+      rel="noreferrer"
+      target="_blank"
+    >
+      <Icono nombre="whatsapp" />
+      {soloIcono ? null : <span>{CONSULTAR}</span>}
+    </a>
+  );
 }
 
 type PropiedadesAccionProducto = {
@@ -66,6 +109,23 @@ export function AccionProducto({
   presentacion = "completa",
 }: PropiedadesAccionProducto) {
   const soloIcono = presentacion === "icono";
+
+  /* Sin precio (fase 14), una sola acción en las tres modalidades: «Consultar
+     por WhatsApp». Va antes que todo lo demás —el ojo, el calendario, la
+     talla— porque un producto sin precio no se pide, no se agenda y no entra
+     al carrito: se conversa. El texto no dice por qué; el dueño pidió que
+     nada en el catálogo mencione que falta el precio. */
+  if (!tienePrecio(producto.precio)) {
+    return (
+      <ConsultarPorWhatsapp
+        alAbrirWhatsapp={alAbrirWhatsapp}
+        demostracion={demostracion}
+        permiteAcciones={permiteAcciones}
+        producto={producto}
+        soloIcono={soloIcono}
+      />
+    );
+  }
 
   /* Un catálogo de solo mostrar no vende, pero sus productos **se miran**: la
      página del producto tiene todas las fotografías, la descripción entera y los

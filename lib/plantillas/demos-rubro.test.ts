@@ -34,7 +34,7 @@ describe("demostraciones por rubro", () => {
     for (const demo of DEMOS_POR_RUBRO) {
       const productos = demo.datos.categorias.flatMap((c) => c.productos);
       expect(productos.length).toBeGreaterThanOrEqual(3);
-      expect(productos.every(({ precio }) => precio > 0)).toBe(true);
+      expect(productos.every(({ precio }) => (precio ?? 0) > 0)).toBe(true);
       expect(demo.gancho.length).toBeGreaterThan(0);
       expect(demo.datos.negocio.nombre.length).toBeGreaterThan(0);
     }

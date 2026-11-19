@@ -50,6 +50,8 @@ const PRODUCTO: ProductoPlantilla = {
   cantidadDisponible: null,
   maximoCantidad: 5,
   accionWhatsapp: null,
+
+  consultaWhatsapp: null,
 };
 
 function escribirCrudo(valor: string) {

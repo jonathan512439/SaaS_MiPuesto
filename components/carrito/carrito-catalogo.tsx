@@ -10,7 +10,7 @@ import { itemDeRenglon } from "../../lib/pedidos/linea";
 import { LIMITE_NOTA_PEDIDO } from "../../lib/pedidos/validacion";
 import { resumenSigueVigente } from "../../lib/pedidos/resumen-vigente";
 import { avisoDeTopeUnidades } from "../../lib/pedidos/tope-unidades";
-import { calcularSubtotal, formatearPrecioBolivianos } from "../../lib/precios";
+import { calcularSubtotal, formatearPrecioBolivianos, tienePrecio } from "../../lib/precios";
 import type { DatosPlantilla, ProductoPlantilla } from "../../lib/plantillas/tipos";
 import { Icono } from "../iconos/icono";
 import styles from "./carrito-catalogo.module.css";
@@ -26,6 +26,9 @@ type PropiedadesCarrito = {
   /* Si la hoja del pedido está a la vista. Con ella abierta y algo para
      pedir, la verificación empieza de antemano. */
   abierto?: boolean;
+  /* Qué salió del pedido porque ya no se pide (fase 14). Sin precio en el
+     texto: lo arma `avisoDeRenglonesQueSalieron`. */
+  aviso?: string | null;
 };
 
 type RespuestaPedido = {
@@ -60,6 +63,7 @@ export function CarritoCatalogo({
   onAbrirWhatsapp,
   onPedidoReservado,
   abierto = false,
+  aviso = null,
 }: PropiedadesCarrito) {
   const [clienteNombre, setClienteNombre] = useState("");
   const [clienteTelefono, setClienteTelefono] = useState("");
@@ -85,8 +89,14 @@ export function CarritoCatalogo({
     obtenerToken,
     preparar: prepararVerificacion,
   } = useVerificacionHumana();
+  /* Solo lo que tiene precio: un producto sin precio no se pide (fase 14). El
+     catálogo ya lo saca del pedido; esto asegura que nunca se muestre con
+     «Bs 0» ni viaje al servidor, aunque llegue por otro camino. */
   const items = productos
-    .map((producto) => ({ producto, cantidad: cantidades[producto.id] ?? 0 }))
+    .flatMap((producto) =>
+      tienePrecio(producto.precio) ? [{ producto, precio: Number(producto.precio) }] : [],
+    )
+    .map(({ producto, precio }) => ({ producto, precio, cantidad: cantidades[producto.id] ?? 0 }))
     .filter(({ cantidad }) => cantidad > 0);
   const firmaCarrito = construirFirmaCarrito(cantidades);
   /* La decisión vive en `resumen-vigente.ts`: son tres estados que parecen dos
@@ -102,7 +112,7 @@ export function CarritoCatalogo({
     ? pedido
     : null;
   const subtotal = calcularSubtotal(
-    items.map(({ producto, cantidad }) => ({ precio: producto.precio, cantidad })),
+    items.map(({ precio, cantidad }) => ({ precio, cantidad })),
   );
   const unidades = items.reduce((total, { cantidad }) => total + cantidad, 0);
   /* El tope de unidades del dueño, avisado antes de enviar. Quien decide es la
@@ -256,6 +266,12 @@ export function CarritoCatalogo({
 
   return (
     <section className={styles.carrito} id="resumen-pedido">
+      {aviso ? (
+        <p className={styles.error} role="status">
+          {aviso}
+        </p>
+      ) : null}
+
       {/* «Todavía no agregaste productos» no se dice cuando acaba de hacer uno:
           el carrito está vacío justamente porque se convirtió en el pedido que
           se muestra abajo. */}
@@ -265,7 +281,7 @@ export function CarritoCatalogo({
         </p>
       ) : items.length === 0 ? null : (
         <ul aria-live="polite">
-          {items.map(({ producto, cantidad }) => (
+          {items.map(({ producto, precio, cantidad }) => (
             <li key={producto.id}>
               {producto.imagen ? (
                 <Image
@@ -283,7 +299,7 @@ export function CarritoCatalogo({
               )}
               <div className={styles.detalle}>
                 <strong>{producto.nombre}</strong>
-                <span>{formatearPrecioBolivianos(producto.precio)} cada uno</span>
+                <span>{formatearPrecioBolivianos(precio)} cada uno</span>
               </div>
               <div className={styles.cantidad} aria-label={`Cantidad de ${producto.nombre}`}>
                 <button
@@ -308,7 +324,7 @@ export function CarritoCatalogo({
               </div>
               <strong className={styles.totalItem}>
                 {formatearPrecioBolivianos(
-                  calcularSubtotal([{ precio: producto.precio, cantidad }]),
+                  calcularSubtotal([{ precio, cantidad }]),
                 )}
               </strong>
               <button

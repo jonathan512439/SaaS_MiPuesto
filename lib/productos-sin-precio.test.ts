@@ -4,6 +4,8 @@ import { describe, expect, it } from "vitest";
 import { obtenerProductoAgendable } from "./agenda/servidor";
 import { cambiosDeAjuste } from "./catalogo/precios-lote";
 import { validarProducto } from "./catalogo/validacion";
+import { avisoDeRenglonesQueSalieron, renglonesQueSalenDelPedido } from "./pedidos/sin-precio";
+import type { ProductoPlantilla } from "./plantillas/tipos";
 import { calcularPrecioProducto, tienePrecio, type PromocionPrecio } from "./precios";
 import { construirMensajeConsulta } from "./whatsapp";
 
@@ -187,6 +189,54 @@ describe("un servicio sin precio no se agenda en línea (decisión 3)", () => {
       expect(
         await obtenerProductoAgendable(baseConFila({ ...servicio, precio }), "negocio-1", "producto-1"),
       ).toBeNull();
+    }
+  });
+});
+
+describe("el pedido guardado suelta lo que ya no tiene precio", () => {
+  const remera = {
+    id: "p1",
+    nombre: "Remera lisa",
+    precio: 30,
+  } as unknown as ProductoPlantilla;
+  const tallaM = {
+    id: "p1:v40",
+    nombre: "Remera lisa (Talla M)",
+    precio: 30,
+    seleccion: { productoId: "p1", varianteId: "v40" },
+  } as unknown as ProductoPlantilla;
+  const foco = { id: "p2", nombre: "Foco", precio: 25 } as unknown as ProductoPlantilla;
+
+  it("saca el producto y sus tallas cuando el que llegó del servidor no tiene precio", () => {
+    const salen = renglonesQueSalenDelPedido(
+      { p1: 1, "p1:v40": 2, p2: 1 },
+      { p1: remera, "p1:v40": tallaM, p2: foco },
+      [{ ...remera, precio: null }, foco],
+    );
+    expect(salen.map(({ id }) => id)).toEqual(["p1", "p1:v40"]);
+  });
+
+  it("con precio no saca nada, y lo que no está en pantalla queda como estaba", () => {
+    expect(
+      renglonesQueSalenDelPedido({ p1: 1, p2: 1 }, { p1: remera, p2: foco }, [foco]),
+    ).toEqual([]);
+  });
+
+  it("una copia guardada sin precio también sale", () => {
+    expect(
+      renglonesQueSalenDelPedido({ p2: 1 }, { p2: { ...foco, precio: 0 } }, []).map(({ id }) => id),
+    ).toEqual(["p2"]);
+  });
+
+  it("el aviso dice qué salió sin hablar de precio", () => {
+    expect(avisoDeRenglonesQueSalieron([])).toBeNull();
+    for (const aviso of [
+      avisoDeRenglonesQueSalieron(["Remera lisa"]),
+      avisoDeRenglonesQueSalieron(["Remera lisa", "Foco"]),
+    ]) {
+      expect(aviso).toMatch(/salió|salieron/);
+      expect(aviso).toContain("WhatsApp");
+      expect(aviso).not.toMatch(/precio|Bs|cotiz/i);
     }
   });
 });

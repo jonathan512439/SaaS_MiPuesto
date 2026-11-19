@@ -8,7 +8,12 @@ import { obtenerComportamientoModalidad } from "../modalidades";
 import { leerBanners } from "../negocios/banners";
 import { enlaceValido, leerTextoPortada } from "../negocios/texto-sobre-imagen";
 import type { DatosPlantilla } from "../plantillas/tipos";
-import { construirEnlaceWhatsapp, construirMensajeProducto } from "../whatsapp";
+import {
+  construirEnlaceWhatsapp,
+  construirMensajeConsulta,
+  construirMensajeProducto,
+} from "../whatsapp";
+import { construirUrlPublicaProducto } from "../url-sitio";
 import { calcularCantidadDisponible } from "../reservas";
 import { leerTopeUnidades } from "../pedidos/tope-unidades";
 import { calcularPrecioProducto, type PromocionPrecio } from "../precios";
@@ -191,9 +196,11 @@ export function construirCatalogoPublico(
       promociones,
       fecha,
     );
-    /* Transitorio, hasta el paso 3 de la fase 14: la plantilla todavía espera
-       un número. */
-    const precio = precioCalculado.precioFinal ?? 0;
+    /* `null`: sin precio (fase 14). Entonces no hay promoción, ni botón de
+       pedir, ni precio en ninguna talla: el producto se consulta entero. */
+    const precio = precioCalculado.precioFinal;
+    const sinPrecio = precioCalculado.sinPrecio;
+    const codigo = producto.codigo ?? `PRD-${producto.id.slice(0, 8).toUpperCase()}`;
     const presentaciones = variantesPorProducto.get(producto.id) ?? [];
     const tipoPresentacion = esTipoPresentacion(producto.tipo_presentacion)
       ? producto.tipo_presentacion
@@ -223,18 +230,18 @@ export function construirCatalogoPublico(
         : producto.estado;
     return {
       id: producto.id,
-      codigo: producto.codigo ?? `PRD-${producto.id.slice(0, 8).toUpperCase()}`,
+      codigo,
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? "",
       precio,
-      precioOriginal: precioCalculado.precioOriginal ?? 0,
+      precioOriginal: precioCalculado.precioOriginal,
       tienePromocion: precioCalculado.promocion !== null,
       estado,
       controlaStock: producto.controla_stock === true,
       cantidadDisponible,
       maximoCantidad: cantidadDisponible === null ? 99 : Math.min(99, cantidadDisponible),
       accionWhatsapp:
-        modalidad.accion === "accion_individual"
+        modalidad.accion === "accion_individual" && precio !== null
           ? construirEnlaceWhatsapp(
               negocio.telefono_whatsapp,
               construirMensajeProducto(negocio.nombre, {
@@ -247,6 +254,19 @@ export function construirCatalogoPublico(
               }),
             )
           : null,
+      /* En las tres modalidades: sin precio no se pide, se consulta. El enlace
+         lleva a la página del producto para que el negocio vea de cuál le
+         hablan; sin el slug —las vistas previas— va sin enlace. */
+      consultaWhatsapp: sinPrecio
+        ? construirEnlaceWhatsapp(
+            negocio.telefono_whatsapp,
+            construirMensajeConsulta(
+              negocio.nombre,
+              { nombre: producto.nombre },
+              negocio.slug ? construirUrlPublicaProducto(negocio.slug, codigo) : null,
+            ),
+          )
+        : null,
       imagen: producto.fotos[0]
         ? {
             src: obtenerUrlPublicaImagenProducto(urlSupabase, producto.fotos[0]),
@@ -269,7 +289,8 @@ export function construirCatalogoPublico(
          esperable: quien puso un precio fijo para «7,5 kg» puso ese precio. */
       tipoPresentacion,
       variantes: ordenarPresentaciones(tipoPresentacion, presentaciones).map((variante) => {
-        const precioVariante = variante.precio === null ? precio : Number(variante.precio);
+        const precioVariante =
+          precio === null ? null : variante.precio === null ? precio : Number(variante.precio);
         return {
           id: variante.id,
           nombre: variante.nombre,
@@ -280,7 +301,7 @@ export function construirCatalogoPublico(
             cantidadReservada: variante.cantidad_reservada ?? 0,
           }),
           accionWhatsapp:
-            modalidad.accion === "accion_individual"
+            modalidad.accion === "accion_individual" && precioVariante !== null
               ? construirEnlaceWhatsapp(
                   negocio.telefono_whatsapp,
                   construirMensajeProducto(negocio.nombre, {

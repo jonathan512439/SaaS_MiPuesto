@@ -700,6 +700,31 @@
   transform: translateY(1px);
 }
 
+/* Sin precio (fase 14), el pie lleva una sola cosa: «Consultar por WhatsApp»,
+ * con palabras y a lo ancho. El ícono solo existe porque al lado del precio no
+ * entra una frase; sin precio al lado, el sitio sobra y la frase dice qué pasa
+ * al tocar. En la cuadrícula angosta se parte en dos renglones, y está bien. */
+.tarjetaPie [data-accion="consultar"] {
+  display: flex;
+  flex: 1 1 auto;
+  width: auto;
+  min-height: var(--control-alto);
+  height: auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.tarjetaPie [data-accion="consultar"] svg {
+  flex: 0 0 auto;
+  font-size: var(--text-lg);
+}
+
 /* Cuántos lleva ya, sobre la esquina del botón. */
 .tarjetaPie button > b {
   position: absolute;
@@ -924,6 +949,16 @@
   width: var(--control-alto);
   height: var(--control-alto);
   font-size: var(--text-lg);
+}
+
+/* En la vitrina el botón va sobre la foto, en el lugar de siempre: sin precio
+   también, con el ícono solo. La frase sigue en su `aria-label`. */
+.tarjeta[data-forma="vitrina"] .tarjetaPie [data-accion="consultar"] {
+  padding: 0;
+}
+
+.tarjeta[data-forma="vitrina"] .tarjetaPie [data-accion="consultar"] span {
+  display: none;
 }
 
 /* Lo que se toca vuelve a recibir el dedo: el nombre —cuyo enlace se estira

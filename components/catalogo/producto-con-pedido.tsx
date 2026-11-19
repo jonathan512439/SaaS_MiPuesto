@@ -6,7 +6,7 @@ import { registrarEventoAnalitica } from "../../lib/analitica-cliente";
 import { construirRutaPedido } from "../../lib/catalogo/consulta-publica";
 import { usePedido } from "../../lib/pedidos/use-pedido";
 import type { ProductoPlantilla } from "../../lib/plantillas/tipos";
-import { formatearPrecioBolivianos } from "../../lib/precios";
+import { formatearPrecioBolivianos, tienePrecio } from "../../lib/precios";
 import { FichaProducto } from "./ficha-producto";
 import styles from "./producto-con-pedido.module.css";
 
@@ -38,7 +38,12 @@ export function ProductoConPedido({
 
   const articulos = Object.values(cantidades).reduce((total, unidades) => total + unidades, 0);
   const total = Object.entries(cantidades).reduce(
-    (suma, [id, unidades]) => suma + (elegidos[id]?.precio ?? 0) * unidades,
+    /* Lo que no tiene precio no suma: no se pide, y el catálogo lo saca del
+       pedido al volver (fase 14). */
+    (suma, [id, unidades]) => {
+      const precio = elegidos[id]?.precio;
+      return tienePrecio(precio) ? suma + Number(precio) * unidades : suma;
+    },
     0,
   );
 

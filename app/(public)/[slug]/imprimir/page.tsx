@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 
 import { obtenerNegocioPublico } from "../../../../lib/catalogo/negocio-publico";
 import { construirCatalogoPublico } from "../../../../lib/catalogo/publico";
-import { formatearPrecioBolivianos } from "../../../../lib/precios";
+import { formatearPrecioBolivianos, tienePrecio } from "../../../../lib/precios";
+import type { ProductoPlantilla } from "../../../../lib/plantillas/tipos";
 import { crearClienteSupabasePublico } from "../../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/variables";
 import styles from "./menu-imprimible.module.css";
@@ -75,6 +76,13 @@ export default async function PaginaMenuImprimible({ params }: PropiedadesPagina
     url,
   );
 
+  /* Si ningún producto tiene precio, la hoja no habla de precios. */
+  const hayPrecios = datos.categorias.some((categoria) =>
+    [...categoria.productos, ...(categoria.subcategorias ?? []).flatMap(({ productos }) => productos)].some(
+      ({ precio }) => tienePrecio(precio),
+    ),
+  );
+
   const impreso = new Intl.DateTimeFormat("es-BO", {
     day: "numeric",
     month: "long",
@@ -87,7 +95,8 @@ export default async function PaginaMenuImprimible({ params }: PropiedadesPagina
         <h1>{datos.negocio.nombre}</h1>
         {datos.negocio.descripcion ? <p>{datos.negocio.descripcion}</p> : null}
         <p className={styles.contacto}>
-          WhatsApp {datos.negocio.telefonoWhatsapp} · Precios en bolivianos
+          WhatsApp {datos.negocio.telefonoWhatsapp}
+          {hayPrecios ? " · Precios en bolivianos" : null}
         </p>
       </header>
 
@@ -99,13 +108,7 @@ export default async function PaginaMenuImprimible({ params }: PropiedadesPagina
             <h2>{categoria.nombre}</h2>
             <ul className={styles.lista}>
               {categoria.productos.map((producto) => (
-                <li key={producto.id}>
-                  <span className={styles.nombre}>{producto.nombre}</span>
-                  <span aria-hidden="true" className={styles.guia} />
-                  <span className={styles.precio}>
-                    {formatearPrecioBolivianos(producto.precio)}
-                  </span>
-                </li>
+                <RenglonImpreso key={producto.id} producto={producto} />
               ))}
             </ul>
 
@@ -114,13 +117,7 @@ export default async function PaginaMenuImprimible({ params }: PropiedadesPagina
                 <h3>{subcategoria.nombre}</h3>
                 <ul className={styles.lista}>
                   {subcategoria.productos.map((producto) => (
-                    <li key={producto.id}>
-                      <span className={styles.nombre}>{producto.nombre}</span>
-                      <span aria-hidden="true" className={styles.guia} />
-                      <span className={styles.precio}>
-                        {formatearPrecioBolivianos(producto.precio)}
-                      </span>
-                    </li>
+                    <RenglonImpreso key={producto.id} producto={producto} />
                   ))}
                 </ul>
               </div>
@@ -137,5 +134,21 @@ export default async function PaginaMenuImprimible({ params }: PropiedadesPagina
         <p>Catálogo completo en mipuesto.app/{datos.negocio.slug || slug}</p>
       </footer>
     </main>
+  );
+}
+
+/* Un renglón de la hoja: el nombre, la guía de puntos y el precio. Sin precio
+   (fase 14), el nombre solo: sin guía que lleve a nada y sin guion. */
+function RenglonImpreso({ producto }: { producto: ProductoPlantilla }) {
+  return (
+    <li>
+      <span className={styles.nombre}>{producto.nombre}</span>
+      {tienePrecio(producto.precio) ? (
+        <>
+          <span aria-hidden="true" className={styles.guia} />
+          <span className={styles.precio}>{formatearPrecioBolivianos(Number(producto.precio))}</span>
+        </>
+      ) : null}
+    </li>
   );
 }

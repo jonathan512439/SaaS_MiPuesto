@@ -5,7 +5,7 @@ import {
   obtenerFotoRasterizable,
 } from "../../../../../lib/catalogo/vista-previa-compartida";
 import { COLORES_MIPUESTO } from "../../../../../lib/identidad-visual";
-import { formatearPrecioBolivianos } from "../../../../../lib/precios";
+import { formatearPrecioBolivianos, tienePrecio } from "../../../../../lib/precios";
 import { crearClienteSupabasePublico } from "../../../../../lib/supabase/public";
 import { obtenerVariablesPublicasSupabase } from "../../../../../lib/supabase/variables";
 
@@ -46,7 +46,10 @@ export default async function ImagenProducto({
     construirUrlVistaPrevia(url, "productos", producto?.fotos?.[0] ?? null),
   );
   const nombre = producto?.nombre ?? "Producto no disponible";
-  const precio = producto ? formatearPrecioBolivianos(Number(producto.precio)) : "";
+  /* Sin precio (fase 14), la imagen no lo menciona: ni el precio, ni un hueco
+     donde iría. */
+  const precio =
+    producto && tienePrecio(producto.precio) ? formatearPrecioBolivianos(Number(producto.precio)) : null;
 
   return new ImageResponse(
     (
@@ -93,11 +96,13 @@ export default async function ImagenProducto({
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ display: "flex", fontSize: 76, fontWeight: 900, color: COLORES_MIPUESTO.marca }}>
-              {precio}
-            </div>
+            {precio ? (
+              <div style={{ display: "flex", fontSize: 76, fontWeight: 900, color: COLORES_MIPUESTO.marca }}>
+                {precio}
+              </div>
+            ) : null}
             <div style={{ display: "flex", fontSize: 26, color: COLORES_MIPUESTO.texto }}>
-              Ver y pedir en MiPuesto
+              {precio || !producto ? "Ver y pedir en MiPuesto" : "Ver y consultar en MiPuesto"}
             </div>
           </div>
         </div>

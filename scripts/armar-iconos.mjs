@@ -79,6 +79,10 @@ const ICONOS = {
      califica en Google Maps (estrellas). */
   nfc: "nfc",
   estrella: "star",
+  /* «Consultar por WhatsApp», en el producto sin precio (fase 14). Lucide no
+     trae marcas; este globo con la cola abajo a la izquierda es la silueta del
+     de WhatsApp, con el trazo de los demás, como las redes de `redes.tsx`. */
+  whatsapp: "message-circle",
 };
 
 /* Lucide dibuja sobre un lienzo de 24 con el trazo en `currentColor`. Se guarda

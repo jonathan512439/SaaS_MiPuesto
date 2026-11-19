@@ -55,6 +55,7 @@ function producto(indice: number, datos: ProductoDemo): ProductoPlantilla {
     precioOriginal: datos.precio,
     tienePromocion: false,
     accionWhatsapp: null,
+    consultaWhatsapp: null,
     maximoCantidad: 99,
     controlaStock: datos.disponibles !== undefined && datos.disponibles !== null,
     cantidadDisponible: datos.disponibles ?? null,
