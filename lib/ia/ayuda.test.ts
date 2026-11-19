@@ -27,16 +27,19 @@ describe("indicaciones para el dueño", () => {
   /* El ejemplo es la parte que más se mira y la que más fácil se rompe al
      editar: si la entrada y la salida dejan de corresponderse, enseña mal. */
   it("el ejemplo convierte el título en categoría y junta los dos tamaños en un producto", () => {
-    const salida = AYUDA_LISTA.ejemplo.salida;
+    const { entrada, salida, nota } = AYUDA_LISTA.ejemplo;
+    const titulo = entrada[0];
     const nombres = salida.map(({ nombre }) => nombre);
-    expect(nombres).not.toContain("ALMUERZOS");
-    const pique = salida.filter(({ nombre }) => nombre.startsWith("Pique macho"));
-    expect(pique).toHaveLength(1);
-    expect(pique[0].precio).toContain("60");
-    expect(pique[0].precio).toContain("35");
-    expect(AYUDA_LISTA.ejemplo.entrada.some((linea) => linea.includes("ALMUERZOS"))).toBe(true);
-    /* El título de sección no se tira: es la categoría de lo que viene debajo. */
-    expect(salida.every(({ categoria }) => categoria === "Almuerzos")).toBe(true);
+    expect(nombres).not.toContain(titulo);
+    const mochila = salida.filter(({ nombre }) => nombre.startsWith("Mochila"));
+    expect(mochila).toHaveLength(1);
+    expect(mochila[0].precio).toContain("120");
+    expect(mochila[0].precio).toContain("85");
+    expect(nota).toContain(titulo);
+    /* El título de sección no se tira: es la categoría de lo que viene debajo,
+       escrita como nombre propio y no en mayúsculas. */
+    expect(salida.every(({ categoria }) => categoria.toUpperCase() === titulo)).toBe(true);
+    expect(salida[0].categoria).not.toBe(titulo);
   });
 
   it("avisa que el precio no sale de la foto", () => {

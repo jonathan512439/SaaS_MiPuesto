@@ -43,26 +43,30 @@ export const AYUDA_LISTA = {
     "Fotografías de cada producto: esas las subes vos",
     "Cantidades en stock: eso lo sabes vos, no la lista",
   ],
-  /* El ejemplo va con los casos raros de verdad —«2x15», dos tamaños que son un
+  /* El ejemplo va con los casos raros de verdad —«3x5», dos tamaños que son un
      solo producto con dos presentaciones (desde el 2026-10-23), el título
      de sección— porque son los que hacen dudar al comerciante de si va a
-     funcionar con su lista, que nunca es la lista limpia del manual. */
+     funcionar con su lista, que nunca es la lista limpia del manual.
+
+     Útiles de librería y no comida, decidido con el dueño el 2026-11-19: la
+     herramienta sirve para cualquier rubro, y un ejemplo de restaurante hacía
+     creer que era para cartas de comida. */
   ejemplo: {
     titulo: "Un ejemplo de lo que entiende",
     entrada: [
-      "ALMUERZOS",
-      "Silpancho ................ 38",
-      "Pique macho grande/chico .. 60/35",
-      "Refresco 2x15",
-      "Postre del día .......... Bs 10.-",
+      "ÚTILES ESCOLARES",
+      "Cuaderno 100 hojas ....... 12",
+      "Mochila grande/chica .. 120/85",
+      "Lapicero azul 3x5",
+      "Tijera escolar ......... Bs 8.-",
     ],
     salida: [
-      { nombre: "Silpancho", precio: "Bs 38", categoria: "Almuerzos" },
-      { nombre: "Pique macho", precio: "grande Bs 60 · chico Bs 35", categoria: "Almuerzos" },
-      { nombre: "Refresco (por 2)", precio: "Bs 15", categoria: "Almuerzos" },
-      { nombre: "Postre del día", precio: "Bs 10", categoria: "Almuerzos" },
+      { nombre: "Cuaderno 100 hojas", precio: "Bs 12", categoria: "Útiles escolares" },
+      { nombre: "Mochila", precio: "grande Bs 120 · chica Bs 85", categoria: "Útiles escolares" },
+      { nombre: "Lapicero azul (por 3)", precio: "Bs 5", categoria: "Útiles escolares" },
+      { nombre: "Tijera escolar", precio: "Bs 8", categoria: "Útiles escolares" },
     ],
-    nota: "«ALMUERZOS» no se convierte en un producto: se convierte en la categoría de los que vienen debajo.",
+    nota: "«ÚTILES ESCOLARES» no se convierte en un producto: se convierte en la categoría de los que vienen debajo.",
   },
 };
 
