@@ -74,3 +74,35 @@ describe("validación del catálogo", () => {
     expect(estadoPorStock(false, null)).toBe("disponible");
   });
 });
+
+describe("los precios con centavos", () => {
+  const base = {
+    nombre: "Pan de batalla",
+    descripcion: "",
+    categoria_id: null,
+    subcategoria_id: null,
+    controla_stock: false,
+  };
+
+  /* Hasta el 2026-11-18 la comprobación de dos decimales era una igualdad en
+     coma flotante, y 19,99 × 100 no da 1999: se rechazaban precios comunes. */
+  it("acepta cualquier precio de dos decimales", () => {
+    for (const [escrito, guardado] of [
+      ["19,99", 19.99],
+      ["1,15", 1.15],
+      ["4,35", 4.35],
+      ["0,29", 0.29],
+      ["9999999,99", 9999999.99],
+    ] as const) {
+      const resultado = validarProducto({ ...base, precio: escrito });
+      expect(resultado.correcto, escrito).toBe(true);
+      if (resultado.correcto) expect(resultado.datos.precio).toBe(guardado);
+    }
+  });
+
+  it("sigue rechazando tres decimales", () => {
+    for (const escrito of ["1,999", "0,001", "19,995"]) {
+      expect(validarProducto({ ...base, precio: escrito }).correcto, escrito).toBe(false);
+    }
+  });
+});

@@ -39,6 +39,39 @@ export function normalizarNombreOrganizacion(valor: string) {
   return valor.trim().replace(/\s+/g, " ");
 }
 
+/* El precio de un producto, como lo escribió el dueño.
+ *
+ * Es opcional (fase 14): vacío es «sin precio», y el catálogo muestra el
+ * producto con «Consultar por WhatsApp». Vacío, nulo o 0 se guardan como nulo,
+ * para que haya un solo valor. El campo tiene que venir igual —vacío, pero
+ * venir—: un guardado al que le falta no borra un precio por descuido.
+ *
+ * Lo usan el formulario entero y el precio que se pone desde la fila de la
+ * lista, para que los dos acepten exactamente lo mismo. */
+export function leerPrecioProducto(
+  valor: unknown,
+): { correcto: true; precio: number | null } | { correcto: false; error: string } {
+  if (valor === null || (typeof valor === "string" && valor.trim() === "")) {
+    return { correcto: true, precio: null };
+  }
+  const precio =
+    typeof valor === "number"
+      ? valor
+      : typeof valor === "string"
+        ? Number(valor.trim().replace(",", "."))
+        : Number.NaN;
+  if (!Number.isFinite(precio) || precio < 0 || precio > 9_999_999.99) {
+    return { correcto: false, error: "Escribe un precio válido, o déjalo vacío para que te lo consulten." };
+  }
+  /* Con margen y no con igualdad: en coma flotante 19.99 × 100 da
+     1998.9999999999998, y la igualdad rechazaba 19,99, 1,15 o 4,35 como si
+     tuvieran tres decimales. */
+  if (Math.abs(precio * 100 - Math.round(precio * 100)) > 1e-6) {
+    return { correcto: false, error: "El precio admite como máximo dos decimales." };
+  }
+  return { correcto: true, precio: precio === 0 ? null : Number(precio.toFixed(2)) };
+}
+
 export function validarProducto(
   entrada: unknown,
   /* Con presentaciones y control de existencias, las existencias van en cada
@@ -60,20 +93,7 @@ export function validarProducto(
     typeof valor.descripcion === "string" && valor.descripcion.trim()
       ? valor.descripcion.trim()
       : null;
-  /* El precio es opcional (fase 14): vacío es «sin precio», y el catálogo
-     muestra el producto con «Consultar por WhatsApp». Vacío, nulo o 0 se
-     guardan como nulo, para que haya un solo valor. El campo tiene que venir
-     igual —vacío, pero venir—: un guardado al que le falta no borra un precio
-     por descuido. */
-  const precioVacio =
-    valor.precio === null || (typeof valor.precio === "string" && valor.precio.trim() === "");
-  const precio = precioVacio
-    ? null
-    : typeof valor.precio === "number"
-      ? valor.precio
-      : typeof valor.precio === "string"
-        ? Number(valor.precio.replace(",", "."))
-        : Number.NaN;
+  const precio = leerPrecioProducto(valor.precio);
   const controlaStock = valor.controla_stock === true;
   const cantidadStock = controlaStock && !opciones.existenciasPorPresentacion
     ? typeof valor.cantidad_stock === "number"
@@ -95,13 +115,7 @@ export function validarProducto(
     errores.descripcion = "Usa como máximo 1000 caracteres.";
   }
 
-  if (precio === null) {
-    /* Sin precio: es una decisión del dueño, no un error. */
-  } else if (!Number.isFinite(precio) || precio < 0 || precio > 9_999_999.99) {
-    errores.precio = "Escribe un precio válido, o déjalo vacío para que te lo consulten.";
-  } else if (Math.round(precio * 100) !== precio * 100) {
-    errores.precio = "El precio admite como máximo dos decimales.";
-  }
+  if (!precio.correcto) errores.precio = precio.error;
 
   if (categoriaId !== null && !esUuid(categoriaId)) {
     errores.categoria_id = "La categoría seleccionada no es válida.";
@@ -154,7 +168,7 @@ export function validarProducto(
     datos: {
       nombre,
       descripcion,
-      precio: precio === null || precio === 0 ? null : Number(precio.toFixed(2)),
+      precio: precio.correcto ? precio.precio : null,
       categoria_id: categoriaId as string | null,
       subcategoria_id: subcategoriaId as string | null,
       controla_stock: controlaStock,
