@@ -10,7 +10,7 @@ import { obtenerVariablesPublicasSupabase } from "../../../../lib/supabase/varia
 import panel from "../panel.module.css";
 
 export const metadata: Metadata = {
-  title: "Mi catálogo | MiPuesto",
+  title: "Categorías | MiPuesto",
   description: "Las categorías de tu catálogo, con sus íconos, sus campos y sus horarios.",
 };
 
@@ -36,7 +36,7 @@ export default async function PaginaCatalogo() {
     <main className={panel.contenido}>
       <EncabezadoPanel
         descripcion="Las categorías son las secciones de tu catálogo. Acá eliges su ícono, qué datos pide cada una y, si vendes turnos, sus horarios."
-        titulo="Mi catálogo"
+        titulo="Categorías"
       />
 
       <GestorCatalogo datosIniciales={datos} urlSupabase={url} vista="categorias" />

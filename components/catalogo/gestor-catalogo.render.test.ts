@@ -7,7 +7,7 @@ import { ProveedorSupabaseNavegador } from "../supabase/proveedor-supabase-naveg
 import { ProveedorAvisos, ProveedorConfirmacion } from "../ui";
 import { GestorCatalogo } from "./gestor-catalogo";
 
-/* «Productos» y «Mi catálogo» se dibujan, con datos.
+/* «Productos» y «Categorías» se dibujan, con datos.
  *
  * Es la primera prueba del proyecto que **dibuja una pantalla del panel**, y
  * existe porque las dos se cayeron enteras con un error que ninguna otra cosa
@@ -172,7 +172,7 @@ describe("las pantallas del catálogo del panel", () => {
     expect(html).toContain("Precio anterior: Bs 200.");
   });
 
-  it("«Mi catálogo» se dibuja con datos", () => {
+  it("«Categorías» se dibuja con datos", () => {
     const html = dibujar("categorias");
     expect(html).toContain("Tus categorías");
     expect(html).toContain("Alimento");

@@ -14,7 +14,7 @@ import type {
 
 /* Todo lo que las dos pantallas del catálogo necesitan para dibujarse.
  *
- * «Mi catálogo» y «Productos» son pantallas distintas y cargan **lo mismo**: las
+ * «Categorías» y «Productos» son pantallas distintas y cargan **lo mismo**: las
  * dos las atiende el mismo componente, que comparte estado —crear una categoría
  * tiene que aparecer al instante en el desplegable del formulario de producto—.
  *

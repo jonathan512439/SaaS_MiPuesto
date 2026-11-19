@@ -74,7 +74,7 @@ const DEL_VISITANTE = /const CAMPOS =\s*"([^"]+)"/.exec(fuente)?.[1].split(",") 
 
 /* Lo que el **panel** lee de `negocios`, sacado de las consultas de verdad.
  *
- * Esta lista faltaba, y por eso `plan_id` tumbó «Productos» y «Mi catálogo»: se
+ * Esta lista faltaba, y por eso `plan_id` tumbó «Productos» y «Categorías»: se
  * cuidó de no conceder su escritura —para que nadie se ascienda solo— y se pasó
  * por alto la lectura. La consulta la pedía, la base la rechazaba, y se caía
  * entera con ella.

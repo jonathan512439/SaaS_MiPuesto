@@ -20,7 +20,7 @@ export const RUTAS_PANEL = {
      su negocio. La carpeta se llamaba `configuracion` desde antes de que
      existiera esa distinción. */
   negocio: "/dashboard/negocio",
-  /* Dos pantallas y no una: «Mi catálogo» son las categorías —se arman una vez—
+  /* Dos pantallas y no una: «Categorías» son las categorías —se arman una vez—
      y «Productos» es la lista, que se toca todos los días. Estaban juntas, con
      las categorías plegadas arriba de los productos, y el trabajo de una vez le
      comía sitio al de todos los días. */
@@ -34,7 +34,7 @@ export const RUTAS_PANEL = {
   pedidos: "/dashboard/pedidos",
   cuenta: "/dashboard/cuenta",
   /* Las herramientas: lo que se usa de vez en cuando y no todos los días.
-     Colgaban de «Mi catálogo», apretadas en una fila de botones chicos arriba de
+     Colgaban de «Categorías», apretadas en una fila de botones chicos arriba de
      la pantalla que más se usa, donde no había lugar para explicar qué hace cada
      una. */
   herramientas: "/dashboard/herramientas",

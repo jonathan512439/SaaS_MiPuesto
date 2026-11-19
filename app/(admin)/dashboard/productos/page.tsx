@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 /* Los productos, con la pantalla entera para ellos.
  *
- * Carga lo mismo que «Mi catálogo» —el mismo componente atiende a las dos, y su
+ * Carga lo mismo que «Categorías» —el mismo componente atiende a las dos, y su
  * estado es uno solo— pero dibuja la otra mitad: buscar, filtrar, crear y la
  * lista. El filtro por categoría acá es un desplegable, que es lo que hace falta
  * cuando se viene a trabajar sobre productos y no sobre categorías.

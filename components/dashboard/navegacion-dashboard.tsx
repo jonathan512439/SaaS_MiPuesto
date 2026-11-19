@@ -17,14 +17,16 @@ const ENLACES: ReadonlyArray<{ href: string; etiqueta: string; icono: NombreIcon
      pantalla; «Resumen» dice qué hay adentro, que es lo que sirve para elegir
      entre diez secciones. */
   { href: RUTAS_PANEL.inicio, etiqueta: "Resumen", icono: "casa" },
-  /* «Mi negocio» y «Mi catálogo» con el posesivo, y no «Negocio» y «Catálogo» a
-     secas: son las dos pantallas que un dueño nuevo confunde con las de la
-     plataforma, y el «mi» es lo que le dice de quién es lo que está tocando. */
+  /* «Mi negocio» con el posesivo, y no «Negocio» a secas: un dueño nuevo la
+     confunde con las pantallas de la plataforma, y el «mi» le dice de quién es lo
+     que está tocando. */
   { href: RUTAS_PANEL.negocio, etiqueta: "Mi negocio", icono: "tienda" },
-  /* «Mi catálogo» son las secciones y «Productos» lo que va adentro. Van
+  /* «Categorías» y no «Mi catálogo», decidido con el dueño: el catálogo es todo
+     —categorías, productos, apariencia— y la palabra no decía cuál de esas cosas
+     había adentro. Son las secciones, y «Productos» lo que va en ellas. Van
      pegadas y en ese orden porque así se recorre el trabajo: primero se arma la
      sección, después se llena. */
-  { href: RUTAS_PANEL.catalogo, etiqueta: "Mi catálogo", icono: "carpeta" },
+  { href: RUTAS_PANEL.catalogo, etiqueta: "Categorías", icono: "carpeta" },
   { href: RUTAS_PANEL.productos, etiqueta: "Productos", icono: "caja" },
   /* «Apariencia» y no «Diseño»: diseñar es una tarea, y acá no se diseña nada
      —se elige entre cosas ya hechas—. La palabra prometía más de lo que hay. */

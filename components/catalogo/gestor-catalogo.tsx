@@ -92,7 +92,7 @@ const FORMATEADOR_CAMBIO_PRECIO = new Intl.DateTimeFormat("es-BO", {
 
 /* Las dos pantallas salen del mismo componente y no de dos.
  *
- * «Mi catálogo» y «Productos» se separaron porque son dos trabajos distintos:
+ * «Categorías» y «Productos» se separaron porque son dos trabajos distintos:
  * armar las categorías se hace una vez, cargar productos se hace todos los días.
  * Pero comparten el estado —crear una categoría tiene que aparecer al instante
  * en el desplegable del formulario de producto— y partirlo en dos componentes
@@ -233,7 +233,7 @@ export function GestorCatalogo({
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
   /* Va **después** de `formulario`, no antes: lee `formulario.recurso_id`, y
      un `const` no existe hasta su línea. Estuvo arriba y tumbó «Productos» y
-     «Mi catálogo» enteros con un «Cannot access before initialization» que
+     «Categorías» enteros con un «Cannot access before initialization» que
      ni el compilador ni el lint ven, porque el orden de dos `const` en la
      misma función no es cosa de tipos. */
   /* Cuánto dura un turno de quien atiende este producto, según su cronograma.
@@ -1417,7 +1417,7 @@ export function GestorCatalogo({
                     Cancelar
                   </Boton>
                 </div>
-                <small>El ícono y el orden los cambias después en «Mi catálogo».</small>
+                <small>El ícono y el orden los cambias después en «Categorías».</small>
               </div>
             )}
             </div>

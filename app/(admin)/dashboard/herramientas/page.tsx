@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 /* Las herramientas del panel, en su propia pantalla.
  *
- * Vivían apretadas en una fila de botones chicos arriba de «Mi catálogo», que es
+ * Vivían apretadas en una fila de botones chicos arriba de «Categorías», que es
  * la pantalla que más se usa y donde menos lugar había. Ahí no entraba lo único
  * que un dueño necesita saber de una herramienta que nunca usó: **qué hace**.
  * «Importar mi Excel o CSV» no le dice a nadie que puede cargar cien productos

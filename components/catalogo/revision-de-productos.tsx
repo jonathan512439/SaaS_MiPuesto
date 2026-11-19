@@ -443,7 +443,7 @@ export function RevisionDeProductos({
           if (!guardado.ok) throw new Error("rechazado");
           camposNuevos.set(id, leerAtributos(datos.atributos));
         } catch {
-          advertencias.push(`La categoría «${titulo}» se creó sin sus campos. Agrégalos desde Mi catálogo.`);
+          advertencias.push(`La categoría «${titulo}» se creó sin sus campos. Agrégalos desde Categorías.`);
         }
       }
     }

@@ -80,7 +80,7 @@ export function PasoTusProductos({
       <ol className={styles.caminos}>
         {conFotoIa ? (
           <li>
-            {/* A las herramientas, que es donde viven. Apuntaban a «Mi catálogo»
+            {/* A las herramientas, que es donde viven. Apuntaban a «Categorías»
                 con un `?asistente=` que ninguna pantalla leía —quedaron de antes
                 de que las dos herramientas se mudaran— y el dueño caía en la
                 lista de categorías sin entender qué pasó. */}
