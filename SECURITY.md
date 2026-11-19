@@ -495,13 +495,206 @@ después del mismo control. Ahora:
   documentación lleva los correos de las tiendas de demostración y el de envío
   de correos, que son nombres de usuario. Conviene hacerlo privado; Workers
   Builds funciona igual.
-- `productos` deja leer `precio_actualizado_por` a la clave pública: el
-  identificador del dueño que cambió el precio. El catálogo no lo pide, pero se
-  puede pedir. Cerrarlo pide pasar la tabla a permisos por columna.
-- La imagen para compartir pide desde el servidor el logo que haya escrito el
-  dueño, que puede ser cualquier `https://`. Desde Cloudflare no se alcanza
-  ninguna red interna; conviene igual aceptar solo rutas del almacenamiento.
-- `connect-src` admite cualquier `*.supabase.co`; se puede acotar al proyecto.
+- ~~`productos` deja leer `precio_actualizado_por` a la clave pública~~
+  **Corregido el 2026-11-15** (`152f868`, migración `20261120090000`): la tabla
+  pasa a permisos por columna. Ver la auditoría de esa fecha.
+- ~~La imagen para compartir pide desde el servidor cualquier `https://` que
+  haya escrito el dueño~~ **Corregido el 2026-11-15** (`e78482a`): solo rutas
+  del almacenamiento. Era la portada y la primera foto del producto, no el logo.
+- ~~`connect-src` admite cualquier `*.supabase.co`~~ **Corregido el
+  2026-11-15** (`350650d`): solo el proyecto del sitio.
+
+## Auditoría de seguridad del 2026-11-15
+
+La quinta, antes del piloto. No fue un recorrido por lista —ese es el del
+2026-10-21— sino tres cosas: lo que cambió desde entonces (53 commits y las
+migraciones `20261111090000` a `20261118090000`), las fallas de lógica que
+alguien aprovecharía para sacar ventaja, y los tres pendientes que se cerraban
+con código.
+
+Lo que se pudo, se comprobó: en la **base de ensayo**, con usuarios temporales
+que se borran al terminar, y contra **producción solo en lectura y con la clave
+pública**. Lo que no se comprobó está marcado.
+
+**Una limitación de esta auditoría, que deja dos correcciones a medio cerrar.**
+La contraseña de `ENSAYO_DB_URL` en `.env.local` está vencida (`npm run
+cadenas:probar` lo dice: producción conecta, ensayo no). La API de ensayo sí
+responde con su clave de servicio, y con ella se hicieron las pruebas de abajo;
+pero **aplicar una migración a ensayo y correr las pruebas de base pide esa
+cadena**. Las dos migraciones nuevas están escritas, con sus pruebas, y **no
+están probadas en ensayo**: no se aplican a producción hasta que pasen ahí.
+Ensayo, además, está atrasada: le faltan al menos `20261116090000` a
+`20261118090000`.
+
+### 1. Un dueño se ponía el plan, el vencimiento y la publicación que quisiera — **grave, corregido en el repositorio; falta aplicar**
+
+El permiso de **actualizar** `negocios` es por columna desde la fase 7, para que
+el panel toque el nombre pero no `activo`, `verificado` ni la suscripción. El de
+**insertar** y el de **borrar** seguían sobre la tabla entera, desde el esquema
+inicial: quien da de alta una fila le pone lo que quiere a todas sus columnas, y
+la política solo mira que la fila sea suya.
+
+Comprobado en ensayo con un usuario común y su propia sesión, directo contra la
+API:
+
+1. dio de alta su negocio como lo hace la ruta: nació en `prueba`, a quince días;
+2. lo borró;
+3. lo creó de nuevo con `plan_id: activo`, `suscripcion_vence_en: 2099`, `activo`
+   y `verificado` en verdadero. La base lo guardó tal cual y el catálogo quedó a
+   la vista de un visitante.
+
+Con eso se salta la prueba de quince días, el plan y el corte por falta de pago
+—un catálogo suspendido vuelve a estar en línea—, y de paso se da por verificado
+y con la lectura de fotos habilitada. El cupo de IA, que se cuenta por negocio,
+también empieza de cero con el negocio nuevo.
+
+- Base (`20261119090000`, commit `8abcad8`): se inserta **solo las nueve
+  columnas que manda el alta** y la sesión del dueño **no borra** su negocio. Lo
+  demás nace con su valor por omisión. Sin borrado no hay segunda alta
+  (`admin_user_id` es único), así que la prueba es una sola.
+- Tres guardias, las tres probadas rotas: `lib/negocios/alta-por-columnas.test.ts`
+  compara lo que arma la ruta con lo que concede la migración (falla si falta la
+  migración y si se le agrega `plan_id`); `npm run test:permisos:linked` mira la
+  base de verdad en los dos sentidos —una columna de menos rompe el alta, una de
+  más es este agujero—; y el recorrido de aislamiento intenta la trampa columna
+  por columna con un tercer usuario. **Corrido en ensayo sin la migración, el
+  recorrido falla con «A pudo borrar su propio negocio»**: detecta el hueco.
+- Prueba de base, escrita y **sin correr**: `npm run test:alta-columnas:ensayo`.
+
+### 2. El registro de usuarios estaba abierto — **grave, de configuración; lo cierra el dueño**
+
+`docs/CONFIGURACION-MANUAL.md` dice «Allow new users to sign up: desactivado».
+Supabase Auth en producción responde otra cosa: `GET /auth/v1/settings`, con la
+clave pública, da `disable_signup: false`. La aplicación no tiene pantalla de
+registro; la API de Supabase sí, y la clave pública va en cada página.
+
+Sumado al punto 1, **cualquiera en internet** —no solo un dueño invitado— podía
+crearse una cuenta y, con ella, un catálogo publicado y verificado en
+`mi-puesto.com`, con el plan Activo, sin pagar y sin que la plataforma lo
+supiera. Con el punto 1 cerrado, una cuenta sin invitación todavía obtiene una
+prueba de quince días y aparece en el directorio.
+
+Cómo se comprobó, y hasta dónde: la configuración se leyó en producción y en
+ensayo (las dos, abiertas). En ensayo, un registro con la clave pública pasó la
+puerta del registro —lo rechazó la validación del correo de prueba, no «el
+registro está cerrado»—. **El alta completa de un desconocido no se probó**: en
+producción sería escribir, y en ensayo pide mandar un correo de verdad.
+
+- Lo cierra el dueño en la consola: Authentication → Sign In / Providers →
+  «Allow new users to sign up», apagado. En producción y en ensayo, que recibe
+  copias de los respaldos. Las invitaciones siguen funcionando.
+- Guardia (`1779342`): `npm run test:registro:linked` lee esa configuración con
+  la clave pública y falla si el registro, el ingreso anónimo o la confirmación
+  automática están prendidos. Corre con `test:rls:linked`. Hoy falla contra
+  producción, que es lo que tiene que hacer hasta que se apague.
+- **Mirar si alguien ya entró**: en la consola, Authentication → Users, las
+  cuentas que no tengan «Invited»; y `npm run suscripcion:ver`, un negocio cuyo
+  plan o vencimiento no coincida con la bitácora de la plataforma. Con la clave
+  pública se ven nueve negocios activos, que es lo esperado, pero el plan y el
+  vencimiento no se leen con ella.
+
+### 3. La clave pública leía el rastro de precios y las tallas de lo oculto — **baja, corregido en el repositorio; falta aplicar**
+
+El pendiente del 2026-10-21, que resultó más ancho. `productos` concedía la
+tabla entera: además de `precio_actualizado_por` se podían pedir
+`precio_actualizado_en` y `precio_anterior`, o sea cuándo y de cuánto a cuánto
+cambió cada precio. Comprobado contra producción con la clave pública: 54
+productos lo devolvían. Y las presentaciones se leían con que el negocio
+estuviera activo, sin mirar el producto: las de uno oculto o en la papelera
+seguían a la vista (hoy no hay ninguna en ese estado en producción).
+
+- Base (`20261120090000`, commit `152f868`): `productos` se concede **columna
+  por columna**, todas menos esas tres; las presentaciones, solo las de
+  productos a la vista.
+- Guardias, probadas rotas: `lib/catalogo/columnas-publicas-de-producto.test.ts`
+  no deja agregar una columna a `productos` sin decidir si el visitante la lee
+  —el filo que ya cortó dos veces en `negocios`—, y `npm run
+  test:publico:linked` corre las consultas de verdad del catálogo como un
+  visitante. **Hoy, sin la migración, falla nombrando las tres columnas.**
+- Prueba de base, escrita y **sin correr**: `npm run test:visitante:ensayo`.
+
+### 4. Tres ajustes de código — corregidos
+
+- **Las imágenes salen solo del almacenamiento** (`e78482a`). `portada_url`,
+  `logo_url`, los banners y las fotos las puede escribir el dueño con su sesión,
+  sin pasar por la ruta que sube la imagen; una dirección `https://` puesta ahí
+  se publicaba tal cual y la imagen para compartir la pedía desde el servidor.
+  Ahora lo que no es una ruta del depósito no se convierte en dirección
+  (`lib/rutas-de-almacenamiento.ts`). En producción todas las guardadas son
+  rutas —comprobado con la clave pública—, así que nada cambia de aspecto.
+- **`connect-src` admite solo el proyecto del sitio** (`350650d`), tomado de
+  `NEXT_PUBLIC_SUPABASE_URL`. `img-src` y `media-src` siguen con el comodín.
+- **La redirección a `mi-puesto.com` no sale del sitio** (`ab7ed44`). La ruta
+  se pegaba como texto al origen, y `//otro.sitio/x` se lee como otro servidor.
+  No era explotable: vinext contesta 404 a esas rutas antes del proxy
+  (comprobado en producción con seis variantes). Era una defensa ajena.
+
+Las tres se probaron escribiendo la prueba primero y viéndola fallar contra el
+código anterior.
+
+### Revisado y sin problema
+
+- **Pagar menos.** El único camino que guarda un total es
+  `crear_pedido_reservado`, y lo calcula entero la base: precio, presentación
+  y promoción. Rechaza renglones repetidos, cantidades fuera de 1 a 99, una
+  presentación de otro producto y un producto con presentaciones sin elegir
+  una. La nota no toca el total, va en un renglón y se guarda solo si el
+  negocio las pide.
+- **Acaparar.** Pedidos y turnos piden Turnstile antes de escribir y cuentan por
+  IP. La existencia se bloquea con `for update` en orden fijo; el turno lo
+  decide la restricción de exclusión. Un identificador de intento repetido
+  devuelve el mismo pedido o la misma cita, y reusado para otra cosa responde
+  409.
+- **Meterse en otro negocio.** Las 54 funciones que expone la API se llamaron
+  una por una en ensayo, como visitante y como dueño con negocio: las de
+  plataforma, IA, pedidos, analítica y mantenimiento niegan a los dos; las que
+  quedan abiertas al dueño comprueban que el producto sea suyo. Ninguna función
+  `security definer` nueva recibe identificadores sin mirar de quién son.
+- **Saltarse el plan.** Productos y fotos los cuenta un disparador, con la
+  prueba incluida; el almacenamiento, una regla de Storage; el cupo de lecturas
+  se reserva con la clave de servicio y el dueño no puede escribir
+  `uso_ia_negocio` ni `plan_id`. El hueco era el del punto 1.
+- **Leer lo que no se debe.** Columna por columna contra producción con la clave
+  pública: pedidos, citas, analítica, IA, bitácora, etiquetas, tutoriales y los
+  topes por IP no devuelven nada; de `negocios` no se leen el dueño, el plan, el
+  vencimiento, el punto exacto ni la ficha de Maps. No se ven productos ocultos
+  ni en la papelera, negocios inactivos ni promociones apagadas.
+- **La portada guardada un minuto.** El catálogo no lee la sesión, así que la
+  copia es la misma para todos. Nueve cabeceras que la caché no mira —entre
+  ellas `X-Forwarded-Host`, `Next-Url` y las de vinext— no cambian la página.
+- **La prueba de quince días** vence por el corte de siempre; el primer pago la
+  saca, y cambiar el plan pide segundo factor. **Los correos con la marca**
+  llevan enlaces fijos a `mi-puesto.com`. **Los tutoriales** solo entregan
+  nombres `NN-<32 hex>`. **El borrado de fotos** usa siempre la sesión del
+  dueño, confinada a su carpeta.
+
+### Sospechas sin comprobar
+
+- **Una lectura con IA se puede usar sin gastarla.** `/api/ia/lista` con el
+  texto de un PDF hace hasta treinta llamadas al modelo por una lectura, y la
+  devuelve si la respuesta no parece una lista de precios o si se pierde una
+  tanda. Un dueño que mande a propósito texto que no es una lista gasta la cuota
+  compartida de Google sin gastar su cupo. No gana nada —recibe un error— pero
+  puede dejar sin lecturas a los demás. Leído en el código, no probado: probarlo
+  es gastar esa cuota. La salida es un techo diario de **llamadas** por negocio,
+  además del de lecturas; qué número, lo decide el dueño.
+- **El modo de Turnstile en producción.** La auditoría del 2026-09-27 lo dejó en
+  `exigir`; comprobarlo de nuevo pide un envío. `.env.local` conserva la línea
+  de la pausa del 2026-09-25, que solo vale en la máquina.
+
+### Pendiente
+
+- **Rotar la contraseña de la base de ensayo en `.env.local`**, ponerla al día
+  (`npm run ensayo:push`) y correr `npm run ensayo:verificar`,
+  `test:alta-columnas:ensayo` y `test:visitante:ensayo`. Recién entonces, las
+  dos migraciones a producción.
+- **Apagar el registro** en producción y en ensayo, y corregir la línea del
+  manual que dice que ya lo está.
+- Siguen del 2026-10-21: actualizar Next.js y hacer privado el repositorio.
+- `img-src` y `media-src` admiten cualquier `*.supabase.co`. Con las imágenes
+  saliendo solo del almacenamiento ya no hay cómo aprovecharlo desde una
+  columna; se puede acotar igual que `connect-src`.
+- El techo diario de llamadas a la IA por negocio (ver «Sospechas»).
 
 ## Recuperación de contraseña — corregido el 2026-09-07
 

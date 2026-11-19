@@ -54,10 +54,10 @@ describe("imágenes públicas del negocio", () => {
     expect(url).toContain("n%201/logo/a%20b.webp");
   });
 
-  it("no toca una dirección que ya es absoluta", () => {
-    expect(obtenerUrlPublicaImagenNegocio(URL_SUPABASE, "https://otro/x.webp", "portada")).toBe(
-      "https://otro/x.webp",
-    );
+  /* Antes la publicaba tal cual. El resto de los casos está en
+     `lib/rutas-de-almacenamiento.test.ts`. */
+  it("no publica una dirección absoluta guardada en la columna", () => {
+    expect(obtenerUrlPublicaImagenNegocio(URL_SUPABASE, "https://otro/x.webp", "portada")).toBeNull();
   });
 
   it("devuelve nulo sin ruta", () => {

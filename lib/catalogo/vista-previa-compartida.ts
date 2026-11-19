@@ -8,6 +8,8 @@
  * por eso quien la use debe comprobar el tipo antes de rasterizarla.
  */
 
+import { esRutaDeAlmacenamiento } from "../rutas-de-almacenamiento";
+
 const ANCHO_VISTA_PREVIA = 800;
 const CALIDAD_VISTA_PREVIA = 72;
 
@@ -23,8 +25,10 @@ export function construirUrlVistaPrevia(
   deposito: "productos" | "negocios",
   ruta: string | null,
 ): string | null {
-  if (!ruta) return null;
-  if (ruta.startsWith("https://")) return ruta;
+  /* Esta dirección la pide el servidor. Solo una ruta del depósito: la columna
+     la puede escribir el dueño con su sesión, y una dirección `https://` puesta
+     ahí mandaba al servidor a pedirla (`lib/rutas-de-almacenamiento.ts`). */
+  if (!esRutaDeAlmacenamiento(ruta)) return null;
   const base = urlSupabase.replace(/\/$/, "");
   /* Sin `resize=contain`, Supabase conserva el alto original y recorta con
      `cover`: la foto llegaba como una franja de su centro. */

@@ -26,5 +26,12 @@ export function destinoCanonico(url: URL, sitio: string = obtenerUrlBaseSitio())
   const vieneDeOtraDireccion =
     url.hostname === DIRECCION_ANTERIOR || url.hostname === `www.${DOMINIO_MIPUESTO}`;
   if (!vieneDeOtraDireccion) return null;
-  return new URL(`${url.pathname}${url.search}`, canonico.origin);
+  /* La ruta y los parámetros se **asignan** sobre el origen del sitio; no se
+     pegan como texto. Pegados, una ruta que empieza con dos barras
+     (`//otro.sitio/x`) se lee como otro servidor y la redirección salía del
+     sitio. Asignada, queda como ruta de `mi-puesto.com`, que responde 404. */
+  const destino = new URL(canonico.origin);
+  destino.pathname = url.pathname;
+  destino.search = url.search;
+  return destino;
 }

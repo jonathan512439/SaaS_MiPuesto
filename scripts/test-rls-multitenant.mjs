@@ -29,6 +29,7 @@ const rutasStorage = [];
 const rutasStorageNegocios = [];
 let clienteA;
 let clienteB;
+let clienteC;
 
 function comprobar(condicion, mensaje) {
   if (!condicion) throw new Error(`RLS multi-tenant: ${mensaje}`);
@@ -44,7 +45,11 @@ async function insertarUno(cliente, tabla, valores, clave = "id") {
   return data;
 }
 
-async function comprobarAislamiento(tabla, idAjeno, cambio, escrituraRevocada = false) {
+/* `borradoRevocado` va aparte de `escrituraRevocada` por `negocios`: el dueño
+   sigue pudiendo actualizar el suyo —y una fila ajena le da cero filas—, pero
+   desde `20261119090000_el_dueno_no_elige_su_plan.sql` no tiene permiso de
+   borrar ninguno, y la base lo rechaza con 42501 en vez de devolver cero. */
+async function comprobarAislamiento(tabla, idAjeno, cambio, escrituraRevocada = false, borradoRevocado = escrituraRevocada) {
   const lectura = await clienteA.from(tabla).select("id").eq("id", idAjeno);
   comprobar(!lectura.error, `${tabla}: la lectura ajena produjo un error inesperado`);
   comprobar(lectura.data?.length === 0, `${tabla}: A pudo leer una fila de B`);
@@ -65,7 +70,7 @@ async function comprobarAislamiento(tabla, idAjeno, cambio, escrituraRevocada = 
   }
 
   const borrado = await clienteA.from(tabla).delete().eq("id", idAjeno).select("id");
-  if (escrituraRevocada) {
+  if (borradoRevocado) {
     comprobar(
       borrado.error?.code === "42501",
       `${tabla}: el borrado sin permiso no fue rechazado como se esperaba`,
@@ -99,9 +104,14 @@ try {
     if (error) throw new Error(`No se pudo iniciar la sesión ${indice + 1}: ${error.message}`);
   });
 
-  for (const [indice, cliente] of [clienteA, clienteB].entries()) {
+  /* Los crea la clave de servicio, fuera de línea desde el primer instante: el
+     dueño ya no puede poner `activo` al dar de alta
+     (`20261119090000_el_dueno_no_elige_su_plan.sql`), y un negocio de prueba
+     no tiene por qué verse en el sitio ni un segundo. El alta con la sesión del
+     dueño se prueba más abajo, con un tercer usuario. */
+  for (const indice of [0, 1]) {
     negocios.push(
-      await insertarUno(cliente, "negocios", {
+      await insertarUno(administrador, "negocios", {
         admin_user_id: usuarios[indice],
         slug: `rls-${indice + 1}-${marca}`.slice(0, 48),
         nombre: `Negocio RLS ${indice + 1}`,
@@ -327,6 +337,10 @@ try {
       tabla === "pedidos" ||
         tabla === "pedido_items" ||
         tabla === "eventos_analitica",
+      tabla === "pedidos" ||
+        tabla === "pedido_items" ||
+        tabla === "eventos_analitica" ||
+        tabla === "negocios",
     );
   }
 
@@ -435,6 +449,77 @@ try {
     reactivacionPropia.error?.code === "42501",
     "A pudo modificar el estado de suscripción de su negocio",
   );
+
+  /* El dueño no elige lo que decide la plataforma, tampoco al dar de alta. Con
+     el permiso de insertar sobre la tabla entera —como estuvo hasta el
+     2026-11-15— borraba su negocio y lo creaba de nuevo con el plan Activo,
+     vencimiento en 2099, publicado y verificado. */
+  const borradoPropio = await clienteA.from("negocios").delete().eq("id", negocios[0].id).select("id");
+  comprobar(borradoPropio.error?.code === "42501", "A pudo borrar su propio negocio");
+  const sigueEstando = await administrador.from("negocios").select("id").eq("id", negocios[0].id);
+  comprobar(sigueEstando.data?.length === 1, "el negocio de A desapareció al intentar borrarlo");
+
+  const correoC = `rls-c-${marca}@mipuesto.com`;
+  const { data: altaC, error: errorAltaC } = await administrador.auth.admin.createUser({
+    email: correoC,
+    password: claveTemporal,
+    email_confirm: true,
+  });
+  if (errorAltaC || !altaC.user) throw new Error(`No se pudo crear el tercer usuario: ${errorAltaC?.message}`);
+  usuarios.push(altaC.user.id);
+  clienteC = createClient(url, clavePublica, opcionesAuth);
+  const sesionC = await clienteC.auth.signInWithPassword({ email: correoC, password: claveTemporal });
+  if (sesionC.error) throw new Error(`No se pudo iniciar la sesión 3: ${sesionC.error.message}`);
+
+  const altaDeC = {
+    admin_user_id: altaC.user.id,
+    slug: `rls-3-${marca}`.slice(0, 48),
+    nombre: "Negocio RLS 3",
+    descripcion: "Fila temporal para verificar el alta.",
+    subnombre: null,
+    tipo_negocio: "tienda_virtual",
+    telefono_whatsapp: "59170000006",
+    rubro: null,
+    pide_numero_mesa: false,
+  };
+  for (const [columna, valor] of Object.entries({
+    plan_id: "activo",
+    suscripcion_vence_en: "2099-01-01T00:00:00Z",
+    activo: true,
+    verificado: true,
+    suspendido_en: null,
+    foto_ia_habilitada: true,
+  })) {
+    const conTrampa = await clienteC.from("negocios").insert({ ...altaDeC, [columna]: valor }).select("id");
+    comprobar(
+      conTrampa.error?.code === "42501",
+      `un dueño pudo elegir «${columna}» al dar de alta su negocio`,
+    );
+  }
+  const aNombreDeOtro = await clienteC
+    .from("negocios")
+    .insert({ ...altaDeC, admin_user_id: usuarios[0] })
+    .select("id");
+  comprobar(Boolean(aNombreDeOtro.error), "C pudo crear un negocio a nombre de A");
+
+  /* El alta de verdad, con las nueve columnas que manda la ruta: tiene que
+     seguir andando, y el negocio nace como decide la base. Se saca de línea
+     enseguida: es una fila de prueba. */
+  const altaLimpia = await clienteC.from("negocios").insert(altaDeC).select("id").single();
+  comprobar(!altaLimpia.error, `el alta con las columnas de la ruta falló: ${altaLimpia.error?.message}`);
+  if (altaLimpia.data) {
+    negocios.push(altaLimpia.data);
+    const { data: nacido } = await administrador
+      .from("negocios")
+      .update({ activo: false })
+      .eq("id", altaLimpia.data.id)
+      .select("plan_id,verificado,suscripcion_vence_en")
+      .single();
+    const dias = (new Date(nacido?.suscripcion_vence_en ?? 0).getTime() - Date.now()) / 86_400_000;
+    comprobar(nacido?.plan_id === "prueba", `el negocio nació en el plan «${nacido?.plan_id}» y no en la prueba`);
+    comprobar(nacido?.verificado === false, "el negocio nació verificado");
+    comprobar(dias > 14.9 && dias < 15.1, `la prueba nació con ${dias.toFixed(2)} días, y son quince`);
+  }
 
   const imagenPrueba = new Uint8Array([
     0x52, 0x49, 0x46, 0x46, 0x04, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
@@ -762,12 +847,13 @@ try {
   comprobar(errorBorrarViejos, "un dueño pudo correr el borrado de datos de clientes");
 
   console.log(
-    "RLS multi-tenant: 2 usuarios, 12 tablas de negocio, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, el buscador del directorio, el espacio de fotos, el borrado de datos de clientes, los tutoriales, y ambos buckets aislados correctamente.",
+    "RLS multi-tenant: 3 usuarios, 12 tablas de negocio, el alta por columnas y sin borrado, agenda, etiquetas, papelera, carta del día, identidad por rubro y zona, analítica cerrada, límites internos, promociones, auditoría, ubicación y zonas, el buscador del directorio, el espacio de fotos, el borrado de datos de clientes, los tutoriales, y ambos buckets aislados correctamente.",
   );
 } finally {
   await Promise.allSettled([
     clienteA?.auth.signOut({ scope: "global" }),
     clienteB?.auth.signOut({ scope: "global" }),
+    clienteC?.auth.signOut({ scope: "global" }),
   ]);
 
   if (rutasStorage.length > 0) {
