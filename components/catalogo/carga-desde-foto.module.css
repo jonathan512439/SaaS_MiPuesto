@@ -5,12 +5,20 @@
   gap: var(--spacing-4);
 }
 
-/* Las indicaciones van arriba y completas, no detrás de un «ver más»: cada foto
-   que se lee mal cuesta un crédito y una decepción, y leer cuatro renglones
-   antes es más barato que las dos cosas. */
-.ayuda {
+/* Las indicaciones van completas, no detrás de un «ver más»: cada foto que se
+   lee mal cuesta una lectura y una decepción, y leer antes es más barato que
+   las dos cosas. Van como un camino de tres pasos, con los botones adentro del
+   segundo, para que se lean en el orden en que se hacen. */
+.guia {
+  /* Cuánto tarda en encenderse cada paso después del anterior. */
+  --cadencia-paso: 450ms;
+  /* El ancho de la columna del camino: el círculo del número. En el teléfono,
+     más chico, para dejarle el ancho al texto. */
+  --marca-paso: var(--spacing-8);
+  --separacion-paso: var(--spacing-2);
+
   display: grid;
-  gap: var(--spacing-3);
+  gap: var(--spacing-4);
   border: var(--borde-fino) solid var(--color-borde-tarjeta);
   border-radius: var(--radius-panel);
   padding: var(--spacing-4);
@@ -18,36 +26,151 @@
   box-shadow: var(--sombra-tarjeta);
 }
 
-.ayuda h2 {
+.guia > h2 {
   font-size: var(--text-lg);
   font-weight: 800;
 }
 
-.ayuda h3 {
-  margin-bottom: var(--spacing-1);
-  font-size: var(--text-sm);
+.pasos {
+  display: grid;
+}
+
+.paso {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--marca-paso) minmax(0, 1fr);
+  gap: var(--separacion-paso);
+  padding-bottom: var(--spacing-6);
+}
+
+.paso:last-child {
+  padding-bottom: 0;
+}
+
+/* El orden de encendido, por posición: el panel no lleva estilos en línea. */
+.paso:nth-child(1) {
+  --orden: 0;
+}
+
+.paso:nth-child(2) {
+  --orden: 1;
+}
+
+.paso:nth-child(3) {
+  --orden: 2;
+}
+
+/* La línea que lleva de un paso al siguiente. Se dibuja de arriba hacia abajo
+   después de que se enciende el número, como si el camino avanzara. */
+.paso:not(:last-child)::before {
+  position: absolute;
+  top: calc(var(--marca-paso) + var(--spacing-1));
+  bottom: var(--spacing-1);
+  left: calc(var(--marca-paso) / 2 - var(--borde-marcado));
+  width: calc(var(--borde-marcado) * 2);
+  border-radius: var(--radius-status);
+  background: var(--color-marca-suave);
+  content: "";
+  transform-origin: top;
+  animation: trazar calc(var(--cadencia-paso) * 1.4) ease-in-out both;
+  animation-delay: calc((var(--orden) + 1) * var(--cadencia-paso));
+}
+
+.paso[data-estado="hecho"]:not(:last-child)::before {
+  background: var(--ia-degradado);
+}
+
+.marca {
+  display: grid;
+  width: var(--marca-paso);
+  height: var(--marca-paso);
+  place-items: center;
+  border-radius: var(--radius-status);
+  background: var(--ia-degradado);
+  color: var(--color-ia-sobre);
+  font-size: var(--text-base);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  animation: encenderMarca 500ms cubic-bezier(0.2, 0.8, 0.3, 1.3) both;
+  animation-delay: calc(var(--orden) * var(--cadencia-paso));
+}
+
+/* El paso en curso late tres veces y se queda con su anillo: llama la mirada
+   sin quedarse moviéndose al lado de lo que hay que leer. */
+.paso[data-estado="actual"] .marca {
+  box-shadow: 0 0 0 var(--spacing-1) color-mix(in srgb, var(--color-ia-inicio) 25%, transparent);
+  animation: latir 1.4s ease-in-out 3;
+}
+
+/* Hecho cambia el número por la marca de listo, con un salto que muestra que
+   algo cambió. Lo dice también la palabra «Hecho» al lado del título. */
+.paso[data-estado="hecho"] .marca {
+  background: var(--color-exito);
+  color: var(--color-superficie);
+  animation: saltar 400ms cubic-bezier(0.2, 0.8, 0.3, 1.4) both;
+}
+
+.marca svg {
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+}
+
+.cuerpoPaso {
+  display: grid;
+  align-content: start;
+  gap: var(--spacing-3);
+  min-width: 0;
+  animation: encenderTexto 600ms ease-out both;
+  animation-delay: calc(var(--orden) * var(--cadencia-paso) + 150ms);
+}
+
+/* El título, a la altura del centro del círculo. */
+.cuerpoPaso h3 {
+  display: flex;
+  min-height: var(--marca-paso);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.estadoPaso {
+  border-radius: var(--radius-status);
+  padding: var(--spacing-1) var(--spacing-3);
+  background: color-mix(in srgb, var(--color-ia-inicio) 12%, var(--color-superficie));
+  color: var(--color-texto);
+  font-size: var(--text-xs);
   font-weight: 800;
 }
 
-.ayuda ol,
-.ayuda ul {
+.paso[data-estado="hecho"] .estadoPaso {
+  background: var(--color-exito-tenue);
+}
+
+.consejos {
   display: grid;
-  gap: var(--spacing-1);
-  padding-left: var(--spacing-4);
-  color: var(--color-texto-suave);
-  font-size: var(--text-sm);
+  gap: var(--spacing-2);
+  max-width: var(--ancho-lectura);
 }
 
-.ayuda ol {
-  list-style: decimal;
+.consejos li {
+  position: relative;
+  padding-left: var(--spacing-5);
+  font-size: var(--text-base);
+  line-height: 1.45;
 }
 
-.ayuda ul {
-  list-style: disc;
-}
-
-.no {
-  color: var(--color-peligro);
+.consejos li::before {
+  position: absolute;
+  top: 0.6em;
+  left: var(--spacing-1);
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  border-radius: var(--radius-status);
+  background: var(--color-ia-inicio);
+  content: "";
 }
 
 .columnas {
@@ -55,27 +178,143 @@
   gap: var(--spacing-3);
 }
 
-.ejemplo {
+.funciona,
+.noFunciona {
   display: grid;
+  align-content: start;
   gap: var(--spacing-2);
-  border-radius: var(--radius-panel);
-  padding: var(--spacing-3);
-  background: var(--color-fondo-suave);
-}
-
-.ejemplo pre {
-  overflow-x: auto;
   border-radius: var(--radius-control);
-  padding: var(--spacing-2);
-  background: var(--color-superficie);
-  font-size: var(--text-xs);
-  line-height: 1.6;
+  padding: var(--spacing-3);
 }
 
-.ejemplo p {
+.funciona {
+  background: var(--color-exito-tenue);
+}
+
+.noFunciona {
+  background: var(--color-peligro-tenue);
+}
+
+.funciona h4,
+.noFunciona h4 {
+  font-size: var(--text-sm);
+  font-weight: 800;
+}
+
+.funciona ul,
+.noFunciona ul {
+  display: grid;
+  gap: var(--spacing-1);
+  color: var(--color-texto);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+/* Cada caso lleva su marca —el listo o la cruz—, que dice de qué lado está
+   aunque no se distinga el color. */
+.funciona li,
+.noFunciona li {
+  display: grid;
+  grid-template-columns: var(--spacing-4) minmax(0, 1fr);
+  gap: var(--spacing-2);
+  align-items: start;
+}
+
+.funciona li svg {
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+  margin-top: calc(var(--spacing-1) / 2);
+  color: var(--color-exito);
+}
+
+.noFunciona li::before {
+  color: var(--color-peligro);
+  font-weight: 900;
+  line-height: 1.4;
+  text-align: center;
+  content: "✕" / "";
+}
+
+.textoPaso {
+  max-width: var(--ancho-lectura);
   color: var(--color-texto-suave);
-  font-size: var(--text-xs);
-  font-style: italic;
+  font-size: var(--text-base);
+  line-height: 1.45;
+}
+
+@media (min-width: 40rem) {
+  .guia {
+    --marca-paso: var(--spacing-10);
+    --separacion-paso: var(--spacing-3);
+  }
+
+  .marca {
+    font-size: var(--text-lg);
+  }
+}
+
+@keyframes encenderMarca {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes encenderTexto {
+  from {
+    opacity: 0.2;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes trazar {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+@keyframes latir {
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes saltar {
+  from {
+    transform: scale(0.5);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+/* Sin movimiento, el camino entero y quieto desde el principio. La hoja global
+   acorta las animaciones pero no sus demoras: sin esto, el paso 3 se vería
+   apagado más de un segundo. */
+@media (prefers-reduced-motion: reduce) {
+  .paso::before,
+  .paso .marca,
+  .cuerpoPaso {
+    animation: none !important;
+  }
 }
 
 /* El degradado de las herramientas y no el color plano de un boton comun: es la
@@ -190,7 +429,7 @@
   box-shadow: var(--sombra-tarjeta);
 }
 
-.esPlanilla h2 {
+.esPlanilla h4 {
   font-size: var(--text-base);
   font-weight: 800;
   overflow-wrap: anywhere;
@@ -219,11 +458,6 @@
 .esPlanilla a:focus-visible {
   outline: var(--foco-ancho) solid var(--color-superficie);
   box-shadow: 0 0 0 var(--foco-exterior) var(--color-texto);
-}
-
-.enCategoria {
-  color: var(--color-texto-suave);
-  font-size: var(--text-xs);
 }
 
 @media (min-width: 40rem) {

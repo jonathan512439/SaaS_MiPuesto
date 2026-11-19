@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, type ReactNode } from "react";
 
 import { AVISO_PRIVACIDAD_IA, AYUDA_LISTA } from "../../lib/ia/ayuda";
 import { esPdfGrande, esPlanilla, prepararArchivoParaLectura } from "../../lib/ia/adjunto";
@@ -14,9 +14,57 @@ import { Trabajando, useAvisos, useConfirmacion } from "../ui";
 import type { InformeDeCobertura } from "../../lib/ia/cobertura";
 import { Icono } from "../iconos/icono";
 import { ContadorLecturas } from "./contador-lecturas";
+import { LecturaDeEjemplo } from "./lectura-de-ejemplo";
 import { RevisionDeProductos, type ProductoLeido } from "./revision-de-productos";
 import { SalidasCatalogo } from "./salidas-catalogo";
 import styles from "./carga-desde-foto.module.css";
+
+/* Los tres pasos de la herramienta, en el orden en que se recorren. */
+const ETAPAS = ["preparar", "leer", "revisar"] as const;
+type Etapa = (typeof ETAPAS)[number];
+type EstadoPaso = "espera" | "actual" | "hecho";
+
+/* Lo que dice el paso en curso, al lado de su título. */
+const TEXTO_ACTUAL: Record<Etapa, string> = {
+  preparar: "Ahora",
+  leer: "Leyendo…",
+  revisar: "Tu turno",
+};
+
+function Paso({
+  children,
+  estado,
+  etapa,
+  numero,
+  titulo,
+}: {
+  children: ReactNode;
+  estado: EstadoPaso;
+  etapa: Etapa;
+  numero: number;
+  titulo: string;
+}) {
+  return (
+    <li className={styles.paso} data-estado={estado}>
+      {/* El número lo dice la lista ordenada al lector de pantalla; el círculo
+          es para la vista. Hecho, el número cede su lugar a la marca de listo. */}
+      <span aria-hidden="true" className={styles.marca}>
+        {estado === "hecho" ? <Icono nombre="listo" /> : numero}
+      </span>
+      <div className={styles.cuerpoPaso}>
+        <h3>
+          {titulo}
+          {estado === "espera" ? null : (
+            <span className={styles.estadoPaso}>
+              {estado === "hecho" ? "Hecho" : TEXTO_ACTUAL[etapa]}
+            </span>
+          )}
+        </h3>
+        {children}
+      </div>
+    </li>
+  );
+}
 
 /* Lo que contesta la lectura, venga de una foto o del texto de un PDF. */
 type RespuestaLectura = {
@@ -237,50 +285,140 @@ export function CargaDesdeFoto({
     }
   }
 
+  /* En qué paso está el dueño. El camino lo dice con una palabra al lado del
+     título —«Leyendo…», «Hecho», «Tu turno»— y no solo con el color. */
+  const etapa: Etapa = productos.length > 0 ? "revisar" : leyendo ? "leer" : "preparar";
+  const estadoDe = (paso: Etapa): EstadoPaso => {
+    const orden = ETAPAS.indexOf(paso);
+    const actual = ETAPAS.indexOf(etapa);
+    if (etapa === "preparar") return "espera";
+    if (orden < actual) return "hecho";
+    return orden === actual ? "actual" : "espera";
+  };
+
   return (
     <div className={styles.pantalla}>
-      <section className={styles.ayuda}>
-        <h2>{AYUDA_LISTA.titulo}</h2>
-        <ol>
-          {AYUDA_LISTA.pasos.map((paso) => (
-            <li key={paso}>{paso}</li>
-          ))}
-        </ol>
-        <p className={styles.avisoPrivacidad}>{AVISO_PRIVACIDAD_IA}</p>
-        <div className={styles.columnas}>
-          <div>
-            <h3>Funciona con</h3>
-            <ul>
-              {AYUDA_LISTA.funciona.map((caso) => (
-                <li key={caso}>{caso}</li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3>No funciona con</h3>
-            <ul className={styles.no}>
-              {AYUDA_LISTA.noFunciona.map((caso) => (
-                <li key={caso}>{caso}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
+      <LecturaDeEjemplo />
 
-        <div className={styles.ejemplo}>
-          <h3>{AYUDA_LISTA.ejemplo.titulo}</h3>
-          <div className={styles.columnas}>
-            <pre>{AYUDA_LISTA.ejemplo.entrada.join("\n")}</pre>
-            <ul>
-              {AYUDA_LISTA.ejemplo.salida.map((fila) => (
-                <li key={fila.nombre}>
-                  {fila.nombre} — <strong>{fila.precio}</strong>
-                  <span className={styles.enCategoria}> en {fila.categoria}</span>
-                </li>
+      {/* Los pasos como un camino que se enciende en orden al entrar: el número,
+          después la línea que lleva al siguiente. Es la única animación de entrada
+          de la pantalla, pedida por el dueño para que se lean en orden; con
+          movimiento reducido el camino aparece entero y quieto. Los botones van
+          adentro del paso 2, donde se usan, y no sueltos debajo de la ayuda. */}
+      <section aria-labelledby="pasos-desde-foto" className={styles.guia}>
+        <h2 id="pasos-desde-foto">{AYUDA_LISTA.titulo}</h2>
+        <ol className={styles.pasos}>
+          <Paso estado={estadoDe("preparar")} etapa="preparar" numero={1} titulo="Prepara tu lista">
+            <ul className={styles.consejos}>
+              {AYUDA_LISTA.pasos.map((consejo) => (
+                <li key={consejo}>{consejo}</li>
               ))}
             </ul>
-          </div>
-          <p>{AYUDA_LISTA.ejemplo.nota}</p>
-        </div>
+            <div className={styles.columnas}>
+              <div className={styles.funciona}>
+                <h4>Funciona con</h4>
+                <ul>
+                  {AYUDA_LISTA.funciona.map((caso) => (
+                    <li key={caso}>
+                      <Icono nombre="listo" />
+                      {caso}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className={styles.noFunciona}>
+                <h4>No funciona con</h4>
+                <ul>
+                  {AYUDA_LISTA.noFunciona.map((caso) => (
+                    <li key={caso}>{caso}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </Paso>
+
+          <Paso estado={estadoDe("leer")} etapa="leer" numero={2} titulo="Mándala a leer">
+            <p className={styles.avisoPrivacidad}>{AVISO_PRIVACIDAD_IA}</p>
+            <label className={styles.describirFaltantes}>
+              <input
+                checked={describir}
+                disabled={leyendo}
+                onChange={(evento) => setDescribir(evento.target.checked)}
+                type="checkbox"
+              />
+              <span className={styles.describirTexto}>
+                <strong>
+                  <Icono nombre="rayo" />
+                  Escribir una descripción corta donde falte
+                </strong>
+                <small>
+                  La IA usa solo lo que dice tu lista y te las marca para que las revises. No gasta
+                  otra lectura.
+                </small>
+              </span>
+            </label>
+            {/* La cámara, para la lista que está pegada en la pared o en el
+                cuaderno; la galería, para la foto que ya se sacó o el PDF del
+                proveedor. La cámara solo se ofrece en pantallas táctiles: en una
+                computadora `capture` se ignora y los dos botones harían lo mismo. */}
+            <div className={styles.acciones}>
+              <label className={`${styles.cargar} ${styles.soloTactil}`}>
+                {leyendo ? "Leyendo tu lista…" : "Sacar foto a la lista"}
+                <input
+                  accept="image/*"
+                  capture="environment"
+                  disabled={leyendo}
+                  onChange={(evento) => void leerArchivo(evento)}
+                  type="file"
+                />
+              </label>
+              <label className={styles.cargar}>
+                {leyendo ? "Leyendo tu lista…" : "Elegir la foto o el PDF de la lista"}
+                {/* El Excel y el CSV se aceptan para poder contestarlos: fuera de
+                    la lista, el selector los escondía y el dueño creía que su
+                    archivo no servía. Elegidos, no se leen acá: se manda a
+                    importar. */}
+                <input
+                  accept="image/jpeg,image/png,image/webp,application/pdf,.xlsx,.xls,.csv"
+                  disabled={leyendo}
+                  onChange={(evento) => void leerArchivo(evento)}
+                  type="file"
+                />
+              </label>
+            </div>
+            <div className={styles.cupo}>
+              <ContadorLecturas cupo={lecturas} />
+              <p>
+                Cada foto o PDF gasta una, aunque traiga la lista entera.{" "}
+                <strong>Importar un Excel o un CSV no gasta ninguna.</strong>
+              </p>
+            </div>
+
+            {/* Las respuestas a lo que se eligió, en el mismo paso donde se eligió. */}
+            {planillaElegida ? (
+              <section aria-live="polite" className={styles.esPlanilla}>
+                <h4>
+                  <strong>{planillaElegida}</strong> es una planilla
+                </h4>
+                <p>
+                  Los Excel y los CSV no se leen con IA: ya son una tabla. Súbelo en «Importar una
+                  planilla», que lo carga tal cual, es gratis y no gasta tus lecturas.
+                </p>
+                <Link href={RUTAS_PANEL.importar}>Ir a Importar una planilla</Link>
+              </section>
+            ) : null}
+
+            {motivoSalida ? <SalidasCatalogo motivo={motivoSalida} /> : null}
+          </Paso>
+
+          <Paso estado={estadoDe("revisar")} etapa="revisar" numero={3} titulo="Revisa y confirma">
+            <p className={styles.textoPaso}>
+              {productos.length > 0
+                ? `Encontramos ${productos.length} producto(s): están acá abajo. Compáralos con tu lista y confirma los que estén bien.`
+                : "Te mostramos lo que leímos al lado de tu foto. Lo que no leímos con seguridad viene desmarcado, y nada se publica sin que lo confirmes."}
+            </p>
+          </Paso>
+        </ol>
       </section>
 
       <Trabajando
@@ -292,75 +430,6 @@ export function CargaDesdeFoto({
         }
         titulo="Leyendo tu lista…"
       />
-
-      {/* La cámara, para la lista que está pegada en la pared o en el cuaderno;
-          la galería, para la foto que ya se sacó o el PDF del proveedor. La
-          cámara solo se ofrece en pantallas táctiles: en una computadora
-          `capture` se ignora y los dos botones harían lo mismo. */}
-      <label className={styles.describirFaltantes}>
-        <input
-          checked={describir}
-          disabled={leyendo}
-          onChange={(evento) => setDescribir(evento.target.checked)}
-          type="checkbox"
-        />
-        <span className={styles.describirTexto}>
-          <strong>
-            <Icono nombre="rayo" />
-            Escribir una descripción corta donde falte
-          </strong>
-          <small>
-            La IA usa solo lo que dice tu lista y te las marca para que las revises. No gasta otra
-            lectura.
-          </small>
-        </span>
-      </label>
-      <div className={styles.acciones}>
-        <label className={`${styles.cargar} ${styles.soloTactil}`}>
-          {leyendo ? "Leyendo tu lista…" : "Sacar foto a la lista"}
-          <input
-            accept="image/*"
-            capture="environment"
-            disabled={leyendo}
-            onChange={(evento) => void leerArchivo(evento)}
-            type="file"
-          />
-        </label>
-        <label className={styles.cargar}>
-          {leyendo ? "Leyendo tu lista…" : "Elegir la foto o el PDF de la lista"}
-          {/* El Excel y el CSV se aceptan para poder contestarlos: fuera de la
-              lista, el selector los escondía y el dueño creía que su archivo no
-              servía. Elegidos, no se leen acá: se manda a importar. */}
-          <input
-            accept="image/jpeg,image/png,image/webp,application/pdf,.xlsx,.xls,.csv"
-            disabled={leyendo}
-            onChange={(evento) => void leerArchivo(evento)}
-            type="file"
-          />
-        </label>
-      </div>
-      <div className={styles.cupo}>
-        <ContadorLecturas cupo={lecturas} />
-        <p>
-          Cada foto o PDF gasta una, aunque traiga la lista entera.{" "}
-          <strong>Importar un Excel o un CSV no gasta ninguna.</strong>
-        </p>
-      </div>
-
-      {planillaElegida ? (
-        <section aria-live="polite" className={styles.esPlanilla}>
-          <h2>
-            <strong>{planillaElegida}</strong> es una planilla
-          </h2>
-          <p>
-            Los Excel y los CSV no se leen con IA: ya son una tabla. Súbelo en «Importar una
-            planilla», que lo carga tal cual, es gratis y no gasta tus lecturas.
-          </p>
-          <Link href={RUTAS_PANEL.importar}>Ir a Importar una planilla</Link>
-        </section>
-      ) : null}
-
-      {motivoSalida ? <SalidasCatalogo motivo={motivoSalida} /> : null}
 
       {avisoLectura ? (
         <p className={styles.avisoLectura} role="status">
