@@ -207,7 +207,9 @@ export function instruccionDeCategoriasDelNegocio(categorias: readonly string[])
 El negocio ya tiene estas categorías:
 ${categorias.map((nombre) => `- ${nombre}`).join("\n")}
 
-En "categoria_del_negocio" elige, para cada producto, la categoría de esa lista que mejor le corresponda. Si el renglón está bajo un título de sección, guíate por el título; si la lista no tiene títulos, por lo que es el producto. Devuelve el nombre exactamente como está escrito. Si ninguna le corresponde de verdad, devuelve "${NINGUNA_CATEGORIA}": un producto en una categoría equivocada se pierde en el catálogo.`;
+En "categoria_del_negocio" elige, para cada producto, la categoría de esa lista que mejor le corresponda. Si el renglón está bajo un título de sección, guíate por el título; si la lista no tiene títulos, por lo que es el producto. Devuelve el nombre exactamente como está escrito. Si ninguna le corresponde de verdad, devuelve "${NINGUNA_CATEGORIA}": un producto en una categoría equivocada se pierde en el catálogo.
+
+Estas categorías sirven solo para ubicar cada producto, no para elegir cuáles devolver. Un producto que no encaja en ninguna se devuelve igual, con "${NINGUNA_CATEGORIA}": que la lista sea de otro rubro que estas categorías no la hace menos lista.`;
 }
 
 export type ListaLeida = {
@@ -290,7 +292,7 @@ Esta vez no recibes un archivo: recibes el texto de un catálogo en PDF, sin sus
 
 export const INSTRUCCION_LISTA = `Lees la lista de productos o el catálogo de un negocio boliviano. Puede llegarte como fotografía o como PDF, estar impresa, tipeada o escrita a mano, y traer precios o no traerlos.
 
-Devuelve un producto por cada renglón o cada ficha que nombre un producto que el negocio vende.
+Devuelve un producto por cada renglón o cada ficha que nombre un producto de la lista.
 
 Reglas que no se rompen:
 - NO INVENTES productos. Si un renglón no se lee, no lo incluyas. Es preferible devolver menos productos que uno que no está.
@@ -308,5 +310,5 @@ Reglas que no se rompen:
 - otros_datos: si el renglón trae escritos otros datos del producto —marca, línea, color, material, medida, capacidad, potencia, para quién es— que no vayan en "datos", devuélvelos con el nombre del dato como lo diría el vendedor ("Marca", "Material", "Corriente nominal (A)") y el valor tal cual está escrito, sin el punto final. Usa el mismo nombre para el mismo dato en todos los renglones. Solo lo que está escrito: NO lo deduzcas del nombre ni de lo que sabes del producto. Nunca devuelvas costos, códigos ni precios en otros_datos.
 - confianza: "alta" si el nombre —y el precio, cuando lo hay— se leen sin esfuerzo; "baja" si tuviste que adivinar alguna letra o número.
 - Escribe TODO en español, incluidos los nombres y las categorías. Si la lista tiene una palabra en otro idioma que es el nombre propio del producto, déjala como está; todo lo demás va en español.
-- es_lista_de_productos: false si lo que recibiste no nombra productos que el negocio vende, por ejemplo si es la foto de una estantería, de una vitrina o de un producto suelto, o un PDF que es un contrato o una factura. En ese caso devuelve la lista de productos vacía. Una lista de precios, un catálogo o un folleto de productos, con o sin precios, es true.
+- es_lista_de_productos: false solo si lo que recibiste no es una lista ni un catálogo de productos, por ejemplo si es la foto de una estantería, de una vitrina o de un producto suelto, o un PDF que es un contrato o una factura. En ese caso devuelve la lista de productos vacía. Una lista de precios, un catálogo o un folleto de productos, con o sin precios, es true. Se decide por lo que es el documento, NUNCA por el rubro del negocio: un catálogo de material eléctrico es una lista de productos aunque el negocio venda otra cosa, y sus productos se devuelven todos.
 - Si el PDF tiene varias páginas, léelas todas y devuelve los productos de todas, en orden. Los títulos de sección siguen valiendo aunque el título esté en una página y sus productos en la siguiente.`;

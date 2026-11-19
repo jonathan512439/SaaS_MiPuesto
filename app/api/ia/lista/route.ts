@@ -18,13 +18,14 @@ import { camposDeOtrosDatos } from "../../../../lib/ia/otros-datos";
 import { presentacionesDelRenglon } from "../../../../lib/ia/presentaciones-leidas";
 import { crearClienteSupabaseServidor } from "../../../../lib/supabase/server";
 import { TIPOS_LISTA, leerArchivoDeLaPeticion, leerPaginasDeLaPeticion } from "../../../../lib/ia/archivos";
-import { leerPorTandas } from "../../../../lib/ia/lectura-por-tandas";
+import { leerPorTandas, productosDeLasTandas } from "../../../../lib/ia/lectura-por-tandas";
 import { dividirEnTandas, heredarSecciones, quitarEncabezadosRepetidos } from "../../../../lib/ia/pdf-texto";
 import {
   devolverCredito,
   leerCategoriasDelNegocio,
   prepararLecturaDeFoto,
-  registrarLlamada,
+  registrarLlamadas,
+  type LlamadaHecha,
 } from "../../../../lib/ia/servidor";
 
 /* Tope por foto. Una lista con más de cien renglones legibles no existe en un
@@ -90,6 +91,10 @@ export async function POST(solicitud: NextRequest) {
   const tandas = paginas
     ? dividirEnTandas(quitarEncabezadosRepetidos(paginas).filter(({ texto }) => texto.trim() !== ""))
     : [null];
+  /* Las llamadas se anotan todas juntas al terminar, en un solo pedido: anotar
+     cada una al vuelo costaba un pedido por tanda y cortaba la lectura de un
+     catálogo largo contra el tope de Cloudflare (`registrarLlamadas`). */
+  const llamadas: LlamadaHecha[] = [];
   const lecturas = await leerPorTandas(tandas, async (tanda) => {
     const lectura = tanda
       ? await analizarArchivo<ListaLeida>(
@@ -101,15 +106,10 @@ export async function POST(solicitud: NextRequest) {
           base64: archivo!.base64,
           tipo: archivo!.tipo,
         });
-    await registrarLlamada(
-      preparacion.admin,
-      preparacion.negocioId,
-      "lista",
-      lectura.correcto ? lectura.tokens : 0,
-      lectura.correcto,
-    );
+    llamadas.push({ tokens: lectura.correcto ? lectura.tokens : 0, exito: lectura.correcto });
     return lectura;
   });
+  await registrarLlamadas(preparacion.admin, preparacion.negocioId, "lista", llamadas);
 
   const correctas = lecturas.flatMap((lectura) => (lectura.correcto ? [lectura.datos] : []));
   /* Si se perdió una tanda y otras salieron, se entrega lo leído y se avisa: no
@@ -117,6 +117,9 @@ export async function POST(solicitud: NextRequest) {
      lectura a medias no se cobra: la vuelve a subir, y lo que ya creó le llega
      desmarcado (`posicionesYaExistentes`). */
   const tandasPerdidas = lecturas.length - correctas.length;
+  if (tandasPerdidas > 0) {
+    console.error(`[ia] lectura de lista: ${tandasPerdidas} de ${lecturas.length} tanda(s) sin leer`);
+  }
   if (tandasPerdidas > 0 && correctas.length > 0) {
     await devolverCredito(preparacion.admin, preparacion.negocioId);
   }
@@ -148,7 +151,7 @@ export async function POST(solicitud: NextRequest) {
     );
   }
 
-  const leidos = correctas.flatMap((leida) => (leida.es_lista_de_productos ? (leida.productos ?? []) : []));
+  const leidos = productosDeLasTandas(correctas, Boolean(paginas));
   /* Con varias tandas, el título de una sección puede haber quedado en la
      anterior: sus productos heredan la última sección nombrada. */
   const productos = (paginas ? heredarSecciones(leidos) : leidos)
@@ -195,7 +198,7 @@ export async function POST(solicitud: NextRequest) {
       };
     })
     /* Sin nombre no hay producto. Sin precio sí: viene de un catálogo que no
-       los trae, y la revisión se lo pide al dueño antes de crearlo
+       los trae, y desde la fase 14 se crea sin precio
        (`presentacionesDelRenglon` ya dejó en nulo el que no es un precio). */
     .filter((producto) => producto.nombre.length > 0)
     .slice(0, paginas ? MAXIMO_PRODUCTOS_DE_TEXTO : MAXIMO_PRODUCTOS);

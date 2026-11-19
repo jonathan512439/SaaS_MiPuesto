@@ -146,6 +146,43 @@ export async function registrarLlamada(
   }
 }
 
+export type LlamadaHecha = { tokens: number; exito: boolean };
+
+/* Todas las llamadas de una lectura por tandas, anotadas en **un solo pedido**.
+ *
+ * Anotar cada tanda apenas termina costaba un pedido más por tanda, y en el plan
+ * gratuito de Cloudflare cada visita tiene 50 en total. Medido el 2026-11-19 con
+ * el catálogo de Ferrovolt: treinta tandas eran sesenta pedidos, y la lectura se
+ * cortaba siempre cerca de la llamada veinte, sin dejar rastro, porque el
+ * pedido que debía anotar el fallo era el que ya no se podía hacer. Juntas, las
+ * treinta tandas son treinta pedidos a Google y uno solo acá.
+ *
+ * Se inserta con la clave privilegiada, que tiene `insert` sobre la tabla
+ * (`20260910090000`): es lo mismo que hace `registrar_llamada_ia`, de a muchas. */
+export async function registrarLlamadas(
+  admin: ReturnType<typeof crearClienteSupabaseAdmin>,
+  negocioId: string,
+  herramienta: "producto" | "lista",
+  llamadas: readonly LlamadaHecha[],
+): Promise<void> {
+  if (llamadas.length === 0) return;
+  try {
+    const { error } = await admin.from("llamadas_ia").insert(
+      llamadas.map(({ tokens, exito }) => ({
+        negocio_id: negocioId,
+        herramienta,
+        tokens: Math.max(0, Math.round(tokens) || 0),
+        exito,
+      })),
+    );
+    if (error) console.error(`[ia] no se pudieron anotar ${llamadas.length} llamada(s): ${error.message}`);
+  } catch (error) {
+    /* Medir no puede romper la función que mide, pero el fallo se escribe: sin
+       esta línea, un medidor que deja de anotar no lo nota nadie. */
+    console.error(`[ia] no se pudieron anotar ${llamadas.length} llamada(s): ${String(error)}`);
+  }
+}
+
 /* Las categorías del negocio de la sesión, para ofrecérselas al modelo como
    lista cerrada. Se leen acá y no se aceptan del navegador: lo que llega en el
    pedido podría nombrar categorías de otro negocio o inventarlas. Si la

@@ -43,3 +43,21 @@ export async function leerPorTandas<T, R extends { correcto: boolean }>(
   }
   return resultados;
 }
+
+/* Los productos de todas las tandas que respondieron.
+ *
+ * Una **foto** que el modelo marca como «no es una lista» no aporta nada: es la
+ * de una estantería, y lo que haya devuelto sería un invento. Pero en un **PDF
+ * por tandas** esa marca es de una tanda sola, no del documento: el 2026-11-19,
+ * con el catálogo de Ferrovolt leído desde un negocio de mochilas, seis de
+ * treinta tandas —páginas de interruptores, con nombre, marca y corriente—
+ * volvieron marcadas así, y sus productos se tiraban sin aviso. Que el documento
+ * entero sea una lista lo decide la ruta mirando todas las tandas juntas. */
+export function productosDeLasTandas<P>(
+  tandas: ReadonlyArray<{ es_lista_de_productos: boolean; productos?: P[] }>,
+  porTandasDeUnPdf: boolean,
+): P[] {
+  return tandas.flatMap((tanda) =>
+    porTandasDeUnPdf || tanda.es_lista_de_productos ? (tanda.productos ?? []) : [],
+  );
+}

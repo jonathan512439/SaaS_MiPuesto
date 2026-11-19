@@ -77,10 +77,14 @@ export async function analizarArchivo<T>(
       );
 
       if (respuesta.status === 429 || respuesta.status >= 500) {
+        console.error(`[ia] Google respondió ${respuesta.status} (intento ${intento + 1})`);
         if (intento === 0) continue;
         return { correcto: false, motivo: "sin_respuesta" };
       }
-      if (!respuesta.ok) return { correcto: false, motivo: "rechazada" };
+      if (!respuesta.ok) {
+        console.error(`[ia] Google rechazó el pedido con ${respuesta.status}`);
+        return { correcto: false, motivo: "rechazada" };
+      }
 
       const contenido = (await respuesta.json()) as {
         candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
@@ -103,6 +107,13 @@ export async function analizarArchivo<T>(
       }
     } catch (error) {
       const cancelada = error instanceof Error && error.name === "AbortError";
+      /* El motivo se escribe en el registro del Worker. El 2026-11-19 una
+         lectura perdía un tercio de sus tandas y no quedaba rastro de por qué:
+         el error se tragaba acá y salía como «no respondió». Un «Too many
+         subrequests» de Cloudflare no es Google saturado, y hay que poder verlo. */
+      console.error(
+        `[ia] la llamada a Google falló (intento ${intento + 1}): ${cancelada ? "tardó demasiado" : String(error)}`,
+      );
       /* La primera llamada del día a veces se queda esperando y la siguiente
          responde en dos segundos. Medido durante la validación: una foto agotó
          el tiempo y las dos siguientes tardaron 4 y 2,3 segundos. Por eso el
