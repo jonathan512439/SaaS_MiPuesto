@@ -350,6 +350,53 @@ sería el mismo listado dos veces.
 
 # Historial
 
+- **Fase 14, pasos 1 a 6: productos sin precio** (`docs/plan/11-PRODUCTOS-SIN-PRECIO.md`),
+  en la rama `fase-14-productos-sin-precio`. **Sin aplicar ni desplegar**: falta
+  la prueba a mano en producción.
+  - **Base** (`20261121090000`, `0ff2f15`): `precio` admite nulo; nulo o 0 es
+    sin precio. `crear_pedido_reservado` rechaza el renglón con
+    `PRODUCTO_SIN_PRECIO` (también la talla con precio propio de un producto
+    sin precio base); `calcular_precio_producto` devuelve nulo —antes,
+    `greatest(0, null)` daba 0 y el pedido habría salido en Bs 0—; el ajuste
+    masivo los salta. Probada en ensayo con `npm run test:sin-precio:ensayo` y
+    rota cuatro veces (sin la migración, con la función de pedidos, el ajuste y
+    la promoción de antes). En ensayo, además, en verde: `ensayo:rls`,
+    `test:alta-columnas`, `test:visitante`, `test:notas-pedido`,
+    `test:ajuste-precios`, `test:fase13`, `test:fase13:motor`,
+    `test:tallas-cuenta`, `test:tope-unidades`, `test:estado-existencias`,
+    `test:topes-plan` y `test:esquema`.
+  - **Lógica** (`90e7bbc`): `tienePrecio` en `lib/precios.ts` es la única regla.
+    La plantilla recibe `precio: null`, no un número, para que ninguna pantalla
+    pueda dibujar «Bs 0». Los turnos sin precio no se agendan: lo frena
+    `obtenerProductoAgendable`, que es la única puerta de las citas del
+    visitante (no hace falta tocar la base: `anon` no inserta en `citas`).
+  - **Catálogo** (`7ae1826`): tarjeta, ficha, página, imagen para compartir y
+    menú para imprimir, sin precio y sin decir que falta; «Consultar por
+    WhatsApp» en las tres modalidades. En la tarjeta va con palabras —sin precio
+    al lado sobra el sitio— salvo en la vitrina, donde va el ícono sobre la foto.
+    Ícono nuevo, `whatsapp` (el globo de Lucide). El carrito suelta lo que
+    perdió el precio y lo dice. La prueba de dibujo
+    (`productos-sin-precio.render.test.ts`, 42 casos) mira el HTML entero, rota
+    cinco veces.
+  - **Panel** (`a62475f`, `4de6288`): precio opcional, «Sin precio» escrito en
+    la fila, precio desde la fila (PATCH con solo `id` y `precio`), filtro
+    «Sin precio (N)», aviso de la decisión 4 en el editor de tallas, aviso en
+    Inicio y Promociones sin productos sin precio. **Dos desvíos del plan**: el
+    filtro de estado no vivía en la dirección, así que ahora lee y escribe
+    `?filtro=` (es lo que deja llegar desde Inicio); y el enlace de Inicio dice
+    «Ponles precio» sin la flecha del plan, que DESIGN.md §3 prohíbe. Apariencia
+    no cambió: su vista previa usa datos de muestra y la misma tarjeta.
+  - **Importación y exportación** (`2ae4ee4`): la revisión crea marcados los sin
+    precio; la planilla ya no descarta la fila sin precio, y reconoce la
+    cabecera por sus títulos cuando ninguna fila trae precio (si no, «Producto»
+    se habría creado como producto); exportar deja la celda vacía.
+  - **Una falla de antes, corregida aparte** (`098967b`): el panel rechazaba
+    19,99, 1,15 o 4,35 con «admite como máximo dos decimales» —igualdad en coma
+    flotante—. Comprobado con la validación que está en producción.
+  - Al cerrar: `npm run verificar` con 1613 pruebas, y `npm run
+    test:rls:linked` en verde contra producción (registro cerrado, estructura y
+    recorrido de aislamiento).
+
 Lo que sigue es el registro del ciclo anterior. Se conserva como evidencia y no se edita.
 
 > Varias entradas citan archivos que ya no existen —`planning-mipuesto-v2.md`,
