@@ -108,7 +108,8 @@
     "test:dos-banners:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/dos-banners.sql",
     "test:estado-existencias:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/estado-sigue-existencias.sql",
     "test:alta-columnas:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/el-dueno-no-elige-su-plan.sql",
-    "test:visitante:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/el-visitante-lee-solo-lo-publicado.sql"
+    "test:visitante:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/el-visitante-lee-solo-lo-publicado.sql",
+    "test:sin-precio:ensayo": "node --env-file-if-exists=.env.local scripts/ensayo.mjs estructura supabase/tests/remote/productos-sin-precio.sql"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.5",

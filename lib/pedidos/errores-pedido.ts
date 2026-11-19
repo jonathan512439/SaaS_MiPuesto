@@ -21,6 +21,14 @@ export const ERRORES_PEDIDO: Record<string, { estado: number; mensaje: string }>
     estado: 409,
     mensaje: "Uno de los productos ya no está disponible. Actualiza el catálogo.",
   },
+  /* Fase 14. Un producto sin precio se consulta y no se pide; llega si el
+     carrito quedó guardado de antes de que el dueño quitara el precio. Como
+     todo lo que ve el cliente, no dice que le falta precio. */
+  PRODUCTO_SIN_PRECIO: {
+    estado: 409,
+    mensaje:
+      "Uno de los productos ya no se pide por el carrito: consúltalo por WhatsApp desde el catálogo.",
+  },
   /* Fase 13. Llegan cuando el catálogo que tiene abierto el comprador es
      anterior a un cambio del dueño: una talla nueva, una que se ocultó. */
   PRESENTACION_REQUERIDA: {
