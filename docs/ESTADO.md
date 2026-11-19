@@ -71,17 +71,16 @@ se vacía, el vigilante avisa.
 
 ## Lo que falta, en orden
 
-1. **Cerrar la auditoría de seguridad del 2026-11-15** (`SECURITY.md`). La
-   base ya está: el registro está cerrado (`test:registro:linked` pasa), las
-   dos migraciones están en producción y `test:alta-columnas:ensayo` y
-   `test:visitante:ensayo` pasan en ensayo. **Falta el código**: la rama
-   `auditoria-seguridad-2026-11-15` no se unió a `main`. `ensayo:estructura`
-   sin archivo falla por la herramienta y no por la base: con `--db-url`, el
-   pooler no acepta las varias sentencias de `fase2-audit.sql` en una
-   consulta; el mismo archivo pasa contra producción con `--linked`.
+1. **La auditoría de seguridad del 2026-11-15 está cerrada**: el registro está
+   cerrado (`test:registro:linked` pasa), las dos migraciones están en
+   producción, sus pruebas pasan en ensayo y el código se unió a `main` el
+   2026-11-18 (`2e7aefc`). Queda una nota de la herramienta:
+   `ensayo:estructura` sin archivo falla con `--db-url`, porque el pooler no
+   acepta las varias sentencias de `fase2-audit.sql` en una consulta; el mismo
+   archivo pasa contra producción con `--linked`.
 2. **Fase 14, productos sin precio** (`docs/plan/11-PRODUCTOS-SIN-PRECIO.md`):
    pasos 1 a 6 hechos en la rama `fase-14-productos-sin-precio`, que sale de
-   la de la auditoría. Falta aplicar `20261121090000` a producción, después
+   `main` con la auditoría ya unida. Falta aplicar `20261121090000` a producción, después
    el código, y la prueba a mano con el PDF de Ferrovolt (paso 7).
 3. **Workers Paid** (5 dólares al mes), antes del piloto. Con el plan gratuito,
    un catálogo que se arma en cada visita pasa los 10 ms de CPU; la portada
